@@ -14,6 +14,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import GameObjects.*;
+import GameObjects.Blocks.Direction;
+import GameObjects.Blocks.Block;
+import GameObjects.Blocks.BlockCore;
+import java.util.ConcurrentModificationException;
 
 /**
  * this is the part of the screen that you look at while playing and that
@@ -32,6 +36,7 @@ public class Game extends Canvas implements Runnable {
     public Window window;
     public Input input;
     public Player player;
+    public static BlockCore testCore; ///for testing blocks
     
     public Game() {
         this.width = 700;
@@ -49,6 +54,13 @@ public class Game extends Canvas implements Runnable {
     public void Setup() {
          player = new Player(100,100);
          handler.storage.add(player);             ///creates the main character
+         testCore = new BlockCore(300,300);
+         handler.storage.add(testCore);
+         //new Block(testCore,AttachmentDirection.Top);
+         new Block(testCore,Direction.Top);
+         new Block(testCore,Direction.Bottom);
+         new Block(testCore,Direction.Left);
+         new Block(testCore,Direction.Right);
     }
 
     //core tick, tells all game Objects to tick
@@ -110,7 +122,11 @@ public class Game extends Canvas implements Runnable {
                 delta--;
             }
             if (running) {
+                try{
                 this.render();
+                }catch(ConcurrentModificationException cme){
+                    System.out.println("cme render");
+                }
             }
             frames++;
             if (System.currentTimeMillis() - timer > 1000) {
@@ -118,7 +134,6 @@ public class Game extends Canvas implements Runnable {
                 System.out.println("FPS: " + frames);
                 frames = 0;
                 ///this triggers once a second
-
             }
         }
         stop();
