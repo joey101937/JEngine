@@ -5,7 +5,7 @@
  */
 package GameObjects;
 
-import Template.Game;
+import Framework.Game;
 
 /**
  * this class when started, makes all the gameobjects play their animations

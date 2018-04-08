@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Template;
+package Framework;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -14,9 +14,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import GameObjects.*;
-import GameObjects.Blocks.Direction;
-import GameObjects.Blocks.Block;
-import GameObjects.Blocks.BlockCore;
 import java.util.ConcurrentModificationException;
 
 /**
@@ -36,9 +33,10 @@ public class Game extends Canvas implements Runnable {
     public Window window;
     public Input input;
     public Player player;
-    public static BlockCore testCore; ///for testing blocks
+    public static Game mainGame; //main game instance
     
     public Game() {
+        mainGame = this;
         this.width = 700;
         this.height = 700;
         window = new Window(this);
@@ -54,13 +52,7 @@ public class Game extends Canvas implements Runnable {
     public void Setup() {
          player = new Player(100,100);
          handler.storage.add(player);             ///creates the main character
-         testCore = new BlockCore(300,300);
-         handler.storage.add(testCore);
          //new Block(testCore,AttachmentDirection.Top);
-         new Block(testCore,Direction.Top);
-         new Block(testCore,Direction.Bottom);
-         new Block(testCore,Direction.Left);
-         new Block(testCore,Direction.Right);
     }
 
     //core tick, tells all game Objects to tick
@@ -154,6 +146,18 @@ public class Game extends Canvas implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * adds object to the world, the object will be located at whatever x/y coordinates it has
+     * @param o object to add
+     */
+    public void addObject(GameObject o){
+        handler.storage.add(o);
+    }
+    
+    public void removeObject(GameObject o){
+        o.destroy();
     }
 
 }

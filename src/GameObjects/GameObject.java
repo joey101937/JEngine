@@ -8,8 +8,9 @@ package GameObjects;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import Template.Game;
-import Template.Main;
+import Framework.Game;
+import Framework.Main;
+import java.util.Iterator;
 
 /**
  * A game object is everything that will go in the game. it ticks (does somthing every frame)
@@ -27,6 +28,7 @@ public abstract class GameObject {
     public int toRender;
     public int x , y, velX, velY, speed;       //X/Y coordinates and X/Y velocity
     public int width, height;                  //length and width
+    public boolean isAlive = true;      
     public String name;                     //used to identify what kind of gameobject this is
     /**
      * constructor that takes two ints for x and y coordinates
@@ -90,4 +92,21 @@ public abstract class GameObject {
      * @param go what we collided with
      */
     public abstract void collide(GameObject go);
+
+    /**
+     * removes object from the game
+     */
+    public void destroy() {
+        isAlive = false;
+        Iterator<GameObject> it = Game.handler.storage.iterator();
+        while (Game.handler.storage.contains(this)) {
+            try {
+                Game.handler.storage.remove(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("CME from removing");
+            }
+        }
+
+    }
 }

@@ -5,7 +5,7 @@
  */
 package GameObjects;
 
-import Template.Main;
+import Framework.Main;
 import java.awt.image.BufferedImage;
 
 /**

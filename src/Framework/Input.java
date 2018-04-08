@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Template;
+package Framework;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -43,6 +43,10 @@ public class Input implements KeyListener{
                 break;
             case 'D':
                 player .velX = player.speed;
+                break;
+            case 'Z':
+                //Z key used to test destroy method
+                Game.mainGame.player.destroy();
                 break;
         }
     }
