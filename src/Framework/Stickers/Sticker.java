@@ -50,7 +50,6 @@ public class Sticker implements Runnable{
         }
     }
 
-     double rote = 0;
     public synchronized void render(Graphics2D g) {
         centerCoordinate(image);
         if (spawnLocation.x < 0 || spawnLocation.y < 0) {
@@ -59,12 +58,9 @@ public class Sticker implements Runnable{
         if (!disabled) {
             if (image != null) {
 
-                g.rotate(rote+=.01, spawnLocation.x, spawnLocation.y);
+                
                 g.drawImage(image, renderLocation.x, renderLocation.y, null);
-                g.rotate(-rote, spawnLocation.x, spawnLocation.y);
-                System.out.println(rote);
-               ///TESTING ROTATION, REMOVE LATER
-               //g.drawImage(image, renderLocation.x, renderLocation.y, null);
+                             
             }
         }
     }

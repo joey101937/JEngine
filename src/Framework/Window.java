@@ -17,7 +17,7 @@ public class Window {
     /*  FIELDS  */
     public static JPanel panel = new JPanel();
     public JFrame frame;
-    public String title = "Basic Platformer";
+    public String title = "Window Name";
     
     public Window(Game g){
         frame = new JFrame(title);

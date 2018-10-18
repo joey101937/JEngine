@@ -29,7 +29,7 @@ public abstract class SpriteManager {
            //this is where we load sprites
            explosionSequence = loadSequence("explosionSequence");
            birdySequence = loadSequence("birdySequence");
-           up = load("UpSPrite.png");
+           up = load("upSprite.png");
            
            initialized=true;
         }catch(Exception e){
@@ -58,7 +58,12 @@ public abstract class SpriteManager {
     private static BufferedImage[] loadSequence(String filename) throws IOException{
         filename = Main.assets + filename;
         ArrayList<BufferedImage> a = new ArrayList<>();
-        for(File child : new File(filename).listFiles()){
+        ArrayList<File> children = new ArrayList<>();
+        for(File f : new File(filename).listFiles()){
+            children.add(f);
+        }
+        children.sort(null);
+        for(File child : children){
             System.out.println("loading " + child.getPath().substring(6)); //to remove the redundant /Assets
            a.add(load(child.getPath().substring(6)));
         }

@@ -51,10 +51,11 @@ public class Game extends Canvas implements Runnable {
      * use this method to set starting objects etc
      */
     public void Setup() {
+        
          GameObject2 tester = new GameObject2(new Coordinate(100,500));
          //tester.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
          tester.setAnimationFalse(SpriteManager.up);
-         new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(200,200),60000);
+         new AnimatedSticker(SpriteManager.birdySequence,new Coordinate(200,200),60000);
          tester.setRotation(DCoordinate.angleFrom(tester.location, new DCoordinate(200,200)));
          visHandler.addLine(tester.getPixelLocation(), new Coordinate(200,200));
          this.addObject(tester);
@@ -117,6 +118,7 @@ public class Game extends Canvas implements Runnable {
         long timer = System.currentTimeMillis();
         int frames = 0;
         while (running) {
+            Main.wait(Main.tickDelay);
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;

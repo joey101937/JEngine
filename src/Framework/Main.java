@@ -21,7 +21,7 @@ public class Main {
 
     /* FIELDS */
     public static String assets = "Assets" + File.separator;
-
+    public static int tickDelay = 5;
     /**
      * @param args the command line arguments
      */
