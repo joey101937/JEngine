@@ -45,12 +45,30 @@ public class Input implements KeyListener{
                 Game.testObject.setRotation(DCoordinate.angleFrom(Game.testObject.location, new DCoordinate(200, 200)));
                 visHandler.addLine(Game.testObject.getPixelLocation(), new Coordinate(200, 200));
                 break;
+            case 'U':
+                System.out.println("U");
+                Camera.yVel+=1;
+                break;
+            case 'J':
+                System.out.println("J");
+                Camera.yVel-=1;
+                break;
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case 'U':
+                System.out.println("U");
+                Camera.yVel = 0;
+                break;
+            case 'J':
+                System.out.println("J");
+                Camera.yVel = 0;
+                break;
 
+        }
     }
 
 }

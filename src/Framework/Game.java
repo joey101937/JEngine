@@ -83,6 +83,7 @@ public class Game extends Canvas implements Runnable {
         Graphics2D g2d = (Graphics2D)g;
         g2d.setColor(Color.GREEN);
 
+        Camera.render(g2d);
         this.renderBackGround(g2d);
         handler.render(g2d);
         visHandler.render(g2d);
