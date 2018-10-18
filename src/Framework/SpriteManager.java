@@ -18,10 +18,16 @@ import javax.imageio.ImageIO;
 public abstract class SpriteManager {
 
     public static boolean initialized = false;
-
+    /*--------------------------------------------------------*/
+    public static BufferedImage[] explosionSequence;
+    public static BufferedImage[] birdySequence;
+    /*--------------------------------------------------------*/
+    
     public static void initialize(){
         try{
            //this is where we load sprites
+           explosionSequence = loadSequence("explosionSequence");
+           birdySequence = loadSequence("birdySequence");
             initialized=true;
         }catch(Exception e){
             e.printStackTrace();

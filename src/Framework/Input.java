@@ -16,10 +16,9 @@ import GameObjects.*;
 public class Input implements KeyListener{
     //FIELDS
     public Game hostGame;
-    public Player player;
     public Input(Game x){
         hostGame = x;
-        player = x.player;
+        
     }
     
     
@@ -33,44 +32,15 @@ public class Input implements KeyListener{
     public void keyPressed(KeyEvent e) {
         switch(e.getKeyCode()){
             case 'W':
-                player.velY = -player.speed;
-                break;
-            case 'S': 
-                player.velY = player.speed;
-                break;
-            case 'A':
-                player.velX = player.speed*-1;
-                break;
-            case 'D':
-                player .velX = player.speed;
-                break;
-            case 'Z':
-                //Z key used to test destroy method
-                Game.mainGame.player.destroy();
+                System.out.println("pressed W");
+                
                 break;
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-         switch (e.getKeyCode()) {
-            case 'W':
-                player.velY = 0;
-                break;
-            case 'S':
-                player.velY = 0;
-                break;
-            case 'A':
-                if (player.velX < 0) {
-                    player.velX = 0;
-                }
-                break;
-            case 'D':
-                if (player.velX > 0) {
-                    player.velX = 0;
-                }
-                break;
-        }
+        
     }
 
 }

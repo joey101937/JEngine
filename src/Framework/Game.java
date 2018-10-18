@@ -5,6 +5,7 @@
  */
 package Framework;
 
+import Framework.Stickers.AnimatedSticker;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -29,10 +30,10 @@ public class Game extends Canvas implements Runnable {
     private boolean running = false;
     public BufferedImage backgroundImage;
     public static Handler handler = new Handler();
+    public static VisualEffectHandler visHandler = new VisualEffectHandler();
     public static int width, height;
     public Window window;
     public Input input;
-    public Player player;
     public static Game mainGame; //main game instance
     
     public Game() {
@@ -49,8 +50,11 @@ public class Game extends Canvas implements Runnable {
      * use this method to set starting objects etc
      */
     public void Setup() {
-         player = new Player(100,100);
-         handler.storage.add(player);             ///creates the main character
+         GameObject2 tester = new GameObject2(new Coordinate(100,100));
+         tester.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
+         new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(200,200),6000);
+         this.addObject(tester);
+         //handler.storage.add(null);             ///creates the main character
          //new Block(testCore,AttachmentDirection.Top);
     }
 
@@ -61,7 +65,9 @@ public class Game extends Canvas implements Runnable {
 
     //core render method, tells all game Objects to render
     private void render() {
-
+        if(!SpriteManager.initialized){
+            SpriteManager.initialize();
+        }
         BufferStrategy bs = this.getBufferStrategy();
 
         if (bs == null) { ///run once at the start
@@ -69,12 +75,14 @@ public class Game extends Canvas implements Runnable {
             return;
         }
         Graphics g = bs.getDrawGraphics();
-        g = (Graphics2D) g;
-        g.setColor(Color.GREEN);
+        Graphics2D g2d = (Graphics2D)g;
+        g2d.setColor(Color.GREEN);
 
-        this.renderBackGround(g);
-        handler.render(g);
+        this.renderBackGround(g2d);
+        handler.render(g2d);
+        visHandler.render(g2d);
         g.dispose();
+        g2d.dispose();
 
         bs.show();
     }
@@ -151,11 +159,11 @@ public class Game extends Canvas implements Runnable {
      * adds object to the world, the object will be located at whatever x/y coordinates it has
      * @param o object to add
      */
-    public void addObject(GameObject o){
+    public void addObject(GameObject2 o){
         handler.storage.add(o);
     }
     
-    public void removeObject(GameObject o){
+    public void removeObject(GameObject2 o){
         o.destroy();
     }
 

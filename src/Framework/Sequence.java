@@ -21,18 +21,26 @@ public class Sequence {
     public Animator animator = new Animator(this);
     
     
-    public BufferedImage getCurrentFrame(){
+    public BufferedImage getCurrentFrame() {
+        if(frames==null){
+            return null;
+        }
         BufferedImage output = frames[currentFrameIndex];
-        if(output==null && currentFrameIndex!=0){
-            currentFrameIndex=0;
+        if (output == null && currentFrameIndex != 0) {
+            currentFrameIndex = 0;
             return getCurrentFrame();
         }
         return output;
     }
-    
-    public void startAnimating(){ 
-        animator.animating=true;
-        animator.thread.start();
+    /**
+     * we have this method so that unused sequences dont hurt performance by
+     * running animation threads when they have yet to be rendered
+     */
+    public void startAnimating() {
+        if (animator.animating == false) {
+            animator.animating = true;
+            animator.thread.start(); 
+        }       
     }
     
     public Sequence(BufferedImage[] input){
@@ -54,6 +62,7 @@ public class Sequence {
 
         @Override
         public void run() {
+            System.out.println("seq running");
             while(animating && !mySequence.disabled){
                 Main.wait(mySequence.frameDelay);
                 mySequence.currentFrameIndex++;

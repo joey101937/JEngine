@@ -83,10 +83,11 @@ public class GameObject2 {
         g.rotate(Math.toRadians(rotation),getPixelLocation().x,getPixelLocation().y);
         if(isAnimated){
             if(sequence == null){
-                System.out.println("Warning trying to render null sequence " +name);
+                System.out.println("Warning trying to render null sequence object" +name);
                 return;
             }
             if(sequence.getCurrentFrame()!=null){
+                sequence.startAnimating();
                 BufferedImage toRender = sequence.getCurrentFrame();
                 g.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
             }else{
@@ -99,7 +100,6 @@ public class GameObject2 {
                 System.out.println("Warning: unanimated game object sprite is null " + name);
             }
         }
-        
         g.setTransform(old); //reset rotation for next item to render
     }
     
@@ -119,7 +119,9 @@ public class GameObject2 {
         isAnimated = true;
     }
     
-   
+    public void tick(){
+        
+    }
     
     public GameObject2(Coordinate c){
       init(new DCoordinate(c));
@@ -129,5 +131,9 @@ public class GameObject2 {
     }
     private void init(DCoordinate dc){
         location = dc;
+    }
+    
+    public void destroy(){
+        //todo
     }
 }
