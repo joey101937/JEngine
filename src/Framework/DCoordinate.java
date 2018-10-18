@@ -91,7 +91,7 @@ public class DCoordinate {
             double opposite = 0.0;
             adjacent = end.x - start.x;
             opposite = end.y - start.y;
-            double angle = Math.toDegrees(Math.atan2(opposite, adjacent));
+            double angle = Math.toDegrees(Math.atan2(opposite, adjacent)) + 90;
             return angle;
         }
     }
