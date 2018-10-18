@@ -19,6 +19,7 @@ public abstract class SpriteManager {
 
     public static boolean initialized = false;
     /*--------------------------------------------------------*/
+    public static BufferedImage up;
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] birdySequence;
     /*--------------------------------------------------------*/
@@ -28,7 +29,9 @@ public abstract class SpriteManager {
            //this is where we load sprites
            explosionSequence = loadSequence("explosionSequence");
            birdySequence = loadSequence("birdySequence");
-            initialized=true;
+           up = load("UpSPrite.png");
+           
+           initialized=true;
         }catch(Exception e){
             e.printStackTrace();
             Main.display("Error loading all assets. Please Verify Assets folder.");

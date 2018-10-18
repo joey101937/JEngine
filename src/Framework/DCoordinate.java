@@ -73,4 +73,22 @@ public class DCoordinate {
     public static Coordinate sum(Coordinate a, Coordinate b){
         return new Coordinate(a.x+b.x,a.y+b.y);
     }
+    
+    public static Double angleFrom(DCoordinate start, DCoordinate end){
+        if(end.x==start.x){
+            //on top of eachother
+            if(end.y<start.y){
+                return 0.0; //directly up
+            }else{
+                return 180.0; //directly down
+            }
+        }else{
+            double adjacent = 0.0;
+            double opposite = 0.0;
+            adjacent = end.x - start.x;
+            opposite = end.y - start.y;
+            double angle = Math.toDegrees(Math.atan2(opposite, adjacent));
+            return angle;
+        }
+    }
 }

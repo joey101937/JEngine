@@ -35,6 +35,7 @@ public class Game extends Canvas implements Runnable {
     public Window window;
     public Input input;
     public static Game mainGame; //main game instance
+    public static GameObject2 testObject = null;
     
     public Game() {
         mainGame = this;
@@ -50,12 +51,15 @@ public class Game extends Canvas implements Runnable {
      * use this method to set starting objects etc
      */
     public void Setup() {
-         GameObject2 tester = new GameObject2(new Coordinate(100,100));
-         tester.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
-         new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(200,200),6000);
+         GameObject2 tester = new GameObject2(new Coordinate(100,500));
+         //tester.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
+         tester.setAnimationFalse(SpriteManager.up);
+         new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(200,200),60000);
+         tester.setRotation(DCoordinate.angleFrom(tester.location, new DCoordinate(200,200)));
+         visHandler.addLine(tester.getPixelLocation(), new Coordinate(200,200));
          this.addObject(tester);
-         //handler.storage.add(null);             ///creates the main character
-         //new Block(testCore,AttachmentDirection.Top);
+         Game.testObject = tester;
+        
     }
 
     //core tick, tells all game Objects to tick
@@ -66,7 +70,7 @@ public class Game extends Canvas implements Runnable {
     //core render method, tells all game Objects to render
     private void render() {
         if(!SpriteManager.initialized){
-            SpriteManager.initialize();
+            System.out.println("WARNING: SpriteManager did not fully initialize");
         }
         BufferStrategy bs = this.getBufferStrategy();
 

@@ -5,6 +5,7 @@
  */
 package Framework;
 
+import static Framework.Game.visHandler;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import GameObjects.*;
@@ -33,14 +34,23 @@ public class Input implements KeyListener{
         switch(e.getKeyCode()){
             case 'W':
                 System.out.println("pressed W");
-                
+                break;
+            case 'D':
+                Game.testObject.location.x += 25;
+                Game.testObject.setRotation(DCoordinate.angleFrom(Game.testObject.location, new DCoordinate(200, 200)));
+                visHandler.addLine(Game.testObject.getPixelLocation(), new Coordinate(200, 200));
+                break;
+            case 'A':
+                 Game.testObject.location.x -= 25;
+                Game.testObject.setRotation(DCoordinate.angleFrom(Game.testObject.location, new DCoordinate(200, 200)));
+                visHandler.addLine(Game.testObject.getPixelLocation(), new Coordinate(200, 200));
                 break;
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        
+
     }
 
 }

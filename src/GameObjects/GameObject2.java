@@ -109,6 +109,7 @@ public class GameObject2 {
      */
     public void setAnimationFalse(BufferedImage image){
         isAnimated = false;
+        sprite = image;
     }
     /**
      * sets the object to animate through its sequence
