@@ -47,11 +47,17 @@ public class Input implements KeyListener{
                 break;
             case 'U':
                 System.out.println("U");
-                Camera.yVel+=1;
+                Camera.yVel=1;
                 break;
             case 'J':
                 System.out.println("J");
-                Camera.yVel-=1;
+                Camera.yVel=-1;
+                break;
+            case 'H':
+                Camera.xVel = 1;
+                break;
+            case 'K':
+                Camera.xVel = -1;
                 break;
         }
     }
@@ -60,14 +66,17 @@ public class Input implements KeyListener{
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
             case 'U':
-                System.out.println("U");
                 Camera.yVel = 0;
                 break;
             case 'J':
-                System.out.println("J");
                 Camera.yVel = 0;
                 break;
-
+            case 'H':
+                Camera.xVel = 0;
+                break;
+            case 'K':
+                Camera.xVel = 0;
+                break;
         }
     }
 

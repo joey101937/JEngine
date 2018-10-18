@@ -5,7 +5,6 @@
  */
 package Framework;
 
-import Framework.Stickers.AnimatedSticker;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -51,7 +50,7 @@ public class Game extends Canvas implements Runnable {
      * use this method to set starting objects etc
      */
     public void Setup() {
-        
+        /*
          GameObject2 tester = new GameObject2(new Coordinate(100,500));
          //tester.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
          tester.setAnimationFalse(SpriteManager.up);
@@ -60,7 +59,15 @@ public class Game extends Canvas implements Runnable {
          visHandler.addLine(tester.getPixelLocation(), new Coordinate(200,200));
          this.addObject(tester);
          Game.testObject = tester;
-        
+        */
+        for(int i =0; i < 30; i++){
+            double x = Math.random()*3600.0;
+            double y = Math.random()*2900.0;
+            DCoordinate location = new DCoordinate(x,y);
+            GameObject2 obj = new GameObject2(location);
+            obj.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
+            this.addObject(obj);
+        }
     }
 
     //core tick, tells all game Objects to tick
@@ -100,7 +107,8 @@ public class Game extends Canvas implements Runnable {
     public void renderBackGround(Graphics g) {
         try {
             if (backgroundImage == null) {
-                backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "Platformbg.png"));
+               // backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "Platformbg.png"));
+               backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png"));
             }
             g.drawImage(backgroundImage, 0, 0, null);
         } catch (Exception e) {

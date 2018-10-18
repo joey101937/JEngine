@@ -36,6 +36,10 @@ public class DCoordinate {
         this.x = x;
         this.y = y;
     }
+    public DCoordinate(double x,double y){
+        this.x=x;
+        this.y=y;
+    }
     
     @Override
     public String toString(){
