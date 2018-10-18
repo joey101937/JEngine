@@ -43,7 +43,6 @@ public class Game extends Canvas implements Runnable {
         Setup();
         input = new Input(this);
         this.addKeyListener(input);      
-        Animator.start();
     }
 
     /**

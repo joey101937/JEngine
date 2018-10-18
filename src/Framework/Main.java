@@ -7,6 +7,8 @@ package Framework;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
@@ -30,6 +32,13 @@ public class Main {
     /**
      * ** UTILITY METHODS                ***
      */
+    public static void wait(int duration){
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+    }
     /**
      * returns the string directory of where the program was launched with a
      * directory separator on the end
