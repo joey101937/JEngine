@@ -22,6 +22,7 @@ public abstract class SpriteManager {
     public static BufferedImage up;
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] birdySequence;
+    public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
     /*--------------------------------------------------------*/
     
     public static void initialize(){
@@ -30,6 +31,11 @@ public abstract class SpriteManager {
            explosionSequence = loadSequence("explosionSequence");
            birdySequence = loadSequence("birdySequence");
            up = load("upSprite.png");
+           sampleChar_idle = loadSequence("SampleCharacter/Idle");
+           sampleChar_walkUp = loadSequence("SampleCharacter/WalkUp");
+           sampleChar_walkDown = loadSequence("SampleCharacter/WalkDown");
+           sampleChar_walkLeft = loadSequence("SampleCharacter/WalkLeft");
+           sampleChar_walkRight = loadSequence("SampleCharacter/WalkRight");
            
            initialized=true;
         }catch(Exception e){

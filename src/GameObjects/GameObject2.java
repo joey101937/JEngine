@@ -23,9 +23,9 @@ public class GameObject2 {
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
     public DCoordinate velocity = new DCoordinate(0,0); //added to location each tick
     private boolean isAnimated = false;
-    public Sequence sequence = null; //animation sequence to run if animated
+    protected Sequence sequence = null; //animation sequence to run if animated
     public BufferedImage sprite = null; //static sprite if not animated
-    public Map<String,Sequence> Animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
+    public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0;
     
     
@@ -67,6 +67,14 @@ public class GameObject2 {
             return 0;
         }
     }
+    
+    public Sequence getCurrentSequence(){
+        return sequence;
+    }
+    public void setSequence(Sequence s){
+        if(sequence == s) return;
+        else sequence = s;
+    }
 
     public void setRotation(double degrees) {
         rotation = degrees;
@@ -88,7 +96,7 @@ public class GameObject2 {
         g.rotate(Math.toRadians(rotation),getPixelLocation().x,getPixelLocation().y);
         if(isAnimated){
             if(sequence == null){
-                System.out.println("Warning trying to render null sequence object" +name);
+                System.out.println("Warning trying to render null sequence object " +name);
                 return;
             }
             if(sequence.getCurrentFrame()!=null){
@@ -96,7 +104,7 @@ public class GameObject2 {
                 BufferedImage toRender = sequence.getCurrentFrame();
                 g.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
             }else{
-                System.out.println("Warning: null frame in sequence of" + name);
+                System.out.println("Warning: null frame in sequence of " + name);
             }
         }else{
             if(sprite!=null){

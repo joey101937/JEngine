@@ -50,16 +50,7 @@ public class Game extends Canvas implements Runnable {
      * use this method to set starting objects etc
      */
     public void Setup() {
-        /*
-         GameObject2 tester = new GameObject2(new Coordinate(100,500));
-         //tester.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
-         tester.setAnimationFalse(SpriteManager.up);
-         new AnimatedSticker(SpriteManager.birdySequence,new Coordinate(200,200),60000);
-         tester.setRotation(DCoordinate.angleFrom(tester.location, new DCoordinate(200,200)));
-         visHandler.addLine(tester.getPixelLocation(), new Coordinate(200,200));
-         this.addObject(tester);
-         Game.testObject = tester;
-        */
+        //this for-loop puts a bunch of randome birds on the screen for performance testing
         for(int i =0; i < 30; i++){
             double x = Math.random()*3600.0;
             double y = Math.random()*2900.0;
@@ -69,6 +60,9 @@ public class Game extends Canvas implements Runnable {
             this.addObject(obj);
             obj.velocity=new DCoordinate(.5,.5);
         }
+        SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
+        this.addObject(example);
+        testObject = example;
     }
 
     //core tick, tells all game Objects to tick

@@ -46,15 +46,19 @@ public class Input implements KeyListener{
         switch (e.getKeyCode()) {
             case 'W':
                 Camera.yVel = Camera.camSpeed;
+                Game.testObject.velocity.y = -4;
                 break;
             case 'D':
                 Camera.xVel = -Camera.camSpeed;
+                Game.testObject.velocity.x = 4;
                 break;
             case 'S':
                 Camera.yVel = -Camera.camSpeed;
+                Game.testObject.velocity.y = 4;
                 break;
             case 'A':
                 Camera.xVel = Camera.camSpeed;
+                Game.testObject.velocity.x = -4;
                 break;
         }
         
@@ -65,15 +69,19 @@ public class Input implements KeyListener{
         switch (e.getKeyCode()) {
             case 'W':
                 if(Camera.yVel>0)Camera.yVel = 0;
+                  Game.testObject.velocity.y = 0;
                 break;
             case 'S':
                if(Camera.yVel<0)Camera.yVel = 0;
+               Game.testObject.velocity.y = 0;
                 break;
             case 'A':
                 if(Camera.xVel>0)Camera.xVel = 0;
+                Game.testObject.velocity.x = 0;
                 break;
             case 'D':
                 if(Camera.xVel<0)Camera.xVel = 0;
+                Game.testObject.velocity.x = 0;
                 break;
         }
            switch (e.getKeyCode()) {
