@@ -21,6 +21,7 @@ import java.util.Map;
 public class GameObject2 {
     public String name= "Unnamed GameObject2";
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
+    public DCoordinate velocity = new DCoordinate(0,0); //added to location each tick
     private boolean isAnimated = false;
     public Sequence sequence = null; //animation sequence to run if animated
     public BufferedImage sprite = null; //static sprite if not animated
@@ -125,7 +126,11 @@ public class GameObject2 {
     }
     
     public void tick(){
-        
+        updateLocation();
+    }
+    
+    public void updateLocation(){
+        location.add(velocity);
     }
     
     public GameObject2(Coordinate c){
