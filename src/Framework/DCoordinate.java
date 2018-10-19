@@ -78,13 +78,31 @@ public class DCoordinate {
         return new Coordinate(a.x+b.x,a.y+b.y);
     }
     
+    public void add(DCoordinate other){
+        x+=other.x;
+        y+=other.y;
+    }
+        public void add(Coordinate other){
+        x+=other.x;
+        y+=other.y;
+    }
+    
+    
+    /**
+     * angle we must turn from start location (assuming no initial rotation) to
+     * 'face' the end location. Note we add 90 degrees because top of sprite is
+     *  considered the face of the sprite, remove that if the sprite is facing right
+     * @param start original point
+     * @param end point we want to look at
+     * @return angle to turn assuming top of sprite is forwards
+     */
     public static Double angleFrom(DCoordinate start, DCoordinate end){
         if(end.x==start.x){
             //on top of eachother
             if(end.y<start.y){
-                return 0.0; //directly up
+                return 0.0; //directly up or down
             }else{
-                return 180.0; //directly down
+                return 180.0;
             }
         }else{
             double adjacent = 0.0;

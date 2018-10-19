@@ -75,4 +75,13 @@ public class Coordinate {
     public static Coordinate sum(Coordinate a, Coordinate b){
         return new Coordinate(a.x+b.x,a.y+b.y);
     }
+    
+     public void add(DCoordinate other){
+        x+=other.x;
+        y+=other.y;
+    }
+        public void add(Coordinate other){
+        x+=other.x;
+        y+=other.y;
+    }
 }
