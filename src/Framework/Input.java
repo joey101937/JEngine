@@ -9,6 +9,7 @@ import static Framework.Game.visHandler;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import GameObjects.*;
+import javafx.scene.input.KeyCode;
 
 /**
  *
@@ -17,6 +18,8 @@ import GameObjects.*;
 public class Input implements KeyListener{
     //FIELDS
     public Game hostGame;
+    private double shiftSpeedMultiplier = 3.0;
+    private boolean isShiftDown = false;
     public Input(Game x){
         hostGame = x;
         
@@ -31,51 +34,56 @@ public class Input implements KeyListener{
 
     @Override
     public void keyPressed(KeyEvent e) {
-        switch(e.getKeyCode()){
-            case 'W':
-                System.out.println("pressed W");
-                break;
-            case 'D':
-                Game.testObject.location.x += 25;
-                Game.testObject.setRotation(DCoordinate.angleFrom(Game.testObject.location, new DCoordinate(200, 200)));
-                visHandler.addLine(Game.testObject.getPixelLocation(), new Coordinate(200, 200));
-                break;
-            case 'A':
-                 Game.testObject.location.x -= 25;
-                Game.testObject.setRotation(DCoordinate.angleFrom(Game.testObject.location, new DCoordinate(200, 200)));
-                visHandler.addLine(Game.testObject.getPixelLocation(), new Coordinate(200, 200));
-                break;
-            case 'U':
-                Camera.yVel=Camera.camSpeed;
-                break;
-            case 'J':
-                Camera.yVel=-Camera.camSpeed;
-                break;
-            case 'H':
-                Camera.xVel = Camera.camSpeed;
-                break;
-            case 'K':
-                Camera.xVel = -Camera.camSpeed;
+          switch(e.getKeyCode()){
+            case KeyEvent.VK_SHIFT:
+                if(isShiftDown)break;
+                Camera.xVel*=shiftSpeedMultiplier;
+                Camera.yVel*=shiftSpeedMultiplier;
+                isShiftDown = true;
+                System.out.println("shift down");
                 break;
         }
+        switch (e.getKeyCode()) {
+            case 'W':
+                Camera.yVel = Camera.camSpeed;
+                break;
+            case 'D':
+                Camera.xVel = -Camera.camSpeed;
+                break;
+            case 'S':
+                Camera.yVel = -Camera.camSpeed;
+                break;
+            case 'A':
+                Camera.xVel = Camera.camSpeed;
+                break;
+        }
+        
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case 'U':
-                Camera.yVel = 0;
+            case 'W':
+                if(Camera.yVel>0)Camera.yVel = 0;
                 break;
-            case 'J':
-                Camera.yVel = 0;
+            case 'S':
+               if(Camera.yVel<0)Camera.yVel = 0;
                 break;
-            case 'H':
-                Camera.xVel = 0;
+            case 'A':
+                if(Camera.xVel>0)Camera.xVel = 0;
                 break;
-            case 'K':
-                Camera.xVel = 0;
+            case 'D':
+                if(Camera.xVel<0)Camera.xVel = 0;
                 break;
         }
+           switch (e.getKeyCode()) {
+            case KeyEvent.VK_SHIFT:
+                Camera.xVel/=shiftSpeedMultiplier;
+                 Camera.yVel/=shiftSpeedMultiplier;
+                 isShiftDown = false;
+                break;
+        }
+
     }
 
 }
