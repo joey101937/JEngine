@@ -46,18 +46,16 @@ public class Input implements KeyListener{
                 visHandler.addLine(Game.testObject.getPixelLocation(), new Coordinate(200, 200));
                 break;
             case 'U':
-                System.out.println("U");
-                Camera.yVel=1;
+                Camera.yVel=Camera.camSpeed;
                 break;
             case 'J':
-                System.out.println("J");
-                Camera.yVel=-1;
+                Camera.yVel=-Camera.camSpeed;
                 break;
             case 'H':
-                Camera.xVel = 1;
+                Camera.xVel = Camera.camSpeed;
                 break;
             case 'K':
-                Camera.xVel = -1;
+                Camera.xVel = -Camera.camSpeed;
                 break;
         }
     }

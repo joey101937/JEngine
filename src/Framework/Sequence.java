@@ -25,10 +25,14 @@ public class Sequence {
         if(frames==null){
             return null;
         }
-        BufferedImage output = frames[currentFrameIndex];
-        if (output == null && currentFrameIndex != 0) {
-            currentFrameIndex = 0;
-            return getCurrentFrame();
+        BufferedImage output = null;
+        try{
+        output = frames[currentFrameIndex];
+        }catch(ArrayIndexOutOfBoundsException e){
+            if(currentFrameIndex!=0){
+                currentFrameIndex = 0;
+                return getCurrentFrame();
+            }
         }
         return output;
     }
@@ -62,7 +66,6 @@ public class Sequence {
 
         @Override
         public void run() {
-            System.out.println("seq running");
             while(animating && !mySequence.disabled){
                 Main.wait(mySequence.frameDelay);
                 mySequence.currentFrameIndex++;

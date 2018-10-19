@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
-/**
+/** 
  * Main class that runs the program and contains utility methods
  *
  * @author Joseph
@@ -21,7 +21,7 @@ public class Main {
 
     /* FIELDS */
     public static String assets = "Assets" + File.separator;
-    public static int tickDelay = 5;
+    public static int tickDelay = 7; //the higher this is the crappier the responce time but the better the performance
     /**
      * @param args the command line arguments
      */
@@ -43,7 +43,6 @@ public class Main {
     /**
      * returns the string directory of where the program was launched with a
      * directory separator on the end
-     *
      * @return the directory
      */
     public static String getDir() {

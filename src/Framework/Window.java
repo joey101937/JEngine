@@ -21,7 +21,7 @@ public class Window {
     
     public Window(Game g){
         frame = new JFrame(title);
-        Dimension d = new Dimension(700,700);
+        Dimension d = new Dimension(Game.worldWidth,Game.worldHeight);
         g.setBounds(0, 0, g.width, g.height);
         panel.setSize(d);
         panel.add(g);

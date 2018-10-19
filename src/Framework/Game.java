@@ -35,11 +35,11 @@ public class Game extends Canvas implements Runnable {
     public Input input;
     public static Game mainGame; //main game instance
     public static GameObject2 testObject = null;
-    
+    public static int worldWidth = 1200, worldHeight = 700;
     public Game() {
         mainGame = this;
-        this.width = 700;
-        this.height = 700;
+        this.width = worldWidth;
+        this.height = worldHeight;
         window = new Window(this);
         Setup();
         input = new Input(this);
@@ -108,7 +108,7 @@ public class Game extends Canvas implements Runnable {
         try {
             if (backgroundImage == null) {
                // backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "Platformbg.png"));
-               backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png"));
+               backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "giantBG.png"));
             }
             g.drawImage(backgroundImage, 0, 0, null);
         } catch (Exception e) {

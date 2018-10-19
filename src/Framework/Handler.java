@@ -15,7 +15,7 @@ import java.util.LinkedList;
  */
 public class Handler {
 
-    public LinkedList<GameObject2> storage = new LinkedList<>();
+    public volatile LinkedList<GameObject2> storage = new LinkedList<>();
 
     public void render(Graphics2D g) {
         for (GameObject2 go : storage) {

@@ -8,12 +8,13 @@ package Framework;
 import java.awt.Graphics2D;
 
 /**
- *
+ * Controls the viewing frame location for the user
  * @author joey
  */
 public class Camera {
     /**Topleft coordinate of the rendering window relative to topleft of canvas*/
     public static Coordinate location = new Coordinate(0,0); 
+    public static int camSpeed = 2;//how fast the camera moves
     public static int xVel, yVel;  //camera velocity. Change in position each render
     public static void render(Graphics2D g){
         g.translate(Camera.location.x, Camera.location.y);

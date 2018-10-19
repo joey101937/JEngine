@@ -74,7 +74,11 @@ public class GameObject2 {
     public void rotate(double degrees) {
         rotation += degrees;
     }
-    
+
+    public void lookAt(GameObject2 other) {
+        setRotation(DCoordinate.angleFrom(location, other.location));
+    }
+
     public void render(Graphics2D g){
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
@@ -112,7 +116,7 @@ public class GameObject2 {
         sprite = image;
     }
     /**
-     * sets the object to animate through its sequence
+     * sets the object to animate through a sequence
      * @param s sequence to begin rendering. may be changed later
      */
     public void setAnimationTrue(Sequence s){
