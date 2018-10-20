@@ -7,6 +7,7 @@ package GameObjects;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
+import Framework.Game;
 import Framework.Sequence;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -30,7 +31,10 @@ public class GameObject2 {
     public BufferedImage sprite = null; //static sprite if not animated
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0;
-    
+    public MovementType movementType = MovementType.SpeedRatio;
+    public static enum MovementType{
+    RawVelocity, SpeedRatio, ;
+    }
     
     /**
      * used to get integer location of object, used when rendering to screen
@@ -142,13 +146,30 @@ public class GameObject2 {
         tickNumber++;
     }
     
-    public void updateLocation(){
-        double delta = 0.0;
-        double totalVelocity = Math.abs(velocity.x) + Math.abs(velocity.y);
-        if(totalVelocity!=0)delta = speed/totalVelocity;
-        location.x += velocity.x*delta;
-        location.y += velocity.y*delta;
-        //location.add(velocity);
+    public void updateLocation() {
+        switch (movementType) {
+            case SpeedRatio:
+                double delta = 0.0;
+                double totalVelocity = Math.abs(velocity.x) + Math.abs(velocity.y);
+                if (totalVelocity != 0) {
+                    delta = (speed) / totalVelocity;
+                }
+                location.x += velocity.x * delta;
+                location.y += velocity.y * delta;
+                break;
+            case RawVelocity:
+                location.add(velocity);
+                break;
+        }
+        constrainToWorld();
+
+    }
+
+    public void constrainToWorld(){
+        if(location.x < 0) location.x=0;
+        if(location.y < 0) location.y=0;
+        if(location.x > Game.worldWidth - Game.worldBorder) location.x = Game.worldWidth- Game.worldBorder;
+        if(location.y > Game.worldHeight - Game.worldBorder) location.y = Game.worldHeight- Game.worldBorder;
     }
     
     public GameObject2(Coordinate c){

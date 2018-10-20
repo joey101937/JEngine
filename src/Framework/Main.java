@@ -5,6 +5,7 @@
  */
 package Framework;
 
+import GUI.OptionsMenu;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.logging.Level;
@@ -22,11 +23,13 @@ public class Main {
     /* FIELDS */
     public static String assets = "Assets" + File.separator;
     public static int renderDelay = 5; //the higher this is the crappier the responce time but the better the performance
+    public static boolean overviewMode = false;
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         SpriteManager.initialize();
+        OptionsMenu options = new OptionsMenu();
         Game game = new Game();
     }
 

@@ -5,6 +5,7 @@
  */
 package Framework;
 
+import Framework.Stickers.AnimatedSticker;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -24,6 +25,7 @@ import java.util.ConcurrentModificationException;
  */
 public class Game extends Canvas implements Runnable {
     /*  FIELDS   */
+    public static int ticksPerSecond = 60;
     private Thread thread = null;
     private boolean running = false;
     public BufferedImage backgroundImage;
@@ -34,15 +36,17 @@ public class Game extends Canvas implements Runnable {
     public Input input;
     public static Game mainGame; //main game instance
     public static GameObject2 testObject = null;
-    public static int worldWidth = 1200, worldHeight = 720;
+    public static int worldWidth = 3780, worldHeight = 3008;
+    public static int worldBorder = 100; //how far objects must stay from the world's edge in pixels
+    public static int windowWidth = 1920, windowHeight = 1080;
     public Game() {
         mainGame = this;
-        this.width = worldWidth;
-        this.height = worldHeight;
+        this.width = windowWidth;
+        this.height = windowHeight;
         window = new Window(this);
         Setup();
         input = new Input(this);
-        this.addKeyListener(input);      
+        this.addKeyListener(input);     
     }
 
     /**
@@ -62,6 +66,8 @@ public class Game extends Canvas implements Runnable {
         SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
         this.addObject(example);
         testObject = example;
+        
+        new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(400, Game.worldHeight-Game.windowHeight), 99999);
     }
 
     //core tick, tells all game Objects to tick
@@ -84,7 +90,8 @@ public class Game extends Canvas implements Runnable {
         Graphics g = bs.getDrawGraphics();
         Graphics2D g2d = (Graphics2D)g;
         g2d.setColor(Color.GREEN);
-
+        g2d.setBackground(Color.white);
+        if(Main.overviewMode)g2d.scale(.25, .25);
         Camera.render(g2d);
         this.renderBackGround(g2d);
         handler.render(g2d);
@@ -104,6 +111,8 @@ public class Game extends Canvas implements Runnable {
             if (backgroundImage == null) {
                // backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "Platformbg.png"));
                backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png"));
+               Game.worldHeight=backgroundImage.getHeight();
+               Game.worldWidth=backgroundImage.getWidth();
             }
             g.drawImage(backgroundImage, 0, 0, null);
         } catch (Exception e) {
@@ -116,7 +125,7 @@ public class Game extends Canvas implements Runnable {
     public void run() {
         this.requestFocus(); ///automatically selects window so you dont have to click on it
         long lastTime = System.nanoTime();
-        double amountOfTicks = 60;  //ticks per second
+        double amountOfTicks = Game.ticksPerSecond;  //ticks per second
         double ns = 1000000000 / amountOfTicks;
         double delta = 0;
         long timer = System.currentTimeMillis();

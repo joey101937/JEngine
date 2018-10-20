@@ -52,8 +52,9 @@ public class Input implements KeyListener{
             case 'Q':
                 for(GameObject2 go : Game.handler.storage){
                     System.out.println(go.tickNumber + " " + go.name);
-                    System.out.println(go.renderNumber + " " + go.name + " render.");
+                    System.out.println(go.renderNumber + " " + go.name + " render.");               
                 }
+                 System.out.println("Camera Tick: " + Camera.tickNumber);
                 break;
         }
         
