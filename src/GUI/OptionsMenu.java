@@ -39,6 +39,8 @@ public class OptionsMenu extends javax.swing.JFrame {
         OverviewLabel = new javax.swing.JLabel();
         overviewCheckbox = new javax.swing.JCheckBox();
         okButton = new javax.swing.JButton();
+        lowSpecButton = new javax.swing.JButton();
+        standardButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Options");
@@ -79,6 +81,20 @@ public class OptionsMenu extends javax.swing.JFrame {
             }
         });
 
+        lowSpecButton.setText("Low Spec Preset");
+        lowSpecButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lowSpecButtonActionPerformed(evt);
+            }
+        });
+
+        standardButton.setText("Standard Spec Preset");
+        standardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                standardButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -92,10 +108,6 @@ public class OptionsMenu extends javax.swing.JFrame {
                         .addGap(19, 19, 19)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(OverviewLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(overviewCheckbox))
-                            .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(tickPerSecondLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -106,7 +118,16 @@ public class OptionsMenu extends javax.swing.JFrame {
                                         .addGap(18, 18, 18)
                                         .addComponent(RenderDelaySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(39, 39, 39)
-                                .addComponent(okButton)))))
+                                .addComponent(okButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(OverviewLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(overviewCheckbox))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(62, 62, 62)
+                        .addComponent(lowSpecButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(standardButton)))
                 .addContainerGap(40, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -129,11 +150,14 @@ public class OptionsMenu extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(OverviewLabel)
                     .addComponent(overviewCheckbox))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lowSpecButton)
+                    .addComponent(standardButton))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         TickRateSpinner.getAccessibleContext().setAccessibleName("");
-        RenderDelaySpinner.getAccessibleContext().setAccessibleDescription("Increase to help performance");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -141,6 +165,16 @@ public class OptionsMenu extends javax.swing.JFrame {
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         dispose();
     }//GEN-LAST:event_okButtonActionPerformed
+
+    private void lowSpecButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowSpecButtonActionPerformed
+       this.RenderDelaySpinner.setValue(11);
+       this.TickRateSpinner.setValue(50);
+    }//GEN-LAST:event_lowSpecButtonActionPerformed
+
+    private void standardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_standardButtonActionPerformed
+        this.RenderDelaySpinner.setValue(5);
+       this.TickRateSpinner.setValue(60);
+    }//GEN-LAST:event_standardButtonActionPerformed
 
     public static void main(String[] args) {
         OptionsMenu test = new OptionsMenu();
@@ -158,9 +192,11 @@ public class OptionsMenu extends javax.swing.JFrame {
     private javax.swing.JLabel OverviewLabel;
     private javax.swing.JSpinner RenderDelaySpinner;
     private javax.swing.JSpinner TickRateSpinner;
+    private javax.swing.JButton lowSpecButton;
     private javax.swing.JButton okButton;
     private javax.swing.JCheckBox overviewCheckbox;
     private javax.swing.JLabel renderDelayLabel;
+    private javax.swing.JButton standardButton;
     private javax.swing.JLabel tickPerSecondLabel;
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables

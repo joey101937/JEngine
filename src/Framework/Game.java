@@ -15,6 +15,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import GameObjects.*;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.util.ConcurrentModificationException;
 
 /**
@@ -38,7 +40,8 @@ public class Game extends Canvas implements Runnable {
     public static GameObject2 testObject = null;
     public static int worldWidth = 3780, worldHeight = 3008;
     public static int worldBorder = 100; //how far objects must stay from the world's edge in pixels
-    public static int windowWidth = 1920, windowHeight = 1080;
+    public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+    public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
     public Game() {
         mainGame = this;
         this.width = windowWidth;
