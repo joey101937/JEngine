@@ -163,6 +163,7 @@ public class Game extends Canvas implements Runnable {
     //starts the main game
     public synchronized void start() {
         thread = new Thread(this);
+        thread.setName("Core Loop");
         thread.start();
         running = true;
     }

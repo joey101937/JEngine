@@ -23,7 +23,7 @@ public class Sticker implements Runnable{
     protected Coordinate renderLocation = new Coordinate(0,0);
     public boolean disabled = false;
     public int timeToRender;
-
+    protected static int numSticker = 0; //id for sticker, used for profiling threads
     /**
      * @param i Image to display
      * @param c location to display
@@ -35,6 +35,7 @@ public class Sticker implements Runnable{
         timeToRender = duration; //topleft location of sticker used to put center on spawnLocation
         Game.visHandler.stickers.add(this);
         Thread t = new Thread(this);
+        t.setName("Sticker timer " + numSticker++);
         t.start();
     }
     /**
@@ -57,8 +58,6 @@ public class Sticker implements Runnable{
         }
         if (!disabled) {
             if (image != null) {
-
-                
                 g.drawImage(image, renderLocation.x, renderLocation.y, null);
                              
             }

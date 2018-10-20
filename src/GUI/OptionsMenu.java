@@ -5,6 +5,7 @@
  */
 package GUI;
 
+import Framework.Camera;
 import Framework.Game;
 import Framework.Main;
 
@@ -41,6 +42,8 @@ public class OptionsMenu extends javax.swing.JFrame {
         okButton = new javax.swing.JButton();
         lowSpecButton = new javax.swing.JButton();
         standardButton = new javax.swing.JButton();
+        disableCamLabel = new javax.swing.JLabel();
+        disableCamCheck = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Options");
@@ -73,6 +76,11 @@ public class OptionsMenu extends javax.swing.JFrame {
         OverviewLabel.setToolTipText("Ticks Per Second");
 
         overviewCheckbox.setText("Enabled");
+        overviewCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                overviewCheckboxActionPerformed(evt);
+            }
+        });
 
         okButton.setText("OK");
         okButton.addActionListener(new java.awt.event.ActionListener() {
@@ -81,7 +89,7 @@ public class OptionsMenu extends javax.swing.JFrame {
             }
         });
 
-        lowSpecButton.setText("Low Spec Preset");
+        lowSpecButton.setText("Low Spec Preset (slow)");
         lowSpecButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lowSpecButtonActionPerformed(evt);
@@ -92,6 +100,17 @@ public class OptionsMenu extends javax.swing.JFrame {
         standardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 standardButtonActionPerformed(evt);
+            }
+        });
+
+        disableCamLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        disableCamLabel.setText("Disable Camera Movement");
+        disableCamLabel.setToolTipText("Ticks Per Second");
+
+        disableCamCheck.setText("Disabled");
+        disableCamCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                disableCamCheckActionPerformed(evt);
             }
         });
 
@@ -108,25 +127,30 @@ public class OptionsMenu extends javax.swing.JFrame {
                         .addGap(19, 19, 19)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(tickPerSecondLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(TickRateSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(renderDelayLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(RenderDelaySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(39, 39, 39)
-                                .addComponent(okButton))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(OverviewLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(disableCamLabel)
                                 .addGap(18, 18, 18)
-                                .addComponent(overviewCheckbox))))
+                                .addComponent(disableCamCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(OverviewLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(50, 50, 50)
+                                        .addComponent(overviewCheckbox))
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                            .addComponent(tickPerSecondLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(TickRateSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(layout.createSequentialGroup()
+                                            .addComponent(renderDelayLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(RenderDelaySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(39, 39, 39)
+                                .addComponent(okButton))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(62, 62, 62)
+                        .addGap(66, 66, 66)
                         .addComponent(lowSpecButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(standardButton)))
                 .addContainerGap(40, Short.MAX_VALUE))
         );
@@ -150,11 +174,15 @@ public class OptionsMenu extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(OverviewLabel)
                     .addComponent(overviewCheckbox))
-                .addGap(18, 18, 18)
+                .addGap(2, 2, 2)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(disableCamLabel)
+                    .addComponent(disableCamCheck))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lowSpecButton)
                     .addComponent(standardButton))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addGap(30, 30, 30))
         );
 
         TickRateSpinner.getAccessibleContext().setAccessibleName("");
@@ -176,6 +204,14 @@ public class OptionsMenu extends javax.swing.JFrame {
        this.TickRateSpinner.setValue(60);
     }//GEN-LAST:event_standardButtonActionPerformed
 
+    private void overviewCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overviewCheckboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_overviewCheckboxActionPerformed
+
+    private void disableCamCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disableCamCheckActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_disableCamCheckActionPerformed
+
     public static void main(String[] args) {
         OptionsMenu test = new OptionsMenu();
     }
@@ -186,12 +222,15 @@ public class OptionsMenu extends javax.swing.JFrame {
         Game.ticksPerSecond =(int)this.TickRateSpinner.getValue();
         Main.renderDelay = (int)this.RenderDelaySpinner.getValue();
         Main.overviewMode = this.overviewCheckbox.isSelected();
+        Camera.disableMovement = this.disableCamCheck.isSelected();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel OverviewLabel;
     private javax.swing.JSpinner RenderDelaySpinner;
     private javax.swing.JSpinner TickRateSpinner;
+    private javax.swing.JCheckBox disableCamCheck;
+    private javax.swing.JLabel disableCamLabel;
     private javax.swing.JButton lowSpecButton;
     private javax.swing.JButton okButton;
     private javax.swing.JCheckBox overviewCheckbox;

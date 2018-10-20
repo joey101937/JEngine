@@ -19,6 +19,7 @@ public class Camera {
     public static double xVel, yVel;  //camera velocity. Change in position each render
     private static boolean readyToUpdate = false; //render only runs after a tick
     public static GameObject2.MovementType movementType = GameObject2.MovementType.SpeedRatio;
+    public static boolean disableMovement = false;
     public static int tickNumber = 0;
     
     public static void render(Graphics2D g){
@@ -35,6 +36,7 @@ public class Camera {
     private static void updateLocation(Graphics2D g) {
         switch (movementType) {
             case SpeedRatio:
+                if(disableMovement)break;
                 double delta = 0.0;
                 double totalVelocity = Math.abs(xVel) + Math.abs(yVel);
                 if (totalVelocity != 0) {
@@ -45,6 +47,7 @@ public class Camera {
                 g.translate(location.x - g.getTransform().getTranslateX(), location.y - g.getTransform().getTranslateY());
                 break;
             case RawVelocity:
+                if(disableMovement)break;
                 location.x += xVel;
                 location.y += yVel;
                 g.translate(location.x - g.getTransform().getTranslateX(), location.y - g.getTransform().getTranslateY());

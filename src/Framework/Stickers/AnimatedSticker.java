@@ -68,6 +68,7 @@ public class AnimatedSticker extends Sticker{
         public AnimationHelper(AnimatedSticker as){
             host = as;
             Thread t = new Thread(this);
+            t.setName("Sticker animator " + numSticker);
             t.start();
         }
 

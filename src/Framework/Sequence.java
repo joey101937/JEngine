@@ -62,6 +62,7 @@ public class Sequence {
         public Animator(Sequence s){
             mySequence = s;
             thread = new Thread(this);
+            thread.setName("Sequence Animator");
         }
 
         @Override
