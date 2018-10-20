@@ -21,7 +21,7 @@ public class Main {
 
     /* FIELDS */
     public static String assets = "Assets" + File.separator;
-    public static int tickDelay = 5; //the higher this is the crappier the responce time but the better the performance
+    public static int renderDelay = 5; //the higher this is the crappier the responce time but the better the performance
     /**
      * @param args the command line arguments
      */

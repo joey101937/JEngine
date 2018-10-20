@@ -116,13 +116,13 @@ public class Game extends Canvas implements Runnable {
     public void run() {
         this.requestFocus(); ///automatically selects window so you dont have to click on it
         long lastTime = System.nanoTime();
-        double amountOfTicks = 60;
+        double amountOfTicks = 60;  //ticks per second
         double ns = 1000000000 / amountOfTicks;
         double delta = 0;
         long timer = System.currentTimeMillis();
         int frames = 0;
         while (running) {
-            Main.wait(Main.tickDelay);
+            Main.wait(Main.renderDelay);
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;

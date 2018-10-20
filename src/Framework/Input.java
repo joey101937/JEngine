@@ -9,7 +9,6 @@ import static Framework.Game.visHandler;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import GameObjects.*;
-import javafx.scene.input.KeyCode;
 
 /**
  *

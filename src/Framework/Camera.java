@@ -29,7 +29,6 @@ public class Camera {
         if(location.x>0)location.x=0; //prevent camera from going out of bounds 
         if(location.y>0)location.y=0;
         readyToUpdate = false;
-        System.out.println("CAMERA: " + xVel + " " + yVel + " " + delta);
     }
     public static void tick(){
         readyToUpdate=true;
