@@ -20,8 +20,11 @@ import java.util.Map;
  */
 public class GameObject2 {
     public String name= "Unnamed GameObject2";
+    public int tickNumber = 0;
+    public int renderNumber = 0;
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
-    public DCoordinate velocity = new DCoordinate(0,0); //added to location each tick
+    public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
+    public double speed = 2; //total distance the object can move per tick
     private boolean isAnimated = false;
     protected Sequence sequence = null; //animation sequence to run if animated
     public BufferedImage sprite = null; //static sprite if not animated
@@ -89,6 +92,7 @@ public class GameObject2 {
     }
 
     public void render(Graphics2D g){
+        renderNumber++;
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
         while(rotation > 360){rotation-=360;}  //constrain rotation size
@@ -135,10 +139,16 @@ public class GameObject2 {
     
     public void tick(){
         updateLocation();
+        tickNumber++;
     }
     
     public void updateLocation(){
-        location.add(velocity);
+        double delta = 0.0;
+        double totalVelocity = Math.abs(velocity.x) + Math.abs(velocity.y);
+        if(totalVelocity!=0)delta = speed/totalVelocity;
+        location.x += velocity.x*delta;
+        location.y += velocity.y*delta;
+        //location.add(velocity);
     }
     
     public GameObject2(Coordinate c){

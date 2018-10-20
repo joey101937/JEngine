@@ -31,6 +31,7 @@ public class SampleCharacter extends GameObject2{
      */
     private void characterSetup(){
         name = "Sample Character";
+        speed = 3;
         //initial animation
         Sequence idleSequence = new Sequence(SpriteManager.sampleChar_idle);
         this.setAnimationTrue(idleSequence);
@@ -49,6 +50,7 @@ public class SampleCharacter extends GameObject2{
     //this runs every 'tick' (think update in unity)
     @Override
     public void tick() {
+        tickNumber++;
         updateLocation();
         if (velocity.x > 0) {
             this.sequence = animations.get("walkRight");

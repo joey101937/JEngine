@@ -24,7 +24,6 @@ import java.util.ConcurrentModificationException;
  */
 public class Game extends Canvas implements Runnable {
     /*  FIELDS   */
-
     private Thread thread = null;
     private boolean running = false;
     public BufferedImage backgroundImage;
@@ -68,6 +67,7 @@ public class Game extends Canvas implements Runnable {
     //core tick, tells all game Objects to tick
     private void tick() {
         handler.tick();
+        Camera.tick();
     }
 
     //core render method, tells all game Objects to render

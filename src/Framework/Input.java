@@ -18,8 +18,6 @@ import javafx.scene.input.KeyCode;
 public class Input implements KeyListener{
     //FIELDS
     public Game hostGame;
-    private double shiftSpeedMultiplier = 3.0;
-    private boolean isShiftDown = false;
     public Input(Game x){
         hostGame = x;
         
@@ -34,31 +32,29 @@ public class Input implements KeyListener{
 
     @Override
     public void keyPressed(KeyEvent e) {
-          switch(e.getKeyCode()){
-            case KeyEvent.VK_SHIFT:
-                if(isShiftDown)break;
-                Camera.xVel*=shiftSpeedMultiplier;
-                Camera.yVel*=shiftSpeedMultiplier;
-                isShiftDown = true;
-                System.out.println("shift down");
-                break;
-        }
+      
         switch (e.getKeyCode()) {
             case 'W':
                 Camera.yVel = Camera.camSpeed;
-                Game.testObject.velocity.y = -4;
+                Game.testObject.velocity.y = -Game.testObject.speed;
                 break;
             case 'D':
                 Camera.xVel = -Camera.camSpeed;
-                Game.testObject.velocity.x = 4;
+                Game.testObject.velocity.x = Game.testObject.speed;
                 break;
             case 'S':
                 Camera.yVel = -Camera.camSpeed;
-                Game.testObject.velocity.y = 4;
+                Game.testObject.velocity.y = Game.testObject.speed;
                 break;
             case 'A':
                 Camera.xVel = Camera.camSpeed;
-                Game.testObject.velocity.x = -4;
+                Game.testObject.velocity.x = -Game.testObject.speed;
+                break;
+            case 'Q':
+                for(GameObject2 go : Game.handler.storage){
+                    System.out.println(go.tickNumber + " " + go.name);
+                    System.out.println(go.renderNumber + " " + go.name + " render.");
+                }
                 break;
         }
         
@@ -84,13 +80,7 @@ public class Input implements KeyListener{
                 Game.testObject.velocity.x = 0;
                 break;
         }
-           switch (e.getKeyCode()) {
-            case KeyEvent.VK_SHIFT:
-                Camera.xVel/=shiftSpeedMultiplier;
-                 Camera.yVel/=shiftSpeedMultiplier;
-                 isShiftDown = false;
-                break;
-        }
+        
 
     }
 

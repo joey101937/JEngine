@@ -13,16 +13,25 @@ import java.awt.Graphics2D;
  */
 public class Camera {
     /**Topleft coordinate of the rendering window relative to topleft of canvas*/
-    public static Coordinate location = new Coordinate(0,0); 
-    public static int camSpeed = 2;//how fast the camera moves
-    public static int xVel, yVel;  //camera velocity. Change in position each render
+    public static DCoordinate location = new DCoordinate(0,0); 
+    public static int camSpeed = 3;//how fast the camera moves
+    public static double xVel, yVel;  //camera velocity. Change in position each render
+    private static boolean readyToUpdate = false; //render only runs after a tick
     public static void render(Graphics2D g){
-        g.translate(Camera.location.x, Camera.location.y);
-        g.translate(xVel, yVel);
-        location.x+=xVel;
-        location.y+=yVel;
-        if(location.x>0)location.x=0; //prevent camera from going out of bounds
+        g.translate(Camera.location.x, Camera.location.y); //this runs regardless because it keeps the camera location still (it resets to 0,0 every render)
+        if(!readyToUpdate) return;
+        double delta = 0.0;
+        double totalVelocity = Math.abs(xVel) + Math.abs(yVel);
+        if(totalVelocity!=0)delta = Math.abs(camSpeed/totalVelocity);
+        location.x+=xVel*delta;
+        location.y+=yVel*delta;
+         g.translate(location.x - g.getTransform().getTranslateX(), location.y - g.getTransform().getTranslateY());
+        if(location.x>0)location.x=0; //prevent camera from going out of bounds 
         if(location.y>0)location.y=0;
-        
+        readyToUpdate = false;
+        System.out.println("CAMERA: " + xVel + " " + yVel + " " + delta);
+    }
+    public static void tick(){
+        readyToUpdate=true;
     }
 }
