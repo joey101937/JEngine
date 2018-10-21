@@ -24,6 +24,7 @@ public class Main {
     public static String assets = "Assets" + File.separator;
     public static int renderDelay = 5; //the higher this is the crappier the responce time but the better the performance
     public static boolean overviewMode = false;
+    public static boolean debugMode = false;
     /**
      * @param args the command line arguments
      */

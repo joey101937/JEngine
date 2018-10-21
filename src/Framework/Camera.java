@@ -7,6 +7,7 @@ package Framework;
 
 import GameObjects.GameObject2;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 /**
  * Controls the viewing frame location for the user
@@ -25,7 +26,11 @@ public class Camera {
     public static void render(Graphics2D g){
         g.translate(Camera.location.x, Camera.location.y); //this runs regardless of ticks because it keeps the camera location still (it resets to 0,0 every render)
         if(!readyToUpdate) return;
-        updateLocation(g);
+        if(!disableMovement){
+           updateLocation(g);
+           focusOn(Game.testObject); //keep camera following our sample character
+        }
+        constrainCameraToWorld();
         readyToUpdate = false;
     }
     public static void tick(){
@@ -33,10 +38,13 @@ public class Camera {
         tickNumber++;
     }
    
+    /**
+     * updates the camera position based on camera velocity
+     * @param g graphics for which this camera operates
+     */
     private static void updateLocation(Graphics2D g) {
         switch (movementType) {
             case SpeedRatio:
-                if(disableMovement)break;
                 double delta = 0.0;
                 double totalVelocity = Math.abs(xVel) + Math.abs(yVel);
                 if (totalVelocity != 0) {
@@ -47,15 +55,11 @@ public class Camera {
                 g.translate(location.x - g.getTransform().getTranslateX(), location.y - g.getTransform().getTranslateY());
                 break;
             case RawVelocity:
-                if(disableMovement)break;
                 location.x += xVel;
                 location.y += yVel;
                 g.translate(location.x - g.getTransform().getTranslateX(), location.y - g.getTransform().getTranslateY());
                 break;
         }
-         //prevent camera from going out of bounds 
-         focusOn(Game.testObject); //keep camera following our sample character
-        constrainCameraToWorld();
     }
     
     private static void constrainCameraToWorld(){
@@ -72,6 +76,10 @@ public class Camera {
     public static void focusOn(GameObject2 obj){
         location.x = -obj.location.x + Game.windowWidth/2;
         location.y = -obj.location.y + Game.windowHeight/2;
+    }
+    
+    public static Rectangle getFieldOfView(){
+        return new Rectangle((int)-location.x,(int)-location.y,Game.windowWidth,Game.windowHeight);
     }
     
 }

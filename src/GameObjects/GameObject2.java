@@ -5,11 +5,14 @@
  */
 package GameObjects;
 
+import Framework.Camera;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Game;
+import Framework.Main;
 import Framework.Sequence;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -42,6 +45,12 @@ public class GameObject2 {
      */
     public Coordinate getPixelLocation(){
         return new Coordinate(location);
+    }
+    
+    public Rectangle getHitBox(){
+        int width = getWidth();
+        int height = getHeight();
+        return new Rectangle((int)(location.x-width/2.0), (int)(location.y-height/2.0),width,height);
     }
     
     /**
@@ -97,11 +106,13 @@ public class GameObject2 {
 
     public void render(Graphics2D g){
         renderNumber++;
+        if(!isOnScreen())return;
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
         g.rotate(Math.toRadians(rotation),getPixelLocation().x,getPixelLocation().y);
+        if(Main.debugMode)g.draw(this.getHitBox());
         if(isAnimated){
             if(sequence == null){
                 System.out.println("Warning trying to render null sequence object " +name);
@@ -184,5 +195,9 @@ public class GameObject2 {
     
     public void destroy(){
         //todo
+    }
+    
+    public boolean isOnScreen(){
+        return this.getHitBox().intersects(Camera.getFieldOfView());
     }
 }
