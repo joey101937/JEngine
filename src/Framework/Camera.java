@@ -20,7 +20,7 @@ public class Camera {
     private static boolean readyToUpdate = false; //render only runs after a tick
     public static GameObject2.MovementType movementType = GameObject2.MovementType.SpeedRatio;
     public static boolean disableMovement = false;
-    public static int tickNumber = 0;
+    public static int tickNumber = 0; //for debug usage
     
     public static void render(Graphics2D g){
         g.translate(Camera.location.x, Camera.location.y); //this runs regardless of ticks because it keeps the camera location still (it resets to 0,0 every render)
@@ -54,10 +54,24 @@ public class Camera {
                 break;
         }
          //prevent camera from going out of bounds 
+         focusOn(Game.testObject); //keep camera following our sample character
+        constrainCameraToWorld();
+    }
+    
+    private static void constrainCameraToWorld(){
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;
         if(-location.x + Game.windowWidth > Game.worldWidth) location.x = -1 * (Game.worldWidth- Game.windowWidth);
         if(-location.y + Game.windowHeight > Game.worldHeight) location.y = -1 * (Game.worldHeight - Game.windowHeight);
-     
     }
+    
+    /**
+     * attempts to focus camera on a game object
+     * @param obj 
+     */
+    public static void focusOn(GameObject2 obj){
+        location.x = -obj.location.x + Game.windowWidth/2;
+        location.y = -obj.location.y + Game.windowHeight/2;
+    }
+    
 }

@@ -34,19 +34,15 @@ public class Input implements KeyListener{
       
         switch (e.getKeyCode()) {
             case 'W':
-                Camera.yVel = Camera.camSpeed;
                 Game.testObject.velocity.y = -Game.testObject.speed;
                 break;
             case 'D':
-                Camera.xVel = -Camera.camSpeed;
                 Game.testObject.velocity.x = Game.testObject.speed;
                 break;
             case 'S':
-                Camera.yVel = -Camera.camSpeed;
                 Game.testObject.velocity.y = Game.testObject.speed;
                 break;
             case 'A':
-                Camera.xVel = Camera.camSpeed;
                 Game.testObject.velocity.x = -Game.testObject.speed;
                 break;
             case 'Q':
