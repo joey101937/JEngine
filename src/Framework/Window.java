@@ -32,7 +32,6 @@ public class Window {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         frame.requestFocus();
-        frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         g.start();
     }
 }

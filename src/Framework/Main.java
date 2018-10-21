@@ -32,7 +32,7 @@ public class Main {
     public static void main(String[] args) {
         SpriteManager.initialize();
         OptionsMenu options = new OptionsMenu();
-        Game game = new Game();
+        //Game game = new Game(); <- disabled because options menu now starts the game
     }
 
     /**
