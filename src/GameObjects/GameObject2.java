@@ -106,7 +106,7 @@ public class GameObject2 {
 
     public void render(Graphics2D g){
         renderNumber++;
-        if(!isOnScreen())return;
+        if(!isOnScreen() && !Main.overviewMode)return;
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
         while(rotation > 360){rotation-=360;}  //constrain rotation size

@@ -57,7 +57,7 @@ public class Game extends Canvas implements Runnable {
      */
     public void Setup() {
         //this for-loop puts a bunch of randome birds on the screen for performance testing
-        for(int i =0; i < 30; i++){
+        for(int i =0; i < 50; i++){
             double x = Math.random()*3600.0;
             double y = Math.random()*2900.0;
             DCoordinate location = new DCoordinate(x,y);

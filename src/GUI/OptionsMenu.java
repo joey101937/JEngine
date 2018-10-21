@@ -218,7 +218,7 @@ public class OptionsMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_lowSpecButtonActionPerformed
 
     private void standardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_standardButtonActionPerformed
-        this.RenderDelaySpinner.setValue(5);
+        this.RenderDelaySpinner.setValue(0);
        this.TickRateSpinner.setValue(60);
     }//GEN-LAST:event_standardButtonActionPerformed
 
@@ -244,7 +244,7 @@ public class OptionsMenu extends javax.swing.JFrame {
         Game.ticksPerSecond =(int)this.TickRateSpinner.getValue();
         Main.renderDelay = (int)this.RenderDelaySpinner.getValue();
         Main.overviewMode = this.overviewCheckbox.isSelected();
-        Camera.disableMovement = this.disableCamCheck.isSelected();
+        Camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         Main.debugMode = this.debugCheck.isSelected();
     }
 

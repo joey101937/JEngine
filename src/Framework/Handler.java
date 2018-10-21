@@ -29,15 +29,14 @@ public class Handler {
     }
 
     public void tick() {
-        for (GameObject2 go : storage) {
-            if (go == null)continue;
+        //below is just a fancy for each loop where 'go' is a GameObject2
+        storage.stream().filter((go) -> !(go == null)).forEachOrdered((go) -> {
             try {
                 go.tick();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-        }
+        });
     }
 
 }
