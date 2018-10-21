@@ -23,6 +23,7 @@ public class Main {
     /* FIELDS */
     public static String assets = "Assets" + File.separator;
     public static int renderDelay = 0; //the higher this is the crappier the responce time but the better the performance
+    public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
     public static boolean overviewMode = false;
     public static boolean debugMode = false;
     /**

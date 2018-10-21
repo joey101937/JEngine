@@ -31,7 +31,7 @@ public class SampleCharacter extends GameObject2{
      */
     private void characterSetup(){
         name = "Sample Character";
-        speed = 3;
+        speed = 3.5;
         //initial animation
         Sequence idleSequence = new Sequence(SpriteManager.sampleChar_idle);
         this.setAnimationTrue(idleSequence);

@@ -30,13 +30,19 @@ public class Handler {
 
     public void tick() {
         //below is just a fancy for each loop where 'go' is a GameObject2
-        storage.stream().filter((go) -> !(go == null)).forEachOrdered((go) -> {
-            try {
-                go.tick();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        try {
+            storage.stream().filter((go) -> !(go == null)).forEachOrdered((go) -> {
+                try {
+                    go.tick();
+                } catch (Exception e) {
+                    //catch for object ticks going wrong
+                    e.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            //catch for tick process in general going wrong
+            e.printStackTrace();
+        }
     }
 
 }

@@ -46,6 +46,8 @@ public class OptionsMenu extends javax.swing.JFrame {
         disableCamCheck = new javax.swing.JCheckBox();
         debugLabel = new javax.swing.JLabel();
         debugCheck = new javax.swing.JCheckBox();
+        tripleLabel = new javax.swing.JLabel();
+        tripleCheck = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Options");
@@ -127,6 +129,19 @@ public class OptionsMenu extends javax.swing.JFrame {
             }
         });
 
+        tripleLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        tripleLabel.setText("Triple Buffer");
+        tripleLabel.setToolTipText("Disable to help performance");
+
+        tripleCheck.setSelected(Main.tripleBuffer);
+        tripleCheck.setText("Enabled");
+        tripleCheck.setToolTipText("disable to help performance");
+        tripleCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tripleCheckActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -152,12 +167,14 @@ public class OptionsMenu extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(OverviewLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(disableCamLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(debugLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(debugLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(tripleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(31, 31, 31)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(debugCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(disableCamCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(overviewCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addComponent(overviewCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(tripleCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(66, 66, 66)
                         .addComponent(lowSpecButton)
@@ -184,6 +201,10 @@ public class OptionsMenu extends javax.swing.JFrame {
                             .addComponent(tickPerSecondLabel)
                             .addComponent(TickRateSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tripleLabel)
+                    .addComponent(tripleCheck))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(OverviewLabel)
@@ -196,7 +217,7 @@ public class OptionsMenu extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(debugLabel)
                     .addComponent(debugCheck))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lowSpecButton)
                     .addComponent(standardButton))
@@ -215,6 +236,7 @@ public class OptionsMenu extends javax.swing.JFrame {
     private void lowSpecButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowSpecButtonActionPerformed
        this.RenderDelaySpinner.setValue(11);
        this.TickRateSpinner.setValue(50);
+       this.tripleCheck.setSelected(false);
     }//GEN-LAST:event_lowSpecButtonActionPerformed
 
     private void standardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_standardButtonActionPerformed
@@ -234,6 +256,10 @@ public class OptionsMenu extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_debugCheckActionPerformed
 
+    private void tripleCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tripleCheckActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tripleCheckActionPerformed
+
     public static void main(String[] args) {
         OptionsMenu test = new OptionsMenu();
     }
@@ -246,6 +272,7 @@ public class OptionsMenu extends javax.swing.JFrame {
         Main.overviewMode = this.overviewCheckbox.isSelected();
         Camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         Main.debugMode = this.debugCheck.isSelected();
+        Main.tripleBuffer = this.tripleCheck.isSelected();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -263,5 +290,7 @@ public class OptionsMenu extends javax.swing.JFrame {
     private javax.swing.JButton standardButton;
     private javax.swing.JLabel tickPerSecondLabel;
     private javax.swing.JLabel titleLabel;
+    private javax.swing.JCheckBox tripleCheck;
+    private javax.swing.JLabel tripleLabel;
     // End of variables declaration//GEN-END:variables
 }
