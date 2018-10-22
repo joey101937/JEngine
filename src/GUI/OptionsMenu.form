@@ -121,14 +121,14 @@
                   <Component id="lowSpecButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="standardButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="20" max="32767" attributes="0"/>
+              <EmptySpace pref="7" max="32767" attributes="0"/>
               <Component id="jSeparator1" min="-2" pref="10" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="OverviewLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="overviewCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="disableCamLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="disableCamCheck" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -138,12 +138,12 @@
                   <Component id="debugLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="debugCheck" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="birdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="birdSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="24" max="32767" attributes="0"/>
+              <EmptySpace pref="12" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>

@@ -28,6 +28,7 @@ public class GameObject2 {
     public int renderNumber = 0;
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
+    public int innateRotation = 180; //0 = top of sprite is forwards, 90 is right of sprite is forwards, 180 is bottom of sprite is forwards etc
     public double speed = 2; //total distance the object can move per tick
     private boolean isAnimated = false;
     protected Sequence sequence = null; //animation sequence to run if animated
@@ -35,6 +36,7 @@ public class GameObject2 {
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0;
     public boolean isSolid = false; //weather or not this object collides with other objects
+    protected boolean horizontalFlip = false;
     public MovementType movementType = MovementType.SpeedRatio;
     protected Rectangle hitbox = new Rectangle(0,0,0,0);
     
@@ -112,7 +114,10 @@ public class GameObject2 {
     }
 
     public void lookAt(GameObject2 other) {
-        setRotation(DCoordinate.angleFrom(location, other.location));
+        setRotation(DCoordinate.angleFrom(location, other.location) - innateRotation);
+    }
+    public void lookAt(DCoordinate destination){
+         setRotation(DCoordinate.angleFrom(location, destination) - innateRotation);
     }
 
     public void render(Graphics2D g){
@@ -145,6 +150,8 @@ public class GameObject2 {
         if (Main.debugMode) {
             g.draw(this.getHitbox());
             g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
+            g.drawString(name, hitbox.x, hitbox.y);
+             //TODO DRAW LINE FACING ROTATION DIRECTION
         }
         g.setTransform(old); //reset rotation for next item to render
     }
@@ -234,6 +241,8 @@ public class GameObject2 {
         updateHitbox();
         
     }
+    
+    
 
     public void constrainToWorld(){
         if(location.x < 0) location.x=0;

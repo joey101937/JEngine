@@ -65,8 +65,10 @@ public class Game extends Canvas implements Runnable {
             GameObject2 obj = new GameObject2(location);
             obj.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
             obj.isSolid=true;
+            obj.name = "Bird " + i;
             this.addObject(obj);
             obj.velocity=new DCoordinate(.5,.5);
+         
         }
         SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
         this.addObject(example);
