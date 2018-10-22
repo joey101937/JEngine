@@ -34,25 +34,36 @@ public class GameObject2 {
     public BufferedImage sprite = null; //static sprite if not animated
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0;
+    public boolean isSolid = false; //weather or not this object collides with other objects
     public MovementType movementType = MovementType.SpeedRatio;
+    protected Rectangle hitbox = new Rectangle(0,0,0,0);
+    
     public static enum MovementType{
-    RawVelocity, SpeedRatio, ;
+    RawVelocity, SpeedRatio;
     }
     
     /**
      * used to get integer location of object, used when rendering to screen
      * @return integer location
      */
-    public Coordinate getPixelLocation(){
+    public Coordinate getPixelLocation() {
         return new Coordinate(location);
     }
-    
-    public Rectangle getHitBox(){
+
+    public Rectangle getHitbox() {
+        return hitbox;
+    }
+
+    private void updateHitbox() {
         int width = getWidth();
         int height = getHeight();
-        return new Rectangle((int)(location.x-width/2.0), (int)(location.y-height/2.0),width,height);
+        hitbox.width = width;
+        hitbox.height = height;
+        hitbox.x = (int) (location.x - width / 2.0);
+        hitbox.y = (int) (location.y - height / 2.0);
     }
-    
+
+
     /**
      * returns the width of the visual gameobject. If no visual, return 0.
      * @return width of visual
@@ -112,7 +123,6 @@ public class GameObject2 {
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
         g.rotate(Math.toRadians(rotation),getPixelLocation().x,getPixelLocation().y);
-        if(Main.debugMode)g.draw(this.getHitBox());
         if(isAnimated){
             if(sequence == null){
                 System.out.println("Warning trying to render null sequence object " +name);
@@ -132,8 +142,13 @@ public class GameObject2 {
                 System.out.println("Warning: unanimated game object sprite is null " + name);
             }
         }
+        if (Main.debugMode) {
+            g.draw(this.getHitbox());
+            g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
+        }
         g.setTransform(old); //reset rotation for next item to render
     }
+    
     
     /**
      * sets an object to not animate and only render one image as the animation
@@ -158,6 +173,7 @@ public class GameObject2 {
     }
     
     public void updateLocation() {
+      DCoordinate newLocation = location.copy();
         switch (movementType) {
             case SpeedRatio:
                 double delta = 0.0;
@@ -165,15 +181,58 @@ public class GameObject2 {
                 if (totalVelocity != 0) {
                     delta = (speed) / totalVelocity;
                 }
-                location.x += velocity.x * delta;
-                location.y += velocity.y * delta;
+                newLocation.x += velocity.x * delta;
+                newLocation.y += velocity.y * delta;
                 break;
             case RawVelocity:
-                location.add(velocity);
+                newLocation.add(velocity);
                 break;
         }
+        //COLLISION
+        if (isSolid) {
+            for (GameObject2 other : Game.handler.storage) {
+                if (!other.isSolid || other==this) {
+                    continue;
+                }
+                if (hitbox.intersects(other.getHitbox())) {
+                    Rectangle intersection = hitbox.intersection(other.getHitbox());
+                    boolean horizontalCollision = true;
+                    boolean verticalCollision = true;
+                    if(intersection.width < speed*1.5) {
+                        horizontalCollision = false;
+                    }
+                    if(intersection.height < speed*1.5){
+                        verticalCollision = false;
+                    }
+                    //verticalCollision and horizontalCollision determine if we just halt velocity or actively move object back
+                    if (velocity.x > 0 && other.location.x > newLocation.x) {
+                        newLocation.x = location.x;
+                        if(!horizontalCollision) newLocation.x = other.hitbox.x - getWidth()/2 - 1;
+                       //collision right
+                    }
+                    if (velocity.x < 0 && other.location.x < newLocation.x) {
+                         newLocation.x = location.x;
+                        if(!horizontalCollision) newLocation.x = other.hitbox.x + other.hitbox.width + getWidth()/2 +1;
+                        //collision left
+                    }
+                    if (velocity.y > 0 && other.location.y > newLocation.y) {
+                         newLocation.y = location.y;
+                          if(!verticalCollision) newLocation.y = other.hitbox.y - getHeight()/2 - 1;
+                        //collision down
+                    }
+                    if (velocity.y < 0 && other.location.y < newLocation.y) {
+                        newLocation.y = location.y;
+                        if(!verticalCollision) newLocation.y = other.hitbox.y + other.hitbox.height + getHeight()/2 + 1;
+                       //collision up
+                    }
+                    collide(other);
+                }
+            }
+        }
+        location = newLocation;
         constrainToWorld();
-
+        updateHitbox();
+        
     }
 
     public void constrainToWorld(){
@@ -197,7 +256,11 @@ public class GameObject2 {
         //todo
     }
     
+    public void collide(GameObject2 other){
+        
+    }
+    
     public boolean isOnScreen(){
-        return this.getHitBox().intersects(Camera.getFieldOfView());
+        return this.getHitbox().intersects(Camera.getFieldOfView());
     }
 }

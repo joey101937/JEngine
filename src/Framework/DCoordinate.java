@@ -82,16 +82,35 @@ public class DCoordinate {
         x+=other.x;
         y+=other.y;
     }
-        public void add(Coordinate other){
-        x+=other.x;
-        y+=other.y;
+    public void add(Coordinate other) {
+        x += other.x;
+        y += other.y;
+    }
+
+    public void subtract(Coordinate other) {
+        x -= other.x;
+        y -= other.y;
+    }
+
+    public void subtract(DCoordinate other) {
+        x -= other.x;
+        y -= other.y;
     }
     
+    public DCoordinate getInverse(){
+        return new DCoordinate(-x,-y);
+    }
     
+    public DCoordinate copy(){
+        return new DCoordinate(this);
+    }
+
     /**
      * angle we must turn from start location (assuming no initial rotation) to
      * 'face' the end location. Note we add 90 degrees because top of sprite is
-     *  considered the face of the sprite, remove that if the sprite is facing right
+     * considered the face of the sprite, remove that if the sprite is facing
+     * right
+     *
      * @param start original point
      * @param end point we want to look at
      * @return angle to turn assuming top of sprite is forwards

@@ -72,16 +72,35 @@ public class Coordinate {
         System.out.println(one.equals(two));
     }
     
-    public static Coordinate sum(Coordinate a, Coordinate b){
-        return new Coordinate(a.x+b.x,a.y+b.y);
+    public static Coordinate sum(Coordinate a, Coordinate b) {
+        return new Coordinate(a.x + b.x, a.y + b.y);
+    }
+
+    public void add(DCoordinate other) {
+        x += other.x;
+        y += other.y;
+    }
+
+    public void add(Coordinate other) {
+        x += other.x;
+        y += other.y;
+    }
+
+    public void subtract(Coordinate other) {
+        x -= other.x;
+        y -= other.y;
+    }
+
+    public void subtract(DCoordinate other) {
+        x -= other.x;
+        y -= other.y;
+    }
+
+    public Coordinate getInverse(){
+        return new Coordinate(-x,-y);
     }
     
-     public void add(DCoordinate other){
-        x+=other.x;
-        y+=other.y;
-    }
-        public void add(Coordinate other){
-        x+=other.x;
-        y+=other.y;
+    public Coordinate copy(){
+        return new Coordinate(this);
     }
 }

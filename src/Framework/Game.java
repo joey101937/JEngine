@@ -42,6 +42,7 @@ public class Game extends Canvas implements Runnable {
     public static int worldBorder = 100; //how far objects must stay from the world's edge in pixels
     public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+    public static int birdCount = 60;
     public Game() {
         mainGame = this;
         this.width = windowWidth;
@@ -57,18 +58,23 @@ public class Game extends Canvas implements Runnable {
      */
     public void Setup() {
         //this for-loop puts a bunch of randome birds on the screen for performance testing
-        for(int i =0; i < 60; i++){
+        for(int i =0; i < birdCount; i++){
             double x = Math.random()*3600.0;
             double y = Math.random()*2900.0;
             DCoordinate location = new DCoordinate(x,y);
             GameObject2 obj = new GameObject2(location);
             obj.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
+            obj.isSolid=true;
             this.addObject(obj);
             obj.velocity=new DCoordinate(.5,.5);
         }
         SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
         this.addObject(example);
         testObject = example;
+        example.name = "Player Character";
+        
+        SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
+        addObject(other);
         
         new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(400, Game.worldHeight-Game.windowHeight), 99999);
     }
