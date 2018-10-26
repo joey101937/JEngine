@@ -10,7 +10,7 @@ import java.awt.Graphics2D;
 import java.util.LinkedList;
 
 /**
- *
+ * Manages aggregate lists of GameObjects
  * @author Joseph
  */
 public class Handler {

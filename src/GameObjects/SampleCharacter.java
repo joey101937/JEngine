@@ -45,11 +45,12 @@ public class SampleCharacter extends GameObject2{
         this.animations.put("walkLeft", new Sequence(SpriteManager.sampleChar_walkLeft));
         for(String s : animations.keySet()){
             animations.get(s).frameDelay*=3;
-        }
-        
+        }        
     }
     
-    //this runs every 'tick' (think update in unity)
+    /**
+     * this runs every 'tick' (think update in unity)
+     */
     @Override
     public void tick() {
         tickNumber++;

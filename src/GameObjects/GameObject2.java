@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * Parent class for all objects that appear in the gameworld
  * @author Joseph
  */
 public class GameObject2 {
@@ -141,7 +141,10 @@ public class GameObject2 {
     public void lookAt(DCoordinate destination){
          setRotation(DCoordinate.angleFrom(location, destination) - innateRotation);
     }
-
+    /**
+     * Draws the object on screen in the game world
+     * @param g Graphics2D object to draw with
+     */
     public void render(Graphics2D g){
         renderNumber++;
         if(!isOnScreen() && !Main.overviewMode)return;
@@ -268,7 +271,10 @@ public class GameObject2 {
     }
     
     
-
+    /**
+     * prevents the object from moving outside the world by resetting the location
+     * to a legal, in-bounds location
+     */
     public void constrainToWorld(){
         if(location.x < 0) location.x=0;
         if(location.y < 0) location.y=0;
@@ -282,6 +288,10 @@ public class GameObject2 {
     public GameObject2(DCoordinate dc){
         init(dc);
     }
+    /**
+     * sets initial values common for all gameObjects
+     * @param dc spawn point
+     */
     private void init(DCoordinate dc){
         location = dc;
     }
