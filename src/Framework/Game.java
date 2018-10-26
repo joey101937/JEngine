@@ -62,20 +62,18 @@ public class Game extends Canvas implements Runnable {
             double x = Math.random()*3600.0;
             double y = Math.random()*2900.0;
             DCoordinate location = new DCoordinate(x,y);
-            GameObject2 obj = new GameObject2(location);
-            obj.setAnimationTrue(new Sequence(SpriteManager.birdySequence));
-            obj.isSolid=true;
-            obj.name = "Bird " + i;
-            this.addObject(obj);
-            obj.velocity=new DCoordinate(.5,.5);
-         
+            SampleBird bird = new SampleBird(location);
+            this.addObject(bird);
+            bird.velocity=new DCoordinate(.5,.5);        
         }
+        ////add player character
         SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
         this.addObject(example);
         testObject = example;
         example.name = "Player Character";
-        
+        ////add other character that just stands there looking pretty
         SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
+        other.name = "Sample Character";
         addObject(other);
         
         new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(400, Game.worldHeight-Game.windowHeight), 99999);
@@ -195,9 +193,19 @@ public class Game extends Canvas implements Runnable {
     public void addObject(GameObject2 o){
         handler.storage.add(o);
     }
-    
+    /**
+     * removes object from the game
+     * @param o 
+     */
     public void removeObject(GameObject2 o){
-        o.destroy();
+        //TODO this needs to be redone more efficiently
+        while(handler.storage.contains(o)){
+            try{
+            handler.storage.remove(o);
+            }catch(ConcurrentModificationException cme){
+                System.out.println("cme when removing " + o.name);
+            }
+        }
     }
 
 }
