@@ -191,7 +191,7 @@ public class Game extends Canvas implements Runnable {
      * @param o object to add
      */
     public void addObject(GameObject2 o){
-        handler.getRawStorage().add(o);
+        handler.addObject(o);
     }
     /**
      * removes object from the game
@@ -199,9 +199,9 @@ public class Game extends Canvas implements Runnable {
      */
     public void removeObject(GameObject2 o){
         //TODO this needs to be redone more efficiently
-        while(handler.getRawStorage().contains(o)){
+        while(handler.getAllObjects().contains(o)){
             try{
-            handler.getRawStorage().remove(o);
+            handler.removeObject(o);
             }catch(ConcurrentModificationException cme){
                 System.out.println("cme when removing " + o.name);
             }

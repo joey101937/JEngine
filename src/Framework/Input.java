@@ -52,6 +52,12 @@ public class Input implements KeyListener{
                 }
                  System.out.println("Camera Tick: " + Camera.tickNumber);
                 break;
+            case 'Z':
+                int prev = Game.handler.size();
+                int i = (int)Math.random()*Game.handler.getAllObjects().size();
+                Game.handler.removeObject(Game.handler.getAllObjects().get(i));
+                System.out.println(Game.handler.size() + " -> " + prev);
+                break;
         }
         
     }
