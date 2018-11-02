@@ -7,6 +7,7 @@ package Framework;
 
 import GameObjects.GameObject2;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -15,8 +16,20 @@ import java.util.LinkedList;
  */
 public class Handler {
 
-    public volatile LinkedList<GameObject2> storage = new LinkedList<>();
+    private volatile LinkedList<GameObject2> storage = new LinkedList<>();
 
+    public LinkedList<GameObject2> getRawStorage(){
+        return storage;
+    }
+    
+    public ArrayList<GameObject2> getAllObjects(){
+        ArrayList<GameObject2> output = new ArrayList<>();
+        for(GameObject2 go : storage){
+            output.add(go);
+        }
+        return output;
+    }
+    
     public void render(Graphics2D g) {
         for (GameObject2 go : storage) {
             try{
