@@ -9,7 +9,7 @@ package Framework;
 
 
 /**
- * Coordinate holds values for position
+ * Coordinate holds values for position; Functions as a 2D vector. 
  * @author Joseph
  */
 public class Coordinate {

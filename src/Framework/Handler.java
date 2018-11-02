@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
- *
+ * Manages aggregate lists of GameObjects
  * @author Joseph
  */
 public class Handler {

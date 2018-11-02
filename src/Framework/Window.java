@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 /**
- * this contains the code that actually displays the game in a window and starts the game
+ * This contains the code that actually displays the game in a window and starts the game
  * @author Joseph
  */
 public class Window {

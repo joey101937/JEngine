@@ -10,16 +10,24 @@ import java.awt.Graphics2D;
 import java.util.LinkedList;
 
 /**
+ * Handler to control all stickers and non-GameObject visual effects
  * @author Joseph
  */
 public class VisualEffectHandler {
     public LinkedList<Sticker> stickers = new LinkedList<>();
     public LinkedList<Coordinate[]> lines = new LinkedList<>();
-    
+    /**
+     * renders all visual effects to canvas
+     * @param g Graphics2D object to use
+     */
     public synchronized void render(Graphics2D g){
         renderStickers(g);
         renderLines(g);
     }
+    /**
+     * renders all stickers to canvas
+     * @param g Graphics2D object to use
+     */
     private void renderStickers(Graphics2D g){
          try {
             if (stickers == null) {
@@ -42,7 +50,10 @@ public class VisualEffectHandler {
             e.printStackTrace();
         }
     }
-
+    /**
+     * renders all lines to canvas
+     * @param g Graphics2D object to use
+     */
     private void renderLines(Graphics2D g){
         for(Coordinate[] line: lines){
             try{
@@ -54,10 +65,19 @@ public class VisualEffectHandler {
             }
         }
     }
+    
+    /**
+     * add line to world (for debug, lines are perminent)
+     * @param start beginning location of line
+     * @param end  ending location of line
+     */
     public void addLine(Coordinate start, Coordinate end){
         lines.add(new Coordinate[]{start,end});
     }
-    
+    /**
+     * Resets the linked list that holds all the stickers, run if things go wrong
+     * Note all current stickers are removed
+     */
     public void resetStickers(){
         System.out.println("reset sticker");
         stickers = new LinkedList<>();

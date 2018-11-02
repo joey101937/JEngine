@@ -19,16 +19,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * Parent class for all objects that appear in the gameworld
  * @author Joseph
  */
 public class GameObject2 {
-    public String name= "Unnamed GameObject2";
+    public String name= "Unnamed " + this.getClass().getName();
     public int tickNumber = 0;
     public int renderNumber = 0;
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
-    public int innateRotation = 180; //0 = top of sprite is forwards, 90 is right of sprite is forwards, 180 is bottom of sprite is forwards etc
+    public int innateRotation = 0; //0 = top of sprite is forwards, 90 is right of sprite is forwards, 180 is bottom of sprite is forwards etc
     public double speed = 2; //total distance the object can move per tick
     private boolean isAnimated = false;
     protected Sequence sequence = null; //animation sequence to run if animated
@@ -36,9 +36,12 @@ public class GameObject2 {
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0;
     public boolean isSolid = false; //weather or not this object collides with other objects
+    protected boolean isAlive = true; //weather or not the object has been destroyed
     protected boolean horizontalFlip = false;
     public MovementType movementType = MovementType.SpeedRatio;
     protected Rectangle hitbox = new Rectangle(0,0,0,0);
+    public final int ID;
+    private static int IDLog = 0; //used to assign IDs
     
     public static enum MovementType{
     RawVelocity, SpeedRatio;
@@ -51,11 +54,15 @@ public class GameObject2 {
     public Coordinate getPixelLocation() {
         return new Coordinate(location);
     }
-
+    /**
+     * @return The Rectangle object used as hitbox
+     */
     public Rectangle getHitbox() {
         return hitbox;
     }
-
+    /**
+     * sets hitbox based on current size and location
+     */
     private void updateHitbox() {
         int width = getWidth();
         int height = getHeight();
@@ -96,10 +103,17 @@ public class GameObject2 {
             return 0;
         }
     }
-    
+    /**
+     * @return gets the current animation sequence this object is rendering
+     */
     public Sequence getCurrentSequence(){
         return sequence;
     }
+    
+    /**
+     * changes the current animation sequence to the given sequence
+     * @param s sequence to use
+     */
     public void setSequence(Sequence s){
         if(sequence == s) return;
         else sequence = s;
@@ -112,14 +126,27 @@ public class GameObject2 {
     public void rotate(double degrees) {
         rotation += degrees;
     }
-
+    
+    /**
+     * Rotates this object so that its front (determined by innate rotation) is
+     * angled towards other's location
+     * @param other object whos location we will look at
+     */
     public void lookAt(GameObject2 other) {
         setRotation(DCoordinate.angleFrom(location, other.location) - innateRotation);
     }
+    /**
+     * Rotates this object so that its front (determined by innate rotation) is
+     * angled towards given location
+     * @param destination location to look at
+     */
     public void lookAt(DCoordinate destination){
          setRotation(DCoordinate.angleFrom(location, destination) - innateRotation);
     }
-
+    /**
+     * Draws the object on screen in the game world
+     * @param g Graphics2D object to draw with
+     */
     public void render(Graphics2D g){
         renderNumber++;
         if(!isOnScreen() && !Main.overviewMode)return;
@@ -152,6 +179,9 @@ public class GameObject2 {
             g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
             g.drawString(name, hitbox.x, hitbox.y);
              //TODO DRAW LINE FACING ROTATION DIRECTION
+             g.rotate(Math.toRadians(innateRotation));
+             g.drawLine((int)location.x,(int)location.y, (int)location.x, (int)location.y-80);
+             g.rotate(-Math.toRadians(innateRotation));
         }
         g.setTransform(old); //reset rotation for next item to render
     }
@@ -243,7 +273,10 @@ public class GameObject2 {
     }
     
     
-
+    /**
+     * prevents the object from moving outside the world by resetting the location
+     * to a legal, in-bounds location
+     */
     public void constrainToWorld(){
         if(location.x < 0) location.x=0;
         if(location.y < 0) location.y=0;
@@ -253,22 +286,46 @@ public class GameObject2 {
     
     public GameObject2(Coordinate c){
       init(new DCoordinate(c));
+      ID = IDLog++;
     }
     public GameObject2(DCoordinate dc){
         init(dc);
+        ID = IDLog++;
     }
+    /**
+     * sets initial values common for all gameObjects
+     * @param dc spawn point
+     */
     private void init(DCoordinate dc){
         location = dc;
     }
-    
-    public void destroy(){
-        //todo
+    /**
+     * removes object from game, functionally
+     */
+    protected void destroy() {
+        isAlive = false;
+        onDestroy();
+        Game.mainGame.removeObject(this);
     }
-    
-    public void collide(GameObject2 other){
+    /**
+     * method that runs when this object is destroyed, to be used for gameplay
+     */
+    public void onDestroy(){
         
     }
     
+    /**
+     * Runs each tick this object's hitbox is touching another object's hitbox
+     * @param other the object whose hitbox we are touching
+     */
+    public void collide(GameObject2 other){
+       
+    }
+    
+    /**
+     * If this onbject's hitbox is intersected by the camera's field of view
+     * @return 
+     */
     public boolean isOnScreen(){
         return this.getHitbox().intersects(Camera.getFieldOfView());
     }
