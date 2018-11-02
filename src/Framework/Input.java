@@ -46,7 +46,7 @@ public class Input implements KeyListener{
                 Game.testObject.velocity.x = -Game.testObject.speed;
                 break;
             case 'Q':
-                for(GameObject2 go : Game.handler.storage){
+                for(GameObject2 go : Game.handler.getAllObjects()){
                     System.out.println(go.tickNumber + " " + go.name);
                     System.out.println(go.renderNumber + " " + go.name + " render.");               
                 }
