@@ -40,6 +40,8 @@ public class GameObject2 {
     protected boolean horizontalFlip = false;
     public MovementType movementType = MovementType.SpeedRatio;
     protected Rectangle hitbox = new Rectangle(0,0,0,0);
+    public final int ID;
+    private static int IDLog = 0; //used to assign IDs
     
     public static enum MovementType{
     RawVelocity, SpeedRatio;
@@ -284,9 +286,11 @@ public class GameObject2 {
     
     public GameObject2(Coordinate c){
       init(new DCoordinate(c));
+      ID = IDLog++;
     }
     public GameObject2(DCoordinate dc){
         init(dc);
+        ID = IDLog++;
     }
     /**
      * sets initial values common for all gameObjects
