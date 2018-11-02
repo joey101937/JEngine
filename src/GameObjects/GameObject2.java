@@ -197,7 +197,7 @@ public class GameObject2 {
         }
         //COLLISION
         if (isSolid) {
-            for (GameObject2 other : Game.handler.storage) {
+            for (GameObject2 other : Game.handler.getAllObjects()) {
                 if (!other.isSolid || other==this) {
                     continue;
                 }
