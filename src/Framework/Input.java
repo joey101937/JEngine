@@ -5,7 +5,7 @@
  */
 package Framework;
 
-import static Framework.Game.visHandler;
+import Framework.Stickers.OnceThroughSticker;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import GameObjects.*;
@@ -46,18 +46,28 @@ public class Input implements KeyListener{
                 Game.testObject.velocity.x = -Game.testObject.speed;
                 break;
             case 'Q':
+                //debug used to check tick numbers
                 for(GameObject2 go : Game.handler.getAllObjects()){
                     System.out.println(go.tickNumber + " " + go.name);
                     System.out.println(go.renderNumber + " " + go.name + " render.");               
                 }
                  System.out.println("Camera Tick: " + Camera.tickNumber);
+                 System.out.println(Game.testObject.location);
                 break;
             case 'Z':
+                //destroy random object and play explosion sticker there for science
                 int prev = Game.handler.size();
                 int i = (int)Math.random()*Game.handler.getAllObjects().size();
-                Game.handler.removeObject(Game.handler.getAllObjects().get(i));
+                GameObject2 victim = Game.handler.getAllObjects().get(i);
+                Game.handler.removeObject(victim);
+                new OnceThroughSticker(SpriteManager.explosionSequence,victim.getPixelLocation(),999);
                 System.out.println(Game.handler.size() + " -> " + prev);
+                SampleBird bird = new SampleBird(new DCoordinate(Game.worldWidth*Math.random(),Game.worldHeight*Math.random()));
+                
+                bird.velocity = new DCoordinate(-.5,-.5);
+                Game.mainGame.addObject(bird);
                 break;
+                
         }
         
     }

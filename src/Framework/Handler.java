@@ -23,7 +23,7 @@ public class Handler {
         return storage.size();
     }
     
-    public void addObject(GameObject2 o){
+    public synchronized void addObject(GameObject2 o){
       storage.add(o);
     }
     
@@ -31,7 +31,7 @@ public class Handler {
      * safely removes object using iterator to prevent concurrent modification
      * @param toRemove 
      */
-    public void removeObject(GameObject2 toRemove){
+    public synchronized void removeObject(GameObject2 toRemove){
          ListIterator iterator = storage.listIterator();
           while(iterator.hasNext()){
             Object obj = iterator.next();
@@ -50,15 +50,17 @@ public class Handler {
      * modification exceptions
      * @return 
      */
-    public ArrayList<GameObject2> getAllObjects(){
+    public synchronized ArrayList<GameObject2> getAllObjects(){
         ArrayList<GameObject2> output = new ArrayList<>();
-        for(GameObject2 go : storage){
-            output.add(go);
-        }
+         ListIterator iter = storage.listIterator();
+         while(iter.hasNext()){
+             GameObject2 obj = (GameObject2)iter.next();
+             output.add(obj);
+         }
         return output;
     }
     
-    public void render(Graphics2D g) {
+    public synchronized void render(Graphics2D g) {
         for (GameObject2 go : getAllObjects()) {
             try{
              go.render(g);   
@@ -69,7 +71,7 @@ public class Handler {
         }
     }
 
-    public void tick() {
+    public synchronized void tick() {
       for(GameObject2 go : getAllObjects()){
           go.tick();
       }
