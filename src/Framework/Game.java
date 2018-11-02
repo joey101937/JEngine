@@ -193,11 +193,11 @@ public class Game extends Canvas implements Runnable {
      * @param o object to add
      */
     public void addObject(GameObject2 o){
-        handler.storage.add(o);
+        handler.getRawStorage().add(o);
     }
     
     public void removeObject(GameObject2 o){
-        o.destroy();
+        handler.getRawStorage().remove(o);
     }
 
 }
