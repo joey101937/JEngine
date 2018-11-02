@@ -8,13 +8,14 @@ package Framework;
 import Framework.Stickers.Sticker;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Handler to control all stickers and non-GameObject visual effects
  * @author Joseph
  */
 public class VisualEffectHandler {
-    public LinkedList<Sticker> stickers = new LinkedList<>();
+    public CopyOnWriteArrayList<Sticker> stickers = new CopyOnWriteArrayList<>();
     public LinkedList<Coordinate[]> lines = new LinkedList<>();
     /**
      * renders all visual effects to canvas
@@ -80,6 +81,6 @@ public class VisualEffectHandler {
      */
     public void resetStickers(){
         System.out.println("reset sticker");
-        stickers = new LinkedList<>();
+        stickers = new CopyOnWriteArrayList<>();
     }
 }
