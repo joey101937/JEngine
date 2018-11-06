@@ -19,6 +19,10 @@ public class Handler {
 
     private volatile LinkedList<GameObject2> storage = new LinkedList<>();
    
+    /**
+     * number of gameobjects this handler is resoincible for
+     * @return 
+     */
     public int size(){
         return storage.size();
     }
@@ -43,12 +47,11 @@ public class Handler {
     }
     
     /**
-     * retreives a list of all objects in the game, note changing this list does
+     * @return a list of all objects in the game, note changing this list does
      * NOT change the game state, however modifying items within it may. This 
      * should be used primarily when accessing items in game to minimize access to
      * the raw storage list and in turn reduce the liklihood of concurrent
      * modification exceptions
-     * @return 
      */
     public synchronized ArrayList<GameObject2> getAllObjects(){
         ArrayList<GameObject2> output = new ArrayList<>();
@@ -60,6 +63,10 @@ public class Handler {
         return output;
     }
     
+    /**
+     * renders all objects in the game
+     * @param g 
+     */
     public synchronized void render(Graphics2D g) {
         for (GameObject2 go : getAllObjects()) {
             try{
@@ -71,6 +78,9 @@ public class Handler {
         }
     }
 
+    /**
+     * ticks all objects in the game
+     */
     public synchronized void tick() {
       for(GameObject2 go : getAllObjects()){
           go.tick();

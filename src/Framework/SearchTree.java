@@ -21,12 +21,16 @@ public class SearchTree {
         SampleBird sb1 = new SampleBird(new Coordinate(0,0));
         SampleBird sb2 = new SampleBird(new Coordinate(0,0));
         SampleBird sb3 = new SampleBird(new Coordinate(0,0));
+        SampleBird sb4 = new SampleBird(new Coordinate(0,0));
         sb1.name="1";
         sb2.name = "2";
         sb3.name = "3";
+        sb4.name ="4";
         tree.add(sb2);
+         tree.add(sb4);
         tree.add(sb1);
         tree.add(sb3);
+       
         tree.printAll();
     }
     
@@ -38,17 +42,21 @@ public class SearchTree {
             printHelper(root);
         }
     }
-    private void printHelper(Node start){
-        if(start.right!=null){
-            printHelper(start.right);
-        }
-        if(start.left!=null){
+
+    private void printHelper(Node start) {
+        if (start.left != null) {
             printHelper(start.left);
         }
+        if (start == root) {
+            System.out.print("root: ");
+        }
         System.out.println(start.item.name);
+
+        if (start.right != null) {
+            printHelper(start.right);
+        }
     }
-    
-    
+
     public void add(GameObject2 addition) {
         if (root == null) {
             root = new Node(addition);
