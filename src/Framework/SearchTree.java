@@ -14,11 +14,11 @@ import java.util.function.Consumer;
  *
  * @author joey
  */
-public class SearchTree {
+public class SearchTree<E extends Object> {
 
     public Node root = null;
 
-     public void forEach(Consumer<? super Node> cnsmr) {
+     public void forEach(Consumer<GameObject2> cnsmr) {
         if (root == null) {
             System.out.println("null root");
             return;
@@ -26,12 +26,12 @@ public class SearchTree {
             foreachHelper(cnsmr,root);
         }
     }
-     private void foreachHelper(Consumer con, Node start) {
+     private void foreachHelper(Consumer<GameObject2> con, Node start) {
         if (start.left != null) {
             foreachHelper(con,start.left);
         }
         //System.out.println(start.item.name);
-        con.accept(start);
+        con.accept(start.item);
         if (start.right != null) {
             foreachHelper(con,start.right);
         }
@@ -58,17 +58,10 @@ public class SearchTree {
         }
         tree.printAll();
         System.out.println("--------");
-        tree.forEach(printConsumer);
+        
         
     }
-    private static Consumer<Node> printConsumer = new Consumer<Node>() {
-        @Override
-        public void accept(Node node) {
-            System.out.println(node.value);
-        }
-    ;
-
-    };
+    
     
     
     public void printAll() {
@@ -150,6 +143,7 @@ public class SearchTree {
     public void rebalance(){
         
     }
+    
 
     private static class Node {
 
