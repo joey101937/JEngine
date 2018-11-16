@@ -10,6 +10,7 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Game;
 import Framework.Main;
+import Framework.PathingLayer;
 import Framework.Sequence;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -30,7 +31,7 @@ public class GameObject2 {
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
     public int innateRotation = 0; //0 = top of sprite is forwards, 90 is right of sprite is forwards, 180 is bottom of sprite is forwards etc
-    public double speed = 2; //total distance the object can move per tick
+    public double baseSpeed = 2; //total distance the object can move per tick
     private boolean isAnimated = false;
     protected Sequence sequence = null; //animation sequence to run if animated
     public BufferedImage sprite = null; //static sprite if not animated
@@ -43,6 +44,8 @@ public class GameObject2 {
     protected Rectangle hitbox = new Rectangle(0,0,0,0);
     public final int ID;
     private static int IDLog = 0; //used to assign IDs
+    public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
+    
     
     public static enum MovementType{
     RawVelocity, SpeedRatio;
@@ -218,7 +221,7 @@ public class GameObject2 {
                 double delta = 0.0;
                 double totalVelocity = Math.abs(velocity.x) + Math.abs(velocity.y);
                 if (totalVelocity != 0) {
-                    delta = (speed) / totalVelocity;
+                    delta = (baseSpeed) / totalVelocity;
                 }
                 newLocation.x += velocity.x * delta;
                 newLocation.y += velocity.y * delta;
@@ -237,10 +240,10 @@ public class GameObject2 {
                     Rectangle intersection = hitbox.intersection(other.getHitbox());
                     boolean horizontalCollision = true;
                     boolean verticalCollision = true;
-                    if(intersection.width < speed*1.5) {
+                    if(intersection.width < baseSpeed*1.5) {
                         horizontalCollision = false;
                     }
-                    if(intersection.height < speed*1.5){
+                    if(intersection.height < baseSpeed*1.5){
                         verticalCollision = false;
                     }
                     //verticalCollision and horizontalCollision determine if we just halt velocity or actively move object back
@@ -289,6 +292,7 @@ public class GameObject2 {
     public GameObject2(Coordinate c){
       init(new DCoordinate(c));
       ID = IDLog++;
+      
     }
     public GameObject2(DCoordinate dc){
         init(dc);
@@ -298,8 +302,12 @@ public class GameObject2 {
      * sets initial values common for all gameObjects
      * @param dc spawn point
      */
-    private void init(DCoordinate dc){
+    private final void init(DCoordinate dc){
         location = dc;
+        //set up default pathing modifiers. Move normal on ground, half speed in water, not at all in impass
+        pathingModifiers.put(PathingLayer.Type.ground, 1.0);
+        pathingModifiers.put(PathingLayer.Type.water, .5);
+        pathingModifiers.put(PathingLayer.Type.impass, 0.0);
     }
     /**
      * removes object from game, functionally
