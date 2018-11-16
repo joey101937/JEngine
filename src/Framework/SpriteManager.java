@@ -20,9 +20,12 @@ public abstract class SpriteManager {
     public static boolean initialized = false;
     /*--------------------------------------------------------*/
     public static BufferedImage up;
+    public static BufferedImage pathingLayer;
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] birdySequence;
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
+    /*--------------------------------------------------------*/
+    
     /*--------------------------------------------------------*/
     
     public static void initialize(){
@@ -36,7 +39,7 @@ public abstract class SpriteManager {
            sampleChar_walkDown = loadSequence("SampleCharacter/WalkDown");
            sampleChar_walkLeft = loadSequence("SampleCharacter/WalkLeft");
            sampleChar_walkRight = loadSequence("SampleCharacter/WalkRight");
-           
+           pathingLayer = load("terrainBG-PATHING.png");
            initialized=true;
         }catch(Exception e){
             e.printStackTrace();

@@ -11,6 +11,7 @@ import Framework.DCoordinate;
 import Framework.Game;
 import Framework.Main;
 import Framework.Sequence;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -175,6 +176,7 @@ public class GameObject2 {
             }
         }
         if (Main.debugMode) {
+            g.setColor(Color.red);
             g.draw(this.getHitbox());
             g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
             g.drawString(name, hitbox.x, hitbox.y);

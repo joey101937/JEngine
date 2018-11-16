@@ -31,6 +31,7 @@ public class Game extends Canvas implements Runnable {
     private Thread thread = null;
     private boolean running = false;
     public BufferedImage backgroundImage;
+    public PathingLayer pathingLayer;
     public static Handler handler = new Handler();
     public static VisualEffectHandler visHandler = new VisualEffectHandler();
     public static int width, height;
@@ -120,12 +121,17 @@ public class Game extends Canvas implements Runnable {
     public void renderBackGround(Graphics g) {
         try {
             if (backgroundImage == null) {
-               // backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "Platformbg.png"));
                backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png"));
+               pathingLayer = new PathingLayer(SpriteManager.pathingLayer);
                Game.worldHeight=backgroundImage.getHeight();
                Game.worldWidth=backgroundImage.getWidth();
             }
-            g.drawImage(backgroundImage, 0, 0, null);
+            if(!Main.debugMode){
+                g.drawImage(backgroundImage, 0, 0, null);
+            }else{
+                pathingLayer.internalizeSource();
+                g.drawImage(pathingLayer.source, 0, 0, null); //if in debug view, display pathing map
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

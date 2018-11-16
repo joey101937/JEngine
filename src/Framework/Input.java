@@ -66,9 +66,12 @@ public class Input implements KeyListener{
                 
                 bird.velocity = new DCoordinate(-.5,-.5);
                 Game.mainGame.addObject(bird);
+                break;   
+            case 'P':
+                System.out.println(Game.mainGame.pathingLayer.getTypeAt(Game.testObject.getPixelLocation()));
                 break;
-                
         }
+        
         
     }
 
