@@ -14,7 +14,7 @@ import Framework.SpriteManager;
  *
  * @author joey
  */
-public class SampleBird extends GameObject2{
+public class SampleBird extends Creature{
     public static int numBirds = 0;
     
     public SampleBird(Coordinate c) {
