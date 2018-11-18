@@ -33,8 +33,7 @@ public class PathingLayer {
         for(int i = 0; i < source.getWidth(); i++){
             for(int j = 0; j < source.getHeight(); j++){
                 if(getTypeAt(new Coordinate(i,j)) == Type.impass){
-                    source.setRGB(i, j, Color.black.getRGB());
-                    
+                    source.setRGB(i, j, Color.black.getRGB());                
                 }
             }
         }

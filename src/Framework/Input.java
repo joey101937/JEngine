@@ -34,16 +34,16 @@ public class Input implements KeyListener{
       
         switch (e.getKeyCode()) {
             case 'W':
-                Game.testObject.velocity.y = -Game.testObject.baseSpeed;
+                Game.testObject.velocity.y = -Game.testObject.getSpeed();
                 break;
             case 'D':
-                Game.testObject.velocity.x = Game.testObject.baseSpeed;
+                Game.testObject.velocity.x = Game.testObject.getSpeed();
                 break;
             case 'S':
-                Game.testObject.velocity.y = Game.testObject.baseSpeed;
+                Game.testObject.velocity.y = Game.testObject.getSpeed();
                 break;
             case 'A':
-                Game.testObject.velocity.x = -Game.testObject.baseSpeed;
+                Game.testObject.velocity.x = -Game.testObject.getSpeed();
                 break;
             case 'Q':
                 //debug used to check tick numbers
