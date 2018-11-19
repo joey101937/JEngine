@@ -5,6 +5,7 @@
  */
 package Framework;
 
+import GameObjects.GameObject2;
 import Framework.Stickers.AnimatedSticker;
 import java.awt.Canvas;
 import java.awt.Color;

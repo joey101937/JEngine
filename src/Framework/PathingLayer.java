@@ -24,6 +24,7 @@ public class PathingLayer {
     private Type[][] map;
     private boolean mapGenerated = false;
     private boolean sourceInternalized = false;
+    
     /**
      * converts pixels in source to cooresponding colors to make it easier to see
      * in debug view

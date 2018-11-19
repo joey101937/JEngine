@@ -5,6 +5,7 @@
  */
 package Framework;
 
+import GameObjects.GameObject2;
 import Framework.Stickers.OnceThroughSticker;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;

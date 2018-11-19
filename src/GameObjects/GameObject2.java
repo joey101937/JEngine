@@ -89,7 +89,7 @@ public class GameObject2 {
 
 
     /**
-     * returns the width of the visual gameobject. If no visual, return 0.
+     * returns the width of the visual. If no visual, return 0.
      * @return width of visual
      */
     public int getWidth() {
