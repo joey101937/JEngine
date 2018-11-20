@@ -183,7 +183,7 @@
         </Property>
         <Property name="name" type="java.lang.String" value="" noResource="true"/>
         <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Game.ticksPerSecond" type="code"/>
+          <Connection code="Main.ticksPerSecond" type="code"/>
         </Property>
       </Properties>
       <AccessibilityProperties>

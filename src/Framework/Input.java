@@ -19,8 +19,7 @@ public class Input implements KeyListener{
     //FIELDS
     public Game hostGame;
     public Input(Game x){
-        hostGame = x;
-        
+        hostGame = x;   
     }
     
     
@@ -48,7 +47,7 @@ public class Input implements KeyListener{
                 break;
             case 'Q':
                 //debug used to check tick numbers
-                for(GameObject2 go : Game.handler.getAllObjects()){
+                for(GameObject2 go : hostGame.handler.getAllObjects()){
                     System.out.println(go.tickNumber + " " + go.name);
                     System.out.println(go.renderNumber + " " + go.name + " render.");               
                 }
@@ -57,19 +56,19 @@ public class Input implements KeyListener{
                 break;
             case 'Z':
                 //destroy random object and play explosion sticker there for science
-                int prev = Game.handler.size();
-                int i = (int)Math.random()*Game.handler.getAllObjects().size();
-                GameObject2 victim = Game.handler.getAllObjects().get(i);
-                Game.handler.removeObject(victim);
+                int prev = hostGame.handler.size();
+                int i = (int)Math.random()*hostGame.handler.getAllObjects().size();
+                GameObject2 victim = hostGame.handler.getAllObjects().get(i);
+                hostGame.handler.removeObject(victim);
                 new OnceThroughSticker(SpriteManager.explosionSequence,victim.getPixelLocation(),999);
-                System.out.println(Game.handler.size() + " -> " + prev);
+                System.out.println(hostGame.handler.size() + " -> " + prev);
                 SampleBird bird = new SampleBird(new DCoordinate(Game.worldWidth*Math.random(),Game.worldHeight*Math.random()));
                 
                 bird.velocity = new DCoordinate(-.5,-.5);
-                Game.mainGame.addObject(bird);
+                hostGame.addObject(bird);
                 break;   
             case 'P':
-                System.out.println(Game.mainGame.pathingLayer.getTypeAt(Game.testObject.getPixelLocation()));
+                System.out.println(hostGame.pathingLayer.getTypeAt(Game.testObject.getPixelLocation()));
                 break;
         }
         

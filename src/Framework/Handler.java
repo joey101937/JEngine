@@ -18,7 +18,10 @@ import java.util.ListIterator;
 public class Handler {
 
     private volatile LinkedList<GameObject2> storage = new LinkedList<>();
-   
+    public Game hostGame;
+    public Handler(Game g){
+        hostGame=g;
+    }
     /**
      * number of gameobjects this handler is resoincible for
      * @return 
@@ -29,6 +32,7 @@ public class Handler {
     
     public synchronized void addObject(GameObject2 o){
       storage.add(o);
+      o.hostGame = hostGame;
     }
     
     /**

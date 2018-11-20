@@ -23,36 +23,36 @@ import java.util.ConcurrentModificationException;
 /**
  * this is the part of the screen that you look at while playing and that
  * contains all gameObjects
- *
  * @author Joseph
  */
 public class Game extends Canvas implements Runnable {
-    /*  FIELDS   */
-    public static int ticksPerSecond = 60;
-    private Thread thread = null;
-    private boolean running = false;
-    public BufferedImage backgroundImage;
-    public PathingLayer pathingLayer;
-    public static Handler handler = new Handler();
+
+    public Handler handler = new Handler(this);
     public static VisualEffectHandler visHandler = new VisualEffectHandler();
-    public static int width, height;
-    public Window window;
-    public Input input;
-    public static Game mainGame; //main game instance
     public static GameObject2 testObject = null;
+    public static int width, height;
+   //public static Game mainGame; //main game instance
     public static int worldWidth = 3780, worldHeight = 3008;
     public static int worldBorder = 100; //how far objects must stay from the world's edge in pixels
     public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
     public static int birdCount = 60;
+
+    /*  FIELDS   */
+    private Thread thread = null;
+    private boolean running = false;
+    public BufferedImage backgroundImage;
+    public PathingLayer pathingLayer;
+    public Window window;
+    public static Input input;
+    public boolean hasStarted = false;
+    private boolean paused = false;
+
     public Game() {
-        mainGame = this;
         this.width = windowWidth;
         this.height = windowHeight;
-        window = new Window(this);
-        Setup();
-        input = new Input(this);
-        this.addKeyListener(input);     
+        //window = new Window(this);
+        Setup();   
     }
 
     /**
@@ -141,14 +141,21 @@ public class Game extends Canvas implements Runnable {
     //Core game loop 
     @Override
     public void run() {
+        this.hasStarted = true;
         this.requestFocus(); ///automatically selects window so you dont have to click on it
         long lastTime = System.nanoTime();
-        double amountOfTicks = Game.ticksPerSecond;  //ticks per second
+        double amountOfTicks = Main.ticksPerSecond;  //ticks per second
         double ns = 1000000000 / amountOfTicks;
         double delta = 0;
         long timer = System.currentTimeMillis();
         int frames = 0;
         while (running) {
+            if(isPaused()){
+                //if paused, just wait
+                Main.wait(500);
+                System.out.println("paused");
+                continue;
+            }
             Main.wait(Main.renderDelay);
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
@@ -177,6 +184,7 @@ public class Game extends Canvas implements Runnable {
 
     //starts the main game
     public synchronized void start() {
+        if(running)return;
         thread = new Thread(this);
         thread.setName("Core Loop");
         thread.start();
@@ -192,6 +200,14 @@ public class Game extends Canvas implements Runnable {
             e.printStackTrace();
         }
     }
+    
+        public boolean isPaused(){
+        return paused;
+    }
+    public void setPaused(boolean input){
+        paused = input;
+    }
+    
     
     /**
      * adds object to the world, the object will be located at whatever x/y coordinates it has

@@ -21,6 +21,7 @@ public class AnimatedSticker extends Sticker{
     public int currentFrame = 0;
     public int frameDuration = 40;
     
+    
     /**
      * @param i array of Bufferedimages to be played for animation
      * @param c location to display
@@ -45,6 +46,7 @@ public class AnimatedSticker extends Sticker{
         try{
             image = sprites[currentFrame];
         }catch(ArrayIndexOutOfBoundsException e){
+            //sometimes thread scheduler will increase frame beyond maximum
             e.printStackTrace();
             resetCurrentFrame();
             image = sprites[currentFrame];

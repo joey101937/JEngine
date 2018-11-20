@@ -8,6 +8,8 @@ package GUI;
 import Framework.Camera;
 import Framework.Game;
 import Framework.Main;
+import Framework.Window;
+import GameObjects.GameObject2;
 
 /**
  *
@@ -71,7 +73,7 @@ public class OptionsMenu extends javax.swing.JFrame {
         TickRateSpinner.setToolTipText("Ticks Per Second");
         TickRateSpinner.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         TickRateSpinner.setName(""); // NOI18N
-        TickRateSpinner.setValue(Game.ticksPerSecond);
+        TickRateSpinner.setValue(Main.ticksPerSecond);
 
         RenderDelaySpinner.setToolTipText("Increase to help performance");
         RenderDelaySpinner.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -295,15 +297,24 @@ public class OptionsMenu extends javax.swing.JFrame {
     @Override
     public void dispose(){
         super.dispose();
-        Game.ticksPerSecond =(int)this.TickRateSpinner.getValue();
-        System.out.println("ticks " + Game.ticksPerSecond);
+        Main.ticksPerSecond =(int)this.TickRateSpinner.getValue();
         Main.renderDelay = (int)this.RenderDelaySpinner.getValue();
         Main.overviewMode = this.overviewCheckbox.isSelected();
         Camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
         Game.birdCount = (int)birdSpinner.getValue();
-        new Game(); // start the game
+        Game g = new Game(); // start the game
+        Window w = new Window(g);
+        g.start();
+        
+        Game alt = new Game();
+        for(GameObject2 go : alt.handler.getAllObjects()){
+            if(go.name.toLowerCase().startsWith("bird")){
+                alt.removeObject(go);
+            }
+        }
+        w.setCurrentGame(alt);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

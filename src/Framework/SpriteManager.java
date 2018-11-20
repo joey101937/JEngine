@@ -28,7 +28,13 @@ public abstract class SpriteManager {
     
     /*--------------------------------------------------------*/
     
+    
+    /**
+     * Loads all image assets into static variables for use in the project
+     * Use before calling on any image variable
+     */
     public static void initialize(){
+        if(initialized)return;
         try{
            //this is where we load sprites
            explosionSequence = loadSequence("explosionSequence");

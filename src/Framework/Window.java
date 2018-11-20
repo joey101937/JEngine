@@ -16,11 +16,13 @@ import javax.swing.JPanel;
  */
 public class Window {
     /*  FIELDS  */
-    public static JPanel panel = new JPanel();
+    public JPanel panel = new JPanel();
     public JFrame frame;
     public String title = "Window Name";
+    public static Window mainWindow;
+    public Game currentGame;
     
-    public Window(Game g){
+    public Window(Game g) {
         frame = new JFrame(title);
         Dimension d = new Dimension(Game.windowWidth,Game.windowHeight);
         g.setBounds(0, 0, g.width, g.height);
@@ -32,6 +34,28 @@ public class Window {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         frame.requestFocus();
-        g.start();
+        g.window=this;
+        mainWindow = this;
+        currentGame = g;
+        Game.input = new Input(g);
+        g.addKeyListener(Game.input);  
     }
+    
+    public void setCurrentGame(Game g) {
+        currentGame.setPaused(true);
+        panel.remove(currentGame);
+        Dimension d = new Dimension(Game.windowWidth, Game.windowHeight);
+        g.setBounds(0, 0, g.width, g.height);
+        panel.setSize(d);
+        panel.add(g);
+        if (g.hasStarted) {
+            g.setPaused(false);
+        }else{
+            g.start();
+        }
+        currentGame = g;
+        Game.input = new Input(g);
+        g.addKeyListener(Game.input);  
+    }
+    
 }

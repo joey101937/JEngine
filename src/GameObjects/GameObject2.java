@@ -25,6 +25,7 @@ import java.util.Map;
  * @author Joseph
  */
 public class GameObject2 {
+    public Game hostGame;
     public String name= "Unnamed " + this.getClass().getName();
     public int tickNumber = 0;
     public int renderNumber = 0;
@@ -47,14 +48,14 @@ public class GameObject2 {
     public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
     
         public double getSpeed() {
-        if (Game.mainGame.pathingLayer == null) {
+        if (hostGame.pathingLayer == null) {
             return baseSpeed;
         }
         return baseSpeed * pathingModifiers.get(currentTerrain());
     }
 
    public PathingLayer.Type currentTerrain(){
-       return Game.mainGame.pathingLayer.getTypeAt(this.getPixelLocation());
+       return hostGame.pathingLayer.getTypeAt(this.getPixelLocation());
    }
     
     
@@ -243,7 +244,7 @@ public class GameObject2 {
         }
         //COLLISION
         if (isSolid) {
-            for (GameObject2 other : Game.handler.getAllObjects()) {
+            for (GameObject2 other : hostGame.handler.getAllObjects()) {
                 if (!other.isSolid || other==this) {
                     continue;
                 }
@@ -282,7 +283,7 @@ public class GameObject2 {
                 }
             }
         }
-        if(Game.mainGame.pathingLayer==null || this.pathingModifiers.get(Game.mainGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
+        if(hostGame.pathingLayer==null || this.pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
             //Only change location if the terrain there is pathable with a speed multiplier of at least .05
             location = newLocation;
         }
@@ -325,10 +326,10 @@ public class GameObject2 {
     /**
      * removes object from game, functionally
      */
-    protected void destroy() {
+    public void destroy() {
         isAlive = false;
         onDestroy();
-        Game.mainGame.removeObject(this);
+        hostGame.removeObject(this);
     }
     /**
      * method that runs when this object is destroyed, to be used for gameplay
