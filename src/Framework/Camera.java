@@ -28,7 +28,7 @@ public class Camera {
         if(!readyToUpdate) return;
         if(!disableMovement){
            updateLocation(g);
-           focusOn(Game.testObject); //keep camera following our sample character
+           focusOn(Window.mainWindow.currentGame.testObject); //keep camera following our sample character
         }
         constrainCameraToWorld();
         readyToUpdate = false;

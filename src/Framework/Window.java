@@ -37,8 +37,6 @@ public class Window {
         g.window=this;
         mainWindow = this;
         currentGame = g;
-        Game.input = new Input(g);
-        g.addKeyListener(Game.input);  
     }
     
     public void setCurrentGame(Game g) {
@@ -50,12 +48,12 @@ public class Window {
         panel.add(g);
         if (g.hasStarted) {
             g.setPaused(false);
+            System.out.println("unpause");
         }else{
             g.start();
         }
         currentGame = g;
-        Game.input = new Input(g);
-        g.addKeyListener(Game.input);  
+        currentGame.requestFocus();
     }
     
 }

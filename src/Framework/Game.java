@@ -29,7 +29,7 @@ public class Game extends Canvas implements Runnable {
 
     public Handler handler = new Handler(this);
     public static VisualEffectHandler visHandler = new VisualEffectHandler();
-    public static GameObject2 testObject = null;
+   
     public static int width, height;
    //public static Game mainGame; //main game instance
     public static int worldWidth = 3780, worldHeight = 3008;
@@ -37,22 +37,27 @@ public class Game extends Canvas implements Runnable {
     public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
     public static int birdCount = 60;
-
+ 
+    
     /*  FIELDS   */
     private Thread thread = null;
     private boolean running = false;
     public BufferedImage backgroundImage;
     public PathingLayer pathingLayer;
     public Window window;
-    public static Input input;
     public boolean hasStarted = false;
     private boolean paused = false;
+    public String title = "Untitled Game";
+    public Input input;
+    public GameObject2 testObject = null; //object to be controlled by input
 
+       
     public Game() {
         this.width = windowWidth;
         this.height = windowHeight;
         //window = new Window(this);
-        Setup();   
+        Setup();
+        resetInputListeners();
     }
 
     /**
@@ -80,6 +85,11 @@ public class Game extends Canvas implements Runnable {
         
         new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(400, Game.worldHeight-Game.windowHeight), 99999);
     }
+    
+    public void resetInputListeners() {
+        input = new Input(this);
+        addKeyListener(input);
+    }
 
     //core tick, tells all game Objects to tick
     private void tick() {
@@ -89,11 +99,15 @@ public class Game extends Canvas implements Runnable {
 
     //core render method, tells all game Objects to render
     private void render() {
+        if(Window.mainWindow.currentGame != this){
+            System.out.println("Refusing to render without container");
+            return;
+        }
+        if(isPaused())return;
         if(!SpriteManager.initialized){
             System.out.println("WARNING: SpriteManager did not fully initialize");
         }
         BufferStrategy bs = this.getBufferStrategy();
-
         if (bs == null) { ///run once at the start
             int numBuffer = 2;
             if(Main.tripleBuffer) numBuffer=3;
@@ -152,8 +166,7 @@ public class Game extends Canvas implements Runnable {
         while (running) {
             if(isPaused()){
                 //if paused, just wait
-                Main.wait(500);
-                System.out.println("paused");
+                Main.wait(100);
                 continue;
             }
             Main.wait(Main.renderDelay);
@@ -169,17 +182,19 @@ public class Game extends Canvas implements Runnable {
                 this.render();
                 }catch(ConcurrentModificationException cme){
                     System.out.println("cme render");
+                }catch(Exception e){
+                    e.printStackTrace();
                 }
             }
             frames++;
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
-                System.out.println("FPS: " + frames);
+                System.out.println(title + " FPS: " + frames);
                 frames = 0;
                 ///this triggers once a second
             }
         }
-        stop();
+        //stop();
     }
 
     //starts the main game
@@ -194,7 +209,7 @@ public class Game extends Canvas implements Runnable {
     ///stops the main game
     public synchronized void stop() {
         try {
-            thread.join();
+            //thread.join();
             running = false;
         } catch (Exception e) {
             e.printStackTrace();
@@ -205,7 +220,12 @@ public class Game extends Canvas implements Runnable {
         return paused;
     }
     public void setPaused(boolean input){
+        if(input){
+            if(this.getBufferStrategy()!=null)this.getBufferStrategy().dispose();
+            
+        }
         paused = input;
+        
     }
     
     

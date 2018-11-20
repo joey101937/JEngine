@@ -294,6 +294,9 @@ public class OptionsMenu extends javax.swing.JFrame {
         OptionsMenu test = new OptionsMenu();
     }
     
+    private static Game g = new Game();
+    private static Game alt = new Game();
+    
     @Override
     public void dispose(){
         super.dispose();
@@ -304,19 +307,37 @@ public class OptionsMenu extends javax.swing.JFrame {
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
         Game.birdCount = (int)birdSpinner.getValue();
-        Game g = new Game(); // start the game
+        
         Window w = new Window(g);
         g.start();
+        g.title="main";
+        alt.title = "alt";
         
-        Game alt = new Game();
         for(GameObject2 go : alt.handler.getAllObjects()){
             if(go.name.toLowerCase().startsWith("bird")){
                 alt.removeObject(go);
             }
         }
+        System.out.println("setting game to alt");
         w.setCurrentGame(alt);
+        /*
+        System.out.println("about to wait");
+        Main.wait(5000);
+        System.out.println("about to stop");
+        alt.stop();
+        System.out.println("stopped");
+        w.setCurrentGame(g);
+*/
     }
 
+    public static void changeGame(){
+        if(Window.mainWindow.currentGame==g){
+            Window.mainWindow.setCurrentGame(alt);
+        }else{
+            Window.mainWindow.setCurrentGame(g);
+        }
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel OverviewLabel;
     private javax.swing.JSpinner RenderDelaySpinner;

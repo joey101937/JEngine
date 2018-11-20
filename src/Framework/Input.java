@@ -7,6 +7,7 @@ package Framework;
 
 import GameObjects.GameObject2;
 import Framework.Stickers.OnceThroughSticker;
+import GUI.OptionsMenu;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import GameObjects.*;
@@ -34,16 +35,16 @@ public class Input implements KeyListener{
       
         switch (e.getKeyCode()) {
             case 'W':
-                Game.testObject.velocity.y = -Game.testObject.getSpeed();
+                hostGame.testObject.velocity.y = -hostGame.testObject.getSpeed();
                 break;
             case 'D':
-                Game.testObject.velocity.x = Game.testObject.getSpeed();
+                hostGame.testObject.velocity.x = hostGame.testObject.getSpeed();
                 break;
             case 'S':
-                Game.testObject.velocity.y = Game.testObject.getSpeed();
+                hostGame.testObject.velocity.y = hostGame.testObject.getSpeed();
                 break;
             case 'A':
-                Game.testObject.velocity.x = -Game.testObject.getSpeed();
+                hostGame.testObject.velocity.x = -hostGame.testObject.getSpeed();
                 break;
             case 'Q':
                 //debug used to check tick numbers
@@ -52,7 +53,7 @@ public class Input implements KeyListener{
                     System.out.println(go.renderNumber + " " + go.name + " render.");               
                 }
                  System.out.println("Camera Tick: " + Camera.tickNumber);
-                 System.out.println(Game.testObject.location);
+                 System.out.println(hostGame.testObject.location);
                 break;
             case 'Z':
                 //destroy random object and play explosion sticker there for science
@@ -68,8 +69,11 @@ public class Input implements KeyListener{
                 hostGame.addObject(bird);
                 break;   
             case 'P':
-                System.out.println(hostGame.pathingLayer.getTypeAt(Game.testObject.getPixelLocation()));
+                System.out.println(hostGame.pathingLayer.getTypeAt(hostGame.testObject.getPixelLocation()));
                 break;
+            case 'G':{
+                OptionsMenu.changeGame();
+            }
         }
         
         
@@ -80,19 +84,19 @@ public class Input implements KeyListener{
         switch (e.getKeyCode()) {
             case 'W':
                 if(Camera.yVel>0)Camera.yVel = 0;
-                  Game.testObject.velocity.y = 0;
+                  hostGame.testObject.velocity.y = 0;
                 break;
             case 'S':
                if(Camera.yVel<0)Camera.yVel = 0;
-               Game.testObject.velocity.y = 0;
+               hostGame.testObject.velocity.y = 0;
                 break;
             case 'A':
                 if(Camera.xVel>0)Camera.xVel = 0;
-                Game.testObject.velocity.x = 0;
+                hostGame.testObject.velocity.x = 0;
                 break;
             case 'D':
                 if(Camera.xVel<0)Camera.xVel = 0;
-                Game.testObject.velocity.x = 0;
+                hostGame.testObject.velocity.x = 0;
                 break;
         }
         

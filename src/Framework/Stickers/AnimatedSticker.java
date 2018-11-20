@@ -29,6 +29,11 @@ public class AnimatedSticker extends Sticker{
      */
     public AnimatedSticker(BufferedImage[] i, Coordinate c, int duration) {
         super(null, c, duration);
+        if(i==null){
+            System.out.println("Sticker attempted to be made with null image");
+            this.disable();
+            return;
+        }
         sprites = i;
         frameCount = i.length;
         new AnimationHelper(this);
