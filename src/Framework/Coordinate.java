@@ -19,6 +19,7 @@ public class Coordinate {
         return Math.sqrt(Math.pow((b.x-a.x), 2)+Math.pow(b.y-a.y, 2));
     }
     
+    
     public double distanceFrom(Coordinate other) {
         return Math.sqrt(Math.pow((other.x - this.x), 2) + Math.pow(other.y - this.y, 2));
     }
@@ -67,10 +68,18 @@ public class Coordinate {
 
     
     public static void main(String[] args){
+        
+        
         Coordinate one = new Coordinate(1,1);
+        
         Coordinate two = new Coordinate(1,1);
+        
+        System.out.println(one==two);
         System.out.println(one.equals(two));
     }
+    
+    
+    
     
     public static Coordinate sum(Coordinate a, Coordinate b) {
         return new Coordinate(a.x + b.x, a.y + b.y);
@@ -103,4 +112,6 @@ public class Coordinate {
     public Coordinate copy(){
         return new Coordinate(this);
     }
+    
+
 }

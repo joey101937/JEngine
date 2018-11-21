@@ -5,8 +5,8 @@
  */
 package Framework;
 
-import GameObjects.GameObject2;
-import GameObjects.SampleBird;
+import GameDemo.GameObject2;
+import GameDemo.SampleBird;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 

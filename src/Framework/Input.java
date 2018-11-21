@@ -5,12 +5,12 @@
  */
 package Framework;
 
-import GameObjects.GameObject2;
+import GameDemo.SampleBird;
+import GameDemo.GameObject2;
 import Framework.Stickers.OnceThroughSticker;
 import GUI.OptionsMenu;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import GameObjects.*;
 
 /**
  *

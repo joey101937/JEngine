@@ -9,7 +9,7 @@ import Framework.Camera;
 import Framework.Game;
 import Framework.Main;
 import Framework.Window;
-import GameObjects.GameObject2;
+import GameDemo.GameObject2;
 
 /**
  *
@@ -315,19 +315,14 @@ public class OptionsMenu extends javax.swing.JFrame {
         
         for(GameObject2 go : alt.handler.getAllObjects()){
             if(go.name.toLowerCase().startsWith("bird")){
+                //removes all birds from one game
                 alt.removeObject(go);
             }
         }
+        
         System.out.println("setting game to alt");
         w.setCurrentGame(alt);
-        /*
-        System.out.println("about to wait");
-        Main.wait(5000);
-        System.out.println("about to stop");
-        alt.stop();
-        System.out.println("stopped");
-        w.setCurrentGame(g);
-*/
+
     }
 
     public static void changeGame(){

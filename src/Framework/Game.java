@@ -5,7 +5,9 @@
  */
 package Framework;
 
-import GameObjects.GameObject2;
+import GameDemo.SampleBird;
+import GameDemo.SampleCharacter;
+import GameDemo.GameObject2;
 import Framework.Stickers.AnimatedSticker;
 import java.awt.Canvas;
 import java.awt.Color;
@@ -15,7 +17,6 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
-import GameObjects.*;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ConcurrentModificationException;
