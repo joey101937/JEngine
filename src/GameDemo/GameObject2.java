@@ -16,6 +16,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,7 @@ public class GameObject2 {
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0;
     public boolean isSolid = false; //weather or not this object collides with other objects
+    public double scale = 1;
     protected boolean isAlive = true; //weather or not the object has been destroyed
     protected boolean horizontalFlip = false;
     public MovementType movementType = MovementType.SpeedRatio;
@@ -168,6 +170,10 @@ public class GameObject2 {
         if(!isOnScreen() && !Main.overviewMode)return;
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
+        if(sequence!=null && sequence.getScale()!=scale){
+            System.out.println("scaling " + this + " by " + scale);
+            sequence.scaleTo(scale);
+        }
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
         g.rotate(Math.toRadians(rotation),getPixelLocation().x,getPixelLocation().y);
@@ -353,4 +359,10 @@ public class GameObject2 {
     public boolean isOnScreen(){
         return this.getHitbox().intersects(Camera.getFieldOfView());
     }
+    
+    @Override
+    public String toString(){
+        return this.name + " in game " + hostGame;
+    }
+ 
 }

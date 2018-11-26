@@ -5,6 +5,8 @@
  */
 package Framework;
 
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
 /**
@@ -12,7 +14,8 @@ import java.awt.image.BufferedImage;
  * @author Joseph
  */
 public class Sequence {
-    BufferedImage[] frames;
+    public BufferedImage[] frames;
+    private double scale = 1;
     /**Duration to wait before switching frames in ms*/
     public int frameDelay = 60;
     /**Index of frame currently set to render*/
@@ -54,14 +57,72 @@ public class Sequence {
     }
     
     public Sequence(BufferedImage[] input){
-        frames=input;
+        frames = new BufferedImage[input.length];
+        for(int i = 0; i < input.length; i++){
+            frames[i]=input[i];
+        }
     }
     /**
      * stops animator
      */
     public void disable(){
-        this.disabled=true;
+        this.disabled = true;
     }
+
+    /**
+     * scales all frames in this sequence by a given amount
+     * @param d multiplier to scale by
+     */
+    public void scale(double d) {
+        for (BufferedImage bi : frames) {
+            bi = scaleImage(bi, d);
+        }
+        scale*=d;
+    }
+    
+    /**
+     * sets the scale of all frames of this sequence to a given scale
+     * @param d new value to be scale, relative to the default scale of the images
+     */
+    public void scaleTo(double d) {
+        for(int i = 0; i < frames.length; i++){
+            frames[i] = scaleImage(frames[i],d);
+        }
+        scale = d;
+    }
+
+    /**
+     * returns current scaling of this sequence
+     * @return
+     */
+    public double getScale() {
+        return scale;
+    }
+
+    private BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
+      
+        int w = before.getWidth();
+        int h = before.getHeight();
+        BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
+        AffineTransform at = new AffineTransform();
+        at.scale(2.0, 2.0);
+        AffineTransformOp scaleOp
+                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+        after = scaleOp.filter(before, after);
+        return after;
+    }
+
+    /**
+     * returns a copy of this sequence in contained in a new object
+     * @return new sequence object with the same information as this object
+     */
+    public Sequence copy(){
+        Sequence output = new Sequence(frames);
+        output.scale=scale;
+        return output;
+    }
+    
+    
     
     /**
      * Helper class that updates frames in real time on a separate thread

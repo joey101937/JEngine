@@ -21,7 +21,6 @@ public abstract class SpriteManager {
     /*--------------------------------------------------------*/
     public static BufferedImage up;
     public static BufferedImage pathingLayer;
-    public static BufferedImage creationLayer;
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] birdySequence;
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
@@ -47,7 +46,6 @@ public abstract class SpriteManager {
            sampleChar_walkLeft = loadSequence("SampleCharacter/WalkLeft");
            sampleChar_walkRight = loadSequence("SampleCharacter/WalkRight");
            pathingLayer = load("terrainBG-PATHING.png");
-           creationLayer= load("terrainBG-CREATION.png");
            initialized=true;
         }catch(Exception e){
             e.printStackTrace();

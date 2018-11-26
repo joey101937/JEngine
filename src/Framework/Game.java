@@ -252,4 +252,8 @@ public class Game extends Canvas implements Runnable {
         }
     }
 
+    @Override
+    public String toString(){
+        return title;
+    }
 }
