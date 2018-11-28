@@ -8,6 +8,7 @@ package Framework;
 import GameDemo.SampleBird;
 import GameDemo.SampleCharacter;
 import Framework.Stickers.AnimatedSticker;
+import GameDemo.DemoInputHandler;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -16,12 +17,9 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
-import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.ConcurrentModificationException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * this is the part of the screen that you look at while playing and that
@@ -50,7 +48,7 @@ public class Game extends Canvas implements Runnable {
     public boolean hasStarted = false;
     private boolean paused = false;
     public String name = "Untitled Game";
-    protected Input input;
+    protected InputHandler inputHandler;
     public GameObject2 testObject = null; //object to be controlled by input
     public Camera camera = new Camera(this);
 
@@ -67,7 +65,6 @@ public class Game extends Canvas implements Runnable {
             return;
         }
         Setup();
-        resetInputListeners();
     }
     
     public Game(BufferedImage backgroundImage){
@@ -90,13 +87,14 @@ public class Game extends Canvas implements Runnable {
      * Applies key, mouse, and mouseMotion listeners
      * @param in 
      */
-    public void setInputHandler(Input in){
-        if(input != null) {
-            this.removeKeyListener(input);
-            this.removeMouseListener(input);
-            this.removeMouseMotionListener(input);
+    public void setInputHandler(InputHandler in){
+        if(inputHandler != null) {
+            this.removeKeyListener(inputHandler);
+            this.removeMouseListener(inputHandler);
+            this.removeMouseMotionListener(inputHandler);
         }
-        input = in;
+        in.setHostGame(this);
+        inputHandler = in;
         this.addMouseListener(in);
         this.addMouseMotionListener(in);
         this.addKeyListener(in);
@@ -127,19 +125,10 @@ public class Game extends Canvas implements Runnable {
         SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
         other.name = "Sample Character";
         addObject(other);
-        
         new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(400, worldHeight-windowHeight), 99999);
+        setInputHandler(new DemoInputHandler());
     }
     
-    /**
-     * 
-     */
-    private void resetInputListeners() {
-        input = new Input(this);
-        addKeyListener(input);
-        addMouseListener(input);
-        addMouseMotionListener(input);
-    }
 
     //core tick, tells all game Objects to tick
     private void tick() {

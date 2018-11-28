@@ -8,7 +8,7 @@ package GameDemo;
 import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
-import Framework.Input;
+import Framework.InputHandler;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import GUI.OptionsMenu;
@@ -19,7 +19,7 @@ import java.awt.event.MouseEvent;
  *
  * @author Joseph
  */
-public class DemoInputHandler extends Input{
+public class DemoInputHandler extends InputHandler{
 
     /**
      * Constructor, sets hostgame
@@ -27,6 +27,12 @@ public class DemoInputHandler extends Input{
      */
     public DemoInputHandler(Game host){
         super(host);
+    }
+    /**
+     * creates without hostgame set
+     */
+    public DemoInputHandler(){
+        super();
     }
     
     @Override
