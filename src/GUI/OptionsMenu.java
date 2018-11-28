@@ -310,8 +310,8 @@ public class OptionsMenu extends javax.swing.JFrame {
         alt.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         Window w = new Window(g);
         g.start();
-        g.title="main";
-        alt.title = "alt";
+        g.name="main";
+        alt.name = "alt";
         
         for(GameObject2 go : alt.handler.getAllObjects()){
             if(go.name.toLowerCase().startsWith("bird")){

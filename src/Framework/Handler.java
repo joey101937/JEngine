@@ -86,6 +86,7 @@ public class Handler {
      */
     public synchronized void tick() {
       for(GameObject2 go : getAllObjects()){
+          go.hostGame=hostGame;
           go.tick();
       }
     }

@@ -3,28 +3,31 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Framework;
+package GameDemo;
 
-import GameDemo.SampleBird;
+import Framework.DCoordinate;
+import Framework.Game;
+import Framework.GameObject2;
+import Framework.Input;
+import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import GUI.OptionsMenu;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
 /**
  *
  * @author Joseph
  */
-public class Input implements KeyListener, MouseListener, MouseMotionListener{
-    //FIELDS
-    public Game hostGame;
-    public Input(Game x){
-        hostGame = x;   
+public class DemoInputHandler extends Input{
+
+    /**
+     * Constructor, sets hostgame
+     * @param host host game
+     */
+    public DemoInputHandler(Game host){
+        super(host);
     }
-    
     
     @Override
     public void keyTyped(KeyEvent e) {
@@ -71,14 +74,12 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener{
                 hostGame.addObject(bird);
                 break;   
             case 'P':
-                System.out.println(hostGame.pathingLayer.getTypeAt(hostGame.testObject.getPixelLocation()));
+                System.out.println(hostGame.getPathingLayer().getTypeAt(hostGame.testObject.getPixelLocation()));
                 break;
             case 'G':{
                 OptionsMenu.changeGame();
             }
         }
-        
-        
     }
 
     @Override

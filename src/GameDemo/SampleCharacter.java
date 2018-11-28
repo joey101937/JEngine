@@ -33,7 +33,7 @@ public class SampleCharacter extends GameObject2{
     private void characterSetup(){
         name = "Sample Character";
         baseSpeed = 3.5;
-        scale = 2;
+        scale = 1;
         isSolid=true;
         this.movementType = GameObject2.MovementType.SpeedRatio;
         //initial animation
@@ -52,6 +52,7 @@ public class SampleCharacter extends GameObject2{
     
     /**
      * this runs every 'tick' (think update in unity)
+     * sets appropriate animation based on velocity
      */
     @Override
     public void tick() {

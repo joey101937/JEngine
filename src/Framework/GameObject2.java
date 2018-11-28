@@ -40,6 +40,7 @@ public class GameObject2 {
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0;
     public boolean isSolid = false; //weather or not this object collides with other objects
+    public boolean isInvisible = false; //invisible gameobjects are not rendered
     public double scale = 1; //size multiplier
     protected boolean isAlive = true; //weather or not the object has been destroyed
     protected boolean horizontalFlip = false;
@@ -167,7 +168,7 @@ public class GameObject2 {
      */
     public void render(Graphics2D g){
         renderNumber++;
-        if(!isOnScreen() && !Main.overviewMode)return;
+        if((!isOnScreen() && !Main.overviewMode)||isInvisible)return;
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
         if(sequence!=null && sequence.getScale()!=scale){
@@ -304,8 +305,8 @@ public class GameObject2 {
     public void constrainToWorld(){
         if(location.x < 0) location.x=0;
         if(location.y < 0) location.y=0;
-        if(location.x > Game.worldWidth - Game.worldBorder) location.x = Game.worldWidth- Game.worldBorder;
-        if(location.y > Game.worldHeight - Game.worldBorder) location.y = Game.worldHeight- Game.worldBorder;
+        if(location.x > hostGame.worldWidth - hostGame.worldBorder) location.x = hostGame.worldWidth- hostGame.worldBorder;
+        if(location.y > hostGame.worldHeight - hostGame.worldBorder) location.y = hostGame.worldHeight- hostGame.worldBorder;
     }
     
     public GameObject2(Coordinate c){

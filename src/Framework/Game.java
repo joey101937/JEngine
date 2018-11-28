@@ -18,7 +18,10 @@ import java.io.File;
 import javax.imageio.ImageIO;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.IOException;
 import java.util.ConcurrentModificationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * this is the part of the screen that you look at while playing and that
@@ -30,38 +33,79 @@ public class Game extends Canvas implements Runnable {
     public Handler handler = new Handler(this);
     public static VisualEffectHandler visHandler = new VisualEffectHandler();
    
-    public static int width, height;
-   //public static Game mainGame; //main game instance
-    public static int worldWidth = 3780, worldHeight = 3008;
-    public static int worldBorder = 100; //how far objects must stay from the world's edge in pixels
-    public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
-    public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-    public static int birdCount = 60;
+    public int width, height; //dimensions of the world canvas object on screen
+    public int worldWidth = 0, worldHeight = 0; //dimensions of the gameworld
+    public int worldBorder = 100; //how far objects must stay from the world's edge in pixels
+    public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object
+    public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
+    public static int birdCount = 60; //how many birds to spawn in the demo
  
     
     /*  FIELDS   */
     private Thread thread = null;
     private boolean running = false;
-    public BufferedImage backgroundImage;
-    public PathingLayer pathingLayer;
+    protected BufferedImage backgroundImage;
+    protected PathingLayer pathingLayer;
     public Window window;
     public boolean hasStarted = false;
     private boolean paused = false;
-    public String title = "Untitled Game";
-    public Input input;
+    public String name = "Untitled Game";
+    protected Input input;
     public GameObject2 testObject = null; //object to be controlled by input
     public Camera camera = new Camera(this);
-       
+
     public Game() {
-        this.width = windowWidth;
-        this.height = windowHeight;
-        //window = new Window(this);
+        try {
+            this.width = windowWidth;
+            this.height = windowHeight;
+            backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png"));
+            worldHeight = backgroundImage.getHeight();
+            worldWidth = backgroundImage.getWidth();
+            pathingLayer = new PathingLayer(SpriteManager.pathingLayer);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
         Setup();
         resetInputListeners();
     }
+    
+    public Game(BufferedImage backgroundImage){
+        
+    }
+
+    /**
+     * sets the background for this game instance and sets world bounds to match
+     * @param bi 
+     */
+    public void setBackground(BufferedImage bi) {
+        worldHeight = backgroundImage.getHeight();
+        worldWidth = backgroundImage.getWidth();
+        backgroundImage = bi;
+    }
+
+
+    /**
+     * sets the input handler for this game. Removes any previous input handler
+     * Applies key, mouse, and mouseMotion listeners
+     * @param in 
+     */
+    public void setInputHandler(Input in){
+        if(input != null) {
+            this.removeKeyListener(input);
+            this.removeMouseListener(input);
+            this.removeMouseMotionListener(input);
+        }
+        input = in;
+        this.addMouseListener(in);
+        this.addMouseMotionListener(in);
+        this.addKeyListener(in);
+    }
+    
 
     /**
      * use this method to set starting objects etc
+     * for testing purposes
      */
     public void Setup() {
         //this for-loop puts a bunch of randome birds on the screen for performance testing
@@ -84,12 +128,17 @@ public class Game extends Canvas implements Runnable {
         other.name = "Sample Character";
         addObject(other);
         
-        new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(400, Game.worldHeight-Game.windowHeight), 99999);
+        new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(400, worldHeight-windowHeight), 99999);
     }
     
-    public void resetInputListeners() {
+    /**
+     * 
+     */
+    private void resetInputListeners() {
         input = new Input(this);
         addKeyListener(input);
+        addMouseListener(input);
+        addMouseMotionListener(input);
     }
 
     //core tick, tells all game Objects to tick
@@ -112,7 +161,7 @@ public class Game extends Canvas implements Runnable {
         if (bs == null) { ///run once at the start
             int numBuffer = 2;
             if(Main.tripleBuffer) numBuffer=3;
-            this.createBufferStrategy(3); 
+            this.createBufferStrategy(numBuffer); 
             return;
         }
         Graphics g = bs.getDrawGraphics();
@@ -137,10 +186,8 @@ public class Game extends Canvas implements Runnable {
     public void renderBackGround(Graphics g) {
         try {
             if (backgroundImage == null) {
-               backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png"));
-               pathingLayer = new PathingLayer(SpriteManager.pathingLayer);
-               Game.worldHeight=backgroundImage.getHeight();
-               Game.worldWidth=backgroundImage.getWidth();
+                System.out.println("NO BACKGROUND IMAGE TO RENDER IN GAME: " + name);
+                return;
             }
             if(!Main.debugMode){
                 g.drawImage(backgroundImage, 0, 0, null);
@@ -190,7 +237,7 @@ public class Game extends Canvas implements Runnable {
             frames++;
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
-                System.out.println(title + " FPS: " + frames);
+                System.out.println(name + " FPS: " + frames);
                 frames = 0;
                 ///this triggers once a second
             }
@@ -220,15 +267,31 @@ public class Game extends Canvas implements Runnable {
         public boolean isPaused(){
         return paused;
     }
-    public void setPaused(boolean input){
-        if(input){
-            if(this.getBufferStrategy()!=null)this.getBufferStrategy().dispose();
-            
+
+    /**
+     * pauses/unpauses the game. When paused the game does not tick or render
+     * @param input 
+     */
+    public void setPaused(boolean input) {
+        if (input) {
+            if (this.getBufferStrategy() != null) {
+                this.getBufferStrategy().dispose();
+            }
+
         }
         paused = input;
-        
     }
     
+    public void setPathingLayer(PathingLayer pl){
+        this.pathingLayer = pl;
+    }
+    public void setPathingLayer(BufferedImage bi){
+        this.pathingLayer = new PathingLayer(bi);
+    }
+    public PathingLayer getPathingLayer(){
+        return pathingLayer;
+    }
+
     
     /**
      * adds object to the world, the object will be located at whatever x/y coordinates it has
@@ -254,6 +317,6 @@ public class Game extends Canvas implements Runnable {
 
     @Override
     public String toString(){
-        return title;
+        return name;
     }
 }
