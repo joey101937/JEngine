@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo;
+package Framework;
 
 import Framework.Camera;
 import Framework.Coordinate;
@@ -40,7 +40,7 @@ public class GameObject2 {
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0;
     public boolean isSolid = false; //weather or not this object collides with other objects
-    public double scale = 1;
+    public double scale = 1; //size multiplier
     protected boolean isAlive = true; //weather or not the object has been destroyed
     protected boolean horizontalFlip = false;
     public MovementType movementType = MovementType.SpeedRatio;
@@ -171,7 +171,6 @@ public class GameObject2 {
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
         if(sequence!=null && sequence.getScale()!=scale){
-            System.out.println("scaling " + this + " by " + scale);
             sequence.scaleTo(scale);
         }
         while(rotation > 360){rotation-=360;}  //constrain rotation size
@@ -357,7 +356,7 @@ public class GameObject2 {
      * @return 
      */
     public boolean isOnScreen(){
-        return this.getHitbox().intersects(Camera.getFieldOfView());
+        return this.getHitbox().intersects(hostGame.camera.getFieldOfView());
     }
     
     @Override

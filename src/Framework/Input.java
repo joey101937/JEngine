@@ -6,7 +6,6 @@
 package Framework;
 
 import GameDemo.SampleBird;
-import GameDemo.GameObject2;
 import Framework.Stickers.OnceThroughSticker;
 import GUI.OptionsMenu;
 import java.awt.event.KeyEvent;
@@ -52,7 +51,7 @@ public class Input implements KeyListener{
                     System.out.println(go.tickNumber + " " + go.name);
                     System.out.println(go.renderNumber + " " + go.name + " render.");               
                 }
-                 System.out.println("Camera Tick: " + Camera.tickNumber);
+                 System.out.println("Camera Tick: " + hostGame.camera.tickNumber);
                  System.out.println(hostGame.testObject.location);
                 break;
             case 'Z':
@@ -83,19 +82,19 @@ public class Input implements KeyListener{
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
             case 'W':
-                if(Camera.yVel>0)Camera.yVel = 0;
+                if(hostGame.camera.yVel>0)hostGame.camera.yVel = 0;
                   hostGame.testObject.velocity.y = 0;
                 break;
             case 'S':
-               if(Camera.yVel<0)Camera.yVel = 0;
+               if(hostGame.camera.yVel<0)hostGame.camera.yVel = 0;
                hostGame.testObject.velocity.y = 0;
                 break;
             case 'A':
-                if(Camera.xVel>0)Camera.xVel = 0;
+                if(hostGame.camera.xVel>0)hostGame.camera.xVel = 0;
                 hostGame.testObject.velocity.x = 0;
                 break;
             case 'D':
-                if(Camera.xVel<0)Camera.xVel = 0;
+                if(hostGame.camera.xVel<0)hostGame.camera.xVel = 0;
                 hostGame.testObject.velocity.x = 0;
                 break;
         }

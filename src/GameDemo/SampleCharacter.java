@@ -5,6 +5,7 @@
  */
 package GameDemo;
 
+import Framework.GameObject2;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Sequence;

@@ -9,7 +9,7 @@ import Framework.Camera;
 import Framework.Game;
 import Framework.Main;
 import Framework.Window;
-import GameDemo.GameObject2;
+import Framework.GameObject2;
 
 /**
  *
@@ -302,12 +302,12 @@ public class OptionsMenu extends javax.swing.JFrame {
         super.dispose();
         Main.ticksPerSecond =(int)this.TickRateSpinner.getValue();
         Main.renderDelay = (int)this.RenderDelaySpinner.getValue();
-        Main.overviewMode = this.overviewCheckbox.isSelected();
-        Camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
+        Main.overviewMode = this.overviewCheckbox.isSelected();      
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
-        Game.birdCount = (int)birdSpinner.getValue();
-        
+        Game.birdCount = (int) birdSpinner.getValue();
+        g.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
+        alt.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         Window w = new Window(g);
         g.start();
         g.title="main";

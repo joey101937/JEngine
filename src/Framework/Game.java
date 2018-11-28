@@ -7,7 +7,6 @@ package Framework;
 
 import GameDemo.SampleBird;
 import GameDemo.SampleCharacter;
-import GameDemo.GameObject2;
 import Framework.Stickers.AnimatedSticker;
 import java.awt.Canvas;
 import java.awt.Color;
@@ -51,7 +50,7 @@ public class Game extends Canvas implements Runnable {
     public String title = "Untitled Game";
     public Input input;
     public GameObject2 testObject = null; //object to be controlled by input
-
+    public Camera camera = new Camera(this);
        
     public Game() {
         this.width = windowWidth;
@@ -79,6 +78,7 @@ public class Game extends Canvas implements Runnable {
         this.addObject(example);
         testObject = example;
         example.name = "Player Character";
+        camera.setTarget(testObject);
         ////add other character that just stands there looking pretty
         SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
         other.name = "Sample Character";
@@ -95,7 +95,7 @@ public class Game extends Canvas implements Runnable {
     //core tick, tells all game Objects to tick
     private void tick() {
         handler.tick();
-        Camera.tick();
+        camera.tick();
     }
 
     //core render method, tells all game Objects to render
@@ -120,7 +120,7 @@ public class Game extends Canvas implements Runnable {
         g2d.setColor(Color.GREEN);
         g2d.setBackground(Color.white);
         if(Main.overviewMode)g2d.scale(.25, .25);
-        Camera.render(g2d);
+        camera.render(g2d);
         this.renderBackGround(g2d);
         handler.render(g2d);
         visHandler.render(g2d);
@@ -144,7 +144,7 @@ public class Game extends Canvas implements Runnable {
             }
             if(!Main.debugMode){
                 g.drawImage(backgroundImage, 0, 0, null);
-            }else{
+            }else if(pathingLayer!=null && pathingLayer.source!=null){
                 pathingLayer.internalizeSource();
                 g.drawImage(pathingLayer.source, 0, 0, null); //if in debug view, display pathing map
             }

@@ -5,7 +5,6 @@
  */
 package Framework;
 
-import GameDemo.GameObject2;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
@@ -15,34 +14,62 @@ import java.awt.Rectangle;
  */
 public class Camera {
     /**Topleft coordinate of the rendering window relative to topleft of canvas*/
-    public static DCoordinate location = new DCoordinate(0,0); //location of camera, 0,0 is top left. NOTE these will be negative
-    public static int camSpeed = 3;//how fast the camera moves
-    public static double xVel, yVel;  //camera velocity. Change in position each render
-    private static boolean readyToUpdate = false; //render only runs after a tick
-    public static GameObject2.MovementType movementType = GameObject2.MovementType.SpeedRatio;
-    public static boolean disableMovement = false;
-    public static int tickNumber = 0; //for debug usage
+    public DCoordinate location = new DCoordinate(0,0); //location of camera, 0,0 is top left. NOTE these will be negative
+    public int camSpeed = 3;//how fast the camera moves
+    public double xVel, yVel;  //camera velocity. Change in position each render
+    private boolean readyToUpdate = false; //render only runs after a tick
+    public GameObject2.MovementType movementType = GameObject2.MovementType.SpeedRatio;
+    public boolean disableMovement = false;
+    public int tickNumber = 0; //for debug usage
+    public Game hostGame;
     
-    public static void render(Graphics2D g){
-        g.translate(Camera.location.x, Camera.location.y); //this runs regardless of ticks because it keeps the camera location still (it resets to 0,0 every render)
+    private boolean trackingGameObject = false; //weather or not the camera is free or if the camera is tracking a target object
+    private GameObject2 target = null;
+    
+    
+    //
+    public void setIsTackingTarget(boolean b){
+        trackingGameObject = b;
+    }
+    
+    public boolean isTrackingTarget(){
+        return trackingGameObject;
+    }
+    
+    public GameObject2 getTarget(){
+        return target;
+    }
+    
+    
+    public Camera(Game g){
+        hostGame = g;
+    }
+    
+    
+    public void render(Graphics2D g){
+        g.translate(location.x, location.y); //this runs regardless of ticks because it keeps the camera location still (g resets to 0,0 every render)
         if(!readyToUpdate) return;
         if(!disableMovement){
-           updateLocation(g);
-           focusOn(Window.mainWindow.currentGame.testObject); //keep camera following our sample character
+            updateLocation(g);
         }
         constrainCameraToWorld();
         readyToUpdate = false;
     }
-    public static void tick(){
+    public void tick(){
         readyToUpdate=true;
         tickNumber++;
     }
    
     /**
-     * updates the camera position based on camera velocity
+     * updates the camera position based on either velocity or to follow target
      * @param g graphics for which this camera operates
      */
-    private static void updateLocation(Graphics2D g) {
+    private void updateLocation(Graphics2D g) {
+        if (trackingGameObject && target != null) {
+            location.x = -target.location.x + Game.windowWidth / 2;
+            location.y = -target.location.y + Game.windowHeight / 2;
+            return;
+        }
         switch (movementType) {
             case SpeedRatio:
                 double delta = 0.0;
@@ -62,7 +89,7 @@ public class Camera {
         }
     }
     
-    private static void constrainCameraToWorld(){
+    private void constrainCameraToWorld(){
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;
         if(-location.x + Game.windowWidth > Game.worldWidth) location.x = -1 * (Game.worldWidth- Game.windowWidth);
@@ -73,12 +100,14 @@ public class Camera {
      * attempts to focus camera on a game object
      * @param obj 
      */
-    public static void focusOn(GameObject2 obj){
+    public void setTarget(GameObject2 obj){
+        trackingGameObject=true;
         location.x = -obj.location.x + Game.windowWidth/2;
         location.y = -obj.location.y + Game.windowHeight/2;
+        target = obj;
     }
     
-    public static Rectangle getFieldOfView(){
+    public Rectangle getFieldOfView(){
         return new Rectangle((int)-location.x,(int)-location.y,Game.windowWidth,Game.windowHeight);
     }
     
