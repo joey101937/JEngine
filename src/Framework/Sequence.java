@@ -105,7 +105,7 @@ public class Sequence {
         int h = before.getHeight();
         BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
         AffineTransform at = new AffineTransform();
-        at.scale(2.0, 2.0);
+        at.scale(scaleAmount, scaleAmount);
         AffineTransformOp scaleOp
                 = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         after = scaleOp.filter(before, after);

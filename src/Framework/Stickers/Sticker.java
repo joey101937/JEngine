@@ -21,7 +21,7 @@ import java.util.ConcurrentModificationException;
  */
 public class Sticker implements Runnable{
     protected Game hostGame = null;
-    public BufferedImage image;
+    public volatile BufferedImage image;
     public Coordinate spawnLocation = new Coordinate(0,0);
     protected Coordinate renderLocation = new Coordinate(0,0);
     public boolean disabled = false;
@@ -93,7 +93,7 @@ public class Sticker implements Runnable{
         int h = before.getHeight();
         BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
         AffineTransform at = new AffineTransform();
-        at.scale(2.0, 2.0);
+        at.scale(scaleAmount, scaleAmount);
         AffineTransformOp scaleOp
                 = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         after = scaleOp.filter(before, after);

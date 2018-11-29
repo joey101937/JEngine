@@ -5,13 +5,13 @@
  */
 package GameDemo;
 
-import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.InputHandler;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
+import Framework.Stickers.Sticker;
 import GUI.OptionsMenu;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -119,7 +119,8 @@ public class DemoInputHandler extends InputHandler{
 
     @Override
     public void mousePressed(MouseEvent e) {
-      new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,locationOfMouse(e),9999);
+      Sticker s = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,locationOfMouse(e),9999);
+      s.scaleTo(2.0);
     }
 
     @Override
