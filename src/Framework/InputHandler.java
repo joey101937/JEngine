@@ -5,9 +5,6 @@
  */
 package Framework;
 
-import GameDemo.SampleBird;
-import Framework.Stickers.OnceThroughSticker;
-import GUI.OptionsMenu;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -93,6 +90,13 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
     @Override
     public void mouseMoved(MouseEvent e) {
    
+    }
+    
+    /**
+     * returns the pixel coordinate in the world cooresponding with a mouse event
+     */
+    public Coordinate locationOfMouse(MouseEvent e){
+        return new Coordinate(e.getX() + (int)-hostGame.camera.location.x,e.getY()+(int)-hostGame.camera.location.y );
     }
 
 }

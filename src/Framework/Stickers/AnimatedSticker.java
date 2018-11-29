@@ -7,6 +7,7 @@ package Framework.Stickers;
 
 
 import Framework.Coordinate;
+import Framework.Game;
 import Framework.Main;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -27,8 +28,8 @@ public class AnimatedSticker extends Sticker{
      * @param c location to display
      * @param duration how long to display
      */
-    public AnimatedSticker(BufferedImage[] i, Coordinate c, int duration) {
-        super(null, c, duration);
+    public AnimatedSticker(Game g, BufferedImage[] i, Coordinate c, int duration) {
+        super(g, null, c, duration);
         if(i==null){
             System.out.println("Sticker attempted to be made with null image");
             this.disable();
@@ -91,4 +92,36 @@ public class AnimatedSticker extends Sticker{
         }
     }
     
+    
+    /**
+     * scales all frames in this sequence by a given amount
+     * @param d multiplier to scale by
+     */
+    @Override
+    public void scale(double d) {
+        for (BufferedImage bi : sprites) {
+            bi = scaleImage(bi, d);
+        }
+        scale*=d;
+    }
+    
+    /**
+     * sets the scale of all frames of this sequence to a given scale
+     * @param d new value to be scale, relative to the default scale of the images
+     */
+    @Override
+    public void scaleTo(double d) {
+        for(int i = 0; i < sprites.length; i++){
+            sprites[i] = scaleImage(sprites[i],d/scale);
+        }
+        scale = d;
+    }
+    /**
+     * returns current scaling of this sequence
+     * @return
+     */
+    @Override
+    public double getScale() {
+        return scale;
+    }
 }

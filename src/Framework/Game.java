@@ -28,8 +28,6 @@ import java.util.ConcurrentModificationException;
  */
 public class Game extends Canvas implements Runnable {
 
-    public Handler handler = new Handler(this);
-    public static VisualEffectHandler visHandler = new VisualEffectHandler();
    
     public int width, height; //dimensions of the world canvas object on screen
     public int worldWidth = 0, worldHeight = 0; //dimensions of the gameworld
@@ -38,8 +36,9 @@ public class Game extends Canvas implements Runnable {
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     public static int birdCount = 60; //how many birds to spawn in the demo
  
-    
-    /*  FIELDS   */
+       /*  FIELDS   */
+    public Handler handler = new Handler(this);
+    public VisualEffectHandler visHandler = new VisualEffectHandler();
     private Thread thread = null;
     private boolean running = false;
     protected BufferedImage backgroundImage;
@@ -125,7 +124,7 @@ public class Game extends Canvas implements Runnable {
         SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
         other.name = "Sample Character";
         addObject(other);
-        new AnimatedSticker(SpriteManager.explosionSequence,new Coordinate(400, worldHeight-windowHeight), 99999);
+        new AnimatedSticker(this, SpriteManager.explosionSequence,new Coordinate(400, worldHeight-windowHeight), 99999);
         setInputHandler(new DemoInputHandler());
     }
     
@@ -137,7 +136,7 @@ public class Game extends Canvas implements Runnable {
     }
 
     //core render method, tells all game Objects to render
-    private void render() {
+    private synchronized void render() {
         if(Window.mainWindow.currentGame != this){
             System.out.println("Refusing to render without container");
             return;
@@ -164,8 +163,9 @@ public class Game extends Canvas implements Runnable {
         visHandler.render(g2d);
         g.dispose();
         g2d.dispose();
-
-        bs.show();
+        if(Window.mainWindow.currentGame == this){
+            bs.show();
+        }    
     }
 
     /**
@@ -203,7 +203,7 @@ public class Game extends Canvas implements Runnable {
         while (running) {
             if(isPaused()){
                 //if paused, just wait
-                Main.wait(100);
+                Main.wait(10);
                 continue;
             }
             Main.wait(Main.renderDelay);

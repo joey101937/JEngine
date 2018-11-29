@@ -86,7 +86,7 @@ public class Sequence {
      */
     public void scaleTo(double d) {
         for(int i = 0; i < frames.length; i++){
-            frames[i] = scaleImage(frames[i],d);
+            frames[i] = scaleImage(frames[i],d/scale);
         }
         scale = d;
     }

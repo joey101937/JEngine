@@ -5,6 +5,7 @@
  */
 package GameDemo;
 
+import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
@@ -72,7 +73,7 @@ public class DemoInputHandler extends InputHandler{
                 int i = (int)Math.random()*hostGame.handler.getAllObjects().size();
                 GameObject2 victim = hostGame.handler.getAllObjects().get(i);
                 hostGame.handler.removeObject(victim);
-                new OnceThroughSticker(SpriteManager.explosionSequence,victim.getPixelLocation(),999);
+                new OnceThroughSticker(hostGame, SpriteManager.explosionSequence,victim.getPixelLocation(),999);
                 System.out.println(hostGame.handler.size() + " -> " + prev);
                 SampleBird bird = new SampleBird(new DCoordinate(hostGame.worldWidth*Math.random(),hostGame.worldHeight*Math.random()));
                 
@@ -118,6 +119,7 @@ public class DemoInputHandler extends InputHandler{
 
     @Override
     public void mousePressed(MouseEvent e) {
+      new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,locationOfMouse(e),9999);
     }
 
     @Override
@@ -139,7 +141,7 @@ public class DemoInputHandler extends InputHandler{
 
     @Override
     public void mouseMoved(MouseEvent e) {
-   
     }
 
+    
 }
