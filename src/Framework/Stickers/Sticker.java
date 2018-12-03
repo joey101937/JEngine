@@ -8,6 +8,7 @@ package Framework.Stickers;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.GameObject2;
 import Framework.Main;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -21,9 +22,10 @@ import java.util.ConcurrentModificationException;
  */
 public class Sticker implements Runnable{
     protected Game hostGame = null;
+    protected GameObject2 host = null; //used if attached to a game object
     public volatile BufferedImage image;
-    public Coordinate spawnLocation = new Coordinate(0,0);
-    protected Coordinate renderLocation = new Coordinate(0,0);
+    public Coordinate spawnLocation = new Coordinate(0,0); //canter of where we want the sticker
+    protected Coordinate renderLocation = new Coordinate(0,0); //top left position of sticker, to allow the center to be on spawnLocation
     public boolean disabled = false;
     public int timeToRender;
     protected double scale = 1;
@@ -58,6 +60,9 @@ public class Sticker implements Runnable{
     }
 
     public synchronized void render(Graphics2D g) {
+        if(host!=null && host.isAlive()){
+            spawnLocation = host.getPixelLocation();
+        }
         centerCoordinate(image);
         if (spawnLocation.x < 0 || spawnLocation.y < 0) {
             disable();     //if the coordinates are bad, dont render
@@ -87,8 +92,7 @@ public class Sticker implements Runnable{
         disable();
     }
     
-    protected static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
-      
+    protected static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {    
         int w = before.getWidth();
         int h = before.getHeight();
         BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
@@ -125,4 +129,18 @@ public class Sticker implements Runnable{
         return scale;
     }
 
+    /**
+     * makes this sticker move with a given GameObject. If this gameObject dies, the sticker is disabled
+     * @param go GameObject to follow. If null, the sticker stops moving
+     */
+    public void attachTo(GameObject2 go){
+        host = go;
+        if(go.hostGame!=null){
+            if (!go.hostGame.visHandler.stickers.contains(this)) {
+                this.hostGame = go.hostGame;
+                go.hostGame.visHandler.stickers.add(this);
+            }
+            
+        }
+    }
 }

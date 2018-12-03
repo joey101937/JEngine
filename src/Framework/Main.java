@@ -31,7 +31,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        SpriteManager.initialize();
+     //   SpriteManager.initialize();       <- disabled because of spriteManager static block
         OptionsMenu options = new OptionsMenu();
         //Game game = new Game(); <- disabled because options menu now starts the game
     }

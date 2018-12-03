@@ -16,7 +16,6 @@ import javax.imageio.ImageIO;
  * @author Joseph
  */
 public abstract class SpriteManager {
-
     public static boolean initialized = false;
     /*--------------------------------------------------------*/
     public static BufferedImage up;
@@ -25,7 +24,9 @@ public abstract class SpriteManager {
     public static BufferedImage[] birdySequence;
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
     /*--------------------------------------------------------*/
-    
+    static{
+        initialize();
+    }
     /*--------------------------------------------------------*/
     
     

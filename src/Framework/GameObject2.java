@@ -5,19 +5,13 @@
  */
 package Framework;
 
-import Framework.Camera;
-import Framework.Coordinate;
-import Framework.DCoordinate;
-import Framework.Game;
-import Framework.Main;
-import Framework.PathingLayer;
-import Framework.Sequence;
+import Framework.Stickers.Sticker;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +40,7 @@ public class GameObject2 {
     protected boolean horizontalFlip = false;
     public MovementType movementType = MovementType.SpeedRatio;
     protected Rectangle hitbox = new Rectangle(0,0,0,0);
+    protected ArrayList<Sticker> attachedStickers = new ArrayList<>();
     public final int ID;
     private static int IDLog = 0; //used to assign IDs
     public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
@@ -332,7 +327,7 @@ public class GameObject2 {
     /**
      * removes object from game, functionally
      */
-    public void destroy() {
+    public final void destroy() {
         isAlive = false;
         onDestroy();
         hostGame.removeObject(this);
@@ -342,6 +337,13 @@ public class GameObject2 {
      */
     public void onDestroy(){
         
+    }
+    
+    /**
+     * @return weather or not this object is considered alive 
+     */
+    public boolean isAlive(){
+        return isAlive;
     }
     
     /**
@@ -365,4 +367,24 @@ public class GameObject2 {
         return this.name + " in game " + hostGame;
     }
  
+    
+    public ArrayList<Sticker> getAttachedStickers(){
+        return attachedStickers;
+    }
+    
+    public void detatchSticker(Sticker s){
+        if(attachedStickers.contains(s)){
+            attachedStickers.remove(s);
+            s.attachTo(null);
+        }
+    }
+    //detaches all stickers which have been attached to this object
+    public void detatchAllStickers() {
+        for (Sticker s : attachedStickers) {
+            s.attachTo(null);
+        }
+        attachedStickers.clear();
+    }
+
+
 }
