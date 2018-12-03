@@ -5,19 +5,12 @@
  */
 package Framework;
 
-import Framework.Camera;
-import Framework.Coordinate;
-import Framework.DCoordinate;
-import Framework.Game;
-import Framework.Main;
-import Framework.PathingLayer;
-import Framework.Sequence;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,11 +21,11 @@ import java.util.Map;
 public class GameObject2 {
     public Game hostGame;
     public String name= "Unnamed " + this.getClass().getName();
-    public int tickNumber = 0;
-    public int renderNumber = 0;
+    public long tickNumber = 0; //used for debugging, counts number of times this has ticked
+    public long renderNumber = 0; //used for debugging, counts number of times this has rendered
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
-    public int innateRotation = 0; //0 = top of sprite is forwards, 90 is right of sprite is forwards, 180 is bottom of sprite is forwards etc
+    public int innateRotation = 0; //0 = top of sprite is forwards, 90 is right of sprite is right, 180 is bottom of sprite is forwards etc
     protected double baseSpeed = 2; //total distance the object can move per tick
     private boolean isAnimated = false;
     protected Sequence sequence = null; //animation sequence to run if animated
@@ -49,6 +42,7 @@ public class GameObject2 {
     public final int ID;
     private static int IDLog = 0; //used to assign IDs
     public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
+    public ArrayList<SubObject> subObjects = new ArrayList<>(); //stores all subobjects on this object
     
         public double getSpeed() {
         if (hostGame.pathingLayer == null) {
@@ -56,6 +50,13 @@ public class GameObject2 {
         }
         return baseSpeed * pathingModifiers.get(currentTerrain());
     }
+        
+   public double getBaseSpeed(){
+       return baseSpeed;
+   }
+   public void setBaseSpeed(double bs){
+       baseSpeed = bs;
+   }
 
    public PathingLayer.Type currentTerrain(){
        return hostGame.pathingLayer.getTypeAt(this.getPixelLocation());
@@ -82,7 +83,7 @@ public class GameObject2 {
     /**
      * sets hitbox based on current size and location
      */
-    private void updateHitbox() {
+    protected void updateHitbox() {
         int width = getWidth();
         int height = getHeight();
         hitbox.width = width;
@@ -139,7 +140,7 @@ public class GameObject2 {
     }
 
     public void setRotation(double degrees) {
-        rotation = degrees;
+        rotation = degrees - innateRotation;
     }
 
     public void rotate(double degrees) {
@@ -226,7 +227,11 @@ public class GameObject2 {
         sequence = s;
         isAnimated = true;
     }
-    
+    /**
+     * this method runs every "tick" similar to update() in unity; Reccomended you
+     * start your overridden tick method with super() so that updateLocation
+     * method runs and tickNumber continues counting
+     */
     public void tick(){
         updateLocation();
         tickNumber++;

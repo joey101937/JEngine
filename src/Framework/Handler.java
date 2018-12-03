@@ -67,13 +67,18 @@ public class Handler {
     }
     
     /**
-     * renders all objects in the game
+     * renders all objects in the game, along with their subobjects
      * @param g 
      */
     public synchronized void render(Graphics2D g) {
         for (GameObject2 go : getAllObjects()) {
             try{
-             go.render(g);   
+             go.render(g);
+             if(go.subObjects!=null){
+                 for(SubObject so : go.subObjects){
+                     so.render(g);
+                 }
+             }
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -82,12 +87,18 @@ public class Handler {
     }
 
     /**
-     * ticks all objects in the game
+     * ticks all objects in the game along with their subobjects
      */
     public synchronized void tick() {
-      for(GameObject2 go : getAllObjects()){
-          go.hostGame=hostGame;
+      for(GameObject2 go : getAllObjects()) {
+          go.hostGame = hostGame;
           go.tick();
+          if (go.subObjects != null) {
+              for (SubObject so : go.subObjects) {
+                  so.tick();
+              }
+          }
+        
       }
     }
 

@@ -10,7 +10,7 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 
 /**
- *
+ * example setup of using GameObject2s to make damagable units with health
  * @author joey
  */
 public abstract class Creature extends GameObject2 {
