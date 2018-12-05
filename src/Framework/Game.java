@@ -13,12 +13,15 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.awt.Toolkit;
+import java.awt.geom.Line2D;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 
 /**
@@ -99,6 +102,39 @@ public class Game extends Canvas implements Runnable {
         this.addKeyListener(in);
     }
     
+    /**
+     * returns all gameobjects that intersect the given rectangle
+     * used for grabbing all objects in a rectanglular area 
+     * (uses hitbox intersect)
+     */
+    public ArrayList<GameObject2> getObjectsInArea(Rectangle r){
+       ArrayList<GameObject2> output = new ArrayList<>();
+        for(GameObject2 go : handler.getAllObjects()){
+            if(go.getHitbox().intersects(r)){
+                output.add(go);
+            }
+        }
+        return output;
+    }
+    
+    
+    /**
+     * returns all gameobjects that are within distance of c; used to get all
+     * gameobjects withing proximity of a point.(circular) 
+     * (uses center point value)
+     * @param c point to use
+     * @param distance how far away from c the object may be to get selected
+     */
+    public ArrayList<GameObject2> getObjectsNearPoint(Coordinate c, double distance){
+          ArrayList<GameObject2> output = new ArrayList<>();
+          for(GameObject2 go : handler.getAllObjects()){
+              if(go.getPixelLocation().distanceFrom(c)<=distance){
+                  output.add(go);
+              }
+          }
+          return output;
+    }
+    
 
     /**
      * use this method to set starting objects etc
@@ -112,7 +148,7 @@ public class Game extends Canvas implements Runnable {
             DCoordinate location = new DCoordinate(x,y);
             SampleBird bird = new SampleBird(location);
             this.addObject(bird);
-            bird.velocity=new DCoordinate(.5,.5);        
+            bird.velocity=new DCoordinate(.5,.5);      
         }
         ////add player character
         SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
@@ -288,6 +324,13 @@ public class Game extends Canvas implements Runnable {
      */
     public void addObject(GameObject2 o){
         handler.addObject(o);
+    }
+    
+    /**
+     * @return all game objects in this world
+     */
+    public ArrayList<GameObject2> getAllObjects(){
+        return handler.getAllObjects();
     }
     /**
      * removes object from the game

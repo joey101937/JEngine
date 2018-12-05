@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class VisualEffectHandler {
     public CopyOnWriteArrayList<Sticker> stickers = new CopyOnWriteArrayList<>();
     public LinkedList<Coordinate[]> lines = new LinkedList<>();
+    
     /**
      * renders all visual effects to canvas
      * @param g Graphics2D object to use

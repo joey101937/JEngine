@@ -21,14 +21,14 @@ import java.util.Map;
  */
 public class GameObject2 {
     public Game hostGame;
-    public String name= "Unnamed " + this.getClass().getName();
-    public int tickNumber = 0;
-    public int renderNumber = 0;
+    public String name= "Unnamed " + this.getClass().getName(); 
+    public long tickNumber = 0; //used for debugging, counts number of times this has ticked
+    public long renderNumber = 0; //used for debugging, counts number of times this has rendered
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
-    public int innateRotation = 0; //0 = top of sprite is forwards, 90 is right of sprite is forwards, 180 is bottom of sprite is forwards etc
+    public int innateRotation = 0; //0 = top of sprite is forwards, 90 is right of sprite is right, 180 is bottom of sprite is forwards etc
     protected double baseSpeed = 2; //total distance the object can move per tick
-    private boolean isAnimated = false;
+    private boolean isAnimated = false;//weather or not this object uses sprite or sequence
     protected Sequence sequence = null; //animation sequence to run if animated
     public BufferedImage sprite = null; //static sprite if not animated
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
@@ -44,15 +44,31 @@ public class GameObject2 {
     public final int ID;
     private static int IDLog = 0; //used to assign IDs
     public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
+    public ArrayList<SubObject> subObjects = new ArrayList<>(); //stores all subobjects on this object
     
-        public double getSpeed() {
+    public double getSpeed() {
         if (hostGame.pathingLayer == null) {
             return baseSpeed;
         }
         return baseSpeed * pathingModifiers.get(currentTerrain());
     }
 
+   public double getBaseSpeed(){
+       return baseSpeed;
+   }
+   public void setBaseSpeed(double bs){
+       baseSpeed = bs;
+   }
+
+   /**
+    * Gets the current terrain this object is on; Terrain is determined by 
+    * terrain type of pixel that this object is centered on
+    */
    public PathingLayer.Type currentTerrain(){
+       if(hostGame.pathingLayer==null){
+           System.out.println("trying to get terrain type of null pathing layer -"+name);
+           return null;
+       }
        return hostGame.pathingLayer.getTypeAt(this.getPixelLocation());
    }
     
@@ -77,13 +93,14 @@ public class GameObject2 {
     /**
      * sets hitbox based on current size and location
      */
-    private void updateHitbox() {
+    protected void updateHitbox() {
         int width = getWidth();
         int height = getHeight();
         hitbox.width = width;
         hitbox.height = height;
         hitbox.x = (int) (location.x - width / 2.0);
         hitbox.y = (int) (location.y - height / 2.0);
+        
     }
 
 
@@ -134,7 +151,7 @@ public class GameObject2 {
     }
 
     public void setRotation(double degrees) {
-        rotation = degrees;
+        rotation = degrees - innateRotation;
     }
 
     public void rotate(double degrees) {
@@ -156,6 +173,14 @@ public class GameObject2 {
      */
     public void lookAt(DCoordinate destination){
          setRotation(DCoordinate.angleFrom(location, destination) - innateRotation);
+    }
+        /**
+     * Rotates this object so that its front (determined by innate rotation) is
+     * angled towards given location
+     * @param destination location to look at
+     */
+    public void lookAt(Coordinate destination){
+         setRotation(DCoordinate.angleFrom(getPixelLocation(), destination) - innateRotation);
     }
     /**
      * Draws the object on screen in the game world
@@ -221,7 +246,11 @@ public class GameObject2 {
         sequence = s;
         isAnimated = true;
     }
-    
+    /**
+     * this method runs every "tick" similar to update() in unity; Reccomended you
+     * start your overridden tick method with super() so that updateLocation
+     * method runs and tickNumber continues counting
+     */
     public void tick(){
         updateLocation();
         tickNumber++;
