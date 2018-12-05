@@ -39,7 +39,6 @@ public class DemoInputHandler extends InputHandler{
     @Override
     public void keyTyped(KeyEvent e) {
         
-        
     }
 
     @Override
@@ -142,6 +141,7 @@ public class DemoInputHandler extends InputHandler{
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        this.hostGame.testObject.lookAt(locationOfMouse(e));  
     }
 
     

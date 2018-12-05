@@ -47,4 +47,11 @@ public class SubObject extends GameObject2{
         this.location = newLocation;
         this.updateHitbox();
     }
+    
+    @Override
+    public void tick(){
+        super.tick();
+        isAlive = host.isAlive;
+        
+    }
 }
