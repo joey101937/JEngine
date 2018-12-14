@@ -108,16 +108,23 @@ public class Game extends Canvas implements Runnable {
      * (uses hitbox intersect)
      */
     public ArrayList<GameObject2> getObjectsInArea(Rectangle r){
-       ArrayList<GameObject2> output = new ArrayList<>();
-        for(GameObject2 go : handler.getAllObjects()){
-            if(go.getHitbox().intersects(r)){
+        Coordinate[] verts = new Coordinate[4];
+        verts[0]=new Coordinate(r.x,r.y);
+        verts[1]=new Coordinate(r.x+r.width,r.y);
+        verts[3] = new Coordinate(r.x, r.y + r.height);
+        verts[4] = new Coordinate(r.x + r.width, r.y + r.height);
+        Hitbox hitbox = new Hitbox(verts);
+        ArrayList<GameObject2> output = new ArrayList<>();
+        for (GameObject2 go : handler.getAllObjects()) {
+            if (go.getHitbox().intersects(hitbox)) {
                 output.add(go);
             }
         }
         return output;
+
     }
-    
-    
+
+
     /**
      * returns all gameobjects that are within distance of c; used to get all
      * gameobjects withing proximity of a point.(circular) 

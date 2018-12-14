@@ -5,11 +5,12 @@
  */
 package GUI;
 
-import Framework.Camera;
+import Framework.Coordinate;
 import Framework.Game;
 import Framework.Main;
 import Framework.Window;
 import Framework.GameObject2;
+import Framework.Hitbox;
 
 /**
  *
@@ -312,7 +313,6 @@ public class OptionsMenu extends javax.swing.JFrame {
         g.start();
         g.name="main";
         alt.name = "alt";
-        
         for(GameObject2 go : alt.handler.getAllObjects()){
             if(go.name.toLowerCase().startsWith("bird")){
                 //removes all birds from one game

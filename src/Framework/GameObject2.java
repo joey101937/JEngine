@@ -39,7 +39,7 @@ public class GameObject2 {
     protected boolean isAlive = true; //weather or not the object has been destroyed
     protected boolean horizontalFlip = false;
     public MovementType movementType = MovementType.SpeedRatio;
-    protected Rectangle hitbox = new Rectangle(0,0,0,0);
+    protected Hitbox hitbox ;
     protected ArrayList<Sticker> attachedStickers = new ArrayList<>();
     public final int ID;
     private static int IDLog = 0; //used to assign IDs
@@ -87,21 +87,15 @@ public class GameObject2 {
     /**
      * @return The Rectangle object used as hitbox
      */
-    public Rectangle getHitbox() {
+    public Hitbox getHitbox() {
         return hitbox;
     }
-    /**
-     * sets hitbox based on current size and location
-     */
-    protected void updateHitbox() {
-        int width = getWidth();
-        int height = getHeight();
-        hitbox.width = width;
-        hitbox.height = height;
-        hitbox.x = (int) (location.x - width / 2.0);
-        hitbox.y = (int) (location.y - height / 2.0);
-        
+
+    
+    public void setHitbox(Hitbox replacement){
+        this.hitbox = replacement;
     }
+    
 
 
     /**
@@ -152,10 +146,12 @@ public class GameObject2 {
 
     public void setRotation(double degrees) {
         rotation = degrees - innateRotation;
+
     }
 
     public void rotate(double degrees) {
         rotation += degrees;
+
     }
     
     /**
@@ -218,15 +214,15 @@ public class GameObject2 {
         }
         if (Main.debugMode) {
             g.setColor(Color.red);
-            g.draw(this.getHitbox());
             g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
-            g.drawString(name, hitbox.x, hitbox.y);
+            g.drawString(name, (int)location.x-getWidth()/2, (int)location.y-getHeight()/2);
              //TODO DRAW LINE FACING ROTATION DIRECTION
              g.rotate(Math.toRadians(innateRotation));
              g.drawLine((int)location.x,(int)location.y, (int)location.x, (int)location.y-80);
              g.rotate(-Math.toRadians(innateRotation));
         }
         g.setTransform(old); //reset rotation for next item to render
+        if(Main.debugMode && getHitbox()!=null)getHitbox().render(g); //render hitbox without graphics rotation
     }
     
     
@@ -246,6 +242,44 @@ public class GameObject2 {
         sequence = s;
         isAnimated = true;
     }
+    
+    /**
+     * maintains default hitboxes.
+     * override to use custom hitboxes
+     */
+    public void updateHitbox() {
+        if (getHitbox() == null && getWidth()>0) {
+            int width = getWidth();
+            int height = getHeight();
+            Coordinate[] verts = new Coordinate[4];
+            verts[0] = new Coordinate(-width / 2, -height / 2);
+            verts[1] = new Coordinate(width / 2, -height / 2);
+            verts[2] = new Coordinate(-width / 2, height / 2);
+            verts[3] = new Coordinate(width / 2, height / 2);
+            setHitbox(new Hitbox(this, verts));
+        }
+        if (getHitbox() != null && getHitbox().type == Hitbox.Type.box) {
+            int width = getWidth();
+            int height = getHeight();
+            Coordinate[] verts = new Coordinate[4];
+            verts[0] = new Coordinate(-width / 2, -height / 2);
+            verts[1] = new Coordinate(width / 2, -height / 2);
+            verts[2] = new Coordinate(-width / 2, height / 2);
+            verts[3] = new Coordinate(width / 2, height / 2);
+            for(Coordinate c : verts){
+                if(!name.startsWith("Player"))return; //this is here so only the player character is tested
+                double theta = Math.toRadians(rotation);
+                c.x = (int)(c.x*Math.cos(theta)-c.y*Math.sin(theta));
+                c.y = (int)(c.x*Math.sin(theta)+c.y*Math.cos(theta));
+            }
+            getHitbox().vertices = verts;
+        }else{
+            
+        }
+
+    }
+    
+    
     /**
      * this method runs every "tick" similar to update() in unity; Reccomended you
      * start your overridden tick method with super() so that updateLocation
@@ -273,7 +307,28 @@ public class GameObject2 {
                 break;
         }
         //COLLISION
-        if (isSolid) {
+        if (isSolid && getHitbox()!=null) {
+              Coordinate toMove = new Coordinate((int)(newLocation.x-location.x),(int)(newLocation.y-location.y));
+            for (GameObject2 other : hostGame.handler.getAllObjects()) {
+                if (!other.isSolid || other==this) {
+                    continue;
+                }
+                if (getHitbox().intersects(other.getHitbox())) {
+                    //if we are already on top of another unit, just keep going to not get stuck
+                    onCollide(other);
+                    continue;
+                }
+                if (getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate(velocity))) {
+                    //if we would collide with a unit, stop moving and run onCollide
+                    //prevents units from stacking on top of eachother
+                    newLocation = location.copy();
+                    onCollide(other);
+                    continue;
+                }
+            }
+          
+            
+            /*
             for (GameObject2 other : hostGame.handler.getAllObjects()) {
                 if (!other.isSolid || other==this) {
                     continue;
@@ -312,13 +367,14 @@ public class GameObject2 {
                     onCollide(other);
                 }
             }
+            */
         }
         if(hostGame.pathingLayer==null || this.pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
             //Only change location if the terrain there is pathable with a speed multiplier of at least .05
             location = newLocation;
         }
-        constrainToWorld();
         updateHitbox();
+        constrainToWorld();
     }
     
     
@@ -336,7 +392,6 @@ public class GameObject2 {
     public GameObject2(Coordinate c){
       init(new DCoordinate(c));
       ID = IDLog++;
-      
     }
     public GameObject2(DCoordinate dc){
         init(dc);
@@ -380,7 +435,7 @@ public class GameObject2 {
      * @param other the object whose hitbox we are touching
      */
     public void onCollide(GameObject2 other){
-       
+        System.out.println(this.toString() + " colliding with " + other);
     }
     
     /**
@@ -388,7 +443,8 @@ public class GameObject2 {
      * @return 
      */
     public boolean isOnScreen(){
-        return this.getHitbox().intersects(hostGame.camera.getFieldOfView());
+        Rectangle sightBox = new Rectangle((int)this.location.x-getWidth()/2,(int)this.location.y-getHeight()/2,getWidth(),getHeight());
+        return sightBox.intersects(hostGame.camera.getFieldOfView());
     }
     
     @Override

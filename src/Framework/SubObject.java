@@ -44,8 +44,8 @@ public class SubObject extends GameObject2{
     public void updateLocation(){
         DCoordinate newLocation = host.location.copy();
         newLocation.add(offset);
+        updateHitbox();
         this.location = newLocation;
-        this.updateHitbox();
     }
     
     @Override
