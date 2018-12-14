@@ -6,6 +6,7 @@
 package Framework;
 
 import static Framework.Hitbox.Type.box;
+import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 
 /**
@@ -23,15 +24,19 @@ public class Hitbox {
     private  DCoordinate staticCenter = new DCoordinate(0, 0); //center point for if there is no host
     public double radius = 0.0; //radius if circle hitbox
     
+    /**
+     * topLeft, topRight, botLeft, botRight
+     */
+    public Coordinate[] vertices = null;            //topLeft, topRight, botLeft, botRight
+
+    
+    
+    
     public DCoordinate getCenter(){
         if(host!=null)return staticCenter;
         else return host.location;
     }
     
-    /**
-     * topLeft, topRight, botLeft, botRight
-     */
-    public Coordinate[] vertices = null;            //topLeft, topRight, botLeft, botRight
 
     /**
      * Creates a circular hitbox at location given with radius given
@@ -189,6 +194,18 @@ public class Hitbox {
         }
         System.out.println("error with intersecting, types are " + type + " " + other.type);
         return false;
+    }
+    
+    public void render(Graphics2D g){
+        if(this.type == Type.box){
+            //render all sides
+            g.drawLine((int)leftSide()[0], (int)leftSide()[1], (int)leftSide()[2], (int)leftSide()[3]);
+            g.drawLine((int)rightSide()[0], (int)rightSide()[1], (int)rightSide()[2], (int)rightSide()[3]);
+            g.drawLine((int)topSide()[0], (int)topSide()[1], (int)topSide()[2], (int)topSide()[3]);
+            g.drawLine((int)botSide()[0], (int)botSide()[1], (int)botSide()[2], (int)botSide()[3]);
+        }else if(type==Type.circle){
+            g.drawOval((int)getCenter().x, (int)getCenter().y, (int)radius, (int)radius);
+        }
     }
 
 }
