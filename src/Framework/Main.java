@@ -80,8 +80,6 @@ public class Main {
     /**
      * displays a dialog box give the user a message, String s. pauses the
      * thread until the user hits OK
-     *
-     * @param s
      */
     public static void display(String s) {
         JOptionPane.showMessageDialog(null, s);

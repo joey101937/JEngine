@@ -309,7 +309,7 @@ public class GameObject2 {
                         if(!verticalCollision) newLocation.y = other.hitbox.y + other.hitbox.height + getHeight()/2 + 1;
                        //collision up
                     }
-                    collide(other);
+                    onCollide(other);
                 }
             }
         }
@@ -379,7 +379,7 @@ public class GameObject2 {
      * Runs each tick this object's hitbox is touching another object's hitbox
      * @param other the object whose hitbox we are touching
      */
-    public void collide(GameObject2 other){
+    public void onCollide(GameObject2 other){
        
     }
     

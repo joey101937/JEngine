@@ -12,14 +12,15 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 /**
- *
+ * Manages all user input to a game. Acts as key, Mouse, and MouseMotion Listener.
+ * Should be added to a game with game.setInputHandler method
  * @author Joseph
  */
 public abstract class InputHandler implements KeyListener, MouseListener, MouseMotionListener{
     //FIELDS
     protected Game hostGame = null;
     public InputHandler(Game x){
-        hostGame = x;   
+        hostGame = x;  
     }
     /**
      * creates handler without host game

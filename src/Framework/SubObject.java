@@ -18,7 +18,7 @@ public class SubObject extends GameObject2{
     /**
      * Creates a subobject with a given offset. Use setHost(GameObject2) method
      * to attach this to a gameobject
-     * @param offset 
+     * @param offset location modifier. subobject location will be host location + offset
      */
     public SubObject(Coordinate offset){
         super(new Coordinate(0,0));

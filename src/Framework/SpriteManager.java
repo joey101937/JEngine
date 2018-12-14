@@ -12,11 +12,13 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 /**
- *
+ * This class acts as a central hub for accessing exterior assets; particularly
+ * for images. 
  * @author Joseph
  */
 public abstract class SpriteManager {
     public static boolean initialized = false;
+    //THESE  ARE GLOBAL FIELDS THAT ARE USED TO STORE AND ACCESS ASSETS
     /*--------------------------------------------------------*/
     public static BufferedImage up;
     public static BufferedImage pathingLayer;

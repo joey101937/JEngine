@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 
 /**
- * this is the part of the screen that you look at while playing and that
+ * This is the part of the screen that you look at while playing and that
  * contains all gameObjects
  * @author Joseph
  */

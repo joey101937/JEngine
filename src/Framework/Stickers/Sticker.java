@@ -47,7 +47,7 @@ public class Sticker implements Runnable{
         t.start();
     }
     /**
-     * calibrates the render location to center the image on spawn location
+     * Calibrates the render location to center the image on spawn location
      * @param toRender 
      */
     protected void centerCoordinate(BufferedImage toRender) {
