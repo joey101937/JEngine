@@ -169,7 +169,8 @@ public class Game extends Canvas implements Runnable {
         SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
         other.name = "Sample Character";
         addObject(other);
-        new AnimatedSticker(this, SpriteManager.explosionSequence,new Coordinate(400, worldHeight-windowHeight), 99999);
+        AnimatedSticker testEffect = new AnimatedSticker(this, SpriteManager.smokeVortexSequence,new Coordinate(400, 400), 99999);
+        testEffect.scale(4);
         setInputHandler(new DemoInputHandler());
     }
     

@@ -26,6 +26,7 @@ public class SubObject extends GameObject2{
         isSolid = false; //subobjects do not have collision by default
     }
     
+    
     /**
      * sets the host object to carry this subobject.
      * note: removes this subobject from previous host if applicable
@@ -36,6 +37,8 @@ public class SubObject extends GameObject2{
         this.host = host;
         if(host!=null)this.host.subObjects.add(this);
     }
+
+    
     
     /**
      * updating the location sets the location to host location + offset

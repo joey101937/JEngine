@@ -150,5 +150,17 @@ public class Sequence {
         }
         
     }
+    /**
+     * reverses the animation sequence. 
+     * first frame becomes last frame and vice versa
+     */
+    public void reverse(){
+        BufferedImage[] newFrames = new BufferedImage[frames.length];
+        for(int i =0 ; i<frames.length;i++){
+            newFrames[frames.length-(i+1)]=frames[i];
+        }
+        frames = newFrames;
+    }
+    
     
 }

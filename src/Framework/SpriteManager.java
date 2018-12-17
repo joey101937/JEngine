@@ -23,6 +23,7 @@ public abstract class SpriteManager {
     public static BufferedImage up;
     public static BufferedImage pathingLayer;
     public static BufferedImage[] explosionSequence;
+    public static BufferedImage[] smokeVortexSequence;
     public static BufferedImage[] birdySequence;
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
     /*--------------------------------------------------------*/
@@ -41,6 +42,7 @@ public abstract class SpriteManager {
         try{
            //this is where we load sprites
            explosionSequence = loadSequence("explosionSequence");
+           smokeVortexSequence = loadSequence("SmokeVortexSequence");
            birdySequence = loadSequence("birdySequence");
            up = load("upSprite.png");
            sampleChar_idle = loadSequence("SampleCharacter/Idle");

@@ -33,6 +33,7 @@ public class GameObject2 {
     public BufferedImage sprite = null; //static sprite if not animated
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0;
+    /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
     public boolean isInvisible = false; //invisible gameobjects are not rendered
     public double scale = 1; //size multiplier
@@ -45,7 +46,12 @@ public class GameObject2 {
     private static int IDLog = 0; //used to assign IDs
     public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
     public ArrayList<SubObject> subObjects = new ArrayList<>(); //stores all subobjects on this object
+    /**this determines weather or not a gameobject will be able to move through other solid units, however this still triggers onCollide*/
+    public boolean preventOverlap = true; 
     
+    /**
+     * @return speed this unit should be able to move at with the current terrain
+     */
     public double getSpeed() {
         if (hostGame.pathingLayer == null) {
             return baseSpeed;
@@ -145,7 +151,7 @@ public class GameObject2 {
     }
 
     public void setRotation(double degrees) {
-        if (isSolid && getHitbox()!=null){
+        if (isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
             for (GameObject2 other : hostGame.getAllObjects()) {
                 if (other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees-rotation)){
@@ -162,7 +168,7 @@ public class GameObject2 {
     }
 
     public void rotate(double degrees) {
-        if(isSolid && getHitbox()!=null){
+        if(isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
             for(GameObject2 other : hostGame.getAllObjects()){
                 if(other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees)){
@@ -350,9 +356,9 @@ public class GameObject2 {
                         onCollide(sub);
                         continue;
                     }
-                    if (getHitbox().intersectsIfMoved(sub.getHitbox(), new Coordinate((int) Math.ceil(velocity.x), (int) Math.ceil(velocity.y)))) {
+                    if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(sub.getHitbox(), new Coordinate((int) Math.ceil(velocity.x), (int) Math.ceil(velocity.y)))) {
                         //if we would collide with a unit, stop moving and run onCollide
-                        //prevents units from stacking on top of eachother
+                        //prevents units from stacking on top of eachother controlled with preventOverlap condtion
                         newLocation = location.copy();
                         onCollide(sub);
                         continue;
