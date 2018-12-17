@@ -40,6 +40,7 @@ public class GameObject2 {
     protected boolean isAlive = true; //weather or not the object has been destroyed
     protected boolean horizontalFlip = false;
     public MovementType movementType = MovementType.SpeedRatio;
+    public int plane = 0; //which 'layer' a unit is on. Units only collide with others in the same plane
     protected Hitbox hitbox ;
     protected ArrayList<Sticker> attachedStickers = new ArrayList<>();
     public final int ID;
@@ -154,7 +155,7 @@ public class GameObject2 {
         if (isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
             for (GameObject2 other : hostGame.getAllObjects()) {
-                if (other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees-rotation)){
+                if (plane==other.plane && other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees-rotation)){
                     return;
                 }
                
@@ -171,7 +172,7 @@ public class GameObject2 {
         if(isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
             for(GameObject2 other : hostGame.getAllObjects()){
-                if(other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees)){
+                if(plane==other.plane && other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees)){
                      return; 
                 }
             }
@@ -335,7 +336,7 @@ public class GameObject2 {
         if (isSolid && getHitbox()!=null) {
             Coordinate toMove = new Coordinate((int)(newLocation.x-location.x),(int)(newLocation.y-location.y));
             for (GameObject2 other : hostGame.handler.getAllObjects()) {
-                if (!other.isSolid || other==this) {
+                if (!other.isSolid || other==this || other.plane!=plane) {
                     continue;
                 }
                 if (getHitbox().intersects(other.getHitbox())) {
@@ -343,7 +344,7 @@ public class GameObject2 {
                     onCollide(other);
                     continue;
                 }
-                if (getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int)Math.ceil(velocity.x),(int)Math.ceil(velocity.y)))) {
+                if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int)Math.ceil(velocity.x),(int)Math.ceil(velocity.y)))) {
                     //if we would collide with a unit, stop moving and run onCollide
                     //prevents units from stacking on top of eachother
                     newLocation = location.copy();
@@ -381,8 +382,8 @@ public class GameObject2 {
      * to a legal, in-bounds location
      */
     public void constrainToWorld(){
-        if(location.x < 0) location.x=0;
-        if(location.y < 0) location.y=0;
+        if(location.x < hostGame.worldBorder) location.x=hostGame.worldBorder;
+        if(location.y < hostGame.worldBorder) location.y=hostGame.worldBorder;
         if(location.x > hostGame.worldWidth - hostGame.worldBorder) location.x = hostGame.worldWidth- hostGame.worldBorder;
         if(location.y > hostGame.worldHeight - hostGame.worldBorder) location.y = hostGame.worldHeight- hostGame.worldBorder;
     }

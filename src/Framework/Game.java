@@ -34,7 +34,7 @@ public class Game extends Canvas implements Runnable {
    
     public int width, height; //dimensions of the world canvas object on screen
     public int worldWidth = 0, worldHeight = 0; //dimensions of the gameworld
-    public int worldBorder = 100; //how far objects must stay from the world's edge in pixels
+    public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
     public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     public static int birdCount = 00; //how many birds to spawn in the demo
@@ -169,8 +169,7 @@ public class Game extends Canvas implements Runnable {
         SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
         other.name = "Sample Character";
         addObject(other);
-        AnimatedSticker testEffect = new AnimatedSticker(this, SpriteManager.smokeVortexSequence,new Coordinate(400, 400), 99999);
-        testEffect.scale(4);
+        AnimatedSticker testEffect = new AnimatedSticker(this, SpriteManager.explosionSequence,new Coordinate(400, 400), 99999);
         setInputHandler(new DemoInputHandler());
     }
     

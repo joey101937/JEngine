@@ -44,19 +44,26 @@ public class PathingLayer {
     
     /**
      * Gets pathing type at current Location
-     * Uses generated map if available, else evaluates pixel first
+     * Uses generated map if available,
+     * else evaluates pixel first
+     *
      * @param c coordinate to evaluate
      * @return pathing type
      */
     public Type getTypeAt(Coordinate c) {
-        if (mapGenerated) {
-            return map[c.x][c.y];
-        } else {
-            return getType(source.getRGB(c.x, c.y));
+        try {
+            if (mapGenerated) {
+                return map[c.x][c.y];
+            } else {
+                return getType(source.getRGB(c.x, c.y));
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("trying to get pathing layer outside of world");
+            return Type.impass;
         }
     }
-  
-    
+
+
     /**
      * constructor, creates pathing layer based on given image
      * @param image image to create based on
@@ -88,16 +95,21 @@ public class PathingLayer {
      * @return pathing type
      */
     private static Type getType(int c){
-        if(c==groundColor.getRGB()){
-            return Type.ground;
-        }else if(c==waterColor.getRGB()){
-            return Type.water;
-        }else if(c==impassColor.getRGB()){
-            return Type.impass;
-        }else{
-           // System.out.println("no path found for color " + new Color(c));
+        try{
+            if (c == groundColor.getRGB()) {
+                return Type.ground;
+            } else if (c == waterColor.getRGB()) {
+                return Type.water;
+            } else if (c == impassColor.getRGB()) {
+                return Type.impass;
+            } else {
+                // System.out.println("no path found for color " + new Color(c));
+                return Type.impass;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("error trying to get pathing layer outside of map");
             return Type.impass;
         }
     }
-    
+
 }

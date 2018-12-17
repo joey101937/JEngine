@@ -314,7 +314,7 @@ public class Hitbox {
                 g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);
             } else {
                 if(!host.isSolid){
-                    g.setColor(Color.lightGray);
+                    g.setColor(Color.blue);
                 }
                 //render all sides based on host location
                 Coordinate hostLoc = host.getPixelLocation();
@@ -324,6 +324,9 @@ public class Hitbox {
                 g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);             
             }
         } else if (type == Type.circle) {
+            if(host!=null && !host.isSolid){
+                g.setColor(Color.blue);
+            }
             g.drawOval((int) (getCenter().x-radius), (int) (getCenter().y-radius), (int) radius*2, (int) radius*2);
         }
         g.setColor(col);

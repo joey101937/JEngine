@@ -9,6 +9,7 @@ import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.InputHandler;
+import Framework.Projectile;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.Stickers.Sticker;
@@ -118,11 +119,12 @@ public class DemoInputHandler extends InputHandler{
 
     @Override
     public void mousePressed(MouseEvent e) {
-      Sticker s = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,locationOfMouse(e),9999);
-      s.scaleTo(2.0);
-      GameObject2 bird = new SampleBird(this.locationOfMouse(e));
-      bird.velocity= new DCoordinate(.5,.5);
-      hostGame.addObject(bird);
+      //Sticker s = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,locationOfMouse(e),9999);
+     // s.scaleTo(2.0);
+      //GameObject2 bird = new SampleBird(this.locationOfMouse(e));
+     // bird.velocity= new DCoordinate(.5,.5);
+     Projectile p = new Bullet(new DCoordinate(hostGame.testObject.location),new DCoordinate(locationOfMouse(e)));
+      hostGame.addObject(p);
     }
 
     @Override
