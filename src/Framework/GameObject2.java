@@ -327,7 +327,7 @@ public class GameObject2 {
         }
         //COLLISION
         if (isSolid && getHitbox()!=null) {
-              Coordinate toMove = new Coordinate((int)(newLocation.x-location.x),(int)(newLocation.y-location.y));
+            Coordinate toMove = new Coordinate((int)(newLocation.x-location.x),(int)(newLocation.y-location.y));
             for (GameObject2 other : hostGame.handler.getAllObjects()) {
                 if (!other.isSolid || other==this) {
                     continue;
@@ -344,49 +344,22 @@ public class GameObject2 {
                     onCollide(other);
                     continue;
                 }
-            }
-          
-            
-            /*
-            for (GameObject2 other : hostGame.handler.getAllObjects()) {
-                if (!other.isSolid || other==this) {
-                    continue;
-                }
-                if (hitbox.intersects(other.getHitbox())) {
-                    Rectangle intersection = hitbox.intersection(other.getHitbox());
-                    boolean horizontalCollision = true;
-                    boolean verticalCollision = true;
-                    if(intersection.width < getSpeed()*1.5) {
-                        horizontalCollision = false;
+                for (SubObject sub : other.subObjects) {
+                    if (getHitbox().intersects(sub.getHitbox())) {
+                        //if we are already on top of another unit, just keep going to not get stuck
+                        onCollide(sub);
+                        continue;
                     }
-                    if(intersection.height < getSpeed()*1.5){
-                        verticalCollision = false;
+                    if (getHitbox().intersectsIfMoved(sub.getHitbox(), new Coordinate((int) Math.ceil(velocity.x), (int) Math.ceil(velocity.y)))) {
+                        //if we would collide with a unit, stop moving and run onCollide
+                        //prevents units from stacking on top of eachother
+                        newLocation = location.copy();
+                        onCollide(sub);
+                        continue;
                     }
-                    //verticalCollision and horizontalCollision determine if we just halt velocity or actively move object back
-                    if (velocity.x > 0 && other.location.x > newLocation.x) {
-                        newLocation.x = location.x;
-                        if(!horizontalCollision) newLocation.x = other.hitbox.x - getWidth()/2 - 1;
-                       //collision right
-                    }
-                    if (velocity.x < 0 && other.location.x < newLocation.x) {
-                         newLocation.x = location.x;
-                        if(!horizontalCollision) newLocation.x = other.hitbox.x + other.hitbox.width + getWidth()/2 +1;
-                        //collision left
-                    }
-                    if (velocity.y > 0 && other.location.y > newLocation.y) {
-                         newLocation.y = location.y;
-                          if(!verticalCollision) newLocation.y = other.hitbox.y - getHeight()/2 - 1;
-                        //collision down
-                    }
-                    if (velocity.y < 0 && other.location.y < newLocation.y) {
-                        newLocation.y = location.y;
-                        if(!verticalCollision) newLocation.y = other.hitbox.y + other.hitbox.height + getHeight()/2 + 1;
-                       //collision up
-                    }
-                    onCollide(other);
                 }
             }
-            */
+
         }
         if(hostGame.pathingLayer==null || this.pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
             //Only change location if the terrain there is pathable with a speed multiplier of at least .05
@@ -433,10 +406,18 @@ public class GameObject2 {
     public final void destroy() {
         isAlive = false;
         onDestroy();
-        hostGame.removeObject(this);
+        if (!(this instanceof SubObject)) {
+            hostGame.removeObject(this);
+
+        }else{
+            SubObject me = (SubObject)this;
+            me.setHost(null);
+        }
     }
+
     /**
      * method that runs when this object is destroyed, to be used for gameplay
+     * Note this does not handle technical engine removal of object from game
      */
     public void onDestroy(){
         

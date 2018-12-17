@@ -16,12 +16,12 @@ import Framework.Hitbox;
  *
  * @author Joseph
  */
-public class OptionsMenu extends javax.swing.JFrame {
+public class LaunchMenu extends javax.swing.JFrame {
 
     /**
      * Creates new form OptionsMenu
      */
-    public OptionsMenu() {
+    public LaunchMenu() {
         initComponents();
         this.setVisible(true);
     }
@@ -292,7 +292,7 @@ public class OptionsMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_tripleCheckActionPerformed
 
     public static void main(String[] args) {
-        OptionsMenu test = new OptionsMenu();
+        LaunchMenu test = new LaunchMenu();
     }
     
     private static Game g ;

@@ -5,7 +5,7 @@
  */
 package Framework;
 
-import GUI.OptionsMenu;
+import GUI.LaunchMenu;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.logging.Level;
@@ -32,7 +32,7 @@ public class Main {
      */
     public static void main(String[] args) {
      //   SpriteManager.initialize();       <- disabled because of spriteManager static block
-        OptionsMenu options = new OptionsMenu();
+        LaunchMenu options = new LaunchMenu();
         //Game game = new Game(); <- disabled because options menu now starts the game
     }
 

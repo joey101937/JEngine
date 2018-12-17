@@ -12,7 +12,7 @@ import Framework.InputHandler;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.Stickers.Sticker;
-import GUI.OptionsMenu;
+import GUI.LaunchMenu;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -83,7 +83,7 @@ public class DemoInputHandler extends InputHandler{
                 System.out.println(hostGame.getPathingLayer().getTypeAt(hostGame.testObject.getPixelLocation()));
                 break;
             case 'G':{
-                OptionsMenu.changeGame();
+                LaunchMenu.changeGame();
             }
         }
     }

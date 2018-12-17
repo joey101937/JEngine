@@ -28,6 +28,7 @@ public class SubObject extends GameObject2{
     
     /**
      * sets the host object to carry this subobject.
+     * note: removes this subobject from previous host if applicable
      * @param host GameObject attach to
      */
     public void setHost(GameObject2 host) {
@@ -47,11 +48,17 @@ public class SubObject extends GameObject2{
         updateHitbox();
         this.location = newLocation;
     }
-    
+    /**
+     * Tick method on subobjects should alaways begin with super.tick();
+     */
     @Override
     public void tick(){
         super.tick();
-        isAlive = host.isAlive;
-        
+        isAlive = host.isAlive; 
+    }
+    
+    @Override
+    public void onCollide(GameObject2 other){
+        host.onCollide(other);
     }
 }
