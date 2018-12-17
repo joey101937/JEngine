@@ -105,9 +105,9 @@ public class GameObject2 {
     public int getWidth() {
         try{
         if (isAnimated) {
-            return sequence.getCurrentFrame().getWidth();
+            return (int)(sequence.getCurrentFrame().getWidth());
         } else {
-            return sprite.getWidth();
+            return (int)(sprite.getWidth());
         }
         }catch(NullPointerException npe){
             return 0;
@@ -120,9 +120,9 @@ public class GameObject2 {
     public int getHeight() {
         try {
             if (isAnimated) {
-                return sequence.getCurrentFrame().getHeight();
+                return (int)(sequence.getCurrentFrame().getHeight());
             } else {
-                return sprite.getHeight();
+                return (int)(sprite.getHeight());
             }
         } catch (NullPointerException npe) {
             return 0;
@@ -145,13 +145,35 @@ public class GameObject2 {
     }
 
     public void setRotation(double degrees) {
+        if (isSolid && getHitbox()!=null){
+            //if solid first check collisions
+            for (GameObject2 other : hostGame.getAllObjects()) {
+                if (other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees-rotation)){
+                    return;
+                }
+               
+            }
+        }
         rotation = degrees - innateRotation;
+        if (getHitbox() != null) {
+            getHitbox().rotateTo(degrees);
+        }
 
     }
 
     public void rotate(double degrees) {
+        if(isSolid && getHitbox()!=null){
+            //if solid first check collisions
+            for(GameObject2 other : hostGame.getAllObjects()){
+                if(other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees)){
+                     return; 
+                }
+            }
+        }
         rotation += degrees;
-
+        if(getHitbox()!=null){
+            getHitbox().rotate(degrees);
+        }
     }
     
     /**
@@ -244,11 +266,14 @@ public class GameObject2 {
     }
     
     /**
-     * maintains default hitboxes.
-     * override to use custom hitboxes
+     * maintains hitboxes, runs after default render.
+     * Override to use custom hitboxes.
+     * 
+     * by default, this sets up a rectangular hitbox and maintains it based on current sprite
+     * if the hitbox is set to be circular, maintains circle radius to be equal to width/2
      */
     public void updateHitbox() {
-        if (getHitbox() == null && getWidth()>0) {
+        if (getHitbox() == null && getWidth()>0 && renderNumber>0) {
             int width = getWidth();
             int height = getHeight();
             Coordinate[] verts = new Coordinate[4];
@@ -257,6 +282,7 @@ public class GameObject2 {
             verts[2] = new Coordinate(-width / 2, height / 2);
             verts[3] = new Coordinate(width / 2, height / 2);
             setHitbox(new Hitbox(this, verts));
+            return;
         }
         if (getHitbox() != null && getHitbox().type == Hitbox.Type.box) {
             int width = getWidth();
@@ -266,20 +292,13 @@ public class GameObject2 {
             verts[1] = new Coordinate(width / 2, -height / 2);
             verts[2] = new Coordinate(-width / 2, height / 2);
             verts[3] = new Coordinate(width / 2, height / 2);
-            for(Coordinate c : verts){
-                if(!name.startsWith("Player"))return; //this is here so only the player character is tested
-                double theta = Math.toRadians(rotation);
-                c.x = (int)(c.x*Math.cos(theta)-c.y*Math.sin(theta));
-                c.y = (int)(c.x*Math.sin(theta)+c.y*Math.cos(theta));
-            }
-            getHitbox().vertices = verts;
-        }else{
-            
+            getHitbox().setVertices(verts);
+        }else if(getHitbox() != null && getHitbox().type == Hitbox.Type.circle){
+            getHitbox().radius = getWidth()/2;
         }
-
+        
     }
-    
-    
+
     /**
      * this method runs every "tick" similar to update() in unity; Reccomended you
      * start your overridden tick method with super() so that updateLocation
@@ -318,7 +337,7 @@ public class GameObject2 {
                     onCollide(other);
                     continue;
                 }
-                if (getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate(velocity))) {
+                if (getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int)Math.ceil(velocity.x),(int)Math.ceil(velocity.y)))) {
                     //if we would collide with a unit, stop moving and run onCollide
                     //prevents units from stacking on top of eachother
                     newLocation = location.copy();
@@ -435,7 +454,8 @@ public class GameObject2 {
      * @param other the object whose hitbox we are touching
      */
     public void onCollide(GameObject2 other){
-        System.out.println(this.toString() + " colliding with " + other);
+   //     if(!Main.debugMode)return;
+   //   System.out.println(this.toString() + " colliding with " + other);
     }
     
     /**

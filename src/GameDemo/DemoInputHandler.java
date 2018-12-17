@@ -49,7 +49,7 @@ public class DemoInputHandler extends InputHandler{
                 hostGame.testObject.velocity.y = -hostGame.testObject.getSpeed();
                 break;
             case 'D':
-                hostGame.testObject.velocity.x = hostGame.testObject.getSpeed();
+                hostGame.testObject.velocity.x = hostGame.testObject.getSpeed();   
                 break;
             case 'S':
                 hostGame.testObject.velocity.y = hostGame.testObject.getSpeed();
@@ -120,6 +120,9 @@ public class DemoInputHandler extends InputHandler{
     public void mousePressed(MouseEvent e) {
       Sticker s = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,locationOfMouse(e),9999);
       s.scaleTo(2.0);
+      GameObject2 bird = new SampleBird(this.locationOfMouse(e));
+      bird.velocity= new DCoordinate(.5,.5);
+      hostGame.addObject(bird);
     }
 
     @Override

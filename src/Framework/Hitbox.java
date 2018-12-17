@@ -6,14 +6,26 @@
 package Framework;
 
 import static Framework.Hitbox.Type.box;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 
 /**
- *
+ * Htbox class represents either a 2D polygon or circle in the world, able to 
+ * detect when they intersect eachother and are therefore used for collision detection
+ * Hitboxes are either standalone or attached to gameobject2s.
+ * 
+ * polygonal hitboxes take 4 coordinate vertices. these are offsets if connected to a gameobject or raw locations if not
+ * circular hitboxes take only a radius parameter.
+ * 
+ * PERFORMANCE NOTE: Circular hitboxes are significantly faster to process than polygonal
  * @author joey
  */
 public class Hitbox {
+
+    public void setVertices(Coordinate[] verts) {
+        this.vertices = verts;
+    }
 
     public static enum Type {
         box, circle
@@ -21,36 +33,47 @@ public class Hitbox {
     public GameObject2 host;
     public Game hostGame;
     public Type type = box;
+    private double rotation = 0;
     private  DCoordinate staticCenter = new DCoordinate(0, 0); //center point for if there is no host
     public double radius = 0.0; //radius if circle hitbox
     //private double rotation = 0.0;
     /**
      * topLeft, topRight, botLeft, botRight
      */
-    public Coordinate[] vertices = null;            //topLeft, topRight, botLeft, botRight
-
-    /*
+    private Coordinate[] vertices = null;            //topLeft, topRight, botLeft, botRight
+    private double farthestRange = 0; //stores the distance of the farthest vertex, used for optimising performance
+    private double shortestRange = 9999999; //shortest distance from center to a flat side
+    /**
+     * used to set farthestRange. used for optimizing
+     */
+    private void setFarthestAndShortest(){
+        for(Coordinate c : vertices){
+            if(c.distanceFrom(getCenter())>farthestRange){
+                farthestRange = c.distanceFrom(getCenter());
+            }
+            if(Math.abs(c.x)<shortestRange){
+                shortestRange = Math.abs(c.x);
+            }
+            if(Math.abs(c.y)<shortestRange){
+                shortestRange=Math.abs(c.y);
+            }
+        }
+    }
+    
     public double getRotation(){
         return rotation;
     }
     public void rotate(double degrees){
         rotation+=degrees;
-        degrees = Math.toRadians(degrees);
-        if(type==Type.box){
-            for(Coordinate c : vertices){
-                c.x = (int)(c.x*Math.cos(degrees) - c.y*Math.sin(degrees));
-                c.y = (int)(c.x*Math.sin(degrees) + c.y*Math.cos(degrees));
-            }
-        }
     }
     public void rotateTo(double newRotation){
         rotate(newRotation-rotation);
     }
-    */
+    
     
     public DCoordinate getCenter(){
         if(host==null)return staticCenter;
-        else return host.location;
+        else return host.location.copy();
     }
     
 
@@ -70,21 +93,30 @@ public class Hitbox {
      * creates a rectangle hitbox with given corner points topLeft, topRight,
      * botLeft, botRight
      */
-    public Hitbox(Coordinate[] c) {
-        if (c.length != 4) {
+    public Hitbox(Coordinate[] given) {
+        if (given.length != 4) {
             System.out.println("ERROR: Bad argument for hitbox vertices- length should be 4");
         }
-        for (Coordinate cor : c) {
-            if (c == null) {
+        for (Coordinate cor : given) {
+            if (given == null) {
                 System.out.println("WARNING CREATING HITBOX WITH NULL VERTEX");
             }
         }
-       /*
-        todo 
-        set center to avg of point locations
-        */
-        vertices = c;
+        //set center to avg point
+        int avgX = 0, avgY = 0;
+        for (Coordinate c : given) {
+            avgX += c.x;
+            avgY += c.y;
+        }
+        staticCenter = new DCoordinate(avgX/4, avgY/4);
+        for (Coordinate c : given) {
+            c = c.copy();//dont modify given coordinates
+            c.subtract(staticCenter);
+        }
+        
+        vertices = given;
         type = Type.box;
+        setFarthestAndShortest();
     }
 
     /**
@@ -95,7 +127,6 @@ public class Hitbox {
      */
     public Hitbox(GameObject2 go, double radius) {
         host = go;
-        staticCenter = null;
         type = Type.circle;
         this.radius = radius;
     }
@@ -112,14 +143,24 @@ public class Hitbox {
         this.vertices = verts;
         host = go;
         type = Type.box;
+        setFarthestAndShortest();
+    }
+
+    private Coordinate adjustForRotation(Coordinate c) {
+        int oldX = c.x;
+        int oldY = c.y;
+        double rotation = Math.toRadians(getRotation());
+        int x = (int) (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
+        int y = (int) (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        return new Coordinate(x,y);
     }
 
     /**
      * coordinates for leftside line, used with box type
      */
     private double[] leftSide() {
-        Coordinate hostLoc = host.getPixelLocation();
-        double[] output = {vertices[0].x+ hostLoc.x, vertices[0].y+ hostLoc.y, vertices[2].x+ hostLoc.x, vertices[2].y+ hostLoc.y};
+        Coordinate hostLoc = new Coordinate(getCenter());      
+        double[] output = {adjustForRotation(vertices[0]).x+ hostLoc.x, adjustForRotation(vertices[0]).y+ hostLoc.y, adjustForRotation(vertices[2]).x+ hostLoc.x, adjustForRotation(vertices[2]).y+ hostLoc.y};
         return output;
     }
 
@@ -127,8 +168,8 @@ public class Hitbox {
      * coordinates for topside line used with box type
      */
     private double[] topSide() {
-        Coordinate hostLoc = host.getPixelLocation();
-        double[] output = {vertices[0].x+ hostLoc.x, vertices[0].y+ hostLoc.y, vertices[1].x+ hostLoc.x, vertices[1].y+ hostLoc.y};
+        Coordinate hostLoc = new Coordinate(getCenter());    
+        double[] output = {adjustForRotation(vertices[0]).x+ hostLoc.x,adjustForRotation(vertices[0]).y+ hostLoc.y, adjustForRotation(vertices[1]).x+ hostLoc.x, adjustForRotation(vertices[1]).y+ hostLoc.y};
         return output;
     }
 
@@ -136,8 +177,8 @@ public class Hitbox {
      * coordinates for right side line used with box type
      */
     private double[] rightSide() {
-        Coordinate hostLoc = host.getPixelLocation();
-        double[] output = {vertices[1].x+ hostLoc.x, vertices[1].y+ hostLoc.y, vertices[3].x+ hostLoc.x, vertices[3].y+ hostLoc.y};
+        Coordinate hostLoc = new Coordinate(getCenter());    
+        double[] output = {adjustForRotation(vertices[1]).x+ hostLoc.x, adjustForRotation(vertices[1]).y+ hostLoc.y, adjustForRotation(vertices[3]).x+ hostLoc.x,adjustForRotation(vertices[3]).y+ hostLoc.y};
         return output;
     }
 
@@ -145,8 +186,8 @@ public class Hitbox {
      * coordinates for bottom side line used with box type
      */
     private double[] botSide() {
-        Coordinate hostLoc = host.getPixelLocation();
-        double[] output = {vertices[2].x+ hostLoc.x, vertices[2].y+ hostLoc.y, vertices[3].x+ hostLoc.x, vertices[3].y+ hostLoc.y};
+        Coordinate hostLoc = new Coordinate(getCenter());    
+        double[] output = { adjustForRotation(vertices[2]).x+ hostLoc.x,  adjustForRotation(vertices[2]).y+ hostLoc.y,  adjustForRotation(vertices[3]).x+ hostLoc.x,  adjustForRotation(vertices[3]).y+ hostLoc.y};
         return output;
     }
 
@@ -160,10 +201,13 @@ public class Hitbox {
      * @return weather or not they overlap
      */
     public boolean intersects(Hitbox other) {
-        if(other==null){
+        if(other==null || other==this){
             return false;
         }
+        double distance = getCenter().distanceFrom(other.getCenter());
+        //box on box collision
         if(this.type==Type.box && other.type==Type.box){
+            if(distance>this.farthestRange && distance > other.farthestRange)return false; //too far to possibly intersect
         if (linesIntersect(rightSide(), other.leftSide()) || linesIntersect(rightSide(), other.rightSide())
                 || linesIntersect(rightSide(), other.topSide()) || linesIntersect(rightSide(), other.botSide())) {
             //our right side intersects one of their lines
@@ -187,30 +231,35 @@ public class Hitbox {
         return false;
         }
         if (this.type == Type.box && other.type == Type.circle) {
-            if (getCenter().distanceFrom(other.getCenter()) <= other.radius) {
+            //box on circle collision
+            if (distance <= other.radius + this.shortestRange) {
                 return true;
             }
             for (Coordinate c : vertices) {
-                if (c.distanceFrom(other.getCenter()) <= other.radius) {
+                Coordinate corner = this.adjustForRotation(c);
+                corner.add(getCenter());
+                if (corner.distanceFrom(other.getCenter()) <= other.radius) {
                     return true;
                 }
             }
             return false;
         }
          if (this.type == Type.circle && other.type == Type.box) {
-            if (getCenter().distanceFrom(other.getCenter()) <= radius) {
+             //circle on box collision
+            if (distance <= radius + other.shortestRange) {
                 return true;
             }
             for (Coordinate c : other.vertices) {
-                if (c.distanceFrom(getCenter()) <= radius) {
+                Coordinate corner = other.adjustForRotation(c);
+                corner.add(other.getCenter());
+                if (corner.distanceFrom(getCenter()) <= radius) {
                     return true;
                 }
             }
             return false;
         }
         if(this.type==Type.circle && other.type == Type.circle){
-            double distance = getCenter().distanceFrom(other.getCenter());
-            if(distance < radius || distance < other.radius){
+            if(distance < radius + other.radius){
                 return true;
             }
             return false;
@@ -227,20 +276,35 @@ public class Hitbox {
     public boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
         double saftyScaler = 1.5; //how much we scale the velocity to account for extramovement
                                    //large scaler = less chance of overlap but farther apart units must stay
-        for (Coordinate c : vertices) {
-            c.x += velocity.x*saftyScaler;
-            c.y += velocity.y*saftyScaler;
+        staticCenter.x += velocity.x * saftyScaler;
+        staticCenter.y += velocity.y * saftyScaler;
+        if (host != null) {
+            host.location.x += velocity.x * saftyScaler;
+            host.location.y += velocity.y * saftyScaler;
         }
         boolean result = intersects(other);
-        for (Coordinate c : vertices) {
-            c.x -= velocity.x*saftyScaler;
-            c.y -= velocity.y*saftyScaler;
+            if (host != null) {
+            host.location.x -= velocity.x * saftyScaler;
+            host.location.y -= velocity.y * saftyScaler;
         }
+         staticCenter.x -= velocity.x * saftyScaler;
+        staticCenter.y -= velocity.y * saftyScaler;
         return result;
     }
+    
+    
+    
+    public boolean intersectsIfRotated(Hitbox other, double possibleRotation){
+        rotate(possibleRotation);
+        boolean result = intersects(other);
+        rotate(-possibleRotation);
+        return result;
+    }    
+    
 
 
     public void render(Graphics2D g){
+        Color col = g.getColor();
         if(this.type == Type.box){ 
             //render all sides
             if(host==null){
@@ -249,23 +313,20 @@ public class Hitbox {
                 g.drawLine((int) topSide()[0], (int) topSide()[1], (int) topSide()[2], (int) topSide()[3]);
                 g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);
             } else {
+                if(!host.isSolid){
+                    g.setColor(Color.lightGray);
+                }
                 //render all sides based on host location
                 Coordinate hostLoc = host.getPixelLocation();
                 g.drawLine((int) leftSide()[0], (int) leftSide()[1], (int) leftSide()[2], (int) leftSide()[3]);
                 g.drawLine((int) rightSide()[0], (int) rightSide()[1], (int) rightSide()[2], (int) rightSide()[3]);
                 g.drawLine((int) topSide()[0], (int) topSide()[1], (int) topSide()[2], (int) topSide()[3]);
-                g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);
-                /*
-                g.drawLine((int) leftSide()[0] + hostLoc.x, (int) leftSide()[1] + hostLoc.y, (int) leftSide()[2] + hostLoc.x, (int) leftSide()[3] + hostLoc.y);
-                g.drawLine((int) rightSide()[0] + hostLoc.x, (int) rightSide()[1] + hostLoc.y, (int) rightSide()[2] + hostLoc.x, (int) rightSide()[3] + hostLoc.y);
-                g.drawLine((int) topSide()[0] + hostLoc.x, (int) topSide()[1] + hostLoc.y, (int) topSide()[2] + hostLoc.x, (int) topSide()[3] + hostLoc.y);
-                g.drawLine((int) botSide()[0] + hostLoc.x, (int) botSide()[1] + hostLoc.y, (int) botSide()[2] + hostLoc.x, (int) botSide()[3] + hostLoc.y);
-            
-                 */
+                g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);             
             }
         } else if (type == Type.circle) {
-            g.drawOval((int) getCenter().x, (int) getCenter().y, (int) radius, (int) radius);
+            g.drawOval((int) (getCenter().x-radius), (int) (getCenter().y-radius), (int) radius*2, (int) radius*2);
         }
+        g.setColor(col);
     }
 
 }

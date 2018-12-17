@@ -295,8 +295,8 @@ public class OptionsMenu extends javax.swing.JFrame {
         OptionsMenu test = new OptionsMenu();
     }
     
-    private static Game g = new Game();
-    private static Game alt = new Game();
+    private static Game g ;
+    private static Game alt;
     
     @Override
     public void dispose(){
@@ -307,6 +307,8 @@ public class OptionsMenu extends javax.swing.JFrame {
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
         Game.birdCount = (int) birdSpinner.getValue();
+        g=new Game();
+        alt=new Game();
         g.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         alt.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         Window w = new Window(g);

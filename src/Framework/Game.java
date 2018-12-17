@@ -37,7 +37,7 @@ public class Game extends Canvas implements Runnable {
     public int worldBorder = 100; //how far objects must stay from the world's edge in pixels
     public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
-    public static int birdCount = 60; //how many birds to spawn in the demo
+    public static int birdCount = 00; //how many birds to spawn in the demo
  
        /*  FIELDS   */
     public Handler handler = new Handler(this);
@@ -149,6 +149,7 @@ public class Game extends Canvas implements Runnable {
      */
     public void Setup() {
         //this for-loop puts a bunch of randome birds on the screen for performance testing
+        
         for(int i =0; i < birdCount; i++){
             double x = Math.random()*3600.0;
             double y = Math.random()*2900.0;
@@ -157,6 +158,7 @@ public class Game extends Canvas implements Runnable {
             this.addObject(bird);
             bird.velocity=new DCoordinate(.5,.5);      
         }
+        
         ////add player character
         SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
         this.addObject(example);
@@ -204,6 +206,7 @@ public class Game extends Canvas implements Runnable {
         this.renderBackGround(g2d);
         handler.render(g2d);
         visHandler.render(g2d);
+        
         g.dispose();
         g2d.dispose();
         if(Window.mainWindow.currentGame == this){

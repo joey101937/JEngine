@@ -33,7 +33,7 @@ public class SampleCharacter extends GameObject2{
     private void characterSetup(){
         name = "Sample Character";
         baseSpeed = 3.5;
-        scale = 1;
+        scale = 2;
         isSolid=true;
         this.movementType = GameObject2.MovementType.SpeedRatio;
         //initial animation
@@ -46,7 +46,7 @@ public class SampleCharacter extends GameObject2{
         this.animations.put("walkRight", new Sequence(SpriteManager.sampleChar_walkRight));
         this.animations.put("walkLeft", new Sequence(SpriteManager.sampleChar_walkLeft));
         for(String s : animations.keySet()){
-            animations.get(s).frameDelay*=3;
+            animations.get(s).frameDelay*=3;  //slow animation speed by 3x
         }        
     }
     
@@ -56,8 +56,7 @@ public class SampleCharacter extends GameObject2{
      */
     @Override
     public void tick() {
-        tickNumber++;
-        updateLocation();
+        super.tick();
         if (velocity.x > 0) {
             this.sequence = animations.get("walkRight");
         } else if (velocity.x < 0) {

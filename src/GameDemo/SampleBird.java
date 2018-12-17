@@ -7,6 +7,7 @@ package GameDemo;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
+import Framework.Hitbox;
 import Framework.Sequence;
 import Framework.SpriteManager;
 
@@ -28,9 +29,12 @@ public class SampleBird extends Creature{
     
     private void setup(){
         setAnimationTrue(new Sequence(SpriteManager.birdySequence));
-        setAnimationTrue(new Sequence(SpriteManager.birdySequence));
         isSolid=true;
         name = "Bird " + numBirds++;
-        innateRotation = 90;
+        innateRotation = 0;
+        //set scale randomly from .1 - 2.1
+        this.scale=Math.random()*2 + .1;
+        //set this gameobject to use a circular hitbox with a radius of width/2, to increase performance over the default polygonal hitbox
+        this.setHitbox(new Hitbox(this,getWidth()/2));
     }
 }
