@@ -104,10 +104,10 @@ public class AnimatedSticker extends Sticker{
      */
     @Override
     public void scale(double d) {
-        for (BufferedImage bi : sprites) {
-            bi = scaleImage(bi, d);
+        for(int i = 0; i < sprites.length; i++){
+            sprites[i] = scaleImage(sprites[i],d);
         }
-        scale*=d;
+        scale *=d;
     }
     
     /**
@@ -129,4 +129,18 @@ public class AnimatedSticker extends Sticker{
     public double getScale() {
         return scale;
     }
+    
+    
+        /**
+     * reverses the animation sequence. 
+     * first frame becomes last frame and vice versa
+     */
+    public void reverse(){
+        BufferedImage[] newFrames = new BufferedImage[sprites.length];
+        for(int i =0 ; i<sprites.length;i++){
+            newFrames[sprites.length-(i+1)]=sprites[i];
+        }
+        sprites = newFrames;
+    }
+    
 }
