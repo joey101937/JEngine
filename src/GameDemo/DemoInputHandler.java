@@ -146,7 +146,6 @@ public class DemoInputHandler extends InputHandler{
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        this.hostGame.testObject.lookAt(locationOfMouse(e));  
     }
 
     

@@ -35,7 +35,7 @@ public class SampleCharacter extends GameObject2{
         baseSpeed = 3.5;
         scale = 1;
         isSolid=true;
-        this.movementType = GameObject2.MovementType.RotationBased;
+        this.movementType = GameObject2.MovementType.SpeedRatio;
         //initial animation
         Sequence idleSequence = new Sequence(SpriteManager.sampleChar_idle);
         this.setAnimationTrue(idleSequence);

@@ -33,12 +33,25 @@ public class SubObject extends GameObject2{
      * @param host GameObject attach to
      */
     public void setHost(GameObject2 host) {
-        if(host!=null)host.subObjects.remove(this);
+        if(this.host!=null)this.host.subObjects.remove(this);
         this.host = host;
+        this.hostGame=host.hostGame;
         if(host!=null)this.host.subObjects.add(this);
     }
 
     
+    @Override
+    public boolean isOnScreen(){
+        return host.isOnScreen();
+    }
+    
+    public Game getHostGame(){
+        if(host==null){
+            return null;
+        }else{
+            return host.hostGame;
+        }
+    }
     
     /**
      * updating the location sets the location to host location + offset

@@ -13,6 +13,7 @@ import Framework.Stickers.OnceThroughSticker;
 import GUI.LaunchMenu;
 import GameDemo.SampleBird;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 /**
  *
@@ -22,44 +23,21 @@ public class TankInputHandler extends InputHandler {
 
     @Override
     public void keyPressed(KeyEvent e) {
-
         switch (e.getKeyCode()) {
             case 'W':
-                hostGame.testObject.velocity.y = -hostGame.testObject.getSpeed();
+                TankGame.player.velocity.y = -TankGame.player.getSpeed();
                 break;
             case 'D':
-                hostGame.testObject.velocity.x = hostGame.testObject.getSpeed();
+                TankGame.player.rotate(TankGame.player.getSpeed());
                 break;
             case 'S':
-                hostGame.testObject.velocity.y = hostGame.testObject.getSpeed();
+                TankGame.player.velocity.y = TankGame.player.getSpeed();
                 break;
             case 'A':
-                hostGame.testObject.velocity.x = -hostGame.testObject.getSpeed();
-                break;
-            case 'Q':
-                //debug used to check tick numbers
-                for (GameObject2 go : hostGame.handler.getAllObjects()) {
-                    System.out.println(go.tickNumber + " " + go.name);
-                    System.out.println(go.renderNumber + " " + go.name + " render.");
-                }
-                System.out.println("Camera Tick: " + hostGame.camera.tickNumber);
-                System.out.println(hostGame.testObject.location);
-                break;
-            case 'Z':
-                //destroy random object and play explosion sticker there for science
-                int prev = hostGame.handler.size();
-                int i = (int) Math.random() * hostGame.handler.getAllObjects().size();
-                GameObject2 victim = hostGame.handler.getAllObjects().get(i);
-                hostGame.handler.removeObject(victim);
-                new OnceThroughSticker(hostGame, SpriteManager.explosionSequence, victim.getPixelLocation(), 999);
-                System.out.println(hostGame.handler.size() + " -> " + prev);
-                SampleBird bird = new SampleBird(new DCoordinate(hostGame.worldWidth * Math.random(), hostGame.worldHeight * Math.random()));
-
-                bird.velocity = new DCoordinate(-.5, -.5);
-                hostGame.addObject(bird);
+                TankGame.player.rotate(-TankGame.player.getSpeed());
                 break;
             case 'P':
-                System.out.println(hostGame.getPathingLayer().getTypeAt(hostGame.testObject.getPixelLocation()));
+                System.out.println(hostGame.getPathingLayer().getTypeAt(TankGame.player.getPixelLocation()));
                 break;
         }
     }
@@ -68,29 +46,30 @@ public class TankInputHandler extends InputHandler {
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
             case 'W':
-                if (hostGame.camera.yVel > 0) {
-                    hostGame.camera.yVel = 0;
-                }
-                hostGame.testObject.velocity.y = 0;
+                TankGame.player.velocity.y = 0;
                 break;
             case 'S':
-                if (hostGame.camera.yVel < 0) {
-                    hostGame.camera.yVel = 0;
-                }
-                hostGame.testObject.velocity.y = 0;
+                TankGame.player.velocity.y = 0;
                 break;
             case 'A':
-                if (hostGame.camera.xVel > 0) {
-                    hostGame.camera.xVel = 0;
-                }
-                hostGame.testObject.velocity.x = 0;
                 break;
             case 'D':
-                if (hostGame.camera.xVel < 0) {
-                    hostGame.camera.xVel = 0;
-                }
-                hostGame.testObject.velocity.x = 0;
                 break;
         }
     }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        TankGame.player.turret.lookAt(locationOfMouse(e));
     }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        TankGame.player.turret.lookAt(locationOfMouse(e));
+    }
+    
+    @Override
+    public void mousePressed(MouseEvent e) {
+        TankGame.player.fire(locationOfMouse(e));
+    }
+}

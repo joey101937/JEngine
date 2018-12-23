@@ -32,6 +32,7 @@ public class Projectile extends GameObject2{
         this.preventOverlap=false;  //by default projectiles do not stop when they hit something
         baseSpeed = 10;
         this.movementType = MovementType.SpeedRatio;
+        this.setHitbox(new Hitbox(this,0));//by default, projectiles use circle hitbox
         //projectiles not effected by pathing types
         for(PathingLayer.Type type : this.pathingModifiers.keySet()){
             pathingModifiers.put(type, 1.0);

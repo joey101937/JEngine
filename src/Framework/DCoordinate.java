@@ -181,5 +181,8 @@ public class DCoordinate {
         return new DCoordinate(x, y);
     }
 
+    public Coordinate toCoordinate(){
+    return new Coordinate(this);
+    }
     
 }

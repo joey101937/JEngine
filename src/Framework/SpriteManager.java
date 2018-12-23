@@ -25,6 +25,12 @@ public abstract class SpriteManager {
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] birdySequence;
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
+    
+    public static BufferedImage tankChasis;
+    public static BufferedImage tankTurret;
+    public static BufferedImage bullet;
+    public static BufferedImage[] tankFireAnimation;
+    public static BufferedImage dirtBG;
     /*--------------------------------------------------------*/
     static{
         initialize();
@@ -49,10 +55,18 @@ public abstract class SpriteManager {
            sampleChar_walkLeft = loadSequence("SampleCharacter/WalkLeft");
            sampleChar_walkRight = loadSequence("SampleCharacter/WalkRight");
            pathingLayer = load("terrainBG-PATHING.png");
+           
+           tankChasis = load("TankGame/tankChasis.png");
+           tankTurret = load("TankGame/tankTurret.png");
+           bullet = load("TankGame/bullet.png");
+           tankFireAnimation = loadSequence("TankGame/turretFireSequence");
+           dirtBG = load("TankGame/dirtBG.png");
+           
            initialized=true;
         }catch(Exception e){
             e.printStackTrace();
             Main.display("Error loading all assets. Please Verify Assets folder.");
+            System.exit(1);
         }
     }
 

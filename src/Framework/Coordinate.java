@@ -134,4 +134,9 @@ public class Coordinate {
         return new Coordinate(x, y);
     }
 
+    public DCoordinate toDCoordinate() {
+        return new DCoordinate(this);
+    }
+
+
 }

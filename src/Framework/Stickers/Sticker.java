@@ -135,10 +135,10 @@ public class Sticker implements Runnable{
      */
     public void attachTo(GameObject2 go){
         host = go;
-        if(go.hostGame!=null){
-            if (!go.hostGame.visHandler.stickers.contains(this)) {
-                this.hostGame = go.hostGame;
-                go.hostGame.visHandler.stickers.add(this);
+        if(go.getHostGame()!=null){
+            if (!go.getHostGame().visHandler.stickers.contains(this)) {
+                this.hostGame = go.getHostGame();
+                go.getHostGame().visHandler.stickers.add(this);
             }
             
         }

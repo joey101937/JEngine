@@ -20,7 +20,7 @@ import java.util.Map;
  * @author Joseph
  */
 public class GameObject2 {
-    public Game hostGame;
+    protected Game hostGame;
     public String name= "Unnamed " + this.getClass().getName(); 
     public long tickNumber = 0; //used for debugging, counts number of times this has ticked
     public long renderNumber = 0; //used for debugging, counts number of times this has rendered
@@ -49,6 +49,16 @@ public class GameObject2 {
     public ArrayList<SubObject> subObjects = new ArrayList<>(); //stores all subobjects on this object
     /**this determines weather or not a gameobject will be able to move through other solid units, however this still triggers onCollide*/
     public boolean preventOverlap = true; 
+    
+    
+    public void addSubObject(SubObject sub){
+        sub.setHost(this);
+    }
+    
+    
+    public Game getHostGame(){
+    return hostGame;
+    }
     
     /**
      * @return speed this unit should be able to move at with the current terrain
@@ -120,7 +130,7 @@ public class GameObject2 {
         if (isAnimated) {
             return (int)(sequence.getCurrentFrame().getWidth());
         } else {
-            return (int)(sprite.getWidth());
+            return (int)(sprite.getWidth() * scale);
         }
         }catch(NullPointerException npe){
             return 0;
@@ -135,7 +145,7 @@ public class GameObject2 {
             if (isAnimated) {
                 return (int)(sequence.getCurrentFrame().getHeight());
             } else {
-                return (int)(sprite.getHeight());
+                return (int)(sprite.getHeight() * scale);
             }
         } catch (NullPointerException npe) {
             return 0;
@@ -213,6 +223,8 @@ public class GameObject2 {
     public void lookAt(Coordinate destination){
          setRotation(DCoordinate.angleFrom(getPixelLocation(), destination) - innateRotation);
     }
+    
+    
     /**
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
@@ -237,12 +249,15 @@ public class GameObject2 {
                 sequence.startAnimating();
                 BufferedImage toRender = sequence.getCurrentFrame();
                 g.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
+                if(sequence.currentFrameIndex == sequence.frames.length-1) this.onAnimationCycle();
             }else{
                 System.out.println("Warning: null frame in sequence of " + name);
             }
         }else{
             if(sprite!=null){
+                g.scale(scale, scale);
                 g.drawImage(sprite, pixelLocation.x-sprite.getWidth()/2, pixelLocation.y-sprite.getHeight()/2, null); //draws sprite centered on pixelLocation
+                g.scale(1/scale, 1/scale);
             }else{
                 System.out.println("Warning: unanimated game object sprite is null " + name);
             }
@@ -361,7 +376,7 @@ public class GameObject2 {
                     onCollide(other);
                     continue;
                 }
-                if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int)Math.ceil(velocity.x),(int)Math.ceil(velocity.y)))) {
+                if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int)Math.ceil(toMove.x),(int)Math.ceil(toMove.y)))) {
                     //if we would collide with a unit, stop moving and run onCollide
                     //prevents units from stacking on top of eachother
                     newLocation = location.copy();
@@ -446,6 +461,10 @@ public class GameObject2 {
     public void onDestroy(){
         
     }
+    /**
+     * runs whenvever the current animation sequence renders the last frame in animation
+     */
+    public void onAnimationCycle(){}
     
     /**
      * @return weather or not this object is considered alive 
