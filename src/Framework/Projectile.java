@@ -5,6 +5,8 @@
  */
 package Framework;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Joseph
@@ -14,7 +16,6 @@ public class Projectile extends GameObject2{
     public double maxRange = -1; //how far this may travel from start before destroyed. -1 for infinite
     private final DCoordinate start; //initial spawn point
     
-    
     /**
      * when overrideing tick method of projectile, always start with super.tick();
      */
@@ -22,8 +23,15 @@ public class Projectile extends GameObject2{
     public void tick(){
         super.tick();
         if((lifeTime>1 && tickNumber > lifeTime) || (maxRange>1 && location.distanceFrom(start) > maxRange)){
+            onTimeOut();
             destroy();
         }
+    }
+
+    /**
+     * runs whenever the projectile dies due to maxRange or lifeTime restrictions
+     */
+    public void onTimeOut(){
     }
     
     
@@ -72,4 +80,22 @@ public class Projectile extends GameObject2{
         this.start = start.copy();
     }
     
+        /**
+     * projectiles by default just destroy when they go out of bounds
+     */
+    @Override
+    public void constrainToWorld() {
+        if (location.x < hostGame.worldBorder) {
+            destroy();
+        }
+        if (location.y < hostGame.worldBorder) {
+            destroy();
+        }
+        if (location.x > hostGame.worldWidth - hostGame.worldBorder) {
+            destroy();
+        }
+        if (location.y > hostGame.worldHeight - hostGame.worldBorder) {
+            destroy();
+        }
+    }
 }

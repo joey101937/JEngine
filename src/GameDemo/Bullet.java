@@ -43,14 +43,5 @@ public class Bullet extends Projectile{
         s.scaleTo(scale);
     }
     
-    /**
-     * bullets just destroy when they go out of bounds
-     */
-    @Override
-    public void constrainToWorld(){
-         if(location.x < hostGame.worldBorder) destroy();
-        if(location.y < hostGame.worldBorder) destroy();
-        if(location.x > hostGame.worldWidth - hostGame.worldBorder) destroy();
-        if(location.y > hostGame.worldHeight - hostGame.worldBorder) destroy();
-    }
+
 }

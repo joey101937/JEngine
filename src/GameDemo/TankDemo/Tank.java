@@ -42,13 +42,7 @@ public class Tank extends Creature{
         if(turret.firing || target.distanceFrom(location) < getHeight()*3/5)return;
         turret.onFire(target);
     }
-    
-    
-    @Override
-    public void onCollide(GameObject2 other){
-        System.out.println("tank collision");
-    }
-    
+
     
     
     public class Turret extends SubObject{
@@ -73,7 +67,9 @@ public class Tank extends Creature{
             muzzelLocation.add(getPixelLocation());
             OnceThroughSticker muzzelFlash = new OnceThroughSticker(getHostGame(),SpriteManager.explosionSequence,muzzelLocation);
             muzzelFlash.scaleTo(.75);
-            getHostGame().addObject(new TankBullet(muzzelLocation.toDCoordinate(),target.toDCoordinate()));
+            TankBullet bullet = new TankBullet(muzzelLocation.toDCoordinate(),target.toDCoordinate());
+            bullet.shooter=this.getHost();
+            getHostGame().addObject(bullet);
         }
         
         

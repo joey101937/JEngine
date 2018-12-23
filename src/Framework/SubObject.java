@@ -53,6 +53,10 @@ public class SubObject extends GameObject2{
         }
     }
     
+    public GameObject2 getHost(){
+        return host;
+    }
+    
     /**
      * updating the location sets the location to host location + offset
      * subobjects do not use velocity by default
