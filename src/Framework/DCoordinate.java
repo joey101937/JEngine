@@ -160,4 +160,9 @@ public class DCoordinate {
             return angle;
         }
     }
+
+    public void scale(double s) {
+        x *= s;
+        y *= s;
+    }
 }

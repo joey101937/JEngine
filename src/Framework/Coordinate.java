@@ -114,4 +114,8 @@ public class Coordinate {
     }
     
 
+    public void scale(double s){
+        x*=s;
+        y*=s;
+    }
 }
