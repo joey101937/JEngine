@@ -32,7 +32,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        MemoryTracker.start();
+        //MemoryTracker.start();
         int result = JOptionPane.showConfirmDialog(null, "do you want to play the tank game? if no, see test sandbox");
         System.out.println(result);
         if(result==0){
@@ -43,8 +43,8 @@ public class Main {
         }else{
             System.exit(0);
         }
-     //   SpriteManager.initialize();       <- disabled because of spriteManager static block
-    //    LaunchMenu options = new LaunchMenu();
+        //SpriteManager.initialize();       <- disabled because of spriteManager static block
+        //LaunchMenu options = new LaunchMenu();
         //Game game = new Game(); <- disabled because options menu now starts the game
         //TankGame.main(args);
     }
