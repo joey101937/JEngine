@@ -41,6 +41,9 @@ public class Window {
     
     public void setCurrentGame(Game g) {
         currentGame.setPaused(true);
+        while(!currentGame.pausedSafely){
+            Main.wait(2);
+        }
         panel.remove(currentGame);
         Dimension d = new Dimension(Game.windowWidth, Game.windowHeight);
         g.setBounds(0, 0, g.width, g.height);

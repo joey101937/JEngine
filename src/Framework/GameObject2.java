@@ -78,6 +78,12 @@ public class GameObject2 {
        }
        return hostGame.pathingLayer.getTypeAt(this.getPixelLocation());
    }
+   /**
+    * runs when the game containing this gameobject is issued a pause or unpause order
+    * @param input true = pausing. false = unpausing
+    */
+    public void onGamePause(boolean input) {   
+    }
     
     
     public static enum MovementType{
