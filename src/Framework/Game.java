@@ -241,7 +241,7 @@ public class Game extends Canvas implements Runnable {
     public void run() {
         this.hasStarted = true;
         this.requestFocus(); ///automatically selects window so you dont have to click on it
-        long lastTime = System.nanoTime();
+        long lastTime = System.nanoTime(); 
         double amountOfTicks = Main.ticksPerSecond;  //ticks per second
         double ns = 1000000000 / amountOfTicks;
         double delta = 0;
@@ -254,6 +254,7 @@ public class Game extends Canvas implements Runnable {
                 Main.wait(10);
                 continue;
             }
+            if(pausedSafely)lastTime = System.nanoTime(); //if we just paused, reset the last time to now else it will think its running behind
             pausedSafely = false;
             Main.wait(Main.renderDelay);
             long now = System.nanoTime();
