@@ -55,6 +55,11 @@ public class Game extends Canvas implements Runnable {
     public GameObject2 testObject = null; //object to be controlled by input
     public Camera camera = new Camera(this);
 
+    
+    
+    /**
+     * legacy game constructor, used to test the framework
+     */
     public Game() {
         try {
             this.width = windowWidth;
@@ -67,11 +72,16 @@ public class Game extends Canvas implements Runnable {
             ex.printStackTrace();
             return;
         }
-        Setup();
+        setup();
     }
     
     public Game(BufferedImage backgroundImage){
-        
+            this.width = windowWidth;
+            this.height = windowHeight;
+            this.backgroundImage = backgroundImage;
+            worldHeight = backgroundImage.getHeight();
+            worldWidth = backgroundImage.getWidth();
+            setup();
     }
 
     /**
@@ -107,6 +117,7 @@ public class Game extends Canvas implements Runnable {
      * returns all gameobjects that intersect the given rectangle
      * used for grabbing all objects in a rectanglular area 
      * (uses hitbox intersect)
+     * @param r rectangle object used for intersecting hitboxes
      */
     public ArrayList<GameObject2> getObjectsInArea(Rectangle r){
         Coordinate[] verts = new Coordinate[4];
@@ -117,7 +128,7 @@ public class Game extends Canvas implements Runnable {
         Hitbox hitbox = new Hitbox(verts);
         ArrayList<GameObject2> output = new ArrayList<>();
         for (GameObject2 go : handler.getAllObjects()) {
-            if (go.getHitbox().intersects(hitbox)) {
+            if (go.hitbox!=null && go.getHitbox().intersects(hitbox)) {
                 output.add(go);
             }
         }
@@ -148,7 +159,7 @@ public class Game extends Canvas implements Runnable {
      * use this method to set starting objects etc
      * for testing purposes
      */
-    public void Setup() {
+    public void setup() {
         //this for-loop puts a bunch of randome birds on the screen for performance testing
         
         for(int i =0; i < birdCount; i++){
@@ -171,7 +182,6 @@ public class Game extends Canvas implements Runnable {
         other.name = "Sample Character";
         addObject(other);
         AnimatedSticker testEffect = new AnimatedSticker(this, SpriteManager.explosionSequence,new Coordinate(400, 400), 99999);
-        setInputHandler(new DemoInputHandler());
     }
     
 

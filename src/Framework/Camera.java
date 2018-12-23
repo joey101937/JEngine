@@ -72,6 +72,7 @@ public class Camera {
         }
         switch (movementType) {
             case SpeedRatio:
+            case RotationBased:
                 double delta = 0.0;
                 double totalVelocity = Math.abs(xVel) + Math.abs(yVel);
                 if (totalVelocity != 0) {

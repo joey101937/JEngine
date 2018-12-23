@@ -87,7 +87,7 @@ public class GameObject2 {
     
     
     public static enum MovementType{
-    RawVelocity, SpeedRatio;
+    RawVelocity, SpeedRatio, RotationBased;
     }
     
     /**
@@ -333,6 +333,17 @@ public class GameObject2 {
                 }
                 newLocation.x += velocity.x * delta;
                 newLocation.y += velocity.y * delta;
+                break;
+            case RotationBased:
+                double deltaR = 0.0;
+                DCoordinate vel = velocity.copy();
+                vel = DCoordinate.adjustForRotation(vel, rotation);
+                double totalVelocityR = Math.abs(vel.x) + Math.abs(vel.y);
+                if (totalVelocityR != 0) {
+                    deltaR = (getSpeed()) / totalVelocityR;
+                }
+                newLocation.x += vel.x * deltaR;
+                newLocation.y += vel.y * deltaR;
                 break;
             case RawVelocity:
                 newLocation.add(velocity);

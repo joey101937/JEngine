@@ -118,4 +118,20 @@ public class Coordinate {
         x*=s;
         y*=s;
     }
+
+    /**
+     * returns a coordinate whos x and y values have been rotated around the orgin
+     * @param c coordinate to use
+     * @param r degree of rotation
+     * @return updated coordinate
+     */
+    public static Coordinate adjustForRotation(Coordinate c, double r) {
+        int oldX = c.x;
+        int oldY = c.y;
+        double rotation = Math.toRadians(r);
+        int x = (int) (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
+        int y = (int) (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        return new Coordinate(x, y);
+    }
+
 }

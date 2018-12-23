@@ -165,4 +165,21 @@ public class DCoordinate {
         x *= s;
         y *= s;
     }
+    
+        /**
+     * returns a coordinate whos x and y values have been rotated around the orgin
+     * @param c coordinate to use
+     * @param r degree of rotation
+     * @return updated coordinate
+     */
+    public static DCoordinate adjustForRotation(DCoordinate c, double r) {
+        double oldX = c.x;
+        double oldY = c.y;
+        double rotation = Math.toRadians(r);
+        double x = (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
+        double y = (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        return new DCoordinate(x, y);
+    }
+
+    
 }

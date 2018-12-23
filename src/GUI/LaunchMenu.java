@@ -11,6 +11,7 @@ import Framework.Main;
 import Framework.Window;
 import Framework.GameObject2;
 import Framework.Hitbox;
+import GameDemo.DemoInputHandler;
 
 /**
  *
@@ -309,6 +310,8 @@ public class LaunchMenu extends javax.swing.JFrame {
         Game.birdCount = (int) birdSpinner.getValue();
         g=new Game();
         alt=new Game();
+        g.setInputHandler(new DemoInputHandler());
+        alt.setInputHandler(new DemoInputHandler());
         g.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         alt.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         Window w = new Window(g);
