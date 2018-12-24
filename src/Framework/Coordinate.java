@@ -120,6 +120,21 @@ public class Coordinate {
     }
 
     /**
+     * adjusts this coordinate to reflect the location it would be at if it were
+     * to be rotated about the origin by a given degree
+     *
+     * @param degree degree of rotation about the origin
+     */
+    public void adjustForRotation(double degree) {
+        int oldX = x;
+        int oldY = y;
+        double rotation = Math.toRadians(degree);
+        x = (int) (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
+        y = (int) (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+    }
+
+
+    /**
      * returns a coordinate whos x and y values have been rotated around the orgin
      * @param c coordinate to use
      * @param r degree of rotation
