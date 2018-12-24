@@ -8,15 +8,16 @@ Particularly an open-source 2D game engine that is simple and easy to use, highl
 -The part inside the window is a Game object. Games represent scenes that function as a world within which your objects exist. 
 Games have their own InputHandlers to take in user input via mouse and keyboard. You may have multiple scenes for your project. Your window can swap between them using **setCurrentGame(Game g)** method. Note only current Game's input handler will detect user input and Games are paused when another game is made the current game and unpause/start when they are the one being made the current game. pause/unpause can also be manually toggled.
 
--Within each Game world there are GameObject2s which are the core of JEngine's functionality. Every functional object that exists in the world is in some way a GameObject2, a game character for example is a GameObject2. All GameObject2s in a Game instance are stored in that game's **Handler**. add objects with game.addObject(GameObject2), remove with game.removeObject(GameObject2) or get objects using getAllObjects(). GO2s tick and render with their host game, and by default have rectangular hitboxes (things that manage collision) that reflect the perimiter of that object's current visual
+-Within each Game world there are **GameObject2**s which are the core of JEngine's functionality. Every functional object that exists in the world is in some way a GameObject2, a game character for example is a GameObject2. All GameObject2s in a Game instance are stored in that game's **Handler**. add objects with game.addObject(GameObject2), remove with game.removeObject(GameObject2) or get objects using getAllObjects(). GO2s tick and render with their host game, and by default have rectangular hitboxes (things that manage collision) that reflect the perimiter of that object's current visual
 
 -A Game's **Camera** controls the viweport
 
 -Hitboxes manage collision and are GameObjects are created with a rectangular one, but can also be created independently of a gameobject and can be either circular or 4-sided polygonal. Hitboxes can detect if they overlap eachother
 
--Coordinate and DCoordinate classes are used heavily when talking about location in the gameworld. Coordinate uses ints and often used to reflect the location of an object in pixels while DCoordinates use doubles and are typically used to store an object's true location and velocity. Both classes have considerable utility methods built in. Note these classes are not immutable, so use caution when modifying coordinates that may be referenced elsewhere. Use the .copy() method to generate an equivilent copy of a coordinate to avoid modifying the original coordinate. Add and Subtract methods modify the calling coordinate, they do not return a new coordinate based on the operation like you may find with strings.
+-**Coordinate** and **DCoordinate** classes are used heavily when talking about location in the gameworld. Coordinate uses ints and often used to reflect the location of an object in pixels while DCoordinates use doubles and are typically used to store an object's true location and velocity. Both classes have considerable utility methods built in. Note these classes are not immutable, so use caution when modifying coordinates that may be referenced elsewhere. Use the .copy() method to generate an equivilent copy of a coordinate to avoid modifying the original coordinate. Add and Subtract methods modify the calling coordinate, they do not return a new coordinate based on the operation like you may find with strings.
 
 # Your First Project
+**Check out the GameDemo package to see small example projects and their setup**
 JEngine is super easy to use and get started; first simply import the framework into your IDE of choice (I use netbeans).
 Next you should gather your assets for the project and put them into the 'assets' folder of the working directory. JEngine by default
 supports plain images (.png reccomended) or animation sequences, loaded by frame. See Visual Assets section of readme.
@@ -25,6 +26,13 @@ Now that you have your assets imported, you should create a scene for the user t
 
 Once you have your first Scene, create the **Window** around it by instanciating a Window object using your Game object as the parameter. Now call start() method on your game. If done correctly, you should see a window with your given background image inside.
 
+Now you can create a character to go inside the world. I would reccomend copying the simple character from the sandbox demo, or you can make your own class that extends GameObject2. You just need a location for the object to be at and you should create a visual for the object so you can see it in the scene. you can use the method **setAnimationFalse(Sprite image)** to set the object to be unanimated and use the given sprite as its visual. Hitboxes are automatically managed for you by default. Once you have your character object, call **addObject(GameObject2 go)** on your world and pass in your character. If done correctly, you should see your character's sprite at the character's location in your gameworld. note if you picked an out of bounds coordinate, the object may have been pulled back in to the nearest in-bounds location. 
+
+Moving a GameObject can be done by modifying it's location directly (forcibly teleports the object), or by changing its velocity. Velocity is the prefered way to move things if you want them to move around the world rather than just teleport to a different location. 
+
+To put your character in view if you put it in a location off-screen, position the camera over it or have the camera track it using **setTarget(GameObject2 go)** method in camera. **Ex: myGame.camera.setTarget(character);**
+
+To make your game accept user keyboard/mouse input, create a class that extends InputHandler, then set an instance of that class to be the inputhandler for your game using **setInputHandler(InputHandler in)** in the Game class. Inside your inputHandler class you have acess to all mouse listener, mouse motion listener, and key listener methods as well as the **locationOfMouse(MouseEvent e)** method which provides the coordinate point of the mouse during the given mouse event *in terms of the game world*.
 
 # Scenes/Games
 To start a JEngine project, you must first have your base scene. Instances of the Game class are scenes and represent distinct gameworlds within, created using **new Game(BufferedImage) background);**. You must also have a **Window** to put that game in. The window is the JFrame that actually holds the scene(s) and presents them to the user. Create using **new Window(Game myGame);**
@@ -62,6 +70,18 @@ A sequence represents a frame based animation. Options include scaling the size 
 scaleTo(double s)** methods; and changing the speed of animation by adjusting frameDelay field.
 
 Sequences have their own threads that animate them and keep up with current frames. These animator threads do not start until the sequence is rendered and stop if the sequence is disabled.
+
+# Hitboxes
+//TODO
+# GameObject2 class
+//TODO
+## SubObjects
+//TODO
+## Projectiles
+//TODO
+# Pathing Layer
+//TODO
+
 
 # Engine Options
 ### **Debug Mode** 
