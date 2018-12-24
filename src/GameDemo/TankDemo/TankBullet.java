@@ -41,9 +41,7 @@ public class TankBullet extends Projectile {
         if(other instanceof Creature) {
             Creature c = (Creature) other;
             c.takeDamage(50);
-            //create explosion effect at random point on target
-            Coordinate impactLocation = new Coordinate(c.getPixelLocation());
-            OnceThroughSticker impactExplosion = new OnceThroughSticker(hostGame, SpriteManager.explosionSequence, impactLocation);
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(hostGame, SpriteManager.explosionSequence, getPixelLocation());
             impactExplosion.scaleTo(2);
         }
         destroy();

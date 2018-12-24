@@ -49,7 +49,7 @@ public class Game extends Canvas implements Runnable {
     public Window window;
     public boolean hasStarted = false;
     private boolean paused = false;    
-    public boolean pausedSafely = false;  //used to track when its safe to remove canvas component from frame
+    public volatile boolean pausedSafely = false;  //used to track when its safe to remove canvas component from frame
     public String name = "Untitled Game";
     protected InputHandler inputHandler;
     public GameObject2 testObject = null; //object to be controlled by input
@@ -193,6 +193,7 @@ public class Game extends Canvas implements Runnable {
 
     //core render method, tells all game Objects to render
     private synchronized void render() {
+        pausedSafely = false;
         if(Window.mainWindow.currentGame != this){
             System.out.println("Refusing to render without container " + name);
             return;
@@ -220,7 +221,7 @@ public class Game extends Canvas implements Runnable {
         
         g.dispose();
         g2d.dispose();
-        if(Window.mainWindow.currentGame == this){
+        if(Window.mainWindow.currentGame == this && !this.isPaused()){
             bs.show();
         }    
     }
@@ -258,13 +259,16 @@ public class Game extends Canvas implements Runnable {
         long timer = System.currentTimeMillis();
         int frames = 0;
         while (running) {
-            if(isPaused()){
-                pausedSafely = true;
+            if (isPaused()) {
                 //if paused, just wait
                 Main.wait(10);
+                pausedSafely = true;
                 continue;
             }
-            if(pausedSafely)lastTime = System.nanoTime(); //if we just paused, reset the last time to now else it will think its running behind
+            if (pausedSafely) {
+                //if we just paused, reset the last time to now else it will think its running behind
+                lastTime = System.nanoTime();
+            } 
             pausedSafely = false;
             Main.wait(Main.renderDelay);
             long now = System.nanoTime();

@@ -274,7 +274,7 @@ public class Hitbox {
      * @return weather or not the hitbox would be intersecting another if moved
      */
     public boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
-        double saftyScaler = 1.5; //how much we scale the velocity to account for extramovement
+        double saftyScaler = 2; //how much we scale the velocity to account for extramovement
                                    //large scaler = less chance of overlap but farther apart units must stay
         staticCenter.x += velocity.x * saftyScaler;
         staticCenter.y += velocity.y * saftyScaler;

@@ -39,6 +39,10 @@ public class Window {
         currentGame = g;
     }
     
+    /**
+     * pauses the current game, removes it, then addes the new game and starts it or unpauses it as appropriate
+     * @param g new game
+     */
     public void setCurrentGame(Game g) {
         currentGame.setPaused(true);
         while(!currentGame.pausedSafely){
