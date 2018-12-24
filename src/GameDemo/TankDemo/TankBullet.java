@@ -13,7 +13,7 @@ import Framework.Projectile;
 import Framework.Sequence;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
-import GameDemo.Creature;
+import GameDemo.SandboxDemo.Creature;
 import java.awt.image.BufferedImage;
 
 /**

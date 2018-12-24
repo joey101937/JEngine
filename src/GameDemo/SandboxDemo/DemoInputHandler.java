@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo;
+package GameDemo.SandboxDemo;
 
 import Framework.DCoordinate;
 import Framework.Game;
@@ -13,7 +13,7 @@ import Framework.Projectile;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.Stickers.Sticker;
-import GUI.LaunchMenu;
+import GameDemo.SandboxDemo.LaunchMenu;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 

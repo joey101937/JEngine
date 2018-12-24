@@ -10,8 +10,8 @@ import Framework.GameObject2;
 import Framework.InputHandler;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
-import GUI.LaunchMenu;
-import GameDemo.SampleBird;
+import GameDemo.SandboxDemo.LaunchMenu;
+import GameDemo.SandboxDemo.SampleBird;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 

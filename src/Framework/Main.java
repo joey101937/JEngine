@@ -5,7 +5,7 @@
  */
 package Framework;
 
-import GUI.LaunchMenu;
+import GameDemo.SandboxDemo.LaunchMenu;
 import GameDemo.TankDemo.TankGame;
 import java.awt.image.BufferedImage;
 import java.io.File;

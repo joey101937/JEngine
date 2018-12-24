@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo;
+package GameDemo.SandboxDemo;
 
 import Framework.DCoordinate;
 import Framework.GameObject2;

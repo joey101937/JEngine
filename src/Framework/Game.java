@@ -5,10 +5,10 @@
  */
 package Framework;
 
-import GameDemo.SampleBird;
-import GameDemo.SampleCharacter;
+import GameDemo.SandboxDemo.SampleBird;
+import GameDemo.SandboxDemo.SampleCharacter;
 import Framework.Stickers.AnimatedSticker;
-import GameDemo.DemoInputHandler;
+import GameDemo.SandboxDemo.DemoInputHandler;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;

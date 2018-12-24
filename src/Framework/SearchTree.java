@@ -5,7 +5,7 @@
  */
 package Framework;
 
-import GameDemo.SampleBird;
+import GameDemo.SandboxDemo.SampleBird;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
