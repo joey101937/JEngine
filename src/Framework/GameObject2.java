@@ -32,13 +32,12 @@ public class GameObject2 {
     protected Sequence sequence = null; //animation sequence to run if animated
     public BufferedImage sprite = null; //static sprite if not animated
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
-    public double rotation = 0;
+    public double rotation = 0; //rotatoin in degrees (not radians)
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
     public boolean isInvisible = false; //invisible gameobjects are not rendered
     public double scale = 1; //size multiplier
     protected boolean isAlive = true; //weather or not the object has been destroyed
-    protected boolean horizontalFlip = false;
     public MovementType movementType = MovementType.SpeedRatio;
     public int plane = 0; //which 'layer' a unit is on. Units only collide with others in the same plane
     protected Hitbox hitbox ;
