@@ -26,7 +26,7 @@ import java.util.ConcurrentModificationException;
 
 /**
  * This is the part of the screen that you look at while playing and that
- * contains all gameObjects
+ * contains all gameObjects. JEngine version of unity scene.
  * @author Joseph
  */
 public class Game extends Canvas implements Runnable {
@@ -299,7 +299,9 @@ public class Game extends Canvas implements Runnable {
         //stop();
     }
 
-    //starts the main game
+    /**
+     * starts the game. Ticking and rendering will not happen without this call
+     */
     public synchronized void start() {
         if(running)return;
         thread = new Thread(this);
@@ -308,7 +310,11 @@ public class Game extends Canvas implements Runnable {
         running = true;
     }
 
-    ///stops the main game
+    /**
+     * Stops the running of this game. Note this is different than pause in that
+     * this actually exits the run loop and should not be used unless you do not
+     * plan on restarting the game. Use pause to stop game logic temporarily.
+     */
     public synchronized void stop() {
         try {
             //thread.join();

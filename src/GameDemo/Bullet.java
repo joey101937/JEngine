@@ -14,7 +14,7 @@ import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 
 /**
- *
+ * Simple implementation of projectile. Deals damage to creatures it collide with
  * @author Joseph
  */
 public class Bullet extends Projectile{

@@ -12,7 +12,7 @@ import Framework.Sequence;
 import Framework.SpriteManager;
 
 /**
- *
+ * Example of simple creature implementation
  * @author joey
  */
 public class SampleBird extends Creature{

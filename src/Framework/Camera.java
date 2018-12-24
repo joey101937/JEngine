@@ -22,20 +22,32 @@ public class Camera {
     public boolean disableMovement = false;
     public int tickNumber = 0; //for debug usage
     public Game hostGame;
-    
     private boolean trackingGameObject = false; //weather or not the camera is free or if the camera is tracking a target object
     private GameObject2 target = null;
     
     
-    //
+    /**
+     * determines if the camera is following its target.
+     * note if set to false, this does not change target, only makes the camera
+     * not follow that target anymore
+     * @param b new value of tracking flag
+     */
     public void setIsTackingTarget(boolean b){
         trackingGameObject = b;
     }
-    
+    /**
+     * @return weather or not the camera is tracking its target. Note this does
+     * NOT return weather or not the camera has a target to begin with
+     */
     public boolean isTrackingTarget(){
         return trackingGameObject;
     }
-    
+    /**
+     * returns the gameobject this camera is targeting.
+     * Note the camera may not be actively following this target (check with
+     * isTrackingTarget). 
+     * @return target object; returns null if none
+     */
     public GameObject2 getTarget(){
         return target;
     }

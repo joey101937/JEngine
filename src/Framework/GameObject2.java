@@ -411,8 +411,9 @@ public class GameObject2 {
     
     
     /**
-     * prevents the object from moving outside the world by resetting the location
-     * to a legal, in-bounds location
+     * runs whevenever an object would run out of bounds
+     * by default, prevents the object from moving outside the world by 
+     * resetting the location to a legal, in-bounds location
      */
     public void constrainToWorld(){
         if(location.x < hostGame.worldBorder) location.x=hostGame.worldBorder;
@@ -479,8 +480,6 @@ public class GameObject2 {
      * @param other the object whose hitbox we are touching
      */
     public void onCollide(GameObject2 other){
-   //     if(!Main.debugMode)return;
-   //   System.out.println(this.toString() + " colliding with " + other);
     }
     
     /**

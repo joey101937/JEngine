@@ -92,7 +92,7 @@ public class Hitbox {
     /**
      * creates a rectangle hitbox with given corner points topLeft, topRight,
      * botLeft, botRight. In that order!
-     * @given an array of 4 coordinates that represents the vertices of the polygon
+     * @param given an array of 4 coordinates that represents the vertices of the polygon
      * 
      */
     public Hitbox(Coordinate[] given) {
