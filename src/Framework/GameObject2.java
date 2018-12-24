@@ -385,6 +385,7 @@ public class GameObject2 {
                     continue;
                 }
                 for (SubObject sub : other.subObjects) {
+                    if(!sub.isSolid || other.hitbox==null)continue;
                     if (getHitbox().intersects(sub.getHitbox())) {
                         //if we are already on top of another unit, just keep going to not get stuck
                         onCollide(sub);
