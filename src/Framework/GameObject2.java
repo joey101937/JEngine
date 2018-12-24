@@ -79,6 +79,7 @@ public class GameObject2 {
    /**
     * Gets the current terrain this object is on; Terrain is determined by 
     * terrain type of pixel that this object is centered on
+    * @return terrain type at the center of this object
     */
    public PathingLayer.Type currentTerrain(){
        if(hostGame.pathingLayer==null){
@@ -484,7 +485,7 @@ public class GameObject2 {
     
     /**
      * If this onbject's hitbox is intersected by the camera's field of view
-     * @return 
+     * @return if the object is visable by the camera
      */
     public boolean isOnScreen(){
         Rectangle sightBox = new Rectangle((int)this.location.x-getWidth()/2,(int)this.location.y-getHeight()/2,getWidth(),getHeight());

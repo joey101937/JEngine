@@ -86,7 +86,7 @@ public class Game extends Canvas implements Runnable {
 
     /**
      * sets the background for this game instance and sets world bounds to match
-     * @param bi 
+     * @param bi new background image
      */
     public void setBackground(BufferedImage bi) {
         worldHeight = backgroundImage.getHeight();
@@ -98,7 +98,7 @@ public class Game extends Canvas implements Runnable {
     /**
      * sets the input handler for this game. Removes any previous input handler
      * Applies key, mouse, and mouseMotion listeners
-     * @param in 
+     * @param in Input handler to apply to this game
      */
     public void setInputHandler(InputHandler in){
         if(inputHandler != null) {
@@ -118,6 +118,7 @@ public class Game extends Canvas implements Runnable {
      * used for grabbing all objects in a rectanglular area 
      * (uses hitbox intersect)
      * @param r rectangle object used for intersecting hitboxes
+     * @return a list of all gameobjects in the area
      */
     public ArrayList<GameObject2> getObjectsInArea(Rectangle r){
         Coordinate[] verts = new Coordinate[4];
@@ -133,7 +134,6 @@ public class Game extends Canvas implements Runnable {
             }
         }
         return output;
-
     }
 
 
@@ -143,6 +143,7 @@ public class Game extends Canvas implements Runnable {
      * (uses center point value)
      * @param c point to use
      * @param distance how far away from c the object may be to get selected
+     * @return a list of objects near the given point
      */
     public ArrayList<GameObject2> getObjectsNearPoint(Coordinate c, double distance){
           ArrayList<GameObject2> output = new ArrayList<>();
@@ -228,7 +229,7 @@ public class Game extends Canvas implements Runnable {
 
     /**
      * renders the background onto the game
-     * @param g 
+     * @param g graphics to render with. should be the game's graphics
      */
     public void renderBackGround(Graphics g) {
         try {
@@ -323,7 +324,7 @@ public class Game extends Canvas implements Runnable {
 
     /**
      * pauses/unpauses the game. When paused the game does not tick or render
-     * @param input 
+     * @param input  true = pause false=resume
      */
     public void setPaused(boolean input) {
         if (input) {
@@ -365,7 +366,7 @@ public class Game extends Canvas implements Runnable {
     }
     /**
      * removes object from the game
-     * @param o 
+     * @param o object to remove
      */
     public void removeObject(GameObject2 o){
         //TODO this needs to be redone more efficiently

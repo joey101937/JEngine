@@ -8,7 +8,7 @@ package Framework;
 import java.util.ArrayList;
 
 /**
- *
+ * gameobject that travels along a trajectory
  * @author Joseph
  */
 public class Projectile extends GameObject2{

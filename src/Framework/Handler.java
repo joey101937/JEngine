@@ -23,7 +23,7 @@ public class Handler {
     }
     /**
      * number of gameobjects this handler is resoincible for
-     * @return 
+     * @return number of gameobjects this handler oversees
      */
     public int size(){
         return storage.size();
@@ -36,7 +36,7 @@ public class Handler {
     
     /**
      * safely removes object using iterator to prevent concurrent modification
-     * @param toRemove 
+     * @param toRemove  object to remove
      */
     public synchronized void removeObject(GameObject2 toRemove){
          ListIterator iterator = storage.listIterator();
@@ -68,7 +68,7 @@ public class Handler {
     
     /**
      * renders all objects in the game, along with their subobjects
-     * @param g 
+     * @param g should be the game's graphics
      */
     public synchronized void render(Graphics2D g) {
         for (GameObject2 go : getAllObjects()) {

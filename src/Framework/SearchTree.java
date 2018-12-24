@@ -10,7 +10,8 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 
 /**
- *
+ * This is a testing class for bianary tree datastructure. 
+ * ignore this
  * @author joey
  */
 public class SearchTree<E extends Object> {
@@ -42,7 +43,7 @@ public class SearchTree<E extends Object> {
      * 
      * ID of bird is a final int equal to what number they
      * spawned in, so first bird is ID=0, thrid is ID=2.
-     * @param args 
+     * @param args arugments
      */
     public static void main(String[] args) {
         SearchTree tree = new SearchTree();

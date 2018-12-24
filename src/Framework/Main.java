@@ -49,8 +49,12 @@ public class Main {
         //TankGame.main(args);
     }
 
-    /**
+    /*
      * ** UTILITY METHODS                ***
+     */
+    /**
+     * sleeps the calling thread for a given duration in ms
+     * @param duration time to sleep in ms
      */
     public static void wait(int duration){
         try {
@@ -83,8 +87,8 @@ public class Main {
      * displays a dialogue box with a text input field. And a question for the
      * user. returns the text area's contents.
      *
-     * @param question
-     * @return
+     * @param question Question text to ask the user
+     * @return user's response
      */
     public static String prompt(String question) {
         return JOptionPane.showInputDialog(question);
@@ -93,6 +97,7 @@ public class Main {
     /**
      * displays a dialog box give the user a message, String s. pauses the
      * thread until the user hits OK
+     * @param s String to display
      */
     public static void display(String s) {
         JOptionPane.showMessageDialog(null, s);
@@ -120,7 +125,8 @@ public class Main {
 
     /**
      * returns a random integer between the given parameters
-     *
+     *@param min minimum value the generated value can be
+     * @param max maximum value the gnerated value can be
      * @return the number
      */
     public static int generateRandom(int min, int max) {

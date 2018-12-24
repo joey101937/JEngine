@@ -99,7 +99,7 @@ public class Camera {
     
     /**
      * attempts to focus camera on a game object
-     * @param obj 
+     * @param obj  object to center on
      */
     public void setTarget(GameObject2 obj){
         trackingGameObject=true;

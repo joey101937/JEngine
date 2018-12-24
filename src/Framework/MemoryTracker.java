@@ -6,7 +6,8 @@
 package Framework;
 
 /**
- *
+ * Simple class that constantly prints out memory usage and max memory available
+ * used for debugging and test purposes
  * @author Joseph
  */
 public class MemoryTracker implements Runnable{

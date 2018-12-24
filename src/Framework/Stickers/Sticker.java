@@ -48,7 +48,7 @@ public class Sticker implements Runnable{
     }
     /**
      * Calibrates the render location to center the image on spawn location
-     * @param toRender 
+     * @param toRender image to adjust renderLocation based on
      */
     protected void centerCoordinate(BufferedImage toRender) {
         try{
@@ -123,7 +123,7 @@ public class Sticker implements Runnable{
 
     /**
      * returns current scaling of this sequence
-     * @return
+     * @return  current scale
      */
     public double getScale() {
         return scale;

@@ -24,6 +24,7 @@ public class AnimatedSticker extends Sticker{
     
     
     /**
+     * @param g Game to spawn in
      * @param i array of Bufferedimages to be played for animation
      * @param c location to display
      * @param duration how long to display
@@ -123,7 +124,7 @@ public class AnimatedSticker extends Sticker{
     }
     /**
      * returns current scaling of this sequence
-     * @return
+     * @return current scale
      */
     @Override
     public double getScale() {

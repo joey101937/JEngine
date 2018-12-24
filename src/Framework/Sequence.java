@@ -93,7 +93,7 @@ public class Sequence {
 
     /**
      * returns current scaling of this sequence
-     * @return
+     * @return current scale
      */
     public double getScale() {
         return scale;

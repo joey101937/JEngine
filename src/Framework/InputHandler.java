@@ -45,7 +45,7 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
     
     /**
      * returns this hostgame
-     * @return 
+     * @return  hostGame of this input handler
      */
     public Game getHostGame(){
         return hostGame;
@@ -95,6 +95,7 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
     
     /**
      * returns the pixel coordinate in the world cooresponding with a mouse event
+     * @return pixel location of mouse
      */
     public Coordinate locationOfMouse(MouseEvent e){
         return new Coordinate(e.getX() + (int)-hostGame.camera.location.x,e.getY()+(int)-hostGame.camera.location.y );
