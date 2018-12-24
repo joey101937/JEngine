@@ -31,7 +31,7 @@ public class TankGame {
         g.addObject(player);
         g.addObject(otherTank);
         g.camera.setTarget(player);
-        Main.debugMode= true;
+        //Main.debugMode= true;
         g.start();
     }
 }

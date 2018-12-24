@@ -58,7 +58,7 @@ public class AnimatedSticker extends Sticker{
             image = sprites[currentFrame];
         }catch(ArrayIndexOutOfBoundsException e){
             //sometimes thread scheduler will increase frame beyond maximum
-            e.printStackTrace();
+            System.out.println("Animated sticker FrameIndexOutOfBounds, likely its fine");
             resetCurrentFrame();
             image = sprites[currentFrame];
         }

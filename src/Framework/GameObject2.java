@@ -30,7 +30,7 @@ public class GameObject2 {
     protected double baseSpeed = 2; //total distance the object can move per tick
     private boolean isAnimated = false;//weather or not this object uses sprite or sequence
     protected Sequence sequence = null; //animation sequence to run if animated
-    public BufferedImage sprite = null; //static sprite if not animated
+    public Sprite sprite = null; //static sprite if not animated
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public double rotation = 0; //rotatoin in degrees (not radians)
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
@@ -129,7 +129,7 @@ public class GameObject2 {
         if (isAnimated) {
             return (int)(sequence.getCurrentFrame().getWidth());
         } else {
-            return (int)(sprite.getWidth() * scale);
+            return (int)(sprite.getImage().getWidth());
         }
         }catch(NullPointerException npe){
             return 0;
@@ -144,7 +144,7 @@ public class GameObject2 {
             if (isAnimated) {
                 return (int)(sequence.getCurrentFrame().getHeight());
             } else {
-                return (int)(sprite.getHeight() * scale);
+                return (int)(sprite.getImage().getHeight());
             }
         } catch (NullPointerException npe) {
             return 0;
@@ -236,6 +236,9 @@ public class GameObject2 {
         if(sequence!=null && sequence.getScale()!=scale){
             sequence.scaleTo(scale);
         }
+        if(sprite!=null && sprite.getScale()!=scale){
+            sprite.scaleTo(scale);
+        }
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
         g.rotate(Math.toRadians(rotation),getPixelLocation().x,getPixelLocation().y);
@@ -253,10 +256,8 @@ public class GameObject2 {
                 System.out.println("Warning: null frame in sequence of " + name);
             }
         }else{
-            if(sprite!=null){
-                g.scale(scale, scale);
-                g.drawImage(sprite, pixelLocation.x-sprite.getWidth()/2, pixelLocation.y-sprite.getHeight()/2, null); //draws sprite centered on pixelLocation
-                g.scale(1/scale, 1/scale);
+            if(sprite!=null){                
+                g.drawImage(sprite.getImage(), pixelLocation.x-sprite.getImage().getWidth()/2, pixelLocation.y-sprite.getImage().getHeight()/2, null); //draws sprite centered on pixelLocation
             }else{
                 System.out.println("Warning: unanimated game object sprite is null " + name);
             }
@@ -279,7 +280,7 @@ public class GameObject2 {
      * sets an object to not animate and only render one image as the animation
      * @param image static image to be rendered instead 
      */
-    public void setAnimationFalse(BufferedImage image){
+    public void setAnimationFalse(Sprite image){
         isAnimated = false;
         sprite = image;
     }
