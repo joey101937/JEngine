@@ -31,6 +31,8 @@ public abstract class SpriteManager {
     public static BufferedImage bullet;
     public static BufferedImage[] tankFireAnimation;
     public static BufferedImage dirtBG;
+    
+    public static BufferedImage spaceBG;
     /*--------------------------------------------------------*/
     static{
         initialize();
@@ -61,6 +63,8 @@ public abstract class SpriteManager {
            bullet = load("TankGame/bullet.png");
            tankFireAnimation = loadSequence("TankGame/turretFireSequence");
            dirtBG = load("TankGame/dirtBG.png");
+           
+           spaceBG = load("spacebg.png");
            
            initialized=true;
         }catch(Exception e){

@@ -6,8 +6,8 @@
 package Framework;
 
 /**
- * Gameobjects that are attached to a regular gameobject.
- * Not stored in handler
+ * Gameobjects that are attached to a regular gameobject at a given point offset.
+ * Not stored in handler, but in host objects
  * TODO: work on subobject collision
  * @author joey
  */

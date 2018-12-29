@@ -105,8 +105,12 @@ public class Camera {
     private void constrainCameraToWorld(){
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;
+        
         if(-location.x + hostGame.windowWidth > hostGame.worldWidth) location.x = -1 * (hostGame.worldWidth- hostGame.windowWidth);
         if(-location.y + hostGame.windowHeight > hostGame.worldHeight) location.y = -1 * (hostGame.worldHeight - hostGame.windowHeight);
+        
+        if(location.x > 0) location.x = 0;
+        if(location.y > 0) location.y = 0;
     }
     
     /**

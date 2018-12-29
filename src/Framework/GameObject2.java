@@ -389,7 +389,7 @@ public class GameObject2 {
                     if (getHitbox().intersects(sub.getHitbox())) {
                         //if we are already on top of another unit, just keep going to not get stuck
                         onCollide(sub);
-                        continue;
+                        continue; 
                     }
                     if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(sub.getHitbox(), new Coordinate((int) Math.ceil(velocity.x), (int) Math.ceil(velocity.y)))) {
                         //if we would collide with a unit, stop moving and run onCollide

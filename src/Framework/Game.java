@@ -74,14 +74,13 @@ public class Game extends Canvas implements Runnable {
         }
         setup();
     }
-    
-    public Game(BufferedImage backgroundImage){
-            this.width = windowWidth;
-            this.height = windowHeight;
-            this.backgroundImage = backgroundImage;
-            worldHeight = backgroundImage.getHeight();
-            worldWidth = backgroundImage.getWidth();
-            setup();
+
+    public Game(BufferedImage backgroundImage) {
+        this.width = windowWidth;
+        this.height = windowHeight;
+        this.backgroundImage = backgroundImage;
+        setBackground(backgroundImage);
+        setup();
     }
 
     /**
@@ -92,6 +91,14 @@ public class Game extends Canvas implements Runnable {
         worldHeight = backgroundImage.getHeight();
         worldWidth = backgroundImage.getWidth();
         backgroundImage = bi;
+        if (worldHeight < Toolkit.getDefaultToolkit().getScreenSize().height) {
+            windowHeight = worldHeight ;
+        }
+        if (worldWidth < Toolkit.getDefaultToolkit().getScreenSize().width) {
+            windowWidth = worldWidth ;
+        }
+        this.width = windowWidth;
+        this.height = windowHeight;
     }
 
 
