@@ -78,8 +78,9 @@ public class Camera {
      */
     private void updateLocation(Graphics2D g) {
         if (trackingGameObject && target != null) {
-            location.x = -target.location.x + Game.windowWidth / 2;
-            location.y = -target.location.y + Game.windowHeight / 2;
+            location.x = -target.location.x + Game.windowWidth/Game.resolutionScaleX / 2;
+            location.y = -target.location.y + Game.windowHeight/Game.resolutionScaleY / 2;
+            
             return;
         }
         switch (movementType) {
@@ -106,8 +107,8 @@ public class Camera {
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;
         
-        if(-location.x + hostGame.windowWidth > hostGame.worldWidth) location.x = -1 * (hostGame.worldWidth- hostGame.windowWidth);
-        if(-location.y + hostGame.windowHeight > hostGame.worldHeight) location.y = -1 * (hostGame.worldHeight - hostGame.windowHeight);
+        if(-location.x + hostGame.windowWidth/Game.resolutionScaleX > hostGame.worldWidth) location.x = -1 * (hostGame.worldWidth- hostGame.windowWidth/Game.resolutionScaleX);
+        if(-location.y + hostGame.windowHeight/Game.resolutionScaleY > hostGame.worldHeight) location.y = -1 * (hostGame.worldHeight - hostGame.windowHeight/Game.resolutionScaleY);
         
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;
@@ -125,7 +126,7 @@ public class Camera {
     }
     
     public Rectangle getFieldOfView(){
-        return new Rectangle((int)-location.x,(int)-location.y,Game.windowWidth,Game.windowHeight);
+        return new Rectangle((int)-location.x,(int)-location.y,(int)(Game.windowWidth/Game.resolutionScaleX),(int)(Game.windowHeight/Game.resolutionScaleY));
     }
     
 }

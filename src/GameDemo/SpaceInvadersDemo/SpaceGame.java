@@ -16,8 +16,10 @@ public class SpaceGame {
     public static void main(String[] args) {
         Game g = new Game(SpriteManager.spaceBG);
         Window window = new Window(g);
-
+        for(GameObject2 go : g.getAllObjects()){
+            g.removeObject(go);
+        }
         g.start();
-        g.setInputHandler(new DemoInputHandler());
+        g.setInputHandler(new SpaceInputHandler());
     }
 }

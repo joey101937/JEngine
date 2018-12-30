@@ -25,13 +25,11 @@ public class TankGame {
         g.name = "Tank Game";
         Window window = new Window(g);
         g.setInputHandler(new TankInputHandler());
-        for(GameObject2 go : g.getAllObjects()){
-            g.removeObject(go);
-        }
         g.addObject(player);
         g.addObject(otherTank);
         g.camera.setTarget(player);
         Main.debugMode= true;
+        g.scaleForResolution();
         g.start();
     }
 }

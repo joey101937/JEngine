@@ -6,7 +6,9 @@
 package GameDemo.SandboxDemo;
 
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.Game;
+import static Framework.Game.birdCount;
 import Framework.Main;
 import Framework.Window;
 import Framework.GameObject2;
@@ -301,14 +303,20 @@ public class LaunchMenu extends javax.swing.JFrame {
     @Override
     public void dispose(){
         super.dispose();
+        //set engine options based on user settings/////
         Main.ticksPerSecond =(int)this.TickRateSpinner.getValue();
         Main.renderDelay = (int)this.RenderDelaySpinner.getValue();
         Main.overviewMode = this.overviewCheckbox.isSelected();      
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
         Game.birdCount = (int) birdSpinner.getValue();
+        /////////////////////////////////////////////////
         g=new Game();
+        setup(g);
+        g.scaleForResolution();
         alt=new Game();
+        setup(alt);
+        alt.scaleForResolution();
         g.setInputHandler(new DemoInputHandler());
         alt.setInputHandler(new DemoInputHandler());
         g.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
@@ -318,8 +326,8 @@ public class LaunchMenu extends javax.swing.JFrame {
         g.name="main";
         alt.name = "alt";
         for(GameObject2 go : alt.handler.getAllObjects()){
-            if(go.name.toLowerCase().startsWith("bird")){
-                //removes all birds from one game
+            if(go instanceof SampleBird){
+                //removes all birds from one of the games
                 alt.removeObject(go);
             }
         }
@@ -336,6 +344,37 @@ public class LaunchMenu extends javax.swing.JFrame {
             Window.mainWindow.setCurrentGame(g);
         }
     }
+    
+    
+    /**
+     * use this method to set starting objects etc
+     * for testing purposes
+     */
+    public void setup(Game g) {
+        //this for-loop puts a bunch of randome birds on the screen for performance testing
+        
+        for(int i =0; i < birdCount; i++){
+            double x = Math.random()*3600.0;
+            double y = Math.random()*2900.0;
+            DCoordinate location = new DCoordinate(x,y);
+            SampleBird bird = new SampleBird(location);
+            g.addObject(bird);
+            bird.velocity=new DCoordinate(.5,.5);      
+        }
+        
+        ////add player character
+        SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
+        g.addObject(example);
+        g.testObject = example;
+        example.name = "Player Character";
+        g.camera.setTarget(g.testObject);
+        ////add other character that just stands there looking pretty
+        SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
+        other.name = "Sample Character";
+        g.addObject(other);
+        //AnimatedSticker testEffect = new AnimatedSticker(this, SpriteManager.explosionSequence,new Coordinate(400, 400), 99999);
+    }
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel OverviewLabel;

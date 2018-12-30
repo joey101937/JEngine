@@ -5,12 +5,9 @@
  */
 package Framework;
 
-import GameDemo.SandboxDemo.SampleBird;
-import GameDemo.SandboxDemo.SampleCharacter;
-import Framework.Stickers.AnimatedSticker;
-import GameDemo.SandboxDemo.DemoInputHandler;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -19,7 +16,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.awt.Toolkit;
-import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -38,7 +34,8 @@ public class Game extends Canvas implements Runnable {
     public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     public static int birdCount = 20; //how many birds to spawn in the demo
- 
+    public static final Dimension NATIVE_RESOLUTION = new Dimension(1920,1080);  //native resolution of the game you are creating; used to scale graphics for display
+    protected static double resolutionScaleX = 1, resolutionScaleY = 1;
        /*  FIELDS   */
     public Handler handler = new Handler(this);
     public VisualEffectHandler visHandler = new VisualEffectHandler();
@@ -72,7 +69,6 @@ public class Game extends Canvas implements Runnable {
             ex.printStackTrace();
             return;
         }
-        setup();
     }
 
     public Game(BufferedImage backgroundImage) {
@@ -80,14 +76,13 @@ public class Game extends Canvas implements Runnable {
         this.height = windowHeight;
         this.backgroundImage = backgroundImage;
         setBackground(backgroundImage);
-        setup();
     }
 
     /**
      * sets the background for this game instance and sets world bounds to match
      * @param bi new background image
      */
-    public void setBackground(BufferedImage bi) {
+    public final void setBackground(BufferedImage bi) {
         worldHeight = backgroundImage.getHeight();
         worldWidth = backgroundImage.getWidth();
         backgroundImage = bi;
@@ -163,34 +158,6 @@ public class Game extends Canvas implements Runnable {
     }
     
 
-    /**
-     * use this method to set starting objects etc
-     * for testing purposes
-     */
-    public void setup() {
-        //this for-loop puts a bunch of randome birds on the screen for performance testing
-        
-        for(int i =0; i < birdCount; i++){
-            double x = Math.random()*3600.0;
-            double y = Math.random()*2900.0;
-            DCoordinate location = new DCoordinate(x,y);
-            SampleBird bird = new SampleBird(location);
-            this.addObject(bird);
-            bird.velocity=new DCoordinate(.5,.5);      
-        }
-        
-        ////add player character
-        SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
-        this.addObject(example);
-        testObject = example;
-        example.name = "Player Character";
-        camera.setTarget(testObject);
-        ////add other character that just stands there looking pretty
-        SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
-        other.name = "Sample Character";
-        addObject(other);
-        //AnimatedSticker testEffect = new AnimatedSticker(this, SpriteManager.explosionSequence,new Coordinate(400, 400), 99999);
-    }
     
 
     //core tick, tells all game Objects to tick
@@ -219,6 +186,7 @@ public class Game extends Canvas implements Runnable {
         }
         Graphics g = bs.getDrawGraphics();
         Graphics2D g2d = (Graphics2D)g;
+        g2d.scale(resolutionScaleX, resolutionScaleY);
         g2d.setColor(Color.GREEN);
         g2d.setBackground(Color.white);
         if(Main.overviewMode)g2d.scale(.25, .25);
@@ -305,6 +273,17 @@ public class Game extends Canvas implements Runnable {
         }
         //stop();
     }
+    
+    /**
+     * Scales this Game to mimic the native resolution's appearance for the given
+     * display resolution
+     * set native resolution in Game class, Game.NATIVE_RESOLUTION.
+     */
+    public void scaleForResolution(){
+      Game.resolutionScaleX = (double)Toolkit.getDefaultToolkit().getScreenSize().width/Game.NATIVE_RESOLUTION.width;
+      Game.resolutionScaleY = (double)Toolkit.getDefaultToolkit().getScreenSize().height/Game.NATIVE_RESOLUTION.height;
+    }
+    
 
     /**
      * starts the game. Ticking and rendering will not happen without this call

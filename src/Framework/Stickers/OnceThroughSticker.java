@@ -37,6 +37,7 @@ public class OnceThroughSticker extends AnimatedSticker{
     public OnceThroughSticker(Game g, BufferedImage[] i, Coordinate c){
         super(g,i,c,999999);
     }
+
     
     @Override
     public void resetCurrentFrame(){

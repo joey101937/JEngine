@@ -98,8 +98,12 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
      * @param e the mouse event that generated this event
      * @return pixel location of mouse
      */
-    public Coordinate locationOfMouse(MouseEvent e){
-        return new Coordinate(e.getX() + (int)-hostGame.camera.location.x,e.getY()+(int)-hostGame.camera.location.y );
+    public Coordinate locationOfMouse(MouseEvent e) {
+        DCoordinate loc = new DCoordinate(e.getX()/Game.resolutionScaleX + -hostGame.camera.location.x, e.getY()/Game.resolutionScaleY - hostGame.camera.location.y);
+        //loc.x /= Game.resolutionScaleX;
+       // loc.y /= Game.resolutionScaleY;
+        System.out.println("" + Game.resolutionScaleX + " " + Game.resolutionScaleY);
+        return loc.toCoordinate();
     }
 
 }
