@@ -35,9 +35,9 @@ To put your character in view if you put it in a location off-screen, position t
 To make your game accept user keyboard/mouse input, create a class that extends InputHandler, then set an instance of that class to be the inputhandler for your game using **setInputHandler(InputHandler in)** in the Game class. Inside your inputHandler class you have acess to all mouse listener, mouse motion listener, and key listener methods as well as the **locationOfMouse(MouseEvent e)** method which provides the coordinate point of the mouse during the given mouse event *in terms of the game world*.
 
 # Scenes/Games
-To start a JEngine project, you must first have your base scene. Instances of the Game class are scenes and represent distinct gameworlds within, created using **new Game(BufferedImage) background);**. You must also have a **Window** to put that game in. The window is the JFrame that actually holds the scene(s) and presents them to the user. Create using **new Window(Game myGame);**
+To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the scene(s) and presents them to the user. Create using **new Window(Game myGame);** Game class should be created *before* the Window. 
 
-To start the world, call the .start() method on your Game instance.
+To make the Game start running, call the .start() method on your Game instance.
 
 Games's core loop involves *ticking* and *rendering*. Ticking runs 60 times per second by default (change using Main.ticksPerSecond). Ticking updates all objects within the world logically. GameObject2s, which are objects that exist in the world, all have tick() methods that run whenever their parent game ticks. Render is the same system except render deals exclusively with visual effect rendering using the passed Graphics2D object from Java AWT.
 
@@ -111,3 +111,5 @@ slow the rendering process by this much. Lowers FPS and response time but smooth
 If false, uses only a double buffer. More buffers require more cpu power but make things animate smoother. Changed with  **Main.tripleBuffer**
 ### **Ticks per Second**
 How fast scenes run their tick method. Slows or speeds up the game relative to real time. lower number = slower game but smoother performance for weak hardware.
+### **Resolution Scaling**
+When you create a project that uses visual image assets, those assets are rendered pixel per pixel and their size (without in-engine scaling) is determined by the actual size of the image asset used. Ie: a 200x200 image will display over a distance of 200x200 in the game. The problem is that different screens have different resolutions than the screen you are testing your project on, so a character that looks large on your 1080p display will look tiny on a 4k display. To keep things looking uniform across all screen resolutions, set the final static field **NATIVE_RESOLUTION** in game class to reflect the resolution of you, the programmer's screen. Now you may call the **Game.scaleForResolution()** option and it will automatically scale your entire project to look the same on whatever screen size the project is run in as it does on the screen you are testing on.
