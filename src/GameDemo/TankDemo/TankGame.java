@@ -29,7 +29,7 @@ public class TankGame {
         g.addObject(otherTank);
         g.camera.setTarget(player);
         Main.debugMode= true;
-        g.scaleForResolution();
+        Game.scaleForResolution();
         g.start();
     }
 }

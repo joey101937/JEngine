@@ -279,7 +279,7 @@ public class Game extends Canvas implements Runnable {
      * display resolution
      * set native resolution in Game class, Game.NATIVE_RESOLUTION.
      */
-    public void scaleForResolution(){
+    public static final void scaleForResolution(){
       Game.resolutionScaleX = (double)Toolkit.getDefaultToolkit().getScreenSize().width/Game.NATIVE_RESOLUTION.width;
       Game.resolutionScaleY = (double)Toolkit.getDefaultToolkit().getScreenSize().height/Game.NATIVE_RESOLUTION.height;
     }

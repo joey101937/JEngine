@@ -313,10 +313,9 @@ public class LaunchMenu extends javax.swing.JFrame {
         /////////////////////////////////////////////////
         g=new Game();
         setup(g);
-        g.scaleForResolution();
+        Game.scaleForResolution();
         alt=new Game();
         setup(alt);
-        alt.scaleForResolution();
         g.setInputHandler(new DemoInputHandler());
         alt.setInputHandler(new DemoInputHandler());
         g.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
