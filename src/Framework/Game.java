@@ -35,6 +35,7 @@ public class Game extends Canvas implements Runnable {
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     public static int birdCount = 20; //how many birds to spawn in the demo
     public static final Dimension NATIVE_RESOLUTION = new Dimension(1920,1080);  //native resolution of the game you are creating; used to scale graphics for display
+    public static final double OVERVIEW_MODE_ZOOM = .25;
     protected static double resolutionScaleX = 1, resolutionScaleY = 1;
        /*  FIELDS   */
     public Handler handler = new Handler(this);
@@ -158,6 +159,16 @@ public class Game extends Canvas implements Runnable {
     }
     
 
+    public static void setOverViewMode(boolean b){
+        if(b){
+            //enable
+            Main.overviewMode = true;
+            Dimension d = new Dimension((int)(Window.mainWindow.frame.getSize().width*OVERVIEW_MODE_ZOOM),(int)(Window.mainWindow.frame.getSize().height*OVERVIEW_MODE_ZOOM));
+            Window.mainWindow.frame.setSize(d);
+        }else{
+            
+        }
+    }
     
 
     //core tick, tells all game Objects to tick
@@ -189,7 +200,7 @@ public class Game extends Canvas implements Runnable {
         g2d.scale(resolutionScaleX, resolutionScaleY);
         g2d.setColor(Color.GREEN);
         g2d.setBackground(Color.white);
-        if(Main.overviewMode)g2d.scale(.25, .25);
+        if(Main.overviewMode)g2d.scale(OVERVIEW_MODE_ZOOM, OVERVIEW_MODE_ZOOM);
         camera.render(g2d);
         this.renderBackGround(g2d);
         handler.render(g2d);

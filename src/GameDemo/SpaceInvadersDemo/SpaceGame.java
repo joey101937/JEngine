@@ -21,5 +21,6 @@ public class SpaceGame {
         }
         g.start();
         g.setInputHandler(new SpaceInputHandler());
+        OptionsMenu.display();
     }
 }
