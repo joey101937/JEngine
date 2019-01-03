@@ -282,7 +282,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
         super.dispose();
         Main.ticksPerSecond = (int) this.TickRateSpinner.getValue();
         Main.renderDelay = (int) this.RenderDelaySpinner.getValue();
-        Game.setOverViewMode(this.overviewCheckbox.isSelected());
+        Main.setOverviewMode(this.overviewCheckbox.isSelected());
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
     }

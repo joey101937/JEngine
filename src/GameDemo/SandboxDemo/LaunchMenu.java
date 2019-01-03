@@ -306,7 +306,7 @@ public class LaunchMenu extends javax.swing.JFrame {
         //set engine options based on user settings/////
         Main.ticksPerSecond =(int)this.TickRateSpinner.getValue();
         Main.renderDelay = (int)this.RenderDelaySpinner.getValue();
-        Main.overviewMode = this.overviewCheckbox.isSelected();      
+        Main.setOverviewMode(this.overviewCheckbox.isSelected());      
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
         Game.birdCount = (int) birdSpinner.getValue();

@@ -26,7 +26,7 @@ public class Main {
     public static int renderDelay = 0; //the higher this is the crappier the responce time but the better the performance
     public static int ticksPerSecond = 60;
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
-    public static boolean overviewMode = false;
+    private static boolean overviewMode = false;
     public static boolean debugMode = false;
     /**
      * @param args the command line arguments
@@ -48,6 +48,19 @@ public class Main {
         //Game game = new Game(); <- disabled because options menu now starts the game
         //TankGame.main(args);
     }
+    
+        public static void setOverviewMode(boolean b){
+        if(b){
+            //enable
+            Main.overviewMode = true;
+        }else{
+            Main.overviewMode = false;
+        }
+    }
+        
+        public static boolean overviewMode(){
+            return overviewMode;
+        }
 
     /*
      * ** UTILITY METHODS                ***

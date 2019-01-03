@@ -231,7 +231,7 @@ public class GameObject2 {
      */
     public void render(Graphics2D g){
         renderNumber++;
-        if((!isOnScreen() && !Main.overviewMode)||isInvisible)return;
+        if((!isOnScreen() && !Main.overviewMode())||isInvisible)return;
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
         if(sequence!=null && sequence.getScale()!=scale){

@@ -158,17 +158,6 @@ public class Game extends Canvas implements Runnable {
           return output;
     }
     
-
-    public static void setOverViewMode(boolean b){
-        if(b){
-            //enable
-            Main.overviewMode = true;
-            Dimension d = new Dimension((int)(Window.mainWindow.frame.getSize().width*OVERVIEW_MODE_ZOOM),(int)(Window.mainWindow.frame.getSize().height*OVERVIEW_MODE_ZOOM));
-            Window.mainWindow.frame.setSize(d);
-        }else{
-            
-        }
-    }
     
 
     //core tick, tells all game Objects to tick
@@ -200,7 +189,7 @@ public class Game extends Canvas implements Runnable {
         g2d.scale(resolutionScaleX, resolutionScaleY);
         g2d.setColor(Color.GREEN);
         g2d.setBackground(Color.white);
-        if(Main.overviewMode)g2d.scale(OVERVIEW_MODE_ZOOM, OVERVIEW_MODE_ZOOM);
+        if(Main.overviewMode())g2d.scale(OVERVIEW_MODE_ZOOM, OVERVIEW_MODE_ZOOM);
         camera.render(g2d);
         this.renderBackGround(g2d);
         handler.render(g2d);
