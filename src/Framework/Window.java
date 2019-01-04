@@ -5,8 +5,10 @@
  */
 package Framework;
 
-import java.awt.Color;
+import Framework.UI_Elements.UIElement;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -21,11 +23,13 @@ public class Window {
     public String title = "Window Name";
     public static Window mainWindow;
     public Game currentGame;
+    public ArrayList<UIElement> UIElements = new ArrayList<>();
     
     public Window(Game g) {
+        panel.setLayout(null);
         frame = new JFrame(title);
         Dimension d = new Dimension(Game.windowWidth,Game.windowHeight);
-        g.setBounds(0, 0, g.width, g.height);
+        g.setBounds(0, 0, Game.windowWidth, Game.windowHeight);
         panel.setSize(d);
         panel.add(g);
         frame.add(panel);
@@ -50,7 +54,7 @@ public class Window {
         }
         panel.remove(currentGame);
         Dimension d = new Dimension(Game.windowWidth, Game.windowHeight);
-        g.setBounds(0, 0, g.width, g.height);
+        g.setBounds(0, 0, Game.windowWidth, Game.windowHeight);
         panel.setSize(d);
         panel.add(g);
         if (g.hasStarted) {
@@ -62,5 +66,12 @@ public class Window {
         currentGame = g;
         currentGame.requestFocus();
     }
+    
+    protected void updateUIElements(){
+        for(UIElement ele: UIElements){
+            ele.update();
+        }
+    }
+    
     
 }

@@ -28,10 +28,10 @@ import java.util.ConcurrentModificationException;
 public class Game extends Canvas implements Runnable {
 
    
-    public int width, height; //dimensions of the world canvas object on screen
+    //public int width, height;
     public int worldWidth = 0, worldHeight = 0; //dimensions of the gameworld
     public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
-    public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object
+    public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     public static int birdCount = 20; //how many birds to spawn in the demo
     public static final Dimension NATIVE_RESOLUTION = new Dimension(1920,1080);  //native resolution of the game you are creating; used to scale graphics for display
@@ -54,14 +54,14 @@ public class Game extends Canvas implements Runnable {
     public Camera camera = new Camera(this);
 
     
-    
+
+
+
     /**
      * legacy game constructor, used to test the framework
      */
     public Game() {
         try {
-            this.width = windowWidth;
-            this.height = windowHeight;
             backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png"));
             worldHeight = backgroundImage.getHeight();
             worldWidth = backgroundImage.getWidth();
@@ -73,8 +73,6 @@ public class Game extends Canvas implements Runnable {
     }
 
     public Game(BufferedImage backgroundImage) {
-        this.width = windowWidth;
-        this.height = windowHeight;
         this.backgroundImage = backgroundImage;
         setBackground(backgroundImage);
     }
@@ -93,8 +91,6 @@ public class Game extends Canvas implements Runnable {
         if (worldWidth < Toolkit.getDefaultToolkit().getScreenSize().width) {
             windowWidth = worldWidth ;
         }
-        this.width = windowWidth;
-        this.height = windowHeight;
     }
 
 
@@ -163,12 +159,12 @@ public class Game extends Canvas implements Runnable {
     //core tick, tells all game Objects to tick
     private void tick() {
         handler.tick();
-        camera.tick();
+        camera.tick();      
     }
 
     //core render method, tells all game Objects to render
     private synchronized void render() {
-        pausedSafely = false;
+        pausedSafely = false;       
         if(Window.mainWindow.currentGame != this){
             System.out.println("Refusing to render without container " + name);
             return;
@@ -177,6 +173,7 @@ public class Game extends Canvas implements Runnable {
         if(!SpriteManager.initialized){
             System.out.println("WARNING: SpriteManager did not fully initialize");
         }
+        Window.mainWindow.updateUIElements();
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) { ///run once at the start
             int numBuffer = 2;
@@ -189,7 +186,9 @@ public class Game extends Canvas implements Runnable {
         g2d.scale(resolutionScaleX, resolutionScaleY);
         g2d.setColor(Color.GREEN);
         g2d.setBackground(Color.white);
-        if(Main.overviewMode())g2d.scale(OVERVIEW_MODE_ZOOM, OVERVIEW_MODE_ZOOM);
+        if(Main.overviewMode()){
+            g2d.scale(OVERVIEW_MODE_ZOOM, OVERVIEW_MODE_ZOOM);
+        }
         camera.render(g2d);
         this.renderBackGround(g2d);
         handler.render(g2d);
@@ -276,14 +275,30 @@ public class Game extends Canvas implements Runnable {
     
     /**
      * Scales this Game to mimic the native resolution's appearance for the given
-     * display resolution
-     * set native resolution in Game class, Game.NATIVE_RESOLUTION.
+     * display resolution set native resolution in Game class,
+     * Game.NATIVE_RESOLUTION.
      */
-    public static final void scaleForResolution(){
-      Game.resolutionScaleX = (double)Toolkit.getDefaultToolkit().getScreenSize().width/Game.NATIVE_RESOLUTION.width;
-      Game.resolutionScaleY = (double)Toolkit.getDefaultToolkit().getScreenSize().height/Game.NATIVE_RESOLUTION.height;
+    public static final void scaleForResolution() {
+        Game.resolutionScaleX = (double) Toolkit.getDefaultToolkit().getScreenSize().width / Game.NATIVE_RESOLUTION.width;
+        Game.resolutionScaleY = (double) Toolkit.getDefaultToolkit().getScreenSize().height / Game.NATIVE_RESOLUTION.height;
     }
-    
+
+    /**
+     * @return how much the game is being scaled on the x axis based on
+     * resolution
+     */
+    public static double getResolutionScaleX() {
+        return resolutionScaleX;
+    }
+
+    /**
+     * @return how much the game is being scaled on the y axis based on
+     * resolution
+     */
+    public static double getResolutionScaleY() {
+        return resolutionScaleY;
+    }
+
 
     /**
      * starts the game. Ticking and rendering will not happen without this call
@@ -374,5 +389,9 @@ public class Game extends Canvas implements Runnable {
     @Override
     public String toString(){
         return name;
+    }
+    
+        public BufferedImage getBackgroundImage(){
+        return backgroundImage;
     }
 }
