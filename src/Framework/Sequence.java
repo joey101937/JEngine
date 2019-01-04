@@ -67,6 +67,9 @@ public class Sequence {
      */
     public void disable(){
         this.disabled = true;
+        for(BufferedImage bi : frames){
+            bi=null;
+        }
     }
 
     /**

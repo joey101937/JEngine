@@ -77,6 +77,7 @@ public class Sticker implements Runnable{
 
     public void disable() {
         disabled = true;
+        host=null;
         while(hostGame.visHandler.stickers.contains(this)){
             try{
                 hostGame.visHandler.stickers.remove(this);

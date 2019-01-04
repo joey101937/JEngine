@@ -105,10 +105,6 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
         }else{
              loc = new DCoordinate(e.getX()/Game.resolutionScaleX + -hostGame.camera.location.x, e.getY()/Game.resolutionScaleY - hostGame.camera.location.y);
         }
-       
-        //loc.x /= Game.resolutionScaleX;
-       // loc.y /= Game.resolutionScaleY;
-        System.out.println("" + Game.resolutionScaleX + " " + Game.resolutionScaleY);
         return loc.toCoordinate();
     }
 

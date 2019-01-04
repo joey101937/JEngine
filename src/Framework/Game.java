@@ -112,6 +112,10 @@ public class Game extends Canvas implements Runnable {
         this.addKeyListener(in);
     }
     
+    public InputHandler getInputHandler(){
+        return inputHandler;
+    }
+    
     /**
      * returns all gameobjects that intersect the given rectangle
      * used for grabbing all objects in a rectanglular area 

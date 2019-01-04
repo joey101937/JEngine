@@ -369,7 +369,7 @@ public class GameObject2 {
         if (isSolid && getHitbox()!=null) {
             Coordinate toMove = new Coordinate((int)(newLocation.x-location.x),(int)(newLocation.y-location.y));
             for (GameObject2 other : hostGame.handler.getAllObjects()) {
-                if (!other.isSolid || other==this || other.plane!=plane) {
+                if (!other.isSolid || other.getHitbox()==null || other==this || other.plane!=plane) {
                     continue;
                 }
                 if (getHitbox().intersects(other.getHitbox())) {
@@ -455,6 +455,10 @@ public class GameObject2 {
             SubObject me = (SubObject)this;
             me.setHost(null);
         }
+        this.sequence=null;
+        this.animations=null;
+        this.sprite=null;
+        System.gc();
     }
 
     /**

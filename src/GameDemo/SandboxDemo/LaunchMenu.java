@@ -333,7 +333,6 @@ public class LaunchMenu extends javax.swing.JFrame {
         
         System.out.println("setting game to alt");
         w.setCurrentGame(alt);
-
     }
 
     public static void changeGame(){

@@ -7,9 +7,9 @@ package GameDemo.TankDemo;
 
 import Framework.Coordinate;
 import Framework.Game;
-import Framework.GameObject2;
 import Framework.Main;
 import Framework.SpriteManager;
+import Framework.UI_Elements.Minimap;
 import Framework.Window;
 
 /**
@@ -31,5 +31,6 @@ public class TankGame {
         Main.debugMode= true;
         Game.scaleForResolution();
         g.start();
+       // new Minimap(g);
     }
 }

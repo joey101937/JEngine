@@ -5,13 +5,7 @@
  */
 package GameDemo.TankDemo;
 
-import Framework.DCoordinate;
-import Framework.GameObject2;
 import Framework.InputHandler;
-import Framework.SpriteManager;
-import Framework.Stickers.OnceThroughSticker;
-import GameDemo.SandboxDemo.LaunchMenu;
-import GameDemo.SandboxDemo.SampleBird;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
