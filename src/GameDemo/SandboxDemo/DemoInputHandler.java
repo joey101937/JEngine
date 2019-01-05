@@ -86,6 +86,9 @@ public class DemoInputHandler extends InputHandler{
             case 'G':{
                 LaunchMenu.changeGame();
             }
+            case 'X':{
+                System.gc();
+            }
         }
     }
 
