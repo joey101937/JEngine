@@ -119,7 +119,7 @@ public class Game extends Canvas implements Runnable {
     /**
      * returns all gameobjects that intersect the given rectangle
      * used for grabbing all objects in a rectanglular area 
-     * (uses hitbox intersect)
+     * (uses hitbox intersect, checks for subobjects)
      * @param r rectangle object used for intersecting hitboxes
      * @return a list of all gameobjects in the area
      */
@@ -134,11 +134,37 @@ public class Game extends Canvas implements Runnable {
         for (GameObject2 go : handler.getAllObjects()) {
             if (go.hitbox!=null && go.getHitbox().intersects(hitbox)) {
                 output.add(go);
+            }else{
+                for (SubObject sub : go.subObjects) {
+                    if (sub.getHitbox().intersects(hitbox)) {
+                        output.add(go);
+                    }
+                } 
             }
         }
         return output;
     }
 
+    /**
+     * returns all GameObject2s in this Game with hitboxes that intersect the given hitbox
+     * @param h Hitbox to use
+     * @return List of objects touching h
+     */
+    public ArrayList<GameObject2> getObjectsIntersecting(Hitbox h) {
+        ArrayList<GameObject2> output = new ArrayList<>();
+        for (GameObject2 go : getAllObjects()) {
+            if (go.getHitbox().intersects(h)) {
+                output.add(go);
+            } else {
+                for (SubObject sub : go.subObjects) {
+                    if (sub.getHitbox().intersects(h)) {
+                        output.add(go);
+                    }
+                }
+            }
+        }
+        return output;
+    }
 
     /**
      * returns all gameobjects that are within distance of c; used to get all
