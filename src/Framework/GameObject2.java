@@ -299,11 +299,11 @@ public class GameObject2 {
     /**
      * maintains hitboxes, runs after default render.
      * Override to use custom hitboxes.
-     * 
      * by default, this sets up a rectangular hitbox and maintains it based on current sprite
      * if the hitbox is set to be circular, maintains circle radius to be equal to width/2
      */
     public void updateHitbox() {
+        //if no hitbox, create the default box hitbox
         if (getHitbox() == null && getWidth()>0 && renderNumber>0) {
             int width = getWidth();
             int height = getHeight();
@@ -315,6 +315,7 @@ public class GameObject2 {
             setHitbox(new Hitbox(this, verts));
             return;
         }
+        //maintain the default hitbox
         if (getHitbox() != null && getHitbox().type == Hitbox.Type.box) {
             int width = getWidth();
             int height = getHeight();
@@ -325,6 +326,7 @@ public class GameObject2 {
             verts[3] = new Coordinate(width / 2, height / 2);
             getHitbox().setVertices(verts);
         }else if(getHitbox() != null && getHitbox().type == Hitbox.Type.circle){
+            //maintain default circle hitbox
             getHitbox().radius = getWidth()/2;
         }
         
@@ -340,6 +342,15 @@ public class GameObject2 {
         tickNumber++;
     }
     
+    /**
+     * This method runs every tick and controls object positioning regarding:
+     * note: called as part of default tick; if you want to override tick then
+     * you will need to call super.tick() or this once directly. (not both)
+     * -Adjusts object position based on velocity
+     * -Constrains object to world when necessary
+     * -Detects collisions
+     * -updates hitbox
+     */
     public void updateLocation() {
       DCoordinate newLocation = location.copy();
         switch (movementType) {

@@ -102,8 +102,14 @@ public class PathingLayer {
                 return Type.water;
             } else if (c == impassColor.getRGB()) {
                 return Type.impass;
-            } else {
-                // System.out.println("no path found for color " + new Color(c));
+            } 
+            /*
+            THIS IS WHERE YOU PUT YOUR CODE WHEN ADDING ANOTHER TERRAIN TYPE
+            Check if c = <yourColor>.getRGB(), and if so, return your terrainType
+            See above code for example with the default terrain types.
+            */
+            else {
+                if(Main.debugMode)System.out.println("No terrain type found for color " + new Color(c));
                 return Type.impass;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
