@@ -19,7 +19,7 @@ import java.awt.image.BufferedImage;
 public class AnimatedSticker extends Sticker{
     public volatile BufferedImage[] sprites;
     public int frameCount = 0;
-    public int currentFrame = 0;
+    public volatile int currentFrame = 0;
     public int frameDuration = 40;
     
     
@@ -142,6 +142,16 @@ public class AnimatedSticker extends Sticker{
             newFrames[sprites.length-(i+1)]=sprites[i];
         }
         sprites = newFrames;
+    }
+    
+    @Override
+    public synchronized void disable(){
+        for(BufferedImage bi : sprites){
+            bi.flush();
+            bi=null;
+        }
+        sprites=null;
+        super.disable();
     }
     
 }

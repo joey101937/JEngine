@@ -46,7 +46,7 @@ public class Game extends Canvas implements Runnable {
     protected PathingLayer pathingLayer;
     public Window window;
     public boolean hasStarted = false;
-    private boolean paused = false;    
+    private volatile boolean paused = false;    
     public volatile boolean pausedSafely = false;  //used to track when its safe to remove canvas component from frame
     public String name = "Untitled Game";
     protected InputHandler inputHandler;

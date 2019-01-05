@@ -15,6 +15,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ConcurrentModificationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Renders an image at a location for a given length of time
@@ -26,7 +28,7 @@ public class Sticker implements Runnable{
     public volatile BufferedImage image;
     public Coordinate spawnLocation = new Coordinate(0,0); //canter of where we want the sticker
     protected Coordinate renderLocation = new Coordinate(0,0); //top left position of sticker, to allow the center to be on spawnLocation
-    public boolean disabled = false;
+    public volatile boolean disabled = false;
     public int timeToRender;
     protected double scale = 1;
     protected static int numSticker = 0; //id for sticker, used for profiling threads
@@ -75,7 +77,7 @@ public class Sticker implements Runnable{
         }
     }
 
-    public void disable() {
+    public synchronized void disable() {
         disabled = true;
         host=null;
         while(hostGame.visHandler.stickers.contains(this)){
@@ -84,6 +86,13 @@ public class Sticker implements Runnable{
             }catch(ConcurrentModificationException cme){
                 cme.printStackTrace();
             }
+        }
+       if(image!=null)image.flush();
+       image=null;
+        try {
+            finalize();
+        } catch (Throwable ex) {
+          ex.printStackTrace();
         }
     }
 

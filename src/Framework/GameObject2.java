@@ -14,6 +14,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Parent class for all objects that appear in the gameworld
@@ -455,10 +457,12 @@ public class GameObject2 {
             SubObject me = (SubObject)this;
             me.setHost(null);
         }
+        this.detatchAllStickers();
+        if(hitbox!=null)hitbox.host=null;
+        if(sequence!=null)sequence.disable();
         this.sequence=null;
         this.animations=null;
-        this.sprite=null;
-        System.gc();
+        if(sprite!=null)this.sprite.destroy();
     }
 
     /**

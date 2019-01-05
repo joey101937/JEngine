@@ -8,6 +8,8 @@ package Framework;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents an image used to be rendered in the world
@@ -69,5 +71,14 @@ public class Sprite {
                 = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         after = scaleOp.filter(before, after);
         return after;
+    }
+    
+    protected void destroy(){
+        image.flush();
+        try {
+            finalize();
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
     }
 }

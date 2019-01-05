@@ -8,6 +8,8 @@ package Framework;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Animation sequence
@@ -19,8 +21,8 @@ public class Sequence {
     /**Duration to wait before switching frames in ms*/
     public int frameDelay = 60;
     /**Index of frame currently set to render*/
-    public int currentFrameIndex = 0;
-    boolean disabled = false;
+    public volatile int currentFrameIndex = 0;
+    volatile boolean disabled = false;
     public Animator animator = new Animator(this);
     
     /**
@@ -69,6 +71,11 @@ public class Sequence {
         this.disabled = true;
         for(BufferedImage bi : frames){
             bi=null;
+        }
+        try {
+            finalize();
+        } catch (Throwable ex) {
+            ex.printStackTrace();
         }
     }
 
