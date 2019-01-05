@@ -46,6 +46,18 @@ User input is done on a Game to Game basis, where each scene/game has its own In
 
 A gameworld is as large as it's background image, and this may be smaller than the size of your monitor. A game's **Camera** controls the viewport. Camera can be moved to a particular Coordinate or set to follow a GameObject2
 
+You can have multiple scenes in one project. To do this, simply create a new Game and start it. To put it on screen, use the Window.setGame(Game) method. This pauses the active game, removes it, then adds the new given game. New given games are unpaused if paused or started if the game hasnt been started yet. *You can pause a Game manually using .setPaused(true), or resume with (.setPaused(false));*
+
+### Retrieving GameObject2s In A Scene
+**getAllObjects()** returns a list of all GameObject2's in this game's handler, which functionally means it gets all objects in the world (not their subobjects; an object's subobjects are stored in that object)
+
+**getObjectsInArea(Rectangle r)** gets all GameObject2's in this game's handler that are in *or touching* the defined rectangle area. Reminder to make a rectangle: Rectangle r = new Rectangle(int x, int y, int width, int height); where x and y are topleft coordinate. 
+*This method uses hitboxes, so your object must have a hitbox to be detected. Note objects do NOT need to be solid to get detected. Checks subobjects*
+
+**getObjectsNearPoint(Coordiante c, double distance)** gets all GameObject2's whose location is within <distance> units of the given coordinate. *Note this method uses raw location, so the center point must be within distance. Hitboxes are not required. Does NOT check for subobjects*
+
+**getObjectsIntersecting(Hitbox h)** You can create a standalone hitbox over your custom area and check collision using it. For circles, the code its *new Hitbox(Coordiante centerPoint, double radius)*, and for polygons, its *new Hitbox(Coordinate[] vertices)*; where the Coordinate array contains *exactly four* points which are, in order, top-left, top-right, bottom-left, bottom-right. This method checks each object in the world *and* their subobjects for collision. *Note this method also grabs non-solid objects*
+
 # Visual Assets
 ## Loading Assets
 JEngine loads all visual assets in the SpriteManager class, which is one of the framework classes you should modify regularly. Image
