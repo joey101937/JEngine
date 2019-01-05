@@ -6,7 +6,10 @@
 package Framework.UI_Elements;
 
 /**
- * This interface should be implemented on all UI Elements you create
+ * This interface should be implemented on all UI Elements you create that are
+ * part of/ overlay the game window
+ * 
+ * popups, dialogboxes, or other JFrames do not need to implement this
  * @author Joseph
  */
 public interface UIElement {

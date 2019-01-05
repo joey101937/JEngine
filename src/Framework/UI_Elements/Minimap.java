@@ -64,6 +64,7 @@ public final class Minimap extends Panel implements UIElement {
     flickering
     size of the thing
     input handler
+    possibly incorporate this into UIElement interface for ease of use in future
      */
     /**
      * sets the minimap to be at a certain location relative to the top left of

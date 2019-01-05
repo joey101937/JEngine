@@ -5,6 +5,7 @@
  */
 package GameDemo.SpaceInvadersDemo;
 
+import Framework.UI_Elements.OptionsMenu;
 import Framework.*;
 import GameDemo.SandboxDemo.DemoInputHandler;
 

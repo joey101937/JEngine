@@ -139,19 +139,21 @@ public class AnimatedSticker extends Sticker{
     public void reverse(){
         BufferedImage[] newFrames = new BufferedImage[sprites.length];
         for(int i =0 ; i<sprites.length;i++){
-            newFrames[sprites.length-(i+1)]=sprites[i];
+            newFrames[sprites.length - (i + 1)] = sprites[i];
         }
         sprites = newFrames;
     }
-    
+
     @Override
-    public synchronized void disable(){
-        for(BufferedImage bi : sprites){
-            bi.flush();
-            bi=null;
+    public synchronized void disable() {
+        if (sprites != null) {
+            for (BufferedImage bi : sprites) {
+                bi.flush();
+                bi = null;
+            }
+            sprites = null;
         }
-        sprites=null;
         super.disable();
     }
-    
+
 }

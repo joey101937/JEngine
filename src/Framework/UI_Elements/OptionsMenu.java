@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Framework;
+package Framework.UI_Elements;
+
+import Framework.Main;
 
 /**
  * Engine options menu GUI, used to set engine options at runtime by user
