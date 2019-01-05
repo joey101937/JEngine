@@ -106,7 +106,9 @@ GameObject2s can check what type of terrain they are on and it may effect moveme
 You can use a GameObject2's **currentTerrain()** method to fetch the terrain type that the object is currently on. **Note: terrain is determined by the object's *exact* location, usually the object's center point.**
 
 *Example:*
+
 GameObject2 object = new GameObject2(new Coordinate(0,0));
+
 object.pathingModifiers.put(PathingLayer.Type.water, .33); //the object moves slower in the water
 
 ### Adding Custom Terrain Types
