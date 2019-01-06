@@ -309,7 +309,13 @@ public class Game extends Canvas implements Runnable {
                 this.render();
                 }catch(ConcurrentModificationException cme){
                     System.out.println("cme render");
-                }catch(Exception e){
+                }catch(IllegalStateException ise){
+                    System.out.println("Critical error: Illegal state");
+                    ise.printStackTrace();
+                    Window.mainWindow.setCurrentGame(null);
+                    Window.mainWindow.setCurrentGame(this);
+                }
+                catch(Exception e){
                     e.printStackTrace();
                 }
             }

@@ -20,6 +20,7 @@ public class SpaceGame {
         for(GameObject2 go : g.getAllObjects()){
             g.removeObject(go);
         }
+        
         g.start();
         g.setInputHandler(new SpaceInputHandler());
         OptionsMenu.display();
