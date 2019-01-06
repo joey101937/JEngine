@@ -290,6 +290,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
         Main.setOverviewMode(this.overviewCheckbox.isSelected());
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
+        Window.mainWindow.currentGame.camera.disableMovement=this.disableCamCheck.isSelected();
     }
 
 
