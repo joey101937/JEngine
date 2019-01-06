@@ -6,6 +6,7 @@
 package GameDemo.TankDemo;
 
 import Framework.InputHandler;
+import Framework.UI_Elements.OptionsMenu;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -31,7 +32,10 @@ public class TankInputHandler extends InputHandler {
                 TankGame.player.rotate(-TankGame.player.getSpeed());
                 break;
             case 'P':
-                System.out.println(hostGame.getPathingLayer().getTypeAt(TankGame.player.getPixelLocation()));
+                System.out.println(TankGame.player.currentTerrain());
+                break;
+            case 'X':
+                OptionsMenu.display();
                 break;
         }
     }

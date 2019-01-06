@@ -109,7 +109,7 @@ public class PathingLayer {
             See above code for example with the default terrain types.
             */
             else {
-                if(Main.debugMode)System.out.println("No terrain type found for color " + new Color(c));
+                //no color found, so return impass
                 return Type.impass;
             }
         } catch (ArrayIndexOutOfBoundsException e) {

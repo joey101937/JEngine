@@ -6,7 +6,7 @@
 package Framework.UI_Elements;
 
 import Framework.Main;
-
+import Framework.Window;
 /**
  * Engine options menu GUI, used to set engine options at runtime by user
  * @author Joseph
@@ -54,7 +54,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
         tripleCheck = new javax.swing.JCheckBox();
         jSeparator1 = new javax.swing.JSeparator();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Options");
         setAlwaysOnTop(true);
         setResizable(false);
@@ -84,6 +84,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
         OverviewLabel.setText("Overview Mode");
         OverviewLabel.setToolTipText("Ticks Per Second");
 
+        overviewCheckbox.setSelected(Main.overviewMode());
         overviewCheckbox.setText("Enabled");
         overviewCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -116,6 +117,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
         disableCamLabel.setText("Disable Camera Movement");
         disableCamLabel.setToolTipText("Ticks Per Second");
 
+        disableCamCheck.setSelected(Window.mainWindow.currentGame.camera.disableMovement);
         disableCamCheck.setText("Disabled");
         disableCamCheck.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -127,6 +129,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
         debugLabel.setText("Debug Mode");
         debugLabel.setToolTipText("Ticks Per Second");
 
+        debugCheck.setSelected(Main.debugMode);
         debugCheck.setText("Enabled");
         debugCheck.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -287,6 +290,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
         Main.setOverviewMode(this.overviewCheckbox.isSelected());
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
+        Window.mainWindow.currentGame.camera.disableMovement=this.disableCamCheck.isSelected();
     }
 
 

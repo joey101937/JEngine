@@ -28,9 +28,9 @@ public class TankGame {
         g.addObject(player);
         g.addObject(otherTank);
         g.camera.setTarget(player);
-        Main.debugMode= true;
         Game.scaleForResolution();
         g.start();
+        Main.display("Press X for options menu");
        // new Minimap(g);
     }
 }

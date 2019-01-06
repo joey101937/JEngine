@@ -77,10 +77,10 @@ public class Camera {
      * @param g graphics for which this camera operates
      */
     private void updateLocation(Graphics2D g) {
+        if(disableMovement)return;
         if (trackingGameObject && target != null) {
             location.x = -target.location.x + Game.windowWidth/Game.resolutionScaleX / 2;
-            location.y = -target.location.y + Game.windowHeight/Game.resolutionScaleY / 2;
-            
+            location.y = -target.location.y + Game.windowHeight/Game.resolutionScaleY / 2;           
             return;
         }
         switch (movementType) {
