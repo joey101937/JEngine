@@ -432,8 +432,8 @@ public class GameObject2 {
     public void constrainToWorld(){
         if(location.x < hostGame.worldBorder) location.x=hostGame.worldBorder;
         if(location.y < hostGame.worldBorder) location.y=hostGame.worldBorder;
-        if(location.x > hostGame.worldWidth - hostGame.worldBorder) location.x = hostGame.worldWidth- hostGame.worldBorder;
-        if(location.y > hostGame.worldHeight - hostGame.worldBorder) location.y = hostGame.worldHeight- hostGame.worldBorder;
+        if(location.x > hostGame.getWorldWidth() - hostGame.worldBorder) location.x = hostGame.getWorldWidth()- hostGame.worldBorder;
+        if(location.y > hostGame.getWorldHeight() - hostGame.worldBorder) location.y = hostGame.getWorldHeight()- hostGame.worldBorder;
     }
     
     public GameObject2(Coordinate c){

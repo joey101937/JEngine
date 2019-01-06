@@ -12,9 +12,12 @@ package Framework.UI_Elements;
  * popups, dialogboxes, or other JFrames do not need to implement this
  * @author Joseph
  */
-public interface UIElement {
+public interface UIElement{
+    
     /**
-     * Use this method to update your element each tick
+     * Use this method to call paint on any graphics you are using in your element
      */
-    public void update();
+    public default void render(){
+    
+    }
 }

@@ -75,7 +75,7 @@ public class DemoInputHandler extends InputHandler{
                 hostGame.handler.removeObject(victim);
                 new OnceThroughSticker(hostGame, SpriteManager.explosionSequence,victim.getPixelLocation(),999);
                 System.out.println(hostGame.handler.size() + " -> " + prev);
-                SampleBird bird = new SampleBird(new DCoordinate(hostGame.worldWidth*Math.random(),hostGame.worldHeight*Math.random()));
+                SampleBird bird = new SampleBird(new DCoordinate(hostGame.getWorldWidth()*Math.random(),hostGame.getWorldHeight()*Math.random()));
                 
                 bird.velocity = new DCoordinate(-.5,-.5);
                 hostGame.addObject(bird);

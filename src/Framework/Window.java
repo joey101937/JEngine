@@ -69,7 +69,7 @@ public class Window {
     
     protected void updateUIElements(){
         for(UIElement ele: UIElements){
-            ele.update();
+            ele.render();
         }
     }
     

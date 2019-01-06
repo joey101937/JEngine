@@ -48,6 +48,13 @@ A gameworld is as large as it's background image, and this may be smaller than t
 
 You can have multiple scenes in one project. To do this, simply create a new Game and start it. To put it on screen, use the Window.setGame(Game) method. This pauses the active game, removes it, then adds the new given game. New given games are unpaused if paused or started if the game hasnt been started yet. *You can pause a Game manually using .setPaused(true), or resume with (.setPaused(false));*
 
+**WorldWidth and WorldHeight** are the dimensions of the gameworld, this is determined by the background.
+
+**WindowWidth and WindowHeight** are the dimensions of the window used to view the game. If your game is smaller than the user's screen, this will be the size of the world. Otherwise, it will be the size of their screen.
+
+
+
+
 ### Retrieving GameObject2s In A Scene
 **getAllObjects()** returns a list of all GameObject2's in this game's handler, which functionally means it gets all objects in the world (not their subobjects; an object's subobjects are stored in that object)
 

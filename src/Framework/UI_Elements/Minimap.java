@@ -47,8 +47,16 @@ public final class Minimap extends Panel implements UIElement {
         setLocation(new Coordinate(10, 10));
         //create a minimap interior and add it to this panel
         interior = new MinimapInterior();
-        this.setSize(new Dimension((int) (hostGame.worldWidth * screenPortion * Game.getResolutionScaleX()), (int) (hostGame.worldHeight * screenPortion * Game.getResolutionScaleY())));
-        interior.setSize(this.getSize());
+        Dimension size = new Dimension((int) (hostGame.getWorldWidth() * screenPortion * Game.getResolutionScaleX()), (int) (hostGame.getWorldHeight() * screenPortion * Game.getResolutionScaleY()));
+        interior.setSize(size);
+        //TODO make this border stuff work
+        int border = (int)(20*Game.getResolutionScaleX());
+        size.width+=border;
+        size.height+=border;
+        this.setSize(size);
+        this.setLayout(null);
+        interior.setLocation(100, border);
+        this.setBackground(Color.black);
         this.add(interior);
         //add UI elements to both the mainWindow.panel AND mainWindow.UIElements
         Window.mainWindow.UIElements.add(this);
@@ -89,9 +97,12 @@ public final class Minimap extends Panel implements UIElement {
         g.addObject(character);
         g.camera.setTarget(character);
     }
-
+    /**
+     * the minimap render method first checks to make sure its game in active, and
+     * then if it is, show and update
+     */
     @Override
-    public void update() {
+    public void render() {
         if (Window.mainWindow.currentGame != hostGame) {
             this.setVisible(false);
             return;
@@ -131,10 +142,10 @@ public final class Minimap extends Panel implements UIElement {
             }
             g2d.setColor(Color.green);
             g2d.draw(hostGame.camera.getFieldOfView());
-            g2d.setColor(Color.black);
+           // g2d.setColor(Color.black);
             //g2d.drawRect(-(int)hostGame.camera.location.x, -(int)hostGame.camera.location.y, (int)(hostGame.camera.getFieldOfView().width*screenPortion*Game.getResolutionScaleX()), (int)(hostGame.camera.getFieldOfView().height*screenPortion*Game.getResolutionScaleY()));
-            g2d.setStroke(new BasicStroke(50));
-            g2d.drawRect(0, 0, (int) (this.getWidth() / screenPortion / Game.getResolutionScaleX()), (int) (this.getHeight() / screenPortion / Game.getResolutionScaleY()));
+          //  g2d.setStroke(new BasicStroke(50));
+            //g2d.drawRect(0, 0, (int) (this.getWidth() / screenPortion / Game.getResolutionScaleX()), (int) (this.getHeight() / screenPortion / Game.getResolutionScaleY()));
             g2d.dispose();
         }
 

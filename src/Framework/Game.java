@@ -26,15 +26,23 @@ import java.util.ConcurrentModificationException;
  * @author Joseph
  */
 public class Game extends Canvas implements Runnable {
-
+    
+    /**
+     * native resolution of the game you are creating; used to scale graphics for display
+     * you, the programer, should set this based on what resolution you want to use,
+     * usually this will be your screen size. Game will scale to match proportions 
+     * of this given resolution, for example everything will scale up if someone runs
+     * your 1080p game on a 4k display so that they dont just see the entire world 
+     * and have to squint to see their character
+    */
+    public static final Dimension NATIVE_RESOLUTION = new Dimension(1920,1080);  
    
     //public int width, height;
-    public int worldWidth = 0, worldHeight = 0; //dimensions of the gameworld
+    private int worldWidth, worldHeight;  //dimensions of the gameworld
     public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
     public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     public static int birdCount = 20; //how many birds to spawn in the demo
-    public static final Dimension NATIVE_RESOLUTION = new Dimension(1920,1080);  //native resolution of the game you are creating; used to scale graphics for display
     public static final double OVERVIEW_MODE_ZOOM = .25;
     protected static double resolutionScaleX = 1, resolutionScaleY = 1;
        /*  FIELDS   */
@@ -52,8 +60,6 @@ public class Game extends Canvas implements Runnable {
     protected InputHandler inputHandler;
     public GameObject2 testObject = null; //object to be controlled by input
     public Camera camera = new Camera(this);
-
-    
 
 
 
@@ -75,6 +81,21 @@ public class Game extends Canvas implements Runnable {
     public Game(BufferedImage backgroundImage) {
         this.backgroundImage = backgroundImage;
         setBackground(backgroundImage);
+    }
+
+    /**
+     * width dimension of game world
+     * @return width
+     */
+    public int getWorldWidth() {
+        return worldWidth;
+    }
+    /**
+     * height dimension of gameworld
+     * @return height
+     */
+    public int getWorldHeight() {
+        return worldHeight;
     }
 
     /**

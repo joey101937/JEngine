@@ -66,11 +66,11 @@ public class TankBullet extends Projectile {
             onTimeOut();
             destroy();
         }
-        if (location.x > hostGame.worldWidth - hostGame.worldBorder) {
+        if (location.x > hostGame.getWorldWidth() - hostGame.worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.y > hostGame.worldHeight - hostGame.worldBorder) {
+        if (location.y > hostGame.getWorldHeight() - hostGame.worldBorder) {
             onTimeOut();
             destroy();
         }

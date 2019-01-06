@@ -107,8 +107,8 @@ public class Camera {
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;
         
-        if(-location.x + hostGame.windowWidth/Game.resolutionScaleX > hostGame.worldWidth) location.x = -1 * (hostGame.worldWidth- hostGame.windowWidth/Game.resolutionScaleX);
-        if(-location.y + hostGame.windowHeight/Game.resolutionScaleY > hostGame.worldHeight) location.y = -1 * (hostGame.worldHeight - hostGame.windowHeight/Game.resolutionScaleY);
+        if(-location.x + hostGame.windowWidth/Game.resolutionScaleX > hostGame.getWorldWidth()) location.x = -1 * (hostGame.getWorldWidth()- hostGame.windowWidth/Game.resolutionScaleX);
+        if(-location.y + hostGame.windowHeight/Game.resolutionScaleY > hostGame.getWorldHeight()) location.y = -1 * (hostGame.getWorldHeight() - hostGame.windowHeight/Game.resolutionScaleY);
         
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;

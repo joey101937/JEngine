@@ -91,10 +91,10 @@ public class Projectile extends GameObject2{
         if (location.y < hostGame.worldBorder) {
             destroy();
         }
-        if (location.x > hostGame.worldWidth - hostGame.worldBorder) {
+        if (location.x > hostGame.getWorldWidth() - hostGame.worldBorder) {
             destroy();
         }
-        if (location.y > hostGame.worldHeight - hostGame.worldBorder) {
+        if (location.y > hostGame.getWorldHeight() - hostGame.worldBorder) {
             destroy();
         }
     }
