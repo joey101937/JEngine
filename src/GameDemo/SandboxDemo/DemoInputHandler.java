@@ -13,6 +13,7 @@ import Framework.Projectile;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.Stickers.Sticker;
+import Framework.UI_Elements.OptionsMenu;
 import GameDemo.SandboxDemo.LaunchMenu;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -85,9 +86,11 @@ public class DemoInputHandler extends InputHandler{
                 break;
             case 'G':{
                 LaunchMenu.changeGame();
+                break;
             }
             case 'X':{
                 System.gc();
+                OptionsMenu.display();
             }
         }
     }

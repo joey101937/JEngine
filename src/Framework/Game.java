@@ -37,15 +37,15 @@ public class Game extends Canvas implements Runnable {
     */
     public static final Dimension NATIVE_RESOLUTION = new Dimension(1920,1080);  
    
-    //public int width, height;
-    private int worldWidth, worldHeight;  //dimensions of the gameworld
-    public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
+    
     public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
     public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     public static int birdCount = 20; //how many birds to spawn in the demo
     public static final double OVERVIEW_MODE_ZOOM = .25;
     protected static double resolutionScaleX = 1, resolutionScaleY = 1;
-       /*  FIELDS   */
+    /*  FIELDS   */
+    private int worldWidth, worldHeight;  //dimensions of the gameworld
+    public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
     public Handler handler = new Handler(this);
     public VisualEffectHandler visHandler = new VisualEffectHandler();
     private Thread thread = null;
@@ -54,7 +54,7 @@ public class Game extends Canvas implements Runnable {
     protected PathingLayer pathingLayer;
     public Window window;
     public boolean hasStarted = false;
-    private volatile boolean paused = false;    
+    private volatile boolean paused = false;
     public volatile boolean pausedSafely = false;  //used to track when its safe to remove canvas component from frame
     public String name = "Untitled Game";
     protected InputHandler inputHandler;
