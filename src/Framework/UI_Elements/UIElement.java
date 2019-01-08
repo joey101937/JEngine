@@ -17,7 +17,5 @@ public interface UIElement{
     /**
      * Use this method to call paint on any graphics you are using in your element
      */
-    public default void render(){
-    
-    }
+    public void render();
 }

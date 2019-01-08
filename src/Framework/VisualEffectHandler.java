@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Handler to control all stickers and non-GameObject visual effects
+ * Handler to control all stickers and non-GameObject visual effects in a game
  * @author Joseph
  */
 public class VisualEffectHandler {
