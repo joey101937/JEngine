@@ -34,7 +34,7 @@ public class GameObject2 {
     protected Sequence sequence = null; //animation sequence to run if animated
     public Sprite sprite = null; //static sprite if not animated
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
-    public double rotation = 0; //rotatoin in degrees (not radians)
+    private double rotation = 0; //rotatoin in degrees (not radians)
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
     public boolean isInvisible = false; //invisible gameobjects are not rendered
@@ -169,23 +169,35 @@ public class GameObject2 {
         else sequence = s;
     }
 
-    public void setRotation(double degrees) {
-        if (isSolid && preventOverlap && getHitbox()!=null){
-            //if solid first check collisions
-            for (GameObject2 other : hostGame.getAllObjects()) {
-                if (plane==other.plane && other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees-rotation)){
-                    return;
-                }
-               
-            }
-        }
-        rotation = degrees - innateRotation;
-        if (getHitbox() != null) {
-            getHitbox().rotateTo(degrees);
-        }
-
+    /**
+     * Directly sets the rotation of this object to a given degree.
+     * Does not check collision.
+     */
+    public void setRotation(double degree){
+        rotation = degree;
+    }
+    
+    /**
+     * @return Rotation of this object in degrees.
+     */
+    public double getRotation(){
+        return rotation;
+    }
+    
+    /**
+     * rotates the object to a given degree, checks for collision at destination
+     * @param degrees new degree of location.
+     */
+    public void rotateTo(double degrees) {
+        double degreeToRotate = degrees-rotation;
+        rotate(degreeToRotate);
     }
 
+    /**
+     * rotates the object from the current rotation to the current location +
+     * given degrees. Checks collision at destination.
+     * @param degrees amount to rotate 
+     */
     public void rotate(double degrees) {
         if(isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
@@ -196,6 +208,9 @@ public class GameObject2 {
             }
         }
         rotation += degrees;
+        for(SubObject sub : subObjects){
+            sub.onHostRotate(degrees);
+        }
         if(getHitbox()!=null){
             getHitbox().rotate(degrees);
         }
@@ -207,7 +222,7 @@ public class GameObject2 {
      * @param other object whos location we will look at
      */
     public void lookAt(GameObject2 other) {
-        setRotation(DCoordinate.angleFrom(location, other.location) - innateRotation);
+        rotateTo(DCoordinate.angleFrom(location, other.location) - innateRotation);
     }
     /**
      * Rotates this object so that its front (determined by innate rotation) is
@@ -215,7 +230,7 @@ public class GameObject2 {
      * @param destination location to look at
      */
     public void lookAt(DCoordinate destination){
-         setRotation(DCoordinate.angleFrom(location, destination) - innateRotation);
+         rotateTo(DCoordinate.angleFrom(location, destination) - innateRotation);
     }
         /**
      * Rotates this object so that its front (determined by innate rotation) is
@@ -223,7 +238,7 @@ public class GameObject2 {
      * @param destination location to look at
      */
     public void lookAt(Coordinate destination){
-         setRotation(DCoordinate.angleFrom(getPixelLocation(), destination) - innateRotation);
+         rotateTo(DCoordinate.angleFrom(getPixelLocation(), destination) - innateRotation);
     }
     
     

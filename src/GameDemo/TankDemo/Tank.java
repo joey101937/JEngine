@@ -75,9 +75,9 @@ public class Tank extends Creature{
         public void onFire(Coordinate target){
             setAnimationTrue(fireAnimation);
             firing = true;
-            Coordinate muzzelLocation = this.offset.copy();
+            Coordinate muzzelLocation = new Coordinate(0,0);
             muzzelLocation.y-=fireAnimation.frames[0].getHeight()*2/5;
-            muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, rotation);
+            muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotation());
             muzzelLocation.add(getPixelLocation());
             OnceThroughSticker muzzelFlash = new OnceThroughSticker(getHostGame(),SpriteManager.explosionSequence,muzzelLocation);
             muzzelFlash.scaleTo(.75);

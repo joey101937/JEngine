@@ -13,7 +13,41 @@ package Framework;
  */
 public class SubObject extends GameObject2{
     private GameObject2 host = null;
-    public  Coordinate offset = new Coordinate(0,0);
+    private  Coordinate offset = new Coordinate(0,0);
+    private  Coordinate adjustedOffset = new Coordinate(0,0);
+    
+    
+    /**
+     * this is this offset adjsuted for host location. Relative to world. 
+     * host-location plus adjustedOffset equals the location of this subobject
+     * from any host rotation
+     */
+    public Coordinate getAdjustedOffset(){
+        return adjustedOffset;
+    }
+    
+    
+    
+    /**
+     * gets the raw offset relative to the host object. this does not reflect
+     * rotation adjustments and therefore host-location + offset does not equal
+     * the location of this object in the world
+     * @return offset relative to host, no rotation adjustment
+     */
+    public Coordinate getOffset(){
+        return offset;
+    }
+    
+    /**
+     * sets the raw offset relative to the host object. this does not reflect
+     * rotation adjustments and therefore host-location + offset does not equal
+     * the location of this object in the world
+     * @param c new offset relative to host, no rotation adjustment
+     */
+    public void setOffset(Coordinate c) {
+            offset=c;
+            updateAdjustedOffset();
+    }
     
     /**
      * Creates a subobject with a given offset. Use setHost(GameObject2) method
@@ -37,6 +71,7 @@ public class SubObject extends GameObject2{
         this.host = host;
         this.hostGame=host.hostGame;
         if(host!=null)this.host.subObjects.add(this);
+        updateAdjustedOffset();
     }
 
     
@@ -64,7 +99,7 @@ public class SubObject extends GameObject2{
     @Override
     public void updateLocation(){
         DCoordinate newLocation = host.location.copy();
-        newLocation.add(offset);
+        newLocation.add(adjustedOffset);
         updateHitbox();
         this.location = newLocation;
     }
@@ -80,5 +115,20 @@ public class SubObject extends GameObject2{
     @Override
     public void onCollide(GameObject2 other){
         host.onCollide(other);
+    }
+    
+    /**
+     * runs whenever the host rotates.
+     * default: adjusts location to rotate with host
+     * @param degree degree of rotation
+     */
+    public void onHostRotate(double degree){
+        updateAdjustedOffset();
+    }
+    
+    private void updateAdjustedOffset() {
+        if(host==null)return;
+        adjustedOffset = offset.copy();
+        adjustedOffset.adjustForRotation(host.getRotation());
     }
 }
