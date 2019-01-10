@@ -159,6 +159,7 @@ public class Hitbox {
 
     /**
      * coordinates for leftside line, used with box type
+     * @return leftside line coordinates x1,y1,x2,y2
      */
     private double[] leftSide() {
         Coordinate hostLoc = new Coordinate(getCenter());      
@@ -168,6 +169,7 @@ public class Hitbox {
 
     /**
      * coordinates for topside line used with box type
+     * @return  line coordinates x1,y1,x2,y2
      */
     private double[] topSide() {
         Coordinate hostLoc = new Coordinate(getCenter());    
@@ -177,6 +179,7 @@ public class Hitbox {
 
     /**
      * coordinates for right side line used with box type
+     * @return  line coordinates x1,y1,x2,y2
      */
     private double[] rightSide() {
         Coordinate hostLoc = new Coordinate(getCenter());    
@@ -186,6 +189,7 @@ public class Hitbox {
 
     /**
      * coordinates for bottom side line used with box type
+     * @return  line coordinates x1,y1,x2,y2
      */
     private double[] botSide() {
         Coordinate hostLoc = new Coordinate(getCenter());    
@@ -193,6 +197,12 @@ public class Hitbox {
         return output;
     }
 
+    /**
+     * weather or not the given two lines intersect
+     * @param line1 first line to eval
+     * @param line2 second line to eval
+     * @return weather or not the two lines intersect
+     */
     private boolean linesIntersect(double[] line1, double[] line2) {
         return Line2D.linesIntersect(line1[0], line1[1], line1[2], line1[3], line2[0], line2[1], line2[2], line2[3]);
     }

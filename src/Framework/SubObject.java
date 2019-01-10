@@ -18,9 +18,10 @@ public class SubObject extends GameObject2{
     
     
     /**
-     * this is this offset adjsuted for host location. Relative to world. 
+     * This is this offset adjsuted for host location. Relative to world. 
      * host-location plus adjustedOffset equals the location of this subobject
      * from any host rotation
+     * @return adjusted offset
      */
     public Coordinate getAdjustedOffset(){
         return adjustedOffset;

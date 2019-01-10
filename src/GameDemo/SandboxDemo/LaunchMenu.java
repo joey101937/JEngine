@@ -347,6 +347,7 @@ public class LaunchMenu extends javax.swing.JFrame {
     /**
      * use this method to set starting objects etc
      * for testing purposes
+     * @param g sets up the given Game for testing purposes
      */
     public void setup(Game g) {
         //this for-loop puts a bunch of randome birds on the screen for performance testing

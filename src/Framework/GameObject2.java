@@ -172,6 +172,7 @@ public class GameObject2 {
     /**
      * Directly sets the rotation of this object to a given degree.
      * Does not check collision.
+     * @param degree sets direction to this exact degree
      */
     public void setRotation(double degree){
         rotation = degree;

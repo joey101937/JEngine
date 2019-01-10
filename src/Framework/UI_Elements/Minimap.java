@@ -26,7 +26,6 @@ import java.awt.image.BufferedImage;
 
 /**
  * Example UI element, a minimap. UI elements are attached to the window.
- *
  * @author Joseph
  */
 public final class Minimap extends Panel implements UIElement {
@@ -86,6 +85,7 @@ public final class Minimap extends Panel implements UIElement {
 
     /**
      * for testing
+     * @param args commandline args
      */
     public static void main(String[] args) {
         Game g = new Game(SpriteManager.dirtBG);
