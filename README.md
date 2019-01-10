@@ -144,6 +144,7 @@ If you want your object to have an animated visual, you will need to load in the
 ### Transformations
 **Scaling**
 Change the *scale* field in the object and it will scale the object to the given amount. Sprite and Sequence objects will scale to match the objects scale on render.
+
 **Rotating**
 Rotation is more complicated than setting a single variable. To rotate the object by a set number of degrees, call **Rotate(double)** method. This method rotates from where the object is currently rotated. To set the rotation directly, call **rotateTo(double)** method. To rotate in such a way to face a specifiec point or object, call the **lookAt(Coordinate)** or **lookAT(GameObject2)** methods.
 
@@ -152,11 +153,25 @@ Moving gameobjects involves changing their *location*. Directly changing the loc
 
 **MOVEMENT TYPES**
 GameObject2s support 3 types of movement, these are as follows:
+
 **Raw Velocity** Raw velocity is just what it sounds like. Every tick the objects location is directly modified by whatever the velocity is. ie an object with velocity of (100,0) would move 100 units to the right every tick.
 
 **Speed Ratio** Speed ratio is a type of movement that streamlines an object's speed so that it always travels a distance equal to its given *speed* field every tick based on velocity (0 velocity will not move). This is usful if the Object is traveling in a direction that is not perpendicular to the X or Y axis, especially projectiles, and is the default type for most objects. Change how fast the object moves not by velocity but with *speed*. an object with speed of 5 and velocity of (100,0) would travel 5 untis to the right.
 
-**Rotation Based** This is speed ratio except 
+**Rotation Based** This is speed ratio except velocity is relative to the gameobject2's orientation, not global. positive y velocity that would usually correlate with going upwards to the top of the screen would instead push the object forward in whatever direction the object is facing. Example is a gameobject with speed of 1, velocity of (0,100), turned 90 degrees to the right. The object will move 1 unit to the right (direction its facing) every tick.
+
+### Collision
+GameObjects can be in 3 states for collision; solid, non-solid, overlap allowed. 
+
+**isSolid** is a field in gameobject2 that determines weather or not the object will collide with other objects when it touches them. If not solid, neither object's **onCollide** method will trigger and the objects will move through eachother. If set to true, the object *will* trigger the onCollision method when touching another gameobject.
+
+**preventOverlap** is a sparate flag that determines how objects interact with collision. When turned on (default setting), the object will not be permitted to move onto another object's hitbox via velocity. If it tries, it will trigger the onCollide method but will NOT move through the other object. If the velocity is then set to 0, the onCollision method will stop triggering and the object in question will rest immediately next to the other object. Disabling this field will allow the object to pass through other solid objects as if it was not solid, however the onCollide methods for both objects will still triger as usual.
+
+**Note:** Solid objects that do not allow overlap will still be able to move freely through another solid object if for some reason they are already overlapping that object; this is to prevent objects from getting stuck inside eachother in the event something unforseen sets them close enough together that they overlap.
+
+**onCollide(GameObject2)** is a method that triggers every tick that two objects are touching. This method triggers for both objects. Override this method to perform collision-based logic.
+
+**SubObject Collision** Subobjects have their own hitboxes and therefore their own collisions, to check manually if two objects intersect, make sure you check all of their subobjects, stored in the *subobjects* arraylist field. Subobjects may transfer their onCollision to their host object using host.onCollision(<the other object>)
 
 ## SubObjects
 //TODO
