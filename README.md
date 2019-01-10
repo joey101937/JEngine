@@ -1,7 +1,7 @@
-# README IS A WORK IN PROGRESS
+### [**VIEW JAVADOC HERE**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)
 # What is JEngine
 JEngine is a AWT Framework for implementing 2D scenes, frame-based animations, and gameplay
-Particularly an open-source 2D game engine that is simple and easy to use, highly customizable, and requires *no* outside libraries to work
+Particularly an open-source 2D game engine that is simple and easy to use, highly customizable, and requires *no* outside libraries to work.
 
 # JEngine Quick Basics
 -The physical window that displays your project is an instance of the Window class, you generally only have one of these.
