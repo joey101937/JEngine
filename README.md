@@ -1,4 +1,5 @@
 ### [**VIEW JAVADOC HERE**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)
+[![CodeFactor](https://www.codefactor.io/repository/github/joey101937/jengine/badge)](https://www.codefactor.io/repository/github/joey101937/jengine)
 # What is JEngine
 JEngine is a AWT Framework for implementing 2D scenes, frame-based animations, and gameplay
 Particularly an open-source 2D game engine that is simple and easy to use, highly customizable, and requires *no* outside libraries to work.
