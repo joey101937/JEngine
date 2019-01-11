@@ -55,7 +55,15 @@ You can have multiple scenes in one project. To do this, simply create a new Gam
 
 **worldBorder** is the distance GameObject2's may get to the edge of the world before being constrained.
 
+### Camera
+Each Game object has a Camera object within it, the camera is what sets the veiwpoint for the scene. Camera *location* is the offset from the topleft corner of the world to the topleft of the viewpoint. 
 
+**Moving the Viewpoint** Moving the camera can be done by one of three ways. First is with velocity, much like GameObject2s, Cameras 'tick' like gameobejcts and the camera's location will be updated by its velocity every tick, but will not leave the world. constrainCameraToWorld() method keeps the camera within the bounds of the visable area. *World Border does NOT affect Camera.* Movement types are the same as Gameobject2 movements except the rotation based setting is the same as the Speed Ratio setting. See GameObject2 movement types for details. Moving the camera can also be done by directly changing the *location* DCoordinate field. This ignores velocity and instantly teleports the camera to the given point. The final way to move the camera is by *tracking an object*.
+
+**Tracking an Object** You can set the camera to follow an object, this will make the camera pan with the movement of a set object, keeping it on screen and at the center of the screen if possible (camera will not follow out of bounds). Set the camera to follow an object using the *setTarget(GameObject2)* method. To check if the camera is tracking, use *isTrackingTarget()*. Note this will only determine if the camera is trying to track something. May return true even if the tracked target is null. To get the current target, use *getTarget()*. *setTarget(GameObject2) setTrackingTarget(boolean)* can be used to enable/disable tracking or setting a new target. Null targets will not move the camera.
+
+**Field of View**
+TODO
 
 ### Retrieving GameObject2s In A Scene
 **getAllObjects()** returns a list of all GameObject2's in this game's handler, which functionally means it gets all objects in the world (not their subobjects; an object's subobjects are stored in that object)
