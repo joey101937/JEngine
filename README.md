@@ -5,7 +5,7 @@ JEngine is a AWT Framework for implementing 2D scenes, frame-based animations, a
 Particularly an open-source 2D game engine that is simple and easy to use, highly customizable, and requires *no* outside libraries to work.
 
 # JEngine Quick Basics
--The physical window that displays your project is an instance of the Window class, you generally only have one of these.
+-The physical window that displays your project is controlled by the **Window** class
 -The part inside the window is a Game object. Games represent scenes that function as a world within which your objects exist. 
 Games have their own InputHandlers to take in user input via mouse and keyboard. You may have multiple scenes for your project. Your window can swap between them using **setCurrentGame(Game g)** method. Note only current Game's input handler will detect user input and Games are paused when another game is made the current game and unpause/start when they are the one being made the current game. pause/unpause can also be manually toggled.
 
@@ -25,7 +25,7 @@ supports plain images (.png reccomended) or animation sequences, loaded by frame
 
 Now that you have your assets imported, you should create a scene for the user to see. *Note the a Game object is a single scene*.  Scenes are instances of the Game class and created with a background image, which is important because it creates the gameworld using the parameters of the given image.
 
-Once you have your first Scene, create the **Window** around it by instanciating a Window object using your Game object as the parameter. Now call start() method on your game. If done correctly, you should see a window with your given background image inside.
+Once you have your first Scene, create the **Window** around it by calling Window.initialize(Game). Now call start() method on your game. If done correctly, you should see a window with your given background image inside. Initialize should only be called once at the start of the program. Once you have your window, call setGame(Game) to swap out different games in the window.
 
 Now you can create a character to go inside the world. I would reccomend copying the simple character from the sandbox demo, or you can make your own class that extends GameObject2. You just need a location for the object to be at and you should create a visual for the object so you can see it in the scene. you can use the method **setAnimationFalse(Sprite image)** to set the object to be unanimated and use the given sprite as its visual. Hitboxes are automatically managed for you by default. Once you have your character object, call **addObject(GameObject2 go)** on your world and pass in your character. If done correctly, you should see your character's sprite at the character's location in your gameworld. note if you picked an out of bounds coordinate, the object may have been pulled back in to the nearest in-bounds location. 
 
@@ -36,7 +36,7 @@ To put your character in view if you put it in a location off-screen, position t
 To make your game accept user keyboard/mouse input, create a class that extends InputHandler, then set an instance of that class to be the inputhandler for your game using **setInputHandler(InputHandler in)** in the Game class. Inside your inputHandler class you have acess to all mouse listener, mouse motion listener, and key listener methods as well as the **locationOfMouse(MouseEvent e)** method which provides the coordinate point of the mouse during the given mouse event *in terms of the game world*.
 
 # Scenes/Games
-To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the scene(s) and presents them to the user. Create using **new Window(Game myGame);** Game class should be created *before* the Window. 
+To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the scene(s) and presents them to the user. Create using **Window.intitialize(Game)** Game class should be created *before* the Window. 
 
 To make the Game start running, call the .start() method on your Game instance.
 
