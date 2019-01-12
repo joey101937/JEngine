@@ -38,8 +38,8 @@ public class Game extends Canvas implements Runnable {
     public static final Dimension NATIVE_RESOLUTION = new Dimension(1920,1080);  
    
     
-    public static int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
-    public static int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
+    public int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
+    public int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     public static int birdCount = 20; //how many birds to spawn in the demo
     public static final double OVERVIEW_MODE_ZOOM = .25;
     protected static double resolutionScaleX = 1, resolutionScaleY = 1;
@@ -118,6 +118,7 @@ public class Game extends Canvas implements Runnable {
     /**
      * sets the input handler for this game. Removes any previous input handler
      * Applies key, mouse, and mouseMotion listeners
+     * NOTE removes the given input handler from any game its already applied to!
      * @param in Input handler to apply to this game
      */
     public void setInputHandler(InputHandler in){

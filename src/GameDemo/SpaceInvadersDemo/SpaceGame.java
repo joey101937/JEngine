@@ -16,7 +16,7 @@ import GameDemo.SandboxDemo.DemoInputHandler;
 public class SpaceGame {
     public static void main(String[] args) {
         Game g = new Game(SpriteManager.spaceBG);
-        Window window = new Window(g);
+        Window.initialize(g);
         g.start();
         g.setInputHandler(new SpaceInputHandler());
         OptionsMenu.display();

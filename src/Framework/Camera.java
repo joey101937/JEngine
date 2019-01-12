@@ -79,8 +79,8 @@ public class Camera {
     private void updateLocation(Graphics2D g) {
         if(disableMovement)return;
         if (trackingGameObject && target != null) {
-            location.x = -target.location.x + Game.windowWidth/Game.resolutionScaleX / 2;
-            location.y = -target.location.y + Game.windowHeight/Game.resolutionScaleY / 2;           
+            location.x = -target.location.x + hostGame.windowWidth/Game.resolutionScaleX / 2;
+            location.y = -target.location.y + hostGame.windowHeight/Game.resolutionScaleY / 2;           
             return;
         }
         switch (movementType) {
@@ -120,13 +120,13 @@ public class Camera {
      */
     public void setTarget(GameObject2 obj){
         trackingGameObject=true;
-        location.x = -obj.location.x + Game.windowWidth/2;
-        location.y = -obj.location.y + Game.windowHeight/2;
+        location.x = -obj.location.x + hostGame.windowWidth/2;
+        location.y = -obj.location.y + hostGame.windowHeight/2;
         target = obj;
     }
     
     public Rectangle getFieldOfView(){
-        return new Rectangle((int)-location.x,(int)-location.y,(int)(Game.windowWidth/Game.resolutionScaleX),(int)(Game.windowHeight/Game.resolutionScaleY));
+        return new Rectangle((int)-location.x,(int)-location.y,(int)(hostGame.windowWidth/Game.resolutionScaleX),(int)(hostGame.windowHeight/Game.resolutionScaleY));
     }
     
 }

@@ -89,7 +89,7 @@ public final class Minimap extends Panel implements UIElement {
      */
     public static void main(String[] args) {
         Game g = new Game(SpriteManager.dirtBG);
-        Window w = new Window(g);
+        Window.initialize(g);
         g.start();
         Minimap m = new Minimap(g);
         SampleCharacter character = new SampleCharacter(new Coordinate(200, 700));

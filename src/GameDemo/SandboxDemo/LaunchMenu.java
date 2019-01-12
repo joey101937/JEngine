@@ -320,7 +320,7 @@ public class LaunchMenu extends javax.swing.JFrame {
         alt.setInputHandler(new DemoInputHandler());
         g.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         alt.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
-        Window w = new Window(g);
+        Window.initialize(g);
         g.start();
         g.name="main";
         alt.name = "alt";
@@ -332,7 +332,7 @@ public class LaunchMenu extends javax.swing.JFrame {
         }
         
         System.out.println("setting game to alt");
-        w.setCurrentGame(alt);
+        Window.setCurrentGame(alt);
     }
 
     public static void changeGame(){

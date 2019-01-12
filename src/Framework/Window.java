@@ -18,18 +18,33 @@ import javax.swing.JPanel;
  */
 public class Window {
     /*  FIELDS  */
-    public JPanel panel = new JPanel();
-    public JFrame frame;
-    public String title = "Window Name";
+    public static JPanel panel = new JPanel();
+    public static JFrame frame;
+    public static String title = "Window Name";
     public static Window mainWindow;
-    public Game currentGame;
-    public ArrayList<UIElement> UIElements = new ArrayList<>();
+    public static Game currentGame;
+    public static ArrayList<UIElement> UIElements = new ArrayList<>();
     
-    public Window(Game g) {
+    
+    
+    public static void initialize(Game g){
+        mainWindow = new Window(g);
+    }
+    
+    public static Window getMainWindow(){
+        if(mainWindow == null){
+            System.out.println("Main Winow has not been initialized. Call 'Window.initialize(Game);'");
+            return null;
+        }
+        return mainWindow;
+    }
+    
+    
+    private Window(Game g) {
         panel.setLayout(null);
         frame = new JFrame(title);
-        Dimension d = new Dimension(Game.windowWidth,Game.windowHeight);
-        g.setBounds(0, 0, Game.windowWidth, Game.windowHeight);
+        Dimension d = new Dimension(g.windowWidth,g.windowHeight);
+        g.setBounds(0, 0, g.windowWidth, g.windowHeight);
         panel.setSize(d);
         panel.add(g);
         frame.add(panel);
@@ -47,14 +62,15 @@ public class Window {
      * pauses the current game, removes it, then addes the new game and starts it or unpauses it as appropriate
      * @param g new game
      */
-    public void setCurrentGame(Game g) {
+    public static void setCurrentGame(Game g) {
         currentGame.setPaused(true);
         while(!currentGame.pausedSafely){
             Main.wait(2);
         }
         panel.remove(currentGame);
-        Dimension d = new Dimension(Game.windowWidth, Game.windowHeight);
-        g.setBounds(0, 0, Game.windowWidth, Game.windowHeight);
+        Dimension d = new Dimension(g.windowWidth, g.windowHeight);
+        g.setBounds(0, 0, g.windowWidth, g.windowHeight);
+        frame.setSize(d);
         panel.setSize(d);
         panel.add(g);
         if (g.hasStarted) {
@@ -67,7 +83,7 @@ public class Window {
         currentGame.requestFocus();
     }
     
-    protected void updateUIElements(){
+    protected static void updateUIElements(){
         for(UIElement ele: UIElements){
             ele.render();
         }

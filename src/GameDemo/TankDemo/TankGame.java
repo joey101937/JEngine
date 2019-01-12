@@ -23,7 +23,7 @@ public class TankGame {
     public static void main(String[] args) {
         Game g = new Game(SpriteManager.dirtBG);
         g.name = "Tank Game";
-        Window window = new Window(g);
+        Window.initialize(g);
         g.setInputHandler(new TankInputHandler());
         g.addObject(player);
         g.addObject(otherTank);

@@ -55,7 +55,8 @@ public class AnimatedSticker extends Sticker{
 
     @Override
     public synchronized void render(Graphics2D g) {
-        try{
+        if(sprites==null)return;
+        try{        
             image = sprites[currentFrame];
         }catch(ArrayIndexOutOfBoundsException e){
             //sometimes thread scheduler will increase frame beyond maximum
