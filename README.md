@@ -56,14 +56,17 @@ You can have multiple scenes in one project. To do this, simply create a new Gam
 **worldBorder** is the distance GameObject2's may get to the edge of the world before being constrained.
 
 ### Camera
-Each Game object has a Camera object within it, the camera is what sets the veiwpoint for the scene. Camera *location* is the offset from the topleft corner of the world to the topleft of the viewpoint. 
+Each Game object has a Camera object within it, the camera is what sets the veiwpoint for the scene. Camera *location* is the offset from the topleft corner of the world to the topleft of the viewpoint. Note the location of the camera will always be negative numbers because Y is distance traveled down from top of world and X is distance traveled right from right side of world.
 
 **Moving the Viewpoint** Moving the camera can be done by one of three ways. First is with velocity, much like GameObject2s, Cameras 'tick' like gameobejcts and the camera's location will be updated by its velocity every tick, but will not leave the world. constrainCameraToWorld() method keeps the camera within the bounds of the visable area. *World Border does NOT affect Camera.* Movement types are the same as Gameobject2 movements except the rotation based setting is the same as the Speed Ratio setting. See GameObject2 movement types for details. Moving the camera can also be done by directly changing the *location* DCoordinate field. This ignores velocity and instantly teleports the camera to the given point. The final way to move the camera is by *tracking an object*.
 
 **Tracking an Object** You can set the camera to follow an object, this will make the camera pan with the movement of a set object, keeping it on screen and at the center of the screen if possible (camera will not follow out of bounds). Set the camera to follow an object using the *setTarget(GameObject2)* method. To check if the camera is tracking, use *isTrackingTarget()*. Note this will only determine if the camera is trying to track something. May return true even if the tracked target is null. To get the current target, use *getTarget()*. *setTarget(GameObject2) setTrackingTarget(boolean)* can be used to enable/disable tracking or setting a new target. Null targets will not move the camera.
 
 **Field of View**
-TODO
+Field of view represents the visible area of the world stored in a Rectangle object. X and Y are the cordinates are where the topleft corner of the field is and the height and width are as their names suggest. This can be used to determin if something is on-screen by creating another rectangle where that object is and using the *intersects* method built in to see if they intersect. For GameObject2s this is simply done by calling *isOnScreen()* method to determine if they are on screen presently. GameObject2s will not render if they are not on screen to help with performance.
+
+### Handler and VisualEffectHandler
+Every Game object has a handler and VisualEffectHandler. These keep track of all GameOject2s and Stickers in a game respectively. A Game object will refer to its handler to check for occupants and add/remove objects. You can add/remove objects from a game's handler directly to add/remove them from the game itself. If an object is not in the handler, it will not tick nor render and is effectively not in the world. Visual effect handler maintains Stickers, AnimatedStickers, and OnceThroughStickers. VisualEffectHandler can also add lines to the world which can be used to help debug. This must be done directly through a game's visualEffectHandler using *addLine(Coordinate start,Coordinate end)* method. By default lines are stored in Coordinate arrays of length 2 in the visualHandler's *lines* field. To remove a line, remove the index corresponding with that line's coordinate. Lines are added to the list in the same order as created.
 
 ### Retrieving GameObject2s In A Scene
 **getAllObjects()** returns a list of all GameObject2's in this game's handler, which functionally means it gets all objects in the world (not their subobjects; an object's subobjects are stored in that object)
@@ -99,6 +102,20 @@ A sequence represents a frame based animation. Options include scaling the size 
 scaleTo(double s)** methods; and changing the speed of animation by adjusting frameDelay field.
 
 Sequences have their own threads that animate them and keep up with current frames. These animator threads do not start until the sequence is rendered and stop if the sequence is disabled.
+
+# Stickers
+**Stickers** in JEngine represent a visual effect that is temporarily rendered to a location in a scene. Stickers are created in the following way: *new Sticker(Game g, BufferdImage bi, Coordiante c, int i)* where g is the game you want to add the sticker to, bi is the visual asset you want to render, c is where in the world you want the sticker to be rendered at, and i is how long the effect should last. Example of sticker use is a blast effects on explosion or impact.
+
+**AnimatedStickers** are stickers except they use BufferedImage arrays to store frames of an animation, much like a **Sequence**. Animated stickers loop through their animation until the given time duration is complete.
+
+**OnceThroughStickers** are AnimatedStickers except instead of looping until duration is over, the sticker will only play until one cycle of the animation has completed, even if the duration is not over. Giving a OnceThroughSticker a low duration can still end the sticker before the animation is complete. OnceThroughStickers can be instanciated without providing a duration; in this case the duration is assumed to be infinite and the sticker will only end when the animation sequence given to it is complete.
+
+### Sticker Operations
+Stickers can be manipulated in the following ways:
+1. Stickers can be scaled to a given size ratio. *scale(double)* will scale based on current size while *scaleTo(double)* scaled based on the original size of the visual. 
+2. Stickers can be attached to GameObject2s in much the same way subobjects are. Stickers will now follow the GameObject2 and move with it. GameObject2 that the sticker is attached to is reffered to as the 'host'. Attach with *attachTo(GameObject2)*.
+3. Stickers can be moved by changing *spawnLocation* coordinate field.
+4. Stickers can be manually disabled and turned off by calling the *disable()* method. 
 
 # Hitboxes
 Hitboxes come in two types: Circular and Polygonal. Circle hitboxes are the simplest and are more performant. A polygonal box hitbox is generated by default for each GameObject and automatically adjusts to fit perfectly according to whatever visual asset is being rendered for the object's visual. This is updated every tick. Hitboxes are most accurate when detecting collision with others of the same shape however each type can detect the other with reasonable accuracy. To create a circle hitbox, you just need either a coordinate point for it to be created at or a GameObject2 to connect to, and a value for the radius (double). Polygonal hitboxes take an array of coordinates for the vertices of the polygon. At this time, only and exactly 4 (four) vertices are supported. You may assign to a GameObject2 by adding it to constructor parameter. The vertices *must* be put into the given array in this order: **TopLeft, TopRight, BottomLeft, BottomRight**. 
