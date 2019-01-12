@@ -26,43 +26,36 @@ import java.awt.image.BufferedImage;
 
 /**
  * Example UI element, a minimap. UI elements are attached to the window.
+ *
  * @author Joseph
  */
-public final class Minimap extends Panel implements UIElement {
+public final class Minimap extends UIElement {
 
     public final MinimapInterior interior;
     public static final double screenPortion = .1; //how much of the screen to take up
-    public final Game hostGame;
+    public Game hostGame;
 
     /**
      * creates a minimap object based on given game. Automatically attaches
      * itself to the main window, which must not be null
-     *
      * @param g Game to create a minimap of
      */
-    public Minimap(Game g) {
+    public Minimap(Game g, Coordinate loc) {
         hostGame = g;
         //this determines where it is on screen reletive to top left
-        setLocation(new Coordinate(10, 10));
+        setLocation(loc);
         //create a minimap interior and add it to this panel
         interior = new MinimapInterior();
         Dimension size = new Dimension((int) (hostGame.getWorldWidth() * screenPortion * Game.getResolutionScaleX()), (int) (hostGame.getWorldHeight() * screenPortion * Game.getResolutionScaleY()));
         interior.setSize(size);
         //TODO make this border stuff work
-        int border = (int)(20*Game.getResolutionScaleX());
-        size.width+=border;
-        size.height+=border;
         this.setSize(size);
         this.setLayout(null);
-        interior.setLocation(100, border);
+        interior.setLocation(0, 0);
         this.setBackground(Color.black);
         this.add(interior);
         //add UI elements to both the mainWindow.panel AND mainWindow.UIElements
-        Window.mainWindow.UIElements.add(this);
-        Window.mainWindow.panel.add(this);
-        //setting z order to make this render above the game
-        Window.mainWindow.panel.setComponentZOrder(this, 0);
-        Window.mainWindow.panel.setComponentZOrder(hostGame, 1);
+        Window.addUIElement(this);
     }
 
     /*
@@ -85,21 +78,23 @@ public final class Minimap extends Panel implements UIElement {
 
     /**
      * for testing
+     *
      * @param args commandline args
      */
     public static void main(String[] args) {
         Game g = new Game(SpriteManager.dirtBG);
         Window.initialize(g);
         g.start();
-        Minimap m = new Minimap(g);
+        Minimap m = new Minimap(g, new Coordinate(10, 10));
         SampleCharacter character = new SampleCharacter(new Coordinate(200, 700));
         character.velocity.x = 2;
         g.addObject(character);
         g.camera.setTarget(character);
     }
+
     /**
-     * the minimap render method first checks to make sure its game in active, and
-     * then if it is, show and update
+     * the minimap render method first checks to make sure its game in active,
+     * and then if it is, show and update
      */
     @Override
     public void render() {
@@ -142,10 +137,10 @@ public final class Minimap extends Panel implements UIElement {
             }
             g2d.setColor(Color.green);
             g2d.draw(hostGame.camera.getFieldOfView());
-           // g2d.setColor(Color.black);
+             g2d.setColor(Color.black);
             //g2d.drawRect(-(int)hostGame.camera.location.x, -(int)hostGame.camera.location.y, (int)(hostGame.camera.getFieldOfView().width*screenPortion*Game.getResolutionScaleX()), (int)(hostGame.camera.getFieldOfView().height*screenPortion*Game.getResolutionScaleY()));
-          //  g2d.setStroke(new BasicStroke(50));
-            //g2d.drawRect(0, 0, (int) (this.getWidth() / screenPortion / Game.getResolutionScaleX()), (int) (this.getHeight() / screenPortion / Game.getResolutionScaleY()));
+            g2d.setStroke(new BasicStroke(50));
+            g2d.drawRect(0, 0, (int) (this.getWidth() / screenPortion / Game.getResolutionScaleX()), (int) (this.getHeight() / screenPortion / Game.getResolutionScaleY()));
             g2d.dispose();
         }
 

@@ -5,6 +5,8 @@
  */
 package Framework.UI_Elements;
 
+import java.awt.Panel;
+
 /**
  * This interface should be implemented on all UI Elements you create that are
  * part of/ overlay the game window
@@ -12,10 +14,10 @@ package Framework.UI_Elements;
  * popups, dialogboxes, or other JFrames do not need to implement this
  * @author Joseph
  */
-public interface UIElement{
+public abstract class UIElement extends Panel{
     
     /**
      * Use this method to call paint on any graphics you are using in your element
      */
-    public void render();
+    public abstract void render();
 }

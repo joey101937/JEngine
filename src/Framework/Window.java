@@ -23,10 +23,15 @@ public class Window {
     public static String title = "Window Name";
     public static Window mainWindow;
     public static Game currentGame;
-    public static ArrayList<UIElement> UIElements = new ArrayList<>();
+    private static ArrayList<UIElement> UIElements = new ArrayList<>();
+
+
     
     
-    
+    /**
+     * Must be the first method called, creates the window with the given default game
+     * @param g Initial game to be loaded on window creation
+     */
     public static void initialize(Game g){
         mainWindow = new Window(g);
     }
@@ -89,5 +94,30 @@ public class Window {
         }
     }
     
+    
+    public static ArrayList<UIElement> getUIElements() {
+        return UIElements;
+    }
+
+    public static void addUIElement(UIElement uie){
+        getUIElements().add(uie);
+        Window.panel.add(uie);
+        setZOrders();
+    }
+    public static boolean removeUIElement(UIElement uie){
+        if(getUIElements().remove(uie)){
+            Window.panel.remove(uie);
+            setZOrders();
+            return true;
+        }
+        return false;
+    }
+    
+    private static void setZOrders(){
+        for(UIElement ele : Window.UIElements){
+            Window.panel.setComponentZOrder(ele, Window.UIElements.indexOf(ele));
+            Window.panel.setComponentZOrder(currentGame, Window.UIElements.size());
+        }
+    }
     
 }
