@@ -404,9 +404,18 @@ public class Game extends Canvas implements Runnable {
         paused = input;
     }
     
+    /**
+     * sets the Game to use the given Pathing Layer object
+     * @param pl PathingLayer object to use
+     */
     public void setPathingLayer(PathingLayer pl){
         this.pathingLayer = pl;
     }
+    /**
+     * Creates a new PathingLayer object with the given image and then
+     * applies that PathingLayer to this Game object.
+     * @param bi source image for pathinglayer
+     */
     public void setPathingLayer(BufferedImage bi){
         this.pathingLayer = new PathingLayer(bi);
     }

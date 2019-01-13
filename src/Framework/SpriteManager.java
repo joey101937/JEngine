@@ -13,26 +13,36 @@ import javax.imageio.ImageIO;
 
 /**
  * This class acts as a central hub for accessing exterior assets; particularly
- * for images. 
+ * for images. You dont have to use it but it makes things easy to have all in
+ * one place
  * @author Joseph
  */
 public abstract class SpriteManager {
     public static boolean initialized = false;
     //THESE  ARE GLOBAL FIELDS THAT ARE USED TO STORE AND ACCESS ASSETS
     /*--------------------------------------------------------*/
+    //SANDBOX ASSETS
     public static BufferedImage up;
     public static BufferedImage pathingLayer;
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] birdySequence;
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
     
+    //TANK ASSETS
     public static BufferedImage tankChasis;
     public static BufferedImage tankTurret;
     public static BufferedImage bullet;
     public static BufferedImage[] tankFireAnimation;
     public static BufferedImage dirtBG;
     
+    //SPACE ASSETS
     public static BufferedImage spaceBG;
+    public static BufferedImage spaceship;
+    
+    //PLATFORMER ASSETS
+    public static BufferedImage platformBG;
+    public static BufferedImage platformPathing;
+    
     /*--------------------------------------------------------*/
     static{
         initialize();
@@ -65,7 +75,10 @@ public abstract class SpriteManager {
            dirtBG = load("TankGame/dirtBG.png");
            
            spaceBG = load("spacebg.png");
+           spaceship = load("spaceship.png");
            
+           platformBG = load("platformer/platformer.png");
+           platformPathing = load("platformer/platformPATHING.png");
            initialized=true;
         }catch(Exception e){
             e.printStackTrace();

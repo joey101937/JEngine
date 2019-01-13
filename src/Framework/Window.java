@@ -33,7 +33,11 @@ public class Window {
      * @param g Initial game to be loaded on window creation
      */
     public static void initialize(Game g){
-        mainWindow = new Window(g);
+        if(mainWindow == null){
+             mainWindow = new Window(g);
+        }else{
+            System.out.println("WARNING, TRYING TO INITIALIZE WINDOW WHEN ALREADY INITIALIZED");
+        }
     }
     
     public static Window getMainWindow(){

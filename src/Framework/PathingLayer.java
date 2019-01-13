@@ -14,9 +14,9 @@ import java.util.ArrayList;
  * @author Joseph
  */
 public class PathingLayer {
-    public static final Color groundColor = new Color(0,255,0);
-    public static final Color waterColor = new Color(0,0,255);
-    public static final Color impassColor = new Color(0,0,0);
+    public static final Color groundColor = new Color(0,255,0); //green
+    public static final Color waterColor = new Color(0,0,255);  //blue
+    public static final Color impassColor = new Color(0,0,0);   //black
     
     public static enum Type {ground, water, impass};
     

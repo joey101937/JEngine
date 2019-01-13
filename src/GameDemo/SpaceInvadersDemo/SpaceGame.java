@@ -7,18 +7,23 @@ package GameDemo.SpaceInvadersDemo;
 
 import Framework.UI_Elements.OptionsMenu;
 import Framework.*;
-import GameDemo.SandboxDemo.DemoInputHandler;
 
 /**
  *
  * @author Joseph
  */
 public class SpaceGame {
+    public static Spaceship ship;
+    
     public static void main(String[] args) {
         Game g = new Game(SpriteManager.spaceBG);
         Window.initialize(g);
         g.start();
         g.setInputHandler(new SpaceInputHandler());
         OptionsMenu.display();
+        
+        
+        ship = new Spaceship(new Coordinate(100,100));
+        g.addObject(ship);
     }
 }

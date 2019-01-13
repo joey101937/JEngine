@@ -5,6 +5,8 @@
  */
 package GameDemo.SpaceInvadersDemo;
 
+import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.Game;
 import Framework.InputHandler;
 import Framework.SpriteManager;
@@ -31,12 +33,30 @@ public class SpaceInputHandler extends InputHandler{
             Game g = new Game(SpriteManager.dirtBG);
             Window.mainWindow.setCurrentGame(g);
             g.setInputHandler(this);
+            g.addObject(SpaceGame.ship);
+            g.camera.setTarget(SpaceGame.ship);
             }else{
             System.out.println("g");
             Game g = new Game(SpriteManager.spaceBG);
             Window.mainWindow.setCurrentGame(g);
             g.setInputHandler(this);
+            g.addObject(SpaceGame.ship);
+            g.camera.setTarget(SpaceGame.ship);
             }
+        }
+    }
+    
+    @Override
+    public void mouseMoved(MouseEvent e){
+        Coordinate location = locationOfMouse(e);
+        Spaceship ship = SpaceGame.ship;
+        if(ship==null)return;
+        ship.lookAt(location);
+        if(Coordinate.distanceBetween(location, ship.getPixelLocation()) < ship.getWidth()){
+            ship.velocity.y = 0;
+            ship.velocity.x = 0;
+        }else{
+            ship.velocity = new DCoordinate(0,-ship.getBaseSpeed());
         }
     }
 }
