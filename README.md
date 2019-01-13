@@ -1,10 +1,11 @@
 ### [**VIEW JAVADOC HERE**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)
+[![CodeFactor](https://www.codefactor.io/repository/github/joey101937/jengine/badge)](https://www.codefactor.io/repository/github/joey101937/jengine)
 # What is JEngine
 JEngine is a AWT Framework for implementing 2D scenes, frame-based animations, and gameplay
 Particularly an open-source 2D game engine that is simple and easy to use, highly customizable, and requires *no* outside libraries to work.
 
 # JEngine Quick Basics
--The physical window that displays your project is an instance of the Window class, you generally only have one of these.
+-The physical window that displays your project is controlled by the **Window** class
 -The part inside the window is a Game object. Games represent scenes that function as a world within which your objects exist. 
 Games have their own InputHandlers to take in user input via mouse and keyboard. You may have multiple scenes for your project. Your window can swap between them using **setCurrentGame(Game g)** method. Note only current Game's input handler will detect user input and Games are paused when another game is made the current game and unpause/start when they are the one being made the current game. pause/unpause can also be manually toggled.
 
@@ -24,7 +25,7 @@ supports plain images (.png reccomended) or animation sequences, loaded by frame
 
 Now that you have your assets imported, you should create a scene for the user to see. *Note the a Game object is a single scene*.  Scenes are instances of the Game class and created with a background image, which is important because it creates the gameworld using the parameters of the given image.
 
-Once you have your first Scene, create the **Window** around it by instanciating a Window object using your Game object as the parameter. Now call start() method on your game. If done correctly, you should see a window with your given background image inside.
+Once you have your first Scene, create the **Window** around it by calling Window.initialize(Game). Now call start() method on your game. If done correctly, you should see a window with your given background image inside. Initialize should only be called once at the start of the program. Once you have your window, call setGame(Game) to swap out different games in the window.
 
 Now you can create a character to go inside the world. I would reccomend copying the simple character from the sandbox demo, or you can make your own class that extends GameObject2. You just need a location for the object to be at and you should create a visual for the object so you can see it in the scene. you can use the method **setAnimationFalse(Sprite image)** to set the object to be unanimated and use the given sprite as its visual. Hitboxes are automatically managed for you by default. Once you have your character object, call **addObject(GameObject2 go)** on your world and pass in your character. If done correctly, you should see your character's sprite at the character's location in your gameworld. note if you picked an out of bounds coordinate, the object may have been pulled back in to the nearest in-bounds location. 
 
@@ -35,7 +36,7 @@ To put your character in view if you put it in a location off-screen, position t
 To make your game accept user keyboard/mouse input, create a class that extends InputHandler, then set an instance of that class to be the inputhandler for your game using **setInputHandler(InputHandler in)** in the Game class. Inside your inputHandler class you have acess to all mouse listener, mouse motion listener, and key listener methods as well as the **locationOfMouse(MouseEvent e)** method which provides the coordinate point of the mouse during the given mouse event *in terms of the game world*.
 
 # Scenes/Games
-To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the scene(s) and presents them to the user. Create using **new Window(Game myGame);** Game class should be created *before* the Window. 
+To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the scene(s) and presents them to the user. Create using **Window.intitialize(Game)** Game class should be created *before* the Window. 
 
 To make the Game start running, call the .start() method on your Game instance.
 
@@ -54,7 +55,18 @@ You can have multiple scenes in one project. To do this, simply create a new Gam
 
 **worldBorder** is the distance GameObject2's may get to the edge of the world before being constrained.
 
+### Camera
+Each Game object has a Camera object within it, the camera is what sets the veiwpoint for the scene. Camera *location* is the offset from the topleft corner of the world to the topleft of the viewpoint. Note the location of the camera will always be negative numbers because Y is distance traveled down from top of world and X is distance traveled right from right side of world.
 
+**Moving the Viewpoint** Moving the camera can be done by one of three ways. First is with velocity, much like GameObject2s, Cameras 'tick' like gameobejcts and the camera's location will be updated by its velocity every tick, but will not leave the world. constrainCameraToWorld() method keeps the camera within the bounds of the visable area. *World Border does NOT affect Camera.* Movement types are the same as Gameobject2 movements except the rotation based setting is the same as the Speed Ratio setting. See GameObject2 movement types for details. Moving the camera can also be done by directly changing the *location* DCoordinate field. This ignores velocity and instantly teleports the camera to the given point. The final way to move the camera is by *tracking an object*.
+
+**Tracking an Object** You can set the camera to follow an object, this will make the camera pan with the movement of a set object, keeping it on screen and at the center of the screen if possible (camera will not follow out of bounds). Set the camera to follow an object using the *setTarget(GameObject2)* method. To check if the camera is tracking, use *isTrackingTarget()*. Note this will only determine if the camera is trying to track something. May return true even if the tracked target is null. To get the current target, use *getTarget()*. *setTarget(GameObject2) setTrackingTarget(boolean)* can be used to enable/disable tracking or setting a new target. Null targets will not move the camera.
+
+**Field of View**
+Field of view represents the visible area of the world stored in a Rectangle object. X and Y are the cordinates are where the topleft corner of the field is and the height and width are as their names suggest. This can be used to determin if something is on-screen by creating another rectangle where that object is and using the *intersects* method built in to see if they intersect. For GameObject2s this is simply done by calling *isOnScreen()* method to determine if they are on screen presently. GameObject2s will not render if they are not on screen to help with performance.
+
+### Handler and VisualEffectHandler
+Every Game object has a handler and VisualEffectHandler. These keep track of all GameOject2s and Stickers in a game respectively. A Game object will refer to its handler to check for occupants and add/remove objects. You can add/remove objects from a game's handler directly to add/remove them from the game itself. If an object is not in the handler, it will not tick nor render and is effectively not in the world. Visual effect handler maintains Stickers, AnimatedStickers, and OnceThroughStickers. VisualEffectHandler can also add lines to the world which can be used to help debug. This must be done directly through a game's visualEffectHandler using *addLine(Coordinate start,Coordinate end)* method. By default lines are stored in Coordinate arrays of length 2 in the visualHandler's *lines* field. To remove a line, remove the index corresponding with that line's coordinate. Lines are added to the list in the same order as created.
 
 ### Retrieving GameObject2s In A Scene
 **getAllObjects()** returns a list of all GameObject2's in this game's handler, which functionally means it gets all objects in the world (not their subobjects; an object's subobjects are stored in that object)
@@ -90,6 +102,20 @@ A sequence represents a frame based animation. Options include scaling the size 
 scaleTo(double s)** methods; and changing the speed of animation by adjusting frameDelay field.
 
 Sequences have their own threads that animate them and keep up with current frames. These animator threads do not start until the sequence is rendered and stop if the sequence is disabled.
+
+# Stickers
+**Stickers** in JEngine represent a visual effect that is temporarily rendered to a location in a scene. Stickers are created in the following way: *new Sticker(Game g, BufferdImage bi, Coordiante c, int i)* where g is the game you want to add the sticker to, bi is the visual asset you want to render, c is where in the world you want the sticker to be rendered at, and i is how long the effect should last. Example of sticker use is a blast effects on explosion or impact.
+
+**AnimatedStickers** are stickers except they use BufferedImage arrays to store frames of an animation, much like a **Sequence**. Animated stickers loop through their animation until the given time duration is complete.
+
+**OnceThroughStickers** are AnimatedStickers except instead of looping until duration is over, the sticker will only play until one cycle of the animation has completed, even if the duration is not over. Giving a OnceThroughSticker a low duration can still end the sticker before the animation is complete. OnceThroughStickers can be instanciated without providing a duration; in this case the duration is assumed to be infinite and the sticker will only end when the animation sequence given to it is complete.
+
+### Sticker Operations
+Stickers can be manipulated in the following ways:
+1. Stickers can be scaled to a given size ratio. *scale(double)* will scale based on current size while *scaleTo(double)* scaled based on the original size of the visual. 
+2. Stickers can be attached to GameObject2s in much the same way subobjects are. Stickers will now follow the GameObject2 and move with it. GameObject2 that the sticker is attached to is reffered to as the 'host'. Attach with *attachTo(GameObject2)*.
+3. Stickers can be moved by changing *spawnLocation* coordinate field.
+4. Stickers can be manually disabled and turned off by calling the *disable()* method. 
 
 # Hitboxes
 Hitboxes come in two types: Circular and Polygonal. Circle hitboxes are the simplest and are more performant. A polygonal box hitbox is generated by default for each GameObject and automatically adjusts to fit perfectly according to whatever visual asset is being rendered for the object's visual. This is updated every tick. Hitboxes are most accurate when detecting collision with others of the same shape however each type can detect the other with reasonable accuracy. To create a circle hitbox, you just need either a coordinate point for it to be created at or a GameObject2 to connect to, and a value for the radius (double). Polygonal hitboxes take an array of coordinates for the vertices of the polygon. At this time, only and exactly 4 (four) vertices are supported. You may assign to a GameObject2 by adding it to constructor parameter. The vertices *must* be put into the given array in this order: **TopLeft, TopRight, BottomLeft, BottomRight**. 
