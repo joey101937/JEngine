@@ -1,0 +1,2 @@
+# GameDemo Package
+GameDemo package is a collection of simple examples designed to show how different aspects of JEngine can be used. Generally these examples will be very simple. Example projects in this package are not so much 'Games'; more like technical demos meant to display usages of different JEngine options. Keeping things simple is done so that people can follow the project's logic easily and understant how to implement JEngine features into their own project.
