@@ -403,7 +403,7 @@ public class Game extends Canvas implements Runnable {
         }
         paused = input;
     }
-    
+
     /**
      * sets the Game to use the given Pathing Layer object
      * @param pl PathingLayer object to use

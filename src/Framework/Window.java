@@ -6,8 +6,8 @@
 package Framework;
 
 import Framework.UI_Elements.UIElement;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -79,12 +79,22 @@ public class Window {
         while(!currentGame.pausedSafely){
             Main.wait(2);
         }
-        panel.remove(currentGame);
+        //panel.remove(currentGame);
+        currentGame.setVisible(false);
         Dimension d = new Dimension(g.windowWidth, g.windowHeight);
         g.setBounds(0, 0, g.windowWidth, g.windowHeight);
         frame.setSize(d);
         panel.setSize(d);
-        panel.add(g);
+        boolean alreadyContained = false;
+        for (Component c : panel.getComponents()) {
+            if (c == g) {
+                g.setVisible(true);
+                alreadyContained = true;
+            }
+        }
+        if (!alreadyContained) {
+            panel.add(g);
+        }
         if (g.hasStarted) {
             g.setPaused(false);
             System.out.println("unpause");
