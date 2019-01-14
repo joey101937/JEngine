@@ -35,6 +35,9 @@ public class Window {
     public static void initialize(Game g){
         if(mainWindow == null){
              mainWindow = new Window(g);
+             if(g.hasStarted==false){
+                 g.start();
+             }
         }else{
             System.out.println("WARNING, TRYING TO INITIALIZE WINDOW WHEN ALREADY INITIALIZED");
         }

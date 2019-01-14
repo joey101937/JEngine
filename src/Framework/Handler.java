@@ -29,9 +29,11 @@ public class Handler {
         return storage.size();
     }
     
-    public synchronized void addObject(GameObject2 o){
-      storage.add(o);
-      o.hostGame = hostGame;
+    public synchronized void addObject(GameObject2 o) {
+        if (!storage.contains(o)) {
+            storage.add(o);
+            o.hostGame = hostGame;
+        }
     }
     
     /**
