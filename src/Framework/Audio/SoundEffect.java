@@ -273,4 +273,9 @@ public class SoundEffect implements Runnable{
         System.out.println("resuming");
         effect.resume();
     }
+    
+    @Override
+    public String toString(){
+        return "SoundEffect " + source.getName() + " ID:" + ID;
+    }
 }

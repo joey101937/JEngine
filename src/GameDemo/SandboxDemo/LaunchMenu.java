@@ -278,19 +278,19 @@ public class LaunchMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_standardButtonActionPerformed
 
     private void overviewCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overviewCheckboxActionPerformed
-        // TODO add your handling code here:
+     
     }//GEN-LAST:event_overviewCheckboxActionPerformed
 
     private void disableCamCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disableCamCheckActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_disableCamCheckActionPerformed
 
     private void debugCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugCheckActionPerformed
-        // TODO add your handling code here:
+       
     }//GEN-LAST:event_debugCheckActionPerformed
 
     private void tripleCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tripleCheckActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_tripleCheckActionPerformed
 
     public static void main(String[] args) {

@@ -284,11 +284,10 @@ public class GameObject2 {
         if (Main.debugMode) {
             g.setColor(Color.red);
             g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
-            g.drawString(name, (int)location.x-getWidth()/2, (int)location.y-getHeight()/2);
-             //TODO DRAW LINE FACING ROTATION DIRECTION
-             g.rotate(Math.toRadians(innateRotation));
-             g.drawLine((int)location.x,(int)location.y, (int)location.x, (int)location.y-80);
-             g.rotate(-Math.toRadians(innateRotation));
+            g.drawString(name, (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
+            g.rotate(Math.toRadians(innateRotation));
+            g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
+            g.rotate(-Math.toRadians(innateRotation));
         }
         g.setTransform(old); //reset rotation for next item to render
         if(Main.debugMode && getHitbox()!=null)getHitbox().render(g); //render hitbox without graphics rotation
@@ -393,6 +392,8 @@ public class GameObject2 {
             case RawVelocity:
                 newLocation.add(velocity);
                 break;
+            default :
+                throw new RuntimeException("Movement Type undefined for object: " + this);
         }
         //COLLISION
         if (isSolid && getHitbox()!=null) {
