@@ -17,7 +17,7 @@ import javax.sound.sampled.FloatControl;
  *
  * @author Joseph
  */
-public class AudioManager {
+public class AudioTesting {
     public static void main(String[] args) throws Exception {
       File machinegun = new File(Main.getDir()+"/Assets/Sounds/machinegun.au");
       File blast = new File(Main.getDir()+"/Assets/Sounds/blast1.au");

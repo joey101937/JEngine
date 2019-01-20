@@ -45,12 +45,7 @@ public class SoundEffect implements Runnable{
         ID = ++IDGenerator;
         initialize(f);   
     }
-    
-    SoundEffect(File f, SoundEffectListener list) {
-        ID = ++IDGenerator;
-        initialize(f);
-        setListener(list);
-    }
+
 
     /**
      * sets up default settings and loads file. Will throw error if the file
@@ -272,6 +267,13 @@ public class SoundEffect implements Runnable{
         Main.wait(2000);
         System.out.println("resuming");
         effect.resume();
+    }
+    
+    /**
+     * @return A fresh SoundEffect of the same source
+     */
+    public SoundEffect createCopy(){
+        return new SoundEffect(source);
     }
     
     @Override
