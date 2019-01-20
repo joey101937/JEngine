@@ -6,14 +6,16 @@
 package Framework.Audio;
 
 /**
- *
+ * A class with this interface may be applied to a SoundEffect object using the 
+ * setListener method in the SoundEffect class. This interface allows you to
+ * detect happenings in the sound effect and respond to them if need be.
  * @author Joseph
  */
 public interface SoundEffectListener {
+    public void onStart();
     public void onPause();
     public void onResume();
-    public void onLoop(int times);
-    public void onLoopContinuously();
+    public void onSetLooping(boolean isLooping);
     public void onDisable();
     public void onReset();
     public void onSetVolume(float percentage);
