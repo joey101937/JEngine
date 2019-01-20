@@ -25,13 +25,13 @@ public class SoundEffect implements Runnable{
       
     public final int ID; //unique identifier
     
-    private Thread thread;
-    private SoundEffectListener listener;
-    private volatile File source;
-    private volatile AudioInputStream stream;   
-    private volatile Clip clip;
-    private volatile FloatControl gainControl;
-    private volatile boolean disabled = false;
+    private Thread thread;                  //thread used to keep audio going
+    private SoundEffectListener listener;   //listens to events of this sound
+    private volatile File source;           //source file
+    private volatile AudioInputStream stream;//stream connected to source
+    private volatile Clip clip;              //clip used to control most things
+    private volatile FloatControl gainControl;//used to control volueme
+    private volatile boolean disabled = false;//disabling makes this sound terminate
     private volatile boolean hasStarted = false;
     private volatile boolean paused = false;
     private volatile Long currentFrame = 0l;
@@ -58,6 +58,9 @@ public class SoundEffect implements Runnable{
      * @param f file to create a soundEffect with
      */
     private void initialize(File f) {
+        if(f == null){
+            throw new RuntimeException("Error: trying to create SoundEffect with null file");
+        }
         try {
             source = f;
             stream = AudioSystem.getAudioInputStream(f);
@@ -75,16 +78,18 @@ public class SoundEffect implements Runnable{
     }
 
     /**
-     * begins playing the sound
+     * begins playing the sound. If you call this manually, it will likely cause
+     * the sound to play globally.
      */
     public void start() {
         if (hasStarted) {
             System.out.println("Sound already started " + source.getName() + " ID:" + ID);
         } else {
-           if(listener!=null) listener.onStart();
             thread.start();
             hasStarted = true;
-             if(listener!=null)listener.onStart();
+            if (listener != null) {
+                listener.onStart();
+            }
         }
     }
 
@@ -121,12 +126,14 @@ public class SoundEffect implements Runnable{
     @Override
     public void run() {
         clip.start();
-        while(!disabled){
-            Main.wait(50);
+        while (!disabled) {
+            Main.wait(100);
+            if (!(clip.isRunning() || isPaused())) {
+                break;
+            }
         }
-        disable();
     }
-    
+
     /**
      * stops the sound and terminates its thread.
      */
@@ -189,6 +196,10 @@ public class SoundEffect implements Runnable{
      * resuming, you must call loop method again after you resume.
     */
     public void pause(){
+        if(!hasStarted){
+            System.out.println("Cant pause, hasnt begun.");
+            return;
+        }
         if (paused)  
         { 
             System.out.println("audio is already paused"); 
@@ -196,7 +207,7 @@ public class SoundEffect implements Runnable{
         } 
         currentFrame = clip.getMicrosecondPosition(); 
         clip.stop(); 
-        paused = true; 
+        paused = true;
         if(listener!=null)listener.onPause();
     }
 
@@ -209,12 +220,21 @@ public class SoundEffect implements Runnable{
      * call loop method again. 
      */
     public void resume() {
+        if(!hasStarted){
+            System.out.println("cant resume, clip hasnt begun");
+            return;
+        }
         resetAudioStream();
         clip.setMicrosecondPosition(currentFrame);
-        if(listener!=null)listener.onResume();
+        if (isLooping()) {
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+        clip.start();
+        if (listener != null) {
+            listener.onResume();
+        }
     }
-    
-    
+
     private void resetAudioStream() {
         try {
             clip.close();
@@ -240,5 +260,17 @@ public class SoundEffect implements Runnable{
      */
     public void setListener(SoundEffectListener sel){
         listener = sel;
+    }
+    
+    public static void main(String[] args) {
+        SoundEffect effect = new SoundEffect(new File(Main.assets+"/Sounds/machinegun.au"));
+        effect.start();
+        effect.setLooping(true);
+        Main.wait(2000);
+        System.out.println("pausing");
+        effect.pause();
+        Main.wait(2000);
+        System.out.println("resuming");
+        effect.resume();
     }
 }
