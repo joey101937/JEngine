@@ -22,6 +22,7 @@ public class SoundEffect implements Runnable{
     public final int ID; //unique identifier
     public final Thread thread;
     
+    private SoundEffectListener listener;
     private volatile File source;
     private volatile AudioInputStream stream;   
     private volatile Clip clip;
@@ -163,4 +164,19 @@ public class SoundEffect implements Runnable{
         }
     }
 
+    /**
+     * @return sound effect listener active for this object
+     */
+    public SoundEffectListener getListener(){
+        return listener;
+    }
+    
+    /**
+     * sets the listener for this sound effect to the given listener
+     * NOTE: this removes any existing listener
+     * @param sel new listener
+     */
+    public void setListener(SoundEffectListener sel){
+        listener = sel;
+    }
 }
