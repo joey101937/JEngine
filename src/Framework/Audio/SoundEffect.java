@@ -128,6 +128,7 @@ public class SoundEffect implements Runnable{
     public void run() {
         clip.start();
         while (!disabled) {
+            Main.wait(1000);        //check every 1 second
             if (!(clip.isRunning() || isPaused())) {
                 Main.wait(1000);   //clip must be not running and not paused for 1 second to terminate thread
                 if(!(clip.isRunning() || isPaused())){
@@ -334,7 +335,7 @@ public class SoundEffect implements Runnable{
     }
     
     public static void main(String[] args) {
-        SoundEffect effect = new SoundEffect(new File(Main.assets+"/Sounds/machinegun.au"));
+        SoundEffect effect = new SoundEffect(new File(Main.assets+"/Sounds/Music.au"));
         effect.start();
         effect.setLooping(true);
         Main.wait(2000);
@@ -359,6 +360,7 @@ public class SoundEffect implements Runnable{
         System.out.println("game resuming");
         g.setPaused(false);
         effect.onGamePause(false);
+        Main.wait(2000);
     }
     
     /**
