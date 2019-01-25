@@ -5,6 +5,8 @@
  */
 package Framework;
 
+import Framework.Audio.AudioManager;
+import Framework.Audio.SoundEffect;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -46,8 +48,9 @@ public class Game extends Canvas implements Runnable {
     /*  FIELDS   */
     private int worldWidth, worldHeight;  //dimensions of the gameworld
     public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
-    public Handler handler = new Handler(this);
-    public VisualEffectHandler visHandler = new VisualEffectHandler();
+    public final Handler handler = new Handler(this);
+    public final VisualEffectHandler visHandler = new VisualEffectHandler();
+    public final AudioManager audioManager = new AudioManager(this);
     private Thread thread = null;
     private boolean running = false;
     protected BufferedImage backgroundImage;
@@ -402,6 +405,7 @@ public class Game extends Canvas implements Runnable {
             go.onGamePause(input);
         }
         paused = input;
+        audioManager.onGamePause();
     }
 
     /**
@@ -458,7 +462,15 @@ public class Game extends Canvas implements Runnable {
         return name;
     }
     
-        public BufferedImage getBackgroundImage(){
+    /* 
+     * @return gets all sound active effects currently linked to this game- 
+        paused or unpaused.
+     */
+    public ArrayList<SoundEffect> getLinkedSounds(){
+        return audioManager.getAllSounds();
+    }
+
+    public BufferedImage getBackgroundImage() {
         return backgroundImage;
     }
 }

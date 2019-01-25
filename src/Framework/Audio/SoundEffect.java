@@ -140,12 +140,13 @@ public class SoundEffect implements Runnable{
     }
 
     /**
-     * stops the sound and terminates its thread.
+     * stops the sound, terminates its thread, and removes from hostGame audiomanager.
      */
     public void disable(){
         clip.stop();
         clip.close();
         disabled = true;
+        linkToGame(null);
         if(listener!=null)listener.onDisable();
     }
     
@@ -222,12 +223,12 @@ public class SoundEffect implements Runnable{
     /**
      * Sets the game pause lock. Pauses the audio via game. Must be undone by calling
      * onGamePause(false) to unpause it via game. Should not call this directly
-     * but rather let the game and audio manager take care of this. This is how
+     * but rather let the game take care of this. This is how
      * soundeffects from paused games are paused independently of direct pausing
      * @param input true pause or false unpause
      */
     protected void onGamePause(boolean input) {
-        if (!hasStarted) {
+        if (!hasStarted && input) {
             System.out.println("Cant pause, hasnt begun.");
             return;
         }
@@ -312,9 +313,29 @@ public class SoundEffect implements Runnable{
             clip.close();
             stream = AudioSystem.getAudioInputStream(source);
             clip.open(stream);
-            if(listener!=null)listener.onReset();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * resets sound back to its beginning, however this will not revive a disabled
+     * sound. If you want to replay a song, start a new SoundEffect with the same
+     * source. This can be obtained with .createCopy() method
+     */
+    public void restart() {
+        if(disabled){
+            throw new RuntimeException("Cannot restart disabled sound");
+        }
+        resetAudioStream();
+        if (isLooping()) {
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+        if (isPaused()) {
+            clip.start();
+        }
+        if (listener != null) {
+            listener.onRestart();
         }
     }
 
@@ -334,6 +355,10 @@ public class SoundEffect implements Runnable{
         listener = sel;
     }
     
+    /**
+     * used for testing purposes
+     * @param args 
+     */
     public static void main(String[] args) {
         SoundEffect effect = new SoundEffect(new File(Main.assets+"/Sounds/Music.au"));
         effect.start();
@@ -352,15 +377,52 @@ public class SoundEffect implements Runnable{
         effect.resume();
         Main.wait(2000);
         Game g = new Game(SpriteManager.spaceBG);
-        effect.setHostGame(g);
+        effect.linkToGame(g);
         System.out.println("game pausing");
         g.setPaused(true);
-        effect.onGamePause(true);
+        //effect.onGamePause(true);
         Main.wait(2000);
         System.out.println("game resuming");
         g.setPaused(false);
-        effect.onGamePause(false);
+        //effect.onGamePause(false);
         Main.wait(2000);
+        System.out.println("game and direct pausing");
+        g.setPaused(true);
+        effect.onGamePause(true);
+        effect.pause();
+        Main.wait(2000);
+        System.out.println("ungamepausing");
+        g.setPaused(false);
+        Main.wait(2000);
+        System.out.println("direct unpausing");
+        effect.resume();
+        Main.display("press ok to restart song");
+        effect.restart();
+    }
+    
+    /**
+     * @return Length of this sound in microseconds
+     * NOTE throws nullpointerexception if audio clip is null
+     */
+    public Long getSoundLength(){
+        return clip.getMicrosecondLength();
+    }
+    /**
+     * @return How far into the sound we are, measured in microseconds
+     * NOTE throws nullpointerexception if audio clip is null
+     */
+    public Long getMicroPosition(){
+        return clip.getMicrosecondPosition();
+    }
+    
+    /**
+     @return Percentage of how far into the sound is playing
+     * 1.0 = 100%, sound is over
+     * 0.5 = 50%, sound is half over
+     * 0.0 = 0%, the sound is at its begining
+     */
+    public double getPercentDone(){
+        return getMicroPosition()/getSoundLength();
     }
     
     /**
@@ -370,16 +432,45 @@ public class SoundEffect implements Runnable{
         return new SoundEffect(source);
     }
 
-    public void setHostGame(Game g){
+    /**
+     * Assigns a host game to this sound effect. The sound effect will not play
+     * while its linked game is paused.
+     * @param g game to link to, set to null to remove links
+     */
+    public void linkToGame(Game g) {
+        if (g == null) {
+            if (isGamePaused()) {
+                this.onGamePause(false);
+            }
+            hostGame.audioManager.removeSound(this);
+            hostGame = null;
+            return;
+        }
+        if (hostGame == null) {
+            if (g.isPaused()) {
+                //pause if assigned to paused game
+                onGamePause(true);
+            }
+        } else {
+            if (!g.isPaused() && hostGame.isPaused()) {
+                //if new game is not paused, remove gamepause restriction
+                onGamePause(false);
+            }
+        }
         hostGame = g;
+        g.audioManager.addSound(this);
     }
-    
-    public Game getHostGame(){
+
+    public Game getHostGame() {
         return hostGame;
     }
     
     @Override
     public String toString(){
         return "SoundEffect " + source.getName() + " ID:" + ID;
+    }
+    
+    public boolean isDisabled(){
+        return disabled;
     }
 }

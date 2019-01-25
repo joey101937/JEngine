@@ -5,10 +5,53 @@
  */
 package Framework.Audio;
 
+import Framework.Game;
+import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
- *
+ * Stores all sounds linked to host game
  * @author Joseph
  */
 public class AudioManager {
+    public final Game hostGame;
+    private final CopyOnWriteArrayList<SoundEffect> storage = new CopyOnWriteArrayList<>();
+    
+    
+    public AudioManager(Game g){
+        hostGame = g;
+    }
+    
+    /**
+     * @return all sound effects associated with this manager
+     */
+    public ArrayList<SoundEffect> getAllSounds(){
+        ArrayList<SoundEffect> output = new ArrayList<>();
+        for(SoundEffect se : storage){
+            output.add(se);
+        }
+        return output;
+    }
+    
+    /**
+     * adds sound to this manager
+     * @param se sound to add
+     */
+    protected void addSound(SoundEffect se){
+        storage.add(se);
+    }
+    
+    protected void  removeSound(SoundEffect se){
+        storage.remove(se);
+    }
+    
+    /**
+     * updates linked sounds' gamepause lock based on hostgame
+     */
+    public void onGamePause(){
+        for(SoundEffect se : storage){
+            se.onGamePause(hostGame.isPaused());
+        }
+    }
     
 }
