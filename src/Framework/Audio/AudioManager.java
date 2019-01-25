@@ -6,6 +6,7 @@
 package Framework.Audio;
 
 import Framework.Game;
+import Framework.Main;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -13,10 +14,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Stores all sounds linked to host game
  * @author Joseph
  */
-public class AudioManager {
+public class AudioManager implements Runnable{
     public final Game hostGame;
     private final CopyOnWriteArrayList<SoundEffect> storage = new CopyOnWriteArrayList<>();
-    
     
     public AudioManager(Game g){
         hostGame = g;
@@ -45,35 +45,19 @@ public class AudioManager {
         storage.remove(se);
     }
     
-    /**
-     * updates linked sounds' gamepause lock based on hostgame on a dedicated thread
-     */
-    public void onGamePause(boolean input){
-        new PauseHelper(this);
+    public void updateGamePause(){
+        Thread t = new Thread(this);
+        t.start();
     }
+    
 
     
-    /**
-     * this class's sole purpose is to update the gamePause on linked sounds
-     * this is important because it uses its own dedicated thread rather than 
-     * having the game's main thread update all the sounds
-     */
-    private class PauseHelper implements Runnable {
-
-        private final AudioManager host;
-
-        public PauseHelper(AudioManager am) {
-            host = am;
-            Thread t = new Thread(this);
-            t.start();
+    @Override
+    public void run(){
+        for(SoundEffect se: storage){
+            Main.wait(5);
+            se.onGamePaused(hostGame.isPaused());
         }
-
-        @Override
-        public void run() {
-            for (SoundEffect se : storage) {
-                se.onGamePause(host.hostGame.isPaused());
-            }
-        }
-
     }
+    
 }

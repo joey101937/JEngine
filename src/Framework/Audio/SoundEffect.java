@@ -37,7 +37,7 @@ public class SoundEffect implements Runnable{
     private volatile boolean hasStarted = false;
     private volatile boolean paused = false;    //paused directly
     private volatile Game hostGame = null;
-    private volatile Long currentFrame = 0l;
+    private volatile Long currentFrame = 0L;
     private boolean looping = false;
     
     /**
@@ -101,7 +101,7 @@ public class SoundEffect implements Runnable{
     /**
      * makes the sound replay continuously until told to stop
      */
-    public void setLooping(boolean input){
+    public synchronized void setLooping(boolean input){
         if(input){
             looping=true;
             clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -173,7 +173,7 @@ public class SoundEffect implements Runnable{
     * 0.5  = quiet
     * 0.0  = silent
     */
-    public void setVolume(float percentVolume){
+    public synchronized void setVolume(float percentVolume){
         if(percentVolume < 0 || percentVolume > 1){
             throw new RuntimeException("ERROR: Percent Volume must be between 0 and 1");
         }
@@ -204,7 +204,7 @@ public class SoundEffect implements Runnable{
      * Note that this disables looping so if you want to continue looping after
      * resuming, you must call loop method again after you resume.
     */
-    public void pause(){
+    public synchronized void pause(){
         if(!hasStarted){
             System.out.println("Cant pause, hasnt begun.");
             return;
@@ -227,7 +227,7 @@ public class SoundEffect implements Runnable{
      * soundeffects from paused games are paused independently of direct pausing
      * @param input true pause or false unpause
      */
-    protected void onGamePause(boolean input) {
+    public synchronized void onGamePaused(boolean input) {
         if (!hasStarted && input) {
             System.out.println("Cant pause, hasnt begun.");
             return;
@@ -244,7 +244,7 @@ public class SoundEffect implements Runnable{
             if (!paused) {
                 resetAudioStream();
                 clip.setMicrosecondPosition(currentFrame);
-                currentFrame = 0l;
+                currentFrame = 0L;
                 if (isLooping()) {
                     clip.loop(Clip.LOOP_CONTINUOUSLY);
                 }
@@ -276,7 +276,7 @@ public class SoundEffect implements Runnable{
      * Note this only releases the internal pause. if this sound is in a game,
      * then you will also have to release the gamePause lock if that game is paused
      */
-    public void resume() {
+    public synchronized void resume() {
         if(!hasStarted){
             System.out.println("cant resume, clip hasnt begun");
             return;
@@ -289,7 +289,7 @@ public class SoundEffect implements Runnable{
         if (!isGamePaused()) {
             resetAudioStream();
             clip.setMicrosecondPosition(currentFrame);
-            currentFrame = 0l;
+            currentFrame = 0L;
             if (isLooping()) {
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
             }
@@ -308,7 +308,7 @@ public class SoundEffect implements Runnable{
         else return hostGame.isPaused();
     }
 
-    private void resetAudioStream() {
+    private synchronized void resetAudioStream() {
         try {
             clip.close();
             stream = AudioSystem.getAudioInputStream(source);
@@ -323,7 +323,7 @@ public class SoundEffect implements Runnable{
      * sound. If you want to replay a song, start a new SoundEffect with the same
      * source. This can be obtained with .createCopy() method
      */
-    public void restart() {
+    public synchronized void restart() {
         if(disabled){
             throw new RuntimeException("Cannot restart disabled sound");
         }
@@ -388,7 +388,7 @@ public class SoundEffect implements Runnable{
         Main.wait(2000);
         System.out.println("game and direct pausing");
         g.setPaused(true);
-        effect.onGamePause(true);
+        effect.onGamePaused(true);
         effect.pause();
         Main.wait(2000);
         System.out.println("ungamepausing");
@@ -437,10 +437,10 @@ public class SoundEffect implements Runnable{
      * while its linked game is paused.
      * @param g game to link to, set to null to remove links
      */
-    public void linkToGame(Game g) {
+    public synchronized void linkToGame(Game g) {
         if (g == null) {
             if (isGamePaused()) {
-                this.onGamePause(false);
+                this.onGamePaused(false);
             }
             hostGame.audioManager.removeSound(this);
             hostGame = null;
@@ -449,12 +449,12 @@ public class SoundEffect implements Runnable{
         if (hostGame == null) {
             if (g.isPaused()) {
                 //pause if assigned to paused game
-                onGamePause(true);
+                onGamePaused(true);
             }
         } else {
             if (!g.isPaused() && hostGame.isPaused()) {
                 //if new game is not paused, remove gamepause restriction
-                onGamePause(false);
+                onGamePaused(false);
             }
         }
         hostGame = g;
