@@ -405,7 +405,7 @@ public class Game extends Canvas implements Runnable {
             go.onGamePause(input);
         }
         paused = input;
-        audioManager.onGamePause();
+        audioManager.onGamePause(input);
     }
 
     /**

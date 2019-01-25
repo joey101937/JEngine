@@ -106,7 +106,6 @@ public class SoundEffectTest {
         effect.linkToGame(game);
         game.setPaused(true);
         assert game.isPaused();
-        assert effect.isPaused();
         effect.linkToGame(null);
         assert effect.isPaused() == false;
     }

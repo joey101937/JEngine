@@ -46,12 +46,34 @@ public class AudioManager {
     }
     
     /**
-     * updates linked sounds' gamepause lock based on hostgame
+     * updates linked sounds' gamepause lock based on hostgame on a dedicated thread
      */
-    public void onGamePause(){
-        for(SoundEffect se : storage){
-            se.onGamePause(hostGame.isPaused());
-        }
+    public void onGamePause(boolean input){
+        new PauseHelper(this);
     }
+
     
+    /**
+     * this class's sole purpose is to update the gamePause on linked sounds
+     * this is important because it uses its own dedicated thread rather than 
+     * having the game's main thread update all the sounds
+     */
+    private class PauseHelper implements Runnable {
+
+        private final AudioManager host;
+
+        public PauseHelper(AudioManager am) {
+            host = am;
+            Thread t = new Thread(this);
+            t.start();
+        }
+
+        @Override
+        public void run() {
+            for (SoundEffect se : storage) {
+                se.onGamePause(host.hostGame.isPaused());
+            }
+        }
+
+    }
 }

@@ -136,7 +136,7 @@ public class SoundEffect implements Runnable{
                 }
             }
         }
-        System.out.println("thread ending");
+        //thread ending
     }
 
     /**
