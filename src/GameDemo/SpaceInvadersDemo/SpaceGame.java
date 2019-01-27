@@ -12,8 +12,8 @@ import Framework.*;
  * input to make objects move around the scene.
  * 
  * This game creates a Spaceship object that will follow the mouse around on
- * on screen using rotation based movement. Pressing G will swap between a small
- * space themed world and a large dirt-terrain themed world.
+ * on screen using rotation based movement. Pressing G will swap between the two
+ * worlds, firstGame and secondGame.
  * 
  * Clicking the mouse will create an explosion effect at the point of click
  * 
@@ -24,17 +24,16 @@ import Framework.*;
 public class SpaceGame {
 
     public static Spaceship ship;
-    protected static Game spaceGame = new Game(SpriteManager.spaceBG);
-    protected static Game dirtGame = new Game(SpriteManager.dirtBG);
+    protected static Game firstGame = new Game(SpriteManager.spaceBG);
+    protected static Game secondGame = new Game(SpriteManager.spaceBG2);
 
     
     public static void main(String[] args) {
-        spaceGame.name = "space game";
-        dirtGame.name = "dirt game";
-        Game g = spaceGame;
-        Window.initialize(g);
-        g.setInputHandler(new SpaceInputHandler());
+        firstGame.name = "First game";
+        secondGame.name = "Second game";
+        Window.initialize(firstGame);
+        firstGame.setInputHandler(new SpaceInputHandler());
         ship = new Spaceship(new Coordinate(100,100));
-        g.addObject(ship);
+        firstGame.addObject(ship);
     }
 }

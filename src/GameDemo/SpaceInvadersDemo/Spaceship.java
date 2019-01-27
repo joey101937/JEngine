@@ -51,11 +51,12 @@ public class Spaceship extends GameObject2{
     @Override
     public void tick() {
         super.tick();
-        lookAt(waypoint);
+        System.out.println(waypoint);
         if (Coordinate.distanceBetween(waypoint, getPixelLocation()) < getWidth()) {
             velocity.y = 0;
             velocity.x = 0;
         } else {
+            lookAt(waypoint);
             velocity = new DCoordinate(0, -1);   //negative on Y axis because 0 is at the top of the screen
         }
     }

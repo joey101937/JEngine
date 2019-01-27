@@ -58,16 +58,16 @@ public class TankInputHandler extends InputHandler {
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        TankGame.player.turret.lookAt(locationOfMouse(e));
+        TankGame.player.turret.lookAt(locationOfMouseEvent(e));
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        TankGame.player.turret.lookAt(locationOfMouse(e));
+        TankGame.player.turret.lookAt(locationOfMouseEvent(e));
     }
     
     @Override
     public void mousePressed(MouseEvent e) {
-        TankGame.player.fire(locationOfMouse(e));
+        TankGame.player.fire(locationOfMouseEvent(e));
     }
 }

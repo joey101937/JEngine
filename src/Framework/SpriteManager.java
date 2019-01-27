@@ -37,6 +37,7 @@ public abstract class SpriteManager {
     
     //SPACE ASSETS
     public static BufferedImage spaceBG;
+    public static BufferedImage spaceBG2;
     public static BufferedImage spaceship;
     
     //PLATFORMER ASSETS
@@ -75,6 +76,7 @@ public abstract class SpriteManager {
            dirtBG = load("TankGame/dirtBG.png");
            
            spaceBG = load("spacebg.png");
+           spaceBG2 = load("spacebg2.png");
            spaceship = load("spaceship.png");
            
            platformBG = load("platformer/platformer.png");

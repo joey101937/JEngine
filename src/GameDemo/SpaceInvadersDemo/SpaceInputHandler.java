@@ -28,7 +28,7 @@ public class SpaceInputHandler extends InputHandler{
     */
     @Override
     public void mousePressed(MouseEvent e){
-        OnceThroughSticker effect = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,locationOfMouse(e));
+        OnceThroughSticker effect = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,locationOfMouseEvent(e));
     }
     
     /*
@@ -48,16 +48,16 @@ public class SpaceInputHandler extends InputHandler{
     public void keyPressed(KeyEvent e){
         //pressing G swaps between scenes.
         if(e.getKeyChar()=='g'){
-            if(hostGame != SpaceGame.spaceGame){
+            if(hostGame != SpaceGame.firstGame){
              //if the game is on dirt, go to space
-            Game g = SpaceGame.spaceGame;
+            Game g = SpaceGame.firstGame;
             Window.setCurrentGame(g);
             g.setInputHandler(this);
             g.addObject(SpaceGame.ship);
             g.camera.setTarget(SpaceGame.ship);
             }else{
              //if the game is in space, go to dirt
-            Game g = SpaceGame.dirtGame;
+            Game g = SpaceGame.secondGame;
             Window.setCurrentGame(g);
             g.setInputHandler(this);
             g.addObject(SpaceGame.ship);
@@ -76,11 +76,13 @@ public class SpaceInputHandler extends InputHandler{
     */
     @Override
     public void mouseMoved(MouseEvent e){
-        waypoint = locationOfMouse(e);
+        System.out.println("setting waypoint");
+        waypoint = locationOfMouseEvent(e);
     }
     
     @Override
     public void mouseDragged(MouseEvent e) {
-        waypoint = locationOfMouse(e);
+        System.out.println("setting waypoint");
+        waypoint = locationOfMouseEvent(e);
     }
 }

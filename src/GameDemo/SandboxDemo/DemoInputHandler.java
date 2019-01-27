@@ -129,7 +129,7 @@ public class DemoInputHandler extends InputHandler{
      // s.scaleTo(2.0);
       //GameObject2 bird = new SampleBird(this.locationOfMouse(e));
      // bird.velocity= new DCoordinate(.5,.5);
-     Projectile p = new Bullet(new DCoordinate(hostGame.testObject.location),new DCoordinate(locationOfMouse(e)));
+     Projectile p = new Bullet(new DCoordinate(hostGame.testObject.location),new DCoordinate(locationOfMouseEvent(e)));
       hostGame.addObject(p);
     }
 

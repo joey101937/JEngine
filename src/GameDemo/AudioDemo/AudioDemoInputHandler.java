@@ -46,7 +46,7 @@ public class AudioDemoInputHandler extends InputHandler {
     @Override
     public void mousePressed(MouseEvent e){
         //store location of mouse press and create an explosion effec there
-        Coordinate c = locationOfMouse(e);
+        Coordinate c = locationOfMouseEvent(e);
         OnceThroughSticker s = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,c);
         //create a blast sound effect
         File blastFile = new File(Main.assets+"/Sounds/blast1.au");
