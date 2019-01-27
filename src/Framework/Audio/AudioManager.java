@@ -45,13 +45,17 @@ public class AudioManager implements Runnable{
         storage.remove(se);
     }
     
-    public void updateGamePause(){
+    public void updateGamePause() {
+        /*
         Thread t = new Thread(this);
         t.start();
+         */
+        for (SoundEffect se : storage) {
+            se.onGamePaused(hostGame.isPaused());
+        }
     }
-    
 
-    
+
     @Override
     public void run(){
         for(SoundEffect se: storage){

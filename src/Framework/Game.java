@@ -222,6 +222,7 @@ public class Game extends Canvas implements Runnable {
         pausedSafely = false;       
         if(Window.mainWindow.currentGame != this){
             System.out.println("Refusing to render without container " + name);
+            Main.wait(3);
             return;
         }
         if(isPaused())return;

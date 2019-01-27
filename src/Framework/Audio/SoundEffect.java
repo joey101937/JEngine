@@ -310,6 +310,7 @@ public class SoundEffect implements Runnable{
 
     private synchronized void resetAudioStream() {
         try {
+            System.out.println("resetting audio stream");
             clip.close();
             stream = AudioSystem.getAudioInputStream(source);
             clip.open(stream);
