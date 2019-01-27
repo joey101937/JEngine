@@ -242,7 +242,6 @@ public class SoundEffect implements Runnable{
             }
         } else {  //resuming
             if (!paused) {
-                resetAudioStream();
                 clip.setMicrosecondPosition(currentFrame);
                 currentFrame = 0L;
                 if (isLooping()) {
@@ -287,7 +286,6 @@ public class SoundEffect implements Runnable{
         }
         paused = false;
         if (!isGamePaused()) {
-            resetAudioStream();
             clip.setMicrosecondPosition(currentFrame);
             currentFrame = 0L;
             if (isLooping()) {
