@@ -32,6 +32,9 @@ public class Handler {
     public synchronized void addObject(GameObject2 o) {
         if (!storage.contains(o)) {
             storage.add(o);
+            if(o.hostGame!=null && o.hostGame!=this.hostGame){
+                o.hostGame.removeObject(o);
+            }
             o.hostGame = hostGame;
         }
     }
