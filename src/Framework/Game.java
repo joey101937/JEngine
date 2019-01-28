@@ -400,12 +400,12 @@ public class Game extends Canvas implements Runnable {
             if (this.getBufferStrategy() != null) {
                 this.getBufferStrategy().dispose();
             }
-
         }
         for (GameObject2 go : handler.getAllObjects()) {
             go.onGamePause(input);
         }
         paused = input;
+        if(!input)this.requestFocus();
         audioManager.updateGamePause();
     }
 

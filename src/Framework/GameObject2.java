@@ -31,7 +31,6 @@ public class GameObject2 {
     private boolean isAnimated = false;//weather or not this object uses sprite or sequence
     protected Sequence sequence = null; //animation sequence to run if animated
     public Sprite sprite = null; //static sprite if not animated
-    public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     private double rotation = 0; //rotatoin in degrees (not radians)
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
@@ -460,11 +459,9 @@ public class GameObject2 {
                 boolean xClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) Math.ceil(newLocation.x), (int) Math.ceil(location.y)))) > .05;
                 boolean yClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) Math.ceil(location.x), (int) Math.ceil(newLocation.y)))) > .05;
                 if (!xClear) {
-                    System.out.println("pathing x is not clear");
                     newLocation.x = location.x;
                 }
                 if (!yClear) {
-                    System.out.println("pathing y is not clear");
                     newLocation.y = location.y;
                 }
             }
@@ -525,7 +522,6 @@ public class GameObject2 {
         if(hitbox!=null)hitbox.host=null;
         if(sequence!=null)sequence.disable();
         this.sequence=null;
-        this.animations=null;
         if(sprite!=null)this.sprite.destroy();
     }
 
@@ -546,6 +542,13 @@ public class GameObject2 {
      */
     public boolean isAlive(){
         return isAlive;
+    }
+    /**
+     * Weather or not this object is using an animated sequence or static sprite
+     * @return Weather or not this object is using an animated sequence or static sprite
+     */
+    public boolean isAnimated(){
+        return isAnimated;
     }
     
     /**

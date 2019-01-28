@@ -10,19 +10,23 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Sequence;
 import Framework.SpriteManager;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Example of a game character using GO2 setup
  * @author Joseph
  */
-public class SampleCharacter extends GameObject2{
+public class PlatformCharacter extends GameObject2{
     
-    public SampleCharacter(DCoordinate c) {
+    public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
+    
+    public PlatformCharacter(DCoordinate c) {
         super(c);
         characterSetup();
     }
     
-    public SampleCharacter(Coordinate c){
+    public PlatformCharacter(Coordinate c){
         super(c);
         characterSetup();
     }

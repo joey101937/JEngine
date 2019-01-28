@@ -12,7 +12,7 @@ import Framework.Sprite;
 import Framework.SpriteManager;
 import Framework.SubObject;
 import Framework.Window;
-import GameDemo.SandboxDemo.SampleCharacter;
+import GameDemo.SandboxDemo.PlatformCharacter;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Color;
@@ -86,7 +86,7 @@ public final class Minimap extends UIElement {
         Window.initialize(g);
         g.start();
         Minimap m = new Minimap(g, new Coordinate(10, 10));
-        SampleCharacter character = new SampleCharacter(new Coordinate(200, 700));
+        PlatformCharacter character = new PlatformCharacter(new Coordinate(200, 700));
         character.velocity.x = 2;
         g.addObject(character);
         g.camera.setTarget(character);
