@@ -14,8 +14,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Parent class for all objects that appear in the gameworld
@@ -41,6 +39,13 @@ public class GameObject2 {
     public double scale = 1; //size multiplier
     protected boolean isAlive = true; //weather or not the object has been destroyed
     public MovementType movementType = MovementType.SpeedRatio;
+     /**
+     * how the object behaves when traveling in two directions (up/down and
+     * side/side) and it collides with something in one but not both of the
+     * directions Disabled = stops moving Enabled = moves relative to portion of
+     * velocity in unblocked direction
+     */
+    public boolean collisionSliding = true;
     public int plane = 0; //which 'layer' a unit is on. Units only collide with others in the same plane
     protected Hitbox hitbox ;
     protected ArrayList<Sticker> attachedStickers = new ArrayList<>();
@@ -101,6 +106,7 @@ public class GameObject2 {
     public static enum MovementType{
     RawVelocity, SpeedRatio, RotationBased;
     }
+
     
     /**
      * used to get integer location of object, used when rendering to screen
@@ -407,12 +413,25 @@ public class GameObject2 {
                     onCollide(other);
                     continue;
                 }
-                if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int)Math.ceil(toMove.x),(int)Math.ceil(toMove.y)))) {
-                    //if we would collide with a unit, stop moving and run onCollide
-                    //prevents units from stacking on top of eachother
-                    newLocation = location.copy();
-                    onCollide(other);
-                    continue;
+                if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), (int) Math.ceil(toMove.y)))) {
+                    boolean xClear = !getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), 0));
+                    boolean yClear = !getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate(0, (int) Math.ceil(toMove.y)));
+                    if (xClear && !yClear && collisionSliding) {
+                        //if only moving in x direction would result in no collision
+                        newLocation.y = location.y;
+                        onCollide(other);
+                    } else if (yClear && !xClear && collisionSliding) {
+                        //if only moving in y direction would result in no collision
+                        newLocation.x = location.x;
+                        onCollide(other);
+                    } else {
+                        //this movement would result in a collision in either and both directions
+                        //if we would collide with a unit, stop moving and run onCollide
+                        //prevents units from stacking on top of eachother
+                        newLocation = location.copy();
+                        onCollide(other);
+                        continue;
+                    }
                 }
                 for (SubObject sub : other.subObjects) {
                     if(!sub.isSolid || other.hitbox==null)continue;
@@ -430,16 +449,33 @@ public class GameObject2 {
                     }
                 }
             }
-
         }
-        if(hostGame.pathingLayer==null || this.pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
-            //Only change location if the terrain there is pathable with a speed multiplier of at least .05
-            location = newLocation;
+        
+        //pathing layer now
+        
+        if (hostGame.pathingLayer != null) {
+            if (pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) < .05 && collisionSliding) {
+                //pathing at new location is blocked. (speed multiplier < .05)
+                //check directions to see which are blocked so we can possibly slide
+                boolean xClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) Math.ceil(newLocation.x), (int) Math.ceil(location.y)))) > .05;
+                boolean yClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) Math.ceil(location.x), (int) Math.ceil(newLocation.y)))) > .05;
+                if (!xClear) {
+                    System.out.println("pathing x is not clear");
+                    newLocation.x = location.x;
+                }
+                if (!yClear) {
+                    System.out.println("pathing y is not clear");
+                    newLocation.y = location.y;
+                }
+            }
+        }
+        if(pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
+             location = newLocation;
         }
         updateHitbox();
         constrainToWorld();
     }
-    
+
     
     /**
      * runs whevenever an object would run out of bounds
