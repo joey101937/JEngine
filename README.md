@@ -264,11 +264,15 @@ GameObjects can be in 3 states for collision; solid, non-solid, overlap allowed.
 ## TextObjects
 //TODO
 # Pathing Layer
-A pathingLayer is an image file with the same dimensions as the world. This image however is made up of only a handful of colors with each of those colors representing a type of terrain. By default, there are three types defined: green= standard ground; blue= water; black= impassable.
+A pathingLayer is an image file with the same dimensions as the world. This image however is made up of only a handful of colors with each of those colors representing a type of terrain. By default, there are four types defined: green= ground; red=hostile, blue= water; black= impassable.
 
 GameObject2s can check what type of terrain they are on and it may effect movement. GameObjecs contain a **HashMap<PathingLayer.Type,Double>** called **pathingModifers**, which implements a speed modifier based on what type of terrain they are on. 1=standard speed, .5 = half speed, 2= double speed. *Modifiers of less than 0.05 will be considered impassable and the GameObject will NOT be able to move onto it*.
 
-You can use a GameObject2's **currentTerrain()** method to fetch the terrain type that the object is currently on. **Note: terrain is determined by the object's *exact* location, usually the object's center point.**
+*Default Movement Modifiers: ground,hostile: 1.0 | water:0.33 | impass:0.0*
+
+GameObject2s by default move regularly on ground and hostile terrain, slowly in water, and not at all in impassable terrain. Hostile terrain has no intrinsic function but an example use case is setting a player character object to take damage when it detects that the current terrain is hostile.
+
+You can use a GameObject2's **getCurrentTerrain()** method to fetch the terrain type that the object is currently on. **Note: terrain is determined by the object's *exact* location, usually the object's center point.**
 
 *Example:*
 
