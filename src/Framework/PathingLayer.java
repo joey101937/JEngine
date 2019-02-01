@@ -7,7 +7,6 @@ package Framework;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 /**
  * represented by an image, uses colors to determine pathing area
@@ -16,15 +15,16 @@ import java.util.ArrayList;
 public class PathingLayer {
     public static final Color groundColor = new Color(0,255,0); //green
     public static final Color waterColor = new Color(0,0,255);  //blue
+    public static final Color hostileColor = new Color(255,0,0); //red
     public static final Color impassColor = new Color(0,0,0);   //black
     
-    public static enum Type {ground, water, impass};
+    public static enum Type {ground, hostile, water, impass};
     
     public BufferedImage source = null;
     private Type[][] map;
     private boolean mapGenerated = false;
     private boolean sourceInternalized = false;
-    
+        
     /**
      * converts pixels in source to cooresponding colors to make it easier to see
      * in debug view
@@ -98,7 +98,9 @@ public class PathingLayer {
         try{
             if (c == groundColor.getRGB()) {
                 return Type.ground;
-            } else if (c == waterColor.getRGB()) {
+            } else if(c == hostileColor.getRGB()){
+                return Type.hostile;
+            }else if (c == waterColor.getRGB()) {
                 return Type.water;
             } else if (c == impassColor.getRGB()) {
                 return Type.impass;
