@@ -3,19 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Framework;
+package Framework.GraphicalAssets;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Represents an image used to be rendered in the world
  * @author Joseph
  */
-public class Sprite {
+public class Sprite implements GraphicalAsset{
     private BufferedImage image;
      private double scale = 1;
     
@@ -73,12 +71,26 @@ public class Sprite {
         return after;
     }
     
-    protected void destroy(){
+    /**
+     * destroys this sprite and releases memory
+     * do not call unless you know what your doing
+     */
+    public void destroy(){
         image.flush();
+        image = null;
         try {
             finalize();
         } catch (Throwable ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public BufferedImage getCurrentImage() {
+        return getImage();
+    }
+    @Override
+    public boolean isAnimated(){
+        return false;
     }
 }

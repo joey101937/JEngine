@@ -5,6 +5,8 @@
  */
 package Framework;
 
+import Framework.GraphicalAssets.Sequence;
+import Framework.GraphicalAssets.Sprite;
 import Framework.Stickers.Sticker;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -54,6 +56,7 @@ public class GameObject2 {
     public ArrayList<SubObject> subObjects = new ArrayList<>(); //stores all subobjects on this object
     /**this determines weather or not a gameobject will be able to move through other solid units, however this still triggers onCollide*/
     public boolean preventOverlap = true; 
+    
     
     
     public void addSubObject(SubObject sub){

@@ -3,19 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Framework;
+package Framework.GraphicalAssets;
 
+import Framework.Main;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Animation sequence
  * @author Joseph
  */
-public class Sequence {
+public class Sequence implements GraphicalAsset{
     public BufferedImage[] frames;
     private double scale = 1;
     /**Duration to wait before switching frames in ms*/
@@ -130,6 +128,15 @@ public class Sequence {
         Sequence output = new Sequence(frames);
         output.scale=scale;
         return output;
+    }
+
+    @Override
+    public BufferedImage getCurrentImage() {
+        return getCurrentFrame();
+    }
+    @Override
+    public boolean isAnimated(){
+        return true;
     }
     
     

@@ -8,7 +8,7 @@ package Framework.UI_Elements;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
-import Framework.Sprite;
+import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
 import Framework.SubObject;
 import Framework.Window;
