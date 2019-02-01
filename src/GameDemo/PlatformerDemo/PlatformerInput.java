@@ -7,7 +7,6 @@ package GameDemo.PlatformerDemo;
 
 import Framework.InputHandler;
 import java.awt.event.KeyEvent;
-
 /**
  *
  * @author Joseph
@@ -34,12 +33,13 @@ public class PlatformerInput extends InputHandler{
     
         @Override
     public void keyReleased(KeyEvent e){
+        PlatformCharacter player = PlatformerGame.playerCharacter;
         switch(e.getKeyChar()){
             case 'a':
-                PlatformerGame.playerCharacter.velocity.x = 0;
+                if(player.velocity.x<0)player.velocity.x = 0;
                 break;
             case 'd':
-                PlatformerGame.playerCharacter.velocity.x = 0;
+                if(player.velocity.x>0)player.velocity.x = 0;
                 break;
             default: 
                 break;

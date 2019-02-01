@@ -26,7 +26,7 @@ public class PlatformCharacter extends GameObject2{
         super(c);
         characterSetup();
     }
-    
+        
     public PlatformCharacter(Coordinate c){
         super(c);
         characterSetup();
@@ -94,17 +94,20 @@ public class PlatformCharacter extends GameObject2{
     @Override
     public void tick() {
         adjustVelocityForGravityAndJump();
+        if (getCurrentTerrain() == PathingLayer.Type.hostile) {  
+            velocity.y -= 3;
+        }
         super.tick();
         updateAnimation();
     }
-    
+
     /**
      * checks if terrain under this object is pathable.
      * @return if terrain under this object is pathable
      */
     protected boolean isOnGround() {
         Coordinate c = getPixelLocation().copy();
-        c.y+=getHeight()/2;
+        c.y+=(getHeight()/2)-5;
         PathingLayer.Type type = hostGame.getPathingLayer().getTypeAt(c);
         return pathingModifiers.get(type) < .05;
     }
