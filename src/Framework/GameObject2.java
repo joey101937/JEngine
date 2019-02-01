@@ -72,7 +72,7 @@ public class GameObject2 {
         if (hostGame.pathingLayer == null) {
             return baseSpeed;
         }
-        return baseSpeed * pathingModifiers.get(currentTerrain());
+        return baseSpeed * pathingModifiers.get(getCurrentTerrain());
     }
 
    public double getBaseSpeed(){
@@ -87,7 +87,7 @@ public class GameObject2 {
     * terrain type of pixel that this object is centered on
     * @return terrain type at the center of this object
     */
-   public PathingLayer.Type currentTerrain(){
+   public PathingLayer.Type getCurrentTerrain(){
        if(hostGame.pathingLayer==null){
            System.out.println("trying to get terrain type of null pathing layer -"+name);
            return null;
@@ -466,7 +466,7 @@ public class GameObject2 {
                 }
             }
         }
-        if(pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
+        if(hostGame.pathingLayer==null || pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
              location = newLocation;
         }
         updateHitbox();
@@ -502,6 +502,7 @@ public class GameObject2 {
         location = dc;
         //set up default pathing modifiers. Move normal on ground, reduced speed in water, not at all in impass
         pathingModifiers.put(PathingLayer.Type.ground, 1.0);
+        pathingModifiers.put(PathingLayer.Type.hostile, 1.0);
         pathingModifiers.put(PathingLayer.Type.water, .33);
         pathingModifiers.put(PathingLayer.Type.impass, 0.0);
     }

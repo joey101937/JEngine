@@ -32,7 +32,7 @@ public class TankInputHandler extends InputHandler {
                 TankGame.player.rotate(-TankGame.player.getSpeed());
                 break;
             case 'P':
-                System.out.println(TankGame.player.currentTerrain());
+                System.out.println(TankGame.player.getCurrentTerrain());
                 break;
             case 'X':
                 OptionsMenu.display();

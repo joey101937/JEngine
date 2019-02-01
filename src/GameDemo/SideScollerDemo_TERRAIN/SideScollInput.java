@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo.PlatformerDemo;
+package GameDemo.SideScollerDemo_TERRAIN;
 
 import Framework.InputHandler;
 import java.awt.event.KeyEvent;
@@ -11,19 +11,19 @@ import java.awt.event.KeyEvent;
  *
  * @author Joseph
  */
-public class PlatformerInput extends InputHandler{
+public class SideScollInput extends InputHandler{
     @Override
     public void keyPressed(KeyEvent e){
         switch(e.getKeyChar()){
             case 'a':
-                PlatformerGame.playerCharacter.velocity.x = -3;
+                SideScrollGame.playerCharacter.velocity.x = -3;
                 break;
             case 'd':
-                PlatformerGame.playerCharacter.velocity.x = 3;
+                SideScrollGame.playerCharacter.velocity.x = 3;
                 break;
             case ' ':
-                if(PlatformerGame.playerCharacter.isOnGround()){
-                    PlatformerGame.playerCharacter.jumpTick = PlatformerGame.playerCharacter.tickNumber;
+                if(SideScrollGame.playerCharacter.isOnGround()){
+                    SideScrollGame.playerCharacter.jumpTick = SideScrollGame.playerCharacter.tickNumber;
                 }           
                 break;
             default:
@@ -33,7 +33,7 @@ public class PlatformerInput extends InputHandler{
     
         @Override
     public void keyReleased(KeyEvent e){
-        PlatformCharacter player = PlatformerGame.playerCharacter;
+        SideScrollCharacter player = SideScrollGame.playerCharacter;
         switch(e.getKeyChar()){
             case 'a':
                 if(player.velocity.x<0)player.velocity.x = 0;

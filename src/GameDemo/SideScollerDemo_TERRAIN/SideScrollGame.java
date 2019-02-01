@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo.PlatformerDemo;
+package GameDemo.SideScollerDemo_TERRAIN;
 
 import Framework.Coordinate;
 import Framework.Game;
@@ -15,9 +15,9 @@ import Framework.Window;
  *
  * @author Joseph
  */
-public class PlatformerGame {
+public class SideScrollGame {
     
-    protected static PlatformCharacter playerCharacter = new PlatformCharacter(new Coordinate(100,100));
+    protected static SideScrollCharacter playerCharacter = new SideScrollCharacter(new Coordinate(100,100));
  
     public static void main(String[] args) {
         Game g = new Game(SpriteManager.platformBG);
@@ -25,7 +25,7 @@ public class PlatformerGame {
         g.start();
         Window.initialize(g);
         g.addObject(playerCharacter);
-        g.setInputHandler(new PlatformerInput());
+        g.setInputHandler(new SideScollInput());
         g.requestFocus();
         g.worldBorder=0;
         Main.debugMode=true;

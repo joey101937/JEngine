@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo.PlatformerDemo;
+package GameDemo.SideScollerDemo_TERRAIN;
 
 import Framework.GameObject2;
 import Framework.Coordinate;
@@ -18,16 +18,16 @@ import java.util.Map;
  * Example of a game character using GO2 setup
  * @author Joseph
  */
-public class PlatformCharacter extends GameObject2{
+public class SideScrollCharacter extends GameObject2{
     
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public Long jumpTick = 0L; //last tick the character started jumpin at
-    public PlatformCharacter(DCoordinate c) {
+    public SideScrollCharacter(DCoordinate c) {
         super(c);
         characterSetup();
     }
         
-    public PlatformCharacter(Coordinate c){
+    public SideScrollCharacter(Coordinate c){
         super(c);
         characterSetup();
     }
@@ -81,7 +81,7 @@ public class PlatformCharacter extends GameObject2{
         }
         if (!isOnGround()) {
             velocity.y = 5;        
-            System.out.println(velocity);
+            //System.out.println(velocity);
         } else if (velocity.y > 0) {
             velocity.y = 0;
         }

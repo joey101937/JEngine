@@ -31,6 +31,7 @@ public class TankGame {
         Game.scaleForResolution();
         g.start();
         Main.display("Press X for options menu");
+        Main.debugMode = true;
        // new Minimap(g);
     }
 }
