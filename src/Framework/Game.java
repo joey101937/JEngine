@@ -8,6 +8,7 @@ package Framework;
 import Framework.Audio.AudioManager;
 import Framework.Audio.SoundEffect;
 import Framework.GraphicalAssets.GraphicalAsset;
+import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import java.awt.Canvas;
 import java.awt.Color;
@@ -96,16 +97,27 @@ public class Game extends Canvas implements Runnable {
     /**
      * creates a new game with given image as background. Image will be turned 
      * into a sprite object internally
-     * @param bi image to use as background
+     * @param image image to use as background
      */
-    public Game(BufferedImage bi){
-        Sprite bg = new Sprite(bi);
-        this.backgroundImage = bg;
-        setBackground(bg);
+    public Game(BufferedImage image){
+        Sprite sprite = new Sprite(image);
+        this.backgroundImage = sprite;
+        setBackground(sprite);
     }
-    
+    /**
+     * creates a new game with given image set as animated background. Image set
+     * will be turned into a sequence object internally
+     * @param imageSet image to use as background
+     */
+    public Game(BufferedImage[] imageSet) {
+        Sequence sequ = new Sequence(imageSet);
+        this.backgroundImage = sequ;
+        setBackground(sequ);
+    }
+
     /**
      * width dimension of game world
+     *
      * @return width
      */
     public int getWorldWidth() {
