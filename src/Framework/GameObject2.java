@@ -15,7 +15,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import Framework.GraphicalAssets.Graphic;
 
 /**
  * Parent class for all objects that appear in the gameworld
@@ -30,9 +30,10 @@ public class GameObject2 {
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
     public int innateRotation = 0; //0 = top of sprite is forwards, 90 is right of sprite is right, 180 is bottom of sprite is forwards etc
     protected double baseSpeed = 2; //total distance the object can move per tick
-    private boolean isAnimated = false;//weather or not this object uses sprite or sequence
-    protected Sequence sequence = null; //animation sequence to run if animated
-    public Sprite sprite = null; //static sprite if not animated
+   // private boolean isAnimated = false;//weather or not this object uses sprite or sequence
+  //  protected Sequence sequence = null; //animation sequence to run if animated
+  //  public Sprite sprite = null; //static sprite if not animated
+    private Graphic graphic; //visual representation of the object
     private double rotation = 0; //rotatoin in degrees (not radians)
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
@@ -137,11 +138,7 @@ public class GameObject2 {
      */
     public int getWidth() {
         try{
-        if (isAnimated) {
-            return (int)(sequence.getCurrentFrame().getWidth());
-        } else {
-            return (int)(sprite.getImage().getWidth());
-        }
+        return graphic.getCurrentImage().getWidth();
         }catch(NullPointerException npe){
             return 0;
         }
@@ -152,29 +149,28 @@ public class GameObject2 {
      */
     public int getHeight() {
         try {
-            if (isAnimated) {
-                return (int)(sequence.getCurrentFrame().getHeight());
-            } else {
-                return (int)(sprite.getImage().getHeight());
-            }
+            return graphic.getCurrentImage().getHeight();
         } catch (NullPointerException npe) {
             return 0;
         }
     }
-    /**
-     * @return gets the current animation sequence this object is rendering
-     */
-    public Sequence getCurrentSequence(){
-        return sequence;
-    }
     
     /**
-     * changes the current animation sequence to the given sequence
-     * @param s sequence to use
+     * gets current visual representation of this object
+     * could be Sprite class if not animated or Sequence class if animated
+     * @return current visual representation object
      */
-    public void setSequence(Sequence s){
-        if(sequence == s) return;
-        else sequence = s;
+    public Graphic getGraphic(){
+        return graphic;
+    }
+    
+     /**
+     * Sets current visual representation of this object
+     * could be Sprite class if not animated or Sequence class if animated
+     * @param g new graphic object
+     */
+    public void setGraphic(Graphic g){
+        graphic = g;
     }
 
     /**
@@ -260,16 +256,14 @@ public class GameObject2 {
         if((!isOnScreen() && !Main.overviewMode())||isInvisible)return;
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
-        if(sequence!=null && sequence.getScale()!=scale){
-            sequence.scaleTo(scale);
-        }
-        if(sprite!=null && sprite.getScale()!=scale){
-            sprite.scaleTo(scale);
+        if(getGraphic()!=null && getGraphic().getScale()!=scale){
+            getGraphic().scaleTo(scale);
         }
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
         g.rotate(Math.toRadians(rotation),getPixelLocation().x,getPixelLocation().y);
-        if(isAnimated){
+        if(isAnimated()){
+            Sequence sequence = (Sequence)getGraphic();
             if(sequence == null){
                 System.out.println("Warning trying to render null sequence object " +name);
                 return;
@@ -283,6 +277,7 @@ public class GameObject2 {
                 System.out.println("Warning: null frame in sequence of " + name);
             }
         }else{
+            Sprite sprite = (Sprite)getGraphic();
             if(sprite!=null){                
                 g.drawImage(sprite.getImage(), pixelLocation.x-sprite.getImage().getWidth()/2, pixelLocation.y-sprite.getImage().getHeight()/2, null); //draws sprite centered on pixelLocation
             }else{
@@ -306,19 +301,18 @@ public class GameObject2 {
      * sets an object to not animate and only render one image as the animation
      * @param image static image to be rendered instead 
      */
-    public void setAnimationFalse(Sprite image){
-        isAnimated = false;
-        sprite = image;
+    public void setGraphic(Sprite image){
+        graphic = image;
     }
     /**
      * sets the object to animate through a sequence
      * @param s sequence to begin rendering. may be changed later
      */
-    public void setAnimationTrue(Sequence s){
-        sequence = s;
-        isAnimated = true;
+    public void setGraphic(Sequence s){
+        graphic = s;
     }
     
+
     /**
      * maintains hitboxes, runs after default render.
      * Override to use custom hitboxes.
@@ -489,14 +483,30 @@ public class GameObject2 {
         if(location.x > hostGame.getWorldWidth() - hostGame.worldBorder) location.x = hostGame.getWorldWidth()- hostGame.worldBorder;
         if(location.y > hostGame.getWorldHeight() - hostGame.worldBorder) location.y = hostGame.getWorldHeight()- hostGame.worldBorder;
     }
-    
+    /**
+     * Creates new GameObject2 at location
+     * @param c location
+     */
     public GameObject2(Coordinate c){
       init(new DCoordinate(c));
       ID = IDLog++;
     }
+     /**
+     * Creates new GameObject2 at exact location
+     * @param dc location
+     */
     public GameObject2(DCoordinate dc){
         init(dc);
         ID = IDLog++;
+    }
+     /**
+     * Creates new GameObject2 at location
+     * @param x location x-coordinate
+     * @param y location y-coordinate
+     */
+    public GameObject2(int x, int y){
+      init(new DCoordinate(x,y));
+      ID = IDLog++; 
     }
     /**
      * sets initial values common for all gameObjects
@@ -525,9 +535,8 @@ public class GameObject2 {
         }
         this.detatchAllStickers();
         if(hitbox!=null)hitbox.host=null;
-        if(sequence!=null)sequence.disable();
-        this.sequence=null;
-        if(sprite!=null)this.sprite.destroy();
+        graphic.destroy();
+        graphic = null;
     }
 
     /**
@@ -550,10 +559,12 @@ public class GameObject2 {
     }
     /**
      * Weather or not this object is using an animated sequence or static sprite
+     * if graphic is null, return false;
      * @return Weather or not this object is using an animated sequence or static sprite
      */
     public boolean isAnimated(){
-        return isAnimated;
+        if(graphic==null)return false;
+        return graphic.isAnimated();
     }
     
     /**

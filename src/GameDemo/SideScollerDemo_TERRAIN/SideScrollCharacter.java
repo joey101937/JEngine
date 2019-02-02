@@ -43,7 +43,7 @@ public class SideScrollCharacter extends GameObject2{
         this.movementType = GameObject2.MovementType.RawVelocity;
         //initial animation
         Sequence idleSequence = new Sequence(SpriteManager.sampleChar_idle);
-        this.setAnimationTrue(idleSequence);
+        this.setGraphic(idleSequence);
         //add animation sequences
         this.animations.put("Idle", idleSequence);
         this.animations.put("walkUp", new Sequence(SpriteManager.sampleChar_walkUp));
@@ -61,11 +61,11 @@ public class SideScrollCharacter extends GameObject2{
      */
     private void updateAnimation() {
         if (velocity.x > 0) {
-            this.sequence = animations.get("walkRight");
+            this.setGraphic(animations.get("walkRight"));
         } else if (velocity.x < 0) {
-            this.sequence = animations.get("walkLeft");
+            this.setGraphic(animations.get("walkLeft"));
         } else {
-            this.sequence = animations.get("Idle");
+            this.setGraphic(animations.get("Idle"));
         }
     }
 

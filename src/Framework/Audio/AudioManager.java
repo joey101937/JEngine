@@ -11,7 +11,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Stores all sounds linked to host game
- *
  * @author Joseph
  */
 public class AudioManager {

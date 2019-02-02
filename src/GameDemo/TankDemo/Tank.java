@@ -28,7 +28,7 @@ public class Tank extends Creature{
     public Tank(Coordinate c) {
         super(c);
         Sprite chassSprite = new Sprite(SpriteManager.tankChasis);
-        this.setAnimationFalse(chassSprite);
+        this.setGraphic(chassSprite);
         this.movementType = MovementType.RotationBased;
         turret = new Turret(new Coordinate(0,0));
         this.addSubObject(turret);
@@ -61,7 +61,7 @@ public class Tank extends Creature{
         
         public Turret(Coordinate offset) {
             super(offset);
-            this.setAnimationFalse(turretSprite);
+            this.setGraphic(turretSprite);
             scale = .3;
             turretSprite.scaleTo(scale);
             fireAnimation.scaleTo(scale);
@@ -73,7 +73,7 @@ public class Tank extends Creature{
         into the game world
         */
         public void onFire(Coordinate target){
-            setAnimationTrue(fireAnimation);
+            setGraphic(fireAnimation);
             firing = true;
             Coordinate muzzelLocation = new Coordinate(0,0);
             muzzelLocation.y-=fireAnimation.frames[0].getHeight()*2/5;
@@ -94,9 +94,9 @@ public class Tank extends Creature{
         @Override
         public void onAnimationCycle(){
             System.out.println("animation cycle " + name);
-            if(sequence == fireAnimation){
+            if(getGraphic() == fireAnimation){
                 firing = false;
-                setAnimationFalse(turretSprite);
+                setGraphic(turretSprite);
             }
         }
     }

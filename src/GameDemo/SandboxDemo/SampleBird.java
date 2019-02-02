@@ -28,7 +28,7 @@ public class SampleBird extends Creature{
     }
     
     private void setup(){
-        setAnimationTrue(new Sequence(SpriteManager.birdySequence));
+        setGraphic(new Sequence(SpriteManager.birdySequence));
         isSolid=true;
         name = "Bird " + numBirds++;
         innateRotation = 0;

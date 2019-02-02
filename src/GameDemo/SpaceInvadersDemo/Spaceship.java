@@ -30,7 +30,7 @@ public class Spaceship extends GameObject2{
     */
     public Spaceship(Coordinate c) {
         super(c);
-        setAnimationFalse(new Sprite(SpriteManager.spaceship));
+        setGraphic(new Sprite(SpriteManager.spaceship));
         name = "Spaceship";
         scale= .3;
         movementType = GameObject2.MovementType.RotationBased;

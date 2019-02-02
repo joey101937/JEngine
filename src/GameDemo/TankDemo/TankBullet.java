@@ -26,7 +26,7 @@ public class TankBullet extends Projectile {
     
     public TankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
-        this.setAnimationTrue(new Sequence(new BufferedImage[]{SpriteManager.bullet}));
+        this.setGraphic(new Sequence(new BufferedImage[]{SpriteManager.bullet}));
         baseSpeed = 30;
         scale = .25;
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default

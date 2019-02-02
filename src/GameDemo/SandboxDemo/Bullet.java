@@ -22,7 +22,7 @@ public class Bullet extends Projectile{
     
     public Bullet(DCoordinate start, DCoordinate end) {
         super(start,end);
-        this.setAnimationFalse(new Sprite(SpriteManager.up));
+        this.setGraphic(new Sprite(SpriteManager.up));
         this.setHitbox(new Hitbox(this,0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 500;
         System.out.println("bullet: " + numBullet++);

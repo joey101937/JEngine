@@ -7,7 +7,6 @@ package Framework;
 
 import Framework.Audio.AudioManager;
 import Framework.Audio.SoundEffect;
-import Framework.GraphicalAssets.GraphicalAsset;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import java.awt.Canvas;
@@ -24,6 +23,7 @@ import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import Framework.GraphicalAssets.Graphic;
 
 /**
  * This is the part of the screen that you look at while playing and that
@@ -56,7 +56,7 @@ public class Game extends Canvas implements Runnable {
     public final AudioManager audioManager = new AudioManager(this);
     private Thread thread = null;
     private boolean running = false;
-    protected GraphicalAsset backgroundImage;
+    protected Graphic backgroundImage;
     protected PathingLayer pathingLayer;
     public Window window;
     public boolean hasStarted = false;
@@ -89,7 +89,7 @@ public class Game extends Canvas implements Runnable {
      * object for static background, and a sequence for animated
      * @param backgroundImage 
      */
-    public Game(GraphicalAsset backgroundImage) {
+    public Game(Graphic backgroundImage) {
         this.backgroundImage = backgroundImage;
         setBackground(backgroundImage);
     }
@@ -135,7 +135,7 @@ public class Game extends Canvas implements Runnable {
      * sets the background for this game instance and sets world bounds to match
      * @param bi new background image
      */
-    public final void setBackground(GraphicalAsset bi) {
+    public final void setBackground(Graphic bi) {
         worldHeight = backgroundImage.getCurrentImage().getHeight();
         worldWidth = backgroundImage.getCurrentImage().getWidth();
         backgroundImage = bi;
@@ -501,7 +501,7 @@ public class Game extends Canvas implements Runnable {
         return audioManager.getAllSounds();
     }
 
-    public GraphicalAsset getBackgroundImage() {
+    public Graphic getBackgroundImage() {
         return backgroundImage;
     }
 }

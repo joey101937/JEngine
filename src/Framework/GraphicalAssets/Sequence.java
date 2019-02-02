@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
  * Animation sequence
  * @author Joseph
  */
-public class Sequence implements GraphicalAsset{
+public class Sequence implements Graphic{
     public BufferedImage[] frames;
     private double scale = 1;
     /**Duration to wait before switching frames in ms*/
@@ -124,6 +124,7 @@ public class Sequence implements GraphicalAsset{
      * returns a copy of this sequence in contained in a new object
      * @return new sequence object with the same information as this object
      */
+    @Override
     public Sequence copy(){
         Sequence output = new Sequence(frames);
         output.scale=scale;
@@ -138,6 +139,10 @@ public class Sequence implements GraphicalAsset{
     @Override
     public boolean isAnimated(){
         return true;
+    }
+    @Override
+    public void destroy(){
+        disable();
     }
     
     

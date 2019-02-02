@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
  * Represents an image used to be rendered in the world
  * @author Joseph
  */
-public class Sprite implements GraphicalAsset{
+public class Sprite implements Graphic{
     private BufferedImage image;
      private double scale = 1;
     
@@ -29,13 +29,14 @@ public class Sprite implements GraphicalAsset{
     public Sprite(BufferedImage bi){
         image = bi;
     }
-    
+    @Override
     public Sprite copy() {
         Sprite output = new Sprite(image);
         output.scale = scale;
         return output;
     }
 
+    @Override
     public double getScale(){
         return scale;
     }
@@ -44,6 +45,7 @@ public class Sprite implements GraphicalAsset{
      * image by a given amount
      * @param d multiplier to scale by
      */
+    @Override
     public void scale(double d) {
         image = scaleImage(image, d);
         scale *= d;
@@ -53,6 +55,7 @@ public class Sprite implements GraphicalAsset{
      * sets the scale of image to a given scale
      * @param d new value to be scale, relative to the default scale of image
      */
+    @Override
     public void scaleTo(double d) {
         image = scaleImage(image, d / scale);
         scale = d;
@@ -75,6 +78,7 @@ public class Sprite implements GraphicalAsset{
      * destroys this sprite and releases memory
      * do not call unless you know what your doing
      */
+    @Override
     public void destroy(){
         image.flush();
         image = null;
