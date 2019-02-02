@@ -362,13 +362,13 @@ public class LaunchMenu extends javax.swing.JFrame {
         }
         
         ////add player character
-        PlatformCharacter example = new PlatformCharacter(new Coordinate(500,300));
+        SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
         g.addObject(example);
         g.testObject = example;
         example.name = "Player Character";
         g.camera.setTarget(g.testObject);
         ////add other character that just stands there looking pretty
-        PlatformCharacter other = new PlatformCharacter(new Coordinate(1000,300));
+        SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
         other.name = "Sample Character";
         g.addObject(other);
         //AnimatedSticker testEffect = new AnimatedSticker(this, SpriteManager.explosionSequence,new Coordinate(400, 400), 99999);

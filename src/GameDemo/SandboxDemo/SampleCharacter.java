@@ -17,16 +17,16 @@ import java.util.Map;
  * Example of a game character using GO2 setup
  * @author Joseph
  */
-public class PlatformCharacter extends GameObject2{
+public class SampleCharacter extends GameObject2{
     
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     
-    public PlatformCharacter(DCoordinate c) {
+    public SampleCharacter(DCoordinate c) {
         super(c);
         characterSetup();
     }
     
-    public PlatformCharacter(Coordinate c){
+    public SampleCharacter(Coordinate c){
         super(c);
         characterSetup();
     }
