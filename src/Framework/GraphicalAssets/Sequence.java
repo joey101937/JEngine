@@ -132,6 +132,7 @@ public class Sequence implements GraphicalAsset{
 
     @Override
     public BufferedImage getCurrentImage() {
+        startAnimating();
         return getCurrentFrame();
     }
     @Override
