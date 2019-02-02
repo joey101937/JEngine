@@ -8,7 +8,7 @@ package GameDemo.SpaceInvadersDemo;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
-import Framework.Sprite;
+import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
 import static GameDemo.SpaceInvadersDemo.SpaceInputHandler.waypoint;
 

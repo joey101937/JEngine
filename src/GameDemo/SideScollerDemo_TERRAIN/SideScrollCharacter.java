@@ -9,7 +9,7 @@ import Framework.GameObject2;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.PathingLayer;
-import Framework.Sequence;
+import Framework.GraphicalAssets.Sequence;
 import Framework.SpriteManager;
 import java.util.HashMap;
 import java.util.Map;

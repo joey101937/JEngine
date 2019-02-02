@@ -6,14 +6,14 @@
 package GameDemo.TankDemo;
 
 import Framework.Coordinate;
+import Framework.GameObject2;
 import Framework.GameObject2.MovementType;
-import Framework.Sequence;
-import Framework.Sprite;
+import Framework.GraphicalAssets.Sequence;
+import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.SandboxDemo.Creature;
-import java.awt.image.BufferedImage;
 
 /**
  * This is a gank gameobject. Tank class is the chasis
@@ -101,6 +101,10 @@ public class Tank extends Creature{
         }
     }
     
+    @Override
+    public void onCollide(GameObject2 other){
+        System.out.println("colliding with " + other);
+    }
     
     
 }

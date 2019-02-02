@@ -405,7 +405,7 @@ public class GameObject2 {
         }
         //COLLISION
         if (isSolid && getHitbox()!=null) {
-            Coordinate toMove = new Coordinate((int)(newLocation.x-location.x),(int)(newLocation.y-location.y));
+            DCoordinate toMove = new DCoordinate((newLocation.x-location.x),(newLocation.y-location.y));
             for (GameObject2 other : hostGame.handler.getAllObjects()) {
                 if (!other.isSolid || other.getHitbox()==null || other==this || other.plane!=plane) {
                     continue;
@@ -418,6 +418,7 @@ public class GameObject2 {
                 if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), (int) Math.ceil(toMove.y)))) {
                     boolean xClear = !getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), 0));
                     boolean yClear = !getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate(0, (int) Math.ceil(toMove.y)));
+                    boolean bothClear = !getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), (int) Math.ceil(toMove.y)));
                     if (xClear && !yClear && collisionSliding) {
                         //if only moving in x direction would result in no collision
                         newLocation.y = location.y;

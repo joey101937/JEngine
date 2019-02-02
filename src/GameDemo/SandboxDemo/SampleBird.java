@@ -8,7 +8,7 @@ package GameDemo.SandboxDemo;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Hitbox;
-import Framework.Sequence;
+import Framework.GraphicalAssets.Sequence;
 import Framework.SpriteManager;
 
 /**

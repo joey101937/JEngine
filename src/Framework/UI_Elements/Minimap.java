@@ -82,7 +82,7 @@ public final class Minimap extends UIElement {
      * @param args commandline args
      */
     public static void main(String[] args) {
-        Game g = new Game(SpriteManager.dirtBG);
+        Game g = new Game(new Sprite(SpriteManager.dirtBG));
         Window.initialize(g);
         g.start();
         Minimap m = new Minimap(g, new Coordinate(10, 10));
@@ -117,7 +117,7 @@ public final class Minimap extends UIElement {
         private final BufferedImage background;
 
         public MinimapInterior() {
-            background = scaleImage(hostGame.getBackgroundImage(), screenPortion * Game.getResolutionScaleX(), screenPortion * Game.getResolutionScaleY());
+            background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(), screenPortion * Game.getResolutionScaleX(), screenPortion * Game.getResolutionScaleY());
         }
 
         @Override

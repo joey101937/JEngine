@@ -6,6 +6,7 @@
 package Framework.Audio;
 
 import Framework.Game;
+import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.SpriteManager;
 import java.io.File;
@@ -375,7 +376,7 @@ public class SoundEffect implements Runnable{
         System.out.println("resuming");
         effect.resume();
         Main.wait(2000);
-        Game g = new Game(SpriteManager.spaceBG);
+        Game g = new Game(new Sprite(SpriteManager.spaceBG));
         effect.linkToGame(g);
         System.out.println("game pausing");
         g.setPaused(true);

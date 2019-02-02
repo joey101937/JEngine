@@ -7,6 +7,8 @@ package Framework;
 
 import Framework.Audio.AudioManager;
 import Framework.Audio.SoundEffect;
+import Framework.GraphicalAssets.GraphicalAsset;
+import Framework.GraphicalAssets.Sprite;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -53,7 +55,7 @@ public class Game extends Canvas implements Runnable {
     public final AudioManager audioManager = new AudioManager(this);
     private Thread thread = null;
     private boolean running = false;
-    protected BufferedImage backgroundImage;
+    protected GraphicalAsset backgroundImage;
     protected PathingLayer pathingLayer;
     public Window window;
     public boolean hasStarted = false;
@@ -71,9 +73,9 @@ public class Game extends Canvas implements Runnable {
      */
     public Game() {
         try {
-            backgroundImage = ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png"));
-            worldHeight = backgroundImage.getHeight();
-            worldWidth = backgroundImage.getWidth();
+            backgroundImage = new Sprite(ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png")));
+            worldHeight = backgroundImage.getCurrentImage().getHeight();
+            worldWidth = backgroundImage.getCurrentImage().getWidth();
             pathingLayer = new PathingLayer(SpriteManager.pathingLayer);
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -81,11 +83,27 @@ public class Game extends Canvas implements Runnable {
         }
     }
 
-    public Game(BufferedImage backgroundImage) {
+    /**
+     * Creates a new Game with given graphical asset as background. Use a Sprite
+     * object for static background, and a sequence for animated
+     * @param backgroundImage 
+     */
+    public Game(GraphicalAsset backgroundImage) {
         this.backgroundImage = backgroundImage;
         setBackground(backgroundImage);
     }
-
+    
+    /**
+     * creates a new game with given image as background. Image will be turned 
+     * into a sprite object internally
+     * @param bi image to use as background
+     */
+    public Game(BufferedImage bi){
+        Sprite bg = new Sprite(bi);
+        this.backgroundImage = bg;
+        setBackground(bg);
+    }
+    
     /**
      * width dimension of game world
      * @return width
@@ -105,9 +123,9 @@ public class Game extends Canvas implements Runnable {
      * sets the background for this game instance and sets world bounds to match
      * @param bi new background image
      */
-    public final void setBackground(BufferedImage bi) {
-        worldHeight = backgroundImage.getHeight();
-        worldWidth = backgroundImage.getWidth();
+    public final void setBackground(GraphicalAsset bi) {
+        worldHeight = backgroundImage.getCurrentImage().getHeight();
+        worldWidth = backgroundImage.getCurrentImage().getWidth();
         backgroundImage = bi;
         if (worldHeight < Toolkit.getDefaultToolkit().getScreenSize().height) {
             windowHeight = worldHeight ;
@@ -268,7 +286,7 @@ public class Game extends Canvas implements Runnable {
                 return;
             }
             if(!Main.debugMode || pathingLayer==null){
-                g.drawImage(backgroundImage, 0, 0, null);
+                g.drawImage(backgroundImage.getCurrentImage(), 0, 0, null);
             }else if(pathingLayer!=null && pathingLayer.source!=null){
                 pathingLayer.internalizeSource();
                 g.drawImage(pathingLayer.source, 0, 0, null); //if in debug view, display pathing map
@@ -471,7 +489,7 @@ public class Game extends Canvas implements Runnable {
         return audioManager.getAllSounds();
     }
 
-    public BufferedImage getBackgroundImage() {
+    public GraphicalAsset getBackgroundImage() {
         return backgroundImage;
     }
 }

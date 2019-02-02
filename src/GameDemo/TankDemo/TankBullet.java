@@ -10,7 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.Projectile;
-import Framework.Sequence;
+import Framework.GraphicalAssets.Sequence;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import GameDemo.SandboxDemo.Creature;
