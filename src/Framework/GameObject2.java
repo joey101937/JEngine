@@ -30,9 +30,6 @@ public class GameObject2 {
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
     public int innateRotation = 0; //0 = top of sprite is forwards, 90 is right of sprite is right, 180 is bottom of sprite is forwards etc
     protected double baseSpeed = 2; //total distance the object can move per tick
-   // private boolean isAnimated = false;//weather or not this object uses sprite or sequence
-  //  protected Sequence sequence = null; //animation sequence to run if animated
-  //  public Sprite sprite = null; //static sprite if not animated
     private Graphic graphic; //visual representation of the object
     private double rotation = 0; //rotatoin in degrees (not radians)
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
@@ -296,21 +293,6 @@ public class GameObject2 {
         if(Main.debugMode && getHitbox()!=null)getHitbox().render(g); //render hitbox without graphics rotation
     }
     
-    
-    /**
-     * sets an object to not animate and only render one image as the animation
-     * @param image static image to be rendered instead 
-     */
-    public void setGraphic(Sprite image){
-        graphic = image;
-    }
-    /**
-     * sets the object to animate through a sequence
-     * @param s sequence to begin rendering. may be changed later
-     */
-    public void setGraphic(Sequence s){
-        graphic = s;
-    }
     
 
     /**
