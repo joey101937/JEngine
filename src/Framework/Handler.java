@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 
 /**
@@ -19,6 +20,9 @@ public class Handler {
 
     private volatile LinkedList<GameObject2> storage = new LinkedList<>();
     public Game hostGame;
+    
+    private List<GameObject2> toRender = storage;
+    
     public Handler(Game g){
         hostGame=g;
     }
@@ -77,8 +81,6 @@ public class Handler {
      * @param g should be the game's graphics
      */
     public synchronized void render(Graphics2D g) {
-        ArrayList<GameObject2> toRender = getAllObjects();
-        toRender.sort(new renderSorter());
         for (GameObject2 go : toRender) {
             try{
              go.render(g);
@@ -98,16 +100,17 @@ public class Handler {
      * ticks all objects in the game along with their subobjects
      */
     public synchronized void tick() {
-      for(GameObject2 go : getAllObjects()) {
-          go.hostGame = hostGame;
-          go.tick();
-          if (go.subObjects != null) {
-              for (SubObject so : go.subObjects) {
-                  so.tick();
-              }
-          }
-        
-      }
+        toRender = getAllObjects();
+        toRender.sort(new renderSorter());
+        for (GameObject2 go : getAllObjects()) {
+            go.hostGame = hostGame;
+            go.tick();
+            if (go.subObjects != null) {
+                for (SubObject so : go.subObjects) {
+                    so.tick();
+                }
+            }
+        }
     }
 
     /**

@@ -37,7 +37,7 @@ public interface Graphic {
      */
     public void scale(double d);
     /**
-     * sacles asset to a certain percentage size relative to original size
+     * Scales asset to a certain percentage size relative to original size
      * @param d percentage of original size to scale to
      */
     public void scaleTo(double d);
