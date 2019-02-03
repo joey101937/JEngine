@@ -37,6 +37,7 @@ public class SpaceGame {
         ship = new Spaceship(new Coordinate(100,100));
         firstGame.addObject(ship);
         TextObject text = new TextObject(300,300,"Sample Text Sample Text\nSample Text Sample Text\nSample Text Sample Text");
+        text.setZLayer(2); //text is on higher z-layer so it renders on top of ship
         firstGame.addObject(text);
         Main.debugMode = true;
     }

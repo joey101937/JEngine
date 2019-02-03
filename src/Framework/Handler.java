@@ -7,6 +7,7 @@ package Framework;
 
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -76,7 +77,9 @@ public class Handler {
      * @param g should be the game's graphics
      */
     public synchronized void render(Graphics2D g) {
-        for (GameObject2 go : getAllObjects()) {
+        ArrayList<GameObject2> toRender = getAllObjects();
+        toRender.sort(new renderSorter());
+        for (GameObject2 go : toRender) {
             try{
              go.render(g);
              if(go.subObjects!=null){
@@ -105,6 +108,25 @@ public class Handler {
           }
         
       }
+    }
+
+    /**
+     * used to sort rendering based on zLayer
+     */
+    private static class renderSorter implements Comparator<GameObject2> {
+
+        @Override
+        public int compare(GameObject2 o1, GameObject2 o2) {
+            if (o1.getZLayer() > o2.getZLayer()) {
+                return 1;
+            } else if (o1.getZLayer() < o2.getZLayer()) {
+                return -1;
+            } else {
+                //must be equal
+                return 0;
+            }
+        }
+
     }
 
 }

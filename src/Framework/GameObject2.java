@@ -38,6 +38,7 @@ public class GameObject2 {
     public double scale = 1; //size multiplier
     protected boolean isAlive = true; //weather or not the object has been destroyed
     public MovementType movementType = MovementType.SpeedRatio;
+    private int zLayer = 1;
      /**
      * how the object behaves when traveling in two directions (up/down and
      * side/side) and it collides with something in one but not both of the
@@ -589,5 +590,24 @@ public class GameObject2 {
         attachedStickers.clear();
     }
 
+    /**
+     * zLayer is the how high or low the object is on the Z axis, and determines which objects render
+     * on top of which. Higher zLayers will render on top of lower.
+     * @return zLayer value for this object.
+     */
+    public int getZLayer() {
+        return zLayer;
+    }
+    
+    /**
+     * zLayer is the how high or low the object is on the Z axis, and determines which objects render
+     * on top of which. Higher zLayers will render on top of lower.
+     * @param zLayer new zLayer value for this object.
+     */
+    public void setZLayer(int zLayer) {
+        this.zLayer = zLayer;
+    }
+
+    
 
 }
