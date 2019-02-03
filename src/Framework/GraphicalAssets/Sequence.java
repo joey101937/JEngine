@@ -20,7 +20,8 @@ public class Sequence implements Graphic{
     public int frameDelay = 60;
     /**Index of frame currently set to render*/
     public volatile int currentFrameIndex = 0;
-    volatile boolean disabled = false;
+    private volatile boolean disabled = false;
+    private volatile boolean paused = false;
     public Animator animator = new Animator(this);
     
     /**
@@ -66,7 +67,8 @@ public class Sequence implements Graphic{
      * stops animator
      */
     public void disable(){
-        this.disabled = true;
+        setPaused(false);
+        disabled = true;
         for(BufferedImage bi : frames){
             bi=null;
         }
@@ -145,6 +147,21 @@ public class Sequence implements Graphic{
         disable();
     }
     
+    /**
+     * is the animation paused for this sprite
+     * @return is the animation paused for this sprite
+     */
+    public boolean isPaused(){
+        return paused;
+    }
+    
+    /**
+     * sets the animation to either pause or resume
+     * @param in true = pause, false = resume
+     */
+    public void setPaused(boolean in){
+        paused = in;
+    }
     
     
     /**
@@ -165,6 +182,9 @@ public class Sequence implements Graphic{
         public void run() {
             while(animating && !mySequence.disabled){
                 Main.wait(mySequence.frameDelay);
+                while(mySequence.paused){
+                    Main.wait(frameDelay);
+                }
                 mySequence.currentFrameIndex++;
                 if(mySequence.currentFrameIndex>=mySequence.frames.length){
                   mySequence.currentFrameIndex = 0;  
