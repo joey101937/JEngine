@@ -76,13 +76,11 @@ public class SpaceInputHandler extends InputHandler{
     */
     @Override
     public void mouseMoved(MouseEvent e){
-        System.out.println("setting waypoint");
         waypoint = locationOfMouseEvent(e);
     }
     
     @Override
     public void mouseDragged(MouseEvent e) {
-        System.out.println("setting waypoint");
         waypoint = locationOfMouseEvent(e);
     }
 }

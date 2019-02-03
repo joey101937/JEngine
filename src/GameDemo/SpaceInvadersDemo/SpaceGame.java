@@ -6,6 +6,7 @@
 package GameDemo.SpaceInvadersDemo;
 
 import Framework.*;
+import Framework.UtilityObjects.TextObject;
 
 /**
  * This example game demonstrates moving objects between scenes, and using mouse
@@ -35,5 +36,8 @@ public class SpaceGame {
         firstGame.setInputHandler(new SpaceInputHandler());
         ship = new Spaceship(new Coordinate(100,100));
         firstGame.addObject(ship);
+        TextObject text = new TextObject(300,300,"Sample Text Sample Text\nSample Text Sample Text\nSample Text Sample Text");
+        firstGame.addObject(text);
+        Main.debugMode = true;
     }
 }

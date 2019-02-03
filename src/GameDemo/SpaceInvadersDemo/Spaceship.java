@@ -51,7 +51,6 @@ public class Spaceship extends GameObject2{
     @Override
     public void tick() {
         super.tick();
-        System.out.println(waypoint);
         if (Coordinate.distanceBetween(waypoint, getPixelLocation()) < getWidth()) {
             velocity.y = 0;
             velocity.x = 0;

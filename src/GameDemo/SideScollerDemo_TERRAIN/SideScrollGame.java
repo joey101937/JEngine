@@ -28,6 +28,6 @@ public class SideScrollGame {
         g.setInputHandler(new SideScollInput());
         g.requestFocus();
         g.worldBorder=0;
-        Main.debugMode=true;
+        //Main.debugMode=true;
     }
 }
