@@ -259,11 +259,13 @@ public class GameObject2 {
         }
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
-        g.rotate(Math.toRadians(rotation),getPixelLocation().x,getPixelLocation().y);
-        if(isAnimated()){
+        g.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
+        if (getGraphic() == null) {
+            System.out.println("Warning null graphic for " + name);
+        } else if (isAnimated()) {
             Sequence sequence = (Sequence)getGraphic();
             if(sequence == null){
-                System.out.println("Warning trying to render null sequence object " +name);
+                if(renderNumber>10 && tickNumber>2)System.out.println("Warning trying to render null sequence object " +name);
                 return;
             }
             if(sequence.getCurrentFrame()!=null){
@@ -272,14 +274,14 @@ public class GameObject2 {
                 g.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
                 if(sequence.currentFrameIndex == sequence.frames.length-1) this.onAnimationCycle();
             }else{
-                System.out.println("Warning: null frame in sequence of " + name);
+                if(renderNumber>10 && tickNumber>2)System.out.println("Warning: null frame in sequence of " + name);
             }
         }else{
             Sprite sprite = (Sprite)getGraphic();
             if(sprite!=null){                
                 g.drawImage(sprite.getImage(), pixelLocation.x-sprite.getImage().getWidth()/2, pixelLocation.y-sprite.getImage().getHeight()/2, null); //draws sprite centered on pixelLocation
             }else{
-                System.out.println("Warning: unanimated game object sprite is null " + name);
+                if(renderNumber>10 && tickNumber>2)System.out.println("Warning: unanimated game object sprite is null " + name);
             }
         }
         if (Main.debugMode) {
@@ -312,7 +314,9 @@ public class GameObject2 {
             verts[1] = new Coordinate(width / 2, -height / 2);
             verts[2] = new Coordinate(-width / 2, height / 2);
             verts[3] = new Coordinate(width / 2, height / 2);
-            setHitbox(new Hitbox(this, verts));
+            Hitbox hb = new Hitbox(this,verts);
+            hb.rotateTo(getRotation());
+            setHitbox(hb);
             return;
         }
         //maintain the default hitbox
@@ -518,7 +522,7 @@ public class GameObject2 {
         }
         this.detatchAllStickers();
         if(hitbox!=null)hitbox.host=null;
-        graphic.destroy();
+        if(graphic!=null)graphic.destroy();
         graphic = null;
     }
 

@@ -6,6 +6,7 @@
 package GameDemo.SpaceInvadersDemo;
 
 import Framework.*;
+import Framework.UtilityObjects.BlockObject;
 import Framework.UtilityObjects.TextObject;
 
 /**
@@ -36,9 +37,13 @@ public class SpaceGame {
         firstGame.setInputHandler(new SpaceInputHandler());
         ship = new Spaceship(new Coordinate(100,100));
         firstGame.addObject(ship);
+        //creates and adds text object
         TextObject text = new TextObject(300,300,"Sample Text Sample Text\nSample Text Sample Text\nSample Text Sample Text");
         text.setZLayer(2); //text is on higher z-layer (2>1) so it renders on top
         firstGame.addObject(text);
+        //creates and adds block object
+        BlockObject block = new BlockObject(new Coordinate(500,400),100,200);
+        firstGame.addObject(block);
         Main.debugMode = true;
     }
 }

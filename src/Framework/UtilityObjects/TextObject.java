@@ -8,11 +8,14 @@ package Framework.UtilityObjects;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
+import Framework.Main;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 /**
  * Gameobject that instead of rendering a sprite, renders text.
+ * has no hitbox
  * @author Joseph
  */
 public class TextObject extends GameObject2{
@@ -46,6 +49,8 @@ public class TextObject extends GameObject2{
     @Override
     public void render(Graphics2D g){
         renderNumber++; //for debug purposes
+        AffineTransform old = g.getTransform();
+        g.scale(scale, scale);
         if(!isOnScreen() || isInvisible || text==null || font==null)return;  //dont render if off screen or invisible or no text
         Coordinate renderLocation = getPixelLocation();
         //record original font and color settings to restore after rendering
@@ -53,7 +58,7 @@ public class TextObject extends GameObject2{
         Color originalColor = g.getColor();
          //update size info
         if(text!=null){
-            width=g.getFontMetrics().stringWidth(text)*2;
+            width=g.getFontMetrics().stringWidth(text);
         }else{
             width=0;
         }
@@ -63,6 +68,7 @@ public class TextObject extends GameObject2{
         }
         g.setColor(color);
         String[] lines = text.split("\n");
+        g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y);
         for(String s : lines){
             g.drawString(s, renderLocation.x - getWidth()/2, renderLocation.y+font.getSize()/2);
             renderLocation.y+=font.getSize();
@@ -70,6 +76,15 @@ public class TextObject extends GameObject2{
         //reset font and color to original
         g.setFont(originalFont);
         g.setColor(originalColor);
+        if (Main.debugMode) {
+            g.setColor(Color.red);
+            g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
+            g.drawString(name, (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
+            g.rotate(Math.toRadians(innateRotation));
+            g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
+            g.rotate(-Math.toRadians(innateRotation));
+        }
+        g.setTransform(old); //reset rotation for next item to render
     }
     
     public String getText() {
@@ -104,6 +119,7 @@ public class TextObject extends GameObject2{
     public int getWidth(){
       return width;
     }
+    
     @Override
     public int getHeight(){
         if(font==null)return 0;
