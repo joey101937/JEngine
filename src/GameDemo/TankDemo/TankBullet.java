@@ -9,7 +9,7 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
-import Framework.Projectile;
+import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sequence;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;

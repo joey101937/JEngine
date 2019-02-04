@@ -3,9 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Framework;
+package Framework.UtilityObjects;
 
-import java.util.ArrayList;
+import Framework.Coordinate;
+import Framework.DCoordinate;
+import Framework.GameObject2;
+import Framework.Hitbox;
+import Framework.PathingLayer;
+
 
 /**
  * gameobject that travels along a trajectory
