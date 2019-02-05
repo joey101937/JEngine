@@ -96,7 +96,7 @@ public class DCoordinate {
         x -= other.x;
         y -= other.y;
     }
-    
+
     public DCoordinate getInverse(){
         return new DCoordinate(-x,-y);
     }
@@ -178,6 +178,20 @@ public class DCoordinate {
         double rotation = Math.toRadians(degree);
         x = (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
         y = (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+    }
+    
+    
+    public void rotateAboutPoint(Coordinate point,double degrees){
+        rotateAboutPoint(point.toDCoordinate(),degrees);
+    }
+    
+    public void rotateAboutPoint(DCoordinate point, double degrees){
+        DCoordinate offset = this.copy();
+        offset.subtract(point.copy());
+        offset.adjustForRotation(degrees);
+        offset.add(point);
+        x=offset.x;
+        y=offset.y;
     }
 
     /**

@@ -119,6 +119,20 @@ public class Coordinate {
         y*=s;
     }
 
+    public void rotateAboutPoint(Coordinate point, double degrees) {
+        rotateAboutPoint(point.toDCoordinate(), degrees);
+    }
+
+    public void rotateAboutPoint(DCoordinate point, double degrees) {
+        DCoordinate offset = this.copy().toDCoordinate();
+        offset.subtract(point.copy());
+        offset.adjustForRotation(degrees);
+        offset.add(point);
+        x = (int)offset.x;
+        y = (int)offset.y;
+    }
+
+    
     /**
      * adjusts this coordinate to reflect the location it would be at if it were
      * to be rotated about the origin by a given degree
