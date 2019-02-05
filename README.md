@@ -106,13 +106,19 @@ Once you have loaded the raw image data using SpriteManger, we are now ready to 
 Sticker. To do this we create either a **Sprite** oject for plain images or a **Sequence** object for animation sequences. Creating them
 is as easy as **new Sprite(BufferedImage);** and **new Sequence(BufferdImage[]);**
 
-Sprites and Sequences can both be scaled and copied without modifying the original asset. This is important if you have multiple objects using the same asset.(rotation is handled by implementation)
+Sprites and Sequences implement the **Graphic** interface which means can both be scaled, destroyed, and copied without modifying the original asset. This is important if you have multiple objects using the same asset.(rotation is handled by implementation).
+
+### Graphic Interface
+This is the interface both Sprite and Sequence implement, and is used to store a graphical asset. To know if the Graphic is a Sprite or a Sequence, use the isAnimated() method. Sequences return true, sprites return false as they are simply images. To get the current frame of a sequence or image of a sprite use the getCurrentImage() method. This interface allows for scaling, copying, and destroying.
+*Note destroy() method does **not** destroy the underlying asset*.
 
 ### Using Sequences
 A sequence represents a frame based animation. Options include scaling the size of the visuals with **scale(double s)** and
 scaleTo(double s)** methods; and changing the speed of animation by adjusting frameDelay field.
 
 Sequences have their own threads that animate them and keep up with current frames. These animator threads do not start until the sequence is rendered and stop if the sequence is disabled.
+
+Sequnces can pause animation using setPaused(true) method or resumed with setPaused(false). Sequences can also be reversed using reverse() method and resumed by calling it again.
 
 # Stickers
 **Stickers** in JEngine represent a visual effect that is temporarily rendered to a location in a scene. Stickers are created in the following way: *new Sticker(Game g, BufferdImage bi, Coordiante c, int i)* where g is the game you want to add the sticker to, bi is the visual asset you want to render, c is where in the world you want the sticker to be rendered at, and i is how long the effect should last. Example of sticker use is a blast effects on explosion or impact.
@@ -166,9 +172,7 @@ GameObject2's are the core of all functional objects within a scene. GameObject2
 
 **isAnimated** Weather or not the object is currently using an animated squence or static sprite.
 
-**sequence** Current sequence is stored in this variable if the object is being animated by a sequence.
-
-**sprite** current sprite is stored in this variable if the object is using an unanimated sprite visual.
+**graphic** Current visual representation of this object. Can be either a sprite or sequence object. May be animated.
 
 **animations** Map of animation sequneces to animation names for ease of access.
 
@@ -195,6 +199,11 @@ GameObject2's are the core of all functional objects within a scene. GameObject2
 **pathingModifiers** This is a map that assigns different speed modifiers to different terrain types. See pathing layer for more details.
 
 **subObjects** List of all subobjets of this object.
+
+**zLayer** Is the Z-axis value, and determines which objects will be rendered on top of or below others.
+
+**plane** Objects may only collide with other objects if they are on the same plane
+
 
 
 ### Important Methods
@@ -259,12 +268,15 @@ GameObjects can be in 3 states for collision; solid, non-solid, overlap allowed.
 **onCollide(GameObject2)** is a method that triggers every tick that two objects are touching. This method triggers for both objects. Override this method to perform collision-based logic.
 
 **SubObject Collision** Subobjects have their own hitboxes and therefore their own collisions, to check manually if two objects intersect, make sure you check all of their subobjects, stored in the *subobjects* arraylist field. Subobjects may transfer their onCollision to their host object using host.onCollision(<the other object>)
-
-## SubObjects
+ 
+ ## Utility Objects
+ ### Projectile
+ //TODO
+ ### TextObject
+ //TODO
+ ### BlockObject
 //TODO
-## Projectiles
-//TODO
-## TextObjects
+# SubObjects
 //TODO
 # Pathing Layer
 A pathingLayer is an image file with the same dimensions as the world. This image however is made up of only a handful of colors with each of those colors representing a type of terrain. By default, there are four types defined: green= ground; red=hostile, blue= water; black= impassable.
