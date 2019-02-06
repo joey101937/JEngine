@@ -1,11 +1,16 @@
-![Screenshot](http://i66.tinypic.com/5p3ko.png)
-### [**VIEW JAVADOC HERE**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)
-[![CodeFactor](https://www.codefactor.io/repository/github/joey101937/jengine/badge)](https://www.codefactor.io/repository/github/joey101937/jengine)
+<p align="center">
+  <img width="300" height="300" src="http://i67.tinypic.com/24lj19c.png">
+</p>
+
 # What is JEngine
 JEngine is a AWT Framework for implementing 2D scenes, frame-based animations, and gameplay
 Particularly an open-source 2D game engine that is simple and easy to use, highly customizable, and requires *no* outside libraries to work.
 
 # JEngine Quick Basics
+
+### [**VIEW JAVADOC HERE**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)  
+[![CodeFactor](https://www.codefactor.io/repository/github/joey101937/jengine/badge)](https://www.codefactor.io/repository/github/joey101937/jengine)
+
 -The physical window that displays your project is controlled by the **Window** class
 -The part inside the window is a Game object. Games represent scenes that function as a world within which your objects exist. 
 Games have their own InputHandlers to take in user input via mouse and keyboard. You may have multiple scenes for your project. Your window can swap between them using **setCurrentGame(Game g)** method. Note only current Game's input handler will detect user input and Games are paused when another game is made the current game and unpause/start when they are the one being made the current game. pause/unpause can also be manually toggled.
