@@ -97,7 +97,7 @@ public class Hitbox {
      */
     public Hitbox(Coordinate[] given) {
         if (given.length != 4) {
-            System.out.println("ERROR: Bad argument for hitbox vertices- length should be 4");
+            throw new IllegalArgumentException("ERROR: Bad argument for hitbox vertices array: length should be 4, not " + given.length);
         }
         for (Coordinate cor : given) {
             if (given == null) {
