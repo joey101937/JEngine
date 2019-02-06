@@ -318,8 +318,8 @@ public class LaunchMenu extends javax.swing.JFrame {
         setup(alt);
         g.setInputHandler(new DemoInputHandler());
         alt.setInputHandler(new DemoInputHandler());
-        g.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
-        alt.camera.disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
+        g.getCamera().disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
+        alt.getCamera().disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         Window.initialize(g);
         g.start();
         g.name="main";
@@ -366,7 +366,7 @@ public class LaunchMenu extends javax.swing.JFrame {
         g.addObject(example);
         g.testObject = example;
         example.name = "Player Character";
-        g.camera.setTarget(g.testObject);
+        g.getCamera().setTarget(g.testObject);
         ////add other character that just stands there looking pretty
         SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
         other.name = "Sample Character";

@@ -89,7 +89,7 @@ public final class Minimap extends UIElement {
         SampleCharacter character = new SampleCharacter(new Coordinate(200, 700));
         character.velocity.x = 2;
         g.addObject(character);
-        g.camera.setTarget(character);
+        g.getCamera().setTarget(character);
     }
 
     /**
@@ -136,7 +136,7 @@ public final class Minimap extends UIElement {
                 }
             }
             g2d.setColor(Color.green);
-            g2d.draw(hostGame.camera.getFieldOfView());
+            g2d.draw(hostGame.getCamera().getFieldOfView());
              g2d.setColor(Color.black);
             //g2d.drawRect(-(int)hostGame.camera.location.x, -(int)hostGame.camera.location.y, (int)(hostGame.camera.getFieldOfView().width*screenPortion*Game.getResolutionScaleX()), (int)(hostGame.camera.getFieldOfView().height*screenPortion*Game.getResolutionScaleY()));
             g2d.setStroke(new BasicStroke(50));

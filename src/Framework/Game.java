@@ -67,7 +67,7 @@ public class Game extends Canvas implements Runnable {
     public String name = "Untitled Game";
     protected InputHandler inputHandler;
     public GameObject2 testObject = null; //object to be controlled by input
-    public Camera camera = new Camera(this);
+    private final Camera camera = new Camera(this);
 
 
 
@@ -511,8 +511,18 @@ public class Game extends Canvas implements Runnable {
     public double getZoom(){
         return zoom;
     }
-    
+    /**
+     * sets the zoom level of the game, zoom into world.
+     * @param d  2.0 = zoom in 2x, 0.5 = zoom out 2x etc. MUST BE GREATER THAN .1
+     */
     public void setZoom(double d){
+        if(d<.1){
+            throw new RuntimeException("invalid argument: " + d + " zoom must be greater than .1");
+        }
         zoom = d;
+    }
+    
+    public Camera getCamera(){
+        return camera;
     }
 }

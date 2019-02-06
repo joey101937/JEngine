@@ -54,14 +54,14 @@ public class SpaceInputHandler extends InputHandler{
             Window.setCurrentGame(g);
             g.setInputHandler(this);
             g.addObject(SpaceGame.ship);
-            g.camera.setTarget(SpaceGame.ship);
+            g.getCamera().setTarget(SpaceGame.ship);
             }else{
              //if the game is in space, go to dirt
             Game g = SpaceGame.secondGame;
             Window.setCurrentGame(g);
             g.setInputHandler(this);
             g.addObject(SpaceGame.ship);
-            g.camera.setTarget(SpaceGame.ship);
+            g.getCamera().setTarget(SpaceGame.ship);
             }
         }
         //pressing X brings up options menu

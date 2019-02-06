@@ -65,7 +65,7 @@ public class DemoInputHandler extends InputHandler{
                     System.out.println(go.tickNumber + " " + go.name);
                     System.out.println(go.renderNumber + " " + go.name + " render.");               
                 }
-                 System.out.println("Camera Tick: " + hostGame.camera.tickNumber);
+                 System.out.println("Camera Tick: " + hostGame.getCamera().tickNumber);
                  System.out.println(hostGame.testObject.location);
                 break;
             case 'Z':
@@ -99,19 +99,19 @@ public class DemoInputHandler extends InputHandler{
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
             case 'W':
-                if(hostGame.camera.yVel>0)hostGame.camera.yVel = 0;
+                if(hostGame.getCamera().yVel>0)hostGame.getCamera().yVel = 0;
                   hostGame.testObject.velocity.y = 0;
                 break;
             case 'S':
-               if(hostGame.camera.yVel<0)hostGame.camera.yVel = 0;
+               if(hostGame.getCamera().yVel<0)hostGame.getCamera().yVel = 0;
                hostGame.testObject.velocity.y = 0;
                 break;
             case 'A':
-                if(hostGame.camera.xVel>0)hostGame.camera.xVel = 0;
+                if(hostGame.getCamera().xVel>0)hostGame.getCamera().xVel = 0;
                 hostGame.testObject.velocity.x = 0;
                 break;
             case 'D':
-                if(hostGame.camera.xVel<0)hostGame.camera.xVel = 0;
+                if(hostGame.getCamera().xVel<0)hostGame.getCamera().xVel = 0;
                 hostGame.testObject.velocity.x = 0;
                 break;
         }

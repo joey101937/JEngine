@@ -101,9 +101,9 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
     public Coordinate locationOfMouseEvent(MouseEvent e) {
         DCoordinate loc;
         if(Main.overviewMode()){
-             loc = new DCoordinate(e.getX()/Game.OVERVIEW_MODE_ZOOM/Game.resolutionScaleX/hostGame.getZoom() + -hostGame.camera.location.x, e.getY()/Game.OVERVIEW_MODE_ZOOM/Game.resolutionScaleY/hostGame.getZoom() - hostGame.camera.location.y);
+             loc = new DCoordinate(e.getX()/Game.OVERVIEW_MODE_ZOOM/Game.resolutionScaleX/hostGame.getZoom() + -hostGame.getCamera().location.x, e.getY()/Game.OVERVIEW_MODE_ZOOM/Game.resolutionScaleY/hostGame.getZoom() - hostGame.getCamera().location.y);
         }else{
-             loc = new DCoordinate(e.getX()/Game.resolutionScaleX/hostGame.getZoom() + -hostGame.camera.location.x, e.getY()/Game.resolutionScaleY/hostGame.getZoom() - hostGame.camera.location.y);
+             loc = new DCoordinate(e.getX()/Game.resolutionScaleX/hostGame.getZoom() + -hostGame.getCamera().location.x, e.getY()/Game.resolutionScaleY/hostGame.getZoom() - hostGame.getCamera().location.y);
         }
         return loc.toCoordinate();
     }

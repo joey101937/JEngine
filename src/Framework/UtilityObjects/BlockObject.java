@@ -147,6 +147,11 @@ public class BlockObject extends GameObject2{
         centered=b;
     }
     
+    /**
+     * This object is either centered on its location or is anchored to its location
+     * from its top left corner. 
+     * @return true=centered, false = topleft corner anchored
+     */
     public boolean isCentered(){
         return centered;
     }
@@ -171,6 +176,10 @@ public class BlockObject extends GameObject2{
         return borderThickness;
     }
 
+    /**
+     * used if the block object is not filled in, sets the thickness of the outer wall
+     * @param borderThickness width of wall in pixels
+     */
     public void setBorderThickness(int borderThickness) {
         this.borderThickness = borderThickness;
     }

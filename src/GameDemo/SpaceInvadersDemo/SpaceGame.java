@@ -8,6 +8,7 @@ package GameDemo.SpaceInvadersDemo;
 import Framework.*;
 import Framework.UtilityObjects.BlockObject;
 import Framework.UtilityObjects.TextObject;
+import java.awt.Color;
 
 /**
  * This example game demonstrates moving objects between scenes, and using mouse
@@ -38,12 +39,15 @@ public class SpaceGame {
         ship = new Spaceship(new Coordinate(100,100));
         firstGame.addObject(ship);
         //creates and adds text object
-        TextObject text = new TextObject(300,300,"Sample Text Sample Text\nSample Text Sample Text\nSample Text Sample Text");
+        TextObject text = new TextObject(50,300,"Sample Text Sample Text\nSample Text Sample Text\nSample Text Sample Text");
+        text.setColor(Color.green);
         text.setZLayer(2); //text is on higher z-layer (2>1) so it renders on top
         firstGame.addObject(text);
         //creates and adds block object
         BlockObject block = new BlockObject(new Coordinate(500,400),100,200);
         firstGame.addObject(block);
         Main.debugMode = true;
+        firstGame.setZoom(2);
+        firstGame.getCamera().setTarget(ship);
     }
 }

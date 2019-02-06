@@ -70,7 +70,7 @@ public class TextObject extends GameObject2{
         String[] lines = text.split("\n");
         g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y);
         for(String s : lines){
-            g.drawString(s, renderLocation.x - getWidth()/2, renderLocation.y+font.getSize()/2);
+            g.drawString(s, renderLocation.x, renderLocation.y);
             renderLocation.y+=font.getSize();
         }
         //reset font and color to original
@@ -79,7 +79,7 @@ public class TextObject extends GameObject2{
         if (Main.debugMode) {
             g.setColor(Color.red);
             g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
-            g.drawString(name, (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
+            g.drawString(name, (int) location.x, (int) location.y - getHeight() / 2);
             g.rotate(Math.toRadians(innateRotation));
             g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
             g.rotate(-Math.toRadians(innateRotation));

@@ -117,7 +117,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
         disableCamLabel.setText("Disable Camera Movement");
         disableCamLabel.setToolTipText("Ticks Per Second");
 
-        disableCamCheck.setSelected(Window.mainWindow.currentGame.camera.disableMovement);
+        disableCamCheck.setSelected(Window.mainWindow.currentGame.getCamera().disableMovement);
         disableCamCheck.setText("Disabled");
         disableCamCheck.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -290,7 +290,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
         Main.setOverviewMode(this.overviewCheckbox.isSelected());
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
-        Window.mainWindow.currentGame.camera.disableMovement=this.disableCamCheck.isSelected();
+        Window.mainWindow.currentGame.getCamera().disableMovement=this.disableCamCheck.isSelected();
     }
 
 

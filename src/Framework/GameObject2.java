@@ -567,7 +567,7 @@ public class GameObject2 {
      */
     public boolean isOnScreen(){
         Rectangle sightBox = new Rectangle((int)(this.location.x-getWidth()/2),(int)this.location.y-(getHeight()/2),getWidth()+1,getHeight()+1);
-        return sightBox.intersects(hostGame.camera.getFieldOfView());
+        return sightBox.intersects(hostGame.getCamera().getFieldOfView());
     }
     
     @Override

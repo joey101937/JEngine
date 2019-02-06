@@ -27,7 +27,7 @@ public class TankGame {
         g.setInputHandler(new TankInputHandler());
         g.addObject(player);
         g.addObject(otherTank);
-        g.camera.setTarget(player);
+        g.getCamera().setTarget(player);
         Game.scaleForResolution();
         g.start();
         Main.display("Press X for options menu");
