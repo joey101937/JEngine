@@ -28,7 +28,6 @@ public class GameObject2 {
     public long renderNumber = 0; //used for debugging, counts number of times this has rendered
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
-    public int innateRotation = 0; //0 = top of sprite is forwards, 90 is right of sprite is right, 180 is bottom of sprite is forwards etc
     protected double baseSpeed = 2; //total distance the object can move per tick
     private Graphic graphic; //visual representation of the object
     private double rotation = 0; //rotatoin in degrees (not radians)
@@ -225,7 +224,7 @@ public class GameObject2 {
      * @param other object whos location we will look at
      */
     public void lookAt(GameObject2 other) {
-        rotateTo(DCoordinate.angleFrom(location, other.location) - innateRotation);
+        rotateTo(DCoordinate.angleFrom(location, other.location));
     }
     /**
      * Rotates this object so that its front (determined by innate rotation) is
@@ -233,7 +232,7 @@ public class GameObject2 {
      * @param destination location to look at
      */
     public void lookAt(DCoordinate destination){
-         rotateTo(DCoordinate.angleFrom(location, destination) - innateRotation);
+         rotateTo(DCoordinate.angleFrom(location, destination));
     }
         /**
      * Rotates this object so that its front (determined by innate rotation) is
@@ -241,7 +240,7 @@ public class GameObject2 {
      * @param destination location to look at
      */
     public void lookAt(Coordinate destination){
-         rotateTo(DCoordinate.angleFrom(getPixelLocation(), destination) - innateRotation);
+         rotateTo(DCoordinate.angleFrom(getPixelLocation(), destination));
     }
     
     
@@ -288,9 +287,7 @@ public class GameObject2 {
             g.setColor(Color.red);
             g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
             g.drawString(name, (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
-            g.rotate(Math.toRadians(innateRotation));
             g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
-            g.rotate(-Math.toRadians(innateRotation));
         }
         g.setTransform(old); //reset rotation for next item to render
         if(Main.debugMode && getHitbox()!=null)getHitbox().render(g); //render hitbox without graphics rotation

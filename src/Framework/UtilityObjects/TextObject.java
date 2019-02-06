@@ -80,9 +80,7 @@ public class TextObject extends GameObject2{
             g.setColor(Color.red);
             g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
             g.drawString(name, (int) location.x, (int) location.y - getHeight() / 2);
-            g.rotate(Math.toRadians(innateRotation));
             g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
-            g.rotate(-Math.toRadians(innateRotation));
         }
         g.setTransform(old); //reset rotation for next item to render
     }

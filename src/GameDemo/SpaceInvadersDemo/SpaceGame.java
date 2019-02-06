@@ -47,7 +47,5 @@ public class SpaceGame {
         BlockObject block = new BlockObject(new Coordinate(500,400),100,200);
         firstGame.addObject(block);
         Main.debugMode = true;
-        firstGame.setZoom(2);
-        firstGame.getCamera().setTarget(ship);
     }
 }
