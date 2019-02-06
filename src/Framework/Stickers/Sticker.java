@@ -29,9 +29,10 @@ public class Sticker implements Runnable{
     public Coordinate spawnLocation = new Coordinate(0,0); //canter of where we want the sticker
     protected Coordinate renderLocation = new Coordinate(0,0); //top left position of sticker, to allow the center to be on spawnLocation
     public volatile boolean disabled = false;
-    public int timeToRender;
+    public volatile int timeToRender;
     protected double scale = 1;
     protected static int numSticker = 0; //id for sticker, used for profiling threads
+    private Thread timerThread;
     /**
      * @param g Game to add to
      * @param i Image to display
@@ -44,9 +45,9 @@ public class Sticker implements Runnable{
         spawnLocation = new Coordinate(c);//where we want the sticker
         timeToRender = duration; //topleft location of sticker used to put center on spawnLocation
         g.visHandler.stickers.add(this);
-        Thread t = new Thread(this);
-        t.setName("Sticker timer " + numSticker++);
-        t.start();
+        timerThread = new Thread(this);
+        timerThread.setName("Sticker timer " + numSticker++);
+        timerThread.start();
     }
     /**
      * Calibrates the render location to center the image on spawn location
@@ -89,6 +90,8 @@ public class Sticker implements Runnable{
         }
        if(image!=null)image.flush();
        image=null;
+       renderLocation=null;
+       spawnLocation=null;
         try {
             finalize();
         } catch (Throwable ex) {

@@ -89,7 +89,6 @@ public class DemoInputHandler extends InputHandler{
                 break;
             }
             case 'X':{
-                System.gc();
                 OptionsMenu.display();
             }
         }

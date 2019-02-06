@@ -17,10 +17,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
 import java.awt.Toolkit;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
@@ -68,23 +65,6 @@ public class Game extends Canvas implements Runnable {
     protected InputHandler inputHandler;
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
-
-
-
-    /**
-     * legacy game constructor, used to test the framework
-     */
-    public Game() {
-        try {
-            backgroundImage = new Sprite(ImageIO.read(new File(Main.getDir() + Main.assets + "terrainBG.png")));
-            worldHeight = backgroundImage.getCurrentImage().getHeight();
-            worldWidth = backgroundImage.getCurrentImage().getWidth();
-            pathingLayer = new PathingLayer(SpriteManager.pathingLayer);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return;
-        }
-    }
 
     /**
      * Creates a new Game with given graphical asset as background. Use a Sprite

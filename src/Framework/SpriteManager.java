@@ -25,6 +25,7 @@ public abstract class SpriteManager {
     public static BufferedImage programIcon; //this is used in Window class to set icon of program
     
     //SANDBOX ASSETS
+    public static BufferedImage terrainBG;
     public static BufferedImage up;
     public static BufferedImage pathingLayer;
     public static BufferedImage[] explosionSequence;
@@ -64,6 +65,7 @@ public abstract class SpriteManager {
            //this is where we load sprites
            programIcon = load("JEngineIcon.png");
            
+           terrainBG = load("DemoAssets/terrainBG.png");
            explosionSequence = loadSequence("DemoAssets/explosionSequence");
            birdySequence = loadSequence("DemoAssets/birdySequence");
            up = load("DemoAssets/upSprite.png");

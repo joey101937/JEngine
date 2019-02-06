@@ -38,6 +38,7 @@ public class GameObject2 {
     protected boolean isAlive = true; //weather or not the object has been destroyed
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
+    
      /**
      * how the object behaves when traveling in two directions (up/down and
      * side/side) and it collides with something in one but not both of the
@@ -250,17 +251,29 @@ public class GameObject2 {
      */
     public void render(Graphics2D g){
         renderNumber++;
-        if((!isOnScreen() && !Main.overviewMode())||isInvisible)return;
+        if(!isOnScreen() && !Main.overviewMode()) {
+            //offscreen without overview mode? dont bother rendering anything.
+            return;
+        }
+        if (isInvisible) { //if invisible, you can still see debug mode visuals
+            if (Main.debugMode) {
+                renderDebugVisuals(g);
+                if (getHitbox() != null) {
+                    hitbox.render(g);
+                }
+            }
+            return;
+        }
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
-        if(getGraphic()!=null && getGraphic().getScale()!=scale){
+        if (getGraphic() !=null && getGraphic().getScale()!=scale){
             getGraphic().scaleTo(scale);
         }
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
         g.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
         if (getGraphic() == null) {
-            System.out.println("Warning null graphic for " + name);
+            //System.out.println("Warning null graphic for " + name);
         } else if (isAnimated()) {
             Sequence sequence = (Sequence)getGraphic();
             if(sequence == null){
@@ -293,7 +306,18 @@ public class GameObject2 {
         if(Main.debugMode && getHitbox()!=null)getHitbox().render(g); //render hitbox without graphics rotation
     }
     
-    
+    /**
+     * renders the little rectangle and line showing where the object is and orientation
+     * in debug mode, also renders a string showing object name
+     * @param g graphics to use
+     */
+    private void renderDebugVisuals(Graphics2D g) {
+        Color originalColor = g.getColor();
+        g.setColor(Color.red);
+        g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
+        g.drawString(name, (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
+        g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
+    }
 
     /**
      * maintains hitboxes, runs after default render.

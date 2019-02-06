@@ -18,9 +18,9 @@ import java.awt.image.BufferedImage;
  */
 public class AnimatedSticker extends Sticker{
     public volatile BufferedImage[] sprites;
-    public int frameCount = 0;
+    public volatile int frameCount = 0;
     public volatile int currentFrame = 0;
-    public int frameDuration = 40;
+    public volatile int frameDuration = 40;
     
     
     /**

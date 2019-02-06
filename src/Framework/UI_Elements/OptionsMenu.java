@@ -246,10 +246,21 @@ public final class OptionsMenu extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public static void setLowSpecOptions(){
+       Main.renderDelay=11;
+       Main.ticksPerSecond=50;
+       Main.tripleBuffer=false;
+    }
+
+    public static void setStandardSpecOptions() {
+        Main.renderDelay = 0;
+        Main.ticksPerSecond = 60;
+        Main.tripleBuffer = true;
+    }
     private void lowSpecButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowSpecButtonActionPerformed
-       this.RenderDelaySpinner.setValue(11);
-       this.TickRateSpinner.setValue(50);
-       this.tripleCheck.setSelected(false);
+        this.RenderDelaySpinner.setValue(11);
+        this.TickRateSpinner.setValue(50);
+        this.tripleCheck.setSelected(false);
     }//GEN-LAST:event_lowSpecButtonActionPerformed
 
     private void standardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_standardButtonActionPerformed

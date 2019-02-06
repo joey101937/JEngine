@@ -12,7 +12,7 @@ import static Framework.Game.birdCount;
 import Framework.Main;
 import Framework.Window;
 import Framework.GameObject2;
-import Framework.Hitbox;
+import Framework.SpriteManager;
 
 /**
  *
@@ -311,10 +311,10 @@ public class LaunchMenu extends javax.swing.JFrame {
         Main.tripleBuffer = this.tripleCheck.isSelected();
         Game.birdCount = (int) birdSpinner.getValue();
         /////////////////////////////////////////////////
-        g=new Game();
+        g=new Game(SpriteManager.terrainBG);
         setup(g);
         Game.scaleForResolution();
-        alt=new Game();
+        alt=new Game(SpriteManager.terrainBG);
         setup(alt);
         g.setInputHandler(new DemoInputHandler());
         alt.setInputHandler(new DemoInputHandler());
