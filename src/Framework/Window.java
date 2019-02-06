@@ -55,6 +55,7 @@ public class Window {
     private Window(Game g) {
         panel.setLayout(null);
         frame = new JFrame(title);
+        frame.setIconImage(SpriteManager.programIcon);
         Dimension d = new Dimension(g.windowWidth,g.windowHeight);
         g.setBounds(0, 0, g.windowWidth, g.windowHeight);
         panel.setSize(d);

@@ -9,7 +9,7 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.Main;
 import Framework.SpriteManager;
-import Framework.UI_Elements.Minimap;
+import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 
 /**
