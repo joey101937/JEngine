@@ -41,7 +41,10 @@ public class VisualEffectHandler {
                     break;
                 }
                 if (s.disabled) {
-                    continue;
+                    stickers.remove(s);
+                }
+                if(System.currentTimeMillis()>s.creationTime+s.timeToRender){
+                    s.disable();
                 }
                 s.render(g);
             }

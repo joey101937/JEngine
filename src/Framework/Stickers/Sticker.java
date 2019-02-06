@@ -9,20 +9,17 @@ package Framework.Stickers;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
-import Framework.Main;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ConcurrentModificationException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Renders an image at a location for a given length of time
  * @author Joseph
  */
-public class Sticker implements Runnable{
+public class Sticker {
     protected Game hostGame = null;
     protected GameObject2 host = null; //used if attached to a game object
     public volatile BufferedImage image;
@@ -32,12 +29,12 @@ public class Sticker implements Runnable{
     public volatile int timeToRender;
     protected double scale = 1;
     protected static int numSticker = 0; //id for sticker, used for profiling threads
-    private Thread timerThread;
+    public final Long creationTime;
     /**
      * @param g Game to add to
      * @param i Image to display
      * @param c location to display
-     * @param duration how long to display
+     * @param duration how long to display IN MILLIS
      */
     public Sticker(Game g, BufferedImage i, Coordinate c, int duration){
         image = i;
@@ -45,9 +42,7 @@ public class Sticker implements Runnable{
         spawnLocation = new Coordinate(c);//where we want the sticker
         timeToRender = duration; //topleft location of sticker used to put center on spawnLocation
         g.visHandler.stickers.add(this);
-        timerThread = new Thread(this);
-        timerThread.setName("Sticker timer " + numSticker++);
-        timerThread.start();
+        creationTime = System.currentTimeMillis();
     }
     /**
      * Calibrates the render location to center the image on spawn location
@@ -99,11 +94,6 @@ public class Sticker implements Runnable{
         }
     }
 
-    @Override
-    public void run() {
-        Main.wait(timeToRender);
-        disable();
-    }
     
     protected static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {    
         int w = before.getWidth();
