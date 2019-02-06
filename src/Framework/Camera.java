@@ -79,8 +79,8 @@ public class Camera {
     private void updateLocation(Graphics2D g) {
         if(disableMovement)return;
         if (trackingGameObject && target != null) {
-            location.x = -target.location.x + hostGame.windowWidth/Game.resolutionScaleX / 2;
-            location.y = -target.location.y + hostGame.windowHeight/Game.resolutionScaleY / 2;           
+            location.x = -target.location.x + hostGame.windowWidth/Game.resolutionScaleX/hostGame.getZoom() / 2;
+            location.y = -target.location.y + hostGame.windowHeight/Game.resolutionScaleY/hostGame.getZoom() / 2;           
             return;
         }
         switch (movementType) {
@@ -107,8 +107,8 @@ public class Camera {
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;
         
-        if(-location.x + hostGame.windowWidth/Game.resolutionScaleX > hostGame.getWorldWidth()) location.x = -1 * (hostGame.getWorldWidth()- hostGame.windowWidth/Game.resolutionScaleX);
-        if(-location.y + hostGame.windowHeight/Game.resolutionScaleY > hostGame.getWorldHeight()) location.y = -1 * (hostGame.getWorldHeight() - hostGame.windowHeight/Game.resolutionScaleY);
+        if(-location.x + hostGame.windowWidth/Game.resolutionScaleX/hostGame.getZoom() > hostGame.getWorldWidth()) location.x = -1 * (hostGame.getWorldWidth()- (hostGame.windowWidth/Game.resolutionScaleX)/hostGame.getZoom());
+        if(-location.y + hostGame.windowHeight/Game.resolutionScaleY/hostGame.getZoom() > hostGame.getWorldHeight()) location.y = -1 * (hostGame.getWorldHeight() - (hostGame.windowHeight/Game.resolutionScaleY)/hostGame.getZoom());
         
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;
@@ -126,7 +126,7 @@ public class Camera {
     }
     
     public Rectangle getFieldOfView(){
-        return new Rectangle((int)-location.x,(int)-location.y,(int)(hostGame.windowWidth/Game.resolutionScaleX),(int)(hostGame.windowHeight/Game.resolutionScaleY));
+        return new Rectangle((int)-location.x,(int)-location.y,(int)(hostGame.windowWidth/Game.resolutionScaleX/hostGame.getZoom()),(int)(hostGame.windowHeight/Game.resolutionScaleY/hostGame.getZoom()));
     }
     
 }

@@ -43,12 +43,14 @@ public class Game extends Canvas implements Runnable {
     public static final Dimension NATIVE_RESOLUTION = new Dimension(1920,1080);  
    
     
-    public int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
-    public int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
+
     public static int birdCount = 20; //how many birds to spawn in the demo
     public static final double OVERVIEW_MODE_ZOOM = .25;
     protected static double resolutionScaleX = 1, resolutionScaleY = 1;
     /*  FIELDS   */
+    private double zoom = 1;
+    public int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
+    public int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     private int worldWidth, worldHeight;  //dimensions of the gameworld
     public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
     public final Handler handler = new Handler(this);
@@ -270,6 +272,7 @@ public class Game extends Canvas implements Runnable {
         Graphics g = bs.getDrawGraphics();
         Graphics2D g2d = (Graphics2D)g;
         g2d.scale(resolutionScaleX, resolutionScaleY);
+        g2d.scale(zoom, zoom);
         g2d.setColor(Color.GREEN);
         g2d.setBackground(Color.white);
         if(Main.overviewMode()){
@@ -503,5 +506,13 @@ public class Game extends Canvas implements Runnable {
 
     public Graphic getBackgroundImage() {
         return backgroundImage;
+    }
+    
+    public double getZoom(){
+        return zoom;
+    }
+    
+    public void setZoom(double d){
+        zoom = d;
     }
 }
