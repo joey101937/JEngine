@@ -63,28 +63,29 @@ public abstract class SpriteManager {
         try{
            //this is where we load sprites
            programIcon = load("JEngineIcon.png");
-           explosionSequence = loadSequence("explosionSequence");
-           birdySequence = loadSequence("birdySequence");
-           up = load("upSprite.png");
-           sampleChar_idle = loadSequence("SampleCharacter/Idle");
-           sampleChar_walkUp = loadSequence("SampleCharacter/WalkUp");
-           sampleChar_walkDown = loadSequence("SampleCharacter/WalkDown");
-           sampleChar_walkLeft = loadSequence("SampleCharacter/WalkLeft");
-           sampleChar_walkRight = loadSequence("SampleCharacter/WalkRight");
-           pathingLayer = load("terrainBG-PATHING.png");
            
-           tankChasis = load("TankGame/tankChasis.png");
-           tankTurret = load("TankGame/tankTurret.png");
-           bullet = load("TankGame/bullet.png");
-           tankFireAnimation = loadSequence("TankGame/turretFireSequence");
-           dirtBG = load("TankGame/dirtBG.png");
+           explosionSequence = loadSequence("DemoAssets/explosionSequence");
+           birdySequence = loadSequence("DemoAssets/birdySequence");
+           up = load("DemoAssets/upSprite.png");
+           sampleChar_idle = loadSequence("DemoAssets/SampleCharacter/Idle");
+           sampleChar_walkUp = loadSequence("DemoAssets/SampleCharacter/WalkUp");
+           sampleChar_walkDown = loadSequence("DemoAssets/SampleCharacter/WalkDown");
+           sampleChar_walkLeft = loadSequence("DemoAssets/SampleCharacter/WalkLeft");
+           sampleChar_walkRight = loadSequence("DemoAssets/SampleCharacter/WalkRight");
+           pathingLayer = load("DemoAssets/terrainBG-PATHING.png");
            
-           spaceBG = load("spacebg.png");
-           spaceBG2 = load("spacebg2.png");
-           spaceship = load("spaceship.png");
+           tankChasis = load("DemoAssets/TankGame/tankChasis.png");
+           tankTurret = load("DemoAssets/TankGame/tankTurret.png");
+           bullet = load("DemoAssets/TankGame/bullet.png");
+           tankFireAnimation = loadSequence("DemoAssets/TankGame/turretFireSequence");
+           dirtBG = load("DemoAssets/TankGame/dirtBG.png");
            
-           platformBG = load("platformer/platformer.png");
-           platformPathing = load("platformer/platformPATHING.png");
+           spaceBG = load("DemoAssets/spacebg.png");
+           spaceBG2 = load("DemoAssets/spacebg2.png");
+           spaceship = load("DemoAssets/spaceship.png");
+           
+           platformBG = load("DemoAssets/platformer/platformer.png");
+           platformPathing = load("DemoAssets/platformer/platformPATHING.png");
            initialized=true;
         }catch(Exception e){
             e.printStackTrace();
