@@ -86,6 +86,7 @@ public abstract class SpriteManager {
            
            platformBG = load("DemoAssets/platformer/platformer.png");
            platformPathing = load("DemoAssets/platformer/platformPATHING.png");
+           
            initialized=true;
         }catch(Exception e){
             e.printStackTrace();

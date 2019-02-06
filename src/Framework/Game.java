@@ -370,13 +370,31 @@ public class Game extends Canvas implements Runnable {
     }
     
     /**
-     * Scales this Game to mimic the native resolution's appearance for the given
-     * display resolution set native resolution in Game class,
+     * Scales this Game to scale to current display's size based on NATIVE_RESOLUTION
+     * will scale to fill screen proportionately to native, does NOT maintain
+     * aspect ratio
      * Game.NATIVE_RESOLUTION.
      */
     public static final void scaleForResolution() {
         Game.resolutionScaleX = (double) Toolkit.getDefaultToolkit().getScreenSize().width / Game.NATIVE_RESOLUTION.width;
         Game.resolutionScaleY = (double) Toolkit.getDefaultToolkit().getScreenSize().height / Game.NATIVE_RESOLUTION.height;
+    }
+    
+      /**
+     * Scales this Game to mimic the native resolution's appearance for the given
+     * display resolution set native resolution in Game class, Game.NATIVE_RESOLUTION.
+     * Maintains aspect ratio
+     */
+    public static final void scaleForResolutionAspectRatio(){
+        double scaleX = (double) Toolkit.getDefaultToolkit().getScreenSize().width / Game.NATIVE_RESOLUTION.width;
+        double scaleY = (double) Toolkit.getDefaultToolkit().getScreenSize().height / Game.NATIVE_RESOLUTION.height; 
+        if(scaleX<scaleY){
+            Game.resolutionScaleX=scaleX;
+            Game.resolutionScaleY=scaleY;
+        }else{
+            Game.resolutionScaleX=scaleY;
+            Game.resolutionScaleY=scaleY;
+        }
     }
 
     /**
