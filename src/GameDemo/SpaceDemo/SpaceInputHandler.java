@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo.SpaceInvadersDemo;
+package GameDemo.SpaceDemo;
 
 import Framework.Coordinate;
 import Framework.Game;

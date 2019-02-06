@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo.SpaceInvadersDemo;
+package GameDemo.SpaceDemo;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
-import static GameDemo.SpaceInvadersDemo.SpaceInputHandler.waypoint;
+import static GameDemo.SpaceDemo.SpaceInputHandler.waypoint;
 
 /**
  * This is the shapship game-object that you see on screen. This object
