@@ -351,7 +351,7 @@ public class LaunchMenu extends javax.swing.JFrame {
      */
     public void setup(Game g) {
         //this for-loop puts a bunch of randome birds on the screen for performance testing
-        
+        g.setPathingLayer(SpriteManager.pathingLayer);
         for(int i =0; i < birdCount; i++){
             double x = Math.random()*3600.0;
             double y = Math.random()*2900.0;
