@@ -355,50 +355,7 @@ public class SoundEffect implements Runnable{
         listener = sel;
     }
     
-    /**
-     * used for testing purposes
-     * @param args 
-     */
-    public static void main(String[] args) {
-        SoundEffect effect = new SoundEffect(new File(Main.assets+"/Sounds/Music.au"));
-        effect.start();
-        effect.setLooping(true);
-        Main.wait(2000);
-        System.out.println("pausing");
-        effect.pause();
-        Main.wait(2000);
-        System.out.println("resuming");
-        effect.resume();
-        Main.wait(2000);
-        System.out.println("pausing");
-        effect.pause();
-        Main.wait(2000);
-        System.out.println("resuming");
-        effect.resume();
-        Main.wait(2000);
-        Game g = new Game(new Sprite(SpriteManager.spaceBG));
-        effect.linkToGame(g);
-        System.out.println("game pausing");
-        g.setPaused(true);
-        //effect.onGamePause(true);
-        Main.wait(2000);
-        System.out.println("game resuming");
-        g.setPaused(false);
-        //effect.onGamePause(false);
-        Main.wait(2000);
-        System.out.println("game and direct pausing");
-        g.setPaused(true);
-        effect.onGamePaused(true);
-        effect.pause();
-        Main.wait(2000);
-        System.out.println("ungamepausing");
-        g.setPaused(false);
-        Main.wait(2000);
-        System.out.println("direct unpausing");
-        effect.resume();
-        Main.display("press ok to restart song");
-        effect.restart();
-    }
+    
     
     /**
      * @return Length of this sound in microseconds
