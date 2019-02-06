@@ -86,8 +86,8 @@ public abstract class SpriteManager {
            spaceBG2 = load("DemoAssets/spacebg2.png");
            spaceship = load("DemoAssets/spaceship.png");
            
-           platformBG = load("DemoAssets/platformer/platformer.png");
-           platformPathing = load("DemoAssets/platformer/platformPATHING.png");
+           platformBG = load("DemoAssets/Platformer/platformer.png");
+           platformPathing = load("DemoAssets/Platformer/platformPATHING.png");
            
            initialized=true;
         }catch(Exception e){
