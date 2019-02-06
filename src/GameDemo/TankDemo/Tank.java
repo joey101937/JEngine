@@ -32,7 +32,7 @@ public class Tank extends Creature{
         this.movementType = MovementType.RotationBased;
         turret = new Turret(new Coordinate(0,0));
         this.addSubObject(turret);
-        scale = .3;
+        setScale(.3);
         isSolid = true;
         preventOverlap = true;
         this.maxHealth = 200;//tanks can take 4 shots
@@ -62,9 +62,9 @@ public class Tank extends Creature{
         public Turret(Coordinate offset) {
             super(offset);
             this.setGraphic(turretSprite);
-            scale = .3;
-            turretSprite.scaleTo(scale);
-            fireAnimation.scaleTo(scale);
+            setScale(.3);
+            turretSprite.scaleTo(getScale());
+            fireAnimation.scaleTo(getScale());
         }
         /*
         fires the gun at the location.

@@ -360,7 +360,8 @@ public class Game extends Canvas implements Runnable {
             frames++;
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
-                System.out.println(name + " FPS: " + frames);
+                //if frames = 1 then it likeley is an error from swapping scenes
+                if(frames!=1)System.out.println(name + " FPS: " + frames);
                 frames = 0;
                 ///this triggers once a second
             }

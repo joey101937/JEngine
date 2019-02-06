@@ -37,7 +37,7 @@ public class SampleCharacter extends GameObject2{
     private void characterSetup(){
         name = "Sample Character";
         baseSpeed = 3.5;
-        scale = 1;
+        setScale(1);                //use default size
         isSolid=true;
         this.movementType = GameObject2.MovementType.SpeedRatio;
         //initial animation

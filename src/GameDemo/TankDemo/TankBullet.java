@@ -28,7 +28,7 @@ public class TankBullet extends Projectile {
         super(start, end);
         this.setGraphic(new Sequence(new BufferedImage[]{SpriteManager.bullet}));
         baseSpeed = 30;
-        scale = .25;
+        setScale(.25);
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 750;
     }

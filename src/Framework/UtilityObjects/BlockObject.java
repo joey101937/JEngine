@@ -126,11 +126,11 @@ public class BlockObject extends GameObject2{
     
     @Override
     public int getWidth(){
-        return (int)(width * scale);
+        return (int)(width * getScale());
     }
     @Override
     public int getHeight(){
-        return (int)(height * scale);
+        return (int)(height * getScale());
     }
 
     public void setWidth(int width) {

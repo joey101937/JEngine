@@ -34,7 +34,7 @@ public class GameObject2 {
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
     public boolean isInvisible = false; //invisible gameobjects are not rendered
-    public double scale = 1; //size multiplier
+    private double scale = 1; //size multiplier
     protected boolean isAlive = true; //weather or not the object has been destroyed
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
@@ -607,6 +607,30 @@ public class GameObject2 {
      */
     public void setZLayer(int zLayer) {
         this.zLayer = zLayer;
+    }
+    
+    /**
+     * sets the size scale to given multiple of original size
+     * @param d size multiple
+     */
+    public void setScale(double d){
+        scale=d;
+    }
+    
+    /**
+     * multiplies size scale of object by given amount from current
+     * @param d amount to scale by
+     */
+    public void scale(double d){
+        scale*=d;
+    }
+    
+    /**
+     * gets current size multiplier of object
+     * @return current size multiplier of object
+     */
+    public double getScale(){
+        return scale;
     }
 
     
