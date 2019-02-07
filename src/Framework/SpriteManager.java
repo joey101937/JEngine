@@ -47,7 +47,8 @@ public abstract class SpriteManager {
     //PLATFORMER ASSETS
     public static BufferedImage platformBG;
     public static BufferedImage platformPathing;
-    
+    public static BufferedImage platformLong;
+    public static BufferedImage platformPathingLong;
     /*--------------------------------------------------------*/
     static{
         initialize();
@@ -88,6 +89,8 @@ public abstract class SpriteManager {
            
            platformBG = load("DemoAssets/Platformer/platformer.png");
            platformPathing = load("DemoAssets/Platformer/platformPATHING.png");
+           platformLong = load("DemoAssets/Platformer/platformLong.png");
+           platformPathingLong = load("DemoAssets/Platformer/platformPATHINGLong.png");
            
            initialized=true;
         }catch(Exception e){

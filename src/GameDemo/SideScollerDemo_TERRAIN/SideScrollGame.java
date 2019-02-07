@@ -20,14 +20,17 @@ public class SideScrollGame {
     protected static SideScrollCharacter playerCharacter = new SideScrollCharacter(new Coordinate(100,100));
  
     public static void main(String[] args) {
-        Game g = new Game(SpriteManager.platformBG);
-        g.setPathingLayer(SpriteManager.platformPathing);
+        
+        Game g = new Game(SpriteManager.platformLong);
+        g.setPathingLayer(SpriteManager.platformPathingLong);
         g.start();
         Window.initialize(g);
         g.addObject(playerCharacter);
         g.setInputHandler(new SideScollInput());
         g.requestFocus();
-        g.worldBorder=0;
+        g.worldBorder=20;
+        g.getCamera().setTarget(playerCharacter);
+        Game.scaleForResolutionAspectRatio();
         //Main.debugMode=true;
     }
 }

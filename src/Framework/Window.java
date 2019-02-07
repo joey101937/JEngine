@@ -6,8 +6,10 @@
 package Framework;
 
 import Framework.UI_Elements.UIElement;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,7 +26,7 @@ public class Window {
     public static Window mainWindow;
     public static Game currentGame;
     private static ArrayList<UIElement> UIElements = new ArrayList<>();
-
+    public static final Coordinate screenSize = new Coordinate(Toolkit.getDefaultToolkit().getScreenSize().width,Toolkit.getDefaultToolkit().getScreenSize().height);
 
     
     
@@ -60,6 +62,7 @@ public class Window {
         g.setBounds(0, 0, g.windowWidth, g.windowHeight);
         panel.setSize(d);
         panel.add(g);
+        panel.setBackground(Color.red);
         frame.add(panel);
         frame.setMinimumSize(d);
         frame.setMaximumSize(d);
@@ -106,9 +109,15 @@ public class Window {
         currentGame.requestFocus();
     }
     
-    protected static void updateUIElements(){
+    protected static void UIElementsOnRender(){
         for(UIElement ele: UIElements){
             ele.render();
+        }
+    }
+    
+    protected static void TickUIElements(){
+        for(UIElement ele: UIElements){
+            ele.tick();
         }
     }
     
@@ -137,5 +146,35 @@ public class Window {
             Window.panel.setComponentZOrder(currentGame, Window.UIElements.size());
         }
     }
-    
+
+    protected static void updateFrameSize() {
+        if (frame != null && panel != null && currentGame != null) {
+            Coordinate worldSize = new Coordinate(currentGame.getWorldWidth(), currentGame.getWorldHeight());
+           // System.out.println("current world size is " + worldSize);
+
+            if (worldSize.x < Window.screenSize.x && Game.resolutionScaleX <= 1) {
+                worldSize.x *= Game.resolutionScaleX;
+            }
+            if (worldSize.y < Window.screenSize.y && Game.resolutionScaleY <= 1) {
+                worldSize.y *= Game.resolutionScaleY;
+            }
+            //worldSize.x /= Game.resolutionScaleX;
+            //worldSize.y /= Game.resolutionScaleY;
+            //System.out.println("after scaling its " + worldSize);
+            Dimension d = new Dimension(0, 0);
+            if (worldSize.x > Window.screenSize.x) {
+                d.width = Window.screenSize.x;
+            } else {
+                d.width = worldSize.x;
+            }
+            if (worldSize.y > Window.screenSize.y) {
+                d.height = Window.screenSize.y;
+            } else {
+                d.height = worldSize.y;
+            }
+           // System.out.println("d is " + d);
+            frame.setMinimumSize(d);
+            frame.setSize(d);
+        }
+    }
 }

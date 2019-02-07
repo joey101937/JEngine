@@ -32,7 +32,7 @@ import java.awt.image.BufferedImage;
 public final class Minimap extends UIElement {
 
     public final MinimapInterior interior;
-    public static final double screenPortion = .1; //how much of the screen to take up
+    public static final double screenPortion = .2; //how much of the screen to take up
     public Game hostGame;
 
     /**
@@ -46,7 +46,7 @@ public final class Minimap extends UIElement {
         setLocation(loc);
         //create a minimap interior and add it to this panel
         interior = new MinimapInterior();
-        Dimension size = new Dimension((int) (hostGame.getWorldWidth() * screenPortion * Game.getResolutionScaleX()), (int) (hostGame.getWorldHeight() * screenPortion * Game.getResolutionScaleY()));
+        Dimension size = new Dimension((int) (hostGame.getWorldWidth() * screenPortion / Game.getResolutionScaleX()), (int) (hostGame.getWorldHeight() * screenPortion / Game.getResolutionScaleY()));
         interior.setSize(size);
         //TODO make this border stuff work
         this.setSize(size);
@@ -57,6 +57,10 @@ public final class Minimap extends UIElement {
         //add UI elements to both the mainWindow.panel AND mainWindow.UIElements
         Window.addUIElement(this);
     }
+    
+    
+    @Override
+    public void tick(){};
 
     /*
     TODO
@@ -73,7 +77,7 @@ public final class Minimap extends UIElement {
      * @param c new location
      */
     public void setLocation(Coordinate c) {
-        this.setLocation((int) (c.x * Game.getResolutionScaleX()), (int) (c.y * Game.getResolutionScaleY()));
+        this.setLocation((int) (c.x / Game.getResolutionScaleX()), (int) (c.y / Game.getResolutionScaleY()));
     }
 
     /**
@@ -82,6 +86,7 @@ public final class Minimap extends UIElement {
      * @param args commandline args
      */
     public static void main(String[] args) {
+        Game.scaleForResolution();
         Game g = new Game(new Sprite(SpriteManager.dirtBG));
         Window.initialize(g);
         g.start();
@@ -117,7 +122,7 @@ public final class Minimap extends UIElement {
         private final BufferedImage background;
 
         public MinimapInterior() {
-            background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(), screenPortion * Game.getResolutionScaleX(), screenPortion * Game.getResolutionScaleY());
+            background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(), screenPortion / Game.getResolutionScaleX(), screenPortion / Game.getResolutionScaleY());
         }
 
         @Override
@@ -128,7 +133,7 @@ public final class Minimap extends UIElement {
                 return;
             }
             g2d.drawImage(background, 0, 0, null);
-            g2d.scale(screenPortion * Game.getResolutionScaleX(), screenPortion * Game.getResolutionScaleY());
+            g2d.scale(screenPortion / Game.getResolutionScaleX(), screenPortion / Game.getResolutionScaleY());
             for (GameObject2 go : hostGame.getAllObjects()) {
                 go.render(g2d);
                 for (SubObject sub : go.subObjects) {

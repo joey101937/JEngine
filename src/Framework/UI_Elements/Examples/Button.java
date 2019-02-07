@@ -64,8 +64,9 @@ public class Button extends UIElement{
     
     @Override
     public void setSize(int x, int y){
-        super.setSize(x, y);
+        super.setSize((int)(x * Game.getResolutionScaleX()), (int)(y*Game.getResolutionScaleY()));
         button.setSize(x, y);
     }
-    
+    @Override
+    public void tick(){};
 }

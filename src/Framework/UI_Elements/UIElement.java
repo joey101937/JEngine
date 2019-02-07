@@ -20,4 +20,5 @@ public abstract class UIElement extends Panel{
      * Use this method to call paint on any graphics you are using in your element
      */
     public abstract void render();
+    public abstract void tick();
 }

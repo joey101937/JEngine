@@ -10,6 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
+import Framework.UI_Elements.Examples.Button;
 import static GameDemo.SpaceDemo.SpaceInputHandler.waypoint;
 
 /**
@@ -33,7 +34,7 @@ public class Spaceship extends GameObject2{
         setGraphic(new Sprite(SpriteManager.spaceship));
         name = "Spaceship";
         isSolid=true;
-        setScale(3);
+        setScale(.3);
         movementType = GameObject2.MovementType.RotationBased;
         baseSpeed = 6;
     }

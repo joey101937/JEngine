@@ -6,6 +6,7 @@
 package GameDemo.SpaceDemo;
 
 import Framework.*;
+import Framework.UI_Elements.Examples.Button;
 import Framework.UtilityObjects.BlockObject;
 import Framework.UtilityObjects.TextObject;
 import java.awt.Color;
@@ -32,6 +33,7 @@ public class SpaceGame {
 
     
     public static void main(String[] args) {
+        Game.scaleForResolutionAspectRatio();
         firstGame.name = "First game";
         secondGame.name = "Second game";
         Window.initialize(firstGame);
@@ -47,5 +49,7 @@ public class SpaceGame {
         BlockObject block = new BlockObject(new Coordinate(500,400),100,200);
         firstGame.addObject(block);
         Main.debugMode = true;
+        Button b = new Button(firstGame,new Coordinate(500,100));
+        Window.addUIElement(b);
     }
 }

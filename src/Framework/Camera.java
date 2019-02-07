@@ -79,8 +79,8 @@ public class Camera {
     private void updateLocation(Graphics2D g) {
         if(disableMovement)return;
         if (trackingGameObject && target != null) {
-            location.x = -target.location.x + hostGame.windowWidth/Game.resolutionScaleX/hostGame.getZoom() / 2;
-            location.y = -target.location.y + hostGame.windowHeight/Game.resolutionScaleY/hostGame.getZoom() / 2;           
+            location.x = -target.location.x + (hostGame.windowWidth/Game.resolutionScaleX)/hostGame.getZoom() / 2;
+            location.y = -target.location.y + (hostGame.windowHeight/Game.resolutionScaleY)/hostGame.getZoom() / 2;           
             return;
         }
         switch (movementType) {

@@ -37,7 +37,7 @@ public class Game extends Canvas implements Runnable {
      * your 1080p game on a 4k display so that they dont just see the entire world 
      * and have to squint to see their character
     */
-    public static final Dimension NATIVE_RESOLUTION = new Dimension(1920,1080);  
+    public static final Dimension NATIVE_RESOLUTION = new Dimension((int)(1920*1),(int)(1080*1));  
    
     
 
@@ -121,12 +121,26 @@ public class Game extends Canvas implements Runnable {
         worldHeight = backgroundImage.getCurrentImage().getHeight();
         worldWidth = backgroundImage.getCurrentImage().getWidth();
         backgroundImage = bi;
-        if (worldHeight < Toolkit.getDefaultToolkit().getScreenSize().height) {
-            windowHeight = worldHeight ;
+        if (resolutionScaleX >= 1) {
+            if (worldWidth < Window.screenSize.x) {
+                windowWidth = worldWidth;
+            }
+        } else {
+            if (worldWidth < NATIVE_RESOLUTION.width) {
+                windowWidth = worldWidth;
+            }
         }
-        if (worldWidth < Toolkit.getDefaultToolkit().getScreenSize().width) {
-            windowWidth = worldWidth ;
+        if (resolutionScaleY >= 1) {
+            if (worldHeight < Window.screenSize.y) {
+                windowHeight = worldHeight;
+            }
+        } else {
+            if (worldHeight < NATIVE_RESOLUTION.height) {
+                windowHeight = worldHeight;
+            }
         }
+        
+      
     }
 
 
@@ -226,7 +240,9 @@ public class Game extends Canvas implements Runnable {
     //core tick, tells all game Objects to tick
     private void tick() {
         handler.tick();
-        camera.tick();      
+        camera.tick();  
+        Window.TickUIElements();
+        Window.updateFrameSize();
     }
 
     //core render method, tells all game Objects to render
@@ -241,7 +257,7 @@ public class Game extends Canvas implements Runnable {
         if(!SpriteManager.initialized){
             System.out.println("WARNING: SpriteManager did not fully initialize");
         }
-        Window.mainWindow.updateUIElements();
+        Window.mainWindow.UIElementsOnRender();
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) { ///run once at the start
             int numBuffer = 2;
@@ -358,6 +374,7 @@ public class Game extends Canvas implements Runnable {
     public static final void scaleForResolution() {
         Game.resolutionScaleX = (double) Toolkit.getDefaultToolkit().getScreenSize().width / Game.NATIVE_RESOLUTION.width;
         Game.resolutionScaleY = (double) Toolkit.getDefaultToolkit().getScreenSize().height / Game.NATIVE_RESOLUTION.height;
+        Window.updateFrameSize();
     }
     
       /**
@@ -370,11 +387,12 @@ public class Game extends Canvas implements Runnable {
         double scaleY = (double) Toolkit.getDefaultToolkit().getScreenSize().height / Game.NATIVE_RESOLUTION.height; 
         if(scaleX<scaleY){
             Game.resolutionScaleX=scaleX;
-            Game.resolutionScaleY=scaleY;
+            Game.resolutionScaleY=scaleX;
         }else{
             Game.resolutionScaleX=scaleY;
             Game.resolutionScaleY=scaleY;
         }
+     Window.updateFrameSize();
     }
 
     /**
