@@ -62,7 +62,7 @@ public class Window {
         g.setBounds(0, 0, g.windowWidth, g.windowHeight);
         panel.setSize(d);
         panel.add(g);
-        panel.setBackground(Color.red);
+        panel.setBackground(new Color(85, 85, 115)); //blue background
         frame.add(panel);
         frame.setMinimumSize(d);
         frame.setMaximumSize(d);

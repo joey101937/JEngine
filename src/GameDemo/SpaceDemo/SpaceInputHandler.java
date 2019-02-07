@@ -49,17 +49,15 @@ public class SpaceInputHandler extends InputHandler{
         //pressing G swaps between scenes.
         if(e.getKeyChar()=='g'){
             if(hostGame != SpaceGame.firstGame){
-             //if the game is on dirt, go to space
+             //if the game is on space2, go to space
             Game g = SpaceGame.firstGame;
             Window.setCurrentGame(g);
-            g.setInputHandler(this);
             g.addObject(SpaceGame.ship);
             g.getCamera().setTarget(SpaceGame.ship);
             }else{
-             //if the game is in space, go to dirt
+             //if the game is space1 go to space2
             Game g = SpaceGame.secondGame;
             Window.setCurrentGame(g);
-            g.setInputHandler(this);
             g.addObject(SpaceGame.ship);
             g.getCamera().setTarget(SpaceGame.ship);
             }

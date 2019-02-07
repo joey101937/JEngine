@@ -38,6 +38,7 @@ public class SpaceGame {
         secondGame.name = "Second game";
         Window.initialize(firstGame);
         firstGame.setInputHandler(new SpaceInputHandler());
+        secondGame.setInputHandler(new SpaceInputHandler());
         ship = new Spaceship(new Coordinate(100,100));
         firstGame.addObject(ship);
         //creates and adds text object
