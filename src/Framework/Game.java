@@ -328,9 +328,15 @@ public class Game extends Canvas implements Runnable {
             if (pausedSafely) {
                 //if we just paused, reset the last time to now else it will think its running behind
                 lastTime = System.nanoTime();
-            } 
+            }
+            if (pausedSafely) {
+                if (inputHandler != null) {
+                    this.addMouseListener(inputHandler);
+                    this.addMouseMotionListener(inputHandler);
+                    this.addKeyListener(inputHandler);
+                }
+            }
             pausedSafely = false;
-            Main.wait(Main.renderDelay);
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
@@ -339,8 +345,9 @@ public class Game extends Canvas implements Runnable {
                 delta--;
             }
             if (running) {
-                try{
+                try{    
                 this.render();
+                Main.wait(Main.renderDelay);
                 }catch(ConcurrentModificationException cme){
                     System.out.println("cme render");
                 }catch(IllegalStateException ise){
@@ -447,6 +454,9 @@ public class Game extends Canvas implements Runnable {
      */
     public void setPaused(boolean input) {
         if (input) {
+            this.removeMouseListener(inputHandler);
+            this.removeMouseMotionListener(inputHandler);
+            this.removeKeyListener(inputHandler);
             if (this.getBufferStrategy() != null) {
                 this.getBufferStrategy().dispose();
             }
