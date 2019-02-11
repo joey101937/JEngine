@@ -84,7 +84,7 @@ public class Window {
             Main.wait(2);
         }
         //panel.remove(currentGame);
-        //currentGame.setVisible(false);
+        currentGame.setVisible(false);
         
         Dimension d = new Dimension(g.windowWidth, g.windowHeight);
         g.setBounds(0, 0, g.windowWidth, g.windowHeight);
@@ -101,15 +101,15 @@ public class Window {
         if (!alreadyContained) {
             panel.add(g);
         }
-        panel.setComponentZOrder(currentGame, panel.getComponentCount()-1);
+        //panel.setComponentZOrder(currentGame, panel.getComponentCount()-1);
         if (g.hasStarted) {
             g.setPaused(false);
-            System.out.println("unpause");
         }else{
             g.start();
         }
         currentGame = g;
         currentGame.requestFocus();
+        setZOrders();
     }
     
     protected static void UIElementsOnRender(){

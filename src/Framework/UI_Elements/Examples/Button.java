@@ -20,21 +20,21 @@ import javax.swing.JButton;
  */
 public class Button extends UIElement{
     private Game hostGame = null;
-    private JButton button = null;
+    private JButton buttonInterior = null;
 
     public Button(Game g, Coordinate location) {
         hostGame = g;                                   //stores the game this belongs to
         setLocation(location.x, location.y);            //set location on screen
         super.setSize(150, 50);                               //sizing
-        button = new JButton("Press Me");               //creats a new JButton
-        button.setSize(super.getSize());                 //button fills size of panel
-        button.addActionListener(new ActionListener() { //adds an action listener
+        buttonInterior = new JButton("Press Me");               //creats a new JButton
+        buttonInterior.setSize(super.getSize());                 //button fills size of panel
+        buttonInterior.addActionListener(new ActionListener() { //adds an action listener
             @Override
             public void actionPerformed(ActionEvent e) {
                 onPress();                             //calls onPress function when pressed
             }
         });
-        this.add(button);                               //adds JButton to this panel
+        this.add(buttonInterior);                               //adds JButton to this panel
     }
     /**
      * this is called whenever the button is pressed
@@ -64,9 +64,13 @@ public class Button extends UIElement{
     
     @Override
     public void setSize(int x, int y){
+        if(Game.getResolutionScaleX()!=1){
+            System.out.println("using no res scaling!");
+        }
         super.setSize((int)(x * Game.getResolutionScaleX()), (int)(y*Game.getResolutionScaleY()));
-        button.setSize(x, y);
+        buttonInterior.setSize(getSize());
     }
     @Override
-    public void tick(){};
+    public void tick(){
+    };
 }

@@ -445,6 +445,7 @@ public class Game extends Canvas implements Runnable {
 
     /**
      * pauses/unpauses the game. When paused the game does not tick or render
+     * calls local GameObject2's onPause methods as appropriate
      * @param input  true = pause false=resume
      */
     public synchronized void setPaused(boolean input) {
@@ -465,6 +466,11 @@ public class Game extends Canvas implements Runnable {
         audioManager.updateGamePause();
     }
     
+    /**
+     * actually adds and removes input handler from the game as a listener to a 
+     * component object in AWT
+     * @param applying weather or not to add or remove listeners
+     */
     protected synchronized void applyInputHandler(boolean applying) {
         if (inputHandler == null) {
             return;
