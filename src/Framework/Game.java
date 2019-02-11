@@ -452,7 +452,7 @@ public class Game extends Canvas implements Runnable {
      * pauses/unpauses the game. When paused the game does not tick or render
      * @param input  true = pause false=resume
      */
-    public void setPaused(boolean input) {
+    public synchronized void setPaused(boolean input) {
         if (input) {
             this.removeMouseListener(inputHandler);
             this.removeMouseMotionListener(inputHandler);
@@ -507,7 +507,7 @@ public class Game extends Canvas implements Runnable {
      * removes object from the game
      * @param o object to remove
      */
-    public void removeObject(GameObject2 o){
+    public synchronized void removeObject(GameObject2 o){
         //TODO this needs to be redone more efficiently
         while(handler.getAllObjects().contains(o)){
             try{
