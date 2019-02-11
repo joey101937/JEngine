@@ -63,6 +63,7 @@ public class Game extends Canvas implements Runnable {
     public volatile boolean pausedSafely = false;  //used to track when its safe to remove canvas component from frame
     public String name = "Untitled Game";
     protected InputHandler inputHandler;
+    protected volatile boolean inputHandlerApplied = false;
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
 
@@ -152,15 +153,11 @@ public class Game extends Canvas implements Runnable {
      */
     public void setInputHandler(InputHandler in){
         if(inputHandler != null) {
-            this.removeKeyListener(inputHandler);
-            this.removeMouseListener(inputHandler);
-            this.removeMouseMotionListener(inputHandler);
+            applyInputHandler(false);
         }
         in.setHostGame(this);
         inputHandler = in;
-        this.addMouseListener(in);
-        this.addMouseMotionListener(in);
-        this.addKeyListener(in);
+        applyInputHandler(true);
     }
     
     public InputHandler getInputHandler(){
@@ -238,7 +235,7 @@ public class Game extends Canvas implements Runnable {
     
 
     //core tick, tells all game Objects to tick
-    private void tick() {
+    private synchronized void tick() {
         handler.tick();
         camera.tick();  
         Window.TickUIElements();
@@ -331,9 +328,7 @@ public class Game extends Canvas implements Runnable {
             }
             if (pausedSafely) {
                 if (inputHandler != null) {
-                    this.addMouseListener(inputHandler);
-                    this.addMouseMotionListener(inputHandler);
-                    this.addKeyListener(inputHandler);
+                    applyInputHandler(true);
                 }
             }
             pausedSafely = false;
@@ -453,10 +448,9 @@ public class Game extends Canvas implements Runnable {
      * @param input  true = pause false=resume
      */
     public synchronized void setPaused(boolean input) {
+        System.out.println(name + " setting paused " + input);
         if (input) {
-            this.removeMouseListener(inputHandler);
-            this.removeMouseMotionListener(inputHandler);
-            this.removeKeyListener(inputHandler);
+            applyInputHandler(false);
             if (this.getBufferStrategy() != null) {
                 this.getBufferStrategy().dispose();
             }
@@ -465,12 +459,33 @@ public class Game extends Canvas implements Runnable {
             go.onGamePause(input);
         }
         paused = input;
-        if(!input)this.requestFocus();
+        if (!input) {
+            this.requestFocus();
+        }
         audioManager.updateGamePause();
+    }
+    
+    protected synchronized void applyInputHandler(boolean applying) {
+        if (inputHandler == null) {
+            return;
+        }
+        if (applying && !inputHandlerApplied) {
+            this.addMouseListener(inputHandler);
+            this.addMouseMotionListener(inputHandler);
+            this.addKeyListener(inputHandler);
+            inputHandlerApplied = true;
+        } else {
+            this.removeMouseListener(inputHandler);
+            this.removeMouseMotionListener(inputHandler);
+            this.removeKeyListener(inputHandler);
+            inputHandlerApplied = false;
+        }
+
     }
 
     /**
      * sets the Game to use the given Pathing Layer object
+     *
      * @param pl PathingLayer object to use
      */
     public void setPathingLayer(PathingLayer pl){

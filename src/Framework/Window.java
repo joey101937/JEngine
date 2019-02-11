@@ -78,13 +78,14 @@ public class Window {
      * pauses the current game, removes it, then addes the new game and starts it or unpauses it as appropriate
      * @param g new game
      */
-    public static void setCurrentGame(Game g) {
+    public synchronized static void setCurrentGame(Game g) {
         currentGame.setPaused(true);
         while(!currentGame.pausedSafely){
             Main.wait(2);
         }
         //panel.remove(currentGame);
-        currentGame.setVisible(false);
+        //currentGame.setVisible(false);
+        
         Dimension d = new Dimension(g.windowWidth, g.windowHeight);
         g.setBounds(0, 0, g.windowWidth, g.windowHeight);
         frame.setSize(d);
@@ -93,12 +94,14 @@ public class Window {
         for (Component c : panel.getComponents()) {
             if (c == g) {
                 g.setVisible(true);
+                panel.setComponentZOrder(g, 0);
                 alreadyContained = true;
             }
         }
         if (!alreadyContained) {
             panel.add(g);
         }
+        panel.setComponentZOrder(currentGame, panel.getComponentCount()-1);
         if (g.hasStarted) {
             g.setPaused(false);
             System.out.println("unpause");
