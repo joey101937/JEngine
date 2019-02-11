@@ -323,4 +323,5 @@ When you create a project that uses visual image assets, those assets are render
 # Running Your .Jar Outside IDE
 To run JEngine projects, you must run the java executable jar but with special options to allow it to run correctly. These are *-Dsun.java2d.d3d=false* for graphics and *-Xmx1024* for memory allocation. To make things easier, I have included a run.bat and run.sh for windows and ubuntu linux respectively; running these files will automatically run the jar with correct commandline parameters if it is in the same directory as the .jar file. Use shortcuts to these files to run the jar from a different directory. If you have an operating system that is not windows or ubuntu, you can create the file equivilent for your specific distrebution and have it exeute the following line of code (or call it directly via command line): 
 
-**java -Dsun.java2d.d3d=false -Xmx1024m -jar 2DTemplate.jar**  (note 2DTemplate.jar is name of project jar)
+**java -Dsun.java2d.d3d=false -Xmx1024m -jar 2DTemplate.jar**  
+(note 2DTemplate.jar is name of project jar)
