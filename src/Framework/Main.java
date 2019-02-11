@@ -5,7 +5,10 @@
  */
 package Framework;
 
+import GameDemo.AudioDemo.AudioDemo;
 import GameDemo.SandboxDemo.LaunchMenu;
+import GameDemo.SideScollerDemo_TERRAIN.SideScrollGame;
+import GameDemo.SpaceDemo.SpaceGame;
 import GameDemo.TankDemo.TankGame;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -32,35 +35,38 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        //MemoryTracker.start();
-        int result = JOptionPane.showConfirmDialog(null, "do you want to play the tank game? if no, see test sandbox");
-        System.out.println(result);
-        if(result==0){
-            TankGame.main(args);
-        }else if(result == 1){
-            JOptionPane.showMessageDialog(null, "Birds affects the alternative scene. Swap between the two scenes using G. Scenes pause when not on screen.");
-             LaunchMenu options = new LaunchMenu();
-        }else{
-            System.exit(0);
+
+        String[] options = {"Sandbox Demo" , "Tank Demo", "Space Demo" , "Side Scroller Demo" , "Audio Demo"};
+        int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
+        System.out.println(choice);
+        switch(choice){
+            case -1: System.exit(0);
+            case 0: LaunchMenu.main(args);
+            break;
+            case 1: TankGame.main(args);
+            break;
+            case 2: SpaceGame.main(args);
+            break;
+            case 3: SideScrollGame.main(args);
+            break;
+            case 4: AudioDemo.main(args);
+            break;
+            default: System.exit(1);
         }
-        //SpriteManager.initialize();       <- disabled because of spriteManager static block
-        //LaunchMenu options = new LaunchMenu();
-        //Game game = new Game(); <- disabled because options menu now starts the game
-        //TankGame.main(args);
     }
     
-        public static void setOverviewMode(boolean b){
-        if(b){
+    public static void setOverviewMode(boolean b) {
+        if (b) {
             //enable
             Main.overviewMode = true;
-        }else{
+        } else {
             Main.overviewMode = false;
         }
     }
-        
-        public static boolean overviewMode(){
-            return overviewMode;
-        }
+
+    public static boolean overviewMode() {
+        return overviewMode;
+    }
 
     /*
      * ** UTILITY METHODS                ***
