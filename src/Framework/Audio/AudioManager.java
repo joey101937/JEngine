@@ -23,6 +23,7 @@ public class AudioManager {
     }
 
     /**
+     * all sound effects associated with this manager
      * @return all sound effects associated with this manager
      */
     public ArrayList<SoundEffect> getAllSounds() {
@@ -35,17 +36,22 @@ public class AudioManager {
 
     /**
      * adds sound to this manager
-     *
      * @param se sound to add
      */
     protected void addSound(SoundEffect se) {
         storage.add(se);
     }
-
+    /**
+     * removes sound from this manager
+     * @param se sound to remove
+     */
     protected void removeSound(SoundEffect se) {
         storage.remove(se);
     }
 
+    /**
+     * updates sounds, checking if their linked game is unpaused or not
+     */
     public void updateGamePause() {
         for (SoundEffect se : storage) {
             se.onGamePaused(hostGame.isPaused());

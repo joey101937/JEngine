@@ -51,7 +51,7 @@ public class Game extends Canvas implements Runnable {
     private int worldWidth, worldHeight;  //dimensions of the gameworld
     public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
     public final Handler handler = new Handler(this);
-    public final VisualEffectHandler visHandler = new VisualEffectHandler();
+    public VisualEffectHandler visHandler = new VisualEffectHandler();
     public final AudioManager audioManager = new AudioManager(this);
     private Thread thread = null;
     private boolean running = false;

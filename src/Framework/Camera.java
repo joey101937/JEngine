@@ -13,7 +13,7 @@ import java.awt.Rectangle;
  * @author joey
  */
 public class Camera {
-    /**Topleft coordinate of the rendering window relative to topleft of canvas*/
+    /**Topleft coordinate of the rendering window relative to topleft of canvas NOTE this will be negative*/
     public DCoordinate location = new DCoordinate(0,0); //location of camera, 0,0 is top left. NOTE these will be negative
     public int camSpeed = 3;//how fast the camera moves
     public double xVel, yVel;  //camera velocity. Change in position each render

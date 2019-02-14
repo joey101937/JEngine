@@ -6,9 +6,7 @@
 package Framework.Audio;
 
 import Framework.Game;
-import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
 import java.io.File;
 import java.io.IOException;
 import javax.sound.sampled.AudioInputStream;
@@ -93,6 +91,7 @@ public class SoundEffect implements Runnable{
     }
 
     /**
+     * Gets the thread that is supporting this soundeffect
      * @return Gets the thread that is supporting this soundeffect
      */
     public Thread getThread(){
@@ -159,6 +158,7 @@ public class SoundEffect implements Runnable{
     }
     
     /**
+     * current frame of audio in the sound 
      * @return current frame of audio in the sound 
      */
     public Long getCurrentFrame(){
@@ -300,6 +300,7 @@ public class SoundEffect implements Runnable{
     }
 
     /**
+     * weather or not this soundeffect is paused due to its host game being paused
      * @return  weather or not this soundeffect is paused due to its host game being paused
      */
     public boolean isGamePaused(){
@@ -340,6 +341,7 @@ public class SoundEffect implements Runnable{
     }
 
     /**
+     * sound effect listener active for this object
      * @return sound effect listener active for this object
      */
     public SoundEffectListener getListener(){
@@ -358,6 +360,8 @@ public class SoundEffect implements Runnable{
     
     
     /**
+     * Length of this sound in microseconds
+     * NOTE throws nullpointerexception if audio clip is null
      * @return Length of this sound in microseconds
      * NOTE throws nullpointerexception if audio clip is null
      */
@@ -365,6 +369,8 @@ public class SoundEffect implements Runnable{
         return clip.getMicrosecondLength();
     }
     /**
+     * How far into the sound we are, measured in microseconds
+     * NOTE throws nullpointerexception if audio clip is null
      * @return How far into the sound we are, measured in microseconds
      * NOTE throws nullpointerexception if audio clip is null
      */
