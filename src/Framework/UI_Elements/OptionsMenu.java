@@ -296,8 +296,10 @@ public final class OptionsMenu extends javax.swing.JFrame {
     @Override
     public void dispose(){
         super.dispose();
-        Main.ticksPerSecond = (int) this.TickRateSpinner.getValue();
-        Main.renderDelay = (int) this.RenderDelaySpinner.getValue();
+        int ticksPerSecond = (int) this.TickRateSpinner.getValue();
+        int renderDelay = (int) this.RenderDelaySpinner.getValue();
+        if(ticksPerSecond>=0)Main.ticksPerSecond=ticksPerSecond;
+        if(renderDelay>=0)Main.renderDelay=renderDelay;
         Main.setOverviewMode(this.overviewCheckbox.isSelected());
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
