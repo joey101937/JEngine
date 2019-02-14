@@ -320,6 +320,20 @@ How fast scenes run their tick method. Slows or speeds up the game relative to r
 ### **Resolution Scaling**
 When you create a project that uses visual image assets, those assets are rendered pixel per pixel and their size (without in-engine scaling) is determined by the actual size of the image asset used. Ie: a 200x200 image will display over a distance of 200x200 in the game. The problem is that different screens have different resolutions than the screen you are testing your project on, so a character that looks large on your 1080p display will look tiny on a 4k display. To keep things looking uniform across all screen resolutions, set the final static field **NATIVE_RESOLUTION** in game class to reflect the resolution of you, the programmer's screen. Now you may call the **Game.scaleForResolution()** option and it will automatically scale your entire project to look the same on whatever screen size the project is run in as it does on the screen you are testing on.
 
+# Audio
+### Quick Start Guide
+In JEngine, audio is played using the SoundEffect class. To instantiate an object of this class, you must provide a File as the parameter. This file is the source for the audio and must be a java supported audio format. I recommend .au format.
+
+Once you have the SoundEffect instantiated, you can start it by calling its .start() method. Any prior experience with javax.sound.sampled libraries is very beneficial but not required. If you know the library, you can call getClip() to get the clip object and do what you want with it. Otherwise, the SoundEffect class has some built in utility methods that are easy to use via JEngine including pause/resume, restart, setLooping, setVolume, etc.
+
+**See [SoundEffect-JavaDoc](https://webpages.uncc.edu/jdemeis/javadoc/Framework/Audio/SoundEffect.html) for all utility methods**
+
+### Linking SoundEffects To Games
+Linking a sound to a game will make that sound be part of that game rather than a simple global sound. Sounds that are linked to games will only play while that game is unpaused. SoundEffects linked in such a way only play if both they *and their linked game* are unpaused. Linked sounds are stored in the Game's **AudioManager**. Access all sounds linked to a game by using game.audioManager.getAllSounds();
+
+### SoundEffectListener
+You may want to detect and react to happenings on a sound effect. Implementing this interface then calling the .setListener method on the desired sound effect will allow you react to events in a sound effect. For example, override the onPause() method with a function that prints "the sound was paused!" to the console and every time the sound is paused, your listener will print that to the console. 
+
 # Running Your .Jar Outside IDE
 To run JEngine projects, you must run the java executable jar but with special options to allow it to run correctly. These are *-Dsun.java2d.d3d=false* for graphics and *-Xmx1024* for memory allocation. To make things easier, I have included a run.bat and run.sh for windows and ubuntu linux respectively; running these files will automatically run the jar with correct commandline parameters if it is in the same directory as the .jar file. Use shortcuts to these files to run the jar from a different directory. If you have an operating system that is not windows or ubuntu, you can create the file equivilent for your specific distrebution and have it exeute the following line of code (or call it directly via command line): 
 
