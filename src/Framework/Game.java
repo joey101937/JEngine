@@ -420,7 +420,7 @@ public class Game extends Canvas implements Runnable {
     public synchronized void start() {
         if(running)return;
         thread = new Thread(this);
-        thread.setName("Core Loop");
+        thread.setName("Core Loop " + name);
         thread.start();
         running = true;
     }
