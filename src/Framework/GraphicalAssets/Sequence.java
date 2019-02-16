@@ -5,7 +5,6 @@
  */
 package Framework.GraphicalAssets;
 
-import Framework.Main;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -22,24 +21,34 @@ public class Sequence implements Graphic{
     public volatile int currentFrameIndex = 0;
     private volatile boolean disabled = false;
     private volatile boolean paused = false;
-    public Animator animator = new Animator(this);
+    private Long startTime;
     
     /**
      * @return BufferedImage to be rendered based on frame index, null if 
      * the frames array is null or if the actual image is null
      */
     public BufferedImage getCurrentFrame() {
+        if(startTime == null) {
+            startTime = System.currentTimeMillis();
+        }
         if(frames==null){
             System.out.println("Attempting to get current frame with null array");
             return null;
         }
+        if(frames.length==0){
+            System.out.println("Attempting to get frame of empty sequence");
+            return null;
+        }
         BufferedImage output = null;
-        try{
-        output = frames[currentFrameIndex];
-        }catch(ArrayIndexOutOfBoundsException e){
+        try {
+            if (!isPaused()) {
+                currentFrameIndex = (int) (((System.currentTimeMillis() - startTime) / frameDelay) % frames.length);
+            }
+            output = frames[currentFrameIndex];
+        } catch (ArrayIndexOutOfBoundsException e) {
             //check to see if threads got out of sync and updated index too fast
             //if so, reset index rather than returning null
-            if(currentFrameIndex!=0){
+            if (currentFrameIndex != 0) {
                 currentFrameIndex = 0;
                 return getCurrentFrame();
             }
@@ -47,14 +56,12 @@ public class Sequence implements Graphic{
         return output;
     }
     /**
-     * we have this method so that unused sequences dont hurt performance by
-     * running animation threads when they have yet to be rendered
+     * Start the animation
      */
     public void startAnimating() {
-        if (animator.animating == false) {
-            animator.animating = true;
-            animator.thread.start(); 
-        }       
+        if(startTime==null){
+            startTime = System.currentTimeMillis();
+        }      
     }
     
     public Sequence(BufferedImage[] input){
@@ -64,7 +71,7 @@ public class Sequence implements Graphic{
         }
     }
     /**
-     * stops animator
+     * stops animator and removes graphics from memory
      */
     public void disable(){
         setPaused(false);
@@ -83,6 +90,7 @@ public class Sequence implements Graphic{
      * scales all frames in this sequence by a given amount
      * @param d multiplier to scale by
      */
+    @Override
     public void scale(double d) {
         for (BufferedImage bi : frames) {
             bi = scaleImage(bi, d);
@@ -94,6 +102,7 @@ public class Sequence implements Graphic{
      * sets the scale of all frames of this sequence to a given scale
      * @param d new value to be scale, relative to the default scale of the images
      */
+    @Override
     public void scaleTo(double d) {
         for(int i = 0; i < frames.length; i++){
             frames[i] = scaleImage(frames[i],d/scale);
@@ -105,6 +114,7 @@ public class Sequence implements Graphic{
      * returns current scaling of this sequence
      * @return current scale
      */
+    @Override
     public double getScale() {
         return scale;
     }
@@ -159,40 +169,15 @@ public class Sequence implements Graphic{
      * sets the animation to either pause or resume
      * @param in true = pause, false = resume
      */
-    public void setPaused(boolean in){
+    public synchronized void setPaused(boolean in){
         paused = in;
     }
     
-    
-    /**
-     * Helper class that updates frames in real time on a separate thread
-     */
-    private class Animator implements Runnable{
-       Sequence mySequence;
-       Thread thread;
-       boolean animating = false;
-       
-        public Animator(Sequence s){
-            mySequence = s;
-            thread = new Thread(this);
-            thread.setName("Sequence Animator");
-        }
-
-        @Override
-        public void run() {
-            while(animating && !mySequence.disabled){
-                Main.wait(mySequence.frameDelay);
-                while(mySequence.paused){
-                    Main.wait(frameDelay);
-                }
-                mySequence.currentFrameIndex++;
-                if(mySequence.currentFrameIndex>=mySequence.frames.length){
-                  mySequence.currentFrameIndex = 0;  
-                }
-            }
-        }
-        
+    public void restart(){
+        startTime = System.currentTimeMillis();
     }
+    
+    
     /**
      * reverses the animation sequence. 
      * first frame becomes last frame and vice versa
