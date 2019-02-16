@@ -21,6 +21,7 @@ import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This is the part of the screen that you look at while playing and that
@@ -57,7 +58,7 @@ public class Game extends Canvas implements Runnable {
     private boolean running = false;
     protected Graphic backgroundImage;
     protected PathingLayer pathingLayer;
-    public Window window;
+    protected Window window;
     public boolean hasStarted = false;
     private volatile boolean paused = false;
     public volatile boolean pausedSafely = false;  //used to track when its safe to remove canvas component from frame
@@ -66,7 +67,49 @@ public class Game extends Canvas implements Runnable {
     protected volatile boolean inputHandlerApplied = false;
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
-
+    private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
+    
+    /**
+     * ticks all applied effects
+     */
+    private void tickIndependentEffects(){
+        for(IndependentEffect ie : effects){
+            ie.tick();
+        }
+    }
+    /**
+     * renders all applied effects to this game
+     * @param g graphics to use
+     */
+    private void renderIndependentEffects(Graphics2D g){
+        for(IndependentEffect ie : effects){
+            ie.render(g);
+        }
+    }
+    
+    /**
+     * applies an independent effect to this game. It will tick with this game
+     * and render onto this game
+     * @param i effect to add
+     */
+    public void addIndependentEffect(IndependentEffect i){
+        effects.add(i);
+    }
+    
+    /**
+     * removes the specified effect from this game
+     * @param i effect to remove
+     * @return if the effect was successfully removed
+     */
+    public boolean removeIndependentEffect(IndependentEffect i){
+        return effects.remove(i);
+    }
+    /**
+     * removes all applied IndependentEffects from this game
+     */
+    public void clearIndependentEffects(){
+        effects.clear();
+    }
     /**
      * Creates a new Game with given graphical asset as background. Use a Sprite
      * object for static background, and a sequence for animated
@@ -238,6 +281,7 @@ public class Game extends Canvas implements Runnable {
     private synchronized void tick() {
         handler.tick();
         camera.tick();  
+        tickIndependentEffects();
         Window.TickUIElements();
         Window.updateFrameSize();
     }
@@ -275,10 +319,10 @@ public class Game extends Canvas implements Runnable {
         this.renderBackGround(g2d);
         handler.render(g2d);
         visHandler.render(g2d);
-        
+        renderIndependentEffects(g2d);
         g.dispose();
         g2d.dispose();
-        if(Window.mainWindow.currentGame == this && !this.isPaused()){
+        if(Window.currentGame == this && !this.isPaused()){
             bs.show();
         }    
     }

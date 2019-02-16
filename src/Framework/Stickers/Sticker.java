@@ -29,7 +29,7 @@ public class Sticker {
     public volatile int timeToRender;
     protected double scale = 1;
     protected static int numSticker = 0; //id for sticker, used for profiling threads
-    protected int ID = numSticker++;
+    protected final int ID = numSticker++;
     public final Long creationTime;
     /**
      * @param g Game to add to
