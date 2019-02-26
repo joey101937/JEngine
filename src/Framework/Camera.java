@@ -14,7 +14,7 @@ import java.awt.Rectangle;
  */
 public class Camera {
     /**Topleft coordinate of the rendering window relative to topleft of canvas NOTE this will be negative*/
-    public DCoordinate location = new DCoordinate(0,0); //location of camera, 0,0 is top left. NOTE these will be negative
+    protected DCoordinate location = new DCoordinate(0,0); //location of camera, 0,0 is top left. NOTE these will be negative
     public int camSpeed = 3;//how fast the camera moves
     public double xVel, yVel;  //camera velocity. Change in position each render
     private boolean readyToUpdate = false; //render only runs after a tick
@@ -44,43 +44,52 @@ public class Camera {
     }
     /**
      * returns the gameobject this camera is targeting.
-     * Note the camera may not be actively following this target (check with
-     * isTrackingTarget). 
+     * Note the camera may not
+     * be actively following this target (check with isTrackingTarget).
+     *
      * @return target object; returns null if none
      */
-    public GameObject2 getTarget(){
+    public GameObject2 getTarget() {
         return target;
     }
-    
-    
-    public Camera(Game g){
+
+    public Camera(Game g) {
         hostGame = g;
     }
-    
-    
-    public void render(Graphics2D g){
+
+    /**
+     * runs at the beginning of game render to keep camera at correct location
+     * @param g runs at the beginning of game render to keep camera at correct location
+     */
+    public void render(Graphics2D g) {
         g.translate(location.x, location.y); //this runs regardless of ticks because it keeps the camera location still (g resets to 0,0 every render)
-        if(!readyToUpdate) return;
-        if(!disableMovement){
+        if (!readyToUpdate) {
+            return;
+        }
+        if (!disableMovement) {
             updateLocation(g);
         }
         constrainCameraToWorld();
         readyToUpdate = false;
     }
-    public void tick(){
-        readyToUpdate=true;
+
+    public void tick() {
+        readyToUpdate = true;
         tickNumber++;
     }
-   
+
     /**
      * updates the camera position based on either velocity or to follow target
+     *
      * @param g graphics for which this camera operates
      */
     private void updateLocation(Graphics2D g) {
-        if(disableMovement)return;
+        if (disableMovement) {
+            return;
+        }
         if (trackingGameObject && target != null) {
-            location.x = -target.location.x + (hostGame.windowWidth/Game.resolutionScaleX)/hostGame.getZoom() / 2;
-            location.y = -target.location.y + (hostGame.windowHeight/Game.resolutionScaleY)/hostGame.getZoom() / 2;           
+            location.x = -target.location.x + (hostGame.windowWidth / Game.resolutionScaleX) / hostGame.getZoom() / 2;
+            location.y = -target.location.y + (hostGame.windowHeight / Game.resolutionScaleY) / hostGame.getZoom() / 2;
             return;
         }
         switch (movementType) {
@@ -102,7 +111,9 @@ public class Camera {
                 break;
         }
     }
-    
+    /**
+     * keeps camera from going out of bounds
+     */
     private void constrainCameraToWorld(){
         if(location.x > 0) location.x = 0;
         if(location.y > 0) location.y = 0;
@@ -125,8 +136,19 @@ public class Camera {
         target = obj;
     }
     
+    /**
+     * returns rectangle object that represents the field of view of this camera
+     * @return rectangle object that represents the field of view of this camera
+     */
     public Rectangle getFieldOfView(){
         return new Rectangle((int)-location.x,(int)-location.y,(int)(hostGame.windowWidth/Game.resolutionScaleX/hostGame.getZoom()),(int)(hostGame.windowHeight/Game.resolutionScaleY/hostGame.getZoom()));
     }
     
+    /**
+     * returns the location in the gameworld where the top-left corner of the window is
+     * @return the location in the gameworld where the top-left corner of the window is
+     */
+    public DCoordinate getWorldLocation(){
+        return new DCoordinate(-location.x,-location.y);
+    }
 }

@@ -166,6 +166,12 @@ public class Coordinate {
     public DCoordinate toDCoordinate() {
         return new DCoordinate(this);
     }
-
-
+    
+    /**
+     * scales this Coordinate by -1
+     */
+    public void invert(){
+        x*=-1;
+        y*=-1;
+    }
 }

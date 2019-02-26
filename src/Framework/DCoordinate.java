@@ -212,5 +212,12 @@ public class DCoordinate {
     public Coordinate toCoordinate(){
     return new Coordinate(this);
     }
-    
+
+    /**
+     * scales this Coordinate by -1
+     */
+    public void invert() {
+        x *= -1;
+        y *= -1;
+    }
 }
