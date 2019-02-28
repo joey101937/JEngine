@@ -259,7 +259,7 @@ public class GameObject2 {
             if (Main.debugMode) {
                 renderDebugVisuals(g);
                 if (getHitbox() != null) {
-                    hitbox.render(g);
+                    getHitbox().render(g);
                 }
             }
             return;
@@ -278,6 +278,9 @@ public class GameObject2 {
             Sequence sequence = (Sequence)getGraphic();
             if(sequence == null){
                 if(renderNumber>10 && tickNumber>2)System.out.println("Warning trying to render null sequence object " +name);
+                if(Main.debugMode){
+                    renderDebugVisuals(g);
+                }
                 return;
             }
             if(sequence.getCurrentFrame()!=null){
@@ -291,24 +294,29 @@ public class GameObject2 {
         }else{
             Sprite sprite = (Sprite)getGraphic();
             if(sprite!=null){                
-                g.drawImage(sprite.getImage(), pixelLocation.x-sprite.getImage().getWidth()/2, pixelLocation.y-sprite.getImage().getHeight()/2, null); //draws sprite centered on pixelLocation
-            }else{
-                if(renderNumber>10 && tickNumber>2)System.out.println("Warning: unanimated game object sprite is null " + name);
+                g.drawImage(sprite.getImage(), pixelLocation.x - sprite.getImage().getWidth() / 2, pixelLocation.y - sprite.getImage().getHeight() / 2, null); //draws sprite centered on pixelLocation
+            } else {
+                if (renderNumber > 10 && tickNumber > 2) {
+                    System.out.println("Warning: unanimated game object sprite is null " + name);
+                }
             }
         }
         if (Main.debugMode) {
-            g.setColor(Color.red);
-            g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
-            g.drawString(name, (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
-            g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
+            renderDebugVisuals(g);
+            if (getHitbox() != null) {
+                getHitbox().render(g);
+            }
         }
         g.setTransform(old); //reset rotation for next item to render
-        if(Main.debugMode && getHitbox()!=null)getHitbox().render(g); //render hitbox without graphics rotation
+        if (Main.debugMode && getHitbox() != null) {
+            getHitbox().render(g); //render hitbox without graphics rotation
+        }
     }
-    
+
     /**
-     * renders the little rectangle and line showing where the object is and orientation
-     * in debug mode, also renders a string showing object name
+     * renders the little rectangle and line showing where the object is and
+     * orientation in debug mode, also renders a string showing object name
+     *
      * @param g graphics to use
      */
     private void renderDebugVisuals(Graphics2D g) {
