@@ -30,6 +30,7 @@ public class RTSUnit extends Creature {
             renderLocation.y -= getHeight() / 2;
             g.drawOval(renderLocation.x, renderLocation.y, getWidth(), getHeight());
             g.drawLine(getPixelLocation().x, getPixelLocation().y, desiredLocation.x, desiredLocation.y);
+            g.drawString(this.currentHealth+"/"+maxHealth, getPixelLocation().x + 100, getPixelLocation().y);
             g.setColor(originalColor);
         }
     }

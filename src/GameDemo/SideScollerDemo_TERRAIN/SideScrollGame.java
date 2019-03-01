@@ -21,8 +21,8 @@ public class SideScrollGame {
  
     public static void main(String[] args) {
         
-        Game g = new Game(SpriteManager.platformLong);
-        g.setPathingLayer(SpriteManager.platformPathingLong);
+        Game g = new Game(SpriteManager.platformBG);
+        g.setPathingLayer(SpriteManager.platformPathing);
         g.start();
         Window.initialize(g);
         g.addObject(playerCharacter);
@@ -31,6 +31,7 @@ public class SideScrollGame {
         g.worldBorder=20;
         g.getCamera().setTarget(playerCharacter);
         Game.scaleForResolutionAspectRatio();
+        g.setZoom(1.5);
         //Main.debugMode=true;
     }
 }

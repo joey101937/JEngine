@@ -24,8 +24,9 @@ public class RTSGame {
         game.addIndependentEffect(new SelectionBoxEffect());
         TankUnit testUnit = new TankUnit(200,200);
         TankUnit testUnit2 = new TankUnit(800,200);
+        TankUnit testUnit3 = new TankUnit(800,800);
         game.addObject(testUnit);
         game.addObject(testUnit2);
-        Main.debugMode=true;
+        game.addObject(testUnit3);
     }
 }

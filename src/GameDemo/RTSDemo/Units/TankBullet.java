@@ -26,7 +26,7 @@ public class TankBullet extends Projectile {
     public TankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
         this.setGraphic(new Sequence(new BufferedImage[]{SpriteManager.bullet}));
-        baseSpeed = 30;
+        baseSpeed = 20;
         setScale(.25);
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 750;
@@ -39,17 +39,17 @@ public class TankBullet extends Projectile {
         if(other==shooter)return; //dont collde with the gameobject that launched this projectile
         if(other instanceof Creature) {
             Creature c = (Creature) other;
-            c.takeDamage(50);
+            c.takeDamage(20);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(hostGame, SpriteManager.explosionSequence, getPixelLocation());
-            impactExplosion.scaleTo(2);
+            impactExplosion.scaleTo(.5);
+             destroy();
         }
-        destroy();
     }
 
     @Override
     public void onTimeOut() {
         OnceThroughSticker s = new OnceThroughSticker(hostGame, SpriteManager.explosionSequence, this.getPixelLocation());
-        s.scaleTo(2);
+        s.scaleTo(.5);
     }
 
     /**

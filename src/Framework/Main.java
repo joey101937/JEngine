@@ -6,6 +6,7 @@
 package Framework;
 
 import GameDemo.AudioDemo.AudioDemo;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.SandboxDemo.LaunchMenu;
 import GameDemo.SideScollerDemo_TERRAIN.SideScrollGame;
 import GameDemo.SpaceDemo.SpaceGame;
@@ -36,7 +37,7 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        String[] options = {"Sandbox Demo" , "Tank Demo", "Space Demo" , "Side Scroller Demo" , "Audio Demo"};
+        String[] options = {"Sandbox Demo" , "Tank Demo", "RTS Demo", "Space Demo" , "Side Scroller Demo" , "Audio Demo"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
@@ -45,11 +46,13 @@ public class Main {
             break;
             case 1: TankGame.main(args);
             break;
-            case 2: SpaceGame.main(args);
+            case 2: RTSGame.main(args);
             break;
-            case 3: SideScrollGame.main(args);
+            case 3: SpaceGame.main(args);
             break;
-            case 4: AudioDemo.main(args);
+            case 4: SideScrollGame.main(args);
+            break;
+            case 5: AudioDemo.main(args);
             break;
             default: System.exit(1);
         }
