@@ -6,20 +6,19 @@ package Framework;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-
 /**
- * Coordinate holds values for position; Functions as a 2D vector. 
+ * Coordinate holds values for position; Functions as a 2D vector.
+ *
  * @author Joseph
  */
 public class Coordinate {
+
     public int x, y;
-    
-    public static double distanceBetween(Coordinate a, Coordinate b){
-        return Math.sqrt(Math.pow((b.x-a.x), 2)+Math.pow(b.y-a.y, 2));
+
+    public static double distanceBetween(Coordinate a, Coordinate b) {
+        return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow(b.y - a.y, 2));
     }
-    
-    
+
     public double distanceFrom(Coordinate other) {
         return Math.sqrt(Math.pow((other.x - this.x), 2) + Math.pow(other.y - this.y, 2));
     }
@@ -32,27 +31,28 @@ public class Coordinate {
         x = c.x;
         y = c.y;
     }
-    public Coordinate(int x, int y){
+
+    public Coordinate(int x, int y) {
         this.x = x;
         this.y = y;
     }
-    public Coordinate(DCoordinate c){
-        x = (int)c.x;
-        y = (int)c.y;
+
+    public Coordinate(DCoordinate c) {
+        x = (int) c.x;
+        y = (int) c.y;
     }
-    
+
     @Override
-    public String toString(){
-        return "("+x+","+y+")";
+    public String toString() {
+        return "(" + x + "," + y + ")";
     }
-    
-    
+
     @Override
-    public boolean equals(Object o){
-        try{
-            Coordinate other = (Coordinate)o;
-            return (x==other.x && y==other.y);
-        }catch (Exception e){
+    public boolean equals(Object o) {
+        try {
+            Coordinate other = (Coordinate) o;
+            return (x == other.x && y == other.y);
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -66,21 +66,16 @@ public class Coordinate {
         return hash;
     }
 
-    
-    public static void main(String[] args){
-        
-        
-        Coordinate one = new Coordinate(1,1);
-        
-        Coordinate two = new Coordinate(1,1);
-        
-        System.out.println(one==two);
+    public static void main(String[] args) {
+
+        Coordinate one = new Coordinate(1, 1);
+
+        Coordinate two = new Coordinate(1, 1);
+
+        System.out.println(one == two);
         System.out.println(one.equals(two));
     }
-    
-    
-    
-    
+
     public static Coordinate sum(Coordinate a, Coordinate b) {
         return new Coordinate(a.x + b.x, a.y + b.y);
     }
@@ -105,18 +100,17 @@ public class Coordinate {
         y -= other.y;
     }
 
-    public Coordinate getInverse(){
-        return new Coordinate(-x,-y);
+    public Coordinate getInverse() {
+        return new Coordinate(-x, -y);
     }
-    
-    public Coordinate copy(){
+
+    public Coordinate copy() {
         return new Coordinate(this);
     }
-    
 
-    public void scale(double s){
-        x*=s;
-        y*=s;
+    public void scale(double s) {
+        x *= s;
+        y *= s;
     }
 
     public void rotateAboutPoint(Coordinate point, double degrees) {
@@ -128,11 +122,10 @@ public class Coordinate {
         offset.subtract(point.copy());
         offset.adjustForRotation(degrees);
         offset.add(point);
-        x = (int)offset.x;
-        y = (int)offset.y;
+        x = (int) offset.x;
+        y = (int) offset.y;
     }
 
-    
     /**
      * adjusts this coordinate to reflect the location it would be at if it were
      * to be rotated about the origin by a given degree
@@ -147,9 +140,10 @@ public class Coordinate {
         y = (int) (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
     }
 
-
     /**
-     * returns a coordinate whos x and y values have been rotated around the orgin
+     * returns a coordinate whos x and y values have been rotated around the
+     * orgin
+     *
      * @param c coordinate to use
      * @param r degree of rotation
      * @return updated coordinate
@@ -166,12 +160,12 @@ public class Coordinate {
     public DCoordinate toDCoordinate() {
         return new DCoordinate(this);
     }
-    
+
     /**
      * scales this Coordinate by -1
      */
-    public void invert(){
-        x*=-1;
-        y*=-1;
+    public void invert() {
+        x *= -1;
+        y *= -1;
     }
 }
