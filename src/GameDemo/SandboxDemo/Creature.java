@@ -39,5 +39,8 @@ public abstract class Creature extends GameObject2 {
     public Creature(DCoordinate c){
         super(c);
     }
+    public Creature(int x, int y){
+        super(x,y);
+    }
     
 }
