@@ -573,7 +573,6 @@ public class Game extends Canvas implements Runnable {
      * @param o object to remove
      */
     public synchronized void removeObject(GameObject2 o){
-        //TODO this needs to be redone more efficiently
         while(handler.getAllObjects().contains(o)){
             try{
             handler.removeObject(o);
