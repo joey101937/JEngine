@@ -423,7 +423,7 @@ public class GameObject2 {
                 if (getHitbox().intersects(other.getHitbox())) {
                     //if we are already on top of another unit, just keep going to not get stuck
                     onCollide(other);
-                    if(newLocation.distanceFrom(other.location) > location.distanceFrom(other.location)){
+                    if(newLocation.distanceFrom(other.location) > location.distanceFrom(other.location) || preventOverlap || this.isSolid || other.isSolid){
                         continue;
                     }else{
                         newLocation = location;

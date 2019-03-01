@@ -218,8 +218,8 @@ public class Game extends Canvas implements Runnable {
         Coordinate[] verts = new Coordinate[4];
         verts[0]=new Coordinate(r.x,r.y);
         verts[1]=new Coordinate(r.x+r.width,r.y);
-        verts[3] = new Coordinate(r.x, r.y + r.height);
-        verts[4] = new Coordinate(r.x + r.width, r.y + r.height);
+        verts[2] = new Coordinate(r.x, r.y + r.height);
+        verts[3] = new Coordinate(r.x + r.width, r.y + r.height);
         Hitbox hitbox = new Hitbox(verts);
         ArrayList<GameObject2> output = new ArrayList<>();
         for (GameObject2 go : handler.getAllObjects()) {
