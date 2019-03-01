@@ -36,7 +36,7 @@ Now that you have your assets imported, you should create a scene for the user t
 
 Once you have your first Scene, create the **Window** around it by calling Window.initialize(Game). Now call start() method on your game. If done correctly, you should see a window with your given background image inside. Initialize should only be called once at the start of the program. Once you have your window, call setGame(Game) to swap out different games in the window.
 
-Now you can create a character to go inside the world. I would reccomend copying the simple character from the sandbox demo, or you can make your own class that extends GameObject2. You just need a location for the object to be at and you should create a visual for the object so you can see it in the scene. you can use the method **setAnimationFalse(Sprite image)** to set the object to be unanimated and use the given sprite as its visual. Hitboxes are automatically managed for you by default. Once you have your character object, call **addObject(GameObject2 go)** on your world and pass in your character. If done correctly, you should see your character's sprite at the character's location in your gameworld. note if you picked an out of bounds coordinate, the object may have been pulled back in to the nearest in-bounds location. 
+Now you can create a character to go inside the world. I would reccomend copying the simple character from the sandbox demo, or you can make your own class that extends GameObject2. You just need a location for the object to be at and you should create a visual for the object so you can see it in the scene. you can use the method **setGraphic(Sprite image)** to set the object to be unanimated and use the given sprite as its visual. Hitboxes are automatically managed for you by default. Once you have your character object, call **addObject(GameObject2 go)** on your world and pass in your character. If done correctly, you should see your character's sprite at the character's location in your gameworld. note if you picked an out of bounds coordinate, the object may have been pulled back in to the nearest in-bounds location. 
 
 Moving a GameObject can be done by modifying it's location directly (forcibly teleports the object), or by changing its velocity. Velocity is the prefered way to move things if you want them to move around the world rather than just teleport to a different location. 
 
@@ -235,12 +235,10 @@ The visual of a GameObject2 may be changed at any time, and my be swapped from a
 You can scale the GameObject2 to be larger or smaller, and rotate it in any direction. Note doing these operations may change the hitbox and therefor collision
 
 **Applying Non-Animated Sprite** 
-If you dont want your object to be animated, you will use a **Sprite** object,and apply it to the object using the **setAnimationFalse(Sprite)** method where the sprite you give is a new Sprite with your desired bufferedImage.
+If you dont want your object to be animated, you will use a **Sprite** object,and apply it to the object using the **setGraphic(Sprite)** method where the sprite you give is a new Sprite with your desired bufferedImage.
 
 **Applying Animated Visuals**
-If you want your object to have an animated visual, you will need to load in the frames of the animation via the SpriteManager or similar clas, and store that, in order, in a bufferedImage array. Now create a **Sequence** object with that array,**new Sequence(BufferedImage[])**. Now you can call **setAnimationTrue(Sequence)** on the object and your object will use the given animation sequence.
-
-**setSequence(Sequence)** Can also be used if the object is already animated to switch out a different sequence.
+If you want your object to have an animated visual, you will need to load in the frames of the animation via the SpriteManager or similar clas, and store that, in order, in a bufferedImage array. Now create a **Sequence** object with that array,**new Sequence(BufferedImage[])**. Now you can call **setGraphic(Sequence)** on the object and your object will use the given animation sequence.
 
 
 ### Transformations
@@ -268,6 +266,8 @@ GameObjects can be in 3 states for collision; solid, non-solid, overlap allowed.
 **isSolid** is a field in gameobject2 that determines weather or not the object will collide with other objects when it touches them. If not solid, neither object's **onCollide** method will trigger and the objects will move through eachother. If set to true, the object *will* trigger the onCollision method when touching another gameobject.
 
 **preventOverlap** is a sparate flag that determines how objects interact with collision. When turned on (default setting), the object will not be permitted to move onto another object's hitbox via velocity. If it tries, it will trigger the onCollide method but will NOT move through the other object. If the velocity is then set to 0, the onCollision method will stop triggering and the object in question will rest immediately next to the other object. Disabling this field will allow the object to pass through other solid objects as if it was not solid, however the onCollide methods for both objects will still triger as usual.
+
+**collisionSliding** is another collision modifier that affects movement along another hitbox, used in conjunction with PreventOverlap. This flag, when enabled, allows objects to slide across other objects. This is done by making it so that whenever a velocity would result in a collision, the object will check each axis to see if it is clear; if exactly one can be zeroed out to prevent collision, the object will move in such a way to preserve the velocity of the unblocked axis while not advancing on the axis that was blocked. This is especially useful when you use hitboxes to make floors as it allows objects to move across the floor even if they have downwards velocity(gravity).
 
 **Note:** Solid objects that do not allow overlap will still be able to move freely through another solid object if for some reason they are already overlapping that object; this is to prevent objects from getting stuck inside eachother in the event something unforseen sets them close enough together that they overlap.
 
