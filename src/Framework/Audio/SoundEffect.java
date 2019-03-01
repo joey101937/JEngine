@@ -405,7 +405,7 @@ public class SoundEffect implements Runnable{
             if (isGamePaused()) {
                 this.onGamePaused(false);
             }
-            hostGame.audioManager.removeSound(this);
+            if(hostGame!=null)hostGame.audioManager.removeSound(this);
             hostGame = null;
             return;
         }

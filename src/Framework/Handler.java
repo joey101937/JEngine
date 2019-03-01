@@ -37,10 +37,10 @@ public class Handler {
     public synchronized void addObject(GameObject2 o) {
         if (!storage.contains(o)) {
             storage.add(o);
-            if(o.hostGame!=null && o.hostGame!=this.hostGame){
-                o.hostGame.removeObject(o);
+            if(o.getHostGame()!=null && o.getHostGame()!=this.hostGame){
+                o.getHostGame().removeObject(o);
             }
-            o.hostGame = hostGame;
+            o.setHostGame(hostGame);
         }
     }
     
@@ -103,7 +103,7 @@ public class Handler {
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
         for (GameObject2 go : getAllObjects()) {
-            go.hostGame = hostGame;
+            go.setHostGame(hostGame);
             go.tick();
             if (go.subObjects != null) {
                 for (SubObject so : go.subObjects) {

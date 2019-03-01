@@ -90,16 +90,16 @@ public class Projectile extends GameObject2{
      */
     @Override
     public void constrainToWorld() {
-        if (location.x < hostGame.worldBorder) {
+        if (location.x < getHostGame().worldBorder) {
             destroy();
         }
-        if (location.y < hostGame.worldBorder) {
+        if (location.y < getHostGame().worldBorder) {
             destroy();
         }
-        if (location.x > hostGame.getWorldWidth() - hostGame.worldBorder) {
+        if (location.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
             destroy();
         }
-        if (location.y > hostGame.getWorldHeight() - hostGame.worldBorder) {
+        if (location.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
             destroy();
         }
     }

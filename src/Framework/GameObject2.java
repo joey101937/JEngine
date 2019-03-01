@@ -22,7 +22,7 @@ import Framework.GraphicalAssets.Graphic;
  * @author Joseph
  */
 public class GameObject2 {
-    protected Game hostGame;
+    private Game hostGame;
     public String name= "Unnamed " + this.getClass().getName(); 
     public long tickNumber = 0; //used for debugging, counts number of times this has ticked
     public long renderNumber = 0; //used for debugging, counts number of times this has rendered
@@ -668,6 +668,9 @@ public class GameObject2 {
         return scale;
     }
 
+    protected void setHostGame(Game g){
+        hostGame = g;
+    }
     
 
 }

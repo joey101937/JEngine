@@ -70,8 +70,10 @@ public class SubObject extends GameObject2{
     public void setHost(GameObject2 host) {
         if(this.host!=null)this.host.subObjects.remove(this);
         this.host = host;
-        this.hostGame=host.hostGame;
-        if(host!=null)this.host.subObjects.add(this);
+        if (host != null) {
+            this.setHostGame(host.getHostGame());
+            this.host.subObjects.add(this);
+        }
         updateAdjustedOffset();
     }
 
@@ -85,7 +87,7 @@ public class SubObject extends GameObject2{
         if(host==null){
             return null;
         }else{
-            return host.hostGame;
+            return host.getHostGame();
         }
     }
     
