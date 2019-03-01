@@ -5,15 +5,18 @@
  */
 package GameDemo.RTSDemo.Units;
 
+import Framework.Audio.SoundEffect;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sequence;
+import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import GameDemo.SandboxDemo.Creature;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 /**
  *
@@ -40,15 +43,19 @@ public class TankBullet extends Projectile {
         if(other instanceof Creature) {
             Creature c = (Creature) other;
             c.takeDamage(20);
-            OnceThroughSticker impactExplosion = new OnceThroughSticker(hostGame, SpriteManager.explosionSequence, getPixelLocation());
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
             impactExplosion.scaleTo(.5);
+            SoundEffect impactSound = new SoundEffect(new File(Main.assets+"Sounds/blast2.wav"));
+            impactSound.linkToGame(getHostGame());
+            impactSound.start();
+            impactSound.setVolume(.7f);
              destroy();
         }
     }
 
     @Override
     public void onTimeOut() {
-        OnceThroughSticker s = new OnceThroughSticker(hostGame, SpriteManager.explosionSequence, this.getPixelLocation());
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, this.getPixelLocation());
         s.scaleTo(.5);
     }
 
@@ -57,19 +64,19 @@ public class TankBullet extends Projectile {
      */
     @Override
     public void constrainToWorld() {
-        if (location.x < hostGame.worldBorder) {
+        if (location.x < getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.y < hostGame.worldBorder) {
+        if (location.y < getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.x > hostGame.getWorldWidth() - hostGame.worldBorder) {
+        if (location.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.y > hostGame.getWorldHeight() - hostGame.worldBorder) {
+        if (location.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }

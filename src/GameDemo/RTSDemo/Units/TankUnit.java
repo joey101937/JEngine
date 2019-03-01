@@ -5,6 +5,7 @@
  */
 package GameDemo.RTSDemo.Units;
 
+import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.GameObject2.MovementType;
@@ -15,6 +16,7 @@ import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -89,13 +91,17 @@ public class TankUnit extends RTSUnit{
         */
         public void onFire(Coordinate target){
             setGraphic(fireAnimation); 
+            SoundEffect launchSound = new SoundEffect(new File(Main.assets+"Sounds/gunshot.wav"));
+            launchSound.linkToGame(getHostGame());
+            launchSound.setVolume(.5f);
+            launchSound.start();
             firing = true;
             Coordinate muzzelLocation = new Coordinate(0,0);
             muzzelLocation.y-=fireAnimation.frames[0].getHeight()*2/5;
             muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotation());
             muzzelLocation.add(getPixelLocation());
             //OnceThroughSticker muzzelFlash = new OnceThroughSticker(getHostGame(),SpriteManager.explosionSequence,muzzelLocation);
-            //muzzelFlash.scaleTo(.5);
+            //muzzelFlash.scaleTo(.25);
             TankBullet bullet = new TankBullet(muzzelLocation.toDCoordinate(),target.toDCoordinate());
             bullet.shooter=this.getHost();
             getHostGame().addObject(bullet);
@@ -120,7 +126,7 @@ public class TankUnit extends RTSUnit{
                 System.out.println("null host game");
                 return null;
             }
-            double range = 500;
+            double range = 550;
             ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
             double closestDistance = range + 1;
             GameObject2 closest = null;
@@ -162,8 +168,11 @@ public class TankUnit extends RTSUnit{
     
    @Override
    public void onDestroy(){
-       OnceThroughSticker deathAni = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,getPixelLocation());
+       OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(),SpriteManager.explosionSequence,getPixelLocation());
        deathAni.scale(1.5);
+       SoundEffect deathSound = new SoundEffect(new File(Main.assets+"Sounds/blast2.wav"));
+       deathSound.linkToGame(getHostGame());
+       deathSound.start();
    }
 }
 

@@ -9,6 +9,7 @@ import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.InputHandler;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
@@ -82,5 +83,15 @@ public class RTSInput extends InputHandler {
             return null;
         }
         return mouseDraggedLocation;
+    }
+    
+    @Override
+    public void keyPressed(KeyEvent e){
+        //s is stop command
+        if(e.getKeyChar()=='s'){
+            for(RTSUnit u : SelectionBoxEffect.selectedUnits){
+                u.setDesiredLocation(u.getPixelLocation());
+            }
+        }
     }
 }
