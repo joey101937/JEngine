@@ -42,7 +42,7 @@ public class Bullet extends Projectile{
     //when this is destroyed, cause explosion
     @Override
     public void onDestroy(){
-        OnceThroughSticker s = new OnceThroughSticker(hostGame, SpriteManager.explosionSequence,this.getPixelLocation());
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence,this.getPixelLocation());
         s.scaleTo(getScale());
     }
     

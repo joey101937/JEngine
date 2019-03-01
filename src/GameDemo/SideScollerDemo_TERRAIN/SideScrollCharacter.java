@@ -108,7 +108,7 @@ public class SideScrollCharacter extends GameObject2{
     protected boolean isOnGround() {
         Coordinate c = getPixelLocation().copy();
         c.y+=(getHeight()/2)-5;
-        PathingLayer.Type type = hostGame.getPathingLayer().getTypeAt(c);
+        PathingLayer.Type type = getHostGame().getPathingLayer().getTypeAt(c);
         return pathingModifiers.get(type) < .05;
     }
     
