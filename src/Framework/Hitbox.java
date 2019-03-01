@@ -111,12 +111,12 @@ public class Hitbox {
             avgY += c.y;
         }
         staticCenter = new DCoordinate(avgX/4, avgY/4);
-        for (Coordinate c : given) {
-            c = c.copy();//dont modify given coordinates
-            c.subtract(staticCenter);
+        Coordinate[] given2 = new Coordinate[given.length];
+        for(int i = 0 ; i < given.length; i++){
+            given2[i]=given[i].copy();
+            given2[i].subtract(staticCenter);
         }
-        
-        vertices = given;
+        vertices = given2;
         type = Type.box;
         setFarthestAndShortest();
     }
@@ -203,7 +203,7 @@ public class Hitbox {
      * @param line2 second line to eval
      * @return weather or not the two lines intersect
      */
-    private boolean linesIntersect(double[] line1, double[] line2) {
+    private synchronized boolean linesIntersect(double[] line1, double[] line2) {
         return Line2D.linesIntersect(line1[0], line1[1], line1[2], line1[3], line2[0], line2[1], line2[2], line2[3]);
     }
 
@@ -212,7 +212,7 @@ public class Hitbox {
      * @param other hitbox to compare to
      * @return weather or not they overlap
      */
-    public boolean intersects(Hitbox other) {
+    public synchronized boolean intersects(Hitbox other) {
         if(other==null || other==this){
             return false;
         }
@@ -285,7 +285,7 @@ public class Hitbox {
      * @param velocity contains the amount to move this hitbox
      * @return weather or not the hitbox would be intersecting another if moved
      */
-    public boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
+    public synchronized boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
         double saftyScaler = 2; //how much we scale the velocity to account for extramovement
                                    //large scaler = less chance of overlap but farther apart units must stay
         staticCenter.x += velocity.x * saftyScaler;
@@ -306,7 +306,7 @@ public class Hitbox {
     
     
     
-    public boolean intersectsIfRotated(Hitbox other, double possibleRotation){
+    public synchronized boolean intersectsIfRotated(Hitbox other, double possibleRotation){
         rotate(possibleRotation);
         boolean result = intersects(other);
         rotate(-possibleRotation);

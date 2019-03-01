@@ -205,7 +205,7 @@ public class GameObject2 {
         if(isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
             for(GameObject2 other : hostGame.getAllObjects()){
-                if(plane==other.plane && other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees)){
+                if(plane==other.plane && other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
                      return; 
                 }
             }
@@ -333,7 +333,7 @@ public class GameObject2 {
      * by default, this sets up a rectangular hitbox and maintains it based on current sprite
      * if the hitbox is set to be circular, maintains circle radius to be equal to width/2
      */
-    public void updateHitbox() {
+    public synchronized void updateHitbox() {
         //if no hitbox, create the default box hitbox
         if (getHitbox() == null && getWidth()>0 && renderNumber>0) {
             int width = getWidth();
@@ -370,7 +370,7 @@ public class GameObject2 {
      * start your overridden tick method with super() so that updateLocation
      * method runs and tickNumber continues counting
      */
-    public void tick(){
+    public synchronized void tick(){
         updateLocation();
         tickNumber++;
     }
@@ -384,7 +384,7 @@ public class GameObject2 {
      * -Detects collisions
      * -updates hitbox
      */
-    public void updateLocation() {
+    public synchronized void updateLocation() {
       DCoordinate newLocation = location.copy();
         switch (movementType) {
             case SpeedRatio:
@@ -423,6 +423,11 @@ public class GameObject2 {
                 if (getHitbox().intersects(other.getHitbox())) {
                     //if we are already on top of another unit, just keep going to not get stuck
                     onCollide(other);
+                    if(newLocation.distanceFrom(other.location) > location.distanceFrom(other.location)){
+                        continue;
+                    }else{
+                        newLocation = location;
+                    }
                     continue;
                 }
                 if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), (int) Math.ceil(toMove.y)))) {
