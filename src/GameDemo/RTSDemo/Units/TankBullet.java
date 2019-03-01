@@ -45,11 +45,16 @@ public class TankBullet extends Projectile {
             c.takeDamage(20);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
             impactExplosion.scaleTo(.5);
-            SoundEffect impactSound = new SoundEffect(new File(Main.assets+"Sounds/blast2.wav"));
-            impactSound.linkToGame(getHostGame());
-            impactSound.start();
-            impactSound.setVolume(.7f);
-             destroy();
+            try {
+                SoundEffect impactSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
+                impactSound.linkToGame(getHostGame());
+                impactSound.start();
+                impactSound.setVolume(.7f);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
+            destroy();
         }
     }
 

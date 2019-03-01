@@ -88,16 +88,20 @@ public class TankUnit extends RTSUnit{
         first, play the firing animation on the gun, then create a small explosion
         effect for the muzzleflash, then create the bullet object and spawn it
         into the game world
-        */
-        public void onFire(Coordinate target){
-            setGraphic(fireAnimation); 
-            SoundEffect launchSound = new SoundEffect(new File(Main.assets+"Sounds/gunshot.wav"));
-            launchSound.linkToGame(getHostGame());
-            launchSound.setVolume(.5f);
-            launchSound.start();
+         */
+        public void onFire(Coordinate target) {
+            setGraphic(fireAnimation);
+            try {
+                SoundEffect launchSound = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
+                launchSound.linkToGame(getHostGame());
+                launchSound.setVolume(.5f);
+                launchSound.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             firing = true;
-            Coordinate muzzelLocation = new Coordinate(0,0);
-            muzzelLocation.y-=fireAnimation.frames[0].getHeight()*2/5;
+            Coordinate muzzelLocation = new Coordinate(0, 0);
+            muzzelLocation.y -= fireAnimation.frames[0].getHeight()*2/5;
             muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotation());
             muzzelLocation.add(getPixelLocation());
             //OnceThroughSticker muzzelFlash = new OnceThroughSticker(getHostGame(),SpriteManager.explosionSequence,muzzelLocation);
@@ -165,15 +169,19 @@ public class TankUnit extends RTSUnit{
     public void onCollide(GameObject2 other){
         
     }
-    
-   @Override
-   public void onDestroy(){
-       OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(),SpriteManager.explosionSequence,getPixelLocation());
-       deathAni.scale(1.5);
-       SoundEffect deathSound = new SoundEffect(new File(Main.assets+"Sounds/blast2.wav"));
-       deathSound.linkToGame(getHostGame());
-       deathSound.start();
-   }
-}
 
+    @Override
+    public void onDestroy() {
+        OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
+        deathAni.scale(1.5);
+        try {
+            SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
+            deathSound.linkToGame(getHostGame());
+            deathSound.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+}
 
