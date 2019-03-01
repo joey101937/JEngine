@@ -51,7 +51,6 @@ public class RTSUnit extends Creature {
         desiredLocation = getPixelLocation();
         this.movementType = MovementType.RotationBased;
         this.hitbox = new Hitbox(this,0); //sets to a circle with radius 0. radius will be auto set based on width becauase of updateHitbox method
-        this.collisionSliding=true;
     }
 
     public RTSUnit(Coordinate c) {

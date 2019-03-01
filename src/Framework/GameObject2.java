@@ -251,6 +251,8 @@ public class GameObject2 {
      */
     public void render(Graphics2D g){
         renderNumber++;
+        Coordinate pixelLocation = getPixelLocation();
+        AffineTransform old = g.getTransform();
         if(!isOnScreen() && !Main.overviewMode()) {
             //offscreen without overview mode? dont bother rendering anything.
             return;
@@ -259,13 +261,12 @@ public class GameObject2 {
             if (Main.debugMode) {
                 renderDebugVisuals(g);
                 if (getHitbox() != null) {
+                    g.setTransform(old);
                     getHitbox().render(g);
                 }
             }
             return;
-        }
-        Coordinate pixelLocation = getPixelLocation();
-        AffineTransform old = g.getTransform();
+        }    
         if (getGraphic() !=null && getGraphic().getScale()!=scale){
             getGraphic().scaleTo(scale);
         }
@@ -303,13 +304,10 @@ public class GameObject2 {
         }
         if (Main.debugMode) {
             renderDebugVisuals(g);
-            if (getHitbox() != null) {
-                getHitbox().render(g);
-            }
         }
         g.setTransform(old); //reset rotation for next item to render
-        if (Main.debugMode && getHitbox() != null) {
-            getHitbox().render(g); //render hitbox without graphics rotation
+        if (getHitbox() != null && Main.debugMode) {
+            getHitbox().render(g);
         }
     }
 
@@ -423,7 +421,7 @@ public class GameObject2 {
                 if (getHitbox().intersects(other.getHitbox())) {
                     //if we are already on top of another unit, just keep going to not get stuck
                     onCollide(other);
-                    if(newLocation.distanceFrom(other.location) > location.distanceFrom(other.location) || preventOverlap || this.isSolid || other.isSolid){
+                    if(newLocation.distanceFrom(other.location) > location.distanceFrom(other.location) || !preventOverlap || !isSolid || !other.isSolid){
                         continue;
                     }else{
                         newLocation = location;
