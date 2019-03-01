@@ -51,10 +51,11 @@ public class Sticker {
      */
     protected void centerCoordinate(BufferedImage toRender) {
         try{
+        if(spawnLocation==null)return;
         renderLocation.x = spawnLocation.x - toRender.getWidth() / 2;
         renderLocation.y = spawnLocation.y - toRender.getHeight() / 2;
         }catch(Exception e){
-            e.printStackTrace();
+           e.printStackTrace();
         }
     }
 
@@ -63,6 +64,7 @@ public class Sticker {
             spawnLocation = host.getPixelLocation();
         }
         centerCoordinate(image);
+        if(spawnLocation==null)return;
         if (spawnLocation.x < 0 || spawnLocation.y < 0) {
             disable();     //if the coordinates are bad, dont render
         }

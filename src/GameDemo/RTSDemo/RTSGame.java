@@ -6,7 +6,6 @@
 package GameDemo.RTSDemo;
 
 import Framework.Game;
-import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
 import GameDemo.RTSDemo.Units.TankUnit;
