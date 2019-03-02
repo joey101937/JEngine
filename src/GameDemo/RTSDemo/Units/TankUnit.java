@@ -16,6 +16,10 @@ import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -27,6 +31,7 @@ public class TankUnit extends RTSUnit{
     public Turret turret;
     private final static double VISUAL_SCALE = .2;
     private Long lastFiredTime = 0L;
+    public static final int RANGE = 500;
     /*
     sets up the tank values
      */
@@ -53,10 +58,25 @@ public class TankUnit extends RTSUnit{
         this.currentHealth = maxHealth;
     }
 
+    @Override
+    public void render(Graphics2D g) {
+        super.render(g);
+        if (isSelected()) {
+            Color original = g.getColor();
+            Stroke originalStroke = g.getStroke();
+            g.setColor(Color.red);
+            g.setStroke(new BasicStroke(10));
+            Coordinate c = getPixelLocation();
+            g.drawOval(c.x - RANGE, c.y - RANGE, RANGE * 2, RANGE * 2);
+            g.setColor(original);
+            g.setStroke(originalStroke);
+        }
+    }
+
     //when a tank tries to fire, it first checks if its turret is still firing. 
     //if not, tell the turret to fire at target location
     public void fire(Coordinate target) {
-        if (turret.firing || target.distanceFrom(location) < getHeight() * 3 / 5 || tickNumber-lastFiredTime < 60L) { //limited to one shot per 60 ticks
+        if (turret.firing || target.distanceFrom(location) < getHeight() * 3 / 5 || tickNumber-lastFiredTime < 60L || Math.abs(turret.angleFrom(target))>1) { //limited to one shot per 60 ticks
             return;
         }else{
             System.out.println("tickNumber " + tickNumber);
@@ -130,9 +150,8 @@ public class TankUnit extends RTSUnit{
                 System.out.println("null host game");
                 return null;
             }
-            double range = 550;
-            ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
-            double closestDistance = range + 1;
+            ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), RANGE);
+            double closestDistance = RANGE + 1;
             GameObject2 closest = null;
             if (!nearby.isEmpty()) {
                 for (GameObject2 go : nearby) {
@@ -147,16 +166,36 @@ public class TankUnit extends RTSUnit{
             }
             return (RTSUnit) closest;
         }
-        
+        //tank turret tick
         @Override
-        public void tick(){
+        public void tick() {
             super.tick();
             RTSUnit enemy = nearestInRange();
-            if(enemy==null){
-                rotateTo(this.getHost().getRotation());
-            }else{
-                lookAt(enemy);
-                Coordinate offset = new Coordinate(Main.generateRandom(-enemy.getWidth()/4, enemy.getWidth()/4),Main.generateRandom(-enemy.getHeight()/4, enemy.getHeight()/4));
+            if (enemy == null) {
+                double desiredRotation = getHost().getRotation()-getRotation();
+                double maxRotation = 5;
+                if (Math.abs(desiredRotation) < maxRotation) {
+                    rotate(desiredRotation);
+                } else {
+                    if (desiredRotation > 0) {
+                        rotate(maxRotation);
+                    } else {
+                        rotate(-maxRotation);
+                    }
+                }
+            } else {
+                double desiredRotation = angleFrom(enemy.getPixelLocation());
+                double maxRotation = 5;
+                if (Math.abs(desiredRotation) < maxRotation) {
+                    rotate(desiredRotation);
+                } else {
+                    if (desiredRotation > 0) {
+                        rotate(maxRotation);
+                    } else {
+                        rotate(-maxRotation);
+                    }
+                }
+                Coordinate offset = new Coordinate(Main.generateRandom(-enemy.getWidth() / 4, enemy.getWidth() / 4), Main.generateRandom(-enemy.getHeight() / 4, enemy.getHeight() / 4));
                 Coordinate targetPoint = enemy.getPixelLocation();
                 targetPoint.add(offset);
                 ((TankUnit)getHost()).fire(targetPoint);

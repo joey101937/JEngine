@@ -32,7 +32,7 @@ import java.awt.image.BufferedImage;
 public final class Minimap extends UIElement {
 
     public final MinimapInterior interior;
-    public static final double screenPortion = .2; //how much of the screen to take up
+    public static final double screenPortion = .1; //how much of the screen to take up
     public Game hostGame;
 
     /**

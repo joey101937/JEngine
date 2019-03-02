@@ -9,8 +9,10 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Hitbox;
 import GameDemo.SandboxDemo.Creature;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 
 /**
  *
@@ -24,13 +26,16 @@ public class RTSUnit extends Creature {
         super.render(g);
         if (selected) {
             Color originalColor = g.getColor();
+            Stroke originalStroke= g.getStroke();
             g.setColor(Color.green);
+            g.setStroke(new BasicStroke(5));
             Coordinate renderLocation = getPixelLocation();
             renderLocation.x -= getWidth() / 2;
             renderLocation.y -= getHeight() / 2;
             g.drawOval(renderLocation.x, renderLocation.y, getWidth(), getHeight());
             g.drawLine(getPixelLocation().x, getPixelLocation().y, desiredLocation.x, desiredLocation.y);
             g.drawString(this.currentHealth+"/"+maxHealth, getPixelLocation().x + 100, getPixelLocation().y);
+            g.setStroke(originalStroke);
             g.setColor(originalColor);
         }
     }
@@ -40,7 +45,18 @@ public class RTSUnit extends Creature {
     public void tick() {
         super.tick();
         if (desiredLocation.distanceFrom(location) > getWidth() / 2) {
-            this.lookAt(desiredLocation);
+            double desiredRotation = this.angleFrom(desiredLocation);
+            double maxRotation = 5;
+            if(Math.abs(desiredRotation)<maxRotation){
+                rotate(desiredRotation);
+            }else{
+                if(desiredRotation>0){
+                    rotate(maxRotation); 
+                }else{
+                    rotate(-maxRotation);
+                }
+            }
+            //this.lookAt(desiredLocation);
             this.velocity.y = -100; //remember negative means forward because reasons
         } else {
             this.velocity.y = 0;

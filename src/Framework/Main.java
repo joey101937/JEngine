@@ -13,8 +13,6 @@ import GameDemo.SpaceDemo.SpaceGame;
 import GameDemo.TankDemo.TankGame;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
@@ -27,7 +25,7 @@ public class Main {
 
     /* FIELDS */
     public static String assets = "Assets" + File.separator;
-    public static int renderDelay = 0; //the higher this is the crappier the responce time but the better the performance
+    public static int renderDelay = 8; //the higher this is the crappier the responce time but the better the performance
     public static int ticksPerSecond = 60;
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
     private static boolean overviewMode = false;

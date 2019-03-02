@@ -5,6 +5,7 @@
  */
 package GameDemo.RTSDemo;
 
+import Framework.Camera;
 import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
@@ -24,7 +25,6 @@ public class RTSInput extends InputHandler {
     @Override
     public void mousePressed(MouseEvent e){
         if(e.getButton() == 1) { //1 means left click
-            System.out.println("test");
             for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                 u.setSelected(false);
             }
@@ -37,6 +37,12 @@ public class RTSInput extends InputHandler {
             }
         }
 
+    }
+    
+    @Override
+    public void mouseExited(MouseEvent e){
+        getHostGame().getCamera().xVel=0;
+        getHostGame().getCamera().yVel=0;
     }
     
     @Override
@@ -62,8 +68,39 @@ public class RTSInput extends InputHandler {
     @Override
     public void mouseDragged(MouseEvent e) {
         mouseDraggedLocation = locationOfMouseEvent(e);
+        panCamera(e);
     }
 
+    @Override
+    public void mouseMoved(MouseEvent e){
+        panCamera(e);
+    }
+    
+    private void panCamera(MouseEvent e){
+        boolean up = false, down=false, left=false, right=false;
+        Coordinate loc = locationOfMouseEvent(e);
+        Camera cam = getHostGame().getCamera();
+        loc.subtract(cam.getWorldLocation());
+        if(loc.y < cam.getFieldOfView().height*.13) up=true; //top 10% of screen to scroll up
+        if(loc.y > cam.getFieldOfView().height*.87) down =true;
+        if(loc.x < cam.getFieldOfView().width*.13) left=true;
+        if(loc.x > cam.getFieldOfView().width*.87) right = true;
+        if(up){
+            cam.yVel=1;
+        }else if(down){
+            cam.yVel=-1;
+        }else{
+            cam.yVel=0;
+        }
+        if(left){
+            cam.xVel=1;
+        }else if(right){
+            cam.xVel=-1;
+        }else{
+            cam.xVel=0;
+        }
+    }
+    
     /**
      * gets the location the mouse was first pressed down if its currenlty pressed down
      * @return 
@@ -84,14 +121,62 @@ public class RTSInput extends InputHandler {
         }
         return mouseDraggedLocation;
     }
-    
+    /**
+     * WASD camera movement plus hotkey commands
+     * @param e 
+     */
     @Override
-    public void keyPressed(KeyEvent e){
-        //s is stop command
-        if(e.getKeyChar()=='s'){
-            for(RTSUnit u : SelectionBoxEffect.selectedUnits){
-                u.setDesiredLocation(u.getPixelLocation());
-            }
+    public void keyPressed(KeyEvent e) {
+        Camera cam = getHostGame().getCamera();
+        switch (e.getKeyChar()) {
+            case 'x':       //x for stop command
+                for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
+                    u.setDesiredLocation(u.getPixelLocation());
+                }
+                break;
+            case 'w':
+                cam.yVel=1;
+                break;
+            case 'a':
+                cam.xVel=1;
+                break;
+            case 's':
+                cam.yVel=-1;
+                break;
+            case 'd':
+                cam.xVel=-1;
+                break;
+            default:
+                return;
         }
     }
+    @Override
+    public void keyReleased(KeyEvent e){
+         Camera cam = getHostGame().getCamera();
+        switch (e.getKeyChar()) {
+            case 'w':
+                if(cam.yVel>0){
+                cam.yVel=0;
+                }
+                break;
+            case 'a':
+                if(cam.xVel>0){
+                    cam.xVel=0;
+                }
+                break;
+            case 's':
+                if(cam.yVel<0){
+                cam.yVel=0;
+                }
+                break;
+            case 'd':
+                 if(cam.xVel<0){
+                    cam.xVel=0;
+                }
+                break;
+            default:
+                return;
+        }
+    }
+    
 }
