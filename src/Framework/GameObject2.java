@@ -244,6 +244,16 @@ public class GameObject2 {
          rotateTo(DCoordinate.angleFrom(getPixelLocation(), destination));
     }
     
+    /**
+     * returns degree of rotation required to face given point from current orientation
+     * @param point point to look at
+     * @return degree of rotation required to face given point from current orientation
+     */
+    public double angleFrom(Coordinate point){
+        double result = DCoordinate.angleFrom(getPixelLocation(), point);
+        if(result-getRotation()>180)result-=360;
+        return result - getRotation();
+    }
     
     /**
      * Draws the object on screen in the game world
