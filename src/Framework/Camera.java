@@ -102,14 +102,14 @@ public class Camera {
                 }
                 location.x += xVel * delta;
                 location.y += yVel * delta;
-                g.translate(location.x - g.getTransform().getTranslateX(), location.y - g.getTransform().getTranslateY());
                 break;
             case RawVelocity:
                 location.x += xVel;
-                location.y += yVel;
-                g.translate(location.x - g.getTransform().getTranslateX(), location.y - g.getTransform().getTranslateY());
+                location.y += yVel;          
                 break;
         }
+         constrainCameraToWorld();
+         g.translate(location.x - g.getTransform().getTranslateX(), location.y - g.getTransform().getTranslateY());
     }
     /**
      * keeps camera from going out of bounds
