@@ -49,6 +49,13 @@ public abstract class SpriteManager {
     public static BufferedImage platformPathing;
     public static BufferedImage platformLong;
     public static BufferedImage platformPathingLong;
+    
+    
+    //SIDESCROLL GAME ASSETS
+    public static BufferedImage[] minotaurIdle_Right;
+    public static BufferedImage[] minotaurIdle_Left; 
+    public static BufferedImage[] minotaurRun_Right;
+    public static BufferedImage[] minotaurRun_Left;
     /*--------------------------------------------------------*/
     static{
         initialize();
@@ -91,6 +98,11 @@ public abstract class SpriteManager {
            platformPathing = load("DemoAssets/Platformer/platformPATHING.png");
            platformLong = load("DemoAssets/Platformer/platformLong.png");
            platformPathingLong = load("DemoAssets/Platformer/platformPATHINGLong.png");
+           
+           minotaurIdle_Right = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurIdle_Right");
+           minotaurIdle_Left = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurIdle_Left");
+           minotaurRun_Right = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurRun_Right");
+           minotaurRun_Left = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurRun_left");
            
            initialized=true;
         }catch(Exception e){

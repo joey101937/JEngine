@@ -72,6 +72,7 @@ public class Window {
         g.window=this;
         mainWindow = this;
         currentGame = g;
+        frame.setResizable(false);
     }
     
     /**

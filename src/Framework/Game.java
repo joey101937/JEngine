@@ -21,6 +21,8 @@ import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
+import java.awt.BasicStroke;
+import java.awt.Stroke;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -298,7 +300,7 @@ public class Game extends Canvas implements Runnable {
         if(!SpriteManager.initialized){
             System.out.println("WARNING: SpriteManager did not fully initialize");
         }
-        Window.mainWindow.UIElementsOnRender();
+        Window.UIElementsOnRender();
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) { ///run once at the start
             int numBuffer = 2;
@@ -320,13 +322,29 @@ public class Game extends Canvas implements Runnable {
         handler.render(g2d);
         visHandler.render(g2d);
         renderIndependentEffects(g2d);
+        renderBounds(g2d);
         g.dispose();
         g2d.dispose();
         if(Window.currentGame == this && !this.isPaused()){
             bs.show();
         }    
     }
-
+    /**
+     * renders the world border lines- shows how close objects can get to edge of world 
+     * @param g graphics object to draw with
+     */
+    private void renderBounds(Graphics2D g){
+        Color originalColor = g.getColor();
+        Stroke originalStroke = g.getStroke();
+        g.setStroke(new BasicStroke(2));
+        g.setColor(Color.BLUE);
+        g.drawLine(worldBorder, worldBorder, worldWidth-worldBorder, worldBorder); //top
+        g.drawLine(worldBorder, worldBorder, worldBorder, worldHeight-worldBorder); //left
+        g.drawLine(worldWidth-worldBorder, worldBorder, worldWidth-worldBorder, worldHeight-worldBorder); //right
+        g.drawLine(worldBorder, worldHeight-worldBorder, worldWidth-worldBorder, worldHeight-worldBorder); //bottom 
+        g.setStroke(originalStroke);
+        g.setColor(originalColor);
+    }
     /**
      * renders the background onto the game
      * @param g graphics to render with. should be the game's graphics

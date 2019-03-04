@@ -16,13 +16,13 @@ public class Sequence implements Graphic{
     public BufferedImage[] frames;
     private double scale = 1;
     /**Duration to wait before switching frames in ms*/
-    public int frameDelay = 60;
+    public int frameDelay = 100;
     /**Index of frame currently set to render*/
     public volatile int currentFrameIndex = 0;
     private volatile boolean disabled = false;
     private volatile boolean paused = false;
     private Long startTime;
-    
+    private int pausedOnFrame = 0;
     /**
      * @return BufferedImage to be rendered based on frame index, null if 
      * the frames array is null or if the actual image is null
@@ -42,12 +42,13 @@ public class Sequence implements Graphic{
         BufferedImage output = null;
         try {
             if (!isPaused()) {
-                currentFrameIndex = (int) (((System.currentTimeMillis() - startTime) / frameDelay) % frames.length);
+                currentFrameIndex = getCurrentFrameIndex();
             }
             output = frames[currentFrameIndex];
         } catch (ArrayIndexOutOfBoundsException e) {
             //check to see if threads got out of sync and updated index too fast
             //if so, reset index rather than returning null
+            //UPDATE: this is likely unneeded after I fixed some issues but i will leave just in case
             if (currentFrameIndex != 0) {
                 currentFrameIndex = 0;
                 return getCurrentFrame();
@@ -55,6 +56,11 @@ public class Sequence implements Graphic{
         }
         return output;
     }
+    
+    public int getCurrentFrameIndex(){
+        return (int) (((System.currentTimeMillis() - startTime) / frameDelay) % frames.length); 
+    }
+    
     /**
      * Start the animation
      */
@@ -83,6 +89,20 @@ public class Sequence implements Graphic{
             finalize();
         } catch (Throwable ex) {
             ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * Jumps to number frame in animation, note 1 would be first frame in animation
+     * while the number of frames would represet the last frame
+     * @param i number frame in sequence, starting at 1.
+     */
+    public void jumpToFrame(int i){
+        i--;//arrays start at zero
+        if(i<0 || i > frames.length-1){
+            throw new ArrayIndexOutOfBoundsException("jumpToFrame argument must be between 1 and number of frames");
+        }else{
+            startTime = new Long((i*frameDelay));
         }
     }
 
@@ -170,8 +190,26 @@ public class Sequence implements Graphic{
      * @param in true = pause, false = resume
      */
     public synchronized void setPaused(boolean in){
-        paused = in;
+        if(in && isPaused()){
+            //pause but already paused
+            return;
+        }
+        if(in && !isPaused()){
+             paused = true;
+             this.pausedOnFrame = this.getCurrentFrameIndex();
+             return;
+        }
+        if(!in && !isPaused()){
+            //resume but not paused
+            return;
+        }
+        if(!in && isPaused()){
+            jumpToFrame(pausedOnFrame+1);
+            paused = false;
+        }
     }
+    
+    
     
     public void restart(){
         startTime = System.currentTimeMillis();

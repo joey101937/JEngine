@@ -8,7 +8,7 @@ package Framework;
 import GameDemo.AudioDemo.AudioDemo;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.SandboxDemo.LaunchMenu;
-import GameDemo.SideScollerDemo_TERRAIN.SideScrollGame;
+import GameDemo.SideScollerDemo_TERRAIN.SideScrollDemo;
 import GameDemo.SpaceDemo.SpaceGame;
 import GameDemo.TankDemo.TankGame;
 import java.awt.image.BufferedImage;
@@ -25,8 +25,9 @@ public class Main {
 
     /* FIELDS */
     public static String assets = "Assets" + File.separator;
-    public static int renderDelay = 8; //the higher this is the crappier the responce time but the better the performance
-    public static int ticksPerSecond = 60;
+    public static int renderDelay = 11; //the higher this is the worse the fps and max fps but the better the performance
+                                        //If performance is an issue, renderDelay likely needs to be raised
+    public static int ticksPerSecond = 60; //how fast the game logic runs. lower to help performance but at noticable reduction to gamespeed
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
     private static boolean overviewMode = false;
     public static boolean debugMode = false;
@@ -48,7 +49,7 @@ public class Main {
             break;
             case 3: SpaceGame.main(args);
             break;
-            case 4: SideScrollGame.main(args);
+            case 4: SideScrollDemo.main(args);
             break;
             case 5: AudioDemo.main(args);
             break;
