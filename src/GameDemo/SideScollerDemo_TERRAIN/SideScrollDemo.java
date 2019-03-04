@@ -15,7 +15,7 @@ import Framework.Window;
  *
  * @author Joseph
  */
-public class SideScrollGame {
+public class SideScrollDemo {
     
     protected static SideScrollCharacter playerCharacter = new SideScrollCharacter(new Coordinate(100,100));
  

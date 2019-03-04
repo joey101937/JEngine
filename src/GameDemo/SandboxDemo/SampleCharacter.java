@@ -50,7 +50,7 @@ public class SampleCharacter extends GameObject2{
         this.animations.put("walkRight", new Sequence(SpriteManager.sampleChar_walkRight));
         this.animations.put("walkLeft", new Sequence(SpriteManager.sampleChar_walkLeft));
         for(String s : animations.keySet()){
-            animations.get(s).frameDelay*=3;  //slow animation speed by 3x
+            animations.get(s).frameDelay=150;  //slow animation speed to 150ms
         }        
     }
     

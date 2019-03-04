@@ -5,10 +5,8 @@
  */
 package GameDemo.RTSDemo;
 
-import Framework.Coordinate;
 import Framework.Game;
 import Framework.SpriteManager;
-import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import GameDemo.RTSDemo.Units.TankUnit;
 
@@ -29,7 +27,6 @@ public class RTSGame {
         TankUnit testUnit3 = new TankUnit(800,800);
         game.addObject(testUnit);
         game.addObject(testUnit2);
-        game.addObject(testUnit3);
-        new Minimap(game,new Coordinate((int)(game.getCamera().getFieldOfView().width*.78),0));
+        game.addObject(testUnit3); 
     }
 }

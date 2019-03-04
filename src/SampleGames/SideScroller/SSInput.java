@@ -3,27 +3,29 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo.SideScollerDemo_TERRAIN;
+package SampleGames.SideScroller;
 
 import Framework.InputHandler;
+import SampleGames.SideScroller.Actors.Minotaur;
 import java.awt.event.KeyEvent;
+
 /**
  *
  * @author Joseph
  */
-public class SideScollInput extends InputHandler{
-    @Override
+public class SSInput extends InputHandler{
+        @Override
     public void keyPressed(KeyEvent e){
         switch(e.getKeyChar()){
             case 'a':
-                SideScrollDemo.playerCharacter.velocity.x = -3;
+                SSGame.minotaur.velocity.x = -3;
                 break;
             case 'd':
-                SideScrollDemo.playerCharacter.velocity.x = 3;
+                SSGame.minotaur.velocity.x = 3;
                 break;
             case ' ':
-                if(SideScrollDemo.playerCharacter.isOnGround()){
-                    SideScrollDemo.playerCharacter.jumpTick = SideScrollDemo.playerCharacter.tickNumber;
+                if(SSGame.minotaur.isOnGround()){
+                    SSGame.minotaur.jumpTick = SSGame.minotaur.tickNumber;
                 }           
                 break;
             default:
@@ -33,7 +35,7 @@ public class SideScollInput extends InputHandler{
     
         @Override
     public void keyReleased(KeyEvent e){
-        SideScrollCharacter player = SideScrollDemo.playerCharacter;
+        Minotaur player = SSGame.minotaur;
         switch(e.getKeyChar()){
             case 'a':
                 if(player.velocity.x<0)player.velocity.x = 0;

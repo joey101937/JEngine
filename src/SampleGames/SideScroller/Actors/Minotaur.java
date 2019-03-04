@@ -3,31 +3,32 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameDemo.SideScollerDemo_TERRAIN;
+package SampleGames.SideScroller.Actors;
 
-import Framework.GameObject2;
 import Framework.Coordinate;
 import Framework.DCoordinate;
-import Framework.PathingLayer;
+import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
+import Framework.PathingLayer;
 import Framework.SpriteManager;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Example of a game character using GO2 setup
+ *
  * @author Joseph
  */
-public class SideScrollCharacter extends GameObject2{
-    
+public class Minotaur extends GameObject2{
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
     public Long jumpTick = 0L; //last tick the character started jumpin at
-    public SideScrollCharacter(DCoordinate c) {
+    public boolean facingRight = true;
+    
+    public Minotaur(DCoordinate c) {
         super(c);
         characterSetup();
     }
         
-    public SideScrollCharacter(Coordinate c){
+    public Minotaur(Coordinate c){
         super(c);
         characterSetup();
     }
@@ -36,23 +37,20 @@ public class SideScrollCharacter extends GameObject2{
      * set up basics of character
      */
     private void characterSetup(){
-        name = "Sample Character";
+        name = "Minotaur " + ID;
         baseSpeed = 3.5;
-        setScale(.5);
+        setScale(1.5);
         isSolid=true;
         this.movementType = GameObject2.MovementType.RawVelocity;
         //initial animation
-        Sequence idleSequence = new Sequence(SpriteManager.sampleChar_idle);
-        this.setGraphic(idleSequence);
+        Sequence idleSequenceL = new Sequence(SpriteManager.minotaurIdle_Left);
+        Sequence idleSequenceR = new Sequence(SpriteManager.minotaurIdle_Right);
+        this.setGraphic(idleSequenceR);
         //add animation sequences
-        this.animations.put("Idle", idleSequence);
-        this.animations.put("walkUp", new Sequence(SpriteManager.sampleChar_walkUp));
-        this.animations.put("walkDown", new Sequence(SpriteManager.sampleChar_walkDown));
-        this.animations.put("walkRight", new Sequence(SpriteManager.sampleChar_walkRight));
-        this.animations.put("walkLeft", new Sequence(SpriteManager.sampleChar_walkLeft));
-        for(String s : animations.keySet()){
-            animations.get(s).frameDelay*=3;  //slow animation speed by 3x
-        }        
+        this.animations.put("IdleL", idleSequenceL);
+        this.animations.put("IdleR", idleSequenceR);
+        this.animations.put("walkRight", new Sequence(SpriteManager.minotaurRun_Right));
+        this.animations.put("walkLeft", new Sequence(SpriteManager.minotaurRun_Left));    
     }
     
     /**
@@ -61,11 +59,18 @@ public class SideScrollCharacter extends GameObject2{
      */
     private void updateAnimation() {
         if (velocity.x > 0) {
+            this.facingRight=true;
             this.setGraphic(animations.get("walkRight"));
         } else if (velocity.x < 0) {
+            this.facingRight=false;
             this.setGraphic(animations.get("walkLeft"));
         } else {
-            this.setGraphic(animations.get("Idle"));
+            if(facingRight){
+                this.setGraphic(animations.get("IdleR"));
+            }else{
+                this.setGraphic(animations.get("IdleL"));
+            }
+            
         }
     }
 
@@ -105,12 +110,10 @@ public class SideScrollCharacter extends GameObject2{
      * checks if terrain under this object is pathable.
      * @return if terrain under this object is pathable
      */
-    protected boolean isOnGround() {
+    public boolean isOnGround() {
         Coordinate c = getPixelLocation().copy();
         c.y+=(getHeight()/2)-5;
         PathingLayer.Type type = getHostGame().getPathingLayer().getTypeAt(c);
         return pathingModifiers.get(type) < .05;
     }
-    
-   
 }

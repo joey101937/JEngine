@@ -8,13 +8,12 @@ package GameDemo.SandboxDemo;
 import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
+import Framework.GraphicalAssets.Sequence;
 import Framework.InputHandler;
 import Framework.UtilityObjects.Projectile;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
-import Framework.Stickers.Sticker;
 import Framework.UI_Elements.OptionsMenu;
-import GameDemo.SandboxDemo.LaunchMenu;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
