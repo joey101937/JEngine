@@ -266,13 +266,13 @@ public class LaunchMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void lowSpecButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowSpecButtonActionPerformed
-       this.RenderDelaySpinner.setValue(11);
+       this.RenderDelaySpinner.setValue(15);
        this.TickRateSpinner.setValue(50);
        this.tripleCheck.setSelected(false);
     }//GEN-LAST:event_lowSpecButtonActionPerformed
 
     private void standardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_standardButtonActionPerformed
-        this.RenderDelaySpinner.setValue(0);
+        this.RenderDelaySpinner.setValue(11);
        this.TickRateSpinner.setValue(60);
        this.tripleCheck.setSelected(true);
     }//GEN-LAST:event_standardButtonActionPerformed
