@@ -47,15 +47,15 @@ public abstract class SpriteManager {
     //PLATFORMER ASSETS
     public static BufferedImage platformBG;
     public static BufferedImage platformPathing;
-    public static BufferedImage platformLong;
-    public static BufferedImage platformPathingLong;
-    
     
     //SIDESCROLL GAME ASSETS
     public static BufferedImage[] minotaurIdle_Right;
     public static BufferedImage[] minotaurIdle_Left; 
     public static BufferedImage[] minotaurRun_Right;
     public static BufferedImage[] minotaurRun_Left;
+    public static BufferedImage[] minotaurSwing_Right;
+    public static BufferedImage SSBackground;
+    public static BufferedImage terrain260x125, terrain585x120;
     /*--------------------------------------------------------*/
     static{
         initialize();
@@ -96,13 +96,15 @@ public abstract class SpriteManager {
            
            platformBG = load("DemoAssets/Platformer/platformer.png");
            platformPathing = load("DemoAssets/Platformer/platformPATHING.png");
-           platformLong = load("DemoAssets/Platformer/platformLong.png");
-           platformPathingLong = load("DemoAssets/Platformer/platformPATHINGLong.png");
            
            minotaurIdle_Right = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurIdle_Right");
            minotaurIdle_Left = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurIdle_Left");
            minotaurRun_Right = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurRun_Right");
-           minotaurRun_Left = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurRun_left");
+           minotaurRun_Left = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurRun_Left");
+           minotaurSwing_Right = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurSwing_Right");
+           SSBackground = load("DemoAssets/SideScroll/Terrain/DesertBG.png");
+           terrain260x125 = load("DemoAssets/SideScroll/Terrain/terrain260x125.png");
+           terrain585x120 = load("DemoAssets/SideScroll/Terrain/terrain585x120.png");
            
            initialized=true;
         }catch(Exception e){

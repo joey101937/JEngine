@@ -22,7 +22,7 @@ public class DCoordinate {
         return Math.sqrt(Math.pow((other.x - this.x), 2) + Math.pow(other.y - this.y, 2));
     }
 
-    public double distanceFreom(Coordinate other) {
+    public double distanceFrom(Coordinate other) {
         return Math.sqrt(Math.pow((other.x - this.x), 2) + Math.pow(other.y - this.y, 2));
     }
 

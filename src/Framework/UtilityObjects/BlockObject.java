@@ -29,10 +29,23 @@ public class BlockObject extends GameObject2{
     private int borderThickness = 5; 
     
     @Override
-    public void render(Graphics2D g){
+    public void render(Graphics2D g) {
         renderNumber++;
         AffineTransform old = g.getTransform();
         g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y);
+        if (isInvisible) {
+            if (Main.debugMode) {
+                g.setColor(Color.red);
+                g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
+                g.drawString(name, (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
+                g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
+            }
+            g.setTransform(old); //reset rotation for next item to render
+            if (Main.debugMode && getHitbox() != null) {
+                getHitbox().render(g); //render hitbox without graphics rotation
+            }
+            return;
+        }
         Stroke originalStroke = g.getStroke();
         Color originalColor = g.getColor();
         g.setStroke(new BasicStroke(borderThickness));

@@ -322,7 +322,9 @@ public class Game extends Canvas implements Runnable {
         handler.render(g2d);
         visHandler.render(g2d);
         renderIndependentEffects(g2d);
-        renderBounds(g2d);
+        if (Main.debugMode) {
+            renderBounds(g2d);
+        }
         g.dispose();
         g2d.dispose();
         if(Window.currentGame == this && !this.isPaused()){

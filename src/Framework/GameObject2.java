@@ -429,14 +429,28 @@ public class GameObject2 {
                     continue;
                 }
                 if (getHitbox().intersects(other.getHitbox())) {
-                    //if we are already on top of another unit, just keep going to not get stuck
-                    onCollide(other);
-                    if(newLocation.distanceFrom(other.location) > location.distanceFrom(other.location) || !preventOverlap || !other.preventOverlap || !isSolid || !other.isSolid){
+                    if (!collisionSliding) {
+                        //if we are already on top of another unit, just keep going to not get stuck
+                        onCollide(other);
+                        if (newLocation.distanceFrom(other.location) > location.distanceFrom(other.location) || !preventOverlap || !other.preventOverlap || !isSolid || !other.isSolid) {
+                            continue;
+                        } else {
+                            newLocation = location;
+                        }
                         continue;
                     }else{
-                        newLocation = location;
+                        //slide within another thing
+                       DCoordinate proxyLoc = location.copy();
+                       proxyLoc.x +=toMove.x;
+                       if(proxyLoc.distanceFrom(other.location)<location.distanceFrom(location)){
+                           location.x+=toMove.x;
+                       }
+                       proxyLoc.x -=toMove.x;
+                       proxyLoc.y +=toMove.y;
+                        if(proxyLoc.distanceFrom(other.location)<location.distanceFrom(location)){
+                           location.y+=toMove.y;
+                       }
                     }
-                    continue;
                 }
                 if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), (int) Math.ceil(toMove.y)))) {
                     boolean xClear = !getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), 0));
