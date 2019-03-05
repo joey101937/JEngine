@@ -6,8 +6,10 @@
 package SampleGames.SideScroller;
 
 import Framework.InputHandler;
+import Framework.UI_Elements.OptionsMenu;
 import SampleGames.SideScroller.Actors.Minotaur;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 /**
  *
@@ -18,15 +20,20 @@ public class SSInput extends InputHandler{
     public void keyPressed(KeyEvent e){
         switch(e.getKeyChar()){
             case 'a':
+                if(!SSGame.minotaur.freeToAct())break;
                 SSGame.minotaur.velocity.x = -3;
                 break;
             case 'd':
+                 if(!SSGame.minotaur.freeToAct())break;
                 SSGame.minotaur.velocity.x = 3;
                 break;
             case ' ':
                 if(SSGame.minotaur.isOnGround()){
                     SSGame.minotaur.jumpTick = SSGame.minotaur.tickNumber;
                 }           
+                break;
+            case 'x':
+                OptionsMenu.display();
                 break;
             default:
                 break;
@@ -45,6 +52,18 @@ public class SSInput extends InputHandler{
                 break;
             default: 
                 break;
+        }
+    }
+    
+    @Override
+    public void mousePressed(MouseEvent e){
+        if(e.getButton() == 1){
+            if(locationOfMouseEvent(e).x > SSGame.minotaur.getPixelLocation().x){
+                SSGame.minotaur.attack(true);//right
+            }else{
+                SSGame.minotaur.attack(false);//left
+            }
+            
         }
     }
 }
