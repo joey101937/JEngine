@@ -439,6 +439,7 @@ public class GameObject2 {
                         }
                         continue;
                     }else{
+                        onCollide(other);
                         //slide within another thing
                        DCoordinate proxyLoc = location.copy();
                        proxyLoc.x +=toMove.x;
