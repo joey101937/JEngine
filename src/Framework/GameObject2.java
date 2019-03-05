@@ -443,12 +443,12 @@ public class GameObject2 {
                         //slide within another thing
                        DCoordinate proxyLoc = location.copy();
                        proxyLoc.x +=toMove.x;
-                       if(proxyLoc.distanceFrom(other.location)<location.distanceFrom(location)){
+                       if(proxyLoc.distanceFrom(other.location)>location.distanceFrom(other.location)){
                            location.x+=toMove.x;
                        }
                        proxyLoc.x -=toMove.x;
                        proxyLoc.y +=toMove.y;
-                        if(proxyLoc.distanceFrom(other.location)<location.distanceFrom(location)){
+                        if(proxyLoc.distanceFrom(other.location)>location.distanceFrom(other.location)){
                            location.y+=toMove.y;
                        }
                     }

@@ -22,7 +22,7 @@ public class Window {
     /*  FIELDS  */
     public static JPanel panel = new JPanel();
     public static JFrame frame;
-    public static String title = "Window Name";
+    public static String title = "JEngine Window"; //name of window
     public static Window mainWindow;
     public static Game currentGame;
     private static ArrayList<UIElement> UIElements = new ArrayList<>();
