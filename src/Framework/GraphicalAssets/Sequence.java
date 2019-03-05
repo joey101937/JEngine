@@ -58,7 +58,12 @@ public class Sequence implements Graphic{
     }
     
     public int getCurrentFrameIndex(){
-        return (int) (((System.currentTimeMillis() - startTime) / frameDelay) % frames.length); 
+        try{
+           return (int) (((System.currentTimeMillis() - startTime) / frameDelay) % frames.length);   
+        }catch (NullPointerException e){
+            System.out.println("null pointer trying to get Sequence Frame Index");
+            return 0;
+        }
     }
     
     /**

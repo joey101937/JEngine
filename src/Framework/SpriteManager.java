@@ -54,6 +54,8 @@ public abstract class SpriteManager {
     public static BufferedImage[] minotaurRun_Right;
     public static BufferedImage[] minotaurRun_Left;
     public static BufferedImage[] minotaurSwing_Right;
+    public static BufferedImage[] minotaurSwing_Left;
+    public static BufferedImage[] minotaurDeath_Right;
     public static BufferedImage SSBackground;
     public static BufferedImage terrain260x125, terrain585x120;
     /*--------------------------------------------------------*/
@@ -102,6 +104,8 @@ public abstract class SpriteManager {
            minotaurRun_Right = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurRun_Right");
            minotaurRun_Left = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurRun_Left");
            minotaurSwing_Right = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurSwing_Right");
+           minotaurSwing_Left = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurSwing_Left");
+           minotaurDeath_Right = loadSequence("DemoAssets/SideScroll/Minotaur/MinotaurDeath_Right");
            SSBackground = load("DemoAssets/SideScroll/Terrain/DesertBG.png");
            terrain260x125 = load("DemoAssets/SideScroll/Terrain/terrain260x125.png");
            terrain585x120 = load("DemoAssets/SideScroll/Terrain/terrain585x120.png");
