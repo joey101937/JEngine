@@ -58,6 +58,8 @@ public abstract class SpriteManager {
     public static BufferedImage[] minotaurDeath_Right;
     public static BufferedImage SSBackground;
     public static BufferedImage terrain260x125, terrain585x120;
+    public static BufferedImage barrel;
+    public static BufferedImage[] barrelDeath;
     /*--------------------------------------------------------*/
     static{
         initialize();
@@ -109,7 +111,8 @@ public abstract class SpriteManager {
            SSBackground = load("DemoAssets/SideScroll/Terrain/DesertBG.png");
            terrain260x125 = load("DemoAssets/SideScroll/Terrain/terrain260x125.png");
            terrain585x120 = load("DemoAssets/SideScroll/Terrain/terrain585x120.png");
-           
+           barrel = load("DemoAssets/SideScroll/Barrel/barrel.png");
+           barrelDeath = loadSequence("DemoAssets/SideScroll/Barrel/barrelBreak");
            initialized=true;
         }catch(Exception e){
             e.printStackTrace();

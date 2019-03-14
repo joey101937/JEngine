@@ -23,7 +23,7 @@ import Framework.GraphicalAssets.Graphic;
  */
 public class GameObject2 {
     private Game hostGame;
-    public String name= "Unnamed " + this.getClass().getName(); 
+    public String name= "Unnamed " + this.getClass().getSimpleName(); 
     public long tickNumber = 0; //used for debugging, counts number of times this has ticked
     public long renderNumber = 0; //used for debugging, counts number of times this has rendered
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
@@ -444,12 +444,12 @@ public class GameObject2 {
                        DCoordinate proxyLoc = location.copy();
                        proxyLoc.x +=toMove.x;
                        if(proxyLoc.distanceFrom(other.location)>location.distanceFrom(other.location)){
-                           location.x+=toMove.x;
+                           newLocation.x+=toMove.x;
                        }
                        proxyLoc.x -=toMove.x;
                        proxyLoc.y +=toMove.y;
                         if(proxyLoc.distanceFrom(other.location)>location.distanceFrom(other.location)){
-                           location.y+=toMove.y;
+                           newLocation.y+=toMove.y;
                        }
                     }
                 }

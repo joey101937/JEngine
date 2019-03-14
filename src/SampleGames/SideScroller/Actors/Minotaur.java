@@ -22,7 +22,6 @@ import java.util.Map;
  */
 public class Minotaur extends SSActor{
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
-    public Long jumpTick = 0L; //last tick the character started jumpin at
     public boolean facingRight = true;
     private Hitbox damageArea = null;
     private boolean actionDirection = true; //what direction the most recent action was facing
@@ -78,20 +77,6 @@ public class Minotaur extends SSActor{
         }
     }
 
-    public boolean isJumping(){
-    return 25 - (tickNumber - jumpTick) > 0;
-    }
-    
-    private void adjustVelocityForGravityAndJump() {
-        if (isJumping()) {
-            velocity.y = -7;
-            return;
-        } else {
-                velocity.y = 5;
-        }
-
-    }
-
     /**
      * this runs every 'tick' (think update in unity) sets appropriate animation
      * based on velocity
@@ -99,7 +84,7 @@ public class Minotaur extends SSActor{
     @Override
     public void tick() {
         doAction();
-        adjustVelocityForGravityAndJump();
+        if(getCurrentAction()!=Action.Dying)adjustVelocityForGravityAndJump();
         super.tick();
         if (velocity.x > 0) {
             this.facingRight=true;
@@ -119,7 +104,7 @@ public class Minotaur extends SSActor{
     
     private void doAction(){
          switch(getCurrentAction()){
-            case PreAttack:
+            case PreAttack1:
                 Sequence s = (Sequence)getGraphic();
                 if(s.getCurrentFrameIndex()!=s.frames.length/2)break; //this runs half way through attack ani
                 int size = getWidth();
@@ -166,6 +151,8 @@ public class Minotaur extends SSActor{
     @Override
     public void startDying(){
         setCurrentAction(Action.Dying);
+        isSolid=false;
+        velocity.y=0;
         Sequence deathSeq = new Sequence(SpriteManager.minotaurDeath_Right);
         deathSeq.frameDelay=150;
         this.setGraphic(deathSeq);
@@ -197,7 +184,7 @@ public class Minotaur extends SSActor{
     @Override
     public void attack(boolean right){
         if(this.freeToAct()){
-            this.setCurrentAction(Action.PreAttack);
+            this.setCurrentAction(Action.PreAttack1);
             Sequence swingSequence;
             if(right){
                 swingSequence = new Sequence(SpriteManager.minotaurSwing_Right);

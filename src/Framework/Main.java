@@ -11,6 +11,7 @@ import GameDemo.SandboxDemo.LaunchMenu;
 import GameDemo.SideScollerDemo_TERRAIN.SideScrollDemo;
 import GameDemo.SpaceDemo.SpaceGame;
 import GameDemo.TankDemo.TankGame;
+import SampleGames.SideScroller.SSGame;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
@@ -36,7 +37,7 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        String[] options = {"Sandbox Demo" , "Tank Demo", "RTS Demo", "Space Demo" , "Side Scroller Demo" , "Audio Demo"};
+        String[] options = {"Sandbox Demo" , "Tank Demo", "RTS Demo", "Space Demo" , "Side Scroller Demo" , "Audio Demo", "Minotaur Game"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
@@ -52,6 +53,8 @@ public class Main {
             case 4: SideScrollDemo.main(args);
             break;
             case 5: AudioDemo.main(args);
+            break;
+            case 6: SSGame.main(args);
             break;
             default: System.exit(1);
         }

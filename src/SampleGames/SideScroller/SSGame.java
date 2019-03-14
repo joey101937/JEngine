@@ -20,7 +20,7 @@ import SampleGames.SideScroller.Levels.SSLevel1;
 public class SSGame {
     public static Game scene1 = new SSLevel1();
     public static BlockObject floor;
-    public static Minotaur minotaur = new Minotaur(new Coordinate(100,100));
+    public static Minotaur playerMinotaur = new Minotaur(new Coordinate(100,700));
     
     
     
@@ -28,8 +28,9 @@ public class SSGame {
         Window.initialize(scene1);
         //scene1.setZoom(1.15);
         scene1.worldBorder = 30;
-        scene1.addObject(minotaur);
-        scene1.getCamera().setTarget(minotaur);
+        scene1.addObject(playerMinotaur);
+        scene1.getCamera().setTarget(playerMinotaur);
         scene1.setInputHandler(new SSInput());
+        Game.scaleForResolutionAspectRatio();
     }
 }

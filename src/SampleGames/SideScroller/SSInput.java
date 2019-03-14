@@ -20,16 +20,16 @@ public class SSInput extends InputHandler{
     public void keyPressed(KeyEvent e){
         switch(e.getKeyChar()){
             case 'a':
-                if(!SSGame.minotaur.freeToAct())break;
-                SSGame.minotaur.velocity.x = -3;
+                if(!SSGame.playerMinotaur.freeToAct())break;
+                SSGame.playerMinotaur.velocity.x = -3;
                 break;
             case 'd':
-                 if(!SSGame.minotaur.freeToAct())break;
-                SSGame.minotaur.velocity.x = 3;
+                 if(!SSGame.playerMinotaur.freeToAct())break;
+                SSGame.playerMinotaur.velocity.x = 3;
                 break;
             case ' ':
-                if(SSGame.minotaur.isOnGround()){
-                    SSGame.minotaur.jumpTick = SSGame.minotaur.tickNumber;
+                if(SSGame.playerMinotaur.isOnGround()){
+                    SSGame.playerMinotaur.jump();
                 }           
                 break;
             case 'x':
@@ -42,7 +42,7 @@ public class SSInput extends InputHandler{
     
         @Override
     public void keyReleased(KeyEvent e){
-        Minotaur player = SSGame.minotaur;
+        Minotaur player = SSGame.playerMinotaur;
         switch(e.getKeyChar()){
             case 'a':
                 if(player.velocity.x<0)player.velocity.x = 0;
@@ -58,10 +58,10 @@ public class SSInput extends InputHandler{
     @Override
     public void mousePressed(MouseEvent e){
         if(e.getButton() == 1){
-            if(locationOfMouseEvent(e).x > SSGame.minotaur.getPixelLocation().x){
-                SSGame.minotaur.attack(true);//right
+            if(locationOfMouseEvent(e).x > SSGame.playerMinotaur.getPixelLocation().x){
+                SSGame.playerMinotaur.attack(true);//right
             }else{
-                SSGame.minotaur.attack(false);//left
+                SSGame.playerMinotaur.attack(false);//left
             }
             
         }
