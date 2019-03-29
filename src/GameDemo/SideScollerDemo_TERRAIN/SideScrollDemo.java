@@ -31,7 +31,7 @@ public class SideScrollDemo {
         g.worldBorder=20;
         g.getCamera().setTarget(playerCharacter);
         Game.scaleForResolutionAspectRatio();
-        g.setZoom(1.5);
+        //g.setZoom(1.5);
         //Main.debugMode=true;
     }
 }

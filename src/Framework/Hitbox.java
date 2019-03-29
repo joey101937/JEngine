@@ -206,6 +206,32 @@ public class Hitbox {
     private synchronized boolean linesIntersect(double[] line1, double[] line2) {
         return Line2D.linesIntersect(line1[0], line1[1], line1[2], line1[3], line2[0], line2[1], line2[2], line2[3]);
     }
+    
+    
+    /**
+     * Weather or not this hitbox intersects wit given line
+     * @param points 4 length array of doubles that represents two points in a line
+     * x1,y1,x2,y2
+     * @return if the given line intersects with any sides of this hitbox.
+     */
+    public boolean intersectsWithLine(double[] points){
+        if(points == null) {
+            throw new RuntimeException("Bad argument: line to compare is null");
+        }
+        if (points.length != 4) {
+            throw new RuntimeException("Bad argument: param must be length 4, was " + points.length);
+        }
+        //first check if the points are too close
+        DCoordinate p1 = new DCoordinate(points[0], points[1]);
+        DCoordinate p2 = new DCoordinate(points[2], points[3]);
+        if (p1.distanceFrom(getCenter()) < this.shortestRange || p2.distanceFrom(getCenter()) < this.shortestRange) {
+            return true;
+        }
+        //if that is uncertain, do straight intersection test
+        boolean intersects = linesIntersect(rightSide(), points) || linesIntersect(leftSide(), points)
+                || linesIntersect(topSide(), points) || linesIntersect(rightSide(), points);
+        return intersects;
+    }
 
     /**
      * returns true if this hitbox touches the given hitbox
