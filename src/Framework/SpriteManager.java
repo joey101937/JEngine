@@ -13,7 +13,8 @@ import javax.imageio.ImageIO;
 
 /**
  * This class acts as a central hub for accessing exterior assets; particularly
- * for images. You dont have to use it but it makes things easy to have all in
+ * for images. 
+ * NOTE: You dont have to use it but it makes things easy to have all in
  * one place
  * @author Joseph
  */
@@ -43,6 +44,7 @@ public abstract class SpriteManager {
     public static BufferedImage spaceBG;
     public static BufferedImage spaceBG2;
     public static BufferedImage spaceship;
+    public static BufferedImage evilShip;
     
     //PLATFORMER ASSETS
     public static BufferedImage platformBG;
@@ -97,6 +99,7 @@ public abstract class SpriteManager {
            spaceBG = load("DemoAssets/spacebg.png");
            spaceBG2 = load("DemoAssets/spacebg2.png");
            spaceship = load("DemoAssets/spaceship.png");
+           evilShip = load("DemoAssets/evilSpaceShip.png");
            
            platformBG = load("DemoAssets/Platformer/platformer.png");
            platformPathing = load("DemoAssets/Platformer/platformPATHING.png");
