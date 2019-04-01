@@ -15,31 +15,30 @@ import Framework.SpriteManager;
  *
  * @author Joseph
  */
-public class PlayerShip extends GameObject2{
+public class EnemyShip extends GameObject2{
 
-    public PlayerShip(Coordinate c) {
+    public EnemyShip(Coordinate c) {
         super(c);
-        
+        init();
     }
 
-    public PlayerShip(DCoordinate dc) {
+    public EnemyShip(DCoordinate dc) {
         super(dc);
-        initialize();
+        init();
     }
 
-    public PlayerShip(int x, int y) {
+    public EnemyShip(int x, int y) {
         super(x, y);
-        initialize();        
+        init();
     }
-    
-    private void initialize(){
-        Sprite s = new Sprite(SpriteManager.spaceship);
+ 
+    private void init() {
+        Sprite s = new Sprite(SpriteManager.evilShip);
         setGraphic(s);
-        scale(.25);
-        isSolid=true;
-        name = "Player";
+        scale(.2);
+        isSolid = true;
+        name = "Enemy " + ID;
         movementType = MovementType.SpeedRatio;
         baseSpeed = 4;
-        
     }
 }

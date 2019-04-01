@@ -45,6 +45,7 @@ public abstract class SpriteManager {
     public static BufferedImage spaceBG2;
     public static BufferedImage spaceship;
     public static BufferedImage evilShip;
+    public static BufferedImage bolt;
     
     //PLATFORMER ASSETS
     public static BufferedImage platformBG;
@@ -100,6 +101,7 @@ public abstract class SpriteManager {
            spaceBG2 = load("DemoAssets/spacebg2.png");
            spaceship = load("DemoAssets/spaceship.png");
            evilShip = load("DemoAssets/evilSpaceShip.png");
+           bolt = load("DemoAssets/bolt.png");
            
            platformBG = load("DemoAssets/Platformer/platformer.png");
            platformPathing = load("DemoAssets/Platformer/platformPATHING.png");

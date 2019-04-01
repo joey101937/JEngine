@@ -17,13 +17,18 @@ import Framework.Window;
  */
 public class GaligaGame {
     
+    public static PlayerShip player;
+    public static Game mainGame; 
+    
     public static void main(String[] args) {
-        Game mainGame = new Game(SpriteManager.spaceBG);
+        mainGame = new Game(SpriteManager.spaceBG);
         Window.initialize(mainGame);
-        Main.debugMode=true;
+        //Main.debugMode=true;
         DCoordinate spawnPoint = new DCoordinate(mainGame.getWorldWidth()/2,mainGame.getWorldHeight()-150);
-        PlayerShip player = new PlayerShip(spawnPoint);
+        player = new PlayerShip(spawnPoint);
         mainGame.addObject(player);
+        mainGame.setInputHandler(new GaligaInput());
+        mainGame.addObject(new EnemyShip(mainGame.getWorldWidth()/2,0));
     }
    
 }
