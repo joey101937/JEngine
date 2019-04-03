@@ -5,11 +5,12 @@
  */
 package SampleGames.Galiga;
 
+import Framework.Audio.SoundEffect;
 import Framework.DCoordinate;
 import Framework.Game;
-import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
+import java.io.File;
 
 /**
  *
@@ -19,6 +20,8 @@ public class GaligaGame {
     
     public static PlayerShip player;
     public static Game mainGame; 
+    public static SoundEffect deathSound = new SoundEffect(new File("Assets/Sounds/blast1.au"));
+    public static SoundEffect pewSound = new SoundEffect(new File("Assets/Sounds/pew.au"));
     
     public static void main(String[] args) {
         mainGame = new Game(SpriteManager.spaceBG);
@@ -28,7 +31,9 @@ public class GaligaGame {
         player = new PlayerShip(spawnPoint);
         mainGame.addObject(player);
         mainGame.setInputHandler(new GaligaInput());
-        mainGame.addObject(new EnemyShip(mainGame.getWorldWidth()/2,0));
+        for(int i = 0; i < 4; i++){
+            mainGame.addObject(new EnemyShip(mainGame.getWorldWidth()/2+100*i,0));
+        }
     }
    
 }

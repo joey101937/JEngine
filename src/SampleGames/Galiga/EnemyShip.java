@@ -5,11 +5,14 @@
  */
 package SampleGames.Galiga;
 
+import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
+import Framework.Stickers.OnceThroughSticker;
+import java.io.File;
 
 /**
  *
@@ -17,6 +20,7 @@ import Framework.SpriteManager;
  */
 public class EnemyShip extends GameObject2{
 
+    
     public EnemyShip(Coordinate c) {
         super(c);
         init();
@@ -40,5 +44,13 @@ public class EnemyShip extends GameObject2{
         name = "Enemy " + ID;
         movementType = MovementType.SpeedRatio;
         baseSpeed = 4;
+    }
+    
+    @Override
+    public void onDestroy(){
+        new OnceThroughSticker(GaligaGame.mainGame,SpriteManager.explosionSequence,getPixelLocation());
+        SoundEffect explosionEffect = GaligaGame.deathSound.createCopy();
+        explosionEffect.setVolume(.7f);
+        explosionEffect.start();
     }
 }
