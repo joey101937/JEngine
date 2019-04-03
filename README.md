@@ -220,7 +220,10 @@ Tick runs every game 'tick', a number of times per second equal to the TPS (tick
 Render is run *every frame* and should be used to draw things to the scene. Generally you do not need to override this method unless you know what you are doing. Avoid adding complex logic checks to this as it runs very often and is not set to run in consistant intervals.
 
 **updateLocation()**
-Update location adjusts the object's location based on its velocity. This method controls collision, hitboxes, and constrains the object to stay within bounds of the gameworld. 
+Update location adjusts the object's location based on its velocity. This method controls collision, hitboxes, and constrains* the object to stay within bounds of the gameworld. 
+
+**constrainToWorld()**
+This runs in updateLocation method every tick. The job of this method is to detect if the object is out of bounds and if so, teleports it back in bounds at the nearest allowed point. Override to allow going out of bounds or for implementing unique logic to check if object is out of bounds.
 
 **updateHitbox()**
 This method creates and maintains the default hitbox on an object. If you want to change the hitbox or use no hitbox at all, overide this method. Creates a box hitbox by default but will also work with circular ones if you set the hitbox to a circle. This method ensures the hitbox is always sized to match the current visual representation of the object on screen. If using image sprites or sequences, This will be a box matching the dimensions of the on-screen image. If you have a circle hitbox, it will be a circle with a diameter equal to the *width* of the current sprite.
