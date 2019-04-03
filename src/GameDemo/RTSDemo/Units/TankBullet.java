@@ -23,9 +23,10 @@ import java.io.File;
  * @author Joseph
  */
 public class TankBullet extends Projectile {
-        public GameObject2 shooter; //the object that launched this projectile
-    
-    
+
+    public GameObject2 shooter; //the object that launched this projectile
+    private final static SoundEffect impactSoundSource = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
+
     public TankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
         this.setGraphic(new Sequence(new BufferedImage[]{SpriteManager.bullet}));
@@ -46,7 +47,7 @@ public class TankBullet extends Projectile {
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
             impactExplosion.scaleTo(.5);
             try {
-                SoundEffect impactSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
+                SoundEffect impactSound = impactSoundSource.createCopy();
                 impactSound.linkToGame(getHostGame());
                 impactSound.start();
                 impactSound.setVolume(.7f);

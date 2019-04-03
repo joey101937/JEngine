@@ -83,7 +83,7 @@ public class EnemyShip extends GameObject2{
     public void tick(){
         super.tick();
         if(((int)(Math.random()*200)) == 1){
-            //1 out of 100 chance every tick
+            //1 out of 200 chance every tick
             shoot();
         }
     }

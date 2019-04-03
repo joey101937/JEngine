@@ -28,6 +28,7 @@ import java.util.ArrayList;
  * @author Joseph
  */
 public class TankUnit extends RTSUnit{
+    private SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
     public Turret turret;
     private final static double VISUAL_SCALE = .2;
     private Long lastFiredTime = 0L;
@@ -112,7 +113,7 @@ public class TankUnit extends RTSUnit{
         public void onFire(Coordinate target) {
             setGraphic(fireAnimation);
             try {
-                SoundEffect launchSound = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
+                SoundEffect launchSound = launchSoundSource.createCopy();
                 launchSound.linkToGame(getHostGame());
                 launchSound.setVolume(.5f);
                 launchSound.start();
