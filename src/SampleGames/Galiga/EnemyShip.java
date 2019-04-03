@@ -12,7 +12,6 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
-import java.io.File;
 
 /**
  *
@@ -44,13 +43,48 @@ public class EnemyShip extends GameObject2{
         name = "Enemy " + ID;
         movementType = MovementType.SpeedRatio;
         baseSpeed = 4;
+        this.velocity.x = 1;
     }
     
+    @Override
+    public void constrainToWorld() {
+        if (location.x < getHostGame().worldBorder) {
+            location.x = getHostGame().getWorldWidth() - getHostGame().worldBorder;
+        }
+        if (location.y < getHostGame().worldBorder) {
+            location.y = getHostGame().worldBorder;
+        }
+        if (location.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
+            location.x = getHostGame().worldBorder;
+        }
+        if (location.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
+            location.y = getHostGame().getWorldHeight() - getHostGame().worldBorder;
+        }
+    }
+
     @Override
     public void onDestroy(){
         new OnceThroughSticker(GaligaGame.mainGame,SpriteManager.explosionSequence,getPixelLocation());
         SoundEffect explosionEffect = GaligaGame.deathSound.createCopy();
         explosionEffect.setVolume(.7f);
         explosionEffect.start();
+    }
+    
+    public void shoot(){
+        Bolt b = new Bolt(this.getPixelLocation());
+        b.location.y+=this.getHeight()/2;
+        b.isFriendly=false;
+        DCoordinate target = GaligaGame.player.location;
+        b.launch(target);
+        getHostGame().addObject(b);
+    }
+    
+    @Override
+    public void tick(){
+        super.tick();
+        if(((int)(Math.random()*200)) == 1){
+            //1 out of 100 chance every tick
+            shoot();
+        }
     }
 }
