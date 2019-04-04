@@ -52,13 +52,13 @@ public class EnemyShip extends GameObject2{
             location.x = getHostGame().getWorldWidth() - getHostGame().worldBorder;
         }
         if (location.y < getHostGame().worldBorder) {
-            location.y = getHostGame().worldBorder;
+            location.y = getHostGame().getWorldHeight() - getHostGame().worldBorder;
         }
         if (location.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
             location.x = getHostGame().worldBorder;
         }
         if (location.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
-            location.y = getHostGame().getWorldHeight() - getHostGame().worldBorder;
+            location.y = getHostGame().worldBorder;
         }
     }
 
@@ -76,6 +76,9 @@ public class EnemyShip extends GameObject2{
         b.isFriendly=false;
         DCoordinate target = GaligaGame.player.location;
         b.launch(target);
+        SoundEffect se = GaligaGame.pewSound.createCopy();
+        se.setVolume(.7f);
+        se.start();
         getHostGame().addObject(b);
     }
     

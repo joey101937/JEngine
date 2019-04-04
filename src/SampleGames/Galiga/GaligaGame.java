@@ -31,6 +31,8 @@ public class GaligaGame {
         player = new PlayerShip(spawnPoint);
         mainGame.addObject(player);
         mainGame.setInputHandler(new GaligaInput());
+        mainGame.addIndependentEffect(new GaligaUI());
+        
         for(int i = 0; i < 4; i++){
             mainGame.addObject(new EnemyShip(mainGame.getWorldWidth()/2+100*i,0));
         }
