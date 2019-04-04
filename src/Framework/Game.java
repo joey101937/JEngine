@@ -112,6 +112,15 @@ public class Game extends Canvas implements Runnable {
     public void clearIndependentEffects(){
         effects.clear();
     }
+    
+    /**
+     * gets the Store of independent effects for this game.
+     * NOTE MODIFYING THIS LIST WILL EFFECT THE GAME
+     * @return raw list containing stored IndependentEffects
+     */
+    public CopyOnWriteArrayList<IndependentEffect> getIndependentEffects(){
+        return effects;
+    }
     /**
      * Creates a new Game with given graphical asset as background. Use a Sprite
      * object for static background, and a sequence for animated
