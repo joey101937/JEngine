@@ -331,6 +331,29 @@ Once you have the SoundEffect instantiated, you can start it by calling its .sta
 
 **See [SoundEffect-JavaDoc](https://webpages.uncc.edu/jdemeis/javadoc/Framework/Audio/SoundEffect.html) for all utility methods**
 
+### Playing Sounds and Best Practices
+Because creating a sound effect from a file is fairly expensive in terms of performance, as with any IO operation, you will want to do this only once per sound. To do this it is reccommended you have a static SoundEffect variable that will act as the 'source', and whenever you want to play that sound, create a copy of it (this does not require IO operations) and use that instead. 
+
+### SoundEffect Example
+***BASIC EXAMPLE***<br>
+<pre>
+SoundEffect s = new SoundEffect(new File("mySound.au")); //create effect from source
+s.setVolume(.7f); //set volume to 70%
+s.start(); //plays sound
+</pre>
+***BEST PRACTICE EXAMPLE***
+<pre>
+public class Example{
+private static SoundEffect soundSource = new SoundEffect(new File("mySound.au"));
+//soundSource acts as the source, loaded once at start of app
+  public void playSound(){
+    SoundEffect s = soundSource.createCopy(); //create copy of mySound.au sound effect without having to read from filestructure
+    s.setVolume(.7f); //set volume of copy, not of source
+    s.start();// play the copy
+  }
+}
+</pre>
+
 ### Linking SoundEffects To Games
 Linking a sound to a game will make that sound be part of that game rather than a simple global sound. Sounds that are linked to games will only play while that game is unpaused. SoundEffects linked in such a way only play if both they *and their linked game* are unpaused. Linked sounds are stored in the Game's **AudioManager**. Access all sounds linked to a game by using game.audioManager.getAllSounds();
 
