@@ -36,10 +36,11 @@ public class GaligaUI extends IndependentEffect{
     @Override
     public void render(Graphics2D g) {
         Font originalFont = g.getFont();
-        Font toUse = new Font("Arial",Font.BOLD,30);
+        Font toUse = new Font("Arial",Font.BOLD,20);
         g.setColor(Color.white);
         g.setFont(toUse);
         g.drawString("Score: " + score, 50, 50);
+        g.drawString("Lives: " + lives, GaligaGame.mainGame.getWorldWidth()/2 - 50, GaligaGame.mainGame.getWorldHeight()-50);
         g.setFont(originalFont);
     }
 

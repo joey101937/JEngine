@@ -54,7 +54,7 @@ public class Bolt extends Projectile{
                 //do nothing
                 return;
             } else {
-                other.destroy();
+                ((PlayerShip)other).onHit();
                 this.destroy();
                 return;
             }
