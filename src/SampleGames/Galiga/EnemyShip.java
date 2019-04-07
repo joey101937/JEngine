@@ -68,6 +68,7 @@ public class EnemyShip extends GameObject2{
         SoundEffect explosionEffect = GaligaGame.deathSound.createCopy();
         explosionEffect.setVolume(.7f);
         explosionEffect.start();
+        GaligaGame.UI.increaseScore(500);
     }
     
     public void shoot(){

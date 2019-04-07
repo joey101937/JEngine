@@ -39,7 +39,6 @@ public class PlayerShip extends GameObject2{
         isSolid=true;
         name = "Player";
         movementType = MovementType.SpeedRatio;
-        baseSpeed = 4;
-        
+        baseSpeed = 4;  
     }
 }
