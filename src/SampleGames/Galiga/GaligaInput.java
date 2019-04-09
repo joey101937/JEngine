@@ -8,6 +8,7 @@ package SampleGames.Galiga;
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.InputHandler;
+import Framework.UI_Elements.OptionsMenu;
 import java.awt.event.KeyEvent;
 
 /**
@@ -31,6 +32,9 @@ public class GaligaInput extends InputHandler{
                 break;
             case 's':
                 player.velocity.y = 1;
+                break;
+            case 'x':
+                OptionsMenu.display();
                 break;
         }
     }

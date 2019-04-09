@@ -74,5 +74,4 @@ public class PlayerShip extends GameObject2{
             destroy();
         }
     }
-
 }

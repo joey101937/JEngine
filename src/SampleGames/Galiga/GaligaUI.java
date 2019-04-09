@@ -40,6 +40,7 @@ public class GaligaUI extends IndependentEffect{
         g.setColor(Color.white);
         g.setFont(toUse);
         g.drawString("Score: " + score, 50, 50);
+        g.drawString("Level: " + GameDriver.getLevel(), 50, 80);
         g.drawString("Lives: " + lives, GaligaGame.mainGame.getWorldWidth()/2 - 50, GaligaGame.mainGame.getWorldHeight()-50);
         g.setFont(originalFont);
     }

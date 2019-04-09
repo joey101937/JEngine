@@ -34,11 +34,12 @@ public class EnemyDiagonal extends EnemyShip{
         setGraphic(s);
         scale(.2);
         isSolid = true;
+        preventOverlap=false;
         name = "Enemy " + ID;
         movementType = MovementType.RotationBased;
         baseSpeed = 4;
         velocity.y = 1;
-        this.rotate(20 + (Math.random()*70));
+        this.rotate(35 + (Math.random()*60));
         if(Math.random() > .5){
             this.rotate(180);
         }

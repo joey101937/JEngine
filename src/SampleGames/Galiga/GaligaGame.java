@@ -34,11 +34,8 @@ public class GaligaGame {
         mainGame.addObject(player);
         mainGame.setInputHandler(new GaligaInput());
         mainGame.addIndependentEffect(UI);
+        mainGame.addIndependentEffect(new GameDriver());
         
-        for(int i = 0; i < 4; i++){
-            mainGame.addObject(new EnemyShip(mainGame.getWorldWidth()/2+100*i,100));
-        }
-           mainGame.addObject(new EnemyDiagonal(0,100));
     }
    
 }
