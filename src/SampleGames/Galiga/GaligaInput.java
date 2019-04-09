@@ -59,6 +59,7 @@ public class GaligaInput extends InputHandler{
                 }
                 break;
             case ' ':
+                if(!GaligaGame.player.isAlive())break;
                 Coordinate spawnPoint = GaligaGame.player.getPixelLocation();
                 spawnPoint.y -= GaligaGame.player.getHeight() / 2;
                 Coordinate dest = new Coordinate(spawnPoint);
