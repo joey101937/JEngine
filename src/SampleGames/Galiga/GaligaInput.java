@@ -18,12 +18,19 @@ public class GaligaInput extends InputHandler{
     
     @Override
     public void keyPressed(KeyEvent e) {
+        PlayerShip player = GaligaGame.player;
         switch(e.getKeyChar()){
             case 'a':
-                GaligaGame.player.velocity.x = -1;
+                player.velocity.x = -1;
                 break;
             case 'd':
-                GaligaGame.player.velocity.x = 1;
+                player.velocity.x = 1;
+                break;
+            case 'w':
+                player.velocity.y = -1;
+                break;
+            case 's':
+                player.velocity.y = 1;
                 break;
         }
     }
@@ -39,6 +46,16 @@ public class GaligaInput extends InputHandler{
             case 'd':
                 if (GaligaGame.player.velocity.x > 0) {
                     GaligaGame.player.velocity.x = 0;
+                }
+                break;
+            case 'w':
+                if (GaligaGame.player.velocity.y < 0) {
+                    GaligaGame.player.velocity.y = 0;
+                }
+                break;
+            case 's':
+                if (GaligaGame.player.velocity.y > 0) {
+                    GaligaGame.player.velocity.y = 0;
                 }
                 break;
             case ' ':

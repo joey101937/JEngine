@@ -5,6 +5,7 @@
  */
 package SampleGames.Galiga;
 
+import SampleGames.Galiga.Enemies.EnemyShip;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;

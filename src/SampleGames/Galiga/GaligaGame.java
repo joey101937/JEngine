@@ -5,6 +5,7 @@
  */
 package SampleGames.Galiga;
 
+import SampleGames.Galiga.Enemies.*;
 import Framework.Audio.SoundEffect;
 import Framework.DCoordinate;
 import Framework.Game;
@@ -37,6 +38,7 @@ public class GaligaGame {
         for(int i = 0; i < 4; i++){
             mainGame.addObject(new EnemyShip(mainGame.getWorldWidth()/2+100*i,100));
         }
+           mainGame.addObject(new EnemyDiagonal(0,100));
     }
    
 }

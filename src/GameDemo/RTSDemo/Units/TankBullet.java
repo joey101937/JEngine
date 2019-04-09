@@ -54,7 +54,6 @@ public class TankBullet extends Projectile {
             }catch(Exception e){
                 e.printStackTrace();
             }
-
             destroy();
         }
     }

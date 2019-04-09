@@ -21,7 +21,7 @@ import Framework.Stickers.OnceThroughSticker;
 public class PlayerShip extends GameObject2{
 
     private volatile long lastHitTick = 0;
-    
+    public final static int maxHeight = 200;
     public PlayerShip(Coordinate c) {
         super(c);
         
@@ -47,7 +47,13 @@ public class PlayerShip extends GameObject2{
         baseSpeed = 4;  
     }
     
-    
+    @Override
+    public void constrainToWorld(){
+        super.constrainToWorld();
+        if(getHostGame().getWorldHeight() - location.y > maxHeight){
+            location.y = getHostGame().getWorldHeight() - maxHeight;
+        }
+    }
     
     //run when ship takes damage that costs a life.
     public synchronized void onHit(){
