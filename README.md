@@ -170,7 +170,7 @@ GameObject2's are the core of all functional objects within a scene. GameObject2
 
 **renderNumber** Used to help debugging; tracks how many times this object has ticked
 
-**location** This is a DCoordinate that tracks the object's absolute position. This is then rounded to a Coordinate to render to pixel based screen. Modifying this value will change the location of the object
+**location** This is a DCoordinate that determines the object's absolute position. This is then rounded to a Coordinate to render to pixel based screen. **Modifying this value will change the location of the object**. This field should not be confused with the getPixelLocation() method, which returns a rounded Coordinate version of this value. Modifying the result of getPixelLocation() will **not** change the location of the object it was called on.
 
 **innateRotation** This is how much the object is to be considered rotated by default. 90 makes the right side of the object considered to be the top for example.
 
@@ -220,13 +220,16 @@ Tick runs every game 'tick', a number of times per second equal to the TPS (tick
 Render is run *every frame* and should be used to draw things to the scene. Generally you do not need to override this method unless you know what you are doing. Avoid adding complex logic checks to this as it runs very often and is not set to run in consistant intervals.
 
 **updateLocation()**
-Update location adjusts the object's location based on its velocity. This method controls collision, hitboxes, and constrains* the object to stay within bounds of the gameworld. 
+Update location adjusts the object's location based on its velocity. This method controls collision, hitboxes, and constrains* the object to stay within bounds of the gameworld. Runs constrainToWorld() and updateHitbox()
 
 **constrainToWorld()**
 This runs in updateLocation method every tick. The job of this method is to detect if the object is out of bounds and if so, teleports it back in bounds at the nearest allowed point. Override to allow going out of bounds or for implementing unique logic to check if object is out of bounds.
 
 **updateHitbox()**
 This method creates and maintains the default hitbox on an object. If you want to change the hitbox or use no hitbox at all, overide this method. Creates a box hitbox by default but will also work with circular ones if you set the hitbox to a circle. This method ensures the hitbox is always sized to match the current visual representation of the object on screen. If using image sprites or sequences, This will be a box matching the dimensions of the on-screen image. If you have a circle hitbox, it will be a circle with a diameter equal to the *width* of the current sprite.
+
+**getPixelLocation()**
+This method returns a coordinate object whoes values coorespond to the object's location measured in pixels. This location is based on number of pixels from the top-right origin of the world (not window). Modifying the object returned by this method does **not** modify the location of the GameObject2 it was called on, unlike accessing the GameObject2's *location* field directly.
 
 **destroy()**
 Destroys the object and removes it from play. isAlive will be *false* after this.
