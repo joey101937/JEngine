@@ -284,8 +284,21 @@ GameObjects can be in 3 states for collision; solid, non-solid, overlap allowed.
 **SubObject Collision** Subobjects have their own hitboxes and therefore their own collisions, to check manually if two objects intersect, make sure you check all of their subobjects, stored in the *subobjects* arraylist field. Subobjects may transfer their onCollision to their host object using host.onCollision(<the other object>)
  
  ## Utility Objects
+ ### What are Utility Objects?
+ Utility objects are not core to the functionality of JEngine and could be completely replicated by you the user by changing GameObject2 properties. Instead, these objects are meant to assist you in creating commonly used types of GameObejcts that may require advanced knowledge of JEngine to implement on your own. Projectile class is a premade basic projectile template for bullets, TextObjects offer an easy way to add in-game manipulatable text into the world and BlockObjects represent a quick and easy way to create a solid and easily modified rectangular object, good for use in creating structures.
  ### Projectile
- //TODO
+ Built-in implementation of a projectile, very useful for creating bullet type objects without needing in-depth knowledge. Projectiles are GameObejcts that are made to travel in a given directory using rotation based movement. This means if you want to assign a bullet sprite, simply make that sprite facing forwards and the bullet will automatically turn in the appropriate direction.
+ 
+ Projectiles can be created in the standard GameObject2 way using just a single Coordiante to spawn at however they can also be created with a second Coordinate parameter. This parameter represents the projectile's "destination". If this is used, the projectile will immediately launch in the direction of the destination. Note that reaching the destination point will *not* destroy the projectile, so you can also use this for aiming in the direction of a point rather than using it to aim *at* a specific point exactly. If you opt to create the projectile without defining a destination in the constructor, you can call launch(Coordinate) on it to manually launch it after it has already been created.
+ 
+ Projectiles move at a speed of 10 by default but you can change this by manually setting the *basespeed* field in your object's constructor just like any other GameObject2. 
+ 
+ Projectiles have certain conditions that may allow them to be destroyed. This includes a maximum lifetime *(lifeTime)* as well as a maximum distance it can travel before being destroyed *(maxRange)*. By default both of these fields are set to -1, which means they are deactivated. If you want to use one of these systems, set it to a positive value. lifeTime will, be default, be reduced by 1 every tick and the projectile will be destroyed once it reaches zero. Use this if you want the projectile to be destroyed after a certain amount of time (Measured in ticks). maxRange is used by defining a distance. If the distance between the projectile and its inital spawn location ever exceeds this value, it will be destroyed. Triggering a destroy with either of these mechanics will trigger the onTimeOut() method on the projectile. Override this method to add custom logic to what hapens when a projectile is destroyed in this way. 
+ 
+ Projectiles, by default, will destroy themselves if they ever go out of bounds. Override the constrainToWorld() method in your projectile to customize this behavior.
+ 
+ Projectiles, by default, use a solid circular hitbox. It is reccomended that you use a circular hitbox for projectiles because circular hitboxes are more performant than polygonal ones and projectiles are often created in large quantities.
+ 
  ### TextObject
  //TODO
  ### BlockObject
