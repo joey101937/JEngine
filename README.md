@@ -300,7 +300,11 @@ GameObjects can be in 3 states for collision; solid, non-solid, overlap allowed.
  Projectiles, by default, use a solid circular hitbox. It is reccomended that you use a circular hitbox for projectiles because circular hitboxes are more performant than polygonal ones and projectiles are often created in large quantities.
  
  ### TextObject
- //TODO
+ TextObjects are specialized GameObject2s that rather than rendering a graphic like a typical GO2, they render given strings of text. These are useful when you want to manipulate visible text on screen through the lens of a JEngine GameObject. As with all utility objects,TextObjects are not core to JEngine functionality and exist for convenience and for helping newer users. If you want to create your own type of GameObject that represnts text, you are still able as TextObject is simply an extended and modifed GO2. 
+ 
+ By default, TextObjects render in bold, red times new roman font. This can be manipulated via the methods setFont(Font) and setColor(Color). Text objects are also by default *not* solid, this means they do not interact with other objects via the hitbox system.
+ 
+ What text is displayed is set via constructor parameter however you can also change it later by using the setText(String) method. Because TextObjects are stil GameObject2s,they can be rotated, scaled, translated via velocity, and manipulated just like any other.
  ### BlockObject
 //TODO
 # SubObjects
@@ -341,6 +345,8 @@ How fast scenes run their tick method. Slows or speeds up the game relative to r
 ### **Resolution Scaling**
 When you create a project that uses visual image assets, those assets are rendered pixel per pixel and their size (without in-engine scaling) is determined by the actual size of the image asset used. Ie: a 200x200 image will display over a distance of 200x200 in the game. The problem is that different screens have different resolutions than the screen you are testing your project on, so a character that looks large on your 1080p display will look tiny on a 4k display. To keep things looking uniform across all screen resolutions, set the final static field **NATIVE_RESOLUTION** in game class to reflect the resolution of you, the programmer's screen. Now you may call the **Game.scaleForResolution()** option and it will automatically scale your entire project to look the same on whatever screen size the project is run in as it does on the screen you are testing on.
 
+# IndependentEffects
+//TODO
 # Audio
 ### Quick Start Guide
 In JEngine, audio is played using the SoundEffect class. To instantiate an object of this class, you must provide a File as the parameter. This file is the source for the audio and must be a java supported audio format. I recommend .au format.
