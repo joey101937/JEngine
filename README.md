@@ -306,7 +306,17 @@ GameObjects can be in 3 states for collision; solid, non-solid, overlap allowed.
  
  What text is displayed is set via constructor parameter however you can also change it later by using the setText(String) method. Because TextObjects are stil GameObject2s,they can be rotated, scaled, translated via velocity, and manipulated just like any other.
  ### BlockObject
-//TODO
+Block objects are convenience objects made to ease creation of simple rectangular objects. Blockobjects- unlike regular objects- do not render graphical assets but rather a simple rectangular 2D area, making their rendering very performant. This object can also serve as an example to new JEngine users trying to make objects that do not render a graphical image asset but rather use java AWT processes to create unique shapes. 
+
+Example usage is creating a floor in a 2d sidescrolling scene, basic walls in a topdown scene, or rudimentary way of creating a rectangular zone that can detect what objects are inside by making the hitbox not block pathing and invisible.
+
+To create a BlockObject, you provide the constructor the usual coordinate (used for defining location) and also two integers to be used as width and height of the box. You can change the width and height of the BoxObject at any time after creation via setWidth and setHeght methods respectively.
+
+Where the object is location is determined by it's location however this point may serve as either the center of the box (default), or as the top left corner. This is determined by the box's *centered* field, which when true, makes the box centered on its location. Use the setCentered(boolean) method to toggle between centered on location and anchored to location at top left point.
+
+Beyond the usual GameObject methods, the BoxObject also has a number of unique methods for modification. BoxObject may have their color via the setColor(Color) method, and may be set to filled or not filled. A filled object is just a solid rectangle of whatever color you chose while a non-filled object will only display a border of the color it is. This border may be changed via setBorderThickness(int) method (default 5). The box may also be set to invisible or solid/non-solid via the usual GO2 way.
+
+
 # SubObjects
 //TODO
 # Pathing Layer
