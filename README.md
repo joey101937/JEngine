@@ -357,6 +357,8 @@ When you create a project that uses visual image assets, those assets are render
 
 # IndependentEffects
 //TODO
+# UI Elements
+//TODO
 # Audio
 ### Quick Start Guide
 In JEngine, audio is played using the SoundEffect class. To instantiate an object of this class, you must provide a File as the parameter. This file is the source for the audio and must be a java supported audio format. I recommend .au format.
