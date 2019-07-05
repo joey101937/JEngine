@@ -99,10 +99,9 @@ Every Game object has a handler and VisualEffectHandler. These keep track of all
 
 # Visual Assets
 ## Loading Assets
-JEngine loads all visual assets in the SpriteManager class, which is one of the framework classes you should modify regularly. Image
-assets are stored in either static BufferedImage for images or BufferedImage arrays for frame based animation sequences. First declare the
-variable and name it appropriately, then add code to load it in SpriteManager's **Initialize** method. Initialize runs once using the 
-static block to pre-load all assets before they need to be rendered and stores them in memory rather than using ImageIO every time we need
+JEngine contaons a built in class to load Assets though the file structure, this is what is used in the demos and demonstrates the reccommended setup. **Using SpriteManager class is NOT required**. You may make your own class to import files from, however it is very important that you do it properly. All files should be loaded *one time* at the start of a run and then stored internally in variables. DO NOT load an image every time you need it as this will destroy your performance. Single sprites should be stored as BufferedImages, and Animation Sequences should be storred as an array of BufferedImages. Look at SpriteManager for reference.
+
+JEngine demos load all visual assets using the **SpriteManager** class, which is one of the framework classes you can and may want to modify regularly. Image assets are stored in either static BufferedImage for images or BufferedImage arrays for frame based animation sequences. To use it for your own assets, first declare the variable and name it appropriately, then add code to load it in SpriteManager's **Initialize** method. Initialize runs once using the static block to pre-load all assets before they need to be rendered and stores them in memory rather than using ImageIO every time we need
 to get outside assets.
 
 To make it easy, use SpriteManager's **load(String filename)** and **loadSequence(String folderName)** to load images and animation
@@ -110,23 +109,21 @@ sequences respectively. Note these filepaths are *within* the assets folder. The
 should follow the same system. Once this is done, you can reference your image using SpriteManager.<your variable name>.
 
 ## Using Assets
-Once you have loaded the raw image data using SpriteManger, we are now ready to apply them to either a game background, GameObject, or 
-Sticker. To do this we create either a **Sprite** oject for plain images or a **Sequence** object for animation sequences. Creating them
-is as easy as **new Sprite(BufferedImage);** and **new Sequence(BufferdImage[]);**
+Once you have loaded the raw image data using SpriteManger, we are now ready to apply them to either a game background, GameObject, or Sticker. To do this we create either a **Sprite** oject for plain images or a **Sequence** object for animation sequences. Creating them is as easy as **new Sprite(BufferedImage);** and **new Sequence(BufferdImage[]);**
 
 Sprites and Sequences implement the **Graphic** interface which means can both be scaled, destroyed, and copied without modifying the original asset. This is important if you have multiple objects using the same asset.(rotation is handled by implementation).
+
+To reiterate: Once loaded, dont modify the original BufferedImage, if you want to distort it, Create a Sprite object with it as a reference and then modify that Sprite. Modifying the original image will effect everything that references that image and may result in having visual effects on that image doubled.
 
 ### Graphic Interface
 This is the interface both Sprite and Sequence implement, and is used to store a graphical asset. To know if the Graphic is a Sprite or a Sequence, use the isAnimated() method. Sequences return true, sprites return false as they are simply images. To get the current frame of a sequence or image of a sprite use the getCurrentImage() method. This interface allows for scaling, copying, and destroying.
 *Note destroy() method does **not** destroy the underlying asset*.
 
 ### Using Sequences
-A sequence represents a frame based animation. Options include scaling the size of the visuals with **scale(double s)** and
-scaleTo(double s)** methods; and changing the speed of animation by adjusting frameDelay field.
+A sequence represents a frame-based animation.Each Image in the array represents a single frame. Options include scaling the size of the visuals with **scale(double s)** and scaleTo(double s)** methods; and changing the speed of animation by adjusting frameDelay field.
 
-Sequences have their own threads that animate them and keep up with current frames. These animator threads do not start until the sequence is rendered and stop if the sequence is disabled.
+Sequnces can pause animation using setPaused(true) method or resumed with setPaused(false). Sequences can also be reversed using reverse() method and resumed by calling it again. 
 
-Sequnces can pause animation using setPaused(true) method or resumed with setPaused(false). Sequences can also be reversed using reverse() method and resumed by calling it again.
 
 # Stickers
 **Stickers** in JEngine represent a visual effect that is temporarily rendered to a location in a scene. Stickers are created in the following way: *new Sticker(Game g, BufferdImage bi, Coordiante c, int i)* where g is the game you want to add the sticker to, bi is the visual asset you want to render, c is where in the world you want the sticker to be rendered at, and i is how long the effect should last. Example of sticker use is a blast effects on explosion or impact.
