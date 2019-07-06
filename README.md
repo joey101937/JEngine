@@ -334,10 +334,10 @@ GameObject2 object = new GameObject2(new Coordinate(0,0));
 object.pathingModifiers.put(PathingLayer.Type.water, .33); //the object moves slower in the water
 
 ### Adding Custom Terrain Types
-Adding your own terrain type involves three modifications to the Framework.PathingLayer class.
-1. Declare a static Color field for your terrain type. Put this next to the existing *public static final Color* fields at the top of the file
-2. Add your terrain type's name to the PathingLayer.Type enum located in the PathingLayer.java file. Looks like this: *public static enum Type {ground, water, impass};*
-3. Modify the **private static Type getType(int c)** method in PathingLayer class to incorporate your layer. There is a comment in the method to guide you. But in general you want to compare c to your color's getRGB() method. If its a match, return your new terrain type.
+Adding your own terrain type involves two steps
+1. Create an instance of the PathingLayer.Type class. Note that there will be two fields in the constructor. One is a String, which will serve as the name of your terrain, and the other is a color. **This color determines how the terrain will be seen in debug mode, not what color it corresponds to on the source image**
+2. Get the PathingLayer object out of your game object using game.getPathingLayer() and call assignColor method on it, providing it both a color, and the Type object you just created. Once done, any color in the source image matching the one prodived to this method will map to the given Type object
+
 # Engine Options
 ### **Debug Mode** 
 set with Main.debugMode field, this is the one of the most useful tools for viewing your scene on a technical level. This view replaces the background with the game's pathing map if applicable, renders hitbox outlines *(red=solid, blue=non-solid, grey=solid but preventOverlap is off)*; Object names; and orientation markers on all objects.
