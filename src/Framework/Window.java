@@ -131,7 +131,7 @@ public class Window {
     }
 
     public synchronized static void addUIElement(UIElement uie){
-        System.out.println("adding " + uie.getName());
+        if(getUIElements().contains(uie))return;
         getUIElements().add(uie);
         Window.panel.add(uie);
         setZOrders();
