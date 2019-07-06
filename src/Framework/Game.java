@@ -40,7 +40,7 @@ public class Game extends Canvas implements Runnable {
      * your 1080p game on a 4k display so that they dont just see the entire world 
      * and have to squint to see their character
     */
-    public static final Dimension NATIVE_RESOLUTION = new Dimension((int)(1920*1),(int)(1080*1));  
+    private static Dimension NATIVE_RESOLUTION = new Dimension((int)(1920*1),(int)(1080*1));  
    
     
 
@@ -285,8 +285,32 @@ public class Game extends Canvas implements Runnable {
           }
           return output;
     }
-    
-    
+
+    /**
+     * native resolution of the game you are creating; used to scale graphics
+     * for display you, the programmer, should set this based on what resolution
+     * you want to use, usually this will be your screen size. Game will scale
+     * to match proportions of this given resolution, for example everything
+     * will scale up if someone runs your 1080p game on a 4k display so that
+     * they dont just see the entire world and have to squint to see their
+     * character
+     */
+    public static Dimension getNATIVE_RESOLUTION() {
+        return NATIVE_RESOLUTION;
+    }
+
+    /**
+     * native resolution of the game you are creating; used to scale graphics
+     * for display you, the programmer, should set this based on what resolution
+     * you want to use, usually this will be your screen size. Game will scale
+     * to match proportions of this given resolution, for example everything
+     * will scale up if someone runs your 1080p game on a 4k display so that
+     * they dont just see the entire world and have to squint to see their
+     * character
+     */
+    public static void setNATIVE_RESOLUTION(Dimension NATIVE_RESOLUTION) {
+        Game.NATIVE_RESOLUTION = NATIVE_RESOLUTION;
+    }
 
     //core tick, tells all game Objects to tick
     private synchronized void tick() {
@@ -368,9 +392,9 @@ public class Game extends Canvas implements Runnable {
             }
             if(!Main.debugMode || pathingLayer==null){
                 g.drawImage(backgroundImage.getCurrentImage(), 0, 0, null);
-            }else if(pathingLayer!=null && pathingLayer.source!=null){
+            }else if(pathingLayer!=null && pathingLayer.getSource()!=null){
                 pathingLayer.internalizeSource();
-                g.drawImage(pathingLayer.source, 0, 0, null); //if in debug view, display pathing map
+                g.drawImage(pathingLayer.getSource(), 0, 0, null); //if in debug view, display pathing map
             }
         } catch (Exception e) {
             e.printStackTrace();
