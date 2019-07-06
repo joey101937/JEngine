@@ -49,14 +49,11 @@ public final class Minimap extends UIElement {
         interior = new MinimapInterior();
         Dimension size = new Dimension((int) (hostGame.getWorldWidth() * screenPortion / Game.getResolutionScaleX()), (int) (hostGame.getWorldHeight() * screenPortion / Game.getResolutionScaleY()));
         interior.setSize(size);
-        //TODO make this border stuff work
         this.setSize(size);
         this.setLayout(null);
         interior.setLocation(0, 0);
         this.setBackground(Color.black);
         this.add(interior);
-        //add UI elements to both the mainWindow.panel AND mainWindow.UIElements
-        Window.addUIElement(this);
     }
 
     /*
@@ -65,7 +62,6 @@ public final class Minimap extends UIElement {
     flickering
     size of the thing
     input handler
-    possibly incorporate this into UIElement interface for ease of use in future
      */
     /**
      * sets the minimap to be at a certain location relative to the top left of
@@ -88,6 +84,7 @@ public final class Minimap extends UIElement {
         Window.initialize(g);
         g.start();
         Minimap m = new Minimap(g, new Coordinate(10, 10));
+        Window.addUIElement(m);
         SampleCharacter character = new SampleCharacter(new Coordinate(200, 700));
         character.velocity.x = 2;
         g.addObject(character);
@@ -145,7 +142,7 @@ public final class Minimap extends UIElement {
             g2d.setColor(Color.black);
             g2d.draw(hostGame.getCamera().getFieldOfView());
             //g2d.drawRect(-(int)hostGame.camera.location.x, -(int)hostGame.camera.location.y, (int)(hostGame.camera.getFieldOfView().width*screenPortion*Game.getResolutionScaleX()), (int)(hostGame.camera.getFieldOfView().height*screenPortion*Game.getResolutionScaleY()));
-            g2d.setStroke(new BasicStroke(50));
+            g2d.setStroke(new BasicStroke(70));
             g2d.drawRect(0, 0, (int) (this.getWidth() / screenPortion / Game.getResolutionScaleX()), (int) (this.getHeight() / screenPortion / Game.getResolutionScaleY()));
             g2d.dispose();
         }

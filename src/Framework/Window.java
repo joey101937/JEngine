@@ -130,12 +130,13 @@ public class Window {
         return UIElements;
     }
 
-    public static void addUIElement(UIElement uie){
+    public synchronized static void addUIElement(UIElement uie){
+        System.out.println("adding " + uie.getName());
         getUIElements().add(uie);
         Window.panel.add(uie);
         setZOrders();
     }
-    public static boolean removeUIElement(UIElement uie){
+    public synchronized static boolean removeUIElement(UIElement uie){
         if(getUIElements().remove(uie)){
             Window.panel.remove(uie);
             setZOrders();
@@ -145,6 +146,7 @@ public class Window {
     }
     
     private static void setZOrders(){
+        System.out.println(Window.UIElements.size() + " ui elements");
         for(UIElement ele : Window.UIElements){
             Window.panel.setComponentZOrder(ele, Window.UIElements.indexOf(ele));
             Window.panel.setComponentZOrder(currentGame, Window.UIElements.size());
