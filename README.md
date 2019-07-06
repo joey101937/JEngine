@@ -43,6 +43,41 @@ To put your character in view if you put it in a location off-screen, position t
 
 To make your game accept user keyboard/mouse input, create a class that extends InputHandler, then set an instance of that class to be the inputhandler for your game using **setInputHandler(InputHandler in)** in the Game class. Inside your inputHandler class you have acess to all mouse listener, mouse motion listener, and key listener methods as well as the **locationOfMouse(MouseEvent e)** method which provides the coordinate point of the mouse during the given mouse event *in terms of the game world*.
 
+# Handling User Input
+To handle user input, you must write a class to do so, this class should extend **InputHandler** and can be applied to your game with *game.setInputHandler(InputHandler)*. Input handler implements Key, Mouse, MouseMovement, and MouseWheel listeners.
+
+EXAMPLE
+```
+public class ExampleInputHandler extends InputHandler{
+  @Override
+  public void keyPressed(KeyEvent e){
+    System.out.println("You pressed the " + e.getKeyChar() + " key");
+  }
+}
+
+public static void Main(String[] args){
+  Game g = new Game(<BackgroundImage>)    //background image means load whatever you want as bg for this game
+  g.setInputHandler(new ExampleInputHandler());
+  Window.initialize(g);
+}
+```
+
+### InputHandler Methods
+* keyTyped(KeyEvent e)
+* keyPressed(KeyEvent e)
+* keyReleased(KeyEvent e)
+* mouseClicked(MouseEvent e)
+* mousePressed(MouseEvent e)
+* mouseReleased(MouseEvent e)
+* mouseEntered(MouseEvent e)
+* mouseExited(MouseEvent e)
+* mouseDragged(MouseEvent e)
+* mouseMoved(MouseEvent e)
+* mouseWheelMoved(MouseWheelEvent e)
+
+To aid in creating input methods, InputHandlers also know the method **locationOfMouseEvent(MouseEvent e)**, which returns the in-game pixel location of a mouse event rather than the X/Y coordinate on screen.
+
+
 # Scenes/Games
 To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the scene(s) and presents them to the user. Create using **Window.intitialize(Game)** Game class should be created *before* the Window. 
 
