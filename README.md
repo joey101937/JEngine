@@ -24,8 +24,7 @@ Games have their own InputHandlers to take in user input via mouse and keyboard.
 -**Coordinate** and **DCoordinate** classes are used heavily when talking about location in the gameworld. Coordinate uses ints and often used to reflect the location of an object in pixels while DCoordinates use doubles and are typically used to store an object's true location and velocity. Both classes have considerable utility methods built in. Note these classes are not immutable, so use caution when modifying coordinates that may be referenced elsewhere. Use the .copy() method to generate an equivilent copy of a coordinate to avoid modifying the original coordinate. Add and Subtract methods modify the calling coordinate, they do not return a new coordinate based on the operation like you may find with strings.
 
 # Your First Project
-**Technical Note Before Starting** Once you have imported JEngine to your IDE, go to Framework.Game class and change *NATIVE_RESOLUTION* field to match your own screen dimension, then go into run properties of the project and set the VM options to include 
-*-Dsun.java2d.d3d=false -Xmx1024*.
+**Technical Note Before Starting** Once you have imported JEngine to your IDE, go into run properties of the project and set the VM options to include *-Dsun.java2d.d3d=false -Xmx1024*. Also you need to change the **Game.NATIVE_RESOLUTION**  field to match the resolution of *your* monitor. This value is used to scale the game display onto whatever monitor it runs on such that object scale is consistent on both your development monitor and someone else's when they run your game. Once again this should be *your* resolution, not the resolution you plan to run on. Used for scaling.
 
 **Check out the GameDemo package to see small example projects and their setup**
 JEngine is super easy to use and get started; first simply import the framework into your IDE of choice (I use netbeans).
