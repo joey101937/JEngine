@@ -15,7 +15,6 @@ import Framework.UI_Elements.UIElement;
 import Framework.Window;
 import GameDemo.SandboxDemo.SampleCharacter;
 import java.awt.BasicStroke;
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -23,6 +22,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import javax.swing.JPanel;
 
 /**
  * Example UI element, a minimap. UI elements are attached to the window.
@@ -38,6 +38,7 @@ public final class Minimap extends UIElement {
     /**
      * creates a minimap object based on given game. Automatically attaches
      * itself to the main window, which must not be null
+     *
      * @param g Game to create a minimap of
      */
     public Minimap(Game g, Coordinate loc) {
@@ -57,10 +58,6 @@ public final class Minimap extends UIElement {
         //add UI elements to both the mainWindow.panel AND mainWindow.UIElements
         Window.addUIElement(this);
     }
-    
-    
-    @Override
-    public void tick(){};
 
     /*
     TODO
@@ -110,23 +107,28 @@ public final class Minimap extends UIElement {
             this.setVisible(true);
         }
 
-        interior.paint(interior.getGraphics());
-        // interior.repaint();
+        //interior.paint(interior.getGraphics());
+         interior.repaint();
+    }
+
+    @Override
+    public void tick() {
     }
 
     /**
      * This class actully does the drawing
      */
-    private class MinimapInterior extends Canvas {
+    private class MinimapInterior extends JPanel {
 
         private final BufferedImage background;
 
         public MinimapInterior() {
             background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(), screenPortion / Game.getResolutionScaleX(), screenPortion / Game.getResolutionScaleY());
+            
         }
 
         @Override
-        public void paint(Graphics g) {
+        public void paintComponent(Graphics g) {
             this.setLocation(0, 0);
             Graphics2D g2d = (Graphics2D) g;
             if (g2d == null) {
@@ -140,9 +142,8 @@ public final class Minimap extends UIElement {
                     sub.render(g2d);
                 }
             }
-            g2d.setColor(Color.green);
+            g2d.setColor(Color.black);
             g2d.draw(hostGame.getCamera().getFieldOfView());
-             g2d.setColor(Color.black);
             //g2d.drawRect(-(int)hostGame.camera.location.x, -(int)hostGame.camera.location.y, (int)(hostGame.camera.getFieldOfView().width*screenPortion*Game.getResolutionScaleX()), (int)(hostGame.camera.getFieldOfView().height*screenPortion*Game.getResolutionScaleY()));
             g2d.setStroke(new BasicStroke(50));
             g2d.drawRect(0, 0, (int) (this.getWidth() / screenPortion / Game.getResolutionScaleX()), (int) (this.getHeight() / screenPortion / Game.getResolutionScaleY()));
