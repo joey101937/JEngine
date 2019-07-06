@@ -22,8 +22,6 @@ public abstract class SpriteManager {
     public static boolean initialized = false;
     //THESE  ARE GLOBAL FIELDS THAT ARE USED TO STORE AND ACCESS ASSETS
     /*--------------------------------------------------------*/
-    //WINDOW ICON
-    public static BufferedImage programIcon; //this is used in Window class to set icon of program
     
     //SANDBOX ASSETS
     public static BufferedImage terrainBG;
@@ -78,7 +76,6 @@ public abstract class SpriteManager {
         if(initialized)return;
         try{
            //this is where we load sprites
-           programIcon = load("JEngineIcon.png");
            
            terrainBG = load("DemoAssets/terrainBG.png");
            explosionSequence = loadSequence("DemoAssets/explosionSequence");

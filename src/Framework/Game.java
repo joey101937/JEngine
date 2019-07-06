@@ -330,9 +330,6 @@ public class Game extends Canvas implements Runnable {
             return;
         }
         if(isPaused())return;
-        if(!SpriteManager.initialized){
-            System.out.println("WARNING: SpriteManager did not fully initialize");
-        }
         Window.UIElementsOnRender();
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) { ///run once at the start
