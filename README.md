@@ -99,10 +99,9 @@ Every Game object has a handler and VisualEffectHandler. These keep track of all
 
 # Visual Assets
 ## Loading Assets
-JEngine loads all visual assets in the SpriteManager class, which is one of the framework classes you should modify regularly. Image
-assets are stored in either static BufferedImage for images or BufferedImage arrays for frame based animation sequences. First declare the
-variable and name it appropriately, then add code to load it in SpriteManager's **Initialize** method. Initialize runs once using the 
-static block to pre-load all assets before they need to be rendered and stores them in memory rather than using ImageIO every time we need
+JEngine contaons a built in class to load Assets though the file structure, this is what is used in the demos and demonstrates the reccommended setup. **Using SpriteManager class is NOT required**. You may make your own class to import files from, however it is very important that you do it properly. All files should be loaded *one time* at the start of a run and then stored internally in variables. DO NOT load an image every time you need it as this will destroy your performance. Single sprites should be stored as BufferedImages, and Animation Sequences should be storred as an array of BufferedImages. Look at SpriteManager for reference.
+
+JEngine demos load all visual assets using the **SpriteManager** class, which is one of the framework classes you can and may want to modify regularly. Image assets are stored in either static BufferedImage for images or BufferedImage arrays for frame based animation sequences. To use it for your own assets, first declare the variable and name it appropriately, then add code to load it in SpriteManager's **Initialize** method. Initialize runs once using the static block to pre-load all assets before they need to be rendered and stores them in memory rather than using ImageIO every time we need
 to get outside assets.
 
 To make it easy, use SpriteManager's **load(String filename)** and **loadSequence(String folderName)** to load images and animation
@@ -110,23 +109,21 @@ sequences respectively. Note these filepaths are *within* the assets folder. The
 should follow the same system. Once this is done, you can reference your image using SpriteManager.<your variable name>.
 
 ## Using Assets
-Once you have loaded the raw image data using SpriteManger, we are now ready to apply them to either a game background, GameObject, or 
-Sticker. To do this we create either a **Sprite** oject for plain images or a **Sequence** object for animation sequences. Creating them
-is as easy as **new Sprite(BufferedImage);** and **new Sequence(BufferdImage[]);**
+Once you have loaded the raw image data using SpriteManger, we are now ready to apply them to either a game background, GameObject, or Sticker. To do this we create either a **Sprite** oject for plain images or a **Sequence** object for animation sequences. Creating them is as easy as **new Sprite(BufferedImage);** and **new Sequence(BufferdImage[]);**
 
 Sprites and Sequences implement the **Graphic** interface which means can both be scaled, destroyed, and copied without modifying the original asset. This is important if you have multiple objects using the same asset.(rotation is handled by implementation).
+
+To reiterate: Once loaded, dont modify the original BufferedImage, if you want to distort it, Create a Sprite object with it as a reference and then modify that Sprite. Modifying the original image will effect everything that references that image and may result in having visual effects on that image doubled.
 
 ### Graphic Interface
 This is the interface both Sprite and Sequence implement, and is used to store a graphical asset. To know if the Graphic is a Sprite or a Sequence, use the isAnimated() method. Sequences return true, sprites return false as they are simply images. To get the current frame of a sequence or image of a sprite use the getCurrentImage() method. This interface allows for scaling, copying, and destroying.
 *Note destroy() method does **not** destroy the underlying asset*.
 
 ### Using Sequences
-A sequence represents a frame based animation. Options include scaling the size of the visuals with **scale(double s)** and
-scaleTo(double s)** methods; and changing the speed of animation by adjusting frameDelay field.
+A sequence represents a frame-based animation.Each Image in the array represents a single frame. Options include scaling the size of the visuals with **scale(double s)** and scaleTo(double s)** methods; and changing the speed of animation by adjusting frameDelay field.
 
-Sequences have their own threads that animate them and keep up with current frames. These animator threads do not start until the sequence is rendered and stop if the sequence is disabled.
+Sequnces can pause animation using setPaused(true) method or resumed with setPaused(false). Sequences can also be reversed using reverse() method and resumed by calling it again. 
 
-Sequnces can pause animation using setPaused(true) method or resumed with setPaused(false). Sequences can also be reversed using reverse() method and resumed by calling it again.
 
 # Stickers
 **Stickers** in JEngine represent a visual effect that is temporarily rendered to a location in a scene. Stickers are created in the following way: *new Sticker(Game g, BufferdImage bi, Coordiante c, int i)* where g is the game you want to add the sticker to, bi is the visual asset you want to render, c is where in the world you want the sticker to be rendered at, and i is how long the effect should last. Example of sticker use is a blast effects on explosion or impact.
@@ -306,7 +303,17 @@ GameObjects can be in 3 states for collision; solid, non-solid, overlap allowed.
  
  What text is displayed is set via constructor parameter however you can also change it later by using the setText(String) method. Because TextObjects are stil GameObject2s,they can be rotated, scaled, translated via velocity, and manipulated just like any other.
  ### BlockObject
-//TODO
+Block objects are convenience objects made to ease creation of simple rectangular objects. Blockobjects- unlike regular objects- do not render graphical assets but rather a simple rectangular 2D area, making their rendering very performant. This object can also serve as an example to new JEngine users trying to make objects that do not render a graphical image asset but rather use java AWT processes to create unique shapes. 
+
+Example usage is creating a floor in a 2d sidescrolling scene, basic walls in a topdown scene, or rudimentary way of creating a rectangular zone that can detect what objects are inside by making the hitbox not block pathing and invisible.
+
+To create a BlockObject, you provide the constructor the usual coordinate (used for defining location) and also two integers to be used as width and height of the box. You can change the width and height of the BoxObject at any time after creation via setWidth and setHeght methods respectively.
+
+Where the object is location is determined by it's location however this point may serve as either the center of the box (default), or as the top left corner. This is determined by the box's *centered* field, which when true, makes the box centered on its location. Use the setCentered(boolean) method to toggle between centered on location and anchored to location at top left point.
+
+Beyond the usual GameObject methods, the BoxObject also has a number of unique methods for modification. BoxObject may have their color via the setColor(Color) method, and may be set to filled or not filled. A filled object is just a solid rectangle of whatever color you chose while a non-filled object will only display a border of the color it is. This border may be changed via setBorderThickness(int) method (default 5). The box may also be set to invisible or solid/non-solid via the usual GO2 way.
+
+
 # SubObjects
 //TODO
 # Pathing Layer
@@ -346,6 +353,8 @@ How fast scenes run their tick method. Slows or speeds up the game relative to r
 When you create a project that uses visual image assets, those assets are rendered pixel per pixel and their size (without in-engine scaling) is determined by the actual size of the image asset used. Ie: a 200x200 image will display over a distance of 200x200 in the game. The problem is that different screens have different resolutions than the screen you are testing your project on, so a character that looks large on your 1080p display will look tiny on a 4k display. To keep things looking uniform across all screen resolutions, set the final static field **NATIVE_RESOLUTION** in game class to reflect the resolution of you, the programmer's screen. Now you may call the **Game.scaleForResolution()** option and it will automatically scale your entire project to look the same on whatever screen size the project is run in as it does on the screen you are testing on.
 
 # IndependentEffects
+//TODO
+# UI Elements
 //TODO
 # Audio
 ### Quick Start Guide
