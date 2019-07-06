@@ -149,4 +149,15 @@ public class Camera {
     public DCoordinate getWorldLocation(){
         return new DCoordinate(-location.x,-location.y);
     }
+    
+    /**
+     * Instantly pans camera to center on given cooridinate 
+     * @param point point to go to
+     */
+    public void centerOn(Coordinate point) {
+        if(isTrackingTarget())return;
+        location.x = -point.x + (hostGame.windowWidth / 2)/hostGame.getZoom()/Game.resolutionScaleX;
+        location.y = -point.y + (hostGame.windowHeight / 2)/hostGame.getZoom()/Game.resolutionScaleY;
+        constrainCameraToWorld();
+    }
 }

@@ -6,6 +6,7 @@
 package Framework.UI_Elements.Examples;
 
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
@@ -19,6 +20,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -43,10 +47,13 @@ public final class Minimap extends UIElement {
      */
     public Minimap(Game g, Coordinate loc) {
         hostGame = g;
-        //this determines where it is on screen reletive to top left
+        //location determines where it is on screen reletive to top left
         setLocation(loc);
         //create a minimap interior and add it to this panel
         interior = new MinimapInterior();
+        MinimapMouseListener mmm = new MinimapMouseListener(hostGame, this);
+        interior.addMouseListener(mmm);
+        interior.addMouseMotionListener(mmm);
         Dimension size = new Dimension((int) (hostGame.getWorldWidth() * screenPortion / Game.getResolutionScaleX()), (int) (hostGame.getWorldHeight() * screenPortion / Game.getResolutionScaleY()));
         interior.setSize(size);
         this.setSize(size);
@@ -58,7 +65,6 @@ public final class Minimap extends UIElement {
 
     /*
     TODO
-    objects not on-camera dont render
     flickering
     size of the thing
     input handler
@@ -111,6 +117,55 @@ public final class Minimap extends UIElement {
     @Override
     public void tick() {
     }
+    
+    private static class MinimapMouseListener implements MouseListener, MouseMotionListener {
+
+        Game hostGame;
+        Minimap map;
+            
+        public MinimapMouseListener(Game hostGame, Minimap m) {
+            this.hostGame = hostGame;
+            this.map = m;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            panTo(e);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {}
+
+        @Override
+        public void mouseEntered(MouseEvent e) {}
+
+        @Override
+        public void mouseExited(MouseEvent e) {}
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+        Coordinate relativePoint = new Coordinate(0, 0);
+            panTo(e);
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {}
+        
+        private void panTo(MouseEvent e) {
+            DCoordinate relativePoint = new DCoordinate(0, 0);
+            relativePoint.x = (double) e.getX() / (double) map.getWidth();
+            relativePoint.x *= hostGame.getWorldWidth();
+            relativePoint.y = (double) e.getY() / (double) map.getHeight();
+            relativePoint.y *= hostGame.getWorldHeight();
+            hostGame.getCamera().centerOn(relativePoint.toCoordinate());
+        }
+
+    }
+    
 
     /**
      * This class actully does the drawing
@@ -121,7 +176,6 @@ public final class Minimap extends UIElement {
 
         public MinimapInterior() {
             background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(), screenPortion / Game.getResolutionScaleX(), screenPortion / Game.getResolutionScaleY());
-            
         }
 
         @Override
