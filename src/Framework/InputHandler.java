@@ -10,13 +10,15 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 /**
  * Manages all user input to a game. Acts as key, Mouse, and MouseMotion Listener.
  * Should be added to a game with game.setInputHandler method
  * @author Joseph
  */
-public abstract class InputHandler implements KeyListener, MouseListener, MouseMotionListener{
+public abstract class InputHandler implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener{
     //FIELDS
     protected Game hostGame = null;
     public InputHandler(Game x){
@@ -90,9 +92,14 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
 
     @Override
     public void mouseMoved(MouseEvent e) {
-   
+
     }
-    
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+
+    }
+
     /**
      * returns the pixel coordinate in the world cooresponding with a mouse event
      * @param e the mouse event that generated this event
