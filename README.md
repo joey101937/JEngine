@@ -24,8 +24,7 @@ Games have their own InputHandlers to take in user input via mouse and keyboard.
 -**Coordinate** and **DCoordinate** classes are used heavily when talking about location in the gameworld. Coordinate uses ints and often used to reflect the location of an object in pixels while DCoordinates use doubles and are typically used to store an object's true location and velocity. Both classes have considerable utility methods built in. Note these classes are not immutable, so use caution when modifying coordinates that may be referenced elsewhere. Use the .copy() method to generate an equivilent copy of a coordinate to avoid modifying the original coordinate. Add and Subtract methods modify the calling coordinate, they do not return a new coordinate based on the operation like you may find with strings.
 
 # Your First Project
-**Technical Note Before Starting** Once you have imported JEngine to your IDE, go to Framework.Game class and change *NATIVE_RESOLUTION* field to match your own screen dimension, then go into run properties of the project and set the VM options to include 
-*-Dsun.java2d.d3d=false -Xmx1024*.
+**Technical Note Before Starting** Once you have imported JEngine to your IDE, go into run properties of the project and set the VM options to include *-Dsun.java2d.d3d=false -Xmx1024*. Also you need to change the **Game.NATIVE_RESOLUTION**  field to match the resolution of *your* monitor. This value is used to scale the game display onto whatever monitor it runs on such that object scale is consistent on both your development monitor and someone else's when they run your game. Once again this should be *your* resolution, not the resolution you plan to run on. Used for scaling.
 
 **Check out the GameDemo package to see small example projects and their setup**
 JEngine is super easy to use and get started; first simply import the framework into your IDE of choice (I use netbeans).
@@ -334,10 +333,10 @@ GameObject2 object = new GameObject2(new Coordinate(0,0));
 object.pathingModifiers.put(PathingLayer.Type.water, .33); //the object moves slower in the water
 
 ### Adding Custom Terrain Types
-Adding your own terrain type involves three modifications to the Framework.PathingLayer class.
-1. Declare a static Color field for your terrain type. Put this next to the existing *public static final Color* fields at the top of the file
-2. Add your terrain type's name to the PathingLayer.Type enum located in the PathingLayer.java file. Looks like this: *public static enum Type {ground, water, impass};*
-3. Modify the **private static Type getType(int c)** method in PathingLayer class to incorporate your layer. There is a comment in the method to guide you. But in general you want to compare c to your color's getRGB() method. If its a match, return your new terrain type.
+Adding your own terrain type involves two steps
+1. Create an instance of the PathingLayer.Type class. Note that there will be two fields in the constructor. One is a String, which will serve as the name of your terrain, and the other is a color. **This color determines how the terrain will be seen in debug mode, not what color it corresponds to on the source image**
+2. Get the PathingLayer object out of your game object using game.getPathingLayer() and call assignColor method on it, providing it both a color, and the Type object you just created. Once done, any color in the source image matching the one prodived to this method will map to the given Type object
+
 # Engine Options
 ### **Debug Mode** 
 set with Main.debugMode field, this is the one of the most useful tools for viewing your scene on a technical level. This view replaces the background with the game's pathing map if applicable, renders hitbox outlines *(red=solid, blue=non-solid, grey=solid but preventOverlap is off)*; Object names; and orientation markers on all objects.
