@@ -17,10 +17,18 @@ public class Sprite implements Graphic{
     private BufferedImage image;
      private double scale = 1;
     
+     /**
+      * gets raw underlying image
+      * @return underlying image
+      */
     public BufferedImage getImage(){
         return image;
     }
     
+    /**
+     * sets underlying image
+     * @param b new underlying image
+     */
     public void setImage(BufferedImage b){
         image= b;
     }
@@ -29,6 +37,7 @@ public class Sprite implements Graphic{
     public Sprite(BufferedImage bi){
         image = bi;
     }
+    
     @Override
     public Sprite copy() {
         Sprite output = new Sprite(image);
@@ -50,6 +59,21 @@ public class Sprite implements Graphic{
         image = scaleImage(image, d);
         scale *= d;
     }
+    
+    /**
+     * gets height of image in px
+     * @return number of pixels tall
+     */
+    public int getHeight(){
+        return image.getHeight();
+    }
+    /**
+     * gets width of image in px
+     * @return number of pixels wide
+     */
+    public int getWidth(){
+        return image.getWidth();
+    }
 
     /**
      * sets the scale of image to a given scale
@@ -61,8 +85,7 @@ public class Sprite implements Graphic{
         scale = d;
     }
 
-    private BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
-      
+    private BufferedImage scaleImage(BufferedImage before, double scaleAmount) {   
         int w = before.getWidth();
         int h = before.getHeight();
         BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);

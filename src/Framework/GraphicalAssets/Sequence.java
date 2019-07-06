@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
  * @author Joseph
  */
 public class Sequence implements Graphic{
-    public BufferedImage[] frames;
+    public Sprite[] frames;
     private double scale = 1;
     /**Duration to wait before switching frames in ms*/
     public int frameDelay = 100;
@@ -44,7 +44,7 @@ public class Sequence implements Graphic{
             if (!isPaused()) {
                 currentFrameIndex = getCurrentFrameIndex();
             }
-            output = frames[currentFrameIndex];
+            output = frames[currentFrameIndex].getImage();
         } catch (ArrayIndexOutOfBoundsException e) {
             //check to see if threads got out of sync and updated index too fast
             //if so, reset index rather than returning null
@@ -76,9 +76,16 @@ public class Sequence implements Graphic{
     }
     
     public Sequence(BufferedImage[] input){
-        frames = new BufferedImage[input.length];
+        frames = new Sprite[input.length];
         for(int i = 0; i < input.length; i++){
-            frames[i]=input[i];
+            frames[i]=new Sprite(input[i]);
+        }
+    }
+
+    public Sequence(Sprite[] input) {
+        frames = new Sprite[input.length];
+        for (int i = 0; i < input.length; i++) {
+            frames[i] = input[i].copy();
         }
     }
     /**
@@ -87,7 +94,7 @@ public class Sequence implements Graphic{
     public void disable(){
         setPaused(false);
         disabled = true;
-        for(BufferedImage bi : frames){
+        for(Sprite bi : frames){
             bi=null;
         }
         try {
@@ -117,8 +124,8 @@ public class Sequence implements Graphic{
      */
     @Override
     public void scale(double d) {
-        for (BufferedImage bi : frames) {
-            bi = scaleImage(bi, d);
+        for (Sprite bi : frames) {
+            bi.scale(d);
         }
         scale*=d;
     }
@@ -129,8 +136,8 @@ public class Sequence implements Graphic{
      */
     @Override
     public void scaleTo(double d) {
-        for(int i = 0; i < frames.length; i++){
-            frames[i] = scaleImage(frames[i],d/scale);
+        for (Sprite bi : frames) {
+            bi.scaleTo(d);
         }
         scale = d;
     }
@@ -145,7 +152,6 @@ public class Sequence implements Graphic{
     }
 
     private BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
-      
         int w = before.getWidth();
         int h = before.getHeight();
         BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
@@ -226,7 +232,7 @@ public class Sequence implements Graphic{
      * first frame becomes last frame and vice versa
      */
     public void reverse(){
-        BufferedImage[] newFrames = new BufferedImage[frames.length];
+        Sprite[] newFrames = new Sprite[frames.length];
         for(int i =0 ; i<frames.length;i++){
             newFrames[frames.length-(i+1)]=frames[i];
         }

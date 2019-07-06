@@ -82,7 +82,7 @@ public class PathingLayer {
         
     /**
      * converts pixels in source to cooresponding colors to make it easier to see
-     * in debug view
+     * in debug view. 
      */
     public void internalizeSource(){
         if(sourceInternalized) return;
