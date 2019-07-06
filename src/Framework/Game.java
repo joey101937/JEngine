@@ -205,7 +205,7 @@ public class Game extends Canvas implements Runnable {
      * NOTE removes the given input handler from any game its already applied to!
      * @param in Input handler to apply to this game
      */
-    public void setInputHandler(InputHandler in){
+    public synchronized void setInputHandler(InputHandler in){
         if(inputHandler != null) {
             applyInputHandler(false);
         }

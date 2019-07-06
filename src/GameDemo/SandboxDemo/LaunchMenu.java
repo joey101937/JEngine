@@ -310,6 +310,7 @@ public class LaunchMenu extends javax.swing.JFrame {
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
         Game.birdCount = (int) birdSpinner.getValue();
+        
         /////////////////////////////////////////////////
         g=new Game(SpriteManager.terrainBG);
         setup(g);

@@ -61,7 +61,7 @@ public class Camera {
      * runs at the beginning of game render to keep camera at correct location
      * @param g runs at the beginning of game render to keep camera at correct location
      */
-    public void render(Graphics2D g) {
+    public synchronized void render(Graphics2D g) {
         g.translate(location.x, location.y); //this runs regardless of ticks because it keeps the camera location still (g resets to 0,0 every render)
         if (!readyToUpdate) {
             return;
@@ -80,10 +80,9 @@ public class Camera {
 
     /**
      * updates the camera position based on either velocity or to follow target
-     *
      * @param g graphics for which this camera operates
      */
-    private void updateLocation(Graphics2D g) {
+    private synchronized void updateLocation(Graphics2D g) {
         if (disableMovement) {
             return;
         }
@@ -109,7 +108,6 @@ public class Camera {
                 break;
         }
          constrainCameraToWorld();
-         g.translate(location.x - g.getTransform().getTranslateX(), location.y - g.getTransform().getTranslateY());
     }
     /**
      * keeps camera from going out of bounds
