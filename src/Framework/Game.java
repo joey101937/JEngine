@@ -573,11 +573,13 @@ public class Game extends Canvas implements Runnable {
             this.addMouseListener(inputHandler);
             this.addMouseMotionListener(inputHandler);
             this.addKeyListener(inputHandler);
+            this.addMouseWheelListener(inputHandler);
             inputHandlerApplied = true;
         } else {
             this.removeMouseListener(inputHandler);
             this.removeMouseMotionListener(inputHandler);
             this.removeKeyListener(inputHandler);
+            this.removeMouseWheelListener(inputHandler);
             inputHandlerApplied = false;
         }
 
