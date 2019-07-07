@@ -27,6 +27,14 @@ public class Camera {
     
     
     /**
+     * gets location of this camera's top left point
+     * @return 
+     */
+    public Coordinate getPixelLocation(){
+        return location.toCoordinate().copy();
+    }
+
+    /**
      * determines if the camera is following its target.
      * note if set to false, this does not change target, only makes the camera
      * not follow that target anymore

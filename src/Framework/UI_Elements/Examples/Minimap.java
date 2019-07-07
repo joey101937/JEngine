@@ -36,7 +36,7 @@ import javax.swing.JPanel;
 public final class Minimap extends UIElement {
 
     public final MinimapInterior interior;
-    public static final double screenPortion = .1; //how much of the screen to take up
+    private double screenPortion = .1; //how much of the screen to take up
     public Game hostGame;
 
     /**
@@ -50,11 +50,11 @@ public final class Minimap extends UIElement {
         //location determines where it is on screen reletive to top left
         setLocation(loc);
         //create a minimap interior and add it to this panel
-        interior = new MinimapInterior();
+         Dimension size = new Dimension((int) (hostGame.getWorldWidth() / Game.getResolutionScaleX() * screenPortion), (int) (hostGame.getWorldHeight() / Game.getResolutionScaleY() * screenPortion));
+        interior = new MinimapInterior(size);
         MinimapMouseListener mmm = new MinimapMouseListener(hostGame, this);
         interior.addMouseListener(mmm);
         interior.addMouseMotionListener(mmm);
-        Dimension size = new Dimension((int) (hostGame.getWorldWidth() * screenPortion / Game.getResolutionScaleX()), (int) (hostGame.getWorldHeight() * screenPortion / Game.getResolutionScaleY()));
         interior.setSize(size);
         this.setSize(size);
         this.setLayout(null);
@@ -135,6 +135,11 @@ public final class Minimap extends UIElement {
         @Override
         public void mousePressed(MouseEvent e) {
             panTo(e);
+            DCoordinate relativePoint = new DCoordinate(0, 0);
+            relativePoint.x = (double) e.getX() / (double) map.getWidth();
+            relativePoint.x *= hostGame.getWorldWidth();
+            relativePoint.y = (double) e.getY() / (double) map.getHeight();
+            relativePoint.y *= hostGame.getWorldHeight();
         }
 
         @Override
@@ -163,19 +168,51 @@ public final class Minimap extends UIElement {
             relativePoint.y *= hostGame.getWorldHeight();
             hostGame.getCamera().centerOn(relativePoint.toCoordinate());
         }
+        
+    }
 
+    public double getScreenPortion() {
+        return screenPortion;
+    }
+
+    public void setScreenPortion(double screenPortion) {
+        this.screenPortion = screenPortion;
+        Dimension size =new Dimension((int) (hostGame.getWorldWidth() / Game.getResolutionScaleX() * screenPortion), (int) (hostGame.getWorldHeight() / Game.getResolutionScaleY() * screenPortion));
+        interior.setSize(size);
+        this.setSize(size);
     }
     
 
+    
+    
     /**
      * This class actully does the drawing
      */
     private class MinimapInterior extends JPanel {
 
-        private final BufferedImage background;
+        private BufferedImage background;
 
-        public MinimapInterior() {
-            background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(), screenPortion / Game.getResolutionScaleX(), screenPortion / Game.getResolutionScaleY());
+        public MinimapInterior(Dimension d) {
+            try{
+                background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(),
+                    ((double)d.width / hostGame.getWorldWidth()),
+                    ((double)d.height / hostGame.getWorldHeight()));
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            
+        }
+        
+        @Override
+        public void setSize(Dimension d) {
+            try {
+                background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(),
+                        ((double)d.width / hostGame.getWorldWidth()),
+                        ((double)d.height / hostGame.getWorldHeight()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            super.setSize(d);
         }
 
         @Override
