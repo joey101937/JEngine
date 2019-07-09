@@ -57,7 +57,7 @@ public class Window {
     private Window(Game g) {
         panel.setLayout(null);
         frame = new JFrame(title);
-        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/Resources/JEngineIcon.png")));
+        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("../Resources/JEngineIcon.png")));
         Dimension d = new Dimension(g.windowWidth,g.windowHeight);
         g.setBounds(0, 0, g.windowWidth, g.windowHeight);
         panel.setSize(d);

@@ -191,12 +191,12 @@ public final class Minimap extends UIElement {
     private class MinimapInterior extends JPanel {
 
         private BufferedImage background;
-
+        private double xScale = 1, yScale = 1;
         public MinimapInterior(Dimension d) {
             try{
                 background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(),
-                    ((double)d.width / hostGame.getWorldWidth()),
-                    ((double)d.height / hostGame.getWorldHeight()));
+                    (xScale=(double)d.width / hostGame.getWorldWidth()),
+                    (yScale=(double)d.height / hostGame.getWorldHeight()));
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -207,8 +207,8 @@ public final class Minimap extends UIElement {
         public void setSize(Dimension d) {
             try {
                 background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(),
-                        ((double)d.width / hostGame.getWorldWidth()),
-                        ((double)d.height / hostGame.getWorldHeight()));
+                        (xScale=(double)d.width / hostGame.getWorldWidth()),
+                        (yScale=(double)d.height / hostGame.getWorldHeight()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -223,7 +223,7 @@ public final class Minimap extends UIElement {
                 return;
             }
             g2d.drawImage(background, 0, 0, null);
-            g2d.scale(screenPortion / Game.getResolutionScaleX(), screenPortion / Game.getResolutionScaleY());
+            g2d.scale(xScale, yScale);
             for (GameObject2 go : hostGame.getAllObjects()) {
                 go.render(g2d);
                 for (SubObject sub : go.subObjects) {
@@ -232,14 +232,12 @@ public final class Minimap extends UIElement {
             }
             g2d.setColor(Color.black);
             g2d.draw(hostGame.getCamera().getFieldOfView());
-            //g2d.drawRect(-(int)hostGame.camera.location.x, -(int)hostGame.camera.location.y, (int)(hostGame.camera.getFieldOfView().width*screenPortion*Game.getResolutionScaleX()), (int)(hostGame.camera.getFieldOfView().height*screenPortion*Game.getResolutionScaleY()));
             g2d.setStroke(new BasicStroke(70));
             g2d.drawRect(0, 0, (int) (this.getWidth() / screenPortion / Game.getResolutionScaleX()), (int) (this.getHeight() / screenPortion / Game.getResolutionScaleY()));
             g2d.dispose();
         }
 
         private BufferedImage scaleImage(BufferedImage before, double xScale, double yScale) {
-
             int w = before.getWidth();
             int h = before.getHeight();
             BufferedImage after = new BufferedImage((int) (w * xScale), (int) (h * yScale), BufferedImage.TYPE_INT_ARGB);
