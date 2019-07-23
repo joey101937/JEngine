@@ -611,6 +611,7 @@ public class Game extends Canvas implements Runnable {
      * @param o object to add
      */
     public void addObject(GameObject2 o){
+        if(o==null) throw new NullPointerException("Trying to add null GameObject2 to Game " + name);
         handler.addObject(o);
     }
     
