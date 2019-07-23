@@ -61,8 +61,8 @@ public class DemoInputHandler extends InputHandler{
             case 'Q':
                 //debug used to check tick numbers
                 for(GameObject2 go : hostGame.handler.getAllObjects()){
-                    System.out.println(go.tickNumber + " " + go.name);
-                    System.out.println(go.renderNumber + " " + go.name + " render.");               
+                    System.out.println(go.tickNumber + " " + go.getName());
+                    System.out.println(go.renderNumber + " " + go.getName() + " render.");               
                 }
                  System.out.println("Camera Tick: " + hostGame.getCamera().tickNumber);
                  System.out.println(hostGame.testObject.location);

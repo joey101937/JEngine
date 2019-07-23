@@ -629,7 +629,7 @@ public class Game extends Canvas implements Runnable {
             try{
             handler.removeObject(o);
             }catch(ConcurrentModificationException cme){
-                System.out.println("cme when removing " + o.name);
+                System.out.println("cme when removing " + o.getName());
             }
         }
     }

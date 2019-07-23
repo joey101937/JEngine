@@ -35,7 +35,7 @@ public class EnemyDiagonal extends EnemyShip{
         scale(.2);
         isSolid = true;
         preventOverlap=false;
-        name = "Enemy " + ID;
+        setName("Enemy " + ID);
         movementType = MovementType.RotationBased;
         baseSpeed = 4;
         velocity.y = 1;

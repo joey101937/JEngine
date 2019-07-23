@@ -36,7 +36,7 @@ public class SideScrollCharacter extends GameObject2{
      * set up basics of character
      */
     private void characterSetup(){
-        name = "Sample Character";
+        setName("Sample Character");
         baseSpeed = 3.5;
         setScale(.5);
         isSolid=true;

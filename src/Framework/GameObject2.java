@@ -23,7 +23,7 @@ import Framework.GraphicalAssets.Graphic;
  */
 public class GameObject2 {
     private Game hostGame;
-    public String name= "Unnamed " + this.getClass().getSimpleName(); 
+    private String name= "Unnamed " + this.getClass().getSimpleName(); 
     public long tickNumber = 0; //used for debugging, counts number of times this has ticked
     public long renderNumber = 0; //used for debugging, counts number of times this has rendered
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
@@ -91,7 +91,7 @@ public class GameObject2 {
     */
    public PathingLayer.Type getCurrentTerrain(){
        if(hostGame.pathingLayer==null){
-           System.out.println("trying to get terrain type of null pathing layer -"+name);
+           System.out.println("trying to get terrain type of null pathing layer -"+getName());
            return null;
        }
        return hostGame.pathingLayer.getTypeAt(this.getPixelLocation());
@@ -288,7 +288,7 @@ public class GameObject2 {
         } else if (isAnimated()) {
             Sequence sequence = (Sequence)getGraphic();
             if(sequence == null){
-                if(renderNumber>10 && tickNumber>2)System.out.println("Warning trying to render null sequence object " +name);
+                if(renderNumber>10 && tickNumber>2)System.out.println("Warning trying to render null sequence object " +getName());
                 if(Main.debugMode){
                     renderDebugVisuals(g);
                 }
@@ -300,7 +300,7 @@ public class GameObject2 {
                 g.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
                 if(sequence.currentFrameIndex == sequence.frames.length-1) this.onAnimationCycle();
             }else{
-                if(renderNumber>10 && tickNumber>2)System.out.println("Warning: null frame in sequence of " + name);
+                if(renderNumber>10 && tickNumber>2)System.out.println("Warning: null frame in sequence of " + getName());
             }
         }else{
             Sprite sprite = (Sprite)getGraphic();
@@ -308,7 +308,7 @@ public class GameObject2 {
                 g.drawImage(sprite.getImage(), pixelLocation.x - sprite.getImage().getWidth() / 2, pixelLocation.y - sprite.getImage().getHeight() / 2, null); //draws sprite centered on pixelLocation
             } else {
                 if (renderNumber > 10 && tickNumber > 2) {
-                    System.out.println("Warning: unanimated game object sprite is null " + name);
+                    System.out.println("Warning: unanimated game object sprite is null " + getName());
                 }
             }
         }
@@ -331,7 +331,7 @@ public class GameObject2 {
         Color originalColor = g.getColor();
         g.setColor(Color.red);
         g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
-        g.drawString(name, (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
+        g.drawString(getName(), (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
         g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
     }
 
@@ -629,7 +629,7 @@ public class GameObject2 {
     
     @Override
     public String toString(){
-        return this.name + " in game " + hostGame;
+        return this.getName() + " in game " + hostGame;
     }
  
     
@@ -696,6 +696,14 @@ public class GameObject2 {
     protected void setHostGame(Game g){
         hostGame = g;
     }
-    
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+     
 
 }

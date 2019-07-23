@@ -45,7 +45,7 @@ public class EnemyShip extends GameObject2{
         scale(.2);
         isSolid = true;
         preventOverlap=false;
-        name = "Enemy " + ID;
+        setName("Enemy " + ID);
         movementType = MovementType.SpeedRatio;
         baseSpeed = 4;
         this.velocity.x = 1;

@@ -139,7 +139,7 @@ public class TankUnit extends RTSUnit{
         */
         @Override
         public void onAnimationCycle(){
-            System.out.println("animation cycle " + name);
+            System.out.println("animation cycle " + getName());
             if(getGraphic() == fireAnimation){
                 firing = false;
                 setGraphic(turretSprite);

@@ -30,7 +30,7 @@ public class SampleBird extends Creature{
     private void setup(){
         setGraphic(new Sequence(SpriteManager.birdySequence));
         isSolid=true;
-        name = "Bird " + numBirds++;
+        setName("Bird " + numBirds++);
         //set scale randomly from .1 - 2.1
         this.setScale(Math.random()*2 + .1);
         //set this gameobject to use a circular hitbox with a radius of width/2, to increase performance over the default polygonal hitbox

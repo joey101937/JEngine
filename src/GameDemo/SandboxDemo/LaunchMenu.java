@@ -366,11 +366,11 @@ public class LaunchMenu extends javax.swing.JFrame {
         SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
         g.addObject(example);
         g.testObject = example;
-        example.name = "Player Character";
+        example.setName("Player Character");
         g.getCamera().setTarget(g.testObject);
         ////add other character that just stands there looking pretty
         SampleCharacter other = new SampleCharacter(new Coordinate(1000,300));
-        other.name = "Sample Character";
+        other.setName("Sample Character");
         g.addObject(other);
         //AnimatedSticker testEffect = new AnimatedSticker(this, SpriteManager.explosionSequence,new Coordinate(400, 400), 99999);
     }

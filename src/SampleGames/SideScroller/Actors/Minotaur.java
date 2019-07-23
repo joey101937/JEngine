@@ -39,7 +39,7 @@ public class Minotaur extends SSActor{
      * set up basics of character
      */
     private void characterSetup(){
-        name = "Minotaur";
+        setName("Minotaur");
         baseSpeed = 3.5;
         setScale(1.5);
         setMaxHealth(30);

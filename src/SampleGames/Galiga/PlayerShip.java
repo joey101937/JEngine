@@ -42,7 +42,7 @@ public class PlayerShip extends GameObject2{
         setGraphic(s);
         scale(.25);
         isSolid=true;
-        name = "Player";
+        setName("Player");
         movementType = MovementType.SpeedRatio;
         baseSpeed = 4;  
     }

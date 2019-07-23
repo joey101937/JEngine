@@ -36,6 +36,6 @@ public class Terrain260x125 extends GameObject2 implements Terrain{
         this.setGraphic(new Sprite(SpriteManager.terrain260x125));
         isSolid = true;
         preventOverlap=true;
-        name = "Terrain260x125";
+        setName("Terrain260x125");
     }
 }
