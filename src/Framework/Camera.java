@@ -159,6 +159,17 @@ public class Camera {
     }
     
     /**
+     * gets point at which the camera is currently centered on
+     * @return 
+     */
+    public Coordinate getCenterPoint(){
+        Coordinate out = this.getWorldLocation().toCoordinate();
+        out.x+=hostGame.windowWidth/2;
+        out.y+=hostGame.windowHeight/2;
+        return out;
+    }
+    
+    /**
      * Instantly pans camera to center on given cooridinate 
      * @param point point to go to
      */
