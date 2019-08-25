@@ -58,7 +58,7 @@ public class TextObject extends GameObject2{
         Color originalColor = g.getColor();
          //update size info
         if(text!=null){
-            width=g.getFontMetrics().stringWidth(text);
+            width=(int)g.getFontMetrics().getStringBounds(text, g).getWidth();
         }else{
             width=0;
         }

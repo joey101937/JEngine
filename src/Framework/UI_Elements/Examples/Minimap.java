@@ -226,7 +226,7 @@ public final class Minimap extends UIElement {
             g2d.scale(xScale, yScale);
             for (GameObject2 go : hostGame.getAllObjects()) {
                 go.render(g2d);
-                for (SubObject sub : go.subObjects) {
+                for (SubObject sub : go.getAllSubObjects()) {
                     sub.render(g2d);
                 }
             }

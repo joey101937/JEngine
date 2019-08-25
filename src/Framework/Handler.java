@@ -84,11 +84,9 @@ public class Handler {
         for (GameObject2 go : toRender) {
             try{
              go.render(g);
-             if(go.subObjects!=null){
-                 for(SubObject so : go.subObjects){
+                 for(SubObject so : go.getAllSubObjects()){
                      so.render(g);
                  }
-             }
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -105,11 +103,10 @@ public class Handler {
         for (GameObject2 go : getAllObjects()) {
             go.setHostGame(hostGame);
             go.tick();
-            if (go.subObjects != null) {
-                for (SubObject so : go.subObjects) {
-                    so.tick();
-                }
+            for (SubObject so : go.getAllSubObjects()) {
+                so.tick();
             }
+
         }
     }
 

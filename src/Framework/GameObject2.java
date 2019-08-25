@@ -16,6 +16,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Parent class for all objects that appear in the gameworld
@@ -52,11 +54,40 @@ public class GameObject2 {
     public final int ID;
     private static int IDLog = 0; //used to assign IDs
     public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
-    public ArrayList<SubObject> subObjects = new ArrayList<>(); //stores all subobjects on this object
+    private CopyOnWriteArrayList<SubObject> subObjects = new CopyOnWriteArrayList<>(); //stores all subobjects on this object
     /**this determines weather or not a gameobject will be able to move through other solid units, however this still triggers onCollide*/
     public boolean preventOverlap = true; 
+
     
+    /**
+     * returns list of subobjects immediately linked to this. Does not get the
+     * subobject of the subobjects however
+     * @return 
+     */
+    public CopyOnWriteArrayList<SubObject> getImmediateSubObjects() {
+        return subObjects;
+    }
+
     
+    public void setImmediateSubObjects(CopyOnWriteArrayList<SubObject> subObjects) {
+        this.subObjects = subObjects;
+    }
+
+    /**
+     * recursively gets all subobjects and all subobjects of subobjects
+     * @return 
+     */
+    public List<SubObject> getAllSubObjects() {
+        List<SubObject> out = new ArrayList<>();
+        for (SubObject so : getImmediateSubObjects()) {
+            out.add(so);
+            for (SubObject so2 : so.getAllSubObjects()) {
+                out.add(so2);
+            }
+        }
+        return out;
+    }
+
     
     public void addSubObject(SubObject sub){
         sub.setHost(this);

@@ -237,7 +237,7 @@ public class Game extends Canvas implements Runnable {
             if (go.hitbox!=null && go.getHitbox().intersects(hitbox)) {
                 output.add(go);
             }else{
-                for (SubObject sub : go.subObjects) {
+                for (SubObject sub : go.getAllSubObjects()) {
                     if (sub.getHitbox()!=null && sub.getHitbox().intersects(hitbox)) {
                         output.add(go);
                     }
@@ -258,7 +258,7 @@ public class Game extends Canvas implements Runnable {
             if (go.getHitbox().intersects(h)) {
                 output.add(go);
             } else {
-                for (SubObject sub : go.subObjects) {
+                for (SubObject sub : go.getAllSubObjects()) {
                     if (sub.getHitbox().intersects(h)) {
                         output.add(go);
                     }

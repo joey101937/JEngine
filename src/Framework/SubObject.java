@@ -27,6 +27,18 @@ public class SubObject extends GameObject2{
         return adjustedOffset;
     }
     
+    /**
+     * gets the GameObject2 host. If this subobject is a subobject of another 
+     * subobject, go up the tree until you find the base object
+     * @return 
+     */
+    public GameObject2 getRootHost(){
+        if(getHost() instanceof SubObject){
+            return ((SubObject)host).getRootHost();
+        }else{
+            return host;
+        }
+    }
     
     
     /**
@@ -68,11 +80,11 @@ public class SubObject extends GameObject2{
      * @param host GameObject attach to
      */
     public void setHost(GameObject2 host) {
-        if(this.host!=null)this.host.subObjects.remove(this);
+        if(this.host!=null)this.host.getImmediateSubObjects().remove(this);
         this.host = host;
         if (host != null) {
             this.setHostGame(host.getHostGame());
-            this.host.subObjects.add(this);
+            this.host.getImmediateSubObjects().add(this);
         }
         updateAdjustedOffset();
     }
