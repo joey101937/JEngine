@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="300" height="300" src="http://i66.tinypic.com/2be2rs.png">
+  <img width="300" height="300" src="https://i.ibb.co/nPVy63W/JEngine-Icon.png">
 </p>
 
 # What is JEngine
