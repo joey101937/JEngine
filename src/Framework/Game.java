@@ -246,9 +246,66 @@ public class Game extends Canvas implements Runnable {
         }
         return output;
     }
+    
+     public ArrayList<GameObject2> getPreciseObjectsInArea(Rectangle r){
+        Coordinate[] verts = new Coordinate[4];
+        verts[0]=new Coordinate(r.x,r.y);
+        verts[1] = new Coordinate(r.x + r.width, r.y);
+         verts[2] = new Coordinate(r.x, r.y + r.height);
+         verts[3] = new Coordinate(r.x + r.width, r.y + r.height);
+         Hitbox hitbox = new Hitbox(verts);
+         ArrayList<GameObject2> output = new ArrayList<>();
+         for (GameObject2 go : handler.getAllObjects()) {
+             if (go.hitbox != null && go.getHitbox().intersects(hitbox)) {
+                 output.add(go);
+             }
+             for (SubObject sub : go.getAllSubObjects()) {
+                 if (sub.getHitbox() != null && sub.getHitbox().intersects(hitbox)) {
+                     output.add(sub);
+                 }
+             }
+         }
+         return output;
+    }
+     
+          
+     public ArrayList<GameObject2> getPreceiseObjectsIntersectingPoint(Coordinate c){
+         ArrayList<GameObject2> out = new ArrayList<>();
+         for(GameObject2 go : getAllObjects()){
+             if(go.getHitbox()!=null && go.getHitbox().containsPoint(c)){
+                 out.add(go);
+             }
+             for(SubObject sub : go.getAllSubObjects()){
+                 if(sub.getHitbox()!=null && sub.getHitbox().containsPoint(c)){
+                     out.add(sub);
+                 }
+             }
+         }
+         return out;
+     }
+     
+    public ArrayList<GameObject2> getObjectsIntersectingPoint(Coordinate c) {
+        ArrayList<GameObject2> out = new ArrayList<>();
+        for (GameObject2 go : getAllObjects()) {
+            if (go.getHitbox() != null && go.getHitbox().containsPoint(c)) {
+                out.add(go);
+            } else {
+                for (SubObject sub : go.getAllSubObjects()) {
+                    if (sub.getHitbox() != null && sub.getHitbox().containsPoint(c)) {
+                        out.add(go);
+                    }
+                }
+            }
+
+        }
+         return out;
+     }
+    
 
     /**
-     * returns all GameObject2s in this Game with hitboxes that intersect the given hitbox
+     * returns all GameObject2s in this Game with hitboxes that intersect the
+     * given hitbox. Subobjects redirect to the host
+     *
      * @param h Hitbox to use
      * @return List of objects touching h
      */
@@ -259,14 +316,38 @@ public class Game extends Canvas implements Runnable {
                 output.add(go);
             } else {
                 for (SubObject sub : go.getAllSubObjects()) {
-                    if (sub.getHitbox().intersects(h)) {
-                        output.add(go);
+                    if (sub.getHitbox() != null && sub.getHitbox().intersects(h)) {
+                        output.add(sub);
                     }
                 }
             }
         }
         return output;
     }
+    
+        /**
+     * returns all GameObject2s in this Game with hitboxes that intersect the
+     * given hitbox. Will select subobejcts indevidually.
+     *
+     * @param h Hitbox to use
+     * @return List of objects touching h
+     */
+    public ArrayList<GameObject2> getPreciseObjectsIntersecting(Hitbox h) {
+        ArrayList<GameObject2> output = new ArrayList<>();
+        for (GameObject2 go : getAllObjects()) {
+            if (go.getHitbox().intersects(h)) {
+                output.add(go);
+            }
+            for (SubObject sub : go.getAllSubObjects()) {
+                if (sub.getHitbox() != null && sub.getHitbox().intersects(h)) {
+                    output.add(sub);
+                }
+            }
+
+        }
+        return output;
+    }
+
 
     /**
      * returns all gameobjects that are within distance of c; used to get all

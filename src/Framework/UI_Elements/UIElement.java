@@ -21,4 +21,10 @@ public abstract class UIElement extends Panel{
      */
     public abstract void render();
     public abstract void tick();
+  
+
+    public UIElement() {
+        this.setLayout(null);
+    }
+
 }

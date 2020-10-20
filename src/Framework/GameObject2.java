@@ -36,7 +36,7 @@ public class GameObject2 {
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
     public boolean isInvisible = false; //invisible gameobjects are not rendered
-    private double scale = 1; //size multiplier
+    private volatile double scale = 1; //size multiplier
     protected boolean isAlive = true; //weather or not the object has been destroyed
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;

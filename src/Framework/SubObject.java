@@ -17,6 +17,7 @@ public class SubObject extends GameObject2{
     private  Coordinate adjustedOffset = new Coordinate(0,0);
     
     
+    
     /**
      * This is this offset adjsuted for host location. Relative to world. 
      * host-location plus adjustedOffset equals the location of this subobject
@@ -146,4 +147,5 @@ public class SubObject extends GameObject2{
         adjustedOffset = offset.copy();
         adjustedOffset.adjustForRotation(host.getRotation());
     }
+    
 }

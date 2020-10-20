@@ -5,10 +5,13 @@
  */
 package GameDemo.TankDemo;
 
+import Framework.GameObject2;
 import Framework.InputHandler;
 import Framework.UI_Elements.OptionsMenu;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 /**
  *
@@ -69,5 +72,11 @@ public class TankInputHandler extends InputHandler {
     @Override
     public void mousePressed(MouseEvent e) {
         TankGame.player.fire(locationOfMouseEvent(e));
+        
+        List<GameObject2> selection = hostGame.getPreceiseObjectsIntersectingPoint(locationOfMouseEvent(e));
+        System.out.println(selection.size());
+        if (!selection.isEmpty()) {
+            System.out.println(selection.get(0));
+        }
     }
 }

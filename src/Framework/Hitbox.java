@@ -8,6 +8,7 @@ package Framework;
 import static Framework.Hitbox.Type.box;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 
 /**
@@ -76,6 +77,14 @@ public class Hitbox {
         else return host.location.copy();
     }
     
+    public boolean containsPoint(Coordinate p){
+        if(type == Type.box){
+              return p.distanceFrom(getCenter())<=this.shortestRange;
+        }else{
+            //circle
+            return p.distanceFrom(getCenter())<=radius;
+        }
+    }
 
     /**
      * Creates a circular hitbox at location given with radius given
@@ -246,6 +255,9 @@ public class Hitbox {
         //box on box collision
         if(this.type==Type.box && other.type==Type.box){
             if(distance>this.farthestRange && distance > other.farthestRange)return false; //too far to possibly intersect
+            if (distance <= other.shortestRange + other.shortestRange) {
+                return true; //must be touching
+            }
         if (linesIntersect(rightSide(), other.leftSide()) || linesIntersect(rightSide(), other.rightSide())
                 || linesIntersect(rightSide(), other.topSide()) || linesIntersect(rightSide(), other.botSide())) {
             //our right side intersects one of their lines
@@ -370,4 +382,12 @@ public class Hitbox {
         g.setColor(col);
     }
 
+    public double getFarthestRange() {
+        return farthestRange;
+    }
+
+    public double getShortestRange() {
+        return shortestRange;
+    }
+    
 }

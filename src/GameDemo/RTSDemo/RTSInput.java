@@ -10,9 +10,11 @@ import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.InputHandler;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -24,7 +26,7 @@ public class RTSInput extends InputHandler {
     
     @Override
     public void mousePressed(MouseEvent e){
-        if(e.getButton() == 1) { //1 means left click
+            if (e.getButton() == 1) { //1 means left click
             for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                 u.setSelected(false);
             }
