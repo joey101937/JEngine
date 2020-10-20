@@ -48,6 +48,7 @@ public class Game extends Canvas implements Runnable {
     public static final double OVERVIEW_MODE_ZOOM = .25;
     protected static double resolutionScaleX = 1, resolutionScaleY = 1;
     /*  FIELDS   */
+    public volatile boolean shouldShowFPS = true;
     private double zoom = 1;
     public int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
     public int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
@@ -534,7 +535,7 @@ public class Game extends Canvas implements Runnable {
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
                 //if frames = 1 then it likeley is an error from swapping scenes
-                if(frames!=1)System.out.println(name + " FPS: " + frames);
+                if(frames!=1 && shouldShowFPS)System.out.println(name + " FPS: " + frames);
                 frames = 0;
                 ///this triggers once a second
             }

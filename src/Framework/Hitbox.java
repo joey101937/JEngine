@@ -48,6 +48,7 @@ public class Hitbox {
      * used to set farthestRange. used for optimizing
      */
     private void setFarthestAndShortest(){
+        if(vertices == null) return;
         for(Coordinate c : vertices){
             if(c.distanceFrom(getCenter())>farthestRange){
                 farthestRange = c.distanceFrom(getCenter());
@@ -79,10 +80,10 @@ public class Hitbox {
     
     public boolean containsPoint(Coordinate p){
         if(type == Type.box){
-              return p.distanceFrom(getCenter())<=this.shortestRange;
+              return p.distanceFrom(getCenter())<=(this.shortestRange);
         }else{
             //circle
-            return p.distanceFrom(getCenter())<=radius;
+            return p.distanceFrom(getCenter())<=(radius);
         }
     }
 
@@ -354,6 +355,7 @@ public class Hitbox {
 
 
     public void render(Graphics2D g){
+        this.setFarthestAndShortest();
         Color col = g.getColor();
         if(this.type == Type.box){ 
             //render all sides
@@ -385,7 +387,7 @@ public class Hitbox {
     public double getFarthestRange() {
         return farthestRange;
     }
-
+    
     public double getShortestRange() {
         return shortestRange;
     }
