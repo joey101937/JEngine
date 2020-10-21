@@ -49,13 +49,15 @@ public class Coordinate {
 
     @Override
     public boolean equals(Object o) {
-        try {
-            Coordinate other = (Coordinate) o;
-            return (x == other.x && y == other.y);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+       if(o instanceof Coordinate){
+           Coordinate other = (Coordinate)o;
+           return other.x == x && other.y == y;
+       } else if (o instanceof DCoordinate) {
+           Coordinate other = ((DCoordinate)o).toCoordinate();
+           return other.x == x && other.y == y;
+       } else {
+           return super.equals(o);
+       }
     }
 
     @Override

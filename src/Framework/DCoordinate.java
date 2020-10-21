@@ -53,13 +53,15 @@ public class DCoordinate {
 
     @Override
     public boolean equals(Object o) {
-        try {
-            DCoordinate other = (DCoordinate) o;
-            return (x == other.x && y == other.y);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        if(o instanceof DCoordinate){
+           DCoordinate other = (DCoordinate)o;
+           return other.x == x && other.y == y;
+       } else if (o instanceof Coordinate) {
+           DCoordinate other = ((Coordinate)o).toDCoordinate();
+           return other.x == x && other.y == y;
+       } else {
+           return super.equals(o);
+       }
     }
 
     @Override
