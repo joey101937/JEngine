@@ -78,9 +78,32 @@ public class Hitbox {
         else return host.location.copy();
     }
     
+    private DCoordinate[] getRenderVerts() {
+        double[] leftSide = leftSide();
+        double[] rightSide = rightSide();
+        DCoordinate[] renderVerts = new DCoordinate[4];
+        renderVerts[0] = new DCoordinate(leftSide[0],leftSide[1]);
+        renderVerts[1] = new DCoordinate(leftSide[2],leftSide[3]);
+        renderVerts[2] = new DCoordinate(rightSide[0],rightSide[1]);
+        renderVerts[3] = new DCoordinate(rightSide[2],rightSide[3]);
+        return renderVerts;
+    }
+    
     public boolean containsPoint(Coordinate p){
         if(type == Type.box){
-              return p.distanceFrom(getCenter())<=(this.shortestRange);
+            DCoordinate[] renderVerts = getRenderVerts();
+            boolean leftCheck = false,
+                    rightCheck = false,
+                    aboveCheck = false,
+                    belowCheck = false;
+            for(DCoordinate dc : renderVerts) {
+                if(dc.x > p.x) rightCheck = true;
+                if(dc.x < p.x) leftCheck = true;
+                if(dc.y > p.y) aboveCheck = true;
+                if(dc.y < p.y) belowCheck = true;
+            }
+            return rightCheck && leftCheck && belowCheck && aboveCheck;
+              //return p.distanceFrom(getCenter())<=(this.shortestRange);
         }else{
             //circle
             return p.distanceFrom(getCenter())<=(radius);
