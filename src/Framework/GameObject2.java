@@ -358,7 +358,7 @@ public class GameObject2 {
      *
      * @param g graphics to use
      */
-    private void renderDebugVisuals(Graphics2D g) {
+    public void renderDebugVisuals(Graphics2D g) {
         Color originalColor = g.getColor();
         g.setColor(Color.red);
         g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
