@@ -114,5 +114,14 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
         }
         return loc.toCoordinate();
     }
+    
+    /**
+     * returns the pixel coordinate in the world cooresponding with a mouse event
+     * @param e the mouse event that generated this event
+     * @return pixel location of mouse in world
+     */
+    public Coordinate getLocationOfMouseEvent(MouseEvent e) {
+        return locationOfMouseEvent(e);
+    }
 
 }
