@@ -8,9 +8,9 @@ package Framework;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 /**
  * Manages aggregate lists of GameObjects
@@ -18,10 +18,12 @@ import java.util.ListIterator;
  */
 public class Handler {
 
-    private volatile LinkedList<GameObject2> storage = new LinkedList<>();
+    // private volatile LinkedList<GameObject2> storage = new LinkedList<>();
+    private HashMap<Integer, GameObject2> storage = new HashMap<>();
     public Game hostGame;
     
-    private List<GameObject2> toRender = storage;
+    // private Map<Integer, GameObject2> toRenger = storage;
+    private List<GameObject2> toRender = new LinkedList<GameObject2>();
     
     public Handler(Game g){
         hostGame=g;
@@ -35,8 +37,8 @@ public class Handler {
     }
     
     public synchronized void addObject(GameObject2 o) {
-        if (!storage.contains(o)) {
-            storage.add(o);
+        if (!storage.containsKey(o.ID)) {
+            storage.put(o.ID, o);
             if(o.getHostGame()!=null && o.getHostGame()!=this.hostGame){
                 o.getHostGame().removeObject(o);
             }
@@ -49,14 +51,7 @@ public class Handler {
      * @param toRemove  object to remove
      */
     public synchronized void removeObject(GameObject2 toRemove){
-         ListIterator iterator = storage.listIterator();
-          while(iterator.hasNext()){
-            Object obj = iterator.next();
-            if(toRemove==obj){
-                iterator.remove();
-                return;
-            }
-        }
+         storage.remove(toRemove.ID);
     }
     
     /**
@@ -68,11 +63,7 @@ public class Handler {
      */
     public synchronized ArrayList<GameObject2> getAllObjects(){
         ArrayList<GameObject2> output = new ArrayList<>();
-         ListIterator iter = storage.listIterator();
-         while(iter.hasNext()){
-             GameObject2 obj = (GameObject2)iter.next();
-             output.add(obj);
-         }
+        for(GameObject2 go : storage.values()) output.add(go);
         return output;
     }
     
