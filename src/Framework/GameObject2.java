@@ -460,7 +460,7 @@ public class GameObject2 {
                     continue;
                 }
                 if (getHitbox().intersects(other.getHitbox())) {
-                    if (!collisionSliding) {
+                    if (!collisionSliding || this.getHitbox().type == Hitbox.Type.circle) {
                         //if we are already on top of another unit, just keep going to not get stuck
                         onCollide(other);
                         if (newLocation.distanceFrom(other.location) > location.distanceFrom(other.location) || !preventOverlap || !other.preventOverlap || !isSolid || !other.isSolid) {
