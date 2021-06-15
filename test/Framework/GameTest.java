@@ -16,7 +16,7 @@ public class GameTest {
     @Test
     public void game_window_test(){
         Game g = new Game(SpriteManager.spaceBG);
-        assert g.backgroundImage == SpriteManager.spaceBG;
+        assert g.backgroundImage.getCurrentImage() == SpriteManager.spaceBG;
         Window.initialize(g);
         assert Window.currentGame == g;
         assert Window.frame.getWidth() == g.windowWidth;
