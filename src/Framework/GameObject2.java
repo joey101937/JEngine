@@ -294,8 +294,14 @@ public class GameObject2 {
         renderNumber++;
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
-        if(!isOnScreen() && !Main.overviewMode()) {
+        if (!isOnScreen() && !Main.overviewMode()) {
             //offscreen without overview mode? dont bother rendering anything.
+            if (isAnimated()) {
+                Sequence sequence = (Sequence) getGraphic();
+                if (sequence.getCurrentFrame() != null && sequence.currentFrameIndex == sequence.frames.length - 1) {
+                    this.onAnimationCycle();
+                }
+            }
             return;
         }
         if (isInvisible) { //if invisible, you can still see debug mode visuals
