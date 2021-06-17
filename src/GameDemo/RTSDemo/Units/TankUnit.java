@@ -29,24 +29,31 @@ import java.util.ArrayList;
  */
 public class TankUnit extends RTSUnit{
     private SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
+    private SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
     public Turret turret;
-    private final static double VISUAL_SCALE = .2;
+    private final static double VISUAL_SCALE = .15;
     private Long lastFiredTime = 0L;
     public static final int RANGE = 500;
     /*
     sets up the tank values
      */
     public TankUnit(Coordinate c) {
-        super(c);
-        init();
+        super(c, 0);
+        init(0);
     }
 
     public TankUnit(int x, int y) {
-        super(x, y);
-        init();
+        super(x, y, 0);
+        init(0);
     }
 
-    private void init() {
+    public TankUnit(int x, int y, int team) {
+        super(x, y, 0);
+        this.team = team;
+        init(team);
+    }
+
+    private void init(int team) {
         Sprite chassSprite = new Sprite(SpriteManager.tankChasis);
         this.setGraphic(chassSprite);
         this.movementType = MovementType.RotationBased;
@@ -57,6 +64,7 @@ public class TankUnit extends RTSUnit{
         preventOverlap = true;
         this.maxHealth = 200;//tanks can take 4 shots
         this.currentHealth = maxHealth;
+        this.team = team;
     }
 
     @Override
@@ -80,7 +88,7 @@ public class TankUnit extends RTSUnit{
         if (turret.firing || target.distanceFrom(location) < getHeight() * 3 / 5 || tickNumber-lastFiredTime < 60L || Math.abs(turret.angleFrom(target))>1) { //limited to one shot per 60 ticks
             return;
         }else{
-            System.out.println("tickNumber " + tickNumber);
+            if(Main.debugMode) System.out.println("tickNumber " + tickNumber);
         }
         lastFiredTime = this.tickNumber;
         turret.onFire(target);
@@ -112,13 +120,15 @@ public class TankUnit extends RTSUnit{
          */
         public void onFire(Coordinate target) {
             setGraphic(fireAnimation);
-            try {
-                SoundEffect launchSound = launchSoundSource.createCopy();
-                launchSound.linkToGame(getHostGame());
-                launchSound.setVolume(.5f);
-                launchSound.start();
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (isOnScreen()) {
+                try {
+                    SoundEffect launchSound = launchSoundSource.createCopy();
+                    launchSound.linkToGame(getHostGame());
+                    launchSound.setVolume(.5f);
+                    launchSound.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             firing = true;
             Coordinate muzzelLocation = new Coordinate(0, 0);
@@ -128,7 +138,7 @@ public class TankUnit extends RTSUnit{
             //OnceThroughSticker muzzelFlash = new OnceThroughSticker(getHostGame(),SpriteManager.explosionSequence,muzzelLocation);
             //muzzelFlash.scaleTo(.25);
             TankBullet bullet = new TankBullet(muzzelLocation.toDCoordinate(),target.toDCoordinate());
-            bullet.shooter=this.getHost();
+            bullet.shooter=(RTSUnit)this.getHost();
             getHostGame().addObject(bullet);
         }
         
@@ -139,7 +149,6 @@ public class TankUnit extends RTSUnit{
         */
         @Override
         public void onAnimationCycle(){
-            System.out.println("animation cycle " + getName());
             if(getGraphic() == fireAnimation){
                 firing = false;
                 setGraphic(turretSprite);
@@ -159,7 +168,7 @@ public class TankUnit extends RTSUnit{
                     if (!(go instanceof RTSUnit) || go==this.getHost()) {
                         continue;
                     }
-                    if (location.distanceFrom(go.location) < closestDistance) {
+                    if (team != ((RTSUnit)go).team && location.distanceFrom(go.location) < closestDistance) {
                         closestDistance = location.distanceFrom(go.location);
                         closest = go;
                     }
@@ -215,9 +224,10 @@ public class TankUnit extends RTSUnit{
         OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
         deathAni.scale(1.5);
         try {
-            SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
-            deathSound.linkToGame(getHostGame());
-            deathSound.start();
+            SoundEffect localDeathSound = deathSound.createCopy();
+            localDeathSound.setVolume(.7f);
+            localDeathSound.linkToGame(getHostGame());
+            localDeathSound.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
