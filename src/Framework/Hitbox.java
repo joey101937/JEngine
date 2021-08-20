@@ -279,7 +279,7 @@ public class Hitbox {
         //box on box collision
         if(this.type==Type.box && other.type==Type.box){
             if(distance>this.farthestRange && distance > other.farthestRange)return false; //too far to possibly intersect
-            if (distance <= other.shortestRange + other.shortestRange) {
+            if (distance <= shortestRange + other.shortestRange) {
                 return true; //must be touching
             }
         if (linesIntersect(rightSide(), other.leftSide()) || linesIntersect(rightSide(), other.rightSide())
