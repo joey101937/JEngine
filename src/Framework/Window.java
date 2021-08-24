@@ -156,17 +156,13 @@ public class Window {
     protected static void updateFrameSize() {
         if (frame != null && panel != null && currentGame != null) {
             Coordinate worldSize = new Coordinate(currentGame.getWorldWidth(), currentGame.getWorldHeight());
-           // System.out.println("current world size is " + worldSize);
-
             if (worldSize.x < Window.screenSize.x && Game.resolutionScaleX <= 1) {
                 worldSize.x *= Game.resolutionScaleX;
             }
             if (worldSize.y < Window.screenSize.y && Game.resolutionScaleY <= 1) {
                 worldSize.y *= Game.resolutionScaleY;
             }
-            //worldSize.x /= Game.resolutionScaleX;
-            //worldSize.y /= Game.resolutionScaleY;
-            //System.out.println("after scaling its " + worldSize);
+            
             Dimension d = new Dimension(0, 0);
             if (worldSize.x > Window.screenSize.x) {
                 d.width = Window.screenSize.x;
@@ -178,7 +174,6 @@ public class Window {
             } else {
                 d.height = worldSize.y;
             }
-           // System.out.println("d is " + d);
             frame.setMinimumSize(d);
             frame.setSize(d);
         }

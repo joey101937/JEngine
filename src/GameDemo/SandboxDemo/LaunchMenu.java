@@ -312,7 +312,7 @@ public class LaunchMenu extends javax.swing.JFrame {
         Game.birdCount = (int) birdSpinner.getValue();
         
         /////////////////////////////////////////////////
-        g=new Game(SpriteManager.terrainBG);
+        g = new Game(SpriteManager.terrainBG);
         setup(g);
         Game.scaleForResolution();
         alt=new Game(SpriteManager.terrainBG);
@@ -361,7 +361,6 @@ public class LaunchMenu extends javax.swing.JFrame {
             g.addObject(bird);
             bird.velocity=new DCoordinate(.5,.5);      
         }
-        
         ////add player character
         SampleCharacter example = new SampleCharacter(new Coordinate(500,300));
         g.addObject(example);

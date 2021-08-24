@@ -50,8 +50,8 @@ public class Game extends Canvas implements Runnable {
     /*  FIELDS   */
     public volatile boolean shouldShowFPS = true;
     private double zoom = 1;
-    public int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
-    public int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
+    protected int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
+    protected int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     private int worldWidth, worldHeight;  //dimensions of the gameworld
     public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
     public final Handler handler = new Handler(this);
