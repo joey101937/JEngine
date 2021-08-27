@@ -382,22 +382,10 @@ public class Hitbox {
         Color col = g.getColor();
         if(this.type == Type.box){ 
             //render all sides
-            if(host==null){
-                g.drawLine((int) leftSide()[0], (int) leftSide()[1], (int) leftSide()[2], (int) leftSide()[3]);
-                g.drawLine((int) rightSide()[0], (int) rightSide()[1], (int) rightSide()[2], (int) rightSide()[3]);
-                g.drawLine((int) topSide()[0], (int) topSide()[1], (int) topSide()[2], (int) topSide()[3]);
-                g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);
-            } else {
-                if(!host.isSolid){
-                    g.setColor(Color.blue);
-                }
-                //render all sides based on host location
-                Coordinate hostLoc = host.getPixelLocation();
-                g.drawLine((int) leftSide()[0], (int) leftSide()[1], (int) leftSide()[2], (int) leftSide()[3]);
-                g.drawLine((int) rightSide()[0], (int) rightSide()[1], (int) rightSide()[2], (int) rightSide()[3]);
-                g.drawLine((int) topSide()[0], (int) topSide()[1], (int) topSide()[2], (int) topSide()[3]);
-                g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);             
-            }
+            g.drawLine((int) leftSide()[0], (int) leftSide()[1], (int) leftSide()[2], (int) leftSide()[3]);
+            g.drawLine((int) rightSide()[0], (int) rightSide()[1], (int) rightSide()[2], (int) rightSide()[3]);
+            g.drawLine((int) topSide()[0], (int) topSide()[1], (int) topSide()[2], (int) topSide()[3]);
+            g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);
         } else if (type == Type.circle) {
             if(host!=null && !host.isSolid){
                 g.setColor(Color.blue);

@@ -292,6 +292,9 @@ public class GameObject2 {
      */
     public void render(Graphics2D g){
         renderNumber++;
+        if (getGraphic() != null && getGraphic().getScale() != scale) {
+            getGraphic().scaleTo(scale);
+        }
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = g.getTransform();
         if (!isOnScreen() && !Main.overviewMode()) {
@@ -314,9 +317,6 @@ public class GameObject2 {
             }
             return;
         }    
-        if (getGraphic() !=null && getGraphic().getScale()!=scale){
-            getGraphic().scaleTo(scale);
-        }
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
         g.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
