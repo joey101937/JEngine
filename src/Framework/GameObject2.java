@@ -516,11 +516,13 @@ public class GameObject2 {
                 }
             }
             for (GameObject2 other : otherObjects) {
+                if(other == this) continue;
                 for (SubObject sub : other.subObjects) {
                     if(!sub.isSolid || other.hitbox==null)continue;
                     if (getHitbox().intersects(sub.getHitbox())) {
                         //if we are already on top of another unit, just keep going to not get stuck
                         onCollide(sub);
+                        sub.onCollide(this);
                         continue; 
                     }
                     if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(sub.getHitbox(), new Coordinate((int) Math.ceil(velocity.x), (int) Math.ceil(velocity.y)))) {
