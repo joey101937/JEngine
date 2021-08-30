@@ -419,7 +419,7 @@ public class GameObject2 {
         updateLocation();
         tickNumber++;
     }
-    
+
     /**
      * This method runs every tick and controls object positioning regarding:
      * note: called as part of default tick; if you want to override tick then
@@ -458,10 +458,12 @@ public class GameObject2 {
             default :
                 throw new RuntimeException("Movement Type undefined for object: " + this);
         }
+        
         //COLLISION
-        if (isSolid && getHitbox()!=null) {
+        ArrayList<GameObject2> otherObjects = hostGame.handler.getAllObjects();
+        if (isSolid && getHitbox() != null) {
             DCoordinate toMove = new DCoordinate((newLocation.x-location.x),(newLocation.y-location.y));
-            for (GameObject2 other : hostGame.handler.getAllObjects()) {
+            for (GameObject2 other : otherObjects) {
                 if (!other.isSolid || other.getHitbox()==null || other==this || other.plane!=plane) {
                     continue;
                 }
@@ -508,9 +510,12 @@ public class GameObject2 {
                         //prevents units from stacking on top of eachother
                         newLocation = location.copy();
                         onCollide(other);
+                        other.onCollide(this);
                         continue;
                     }
                 }
+            }
+            for (GameObject2 other : otherObjects) {
                 for (SubObject sub : other.subObjects) {
                     if(!sub.isSolid || other.hitbox==null)continue;
                     if (getHitbox().intersects(sub.getHitbox())) {
@@ -523,6 +528,7 @@ public class GameObject2 {
                         //prevents units from stacking on top of eachother controlled with preventOverlap condtion
                         newLocation = location.copy();
                         onCollide(sub);
+                        sub.onCollide(this);
                         continue;
                     }
                 }

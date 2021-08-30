@@ -68,9 +68,9 @@ public final class OptionsMenu extends javax.swing.JFrame {
 
         tickPerSecondLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tickPerSecondLabel.setText("Tick Rate");
-        tickPerSecondLabel.setToolTipText("Ticks Per Second");
+        tickPerSecondLabel.setToolTipText("Ticks Per Second - Must be set prior to game running");
 
-        TickRateSpinner.setToolTipText("Ticks Per Second");
+        TickRateSpinner.setToolTipText("Ticks Per Second - Must be set prior to game running");
         TickRateSpinner.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         TickRateSpinner.setName(""); // NOI18N
         TickRateSpinner.setValue(Main.ticksPerSecond);
