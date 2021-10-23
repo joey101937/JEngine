@@ -27,7 +27,7 @@ public class Main {
 
     /* FIELDS */
     public static String assets = "Assets" + File.separator;
-    public static int renderDelay = 11; //the higher this is the worse the fps and max fps but the better the performance
+    public static int renderDelay = 0; //the higher this is the worse the fps and max fps but the better the performance
                                         //If performance is an issue, renderDelay likely needs to be raised
     public static int ticksPerSecond = 60; //how fast the game logic runs. lower to help performance but at noticable reduction to gamespeed
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2

@@ -332,8 +332,8 @@ public class LaunchMenu extends javax.swing.JFrame {
             }
         }
         
-        System.out.println("setting game to alt");
-        Window.setCurrentGame(alt);
+        System.out.println("setting game to main");
+        Window.setCurrentGame(g);
     }
 
     public static void changeGame(){
