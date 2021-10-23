@@ -44,22 +44,100 @@ public class Hitbox {
     private Coordinate[] vertices = null;            //topLeft, topRight, botLeft, botRight
     private double farthestRange = 0; //stores the distance of the farthest vertex, used for optimising performance
     private double shortestRange = 9999999; //shortest distance from center to a flat side
+    private String vertsKey_midpoint = ""; // string made up of vert coordinates to detect changes for recalculating midpoiunt
+    private String vertsKey_shortest_farthest = ""; // string made up of vert coordinates to detect changes for recalculating shortest/longest
+
+    private Coordinate[] cachedMidpoints;
+    
+    private String generateVertsKey () {
+        if(vertices == null) return "";
+        String output = "";
+        for(Coordinate c : vertices) {
+            output += c;
+        }
+        return output;
+    }
+    
+    private Coordinate[] getMidpoints() {
+        String thisKey = generateVertsKey();
+        if(thisKey.equals(vertsKey_midpoint)) return cachedMidpoints;
+        Coordinate[] sideMidpoints = new Coordinate[4];
+        sideMidpoints[0] = new Coordinate( // top midpoint
+            (vertices[0].x + vertices[1].x) /2,
+            (vertices[0].y + vertices[1].y) /2
+        );
+        sideMidpoints[1] = new Coordinate( // right midpoint
+            (vertices[1].x + vertices[3].x) /2,
+            (vertices[1].y + vertices[3].y) /2
+        );
+        sideMidpoints[2] = new Coordinate( // bottom midpoint
+            (vertices[2].x + vertices[3].x) /2,
+            (vertices[2].y + vertices[3].y) /2
+        );
+        sideMidpoints[3] = new Coordinate( // left midpoint
+            (vertices[2].x + vertices[0].x) /2,
+            (vertices[2].y + vertices[0].y) /2
+        );
+        cachedMidpoints = sideMidpoints;
+        vertsKey_midpoint = thisKey;
+        return sideMidpoints;
+    }
+    
     /**
      * used to set farthestRange. used for optimizing
      */
-    private void setFarthestAndShortest(){
+    private void updateFarthestAndShortest(){
         if(vertices == null) return;
+        String thisVertsKey = generateVertsKey();
+        if(thisVertsKey.equals(vertsKey_shortest_farthest)) return; // already up to date
         for(Coordinate c : vertices){
-            if(c.distanceFrom(getCenter())>farthestRange){
-                farthestRange = c.distanceFrom(getCenter());
+            c = c.copy();
+            c.add(getCenter());
+            double distance = c.distanceFrom(getCenter());
+            if(distance>farthestRange){
+                farthestRange = distance;
             }
-            if(Math.abs(c.x)<shortestRange){
-                shortestRange = Math.abs(c.x);
-            }
-            if(Math.abs(c.y)<shortestRange){
-                shortestRange=Math.abs(c.y);
+            if(distance<shortestRange){
+                shortestRange = distance;
             }
         }
+        Coordinate[] sideMidpoints = getMidpoints();
+        for(Coordinate c : sideMidpoints){
+            c = c.copy();
+            c.add(getCenter());
+            double distance = c.distanceFrom(getCenter());
+            if(distance > farthestRange){
+                farthestRange = distance;
+            }
+            if(distance < shortestRange){
+                shortestRange = distance;
+            }
+            if(distance < shortestRange){
+                shortestRange = distance;
+            }
+        }
+        vertsKey_shortest_farthest = thisVertsKey;
+    }
+    
+    /**
+     * given a circle, find the closest point on that circle to a nother target point
+     * @param target target point
+     * https://www.youtube.com/watch?v=aHaFwnqH5CU
+     * @return 
+     */
+    private DCoordinate findClosestPointOnCircleFromPoint(DCoordinate target) {
+        DCoordinate center = getCenter();
+        DCoordinate targetOffset = target.copy();
+        targetOffset.subtract(center);
+        double angle = Math.atan(targetOffset.y / targetOffset.x);
+        double x = Math.cos(angle) * radius;
+        double y = Math.sin(angle) * radius;
+        
+        if (targetOffset.x < 0) {
+            x *= -1;
+            y *= -1;
+        }
+        return new DCoordinate(x + center.x, y + center.y);
     }
     
     public double getRotation(){
@@ -151,7 +229,7 @@ public class Hitbox {
         }
         vertices = given2;
         type = Type.box;
-        setFarthestAndShortest();
+        updateFarthestAndShortest();
     }
 
     /**
@@ -178,7 +256,7 @@ public class Hitbox {
         this.vertices = verts;
         host = go;
         type = Type.box;
-        setFarthestAndShortest();
+        updateFarthestAndShortest();
     }
 
     private Coordinate adjustForRotation(Coordinate c) {
@@ -236,7 +314,7 @@ public class Hitbox {
      * @param line2 second line to eval
      * @return weather or not the two lines intersect
      */
-    private synchronized boolean linesIntersect(double[] line1, double[] line2) {
+    private static synchronized boolean linesIntersect(double[] line1, double[] line2) {
         return Line2D.linesIntersect(line1[0], line1[1], line1[2], line1[3], line2[0], line2[1], line2[2], line2[3]);
     }
     
@@ -265,6 +343,43 @@ public class Hitbox {
                 || linesIntersect(topSide(), points) || linesIntersect(rightSide(), points);
         return intersects;
     }
+    
+    private static boolean doCircleAndBoxInterset(Hitbox circle, Hitbox rect) {
+        double distance = rect.getCenter().distanceFrom(circle.getCenter());
+        if (distance - circle.radius > rect.farthestRange) {
+            return false; // too far to possibly touch
+        }
+        if (distance <= circle.radius + rect.shortestRange) {
+            return true;
+        }
+        for (Coordinate c : rect.vertices) {
+            Coordinate corner = rect.adjustForRotation(c);
+            corner.add(rect.getCenter());
+            if (corner.distanceFrom(circle.getCenter()) <= circle.radius) {
+                return true;
+            }
+        }
+        for (Coordinate c : rect.getMidpoints()) {
+            Coordinate point = rect.adjustForRotation(c);
+            point.add(rect.getCenter());
+            if (point.distanceFrom(circle.getCenter()) <= circle.radius) {
+                return true;
+            }
+        }
+        
+        // time to check line
+        // draw a line from center of circle to the point on the radius that is nearest
+        // to the recangle, then compare line intersections
+        DCoordinate p1 = circle.findClosestPointOnCircleFromPoint(rect.getCenter());
+        DCoordinate p2 = circle.getCenter();
+        double[] circleLine = {p1.x, p1.y, p2.x, p2.y};
+        boolean lineIntersection =
+                   linesIntersect(circleLine, rect.leftSide())
+                || linesIntersect(circleLine, rect.rightSide())
+                || linesIntersect(circleLine, rect.topSide())
+                || linesIntersect(circleLine, rect.botSide());
+        return lineIntersection;
+    }
 
     /**
      * returns true if this hitbox touches the given hitbox
@@ -278,7 +393,7 @@ public class Hitbox {
         double distance = getCenter().distanceFrom(other.getCenter());
         //box on box collision
         if(this.type==Type.box && other.type==Type.box){
-            if(distance>this.farthestRange && distance > other.farthestRange)return false; //too far to possibly intersect
+            if(distance-other.farthestRange > this.farthestRange)return false; //too far to possibly intersect
             if (distance <= shortestRange + other.shortestRange) {
                 return true; //must be touching
             }
@@ -304,33 +419,11 @@ public class Hitbox {
         }
         return false;
         }
-        if (this.type == Type.box && other.type == Type.circle) {
-            //box on circle collision
-            if (distance <= other.radius + this.shortestRange) {
-                return true;
-            }
-            for (Coordinate c : vertices) {
-                Coordinate corner = this.adjustForRotation(c);
-                corner.add(getCenter());
-                if (corner.distanceFrom(other.getCenter()) <= other.radius) {
-                    return true;
-                }
-            }
-            return false;
+        if (this.type == Type.box && other.type == Type.circle) { //box on circle collision
+            return doCircleAndBoxInterset(other, this);
         }
          if (this.type == Type.circle && other.type == Type.box) {
-             //circle on box collision
-            if (distance <= radius + other.shortestRange) {
-                return true;
-            }
-            for (Coordinate c : other.vertices) {
-                Coordinate corner = other.adjustForRotation(c);
-                corner.add(other.getCenter());
-                if (corner.distanceFrom(getCenter()) <= radius) {
-                    return true;
-                }
-            }
-            return false;
+            return doCircleAndBoxInterset(this, other);
         }
         if(this.type==Type.circle && other.type == Type.circle){
             if(distance < radius + other.radius){
@@ -356,13 +449,15 @@ public class Hitbox {
             host.location.x += velocity.x * saftyScaler;
             host.location.y += velocity.y * saftyScaler;
         }
+        updateFarthestAndShortest();
         boolean result = intersects(other);
             if (host != null) {
             host.location.x -= velocity.x * saftyScaler;
             host.location.y -= velocity.y * saftyScaler;
         }
-         staticCenter.x -= velocity.x * saftyScaler;
+        staticCenter.x -= velocity.x * saftyScaler;
         staticCenter.y -= velocity.y * saftyScaler;
+        updateFarthestAndShortest();
         return result;
     }
     
@@ -370,15 +465,17 @@ public class Hitbox {
     
     public synchronized boolean intersectsIfRotated(Hitbox other, double possibleRotation){
         rotate(possibleRotation);
+        updateFarthestAndShortest();
         boolean result = intersects(other);
         rotate(-possibleRotation);
+        updateFarthestAndShortest();
         return result;
     }    
     
 
 
     public void render(Graphics2D g){
-        this.setFarthestAndShortest();
+        this.updateFarthestAndShortest();
         Color col = g.getColor();
         if(this.type == Type.box){ 
             //render all sides
