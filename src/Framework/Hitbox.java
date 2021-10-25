@@ -87,9 +87,16 @@ public class Hitbox {
      * used to set farthestRange. used for optimizing
      */
     private void updateFarthestAndShortest(){
-        if(vertices == null) return;
         String thisVertsKey = generateVertsKey();
         if(thisVertsKey.equals(vertsKey_shortest_farthest)) return; // already up to date
+        if(type == type.circle) {
+            shortestRange = radius;
+            farthestRange = radius;
+            vertsKey_shortest_farthest = thisVertsKey;
+            return;
+        }
+        
+        if(vertices == null) return;
         for(Coordinate c : vertices){
             c = c.copy();
             c.add(getCenter());
@@ -325,23 +332,91 @@ public class Hitbox {
      * x1,y1,x2,y2
      * @return if the given line intersects with any sides of this hitbox.
      */
-    public boolean intersectsWithLine(double[] points){
-        if(points == null) {
+    public boolean intersectsWithLine(double[] points) {
+        updateFarthestAndShortest();
+        if (points == null) {
             throw new RuntimeException("Bad argument: line to compare is null");
         }
         if (points.length != 4) {
             throw new RuntimeException("Bad argument: param must be length 4, was " + points.length);
         }
-        //first check if the points are too close
+        
         DCoordinate p1 = new DCoordinate(points[0], points[1]);
         DCoordinate p2 = new DCoordinate(points[2], points[3]);
-        if (p1.distanceFrom(getCenter()) < this.shortestRange || p2.distanceFrom(getCenter()) < this.shortestRange) {
-            return true;
+
+        if (type == Type.box) {
+            //first check if the points are too close
+            //if that is uncertain, do straight intersection test
+            if (p1.distanceFrom(getCenter()) <= this.shortestRange || p2.distanceFrom(getCenter()) <= this.shortestRange) {
+                return true;
+            }
+            return linesIntersect(rightSide(), points) || linesIntersect(leftSide(), points)
+                    || linesIntersect(topSide(), points) || linesIntersect(rightSide(), points);
+        } else if (type == Type.circle) {
+            /*
+            uses this solution to determien whether or not our circle intersects given line
+            https://stackoverflow.com/a/44975251
+            resources 
+            https://www.youtube.com/watch?v=YyO7ASwNpFQ
+            https://www.youtube.com/watch?v=kTZhEM4ap-M
+            */
+            // turn line into aX + bY = c
+            double a = p1.y - p2.y;
+            double b = p2.x - p1.x;
+            double c = p2.x * p1.y - p1.x * p2.y;
+            double x = getCenter().x;
+            double y = getCenter().y;
+            double r = radius;
+
+            // In general a quadratic is written as: Ax^2 + Bx + C = 0
+            // (a^2 + b^2)x^2 + (2abY - 2ac + - 2b^2X)x + (b^2X^2 + b^2Y^2 - 2bcY + c^2 - b^2r^2) = 0
+            double A = a * a + b * b;
+            double B = 2 * a * b * y - 2 * a * c - 2 * b * b * x;
+            double C = b * b * x * x + b * b * y * y - 2 * b * c * y + c * c - b * b * r * r;
+
+            // Use quadratic formula x = (-b +- sqrt(a^2 - 4ac))/2a to find the 
+            // roots of the equation (if they exist).
+            double D = B * B - 4 * A * C;
+            double x1, y1, x2, y2;
+            double EPS = .0000001;
+
+            // Handle vertical line case with b = 0
+            if (Math.abs(b) < EPS) {
+                // Line equation is ax + by = c, but b = 0, so x = c/a
+                x1 = c / a;
+                // No intersection
+                if (Math.abs(x - x1) > r) {
+                    return false;
+                }
+                // Vertical line is tangent to circle
+                if (Math.abs((x1 - r) - x) < EPS || Math.abs((x1 + r) - x) < EPS) {
+                    return true; // point of intersection is (x1,y)
+                }
+                double dx = Math.abs(x1 - x);
+                double dy = Math.sqrt(r * r - dx * dx);
+                // Vertical line cuts through circle
+                // points are (x1, y+dy) and (x1,y-dy)
+                return true;
+
+            } else if (Math.abs(D) < EPS) { // Line is tangent to circle
+                x1 = -B / (2 * A);
+                y1 = (c - a * x1) / b;
+                return true;  // intersects at (x1, y1)
+                
+            } else if (D < 0) { // No intersection
+                return false;
+            } else {
+                D = Math.sqrt(D);
+                x1 = (-B + D) / (2 * A);
+                y1 = (c - a * x1) / b;
+                
+                x2 = (-B - D) / (2 * A);
+                y2 = (c - a * x2) / b;
+                return true;  // intersects at (x1, y1), and (x2, y2);
+            }
+        } else { // neither box nor circle
+            return false;
         }
-        //if that is uncertain, do straight intersection test
-        boolean intersects = linesIntersect(rightSide(), points) || linesIntersect(leftSide(), points)
-                || linesIntersect(topSide(), points) || linesIntersect(rightSide(), points);
-        return intersects;
     }
     
     private static boolean doCircleAndBoxInterset(Hitbox circle, Hitbox rect) {
@@ -441,7 +516,7 @@ public class Hitbox {
      * @return weather or not the hitbox would be intersecting another if moved
      */
     public synchronized boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
-        double saftyScaler = 2; //how much we scale the velocity to account for extramovement
+        double saftyScaler = 1; //how much we scale the velocity to account for extramovement
                                    //large scaler = less chance of overlap but farther apart units must stay
         staticCenter.x += velocity.x * saftyScaler;
         staticCenter.y += velocity.y * saftyScaler;
