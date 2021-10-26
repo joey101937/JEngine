@@ -7,9 +7,11 @@ package Framework.Audio;
 
 import Framework.Game;
 import Framework.Main;
-import Framework.SpriteManager;
+import Framework.Window;
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
+import javax.imageio.ImageIO;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -34,8 +36,8 @@ public class SoundEffectTest {
     }
     
     @Before
-    public void setUp() {
-        game = new Game(SpriteManager.spaceBG);
+    public void setUp() throws IOException {
+        game = new Game(ImageIO.read(Window.class.getResource("/Resources/JEngineIcon.png")));
         effect = new SoundEffect(new File(Main.assets+"/Sounds/Music.au"));
     }
     

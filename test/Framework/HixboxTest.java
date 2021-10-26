@@ -151,4 +151,18 @@ public class HixboxTest {
         assert !c.intersectsWithLine(line);
     }
     
+    @Test
+    public void lineCircleIntersect6() {
+        Hitbox c = new Hitbox(new DCoordinate(0,0), 5);
+        double[] line = {-15, 0, -10,0};
+        assert !c.intersectsWithLine(line);
+    }
+    
+    @Test
+    public void lineCircleIntersect7() {
+        Hitbox c = new Hitbox(new DCoordinate(0,0), 5);
+        double[] line = {0, -15, 0, -6};
+        assert !c.intersectsWithLine(line);
+    }
+    
 }
