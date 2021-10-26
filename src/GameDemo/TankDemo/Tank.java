@@ -51,7 +51,6 @@ public class Tank extends Creature{
     public class Turret extends SubObject{
         Sequence fireAnimation = new Sequence(SpriteManager.tankFireAnimation);    //simple recoil animation
         Sprite turretSprite = new Sprite(SpriteManager.tankTurret);                 //simple turret sprite
-        
         /*
         this firing boolean is linked to the animation  with the onAnimationCycle
         method below. This means the tank will not fire until the fire animation is
@@ -65,6 +64,7 @@ public class Tank extends Creature{
             setScale(.3);
             turretSprite.scaleTo(getScale());
             fireAnimation.scaleTo(getScale());
+            this.isSolid = true;
         }
         /*
         fires the gun at the location.

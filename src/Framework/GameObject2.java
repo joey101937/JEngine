@@ -229,14 +229,16 @@ public class GameObject2 {
 
     /**
      * rotates the object from the current rotation to the current location +
-     * given degrees. Checks collision at destination.
+     * given degrees. Checks collision at destination
      * @param degrees amount to rotate 
      */
     public void rotate(double degrees) {
         if(isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
-            for(GameObject2 other : hostGame.getAllObjects()){
-                if(plane==other.plane && other.isSolid && other.getHitbox()!=null && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
+            for(GameObject2 other : getHostGame().getAllObjects()){
+                if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
+                     onCollide(other);
+                     other.onCollide(this);
                      return; 
                 }
             }
@@ -419,7 +421,93 @@ public class GameObject2 {
         updateLocation();
         tickNumber++;
     }
-
+    
+    private boolean canCollideWith(GameObject2 other) {
+        return isSolid && other.isSolid
+                && other != this
+                && this.getHitbox() != null && other.getHitbox() != null
+                && this.plane == other.plane;
+    }
+    
+    /**
+     * Returns new movement based on collisions given a proposed movement
+     * triggers on collide
+     * @param proposedMovement
+     * @return new movement, adjusted for collissions
+     */
+    private DCoordinate updateMovementBasedOnCollision(DCoordinate proposedMovement) {
+        Coordinate roundedProposedMovement = new Coordinate(
+                proposedMovement.x >= 0 ? (int) Math.ceil(proposedMovement.x) : (int)Math.floor(proposedMovement.x),
+                proposedMovement.y >= 0 ? (int) Math.ceil(proposedMovement.y) : (int)Math.floor(proposedMovement.y)
+        );
+        DCoordinate newLocation;
+        ArrayList<GameObject2> otherObjects = hostGame.handler.getAllObjects();
+        otherObjects.remove(this);
+        ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();
+        for (GameObject2 other : otherObjects) {
+            otherObjsAndOtherSubObjects.add(other);
+            for (GameObject2 sub : other.getAllSubObjects()) {
+                otherObjsAndOtherSubObjects.add(sub);
+            }
+        }
+        ArrayList<GameObject2> thisAndSubs = new ArrayList<>();
+        thisAndSubs.add(this);
+        for (GameObject2 sub : this.getAllSubObjects()) {
+            thisAndSubs.add(sub);
+        }
+        boolean xClear = true;
+        boolean yClear = true;
+        for (GameObject2 current : thisAndSubs) {
+            if (!current.isSolid || current.getHitbox() == null) {
+                continue;
+            }
+            newLocation = current.location.copy();
+            newLocation.add(proposedMovement);
+            for (GameObject2 other : otherObjsAndOtherSubObjects) {
+                if (!xClear && !yClear) {
+                    return new DCoordinate(0, 0);
+                }
+                if (!canCollideWith(other)) {
+                    continue;
+                }
+                double[] movementLine = {current.location.x, current.location.y, newLocation.x, newLocation.y};
+                if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)) {
+                    current.onCollide(other);
+                    other.onCollide(current);
+                    if (!current.preventOverlap || !other.preventOverlap) {
+                        continue;
+                    }
+                    // already overlapping
+                    if (current.getHitbox().intersects(other.getHitbox())) {
+                        if (newLocation.distanceFrom(other.location) > current.location.distanceFrom(other.location)) {
+                            continue; //if we are moving away from it, allow the movement
+                        } else {
+                            xClear = false;
+                            yClear = false;
+                        }
+                    }
+                    if (current.collisionSliding) {
+                        // check x only then y only
+                        // use to determine what directions are clear
+                        if (current.getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) roundedProposedMovement.x, 0))) {
+                            xClear = false;
+                        }
+                        if (current.getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate(0, (int) roundedProposedMovement.y))) {
+                            yClear = false;
+                        }
+                    } else {
+                        xClear = false;
+                        yClear = false;
+                    }
+                }
+            }
+        }
+        DCoordinate newMovement = new DCoordinate(
+                xClear ? proposedMovement.x : 0,
+                yClear ? proposedMovement.y : 0
+        );
+        return newMovement;
+    }
     /**
      * This method runs every tick and controls object positioning regarding:
      * note: called as part of default tick; if you want to override tick then
@@ -458,84 +546,12 @@ public class GameObject2 {
             default :
                 throw new RuntimeException("Movement Type undefined for object: " + this);
         }
-        
-        //COLLISION
-        ArrayList<GameObject2> otherObjects = hostGame.handler.getAllObjects();
-        if (isSolid && getHitbox() != null) {
-            DCoordinate toMove = new DCoordinate((newLocation.x-location.x),(newLocation.y-location.y));
-            for (GameObject2 other : otherObjects) {
-                if (!other.isSolid || other.getHitbox()==null || other==this || other.plane!=plane) {
-                    continue;
-                }
-                if (getHitbox().intersects(other.getHitbox())) {
-                    if (!collisionSliding || this.getHitbox().type == Hitbox.Type.circle) {
-                        //if we are already on top of another unit, just keep going to not get stuck
-                        onCollide(other);
-                        if (newLocation.distanceFrom(other.location) > location.distanceFrom(other.location) || !preventOverlap || !other.preventOverlap || !isSolid || !other.isSolid) {
-                            continue;
-                        } else {
-                            newLocation = location;
-                        }
-                        continue;
-                    }else{
-                        onCollide(other);
-                        //slide within another thing
-                       DCoordinate proxyLoc = location.copy();
-                       proxyLoc.x +=toMove.x;
-                       if(proxyLoc.distanceFrom(other.location)>location.distanceFrom(other.location)){
-                           newLocation.x+=toMove.x;
-                       }
-                       proxyLoc.x -=toMove.x;
-                       proxyLoc.y +=toMove.y;
-                        if(proxyLoc.distanceFrom(other.location)>location.distanceFrom(other.location)){
-                           newLocation.y+=toMove.y;
-                       }
-                    }
-                }
-                if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), (int) Math.ceil(toMove.y)))) {
-                    boolean xClear = !getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), 0));
-                    boolean yClear = !getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate(0, (int) Math.ceil(toMove.y)));
-                    boolean bothClear = !getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) Math.ceil(toMove.x), (int) Math.ceil(toMove.y)));
-                    if (xClear && !yClear && collisionSliding) {
-                        //if only moving in x direction would result in no collision
-                        newLocation.y = location.y;
-                        onCollide(other);
-                    } else if (yClear && !xClear && collisionSliding) {
-                        //if only moving in y direction would result in no collision
-                        newLocation.x = location.x;
-                        onCollide(other);
-                    } else {
-                        //this movement would result in a collision in either and both directions
-                        //if we would collide with a unit, stop moving and run onCollide
-                        //prevents units from stacking on top of eachother
-                        newLocation = location.copy();
-                        onCollide(other);
-                        other.onCollide(this);
-                        continue;
-                    }
-                }
-            }
-            for (GameObject2 other : otherObjects) {
-                if(other == this) continue;
-                for (SubObject sub : other.subObjects) {
-                    if(!sub.isSolid || other.hitbox==null)continue;
-                    if (getHitbox().intersects(sub.getHitbox())) {
-                        //if we are already on top of another unit, just keep going to not get stuck
-                        onCollide(sub);
-                        sub.onCollide(this);
-                        continue; 
-                    }
-                    if (preventOverlap && other.preventOverlap && getHitbox().intersectsIfMoved(sub.getHitbox(), new Coordinate((int) Math.ceil(velocity.x), (int) Math.ceil(velocity.y)))) {
-                        //if we would collide with a unit, stop moving and run onCollide
-                        //prevents units from stacking on top of eachother controlled with preventOverlap condtion
-                        newLocation = location.copy();
-                        onCollide(sub);
-                        sub.onCollide(this);
-                        continue;
-                    }
-                }
-            }
-        }
+         DCoordinate proposedMovement = new DCoordinate((newLocation.x-location.x),(newLocation.y-location.y));
+           //COLLISION
+          newLocation = location.copy();
+          newLocation.add(updateMovementBasedOnCollision(proposedMovement));
+           
+
         
         //pathing layer now
         
@@ -674,7 +690,7 @@ public class GameObject2 {
     
     @Override
     public String toString(){
-        return this.getName() + " in game " + hostGame;
+        return this.getName() + " in game " + getHostGame();
     }
  
     
