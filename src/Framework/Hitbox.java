@@ -325,6 +325,10 @@ public class Hitbox {
         return Line2D.linesIntersect(line1[0], line1[1], line1[2], line1[3], line2[0], line2[1], line2[2], line2[3]);
     }
     
+        
+    private static boolean isBetween(double i, double a, double b) {
+        return (i <= a && i >= b) || (i >= a && i <= b);
+    }
     
     /**
      * Weather or not this hitbox intersects wit given line
@@ -390,19 +394,21 @@ public class Hitbox {
                 }
                 // Vertical line is tangent to circle
                 if (Math.abs((x1 - r) - x) < EPS || Math.abs((x1 + r) - x) < EPS) {
-                    return true; // point of intersection is (x1,y)
+                     // point of intersection is (x1,y). make sure that value is in line segment
+                    return isBetween(x1, points[0], points[2]) && isBetween(y, points[1], points[3]);
                 }
                 double dx = Math.abs(x1 - x);
                 double dy = Math.sqrt(r * r - dx * dx);
                 // Vertical line cuts through circle
                 // points are (x1, y+dy) and (x1,y-dy)
-                return true;
+                return isBetween(x1, points[0], points[2])
+                        && (isBetween(y+dy, points[1], points[3]) || isBetween(y-dy, points[1], points[3])); // make sure that value is in line segment
 
             } else if (Math.abs(D) < EPS) { // Line is tangent to circle
                 x1 = -B / (2 * A);
                 y1 = (c - a * x1) / b;
-                return true;  // intersects at (x1, y1)
-                
+                // intersects at (x1, y1)
+                return isBetween(x1, points[0], points[2]) && isBetween(y1, points[1], points[3]); // make sure that value is in line segment
             } else if (D < 0) { // No intersection
                 return false;
             } else {
@@ -412,7 +418,10 @@ public class Hitbox {
                 
                 x2 = (-B - D) / (2 * A);
                 y2 = (c - a * x2) / b;
-                return true;  // intersects at (x1, y1), and (x2, y2);
+                // intersects at (x1, y1), and (x2, y2);
+                // make sure that x value is in line segment
+                return (isBetween(x1, points[0], points[2]) && isBetween(y1, points[1], points[3]))
+                        || (isBetween(x2, points[0], points[2]) && isBetween(y2, points[1], points[3]));
             }
         } else { // neither box nor circle
             return false;
@@ -427,32 +436,12 @@ public class Hitbox {
         if (distance <= circle.radius + rect.shortestRange) {
             return true;
         }
-        for (Coordinate c : rect.vertices) {
-            Coordinate corner = rect.adjustForRotation(c);
-            corner.add(rect.getCenter());
-            if (corner.distanceFrom(circle.getCenter()) <= circle.radius) {
-                return true;
-            }
-        }
-        for (Coordinate c : rect.getMidpoints()) {
-            Coordinate point = rect.adjustForRotation(c);
-            point.add(rect.getCenter());
-            if (point.distanceFrom(circle.getCenter()) <= circle.radius) {
-                return true;
-            }
-        }
         
-        // time to check line
-        // draw a line from center of circle to the point on the radius that is nearest
-        // to the recangle, then compare line intersections
-        DCoordinate p1 = circle.findClosestPointOnCircleFromPoint(rect.getCenter());
-        DCoordinate p2 = circle.getCenter();
-        double[] circleLine = {p1.x, p1.y, p2.x, p2.y};
         boolean lineIntersection =
-                   linesIntersect(circleLine, rect.leftSide())
-                || linesIntersect(circleLine, rect.rightSide())
-                || linesIntersect(circleLine, rect.topSide())
-                || linesIntersect(circleLine, rect.botSide());
+                  circle.intersectsWithLine(rect.leftSide())
+                || circle.intersectsWithLine(rect.rightSide())
+                || circle.intersectsWithLine(rect.topSide())
+                || circle.intersectsWithLine(rect.botSide());
         return lineIntersection;
     }
 
