@@ -32,8 +32,14 @@ public class SelectionBoxEffect extends IndependentEffect {
 
     @Override
     public void tick() {
+        Coordinate downLoc = RTSInput.getMouseDownLocation();
+        Coordinate dragLoc = RTSInput.getMouseDraggedLocation();
+        if(downLoc != null && dragLoc != null) {
+           selectedUnits.forEach(x -> x.setSelected(false));
+            selectedUnits.clear(); 
+        }
         if (selectionZone != null) {
-            for (GameObject2 go : RTSGame.game.getObjectsInArea(selectionZone)) {
+            for (GameObject2 go : RTSGame.game.getPreciseObjectsInArea(selectionZone)) {
                 if (go instanceof RTSUnit) {
                     ((RTSUnit) go).setSelected(true);
                     selectedUnits.add((RTSUnit) go);

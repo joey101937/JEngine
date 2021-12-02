@@ -34,10 +34,10 @@ public class Game extends Canvas implements Runnable {
     
     /**
      * native resolution of the game you are creating; used to scale graphics for display
-     * you, the programer, should set this based on what resolution you want to use,
+     * you, the programmer, should set this based on what resolution you want to use,
      * usually this will be your screen size. Game will scale to match proportions 
      * of this given resolution, for example everything will scale up if someone runs
-     * your 1080p game on a 4k display so that they dont just see the entire world 
+     * your 1080p game on a 4k display so that they don't just see the entire world 
      * and have to squint to see their character
     */
     private static Dimension NATIVE_RESOLUTION = new Dimension((int)(1920*1),(int)(1080*1));  
@@ -222,7 +222,7 @@ public class Game extends Canvas implements Runnable {
     /**
      * returns all gameobjects that intersect the given rectangle
      * used for grabbing all objects in a rectanglular area 
-     * (uses hitbox intersect, checks for subobjects)
+     * uses hitbox intersect, checks for subobjects- caught subobjects return parent
      * @param r rectangle object used for intersecting hitboxes
      * @return a list of all gameobjects in the area
      */
@@ -241,6 +241,7 @@ public class Game extends Canvas implements Runnable {
                 for (SubObject sub : go.getAllSubObjects()) {
                     if (sub.getHitbox()!=null && sub.getHitbox().intersects(hitbox)) {
                         output.add(go);
+                        break;
                     }
                 } 
             }
@@ -248,6 +249,13 @@ public class Game extends Canvas implements Runnable {
         return output;
     }
     
+     /**
+     * returns all gameobjects and subobjects that intersect the given rectangle
+     * used for grabbing all objects in a rectanglular area 
+     * uses hitbox intersect, checks for subobjects- caught subobjects are included (may not include their parent)
+     * @param r rectangle object used for intersecting hitboxes
+     * @return a list of all gameobjects and/or subobjects in the area
+     */
      public ArrayList<GameObject2> getPreciseObjectsInArea(Rectangle r){
         Coordinate[] verts = new Coordinate[4];
         verts[0]=new Coordinate(r.x,r.y);
@@ -326,10 +334,9 @@ public class Game extends Canvas implements Runnable {
         return output;
     }
     
-        /**
+    /**
      * returns all GameObject2s in this Game with hitboxes that intersect the
-     * given hitbox. Will select subobejcts indevidually.
-     *
+     * given hitbox. Will select subobejcts individually.
      * @param h Hitbox to use
      * @return List of objects touching h
      */
@@ -353,7 +360,7 @@ public class Game extends Canvas implements Runnable {
     /**
      * returns all gameobjects that are within distance of c; used to get all
      * gameobjects withing proximity of a point.(circular) 
-     * (uses center point value)
+     * (uses center point value - center to center)
      * @param c point to use
      * @param distance how far away from c the object may be to get selected
      * @return a list of objects near the given point
