@@ -6,7 +6,6 @@
 package GameDemo.RTSDemo;
 
 import Framework.Game;
-import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -23,12 +22,12 @@ public class RTSGame {
         game.setInputHandler(new RTSInput());
         game.getCamera().camSpeed=20;
         game.addIndependentEffect(new SelectionBoxEffect());
-        TankUnit testUnit = new TankUnit(200,200);
-        TankUnit testUnit2 = new TankUnit(800,200);
-        TankUnit testUnit3 = new TankUnit(800,800);
-        game.addObject(testUnit);
-        game.addObject(testUnit2);
-        game.addObject(testUnit3); 
-
+        
+        for (int i = 0; i < 10; i++) {
+            game.addObject(new TankUnit(100 + (i * 200), 200, 0));
+        }
+        for (int i = 0; i < 10; i++) {
+            game.addObject(new TankUnit(100 + (i * 200), 800, 1));
+        }
     }
 }

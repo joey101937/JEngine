@@ -34,24 +34,22 @@ public class TankUnit extends RTSUnit{
     private final static double VISUAL_SCALE = .15;
     private Long lastFiredTime = 0L;
     public static final int RANGE = 500;
-    public int team = 0;
     /*
     sets up the tank values
      */
     public TankUnit(Coordinate c) {
-        super(c);
+        super(c, 0);
         init();
     }
 
     public TankUnit(int x, int y) {
-        super(x, y);
+        super(x, y, 0);
         init();
     }
     
     public TankUnit(int x, int y, int team) {
-        super(x, y);
+        super(x, y, team);
         init();
-        this.team = team;
     }
 
     private void init() {

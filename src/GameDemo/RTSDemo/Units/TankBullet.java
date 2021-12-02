@@ -14,6 +14,8 @@ import Framework.GraphicalAssets.Sequence;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
+import Framework.SubObject;
+import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.SandboxDemo.Creature;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,9 +43,12 @@ public class TankBullet extends Projectile {
     @Override
     public void onCollide(GameObject2 other){
         if(other==shooter)return; //dont collde with the gameobject that launched this projectile
-        if(other instanceof Creature) {
-            Creature c = (Creature) other;
-            c.takeDamage(20);
+        if(other instanceof RTSUnit) {
+            RTSUnit otherUnit = (RTSUnit) other;
+            if (shooter instanceof RTSUnit) {
+                if(((RTSUnit)shooter).team == otherUnit.team) return; // no friendly fire
+            }
+            otherUnit.takeDamage(20);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
             impactExplosion.scaleTo(.5);
             try {
