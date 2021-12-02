@@ -9,23 +9,21 @@ import Framework.Camera;
 import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
-import Framework.InputHandler;
-import java.awt.Rectangle;
+import Framework.AsyncInputHandler;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
  * @author Joseph
  */
-public class RTSInput extends InputHandler {
+public class RTSInput extends AsyncInputHandler {
     private static Coordinate mouseDownLocation = null;
     private static Coordinate mouseDraggedLocation = null;
     
     @Override
-    public void mousePressed(MouseEvent e){
+    public void onMousePressed(MouseEvent e){
             if (e.getButton() == 1) { //1 means left click
             for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                 u.setSelected(false);
@@ -42,13 +40,13 @@ public class RTSInput extends InputHandler {
     }
     
     @Override
-    public void mouseExited(MouseEvent e){
+    public void onMouseExited(MouseEvent e){
         getHostGame().getCamera().xVel=0;
         getHostGame().getCamera().yVel=0;
     }
     
     @Override
-    public void mouseClicked(MouseEvent e){
+    public void onMouseClicked(MouseEvent e){
         //selects one nidevidual unit at a clicked point
         ArrayList<GameObject2> grabbed =RTSGame.game.getObjectsIntersecting(new Hitbox(locationOfMouseEvent(e).toDCoordinate(),5));
         for(GameObject2 go : grabbed){
@@ -62,19 +60,19 @@ public class RTSInput extends InputHandler {
     }
     
     @Override
-    public void mouseReleased(MouseEvent e){
+    public void onMouseReleased(MouseEvent e){
         mouseDownLocation = null;
         mouseDraggedLocation = null;
     }
     
     @Override
-    public void mouseDragged(MouseEvent e) {
+    public void onMouseDragged(MouseEvent e) {
         mouseDraggedLocation = locationOfMouseEvent(e);
         panCamera(e);
     }
 
     @Override
-    public void mouseMoved(MouseEvent e){
+    public void onMouseMoved(MouseEvent e){
         panCamera(e);
     }
     
@@ -128,7 +126,7 @@ public class RTSInput extends InputHandler {
      * @param e 
      */
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void onKeyPressed(KeyEvent e) {
         Camera cam = getHostGame().getCamera();
         switch (e.getKeyChar()) {
             case 'x':       //x for stop command
@@ -153,7 +151,7 @@ public class RTSInput extends InputHandler {
         }
     }
     @Override
-    public void keyReleased(KeyEvent e){
+    public void onKeyReleased(KeyEvent e){
          Camera cam = getHostGame().getCamera();
         switch (e.getKeyChar()) {
             case 'w':
