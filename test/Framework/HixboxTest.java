@@ -165,4 +165,16 @@ public class HixboxTest {
         assert !c.intersectsWithLine(line);
     }
     
+    @Test
+    public void trapazoidContainsCircle() {
+        Coordinate[] verts = new Coordinate[4];
+        verts[0] = new Coordinate(-196, 53);
+        verts[1] = new Coordinate(66, 54);
+        verts[2] = new Coordinate(-120, 26);
+        verts[3] = new Coordinate(39, 26);
+        Hitbox trapazoid = new Hitbox(verts);
+        Hitbox circle = new Hitbox(new DCoordinate(-108, 30), 2);
+        assert trapazoid.intersects(circle);
+    }
+    
 }
