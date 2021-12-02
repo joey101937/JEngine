@@ -29,11 +29,5 @@ public class RTSGame {
         game.addObject(testUnit2);
         game.addObject(testUnit3); 
         
-//        for (int i = 0; i < 20; i++) {
-//            game.addObject(new TankUnit(200 * i, 1200, 0));
-//        }
-//        for (int i = 0; i < 20; i++) {
-//            game.addObject(new TankUnit(200 * i, 1700, 1));
-//        }
     }
 }
