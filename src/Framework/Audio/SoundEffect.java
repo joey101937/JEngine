@@ -101,7 +101,7 @@ public class SoundEffect implements Runnable{
     /**
      * makes the sound replay continuously until told to stop
      */
-    public synchronized void setLooping(boolean input){
+    public void setLooping(boolean input){
         if(input){
             looping=true;
             clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -174,7 +174,7 @@ public class SoundEffect implements Runnable{
     * 0.5  = quiet
     * 0.0  = silent
     */
-    public synchronized void setVolume(float percentVolume){
+    public void setVolume(float percentVolume){
         if(percentVolume < 0 || percentVolume > 1){
             throw new RuntimeException("ERROR: Percent Volume must be between 0 and 1");
         }
@@ -205,7 +205,7 @@ public class SoundEffect implements Runnable{
      * Note that this disables looping so if you want to continue looping after
      * resuming, you must call loop method again after you resume.
     */
-    public synchronized void pause(){
+    public void pause(){
         if(!hasStarted){
             System.out.println("Cant pause, hasnt begun.");
             return;
@@ -228,7 +228,7 @@ public class SoundEffect implements Runnable{
      * soundeffects from paused games are paused independently of direct pausing
      * @param input true pause or false unpause
      */
-    public synchronized void onGamePaused(boolean input) {
+    public void onGamePaused(boolean input) {
         if (!hasStarted && input) {
             System.out.println("Cant pause, hasnt begun.");
             return;
@@ -276,7 +276,7 @@ public class SoundEffect implements Runnable{
      * Note this only releases the internal pause. if this sound is in a game,
      * then you will also have to release the gamePause lock if that game is paused
      */
-    public synchronized void resume() {
+    public void resume() {
         if(!hasStarted){
             System.out.println("cant resume, clip hasnt begun");
             return;
@@ -324,7 +324,7 @@ public class SoundEffect implements Runnable{
      * sound. If you want to replay a song, start a new SoundEffect with the same
      * source. This can be obtained with .createCopy() method
      */
-    public synchronized void restart() {
+    public void restart() {
         if(disabled){
             throw new RuntimeException("Cannot restart disabled sound");
         }
@@ -400,7 +400,7 @@ public class SoundEffect implements Runnable{
      * while its linked game is paused.
      * @param g game to link to, set to null to remove links
      */
-    public synchronized void linkToGame(Game g) {
+    public void linkToGame(Game g) {
         if (g == null) {
             if (isGamePaused()) {
                 this.onGamePaused(false);
