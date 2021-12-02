@@ -21,8 +21,6 @@ import java.util.concurrent.Executors;
  * @author Joseph
  */
 public abstract class AsyncInputHandler extends InputHandler implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener{
-    //FIELDS
-    protected Game hostGame = null;
     
     private ExecutorService asyncService = Executors.newFixedThreadPool(4);
     
@@ -84,7 +82,6 @@ public abstract class AsyncInputHandler extends InputHandler implements KeyListe
 
     @Override
     public final void mousePressed(MouseEvent e) {
-        System.out.println("native mouse press");
        asyncService.submit(new Task(this, e, "mousePressed"));
     }
     
@@ -166,37 +163,37 @@ public abstract class AsyncInputHandler extends InputHandler implements KeyListe
         public void run() {
             switch(methodName) {
                 case "keyTyped":
-                    ih.keyTyped(ke);
+                    ih.onKeyTyped(ke);
                     break;
                 case "keyPressed":
-                    ih.keyPressed(ke);
+                    ih.onKeyPressed(ke);
                     break;
                 case "keyReleased":
-                    ih.keyReleased(ke);
+                    ih.onKeyReleased(ke);
                     break;
                 case "mouseClicked":
-                    ih.mouseClicked(me);
+                    ih.onMouseClicked(me);
                     break;
                 case "mousePressed":
-                    ih.mousePressed(me);
+                    ih.onMousePressed(me);
                     break;
                 case "mouseReleased":
-                    ih.mouseReleased(me);
+                    ih.onMouseReleased(me);
                     break;
                 case "mouseEntered":
-                    ih.mouseEntered(me);
+                    ih.onMouseEntered(me);
                     break;
                 case "mouseExited":
-                    ih.mouseExited(me);
+                    ih.onMouseExited(me);
                     break;
                 case "mouseDragged":
-                    ih.mouseDragged(me);
+                    ih.onMouseDragged(me);
                     break;
                 case "mouseMoved":
-                    ih.mouseMoved(me);
+                    ih.onMouseMoved(me);
                     break;
                 case "mouseWheelMoved":
-                    ih.mouseWheelMoved(mwe);
+                    ih.onMouseWheelMoved(mwe);
                     break;
                 default:
                     System.out.println("Unknown async input handler method: " + methodName);
