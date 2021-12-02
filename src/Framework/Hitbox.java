@@ -437,6 +437,16 @@ public class Hitbox {
             return true;
         }
         
+        // check for circle contained in large polygon
+        double[] lineComingOutOfCircle = {circle.getCenter().x, circle.getCenter().y, 0, 0}; // line from circle center to 0,0
+        int intersections = 0;
+        if(linesIntersect(lineComingOutOfCircle, rect.topSide())) intersections++;
+        if(linesIntersect(lineComingOutOfCircle, rect.botSide())) intersections++;
+        if(linesIntersect(lineComingOutOfCircle, rect.rightSide())) intersections++;
+        if(linesIntersect(lineComingOutOfCircle, rect.leftSide())) intersections++;
+        if(intersections == 1) return true; // if the circle is inside the polygon, there will be exacatly 1 intersection
+        
+        //check for border intersect
         boolean lineIntersection =
                   circle.intersectsWithLine(rect.leftSide())
                 || circle.intersectsWithLine(rect.rightSide())
