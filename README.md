@@ -44,7 +44,7 @@ To put your character in view if you put it in a location off-screen, position t
 To make your game accept user keyboard/mouse input, create a class that extends InputHandler, then set an instance of that class to be the inputhandler for your game using **setInputHandler(InputHandler in)** in the Game class. Inside your inputHandler class you have acess to all mouse listener, mouse motion listener, and key listener methods as well as the **locationOfMouse(MouseEvent e)** method which provides the coordinate point of the mouse during the given mouse event *in terms of the game world*.
 
 # Handling User Input
-To handle user input, you must write a class to do so, this class should extend **InputHandler** and can be applied to your game with *game.setInputHandler(InputHandler)*. Input handler implements Key, Mouse, MouseMovement, and MouseWheel listeners.
+To handle user input, you must write a class to do so, this class should extend **InputHandler** or **AsyncInputHandler** and can be applied to your game with *game.setInputHandler(InputHandler)*. Input handler implements Key, Mouse, MouseMovement, and MouseWheel listeners. AsyncInputHandler handles user input on separate theads. 
 
 EXAMPLE
 ```
@@ -75,7 +75,20 @@ public static void Main(String[] args){
 * mouseMoved(MouseEvent e)
 * mouseWheelMoved(MouseWheelEvent e)
 
-To aid in creating input methods, InputHandlers also know the method **locationOfMouseEvent(MouseEvent e)**, which returns the in-game pixel location of a mouse event rather than the X/Y coordinate on screen.
+### AsyncInputHandler Methods
+* onKeyTyped(KeyEvent e)
+* onKeyPressed(KeyEvent e)
+* onKeyReleased(KeyEvent e)
+* onMouseClicked(MouseEvent e)
+* onMousePressed(MouseEvent e)
+* onMouseReleased(MouseEvent e)
+* onMouseEntered(MouseEvent e)
+* onMouseExited(MouseEvent e)
+* onMouseDragged(MouseEvent e)
+* onMouseMoved(MouseEvent e)
+* onMouseWheelMoved(MouseWheelEvent e)
+
+To aid in creating input methods, InputHandlers also have the method **locationOfMouseEvent(MouseEvent e)**, which returns the in-game pixel location of a mouse event rather than the X/Y coordinate on screen.
 
 
 # Scenes/Games
