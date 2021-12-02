@@ -13,7 +13,7 @@ Particularly an open-source 2D game engine that is simple and easy to use, highl
 
 -The physical window that displays your project is controlled by the **Window** class
 -The part inside the window is a Game object. Games represent scenes that function as a world within which your objects exist. 
-Games have their own InputHandlers to take in user input via mouse and keyboard. You may have multiple scenes for your project. Your window can swap between them using **setCurrentGame(Game g)** method. Note only current Game's input handler will detect user input and Games are paused when another game is made the current game and unpause/start when they are the one being made the current game. pause/unpause can also be manually toggled.
+Games have their own InputHandlers to take in user input via mouse and keyboard. You may have multiple scenes for your project. Your window can swap between them using **setCurrentGame(Game g)** method. Note only current Game's input handler will detect user input and Games are paused when another game is made the current game and unpause/start when they are the one being made the current game. pause/unpause can also be manually toggled. Note be mindful about how you pause the game- you should not execute a pause from within the game's ticking itself. Use an outside thread so it can pause safely. Game will not want to pause until the tick cycle is complete.
 
 -Within each Game world there are **GameObject2**s which are the core of JEngine's functionality. Every functional object that exists in the world is in some way a GameObject2, a game character for example is a GameObject2. All GameObject2s in a Game instance are stored in that game's **Handler**. add objects with game.addObject(GameObject2), remove with game.removeObject(GameObject2) or get objects using getAllObjects(). GO2s tick and render with their host game, and by default have rectangular hitboxes (things that manage collision) that reflect the perimiter of that object's current visual
 
@@ -104,6 +104,8 @@ User input is done on a Game to Game basis, where each scene/game has its own In
 A gameworld is as large as it's background image, and this may be smaller than the size of your monitor. A game's **Camera** controls the viewport. Camera can be moved to a particular Coordinate or set to follow a GameObject2
 
 You can have multiple scenes in one project. To do this, simply create a new Game and start it. To put it on screen, use the Window.setGame(Game) method. This pauses the active game, removes it, then adds the new given game. New given games are unpaused if paused or started if the game hasnt been started yet. *You can pause a Game manually using .setPaused(true), or resume with (.setPaused(false));*
+
+Pausing games should not be done from a tick directly. If you want to do this you will need to create an async task to execute it because the game will not pause until the tick method finishes running which it cannot do if you are executing the pause from the thread as it would be waiting for itself to complete.
 
 ### Other Fields
 
