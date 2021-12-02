@@ -28,11 +28,13 @@ import java.util.ArrayList;
  * @author Joseph
  */
 public class TankUnit extends RTSUnit{
-    private SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
+    private final SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
+    private final SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
     public Turret turret;
-    private final static double VISUAL_SCALE = .2;
+    private final static double VISUAL_SCALE = .15;
     private Long lastFiredTime = 0L;
     public static final int RANGE = 500;
+    public int team = 0;
     /*
     sets up the tank values
      */
@@ -44,6 +46,12 @@ public class TankUnit extends RTSUnit{
     public TankUnit(int x, int y) {
         super(x, y);
         init();
+    }
+    
+    public TankUnit(int x, int y, int team) {
+        super(x, y);
+        init();
+        this.team = team;
     }
 
     private void init() {
@@ -113,10 +121,12 @@ public class TankUnit extends RTSUnit{
         public void onFire(Coordinate target) {
             setGraphic(fireAnimation);
             try {
-                SoundEffect launchSound = launchSoundSource.createCopy();
-                launchSound.linkToGame(getHostGame());
-                launchSound.setVolume(.5f);
-                launchSound.start();
+                if(isOnScreen()) {
+                   SoundEffect launchSound = launchSoundSource.createCopy();
+                    launchSound.linkToGame(getHostGame());
+                    launchSound.setVolume(.5f);
+                    launchSound.start(); 
+                }                
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -156,9 +166,10 @@ public class TankUnit extends RTSUnit{
             GameObject2 closest = null;
             if (!nearby.isEmpty()) {
                 for (GameObject2 go : nearby) {
-                    if (!(go instanceof RTSUnit) || go==this.getHost()) {
+                    if (!(go instanceof TankUnit) || go==this.getHost()) {
                         continue;
                     }
+                    if(((TankUnit)go).team == team) continue;
                     if (location.distanceFrom(go.location) < closestDistance) {
                         closestDistance = location.distanceFrom(go.location);
                         closest = go;
@@ -215,9 +226,12 @@ public class TankUnit extends RTSUnit{
         OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
         deathAni.scale(1.5);
         try {
-            SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
-            deathSound.linkToGame(getHostGame());
-            deathSound.start();
+            if(isOnScreen()) {
+                SoundEffect deathSoundCopy = this.deathSound.createCopy();
+                deathSoundCopy.linkToGame(getHostGame());
+                deathSoundCopy.setVolume(.5f);
+                deathSoundCopy.start();    
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
