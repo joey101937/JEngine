@@ -130,7 +130,7 @@ public abstract class AsyncInputHandler extends InputHandler implements KeyListe
 
     @Override
     public final void mouseWheelMoved(MouseWheelEvent e) {
-        asyncService.submit(new Task(this, e, "mouseWheelEvent"));
+        asyncService.submit(new Task(this, e, "mouseWheelMoved"));
     }
     
     
