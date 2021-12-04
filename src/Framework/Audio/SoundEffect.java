@@ -265,9 +265,6 @@ public class SoundEffect implements Runnable{
      * @return 
      */
     public boolean isPaused() {
-        if(Main.debugMode){
-            System.out.println(this + " is paused: " + paused + " is gamePaused: " + isGamePaused());
-        }
         return paused || isGamePaused();
     }
     

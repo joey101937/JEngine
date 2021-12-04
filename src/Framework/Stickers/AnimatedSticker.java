@@ -10,6 +10,7 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.Main;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 /**
@@ -55,25 +56,33 @@ public class AnimatedSticker extends Sticker{
 
     @Override
     public synchronized void render(Graphics2D g) {
-        if(sprites==null)return;
-        try{        
-            image = sprites[currentFrame];
-        }catch(ArrayIndexOutOfBoundsException e){
-            //sometimes thread scheduler will increase frame beyond maximum
-            System.out.println("Animated sticker FrameIndexOutOfBounds, likely its fine");
-            resetCurrentFrame();
-            image = sprites[currentFrame];
-        }
-        
-        centerCoordinate(image);
-        if (spawnLocation.x < 0 || spawnLocation.y < 0) {
-            disable();     //if the coordinates are bad, dont render
-        }
-        if (!disabled) {
-            if (image != null) {
-                g.drawImage(image, renderLocation.x, renderLocation.y, null);
+        AffineTransform old = g.getTransform();
+        try {
+            if (sprites == null) {
+                return;
             }
+            try {
+                image = sprites[currentFrame];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                //sometimes thread scheduler will increase frame beyond maximum
+                System.out.println("Animated sticker FrameIndexOutOfBounds, likely its fine");
+                resetCurrentFrame();
+                image = sprites[currentFrame];
+            }
+            centerCoordinate(image);
+            g.rotate(Math.toRadians(rotation), spawnLocation.x, spawnLocation.y);
+            if (spawnLocation.x < 0 || spawnLocation.y < 0) {
+                disable();     //if the coordinates are bad, dont render
+            }
+            if (!disabled) {
+                if (image != null) {
+                    g.drawImage(image, renderLocation.x, renderLocation.y, null);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        g.setTransform(old);
     }
 
     public class AnimationHelper implements Runnable {

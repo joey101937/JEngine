@@ -199,6 +199,7 @@ public class GameObject2 {
      * @param g new graphic object
      */
     public void setGraphic(Graphic g){
+        g.scaleTo(getScale());
         graphic = g;
     }
 

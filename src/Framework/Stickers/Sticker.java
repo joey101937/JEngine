@@ -31,6 +31,8 @@ public class Sticker {
     protected static int numSticker = 0; //id for sticker, used for profiling threads
     protected final int ID = numSticker++;
     public final Long creationTime;
+    public double rotation;
+    
     /**
      * @param g Game to add to
      * @param i Image to display
@@ -60,20 +62,29 @@ public class Sticker {
     }
 
     public synchronized void render(Graphics2D g) {
-        if(host!=null && host.isAlive()){
-            spawnLocation = host.getPixelLocation();
-        }
-        centerCoordinate(image);
-        if(spawnLocation==null)return;
-        if (spawnLocation.x < 0 || spawnLocation.y < 0) {
-            disable();     //if the coordinates are bad, dont render
-        }
-        if (!disabled) {
-            if (image != null) {
-                g.drawImage(image, renderLocation.x, renderLocation.y, null);
-                             
+        AffineTransform old = g.getTransform();
+        try {
+            if (host != null && host.isAlive()) {
+                spawnLocation = host.getPixelLocation();
             }
+            centerCoordinate(image);
+            g.rotate(Math.toRadians(rotation), spawnLocation.x, spawnLocation.y);
+            if (spawnLocation == null) {
+                return;
+            }
+            if (spawnLocation.x < 0 || spawnLocation.y < 0) {
+                disable();     //if the coordinates are bad, dont render
+            }
+            if (!disabled) {
+                if (image != null) {
+                    g.drawImage(image, renderLocation.x, renderLocation.y, null);
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        g.setTransform(old);
     }
 
     public synchronized void disable() {
