@@ -11,7 +11,6 @@ import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ConcurrentModificationException;
 
@@ -62,13 +61,13 @@ public class Sticker {
     }
 
     public void render(Graphics2D g) {
-        AffineTransform old = g.getTransform();
+        Graphics2D gCopy = (Graphics2D)g.create();
         try {
             if (host != null && host.isAlive()) {
                 spawnLocation = host.getPixelLocation();
             }
             centerCoordinate(image);
-            g.rotate(Math.toRadians(rotation), spawnLocation.x, spawnLocation.y);
+            gCopy.rotate(Math.toRadians(rotation), spawnLocation.x, spawnLocation.y);
             if (spawnLocation == null) {
                 return;
             }
@@ -77,14 +76,12 @@ public class Sticker {
             }
             if (!disabled) {
                 if (image != null) {
-                    g.drawImage(image, renderLocation.x, renderLocation.y, null);
-
+                    gCopy.drawImage(image, renderLocation.x, renderLocation.y, null);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        g.setTransform(old);
     }
 
     public void disable() {

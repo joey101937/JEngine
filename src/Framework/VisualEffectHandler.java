@@ -7,8 +7,12 @@ package Framework;
 
 import Framework.Stickers.Sticker;
 import java.awt.Graphics2D;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Handler to control all stickers and non-GameObject visual effects in a game
@@ -18,11 +22,12 @@ public class VisualEffectHandler {
     public CopyOnWriteArrayList<Sticker> stickers = new CopyOnWriteArrayList<>();
     public LinkedList<Coordinate[]> lines = new LinkedList<>();
     
+    public ExecutorService stickerService = Executors.newCachedThreadPool();
     /**
      * renders all visual effects to canvas
      * @param g Graphics2D object to use
      */
-    public synchronized void render(Graphics2D g){
+    public void render(Graphics2D g){
         renderStickers(g);
         renderLines(g);
     }
@@ -35,19 +40,17 @@ public class VisualEffectHandler {
             if (stickers == null) {
                 resetStickers();
             }
+            Collection<Future<?>> stickerTasks = new LinkedList<>();
             for (Sticker s : stickers) {
-                if (s == null) {
-                    stickers.remove(s);
-                    break;
-                }
-                if (s.disabled) {
-                    stickers.remove(s);
-                }
-                if(System.currentTimeMillis()>s.creationTime+s.timeToRender){
-                    s.disable();
-                }
-                s.render(g);
-            }
+                 stickerTasks.add(stickerService.submit(new StickerTask(s, g)));
+             }
+             for (Future<?> currTask : stickerTasks) {
+                 try {
+                     currTask.get();
+                 } catch (Exception e) {
+                     e.printStackTrace();
+                 }
+             }
         } catch (NullPointerException npe) {
             npe.printStackTrace();
             resetStickers();
@@ -86,5 +89,31 @@ public class VisualEffectHandler {
     public void resetStickers(){
         System.out.println("reset sticker");
         stickers = new CopyOnWriteArrayList<>();
+    }
+    
+    private class StickerTask implements Runnable{
+        public Sticker s;
+        public Graphics2D g;
+        
+        public StickerTask (Sticker st, Graphics2D g2d) {
+            s = st;
+            g = g2d;
+        }
+
+        @Override
+        public void run() {
+            if (s == null) {
+                stickers.remove(s);
+                return;
+            }
+            if (s.disabled) {
+                stickers.remove(s);
+            }
+            if (System.currentTimeMillis() > s.creationTime + s.timeToRender) {
+                s.disable();
+            }
+            s.render(g);
+        }
+
     }
 }

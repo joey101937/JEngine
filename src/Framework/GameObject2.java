@@ -295,12 +295,13 @@ public class GameObject2 {
      * @param g Graphics2D object to draw with
      */
     public void render(Graphics2D g){
+        Graphics2D graphics = (Graphics2D)g.create();
         renderNumber++;
         if (getGraphic() != null && getGraphic().getScale() != scale) {
             getGraphic().scaleTo(scale);
         }
         Coordinate pixelLocation = getPixelLocation();
-        AffineTransform old = g.getTransform();
+        AffineTransform old = graphics.getTransform();
         if (!isOnScreen() && !Main.overviewMode()) {
             //offscreen without overview mode? dont bother rendering anything.
             if (isAnimated()) {
@@ -313,17 +314,17 @@ public class GameObject2 {
         }
         if (isInvisible) { //if invisible, you can still see debug mode visuals
             if (Main.debugMode) {
-                renderDebugVisuals(g);
+                renderDebugVisuals(graphics);
                 if (getHitbox() != null) {
-                    g.setTransform(old);
-                    getHitbox().render(g);
+                    graphics.setTransform(old);
+                    getHitbox().render(graphics);
                 }
             }
             return;
         }    
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
-        g.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
+        graphics.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
         if (getGraphic() == null) {
             //System.out.println("Warning null graphic for " + name);
         } else if (isAnimated()) {
@@ -331,14 +332,14 @@ public class GameObject2 {
             if(sequence == null){
                 if(renderNumber>10 && tickNumber>2)System.out.println("Warning trying to render null sequence object " +getName());
                 if(Main.debugMode){
-                    renderDebugVisuals(g);
+                    renderDebugVisuals(graphics);
                 }
                 return;
             }
             if(sequence.getCurrentFrame()!=null){
                 sequence.startAnimating();
                 BufferedImage toRender = sequence.getCurrentFrame();
-                g.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
+                graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
                 if(sequence.currentFrameIndex == sequence.frames.length-1) this.onAnimationCycle();
             }else{
                 if(renderNumber>10 && tickNumber>2)System.out.println("Warning: null frame in sequence of " + getName());
@@ -346,7 +347,7 @@ public class GameObject2 {
         }else{
             Sprite sprite = (Sprite)getGraphic();
             if(sprite!=null){                
-                g.drawImage(sprite.getImage(), pixelLocation.x - sprite.getImage().getWidth() / 2, pixelLocation.y - sprite.getImage().getHeight() / 2, null); //draws sprite centered on pixelLocation
+                graphics.drawImage(sprite.getImage(), pixelLocation.x - sprite.getImage().getWidth() / 2, pixelLocation.y - sprite.getImage().getHeight() / 2, null); //draws sprite centered on pixelLocation
             } else {
                 if (renderNumber > 10 && tickNumber > 2) {
                     System.out.println("Warning: unanimated game object sprite is null " + getName());
@@ -354,11 +355,11 @@ public class GameObject2 {
             }
         }
         if (Main.debugMode) {
-            renderDebugVisuals(g);
+            renderDebugVisuals(graphics);
         }
-        g.setTransform(old); //reset rotation for next item to render
+        graphics.setTransform(old); //reset rotation for next item to render
         if (getHitbox() != null && Main.debugMode) {
-            getHitbox().render(g);
+            getHitbox().render(graphics);
         }
     }
 

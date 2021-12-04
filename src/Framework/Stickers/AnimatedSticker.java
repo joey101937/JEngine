@@ -57,7 +57,7 @@ public class AnimatedSticker extends Sticker{
 
     @Override
     public synchronized void render(Graphics2D g) {
-        AffineTransform old = g.getTransform();
+        Graphics2D gToUse = (Graphics2D)g.create();
         try {
             if (sprites == null) {
                 return;
@@ -71,19 +71,18 @@ public class AnimatedSticker extends Sticker{
                 image = sprites[currentFrame];
             }
             centerCoordinate(image);
-            g.rotate(Math.toRadians(rotation), spawnLocation.x, spawnLocation.y);
+            gToUse.rotate(Math.toRadians(rotation), spawnLocation.x, spawnLocation.y);
             if (spawnLocation.x < 0 || spawnLocation.y < 0) {
                 disable();     //if the coordinates are bad, dont render
             }
             if (!disabled) {
                 if (image != null) {
-                    g.drawImage(image, renderLocation.x, renderLocation.y, null);
+                    gToUse.drawImage(image, renderLocation.x, renderLocation.y, null);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        g.setTransform(old);
     }
 
     public class AnimationHelper implements Runnable {
