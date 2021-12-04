@@ -86,6 +86,7 @@ public class Sprite implements Graphic{
     }
 
     private BufferedImage scaleImage(BufferedImage before, double scaleAmount) {   
+        if (before == null) return null;
         int w = before.getWidth();
         int h = before.getHeight();
         BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
