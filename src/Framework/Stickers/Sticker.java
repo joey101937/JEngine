@@ -51,7 +51,7 @@ public class Sticker {
      * Calibrates the render location to center the image on spawn location
      * @param toRender image to adjust renderLocation based on
      */
-    protected void centerCoordinate(BufferedImage toRender) {
+    protected final void centerCoordinate(BufferedImage toRender) {
         try{
         if(spawnLocation==null)return;
         renderLocation.x = spawnLocation.x - toRender.getWidth() / 2;
@@ -61,7 +61,7 @@ public class Sticker {
         }
     }
 
-    public synchronized void render(Graphics2D g) {
+    public void render(Graphics2D g) {
         AffineTransform old = g.getTransform();
         try {
             if (host != null && host.isAlive()) {
@@ -87,7 +87,7 @@ public class Sticker {
         g.setTransform(old);
     }
 
-    public synchronized void disable() {
+    public void disable() {
         disabled = true;
         host=null;
         while(hostGame.visHandler.stickers.contains(this)){

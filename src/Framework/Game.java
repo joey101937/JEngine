@@ -22,8 +22,14 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
 import java.awt.BasicStroke;
+import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.KEY_COLOR_RENDERING;
+import static java.awt.RenderingHints.KEY_RENDERING;
+import static java.awt.RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;
+import static java.awt.RenderingHints.VALUE_ANTIALIAS_OFF;
 import static java.awt.RenderingHints.VALUE_COLOR_RENDER_SPEED;
+import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
 import java.awt.Stroke;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -431,6 +437,11 @@ public class Game extends Canvas implements Runnable {
         }
         Graphics g = bs.getDrawGraphics();
         Graphics2D g2d = (Graphics2D)g;
+        g2d.setRenderingHint(KEY_COLOR_RENDERING, VALUE_COLOR_RENDER_SPEED);
+        g2d.setRenderingHint(KEY_RENDERING, VALUE_RENDER_SPEED);
+        g2d.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_SPEED);
+        g2d.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_OFF);
+
         g2d.scale(resolutionScaleX, resolutionScaleY);
         g2d.scale(zoom, zoom);
         g2d.setColor(Color.GREEN);
@@ -448,7 +459,6 @@ public class Game extends Canvas implements Runnable {
         }
         g.dispose();
         g2d.dispose();
-        g2d.setRenderingHint(KEY_COLOR_RENDERING, VALUE_COLOR_RENDER_SPEED);
         if(Window.currentGame == this && !this.isPaused()){
             bs.show();
         }    
