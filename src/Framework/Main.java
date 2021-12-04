@@ -40,7 +40,7 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        String[] options = {"Sandbox Demo" , "Tank Demo", "RTS Demo", "Space Demo" , "Side Scroller Demo" , "Audio Demo", "Minotaur Game", "Galiga"};
+        String[] options = {"Demo - Sandbox" , "Demo - Tank", "Demo - RTS", "Demo - Misc" , "Demo - Side Scroller" , "Game - Minotaur", "Game - Galiga"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
@@ -55,11 +55,9 @@ public class Main {
             break;
             case 4: SideScrollDemo.main(args);
             break;
-            case 5: AudioDemo.main(args);
+            case 5: MinotaurGame.main(args);
             break;
-            case 6: MinotaurGame.main(args);
-            break;
-            case 7: GaligaGame.main(args);
+            case 6: GaligaGame.main(args);
             break;
             default: {
                 System.out.println("unknown selection");

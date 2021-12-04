@@ -10,7 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
-import Framework.UI_Elements.Examples.Button;
+import Framework.UI_Elements.Examples.UiButton;
 import static GameDemo.SpaceDemo.SpaceInputHandler.waypoint;
 
 /**

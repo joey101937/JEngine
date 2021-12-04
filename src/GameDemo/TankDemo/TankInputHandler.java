@@ -5,10 +5,9 @@
  */
 package GameDemo.TankDemo;
 
+import Framework.AsyncInputHandler;
 import Framework.GameObject2;
-import Framework.InputHandler;
 import Framework.UI_Elements.OptionsMenu;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -17,10 +16,10 @@ import java.util.List;
  *
  * @author Joseph
  */
-public class TankInputHandler extends InputHandler {
+public class TankInputHandler extends AsyncInputHandler {
 
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void onKeyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case 'W':
                 TankGame.player.velocity.y = -TankGame.player.getSpeed();
@@ -44,7 +43,7 @@ public class TankInputHandler extends InputHandler {
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
+    public void onKeyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
             case 'W':
                 TankGame.player.velocity.y = 0;
@@ -60,17 +59,17 @@ public class TankInputHandler extends InputHandler {
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {
+    public void onMouseDragged(MouseEvent e) {
         TankGame.player.turret.lookAt(locationOfMouseEvent(e));
     }
 
     @Override
-    public void mouseMoved(MouseEvent e) {
+    public void onMouseMoved(MouseEvent e) {
         TankGame.player.turret.lookAt(locationOfMouseEvent(e));
     }
     
     @Override
-    public void mousePressed(MouseEvent e) {
+    public void onMousePressed(MouseEvent e) {
         TankGame.player.fire(locationOfMouseEvent(e));
         
         List<GameObject2> selection = hostGame.getPreceiseObjectsIntersectingPoint(locationOfMouseEvent(e));

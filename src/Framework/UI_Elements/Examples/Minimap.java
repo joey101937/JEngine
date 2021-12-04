@@ -38,6 +38,7 @@ public final class Minimap extends UIElement {
     public final MinimapInterior interior;
     private double screenPortion = .1; //how much of the screen to take up
     public Game hostGame;
+    public boolean useSimpleRender = false;
 
     /**
      * creates a minimap object based on given game. Automatically attaches
@@ -50,7 +51,7 @@ public final class Minimap extends UIElement {
         //location determines where it is on screen reletive to top left
         setLocation(loc);
         //create a minimap interior and add it to this panel
-         Dimension size = new Dimension((int) (hostGame.getWorldWidth() / Game.getResolutionScaleX() * screenPortion), (int) (hostGame.getWorldHeight() / Game.getResolutionScaleY() * screenPortion));
+        Dimension size = new Dimension((int) (hostGame.getWorldWidth() / Game.getResolutionScaleX() * screenPortion), (int) (hostGame.getWorldHeight() / Game.getResolutionScaleY() * screenPortion));
         interior = new MinimapInterior(size);
         MinimapMouseListener mmm = new MinimapMouseListener(hostGame, this);
         interior.addMouseListener(mmm);
@@ -225,9 +226,13 @@ public final class Minimap extends UIElement {
             g2d.drawImage(background, 0, 0, null);
             g2d.scale(xScale, yScale);
             for (GameObject2 go : hostGame.getAllObjects()) {
-                go.render(g2d);
-                for (SubObject sub : go.getAllSubObjects()) {
-                    sub.render(g2d);
+                if (useSimpleRender) {
+                    g.fillOval(go.getPixelLocation().x - go.getWidth()/2, go.getPixelLocation().y - go.getHeight()/2, go.getWidth(), go.getHeight());
+                } else {
+                    go.render(g2d, true);
+                    for (SubObject sub : go.getAllSubObjects()) {
+                        sub.render(g2d, true);
+                    }
                 }
             }
             g2d.setColor(Color.black);

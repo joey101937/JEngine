@@ -290,11 +290,20 @@ public class GameObject2 {
         return result - getRotation();
     }
     
+    
+     /**
+     * Draws the object on screen in the game world
+     * @param g Graphics2D object to draw with
+     */
+    public void render(Graphics2D g) {
+        render(g, false);
+    }
+    
     /**
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
      */
-    public void render(Graphics2D g){
+    public void render(Graphics2D g, boolean ignoreRestrictions){
         Graphics2D graphics = (Graphics2D)g.create();
         renderNumber++;
         if (getGraphic() != null && getGraphic().getScale() != scale) {
@@ -302,7 +311,7 @@ public class GameObject2 {
         }
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = graphics.getTransform();
-        if (!isOnScreen() && !Main.overviewMode()) {
+        if (!isOnScreen() && !Main.overviewMode() && !ignoreRestrictions) {
             //offscreen without overview mode? dont bother rendering anything.
             if (isAnimated()) {
                 Sequence sequence = (Sequence) getGraphic();

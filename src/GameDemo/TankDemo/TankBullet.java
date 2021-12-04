@@ -5,7 +5,6 @@
  */
 package GameDemo.TankDemo;
 
-import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
@@ -37,10 +36,10 @@ public class TankBullet extends Projectile {
     //when this runs into a creature, deal damage to it then destroy this projectile
     @Override
     public void onCollide(GameObject2 other){
-        if(other==shooter)return; //dont collde with the gameobject that launched this projectile
+        if(other==shooter || other instanceof Tank.Turret)return; //dont collde with the gameobject that launched this projectile
         if(other instanceof Creature) {
             Creature c = (Creature) other;
-            c.takeDamage(50);
+            c.takeDamage(10);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
             impactExplosion.scaleTo(2);
         }
