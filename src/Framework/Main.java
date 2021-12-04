@@ -33,6 +33,8 @@ public class Main {
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
     private static boolean overviewMode = false;
     public static boolean debugMode = false;
+    public static int tickThreadCount = 4;
+    
     /**
      * @param args the command line arguments
      */

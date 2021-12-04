@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
  */
 public class Handler {
     
-    public ExecutorService tickService = Executors.newFixedThreadPool(4);
+    public ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
 
     // private volatile LinkedList<GameObject2> storage = new LinkedList<>();
     private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
