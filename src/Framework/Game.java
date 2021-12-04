@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
 import java.awt.BasicStroke;
+import static java.awt.RenderingHints.KEY_COLOR_RENDERING;
+import static java.awt.RenderingHints.VALUE_COLOR_RENDER_SPEED;
 import java.awt.Stroke;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -446,6 +448,7 @@ public class Game extends Canvas implements Runnable {
         }
         g.dispose();
         g2d.dispose();
+        g2d.setRenderingHint(KEY_COLOR_RENDERING, VALUE_COLOR_RENDER_SPEED);
         if(Window.currentGame == this && !this.isPaused()){
             bs.show();
         }    

@@ -5,8 +5,6 @@
  */
 package Framework.GraphicalAssets;
 
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
 /**
@@ -56,7 +54,7 @@ public class Sprite implements Graphic{
      */
     @Override
     public void scale(double d) {
-        image = scaleImage(image, d);
+        image = Graphic.scaleImage(image, d);
         scale *= d;
     }
     
@@ -81,21 +79,8 @@ public class Sprite implements Graphic{
      */
     @Override
     public void scaleTo(double d) {
-        image = scaleImage(image, d / scale);
+        image = Graphic.scaleImage(image, d / scale);
         scale = d;
-    }
-
-    private BufferedImage scaleImage(BufferedImage before, double scaleAmount) {   
-        if (before == null) return null;
-        int w = before.getWidth();
-        int h = before.getHeight();
-        BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
-        AffineTransform at = new AffineTransform();
-        at.scale(scaleAmount, scaleAmount);
-        AffineTransformOp scaleOp
-                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        after = scaleOp.filter(before, after);
-        return after;
     }
     
     /**

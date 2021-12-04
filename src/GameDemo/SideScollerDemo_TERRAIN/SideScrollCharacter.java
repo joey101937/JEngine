@@ -39,6 +39,7 @@ public class SideScrollCharacter extends GameObject2{
         setName("Sample Character");
         baseSpeed = 3.5;
         setScale(.5);
+        this.collisionSliding = true;
         isSolid=true;
         this.movementType = GameObject2.MovementType.RawVelocity;
         //initial animation

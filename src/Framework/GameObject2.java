@@ -40,6 +40,7 @@ public class GameObject2 {
     protected boolean isAlive = true; //weather or not the object has been destroyed
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
+    public boolean shouldFlushGraphicOnDestroy = false;
     
      /**
      * how the object behaves when traveling in two directions (up/down and
@@ -641,7 +642,7 @@ public class GameObject2 {
         }
         this.detatchAllStickers();
         if(hitbox!=null)hitbox.host=null;
-        if(graphic!=null)graphic.destroy();
+        if(graphic!=null && this.shouldFlushGraphicOnDestroy)graphic.destroy();
         graphic = null;
     }
 

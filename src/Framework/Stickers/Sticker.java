@@ -9,9 +9,9 @@ package Framework.Stickers;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
+import Framework.GraphicalAssets.Graphic;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ConcurrentModificationException;
 
@@ -108,24 +108,12 @@ public class Sticker {
         }
     }
 
-    
-    protected static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {    
-        int w = before.getWidth();
-        int h = before.getHeight();
-        BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
-        AffineTransform at = new AffineTransform();
-        at.scale(scaleAmount, scaleAmount);
-        AffineTransformOp scaleOp
-                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        after = scaleOp.filter(before, after);
-        return after;
-    }
     /**
      * scales all frames in this sequence by a given amount
      * @param d multiplier to scale by
      */
     public void scale(double d) {
-        image = scaleImage(image,d);
+        image = Graphic.scaleImage(image,d);
         scale*=d;
     }
     
@@ -134,7 +122,7 @@ public class Sticker {
      * @param d new value to be scale, relative to the default scale of the images
      */
     public void scaleTo(double d) {
-        image = scaleImage(image,d/scale);
+        image = Graphic.scaleImage(image,d/scale);
         scale = d;
     }
 

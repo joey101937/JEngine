@@ -8,6 +8,7 @@ package Framework.Stickers;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.GraphicalAssets.Graphic;
 import Framework.Main;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -116,7 +117,7 @@ public class AnimatedSticker extends Sticker{
     @Override
     public void scale(double d) {
         for(int i = 0; i < sprites.length; i++){
-            sprites[i] = scaleImage(sprites[i],d);
+            sprites[i] = Graphic.scaleImage(sprites[i],d);
         }
         scale *=d;
     }
@@ -128,7 +129,7 @@ public class AnimatedSticker extends Sticker{
     @Override
     public void scaleTo(double d) {
         for(int i = 0; i < sprites.length; i++){
-            sprites[i] = scaleImage(sprites[i],d/scale);
+            sprites[i] = Graphic.scaleImage(sprites[i],d/scale);
         }
         scale = d;
     }

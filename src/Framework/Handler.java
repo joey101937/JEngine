@@ -92,12 +92,15 @@ public class Handler {
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
         for (GameObject2 go : getAllObjects()) {
-            go.setHostGame(hostGame);
-            go.tick();
-            for (SubObject so : go.getAllSubObjects()) {
-                so.tick();
+            try {
+                go.setHostGame(hostGame);
+                go.tick();
+                for (SubObject so : go.getAllSubObjects()) {
+                    so.tick();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
         }
     }
 

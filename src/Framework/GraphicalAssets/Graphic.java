@@ -5,6 +5,8 @@
  */
 package Framework.GraphicalAssets;
 
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
 /**
@@ -46,4 +48,22 @@ public interface Graphic {
      * @return current size percentage of image relative to original size
      */
     public double getScale();
+    
+    /**
+     * returns a scaled copy of the image
+     * @param before
+     * @param scaleAmount
+     * @return 
+     */    
+    public static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {    
+        int w = before.getWidth();
+        int h = before.getHeight();
+        BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
+        AffineTransform at = new AffineTransform();
+        at.scale(scaleAmount, scaleAmount);
+        AffineTransformOp scaleOp
+                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+        after = scaleOp.filter(before, after);
+        return after;
+    }
 }

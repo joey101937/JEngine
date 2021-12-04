@@ -23,11 +23,11 @@ public class RTSGame {
         game.getCamera().camSpeed=20;
         game.addIndependentEffect(new SelectionBoxEffect());
         
-        for (int i = 0; i < 10; i++) {
-            game.addObject(new TankUnit(100 + (i * 200), 200, 0));
+        for (int i = 0; i < 30; i++) {
+            game.addObject(new TankUnit(100 + (i * 120), 200, 0));
         }
-        for (int i = 0; i < 10; i++) {
-            game.addObject(new TankUnit(100 + (i * 200), 800, 1));
+        for (int i = 0; i < 30; i++) {
+            game.addObject(new TankUnit(100 + (i * 120), 800, 1));
         }
     }
 }
