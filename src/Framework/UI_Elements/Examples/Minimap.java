@@ -36,9 +36,11 @@ import javax.swing.JPanel;
 public final class Minimap extends UIElement {
 
     public final MinimapInterior interior;
-    private double screenPortion = .1; //how much of the screen to take up
+    private double screenPortion = .12; //how much of the screen to take up
     public Game hostGame;
     public boolean useSimpleRender = false;
+    private double widthOfFrame = 1;
+    private double heightOfFrame = 1;
 
     /**
      * creates a minimap object based on given game. Automatically attaches
@@ -51,7 +53,9 @@ public final class Minimap extends UIElement {
         //location determines where it is on screen reletive to top left
         setLocation(loc);
         //create a minimap interior and add it to this panel
-        Dimension size = new Dimension((int) (hostGame.getWorldWidth() / Game.getResolutionScaleX() * screenPortion), (int) (hostGame.getWorldHeight() / Game.getResolutionScaleY() * screenPortion));
+        widthOfFrame = (Game.getNATIVE_RESOLUTION().width * Game.getResolutionScaleX() * screenPortion * ((double)hostGame.getWorldWidth()/hostGame.getWorldHeight()));
+        heightOfFrame = (widthOfFrame * ((double)hostGame.getWorldHeight()/hostGame.getWorldWidth()));
+        Dimension size = new Dimension((int)widthOfFrame, (int) heightOfFrame);
         interior = new MinimapInterior(size);
         MinimapMouseListener mmm = new MinimapMouseListener(hostGame, this);
         interior.addMouseListener(mmm);
@@ -178,7 +182,9 @@ public final class Minimap extends UIElement {
 
     public void setScreenPortion(double screenPortion) {
         this.screenPortion = screenPortion;
-        Dimension size =new Dimension((int) (hostGame.getWorldWidth() / Game.getResolutionScaleX() * screenPortion), (int) (hostGame.getWorldHeight() / Game.getResolutionScaleY() * screenPortion));
+        widthOfFrame = (Game.getNATIVE_RESOLUTION().width * Game.getResolutionScaleX() * screenPortion * ((double)hostGame.getWorldWidth()/hostGame.getWorldHeight()));
+        heightOfFrame = (widthOfFrame * ((double)hostGame.getWorldHeight()/hostGame.getWorldWidth()));
+        Dimension size = new Dimension((int)widthOfFrame, (int) heightOfFrame);
         interior.setSize(size);
         this.setSize(size);
     }
@@ -238,7 +244,7 @@ public final class Minimap extends UIElement {
             g2d.setColor(Color.black);
             g2d.draw(hostGame.getCamera().getFieldOfView());
             g2d.setStroke(new BasicStroke(70));
-            g2d.drawRect(0, 0, (int) (this.getWidth() / screenPortion / Game.getResolutionScaleX()), (int) (this.getHeight() / screenPortion / Game.getResolutionScaleY()));
+            g2d.drawRect(0, 0, (int)(widthOfFrame/xScale), (int) (heightOfFrame/yScale));
             g2d.dispose();
         }
 
