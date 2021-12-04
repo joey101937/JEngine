@@ -9,9 +9,9 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -25,7 +25,7 @@ public class Handler {
     public ExecutorService tickService = Executors.newFixedThreadPool(4);
 
     // private volatile LinkedList<GameObject2> storage = new LinkedList<>();
-    private HashMap<Integer, GameObject2> storage = new HashMap<>();
+    private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
     public Game hostGame;
     
     // private Map<Integer, GameObject2> toRenger = storage;
