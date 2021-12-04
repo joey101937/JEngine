@@ -23,6 +23,7 @@ public class GaligaGame {
     public static Game mainGame; 
     public static SoundEffect deathSound = new SoundEffect(new File("Assets/Sounds/blast1.au"));
     public static SoundEffect pewSound = new SoundEffect(new File("Assets/Sounds/pew.au"));
+    public static SoundEffect bgMusic = new SoundEffect(new File("Assets/Sounds/A-few-jumps-away-by-Arthur-Vyncke.au"));
     public static GaligaUI UI = new GaligaUI();
     
     public static void main(String[] args) {
@@ -35,7 +36,8 @@ public class GaligaGame {
         mainGame.setInputHandler(new GaligaInput());
         mainGame.addIndependentEffect(UI);
         mainGame.addIndependentEffect(new GameDriver());
-        
+        bgMusic.setLooping(true);
+        bgMusic.start();
     }
    
 }

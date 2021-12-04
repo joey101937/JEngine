@@ -12,7 +12,7 @@ import GameDemo.SideScollerDemo_TERRAIN.SideScrollDemo;
 import GameDemo.SpaceDemo.SpaceGame;
 import GameDemo.TankDemo.TankGame;
 import SampleGames.Galiga.GaligaGame;
-import SampleGames.SideScroller.SSGame;
+import SampleGames.SideScroller.MinotaurGame;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
@@ -57,7 +57,7 @@ public class Main {
             break;
             case 5: AudioDemo.main(args);
             break;
-            case 6: SSGame.main(args);
+            case 6: MinotaurGame.main(args);
             break;
             case 7: GaligaGame.main(args);
             break;

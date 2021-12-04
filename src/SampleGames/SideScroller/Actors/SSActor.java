@@ -10,7 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.PathingLayer.Type;
 import SampleGames.SideScroller.DamageNumber;
-import SampleGames.SideScroller.SSGame;
+import SampleGames.SideScroller.MinotaurGame;
 
 /**
  *
@@ -45,6 +45,10 @@ public abstract class SSActor extends GameObject2 {
         if(currentHealth>maxHealth){
             currentHealth=maxHealth;
         }
+    }
+    
+    public double getPercentHealthMissing() {
+        return 1 - (double)getCurrentHealth() / getMaxHealth();
     }
     
     
@@ -119,7 +123,7 @@ public abstract class SSActor extends GameObject2 {
 
     @Override
     public void onCollide(GameObject2 other) {
-        if (other == SSGame.floor) {
+        if (other == MinotaurGame.floor) {
             location.y-=3;
         }
     }

@@ -11,8 +11,9 @@ import Framework.SpriteManager;
 import Framework.UtilityObjects.BlockObject;
 import Framework.UtilityObjects.TextObject;
 import SampleGames.SideScroller.Actors.Barrel;
-import SampleGames.SideScroller.Actors.Minotaur;
-import SampleGames.SideScroller.SSGame;
+import SampleGames.SideScroller.Actors.NPCMinotaur;
+import SampleGames.SideScroller.MinotaurGame;
+import SampleGames.SideScroller.MinotaurHealthBarEffect;
 import SampleGames.SideScroller.Terrain.Terrain260x125;
 import java.awt.Color;
 
@@ -28,6 +29,7 @@ public class SSLevel1 extends Game{
     }
 
     private void setup() {
+        addIndependentEffect(new MinotaurHealthBarEffect(this));
         setupFloor();
         Terrain260x125 block1 = new Terrain260x125(1000, (690 - 125 / 2));
         addObject(block1);
@@ -47,16 +49,16 @@ public class SSLevel1 extends Game{
         addObject(new Barrel(new Coordinate(1600, 500)));
         addObject(new Barrel(new Coordinate(1660, 500)));
         
-        addObject(new Minotaur(new Coordinate(2000, 100)));
-        addObject(new Minotaur(new Coordinate(2200, 100)));
-        addObject(new Minotaur(new Coordinate(2400, 100)));
+        for(int i = 0; i < 10; i++) {
+            addObject(new NPCMinotaur(new Coordinate(2000 + (450 * i), 200)));
+        }
     }
 
     private void setupFloor() {
-        SSGame.floor = new BlockObject(new Coordinate(0, 690), getWorldWidth(), getWorldHeight() - 690);
-        SSGame.floor.setCentered(false);
-        SSGame.floor.isInvisible = true;
-        addObject(SSGame.floor);
+        MinotaurGame.floor = new BlockObject(new Coordinate(0, 690), getWorldWidth(), getWorldHeight() - 690);
+        MinotaurGame.floor.setCentered(false);
+        MinotaurGame.floor.isInvisible = true;
+        addObject(MinotaurGame.floor);
     }
 
 }

@@ -5,9 +5,9 @@
  */
 package SampleGames.Galiga;
 
+import Framework.AsyncInputHandler;
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
-import Framework.InputHandler;
 import Framework.UI_Elements.OptionsMenu;
 import java.awt.event.KeyEvent;
 
@@ -15,10 +15,10 @@ import java.awt.event.KeyEvent;
  *
  * @author Joseph
  */
-public class GaligaInput extends InputHandler{
+public class GaligaInput extends AsyncInputHandler{
     
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void onKeyPressed(KeyEvent e) {
         PlayerShip player = GaligaGame.player;
         switch(e.getKeyChar()){
             case 'a':
@@ -40,7 +40,7 @@ public class GaligaInput extends InputHandler{
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
+    public void onKeyReleased(KeyEvent e) {
         switch (e.getKeyChar()) {
             case 'a':
                 if (GaligaGame.player.velocity.x < 0) {
