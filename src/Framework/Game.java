@@ -771,4 +771,11 @@ public class Game extends Canvas implements Runnable {
     public Camera getCamera(){
         return camera;
     }
+    
+    public int getWindowWidth() {
+        return windowWidth;
+    }
+    public int getWindowHeight() {
+        return windowHeight;
+    }
 }

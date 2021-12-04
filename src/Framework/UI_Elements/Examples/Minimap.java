@@ -53,7 +53,7 @@ public final class Minimap extends UIElement {
         //location determines where it is on screen reletive to top left
         setLocation(loc);
         //create a minimap interior and add it to this panel
-        widthOfFrame = (Game.getNATIVE_RESOLUTION().width * Game.getResolutionScaleX() * screenPortion * ((double)hostGame.getWorldWidth()/hostGame.getWorldHeight()));
+        widthOfFrame = (hostGame.getWindowWidth() * Game.getResolutionScaleX() * screenPortion * ((double)hostGame.getWorldWidth()/hostGame.getWorldHeight()));
         heightOfFrame = (widthOfFrame * ((double)hostGame.getWorldHeight()/hostGame.getWorldWidth()));
         Dimension size = new Dimension((int)widthOfFrame, (int) heightOfFrame);
         interior = new MinimapInterior(size);
