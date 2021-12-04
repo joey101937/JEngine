@@ -216,7 +216,9 @@ GameObject2's are the core of all functional objects within a scene. GameObject2
 
 **name** This is used to help debugging; effectively a tag on the object. Displays on object when in debug view
 
-**renderNumber** Used to help debugging; tracks how many times this object has ticked
+**renderNumber** Used to help debugging; tracks how many times this object has rendered
+  
+**tickNumber** Used to help debugging; tracks how many times this object has ticked
 
 **location** This is a DCoordinate that determines the object's absolute position. This is then rounded to a Coordinate to render to pixel based screen. **Modifying this value will change the location of the object**. This field should not be confused with the getPixelLocation() method, which returns a rounded Coordinate version of this value. Modifying the result of getPixelLocation() will **not** change the location of the object it was called on.
 
@@ -265,7 +267,7 @@ GameObject2's are the core of all functional objects within a scene. GameObject2
 Tick runs every game 'tick', a number of times per second equal to the TPS (ticks per second), settable in the options menu. Tick is used to update logical computations. When overriding tick, you should generally first call super.tick, which maintains the variable that counts ticks as well as the updateLocation method.
 
 **render(Graphics2D g)**
-Render is run *every frame* and should be used to draw things to the scene. Generally you do not need to override this method unless you know what you are doing. Avoid adding complex logic checks to this as it runs very often and is not set to run in consistant intervals.
+Render is run *every frame* and should be used to draw things to the scene. Generally you do not need to override this method unless you know what you are doing. Avoid adding complex logic checks to this as it runs very often and is not set to run in consistant intervals. If you do want to override this, remember that graphics transforms may be used so you will want to call the .create method on the graphics object you get. This will create a copy of the graphics object that you can safely trasform/rotate without effecting other rendering that may be happening elsewhere.
 
 **updateLocation()**
 Update location adjusts the object's location based on its velocity. This method controls collision, hitboxes, and constrains* the object to stay within bounds of the gameworld. Runs constrainToWorld() and updateHitbox()
@@ -303,14 +305,14 @@ Change the *scale* field in the object and it will scale the object to the given
 Rotation is more complicated than setting a single variable. To rotate the object by a set number of degrees, call **Rotate(double)** method. This method rotates from where the object is currently rotated. To set the rotation directly, call **rotateTo(double)** method. To rotate in such a way to face a specifiec point or object, call the **lookAt(Coordinate)** or **lookAT(GameObject2)** methods.
 
 ### Moving GameObejcts 
-Moving gameobjects involves changing their *location*. Directly changing the location field will result in the object 'teleporting' around the world,and would cause problems with collision. Instead, you should modify the object's *velocity*. Velociy moves the object every tick based on the direction and the extremity of the velocity. Velocity based movement is fluid and works with collision. Velocity is stored in a DCoordinate, x = X velocity, y = Y velocity. positive X velocity moves the object to the right while positive Y velocity moves the object downward. Inversing the sign to negative would produce opposite results.
+Moving gameobjects involves changing their *location*. Directly changing the location field will result in the object 'teleporting' around the world. To gradualy move an object around, you should modify the object's *velocity*. Velociy moves the object every tick based on the direction and the extremity of the velocity. Velocity based movement is fluid and works with collision. Velocity is stored in a DCoordinate, x = X velocity, y = Y velocity. positive X velocity moves the object to the right while positive Y velocity moves the object downward. Inversing the sign to negative would produce opposite results.
 
 **MOVEMENT TYPES**
 GameObject2s support 3 types of movement, these are as follows:
 
 **Raw Velocity** Raw velocity is just what it sounds like. Every tick the objects location is directly modified by whatever the velocity is. ie an object with velocity of (100,0) would move 100 units to the right every tick.
 
-**Speed Ratio** Speed ratio is a type of movement that streamlines an object's speed so that it always travels a distance equal to its given *speed* field every tick based on velocity (0 velocity will not move). This is usful if the Object is traveling in a direction that is not perpendicular to the X or Y axis, especially projectiles, and is the default type for most objects. Change how fast the object moves not by velocity but with *speed*. an object with speed of 5 and velocity of (100,0) would travel 5 untis to the right.
+**Speed Ratio** Speed ratio is a type of movement that streamlines an object's speed so that it always travels a distance equal to its given *speed* field every tick based on velocity (0 velocity will not move). This is usful if the Object is traveling in a direction that is not perpendicular to the X or Y axis, especially projectiles, and is the default type for most objects. Change how fast the object moves not by velocity but with *speed*. an object with speed of 5 and velocity of (100,0) would travel 5 untis to the right. **Note: the field you want to set is baseSpeed - calling getSpeed() will return the adjusted speed based on baseSpeed and and speed modifiers from the pathing layer**
 
 **Rotation Based** This is speed ratio except velocity is relative to the gameobject2's orientation, not global. positive y velocity that would usually correlate with going upwards to the top of the screen would instead push the object forward in whatever direction the object is facing. Example is a gameobject with speed of 1, velocity of (0,100), turned 90 degrees to the right. The object will move 1 unit to the right (direction its facing) every tick.
 
@@ -364,7 +366,8 @@ Beyond the usual GameObject methods, the BoxObject also has a number of unique m
 
 
 # SubObjects
-//TODO
+Subobjects are special GameObject2's that are attached to a 'host' GameObject2. The location of a subobject refers to the offset it is from its host. For example if you want to center a tank turret subobject onto a tank object, you would give it a location of 0,0 and attach that subobject to the tank. There is no limit to how many subobjects an object can have. Subobjects may have their own subobjects.
+  
 # Pathing Layer
 A pathingLayer is an image file with the same dimensions as the world. This image however is made up of only a handful of colors with each of those colors representing a type of terrain. By default, there are four types defined: green= ground; red=hostile, blue= water; black= impassable.
 
@@ -402,9 +405,11 @@ How fast scenes run their tick method. Slows or speeds up the game relative to r
 When you create a project that uses visual image assets, those assets are rendered pixel per pixel and their size (without in-engine scaling) is determined by the actual size of the image asset used. Ie: a 200x200 image will display over a distance of 200x200 in the game. The problem is that different screens have different resolutions than the screen you are testing your project on, so a character that looks large on your 1080p display will look tiny on a 4k display. To keep things looking uniform across all screen resolutions, set the final static field **NATIVE_RESOLUTION** in game class to reflect the resolution of you, the programmer's screen. Now you may call the **Game.scaleForResolution()** option and it will automatically scale your entire project to look the same on whatever screen size the project is run in as it does on the screen you are testing on.
 
 # IndependentEffects
-//TODO
+Independent effects may be added to a game via the addIndependentEffect. This allows you to run tick and render logic without it being tied to any one GameObject2. This is used in the example demos to create UI effects such as the selection box effect in the RTS demo
+  
 # UI Elements
-//TODO
+Because the engine uses Java AWT to display itself to the user, you can add AWT components onto the JFrame. The Window class controls interactions that have to do with the AWT frame itself. Using Window.addUiElement(), you can add UiElement objects to the Game's window that overlay on top of the game. UiElements are JPanels that have render() and tick() links. This means you can create AWT componets such as buttons then add them to a UiElement, which is in turn laid over the game via adding it to the window class. View UiElement examples to increase your understanding.
+
 # Audio
 ### Quick Start Guide
 In JEngine, audio is played using the SoundEffect class. To instantiate an object of this class, you must provide a File as the parameter. This file is the source for the audio and must be a java supported audio format. I recommend .au format.
