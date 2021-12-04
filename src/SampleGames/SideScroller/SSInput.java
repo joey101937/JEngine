@@ -5,7 +5,7 @@
  */
 package SampleGames.SideScroller;
 
-import Framework.InputHandler;
+import Framework.AsyncInputHandler;
 import Framework.UI_Elements.OptionsMenu;
 import SampleGames.SideScroller.Actors.Minotaur;
 import java.awt.event.KeyEvent;
@@ -15,9 +15,9 @@ import java.awt.event.MouseEvent;
  *
  * @author Joseph
  */
-public class SSInput extends InputHandler{
-        @Override
-    public void keyPressed(KeyEvent e){
+public class SSInput extends AsyncInputHandler{
+    @Override
+    public void onKeyPressed(KeyEvent e){
         switch(e.getKeyChar()){
             case 'a':
                 if(!SSGame.playerMinotaur.freeToAct())break;
@@ -41,7 +41,7 @@ public class SSInput extends InputHandler{
     }
     
         @Override
-    public void keyReleased(KeyEvent e){
+    public void onKeyReleased(KeyEvent e){
         Minotaur player = SSGame.playerMinotaur;
         switch(e.getKeyChar()){
             case 'a':
@@ -56,7 +56,7 @@ public class SSInput extends InputHandler{
     }
     
     @Override
-    public void mousePressed(MouseEvent e){
+    public void onMousePressed(MouseEvent e){
         if(e.getButton() == 1){
             if(locationOfMouseEvent(e).x > SSGame.playerMinotaur.getPixelLocation().x){
                 SSGame.playerMinotaur.attack(true);//right

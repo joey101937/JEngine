@@ -7,16 +7,22 @@ package Framework;
 
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Manages aggregate lists of GameObjects
  * @author Joseph
  */
 public class Handler {
+    
+    public ExecutorService tickService = Executors.newFixedThreadPool(4);
 
     // private volatile LinkedList<GameObject2> storage = new LinkedList<>();
     private HashMap<Integer, GameObject2> storage = new HashMap<>();
@@ -50,7 +56,7 @@ public class Handler {
      * safely removes object using iterator to prevent concurrent modification
      * @param toRemove  object to remove
      */
-    public synchronized void removeObject(GameObject2 toRemove){
+    public void removeObject(GameObject2 toRemove){
          storage.remove(toRemove.ID);
     }
     
@@ -61,7 +67,7 @@ public class Handler {
      * the raw storage list and in turn reduce the liklihood of concurrent
      * modification exceptions
      */
-    public synchronized ArrayList<GameObject2> getAllObjects(){
+    public ArrayList<GameObject2> getAllObjects(){
         ArrayList<GameObject2> output = new ArrayList<>();
         for(GameObject2 go : storage.values()) output.add(go);
         return output;
@@ -88,16 +94,16 @@ public class Handler {
     /**
      * ticks all objects in the game along with their subobjects
      */
-    public synchronized void tick() {
+    public void tick() {
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
+        Collection<Future<?>> tickTasks = new LinkedList<>();
         for (GameObject2 go : getAllObjects()) {
+            tickTasks.add(tickService.submit(new TickTask(go)));
+        }
+        for (Future<?> currTask : tickTasks) {
             try {
-                go.setHostGame(hostGame);
-                go.tick();
-                for (SubObject so : go.getAllSubObjects()) {
-                    so.tick();
-                }
+                currTask.get();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -120,6 +126,29 @@ public class Handler {
                 return 0;
             }
         }
+
+    }
+    
+    private class TickTask implements Runnable {
+        GameObject2 go;
+        
+        public TickTask (GameObject2 go2) {
+            go = go2;
+        }
+
+        @Override
+        public void run() {
+            try {
+                go.setHostGame(hostGame);
+                go.tick();
+                for (SubObject so : go.getAllSubObjects()) {
+                    so.tick();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
 
     }
 

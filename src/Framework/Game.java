@@ -214,7 +214,7 @@ public class Game extends Canvas implements Runnable {
      * NOTE removes the given input handler from any game its already applied to!
      * @param in Input handler to apply to this game
      */
-    public synchronized void setInputHandler(InputHandler in){
+    public void setInputHandler(InputHandler in){
         if(inputHandler != null) {
             applyInputHandler(false);
         }
@@ -727,7 +727,7 @@ public class Game extends Canvas implements Runnable {
      * removes object from the game
      * @param o object to remove
      */
-    public synchronized void removeObject(GameObject2 o){
+    public void removeObject(GameObject2 o){
         while(handler.getAllObjects().contains(o)){
             try{
             handler.removeObject(o);

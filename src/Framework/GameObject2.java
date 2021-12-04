@@ -420,7 +420,7 @@ public class GameObject2 {
      * start your overridden tick method with super() so that updateLocation
      * method runs and tickNumber continues counting
      */
-    public synchronized void tick(){
+    public void tick(){
         updateLocation();
         tickNumber++;
     }
@@ -520,7 +520,7 @@ public class GameObject2 {
      * -Detects collisions
      * -updates hitbox
      */
-    public synchronized void updateLocation() {
+    public void updateLocation() {
       DCoordinate newLocation = location.copy();
         switch (movementType) {
             case SpeedRatio:
