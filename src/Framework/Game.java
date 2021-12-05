@@ -243,7 +243,7 @@ public class Game extends Canvas implements Runnable {
         Hitbox hitbox = new Hitbox(verts);
         ArrayList<GameObject2> output = new ArrayList<>();
         for (GameObject2 go : handler.getAllObjects()) {
-            if (go.hitbox!=null && go.getHitbox().intersects(hitbox)) {
+            if (go.getHitbox() != null && go.getHitbox().intersects(hitbox)) {
                 output.add(go);
             }else{
                 for (SubObject sub : go.getAllSubObjects()) {
@@ -318,7 +318,6 @@ public class Game extends Canvas implements Runnable {
          return out;
      }
     
-
     /**
      * returns all GameObject2s in this Game with hitboxes that intersect the
      * given hitbox. Subobjects redirect to the host
@@ -329,19 +328,21 @@ public class Game extends Canvas implements Runnable {
     public ArrayList<GameObject2> getObjectsIntersecting(Hitbox h) {
         ArrayList<GameObject2> output = new ArrayList<>();
         for (GameObject2 go : getAllObjects()) {
-            if (go.getHitbox().intersects(h)) {
+            if (go.getHitbox() != null && go.getHitbox().intersects(h)) {
                 output.add(go);
             } else {
                 for (SubObject sub : go.getAllSubObjects()) {
                     if (sub.getHitbox() != null && sub.getHitbox().intersects(h)) {
-                        output.add(sub);
+                        output.add(go);
+                        break;
                     }
                 }
             }
+
         }
         return output;
     }
-    
+
     /**
      * returns all GameObject2s in this Game with hitboxes that intersect the
      * given hitbox. Will select subobejcts individually.

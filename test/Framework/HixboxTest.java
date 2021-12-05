@@ -164,6 +164,18 @@ public class HixboxTest {
         double[] line = {0, -15, 0, -6};
         assert !c.intersectsWithLine(line);
     }
+        
+    @Test
+    public void lineCircleIntersect8() {
+        Coordinate[] verts = new Coordinate[4];
+        verts[0] = new Coordinate(1103, 286);
+        verts[1] = new Coordinate(1693, 786);
+        verts[2] = new Coordinate(1103, 286);
+        verts[3] = new Coordinate(1693, 786);
+        Hitbox rect = new Hitbox(verts);
+        Hitbox circle = new Hitbox(new Coordinate(2100,600), 800);
+        assert(circle.intersects(rect) && rect.intersects(circle));
+    }
     
     @Test
     public void trapazoidContainsCircle() {

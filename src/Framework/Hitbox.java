@@ -206,6 +206,18 @@ public class Hitbox {
         this.radius = radius;
         this.type = Type.circle;
     }
+    
+        /**
+     * Creates a circular hitbox at location given with radius given
+     *
+     * @param c location hitbox is centered on
+     * @param radius radius of circle
+     */
+    public Hitbox(Coordinate c, double radius) {
+        staticCenter = c.toDCoordinate();
+        this.radius = radius;
+        this.type = Type.circle;
+    }
 
     /**
      * creates a rectangle hitbox with given corner points topLeft, topRight,
