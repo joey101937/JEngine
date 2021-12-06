@@ -127,7 +127,7 @@ public class SoundEffect implements Runnable{
     @Override
     public void run() {
         clip.start();
-        while (!disabled) {
+        while (!isDisabled()) {
             Main.wait(1000);        //check every 1 second
             if (!(clip.isRunning() || isPaused())) {
                 Main.wait(1000);   //clip must be not running and not paused for 1 second to terminate thread
@@ -136,6 +136,7 @@ public class SoundEffect implements Runnable{
                 }
             }
         }
+        disable();
         //thread ending
     }
 

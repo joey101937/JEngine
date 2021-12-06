@@ -99,7 +99,19 @@ public class Handler {
         toRender.sort(new renderSorter());
         Collection<Future<?>> tickTasks = new LinkedList<>();
         for (GameObject2 go : getAllObjects()) {
-            tickTasks.add(tickService.submit(new TickTask(go)));
+            if(Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go)));
+            } else {
+                try {
+                    go.setHostGame(hostGame);
+                    go.tick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.tick();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
         for (Future<?> currTask : tickTasks) {
             try {

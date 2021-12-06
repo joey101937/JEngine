@@ -115,6 +115,13 @@ public class GameObject2 {
    public void setBaseSpeed(double bs){
        baseSpeed = bs;
    }
+   
+   /**
+    * runs when the gameobject2 runs or attempts to run into a new pathing layer
+    * @param newLayer 
+    */
+   public void onPathingLayerCollision(PathingLayer.Type newLayer) {
+   }
 
    /**
     * Gets the current terrain this object is on; Terrain is determined by 
@@ -568,6 +575,9 @@ public class GameObject2 {
         //pathing layer now
         
         if (hostGame.pathingLayer != null) {
+            if(!hostGame.pathingLayer.getTypeAt(getPixelLocation()).name.equals(hostGame.pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
+                this.onPathingLayerCollision(hostGame.pathingLayer.getTypeAt(newLocation.toCoordinate()));
+            }
             if (pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) < .05 && collisionSliding) {
                 //pathing at new location is blocked. (speed multiplier < .05)
                 //check directions to see which are blocked so we can possibly slide
