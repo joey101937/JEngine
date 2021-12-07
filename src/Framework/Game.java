@@ -729,7 +729,7 @@ public class Game extends Canvas implements Runnable {
      * @param o object to remove
      */
     public void removeObject(GameObject2 o){
-        while(handler.getAllObjects().contains(o)){
+        while(handler.getAllObjectsRealTime().contains(o)){
             try{
             handler.removeObject(o);
             }catch(ConcurrentModificationException cme){

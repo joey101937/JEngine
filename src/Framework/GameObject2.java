@@ -23,12 +23,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Parent class for all objects that appear in the gameworld
  * @author Joseph
  */
-public class GameObject2 {
+public class GameObject2 {    
     private Game hostGame;
     private String name= "Unnamed " + this.getClass().getSimpleName(); 
     public long tickNumber = 0; //used for debugging, counts number of times this has ticked
     public long renderNumber = 0; //used for debugging, counts number of times this has rendered
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
+    protected DCoordinate locationAsOfLastTick = new DCoordinate(0,0);
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
     protected double baseSpeed = 2; //total distance the object can move per tick
     private Graphic graphic; //visual representation of the object
@@ -37,7 +38,6 @@ public class GameObject2 {
     public boolean isSolid = false; //weather or not this object collides with other objects
     public boolean isInvisible = false; //invisible gameobjects are not rendered
     private volatile double scale = 1; //size multiplier
-    protected boolean isAlive = true; //weather or not the object has been destroyed
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
     public boolean shouldFlushGraphicOnDestroy = false;
@@ -150,10 +150,20 @@ public class GameObject2 {
     
     /**
      * used to get integer location of object, used when rendering to screen
+     * AS OF LAST TICK- PREFER WHEN MULTITHREADING
      * @return integer location
      */
     public Coordinate getPixelLocation() {
-        return new Coordinate(location);
+        return new Coordinate(locationAsOfLastTick);
+    }
+    
+     /**
+     * used to get integer location of object, used when rendering to screen
+     * @param realtime is this realtime location or location as of last tick. 
+     * @return integer location
+     */
+    public Coordinate getPixelLocation(boolean realtime) {
+        return new Coordinate( realtime ? location : getLocationAsOfLastTick());
     }
     /**
      * @return The Rectangle object used as hitbox
@@ -267,7 +277,7 @@ public class GameObject2 {
      * @param other object whos location we will look at
      */
     public void lookAt(GameObject2 other) {
-        rotateTo(DCoordinate.angleFrom(location, other.location));
+        rotateTo(DCoordinate.angleFrom(location, other.getLocationAsOfLastTick()));
     }
     /**
      * Rotates this object so that its front (determined by innate rotation) is
@@ -430,6 +440,16 @@ public class GameObject2 {
         }
         
     }
+    
+    
+      /**
+     * this method runs every "tick". All ticking objects will execute this method before any objects can tick.
+     * so every tick all preticks fire, then all ticks fire.
+     */
+    public void preTick() {
+        updateLocation();
+        tickNumber++;
+    }
 
     /**
      * this method runs every "tick" similar to update() in unity; Reccomended you
@@ -437,8 +457,6 @@ public class GameObject2 {
      * method runs and tickNumber continues counting
      */
     public void tick(){
-        updateLocation();
-        tickNumber++;
     }
     
     private boolean canCollideWith(GameObject2 other) {
@@ -498,7 +516,7 @@ public class GameObject2 {
                     }
                     // already overlapping
                     if (current.getHitbox().intersects(other.getHitbox())) {
-                        if (newLocation.distanceFrom(other.location) > current.location.distanceFrom(other.location)) {
+                        if (newLocation.distanceFrom(other.getLocationAsOfLastTick()) > current.location.distanceFrom(other.getLocationAsOfLastTick())) {
                             continue; //if we are moving away from it, allow the movement
                         } else {
                             xClear = false;
@@ -641,6 +659,7 @@ public class GameObject2 {
      */
     private final void init(DCoordinate dc){
         location = dc;
+        locationAsOfLastTick = dc;
         //set up default pathing modifiers. Move normal on ground, reduced speed in water, not at all in impass
         pathingModifiers.put(PathingLayer.Type.ground, 1.0);
         pathingModifiers.put(PathingLayer.Type.hostile, 1.0);
@@ -651,19 +670,21 @@ public class GameObject2 {
      * removes object from game, functionally
      */
     public final void destroy() {
-        isAlive = false;
         onDestroy();
+        for(SubObject so : getAllSubObjects()) {
+            so.onDestroy();
+        }
         if (!(this instanceof SubObject)) {
             hostGame.removeObject(this);
-
+            
         }else{
-            SubObject me = (SubObject)this;
-            me.setHost(null);
+//            SubObject me = (SubObject)this;
+//            me.setHost(null);
         }
-        this.detatchAllStickers();
-        if(hitbox!=null)hitbox.host=null;
-        if(graphic!=null && this.shouldFlushGraphicOnDestroy)graphic.destroy();
-        graphic = null;
+        // this.detatchAllStickers();
+        // if(hitbox!=null)hitbox.host=null;
+        // if(graphic!=null && this.shouldFlushGraphicOnDestroy)graphic.destroy();
+        // graphic = null;
     }
 
     /**
@@ -682,7 +703,7 @@ public class GameObject2 {
      * @return weather or not this object is considered alive 
      */
     public boolean isAlive(){
-        return isAlive;
+        return hostGame.getAllObjects().contains(this);
     }
     /**
      * Weather or not this object is using an animated sequence or static sprite
@@ -787,6 +808,16 @@ public class GameObject2 {
     public void setName(String name) {
         this.name = name;
     }
+
+    public DCoordinate getLocationAsOfLastTick() {
+        return locationAsOfLastTick;
+    }
+
+    protected void setLocationAsOfLastTIck(DCoordinate locationAsOfLastTIck) {
+        this.locationAsOfLastTick = locationAsOfLastTIck;
+    }
+    
+    
      
 
 }

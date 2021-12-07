@@ -8,7 +8,6 @@ package Framework;
 import static Framework.Hitbox.Type.box;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 
 /**
@@ -160,7 +159,7 @@ public class Hitbox {
     
     public DCoordinate getCenter(){
         if(host==null)return staticCenter;
-        else return host.location.copy();
+        else return host.getLocationAsOfLastTick().copy();
     }
     
     private DCoordinate[] getRenderVerts() {
@@ -526,24 +525,26 @@ public class Hitbox {
      * @param velocity contains the amount to move this hitbox
      * @return weather or not the hitbox would be intersecting another if moved
      */
-    public synchronized boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
+    public  boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
         double saftyScaler = 1; //how much we scale the velocity to account for extramovement
                                    //large scaler = less chance of overlap but farther apart units must stay
-        staticCenter.x += velocity.x * saftyScaler;
-        staticCenter.y += velocity.y * saftyScaler;
-        if (host != null) {
-            host.location.x += velocity.x * saftyScaler;
-            host.location.y += velocity.y * saftyScaler;
+        Hitbox simulatedHitbox;
+        if(this.type == Type.box) {
+            Coordinate[] simulatedVerts = new Coordinate[4];
+            for (int i = 0; i < 4; i++) {
+                simulatedVerts[i] = vertices[i].copy();
+                simulatedVerts[i].add(velocity);
+                simulatedVerts[i].add(getCenter());
+                if(Main.debugMode) System.out.println("original verts are " + vertices[i]);
+                if(Main.debugMode) System.out.println("new verts are " + simulatedVerts[i]);
+            }            
+            simulatedHitbox = new Hitbox(simulatedVerts);
+        } else {
+            DCoordinate simulatedCenter = getCenter().copy();
+            simulatedCenter.add(velocity);
+            simulatedHitbox = new Hitbox(simulatedCenter, radius);
         }
-        updateFarthestAndShortest();
-        boolean result = intersects(other);
-            if (host != null) {
-            host.location.x -= velocity.x * saftyScaler;
-            host.location.y -= velocity.y * saftyScaler;
-        }
-        staticCenter.x -= velocity.x * saftyScaler;
-        staticCenter.y -= velocity.y * saftyScaler;
-        updateFarthestAndShortest();
+        boolean result = simulatedHitbox.intersects(other);
         return result;
     }
     

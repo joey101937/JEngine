@@ -168,8 +168,8 @@ public class TankUnit extends RTSUnit{
                         continue;
                     }
                     if(((TankUnit)go).team == team) continue;
-                    if (location.distanceFrom(go.location) < closestDistance) {
-                        closestDistance = location.distanceFrom(go.location);
+                    if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
+                        closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
                         closest = go;
                     }
                 }
@@ -179,7 +179,7 @@ public class TankUnit extends RTSUnit{
         //tank turret tick
         @Override
         public void tick() {
-            System.out.println(this + " " + this.ID);
+            // System.out.println(this + " " + this.ID);
             super.tick();
             RTSUnit enemy = nearestInRange();
             if (enemy == null) {

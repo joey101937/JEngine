@@ -26,6 +26,7 @@ public class Handler {
 
     // private volatile LinkedList<GameObject2> storage = new LinkedList<>();
     private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, GameObject2> storageAsOfLastTick = new ConcurrentHashMap<>();
     public Game hostGame;
     
     // private Map<Integer, GameObject2> toRenger = storage;
@@ -39,7 +40,26 @@ public class Handler {
      * @return number of gameobjects this handler oversees
      */
     public int size(){
+        return storageAsOfLastTick.size();
+    }
+    
+    /**
+     * number of gameobjects this handler is resoincible for
+     * @return number of gameobjects this handler oversees
+     */
+    public int sizeRealTime(){
         return storage.size();
+    }
+    
+    private void populateStorageAsOfLastTick() {
+        storageAsOfLastTick.clear();
+        for(GameObject2 go : storage.values()) {
+            go.setLocationAsOfLastTIck(go.location);
+            storageAsOfLastTick.put(go.ID, go);
+            for(SubObject sub : go.getAllSubObjects()) {
+                sub.setLocationAsOfLastTIck(sub.location);
+            }
+        }
     }
     
     public synchronized void addObject(GameObject2 o) {
@@ -66,12 +86,30 @@ public class Handler {
      * should be used primarily when accessing items in game to minimize access to
      * the raw storage list and in turn reduce the liklihood of concurrent
      * modification exceptions
+     * 
+     *  USE THIS TO MAKE GAME DETERMINSTIC
      */
     public ArrayList<GameObject2> getAllObjects(){
+        ArrayList<GameObject2> output = new ArrayList<>();
+        for(GameObject2 go : storageAsOfLastTick.values()) output.add(go);
+        return output;
+    }
+    
+     /**
+     * @return a list of all objects in the game, note changing this list does
+     * NOT change the game state, however modifying items within it may. This 
+     * should be used primarily when accessing items in game to minimize access to
+     * the raw storage list and in turn reduce the liklihood of concurrent
+     * modification exceptions
+     * 
+     * MAY CAUSE RANDOMNESS IN MULTITHREADED GAMES
+     */
+    public ArrayList<GameObject2> getAllObjectsRealTime(){
         ArrayList<GameObject2> output = new ArrayList<>();
         for(GameObject2 go : storage.values()) output.add(go);
         return output;
     }
+
     
     /**
      * renders all objects in the game, along with their subobjects
@@ -95,12 +133,31 @@ public class Handler {
      * ticks all objects in the game along with their subobjects
      */
     public void tick() {
+        populateStorageAsOfLastTick();
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
         Collection<Future<?>> tickTasks = new LinkedList<>();
         for (GameObject2 go : getAllObjects()) {
-            if(Main.tickThreadCount > 1) {
-                tickTasks.add(tickService.submit(new TickTask(go)));
+            if (Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go, true)));     
+            } else {
+                try {
+                    go.setHostGame(hostGame);
+                    go.preTick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.preTick();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        waitForAllJobs(tickTasks);
+        tickTasks.clear();
+        
+        for (GameObject2 go : getAllObjects()) {
+            if (Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go, false)));
             } else {
                 try {
                     go.setHostGame(hostGame);
@@ -113,7 +170,11 @@ public class Handler {
                 }
             }
         }
-        for (Future<?> currTask : tickTasks) {
+        waitForAllJobs(tickTasks);
+    }
+    
+    private void waitForAllJobs(Collection<Future<?>> a) {
+        for (Future<?> currTask : a) {
             try {
                 currTask.get();
             } catch (Exception e) {
@@ -143,18 +204,22 @@ public class Handler {
     
     private class TickTask implements Runnable {
         GameObject2 go;
+        boolean isPretick = false;
         
-        public TickTask (GameObject2 go2) {
+        public TickTask (GameObject2 go2, boolean isPretick) {
             go = go2;
+            this.isPretick = isPretick;
         }
 
         @Override
         public void run() {
             try {
                 go.setHostGame(hostGame);
-                go.tick();
+                if(isPretick)go.preTick();
+                else go.tick();
                 for (SubObject so : go.getAllSubObjects()) {
-                    so.tick();
+                     if(isPretick)so.preTick();
+                     else so.tick();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
