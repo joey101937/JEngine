@@ -98,7 +98,7 @@ public class EnemyShip extends GameObject2{
     }
     
     @Override
-    public void onCollide(GameObject2 other){
+    public void onCollide(GameObject2 other, boolean fromMyTick){
         if(other instanceof PlayerShip){
             ((PlayerShip)other).onHit();
             destroy();

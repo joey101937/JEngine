@@ -41,7 +41,7 @@ public class TankBullet extends Projectile {
 
     //when this runs into a creature, deal damage to it then destroy this projectile
     @Override
-    public void onCollide(GameObject2 other){
+    public void onCollide(GameObject2 other, boolean fromMyTick){
         if(other==shooter)return; //dont collde with the gameobject that launched this projectile
         if(other instanceof RTSUnit) {
             RTSUnit otherUnit = (RTSUnit) other;

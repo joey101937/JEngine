@@ -121,13 +121,6 @@ public abstract class SSActor extends GameObject2 {
         this.movementType = GameObject2.MovementType.RawVelocity;
     }
 
-    @Override
-    public void onCollide(GameObject2 other) {
-        if (other == MinotaurGame.floor) {
-            location.y-=3;
-        }
-    }
-    
     public void jump(){
         jumpTick=tickNumber;
     }

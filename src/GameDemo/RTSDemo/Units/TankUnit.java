@@ -216,7 +216,7 @@ public class TankUnit extends RTSUnit{
     }
 
     @Override
-    public void onCollide(GameObject2 other){
+    public void onCollide(GameObject2 other, boolean fromMyTick){
         
     }
 

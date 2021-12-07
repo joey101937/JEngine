@@ -191,13 +191,13 @@ public class HixboxTest {
     
     @Test
     public void longRangeCircles() {
-        Hitbox a = new Hitbox(new DCoordinate(845.7616303280344,744.2383696719656), 800);
-        Hitbox a2 = new Hitbox(new DCoordinate(845.7616303280344,744.2383696719656), 25);
-        Hitbox b = new Hitbox(new DCoordinate(1334.3785761638069,724.3785761638079), 800);
-        Hitbox b2 = new Hitbox(new DCoordinate(1334.3785761638069,724.3785761638079), 25);
+        Hitbox a = new Hitbox(new DCoordinate(1326.4077534868186,732.4077534868193), 450);
+        Hitbox a2 = new Hitbox(new DCoordinate(1326.4077534868186,732.4077534868193), 25);
+        Hitbox b = new Hitbox(new DCoordinate(853.0561880908339,752.9438119091661), 450);
+        Hitbox b2 = new Hitbox(new DCoordinate(853.0561880908339,752.9438119091661), 25);
+        System.out.println("distance between a and b " + DCoordinate.distanceBetween(a.getCenter(), b.getCenter()));
         assert a.intersects(b2);
         assert b.intersects(a2);
-
     }
     
 }

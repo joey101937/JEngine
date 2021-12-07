@@ -102,7 +102,7 @@ public class Tank extends Creature{
     }
     
     @Override
-    public void onCollide(GameObject2 other){
+    public void onCollide(GameObject2 other, boolean fromMyTick){
         System.out.println("colliding with " + other);
     }
     

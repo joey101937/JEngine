@@ -41,6 +41,8 @@ public class GameObject2 {
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
     public boolean shouldFlushGraphicOnDestroy = false;
+    private HashMap<String, Object> syncedState = new HashMap<>();
+    private HashMap<String, Object> futerSyncedState = new HashMap<>();
     
      /**
      * how the object behaves when traveling in two directions (up/down and
@@ -256,8 +258,9 @@ public class GameObject2 {
             //if solid first check collisions
             for(GameObject2 other : getHostGame().getAllObjects()){
                 if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
-                     onCollide(other);
-                     other.onCollide(this);
+                     // getHostGame().handler.registerCollision(this, other);
+                     this.onCollide(other, true);
+                     other.onCollide(this, false);
                      return; 
                 }
             }
@@ -509,8 +512,9 @@ public class GameObject2 {
                 }
                 double[] movementLine = {current.location.x, current.location.y, newLocation.x, newLocation.y};
                 if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)) {
-                    current.onCollide(other);
-                    other.onCollide(current);
+                    // getHostGame().handler.registerCollision(this, other);
+                    current.onCollide(other, true);
+                    other.onCollide(current, false);
                     if (!current.preventOverlap || !other.preventOverlap) {
                         continue;
                     }
@@ -718,8 +722,9 @@ public class GameObject2 {
     /**
      * Runs each tick this object's hitbox is touching another object's hitbox
      * @param other the object whose hitbox we are touching
+     * @param fromMyTick if this gameobject's tick initiated the collision
      */
-    public void onCollide(GameObject2 other){
+    public void onCollide(GameObject2 other, boolean fromMyTick){
     }
     
     /**
@@ -813,11 +818,33 @@ public class GameObject2 {
         return locationAsOfLastTick;
     }
 
-    protected void setLocationAsOfLastTIck(DCoordinate locationAsOfLastTIck) {
+    protected void setLocationAsOfLastTick(DCoordinate locationAsOfLastTIck) {
         this.locationAsOfLastTick = locationAsOfLastTIck;
     }
     
+    /**
+     * moves future synced state into synced state, then clears it
+     */
+    protected void updateSyncedState() {
+        syncedState.clear();
+        for(String key : futerSyncedState.keySet()) {
+            syncedState.put(key, futerSyncedState.get(key));
+        }
+        futerSyncedState.clear();
+    }
     
+    /**
+     * sets a property to be tick-synced. this will not be accesable until next tick. or pretick
+     * @param key name of property
+     * @param value value to store
+     */
+    public void setSycnedProperty(String key, Object value) {
+        futerSyncedState.put(key, value);
+    }
+    
+    public Object getSycnedProperty(String key) {
+        return syncedState.get(key);
+    }
      
 
 }

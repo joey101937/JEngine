@@ -14,6 +14,7 @@ import SampleGames.Galiga.GaligaGame;
 import SampleGames.SideScroller.MinotaurGame;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
@@ -32,6 +33,8 @@ public class Main {
     private static boolean overviewMode = false;
     public static boolean debugMode = false;
     public static int tickThreadCount = 12;
+    public static long seed = (long)(Math.random()*9999999999999L);
+    private static Random random;
     
     /**
      * @param args the command line arguments
@@ -62,6 +65,18 @@ public class Main {
                 System.exit(1);
             }
         }
+    }
+    
+    public static void setRandomSeed(long seed) {
+        Main.seed = seed;
+        Main.random = new Random(seed);
+    }
+    
+    public static Random getRandomSource() {
+        if(random == null) {
+            random = new Random(seed);
+        }
+        return random;
     }
     
     public static void setOverviewMode(boolean b) {
@@ -167,7 +182,7 @@ public class Main {
         } else {
             //here is the body of our method
             int diff = max - min;
-            int output = (int) (Math.random() * diff); //generates a random number between 0 and the difference between the numbers
+            int output = (int) (Main.getRandomSource().nextDouble() * diff); //generates a random number between 0 and the difference between the numbers
             return (min + output);                //returns that random number plus the min
         }
     }

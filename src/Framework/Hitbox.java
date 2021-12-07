@@ -535,8 +535,6 @@ public class Hitbox {
                 simulatedVerts[i] = vertices[i].copy();
                 simulatedVerts[i].add(velocity);
                 simulatedVerts[i].add(getCenter());
-                if(Main.debugMode) System.out.println("original verts are " + vertices[i]);
-                if(Main.debugMode) System.out.println("new verts are " + simulatedVerts[i]);
             }            
             simulatedHitbox = new Hitbox(simulatedVerts);
         } else {

@@ -131,8 +131,8 @@ public class SubObject extends GameObject2{
     }
     
     @Override
-    public void onCollide(GameObject2 other){
-        host.onCollide(other);
+    public void onCollide(GameObject2 other, boolean fromMyTick){
+        host.onCollide(other, fromMyTick);
     }
     
     /**

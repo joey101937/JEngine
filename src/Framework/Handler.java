@@ -9,8 +9,10 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,6 +23,7 @@ import java.util.concurrent.Future;
  * @author Joseph
  */
 public class Handler {
+    private long globalTickNumber = 0;
     
     public ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
 
@@ -54,15 +57,16 @@ public class Handler {
     private void populateStorageAsOfLastTick() {
         storageAsOfLastTick.clear();
         for(GameObject2 go : storage.values()) {
-            go.setLocationAsOfLastTIck(go.location);
+            go.setLocationAsOfLastTick(go.location);
+            go.updateSyncedState();
             storageAsOfLastTick.put(go.ID, go);
             for(SubObject sub : go.getAllSubObjects()) {
-                sub.setLocationAsOfLastTIck(sub.location);
+                sub.setLocationAsOfLastTick(sub.location);
             }
         }
     }
     
-    public synchronized void addObject(GameObject2 o) {
+    public void addObject(GameObject2 o) {
         if (!storage.containsKey(o.ID)) {
             storage.put(o.ID, o);
             if(o.getHostGame()!=null && o.getHostGame()!=this.hostGame){
@@ -109,7 +113,7 @@ public class Handler {
         for(GameObject2 go : storage.values()) output.add(go);
         return output;
     }
-
+    
     
     /**
      * renders all objects in the game, along with their subobjects
@@ -133,6 +137,7 @@ public class Handler {
      * ticks all objects in the game along with their subobjects
      */
     public void tick() {
+        globalTickNumber++;
         populateStorageAsOfLastTick();
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
@@ -154,7 +159,11 @@ public class Handler {
         }
         waitForAllJobs(tickTasks);
         tickTasks.clear();
-        
+        populateStorageAsOfLastTick();
+        System.out.println("MID TICK LOCATIONS");
+        for(GameObject2 go : getAllObjects()) {
+            System.out.println(go.ID + " - " + go.location);
+        }
         for (GameObject2 go : getAllObjects()) {
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(go, false)));
@@ -227,6 +236,29 @@ public class Handler {
         }
 
 
+    }
+    
+    private static class CollisionEvent implements Comparable<CollisionEvent>{
+        public GameObject2 a;
+        public GameObject2 b;
+        public String name;
+
+        public CollisionEvent(GameObject2 p1, GameObject2 p2){
+            if(p1.ID > p2.ID) {
+                a = p1;
+                b = p2;
+            } else {
+              a = p2;
+              b = p1;
+            }
+            name = a.ID + "-" + b.ID;
+        }        
+
+        @Override
+        public int compareTo(CollisionEvent o) {
+            return name.compareTo(o.name);
+        }
+        
     }
 
 }
