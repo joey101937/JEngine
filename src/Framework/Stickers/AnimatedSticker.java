@@ -56,7 +56,7 @@ public class AnimatedSticker extends Sticker{
     }
 
     @Override
-    public synchronized void render(Graphics2D g) {
+    public void render(Graphics2D g) {
         Graphics2D gToUse = (Graphics2D)g.create();
         try {
             if (sprites == null) {
@@ -155,7 +155,7 @@ public class AnimatedSticker extends Sticker{
     }
 
     @Override
-    public synchronized void disable() {
+    public void disable() {
         if (sprites != null) {
             for (BufferedImage bi : sprites) {
                 bi.flush();

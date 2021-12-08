@@ -64,6 +64,7 @@ public class Handler {
     }
     
     private void executeCollisions() {
+        collisionLedger.sort(null);
         for(CollisionEvent event : collisionLedger) {
             if(event.a == null || event.b == null) return;
             event.a.onCollide(event.b, true);
@@ -160,11 +161,11 @@ public class Handler {
      * ticks all objects in the game along with their subobjects
      */
     public void tick() {
+        globalTickNumber++;
         if(Main.useUnifiedTick) {
             tickUnified();
             return;
         }
-        globalTickNumber++;
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
         populateStorageAsOfLastTick();
@@ -178,7 +179,11 @@ public class Handler {
         }
         waitForAllJobs(tickTasks);
         tickTasks.clear();
-        populateStorageAsOfLastTick();
+        // populateStorageAsOfLastTick();
+        System.out.println("TICK " + globalTickNumber + " LOCATIONS");
+        for(GameObject2 go : getAllObjects()) {
+            System.out.println(go.ID + " - " + go.getLocationAsOfLastTick() + " - r" + go.getRotation());
+        }
         for (GameObject2 go : getAllObjects()) {
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(go, "tick")));
@@ -201,7 +206,6 @@ public class Handler {
     }
     
     private void tickUnified() {
-        globalTickNumber++;
         populateStorageAsOfLastTick();
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
@@ -299,6 +303,7 @@ public class Handler {
         public CollisionEvent(GameObject2 p1, GameObject2 p2){
                 a = p1;
                 b = p2;
+                name = a.ID + " " + b.ID;
         }        
 
         @Override

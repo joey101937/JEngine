@@ -200,7 +200,7 @@ public class Sequence implements Graphic{
      * sets the animation to either pause or resume
      * @param in true = pause, false = resume
      */
-    public synchronized void setPaused(boolean in){
+    public void setPaused(boolean in){
         if(in && isPaused()){
             //pause but already paused
             return;

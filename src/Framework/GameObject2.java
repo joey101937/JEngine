@@ -271,7 +271,9 @@ public class GameObject2 {
             }
         }
         rotation += degrees;
-        for(SubObject sub : subObjects){
+        while(rotation > 360){rotation-=360;}  //constrain rotation size
+        while(rotation < -360){rotation+=360;}
+        for (SubObject sub : subObjects){
             sub.onHostRotate(degrees);
         }
         if(getHitbox()!=null){
@@ -356,8 +358,6 @@ public class GameObject2 {
             }
             return;
         }
-        while(rotation > 360){rotation-=360;}  //constrain rotation size
-        while(rotation < -360){rotation+=360;}
         graphics.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
         if (getGraphic() == null) {
             //System.out.println("Warning null graphic for " + name);
@@ -417,7 +417,7 @@ public class GameObject2 {
      * by default, this sets up a rectangular hitbox and maintains it based on current sprite
      * if the hitbox is set to be circular, maintains circle radius to be equal to width/2
      */
-    public synchronized void updateHitbox() {
+    public void updateHitbox() {
         //if no hitbox, create the default box hitbox
         if (getHitbox() == null && getWidth()>0 && renderNumber>0) {
             int width = getWidth();

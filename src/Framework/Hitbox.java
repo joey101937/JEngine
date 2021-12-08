@@ -332,7 +332,7 @@ public class Hitbox {
      * @param line2 second line to eval
      * @return weather or not the two lines intersect
      */
-    private static synchronized boolean linesIntersect(double[] line1, double[] line2) {
+    private static boolean linesIntersect(double[] line1, double[] line2) {
         return Line2D.linesIntersect(line1[0], line1[1], line1[2], line1[3], line2[0], line2[1], line2[2], line2[3]);
     }
     
@@ -471,7 +471,7 @@ public class Hitbox {
      * @param other hitbox to compare to
      * @return weather or not they overlap
      */
-    public synchronized boolean intersects(Hitbox other) {
+    public boolean intersects(Hitbox other) {
         if(other==null || other==this){
             return false;
         }
@@ -548,7 +548,7 @@ public class Hitbox {
     
     
     
-    public synchronized boolean intersectsIfRotated(Hitbox other, double possibleRotation){
+    public boolean intersectsIfRotated(Hitbox other, double possibleRotation){
         rotate(possibleRotation);
         updateFarthestAndShortest();
         boolean result = intersects(other);
