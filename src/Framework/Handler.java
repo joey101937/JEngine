@@ -25,6 +25,7 @@ public class Handler {
     private long globalTickNumber = 0;
     
     public ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
+    public ExecutorService collisionService = Executors.newFixedThreadPool(4);
 
     // private volatile LinkedList<GameObject2> storage = new LinkedList<>();
     private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
@@ -55,7 +56,7 @@ public class Handler {
     }
     
     public void registerCollision(GameObject2 a, GameObject2 b) {
-        if(Main.useUnifiedTick) {
+        if(Main.tickType == TickType.unified) {
             a.onCollide(b, true);
             b.onCollide(a, false);
         } else {
@@ -65,10 +66,17 @@ public class Handler {
     
     private void executeCollisions() {
         collisionLedger.sort(null);
+        Collection<Future<?>> tasks = new LinkedList<Future<?>>();
         for(CollisionEvent event : collisionLedger) {
             if(event.a == null || event.b == null) return;
-            event.a.onCollide(event.b, true);
-            event.b.onCollide(event.a, false);
+            tasks.add(collisionService.submit(event));
+        }
+        for(Future<?> f : tasks) {
+            try {
+                f.get();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
         }
         collisionLedger.clear();
     }
@@ -162,10 +170,32 @@ public class Handler {
      */
     public void tick() {
         globalTickNumber++;
-        if(Main.useUnifiedTick) {
+        if(Main.tickType == TickType.unified) {
             tickUnified();
-            return;
+        } else if (Main.tickType == TickType.modular) {
+            tickModular();
+        } else if (Main.tickType == TickType.semiModular) {
+            tickSemiModular();
         }
+    }
+    
+    private void tickUnified() {
+        populateStorageAsOfLastTick();
+        toRender = getAllObjects();
+        toRender.sort(new renderSorter());
+        Collection<Future<?>> tickTasks = new LinkedList<>();
+        for (GameObject2 go : getAllObjects()) {
+            if (Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go, "unifiedTick")));
+            } else {
+              (new TickTask(go, "unifiedTick")).run();
+            }
+        }
+        waitForAllJobs(tickTasks);
+        tickTasks.clear();
+    }
+    
+    private void tickModular() {
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
         populateStorageAsOfLastTick();
@@ -205,20 +235,30 @@ public class Handler {
         waitForAllJobs(tickTasks);
     }
     
-    private void tickUnified() {
-        populateStorageAsOfLastTick();
+    private void tickSemiModular() {
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
+        populateStorageAsOfLastTick();
         Collection<Future<?>> tickTasks = new LinkedList<>();
         for (GameObject2 go : getAllObjects()) {
             if (Main.tickThreadCount > 1) {
-                tickTasks.add(tickService.submit(new TickTask(go, "unifiedTick")));
+                tickTasks.add(tickService.submit(new TickTask(go, "semiModularTick")));     
             } else {
-              (new TickTask(go, "unifiedTick")).run();
+                (new TickTask(go, "semiModularTick")).run();
             }
         }
         waitForAllJobs(tickTasks);
         tickTasks.clear();
+        executeCollisions();
+        populateStorageAsOfLastTick();
+        for (GameObject2 go : toRender) {
+            if (Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go, "postTick")));
+            } else {
+               (new TickTask(go, "postTick")).run();
+            }
+        }
+        waitForAllJobs(tickTasks);
     }
 
     private void waitForAllJobs(Collection<Future<?>> a) {
@@ -287,6 +327,13 @@ public class Handler {
                         so.tick();
                         so.postTick();
                     }
+                } else if (type.equals("semiModularTick")) {
+                    go.preTick();
+                    go.tick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.preTick();
+                        so.tick();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -295,7 +342,7 @@ public class Handler {
 
     }
     
-    private static class CollisionEvent implements Comparable<CollisionEvent>{
+    private static class CollisionEvent implements Comparable<CollisionEvent>, Runnable{
         public GameObject2 a;
         public GameObject2 b;
         public String name;
@@ -310,7 +357,18 @@ public class Handler {
         public int compareTo(CollisionEvent o) {
             return name.compareTo(o.name);
         }
+
+        @Override
+        public void run() {
+            a.onCollide(b, true);
+            b.onCollide(b, false);
+        }
         
     }
 
+    public static enum TickType{
+        unified, // tick threads execute preTick - tick - postTick as a single instance. onCollide is triggered immediately. most performant but has thread randomness
+        modular, // tick threads execute preTick - tick - postTick as separate events that happen separately in order. least performant but deterministic with high level of control
+        semiModular // tick threads execute preTick and tick together and postTick indidually. Captures performance of unified with determinism of modular
+    }
 }
