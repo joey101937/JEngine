@@ -399,7 +399,7 @@ public class GameObject2 {
      * by default, this sets up a rectangular hitbox and maintains it based on current sprite
      * if the hitbox is set to be circular, maintains circle radius to be equal to width/2
      */
-    public synchronized void updateHitbox() {
+    public void updateHitbox() {
         //if no hitbox, create the default box hitbox
         if (getHitbox() == null && getWidth()>0 && renderNumber>0) {
             int width = getWidth();
