@@ -165,9 +165,9 @@ public class Handler {
             return;
         }
         globalTickNumber++;
-        populateStorageAsOfLastTick();
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
+        populateStorageAsOfLastTick();
         Collection<Future<?>> tickTasks = new LinkedList<>();
         for (GameObject2 go : getAllObjects()) {
             if (Main.tickThreadCount > 1) {
@@ -210,10 +210,11 @@ public class Handler {
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(go, "unifiedTick")));
             } else {
-              (new TickTask(go, "unified")).run();
+              (new TickTask(go, "unifiedTick")).run();
             }
         }
         waitForAllJobs(tickTasks);
+        tickTasks.clear();
     }
 
     private void waitForAllJobs(Collection<Future<?>> a) {
@@ -273,7 +274,7 @@ public class Handler {
                     for (SubObject so : go.getAllSubObjects()) {
                         so.postTick();
                     }
-                } else if (type.equals("unified")) {
+                } else if (type.equals("unifiedTick")) {
                     go.preTick();
                     go.tick();
                     go.postTick();
