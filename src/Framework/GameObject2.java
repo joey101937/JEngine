@@ -38,7 +38,8 @@ public class GameObject2 {
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
     public boolean isInvisible = false; //invisible gameobjects are not rendered
-    private volatile double scale = 1; //size multiplier
+    private double scale = 1; //size multiplier
+    protected double scaleAsOfLastTick = 1;
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
     public boolean shouldFlushGraphicOnDestroy = false;
@@ -190,6 +191,7 @@ public class GameObject2 {
         try{
         return graphic.getCurrentImage().getWidth();
         }catch(NullPointerException npe){
+            System.out.println("Returnning 0 for width of GameObject2 with no graphic " + this);
             return 0;
         }
     }
@@ -327,6 +329,7 @@ public class GameObject2 {
     /**
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
+     * @param ignoreRestrictions if this is true, it will render even if it usually wouldnt due to being off screen
      */
     public void render(Graphics2D g, boolean ignoreRestrictions){
         Graphics2D graphics = (Graphics2D)g.create();
@@ -688,18 +691,18 @@ public class GameObject2 {
     public final void destroy() {
         onDestroy();
         for(SubObject so : getAllSubObjects()) {
+            so.onHostDestroy(this);
             so.onDestroy();
         }
         if (!(this instanceof SubObject)) {
             hostGame.removeObject(this);
-            
         }else{
 //            SubObject me = (SubObject)this;
 //            me.setHost(null);
         }
         // this.detatchAllStickers();
         // if(hitbox!=null)hitbox.host=null;
-        // if(graphic!=null && this.shouldFlushGraphicOnDestroy)graphic.destroy();
+        if(graphic!=null && this.shouldFlushGraphicOnDestroy)graphic.destroy();
         // graphic = null;
     }
 
@@ -811,7 +814,7 @@ public class GameObject2 {
      * @return current size multiplier of object
      */
     public double getScale(){
-        return scale;
+        return scaleAsOfLastTick;
     }
 
     protected void setHostGame(Game g){
@@ -836,6 +839,14 @@ public class GameObject2 {
     
     protected void setRotationAsOfLastTick(double r) {
         this.rotationAsOfLastTick = r;
+    }
+    
+    public double getScaleRealTime() {
+        return scale;
+    }
+    
+    protected void setScaleAsOfLastTick(double d) {
+        scaleAsOfLastTick = d;
     }
     
     /**

@@ -150,4 +150,12 @@ public class SubObject extends GameObject2{
         adjustedOffset.adjustForRotation(host.getRotation());
     }
     
+    /**
+     * runs when a host or a host of a host dies
+     * @param host the gameobject2 that was destroyed
+     */
+    public void onHostDestroy(GameObject2 host) {
+        
+    }
+    
 }

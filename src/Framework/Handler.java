@@ -89,6 +89,7 @@ public class Handler {
         for(GameObject2 go : storage.values()) {
             go.setLocationAsOfLastTick(go.location);
             go.setRotationAsOfLastTick(go.getRotationRealTime());
+            go.setScaleAsOfLastTick(go.getScaleRealTime());
             go.updateSyncedState();
             storageAsOfLastTick.put(go.ID, go);
             for(SubObject sub : go.getAllSubObjects()) {
