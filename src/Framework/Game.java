@@ -719,11 +719,20 @@ public class Game extends Canvas implements Runnable {
     }
     
     /**
-     * @return all game objects in this world
+     * @return all game objects in this world as of start of current tick
      */
     public ArrayList<GameObject2> getAllObjects(){
         return handler.getAllObjects();
     }
+    
+        /**
+     * @return all game objects in this world in real time- includes objects
+     * that were added during the course of this tick
+     */
+    public ArrayList<GameObject2> getAllObjectsRealTime(){
+        return handler.getAllObjectsRealTime();
+    }
+    
     /**
      * removes object from the game
      * @param o object to remove

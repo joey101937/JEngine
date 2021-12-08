@@ -92,7 +92,7 @@ public class GameDriver extends IndependentEffect{
    
    private int numEnemiesOut(){
        int output = 0;
-       for(GameObject2 g : GaligaGame.mainGame.getAllObjects()){
+       for(GameObject2 g : GaligaGame.mainGame.getAllObjectsRealTime()){
            if(g instanceof EnemyShip){
                output++;
            }

@@ -34,6 +34,7 @@ public class GameObject2 {
     protected double baseSpeed = 2; //total distance the object can move per tick
     private Graphic graphic; //visual representation of the object
     private double rotation = 0; //rotatoin in degrees (not radians)
+    private double rotationAsOfLastTick = 0; // rotation in degrees as of last tick
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
     public boolean isInvisible = false; //invisible gameobjects are not rendered
@@ -236,6 +237,10 @@ public class GameObject2 {
      * @return Rotation of this object in degrees.
      */
     public double getRotation(){
+        return rotationAsOfLastTick;
+    }
+    
+    public double getRotationRealTime() {
         return rotation;
     }
     
@@ -350,7 +355,7 @@ public class GameObject2 {
                 }
             }
             return;
-        }    
+        }
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
         graphics.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
@@ -511,7 +516,9 @@ public class GameObject2 {
                     continue;
                 }
                 double[] movementLine = {current.location.x, current.location.y, newLocation.x, newLocation.y};
-                if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)) {
+                boolean needsMovementLine = proposedMovement.x + proposedMovement.y > getWidth();
+                if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)
+                        || (needsMovementLine && other.getHitbox().intersectsWithLine(movementLine))) {
                     // getHostGame().handler.registerCollision(this, other);
                     current.onCollide(other, true);
                     other.onCollide(current, false);
@@ -822,11 +829,14 @@ public class GameObject2 {
         this.locationAsOfLastTick = locationAsOfLastTIck;
     }
     
+    protected void setRotationAsOfLastTick(double r) {
+        this.rotationAsOfLastTick = r;
+    }
+    
     /**
      * moves future synced state into synced state, then clears it
      */
     protected void updateSyncedState() {
-        syncedState.clear();
         for(String key : futerSyncedState.keySet()) {
             syncedState.put(key, futerSyncedState.get(key));
         }

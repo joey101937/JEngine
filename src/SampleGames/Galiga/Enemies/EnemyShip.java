@@ -91,8 +91,8 @@ public class EnemyShip extends GameObject2{
     @Override
     public void tick(){
         super.tick();
-        if(((int)(Math.random()*200 * (1/difficultyMultiplier))) == 1){
-            //1 out of 200 chance every tick
+        if(((int)(Math.random()*400 * (1/difficultyMultiplier))) == 1){
+            //1 out of 400 chance every tick
             shoot();
         }
     }

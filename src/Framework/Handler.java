@@ -5,14 +5,13 @@
  */
 package Framework;
 
+import Framework.UtilityObjects.Projectile;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,10 +57,12 @@ public class Handler {
         storageAsOfLastTick.clear();
         for(GameObject2 go : storage.values()) {
             go.setLocationAsOfLastTick(go.location);
+            go.setRotationAsOfLastTick(go.getRotationRealTime());
             go.updateSyncedState();
             storageAsOfLastTick.put(go.ID, go);
             for(SubObject sub : go.getAllSubObjects()) {
                 sub.setLocationAsOfLastTick(sub.location);
+                sub.setRotationAsOfLastTick(sub.getRotationRealTime());
             }
         }
     }
@@ -160,10 +161,10 @@ public class Handler {
         waitForAllJobs(tickTasks);
         tickTasks.clear();
         populateStorageAsOfLastTick();
-        System.out.println("MID TICK LOCATIONS");
-        for(GameObject2 go : getAllObjects()) {
-            System.out.println(go.ID + " - " + go.location);
-        }
+//        System.out.println("MID TICK LOCATIONS");
+//        for(GameObject2 go : getAllObjects()) {
+//            System.out.println(go.ID + " - " + go.location);
+//        }
         for (GameObject2 go : getAllObjects()) {
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(go, false)));
@@ -179,9 +180,13 @@ public class Handler {
                 }
             }
         }
+        System.out.println("POST TICK TARGETS");
+        for (GameObject2 go : getAllObjects()) {
+            if(go instanceof Projectile) System.out.println(go.getName());
+        }
         waitForAllJobs(tickTasks);
     }
-    
+
     private void waitForAllJobs(Collection<Future<?>> a) {
         for (Future<?> currTask : a) {
             try {
