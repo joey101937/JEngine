@@ -55,7 +55,12 @@ public class Handler {
     }
     
     public void registerCollision(GameObject2 a, GameObject2 b) {
-        collisionLedger.add(new CollisionEvent(a, b));
+        if(Main.useUnifiedTick) {
+            a.onCollide(b, true);
+            b.onCollide(a, false);
+        } else {
+          collisionLedger.add(new CollisionEvent(a, b));
+        }
     }
     
     private void executeCollisions() {
@@ -155,6 +160,10 @@ public class Handler {
      * ticks all objects in the game along with their subobjects
      */
     public void tick() {
+        if(Main.useUnifiedTick) {
+            tickUnified();
+            return;
+        }
         globalTickNumber++;
         populateStorageAsOfLastTick();
         toRender = getAllObjects();
@@ -164,15 +173,7 @@ public class Handler {
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(go, "preTick")));     
             } else {
-                try {
-                    go.setHostGame(hostGame);
-                    go.preTick();
-                    for (SubObject so : go.getAllSubObjects()) {
-                        so.preTick();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                (new TickTask(go, "preTick")).run();
             }
         }
         waitForAllJobs(tickTasks);
@@ -182,15 +183,7 @@ public class Handler {
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(go, "tick")));
             } else {
-                try {
-                    go.setHostGame(hostGame);
-                    go.tick();
-                    for (SubObject so : go.getAllSubObjects()) {
-                        so.tick();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+              (new TickTask(go, "tick")).run();
             }
         }
         waitForAllJobs(tickTasks);
@@ -201,15 +194,23 @@ public class Handler {
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(go, "postTick")));
             } else {
-                try {
-                    go.setHostGame(hostGame);
-                    go.postTick();
-                    for (SubObject so : go.getAllSubObjects()) {
-                        so.postTick();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+               (new TickTask(go, "postTick")).run();
+            }
+        }
+        waitForAllJobs(tickTasks);
+    }
+    
+    private void tickUnified() {
+        globalTickNumber++;
+        populateStorageAsOfLastTick();
+        toRender = getAllObjects();
+        toRender.sort(new renderSorter());
+        Collection<Future<?>> tickTasks = new LinkedList<>();
+        for (GameObject2 go : getAllObjects()) {
+            if (Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go, "unifiedTick")));
+            } else {
+              (new TickTask(go, "unified")).run();
             }
         }
         waitForAllJobs(tickTasks);
@@ -270,6 +271,15 @@ public class Handler {
                 } else if (type.equals("postTick")) {
                     go.postTick();
                     for (SubObject so : go.getAllSubObjects()) {
+                        so.postTick();
+                    }
+                } else if (type.equals("unified")) {
+                    go.preTick();
+                    go.tick();
+                    go.postTick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.preTick();
+                        so.tick();
                         so.postTick();
                     }
                 }
