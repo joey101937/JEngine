@@ -271,8 +271,6 @@ public class GameObject2 {
             }
         }
         rotation += degrees;
-        while(rotation > 360){rotation-=360;}  //constrain rotation size
-        while(rotation < -360){rotation+=360;}
         for (SubObject sub : subObjects){
             sub.onHostRotate(degrees);
         }
@@ -455,6 +453,8 @@ public class GameObject2 {
      * so every tick all preticks fire, then all ticks fire.
      */
     public void preTick() {
+        while(rotation > 360){rotation-=360;}  //constrain rotation size
+        while(rotation < -360){rotation+=360;}
         updateLocation();
         tickNumber++;
     }
