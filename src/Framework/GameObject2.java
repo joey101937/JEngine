@@ -263,9 +263,9 @@ public class GameObject2 {
             //if solid first check collisions
             for(GameObject2 other : getHostGame().getAllObjects()){
                 if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
-                     // getHostGame().handler.registerCollision(this, other);
-                     this.onCollide(other, true);
-                     other.onCollide(this, false);
+                     getHostGame().handler.registerCollision(this, other);
+//                     this.onCollide(other, true);
+//                     other.onCollide(this, false);
                      return; 
                 }
             }
@@ -466,6 +466,11 @@ public class GameObject2 {
      */
     public void tick(){
     }
+     /**
+     * this method runs every "tick" AFTER all objects have ticked
+     */
+    public void postTick(){
+    }
     
     private boolean canCollideWith(GameObject2 other) {
         return isSolid && other.isSolid
@@ -519,9 +524,9 @@ public class GameObject2 {
                 boolean needsMovementLine = proposedMovement.x + proposedMovement.y > getWidth();
                 if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)
                         || (needsMovementLine && other.getHitbox().intersectsWithLine(movementLine))) {
-                    // getHostGame().handler.registerCollision(this, other);
-                    current.onCollide(other, true);
-                    other.onCollide(current, false);
+                    getHostGame().handler.registerCollision(this, other);
+//                    current.onCollide(other, true);
+//                    other.onCollide(current, false);
                     if (!current.preventOverlap || !other.preventOverlap) {
                         continue;
                     }

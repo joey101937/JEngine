@@ -5,7 +5,6 @@
  */
 package Framework;
 
-import Framework.UtilityObjects.Projectile;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +12,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -29,6 +29,7 @@ public class Handler {
     // private volatile LinkedList<GameObject2> storage = new LinkedList<>();
     private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, GameObject2> storageAsOfLastTick = new ConcurrentHashMap<>();
+    private CopyOnWriteArrayList<CollisionEvent> collisionLedger = new CopyOnWriteArrayList<>();
     public Game hostGame;
     
     // private Map<Integer, GameObject2> toRenger = storage;
@@ -53,6 +54,22 @@ public class Handler {
         return storage.size();
     }
     
+    public void registerCollision(GameObject2 a, GameObject2 b) {
+        collisionLedger.add(new CollisionEvent(a, b));
+    }
+    
+    private void executeCollisions() {
+        for(CollisionEvent event : collisionLedger) {
+            if(event.a == null || event.b == null) return;
+            event.a.onCollide(event.b, true);
+            event.b.onCollide(event.a, false);
+        }
+        collisionLedger.clear();
+    }
+    
+    /**
+     * updates sycned values for determinism
+     */
     private void populateStorageAsOfLastTick() {
         storageAsOfLastTick.clear();
         for(GameObject2 go : storage.values()) {
@@ -145,7 +162,7 @@ public class Handler {
         Collection<Future<?>> tickTasks = new LinkedList<>();
         for (GameObject2 go : getAllObjects()) {
             if (Main.tickThreadCount > 1) {
-                tickTasks.add(tickService.submit(new TickTask(go, true)));     
+                tickTasks.add(tickService.submit(new TickTask(go, "preTick")));     
             } else {
                 try {
                     go.setHostGame(hostGame);
@@ -161,13 +178,9 @@ public class Handler {
         waitForAllJobs(tickTasks);
         tickTasks.clear();
         populateStorageAsOfLastTick();
-//        System.out.println("MID TICK LOCATIONS");
-//        for(GameObject2 go : getAllObjects()) {
-//            System.out.println(go.ID + " - " + go.location);
-//        }
         for (GameObject2 go : getAllObjects()) {
             if (Main.tickThreadCount > 1) {
-                tickTasks.add(tickService.submit(new TickTask(go, false)));
+                tickTasks.add(tickService.submit(new TickTask(go, "tick")));
             } else {
                 try {
                     go.setHostGame(hostGame);
@@ -180,9 +193,24 @@ public class Handler {
                 }
             }
         }
-        System.out.println("POST TICK TARGETS");
+        waitForAllJobs(tickTasks);
+        executeCollisions();
+        tickTasks.clear();
+        populateStorageAsOfLastTick();
         for (GameObject2 go : getAllObjects()) {
-            if(go instanceof Projectile) System.out.println(go.getName());
+            if (Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go, "postTick")));
+            } else {
+                try {
+                    go.setHostGame(hostGame);
+                    go.postTick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.postTick();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
         waitForAllJobs(tickTasks);
     }
@@ -218,28 +246,37 @@ public class Handler {
     
     private class TickTask implements Runnable {
         GameObject2 go;
-        boolean isPretick = false;
+        String type = "tick";
         
-        public TickTask (GameObject2 go2, boolean isPretick) {
+        public TickTask (GameObject2 go2, String type) {
             go = go2;
-            this.isPretick = isPretick;
+            this.type = type;
         }
 
         @Override
         public void run() {
             try {
                 go.setHostGame(hostGame);
-                if(isPretick)go.preTick();
-                else go.tick();
-                for (SubObject so : go.getAllSubObjects()) {
-                     if(isPretick)so.preTick();
-                     else so.tick();
+                if (type.equals("preTick")) {
+                    go.preTick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.preTick();
+                    }
+                } else if (type.equals("tick")) {
+                    go.tick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.tick();
+                    }
+                } else if (type.equals("postTick")) {
+                    go.postTick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.postTick();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
 
     }
     
@@ -249,14 +286,8 @@ public class Handler {
         public String name;
 
         public CollisionEvent(GameObject2 p1, GameObject2 p2){
-            if(p1.ID > p2.ID) {
                 a = p1;
                 b = p2;
-            } else {
-              a = p2;
-              b = p1;
-            }
-            name = a.ID + "-" + b.ID;
         }        
 
         @Override
