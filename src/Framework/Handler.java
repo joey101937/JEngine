@@ -180,11 +180,11 @@ public class Handler {
         waitForAllJobs(tickTasks);
         tickTasks.clear();
         // populateStorageAsOfLastTick();
-        System.out.println("TICK " + globalTickNumber + " LOCATIONS");
-        for(GameObject2 go : getAllObjects()) {
-            System.out.println(go.ID + " - " + go.getLocationAsOfLastTick() + " - r" + go.getRotation());
-        }
-        for (GameObject2 go : getAllObjects()) {
+//        System.out.println("TICK " + globalTickNumber + " LOCATIONS");
+//        for(GameObject2 go : toRender) {
+//            System.out.println(go.ID + " - " + go.getLocationAsOfLastTick() + " - r" + go.getRotation());
+//        }
+        for (GameObject2 go : toRender) {
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(go, "tick")));
             } else {
@@ -195,7 +195,7 @@ public class Handler {
         executeCollisions();
         tickTasks.clear();
         populateStorageAsOfLastTick();
-        for (GameObject2 go : getAllObjects()) {
+        for (GameObject2 go : toRender) {
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(go, "postTick")));
             } else {
