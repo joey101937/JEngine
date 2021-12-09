@@ -11,7 +11,6 @@ import Framework.Game;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Main;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 /**
@@ -19,7 +18,7 @@ import java.awt.image.BufferedImage;
  * @author Joseph
  */
 public class AnimatedSticker extends Sticker{
-    public volatile BufferedImage[] sprites;
+    public BufferedImage[] sprites;
     public volatile int frameCount = 0;
     public volatile int currentFrame = 0;
     public volatile int frameDuration = 40;

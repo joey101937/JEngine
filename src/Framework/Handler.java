@@ -26,14 +26,13 @@ public class Handler {
     
     public ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
     public ExecutorService collisionService = Executors.newFixedThreadPool(4);
-
-    // private volatile LinkedList<GameObject2> storage = new LinkedList<>();
+    public ExecutorService syncService = Executors.newFixedThreadPool(4);
+    
     private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, GameObject2> storageAsOfLastTick = new ConcurrentHashMap<>();
     private CopyOnWriteArrayList<CollisionEvent> collisionLedger = new CopyOnWriteArrayList<>();
     public Game hostGame;
     
-    // private Map<Integer, GameObject2> toRenger = storage;
     private List<GameObject2> toRender = new LinkedList<GameObject2>();
     
     public Handler(Game g){
@@ -86,15 +85,15 @@ public class Handler {
      */
     private void populateStorageAsOfLastTick() {
         storageAsOfLastTick.clear();
+        LinkedList<Future<?>> tasks = new LinkedList<>();
         for(GameObject2 go : storage.values()) {
-            go.setLocationAsOfLastTick(go.location);
-            go.setRotationAsOfLastTick(go.getRotationRealTime());
-            go.setScaleAsOfLastTick(go.getScaleRealTime());
-            go.updateSyncedState();
-            storageAsOfLastTick.put(go.ID, go);
-            for(SubObject sub : go.getAllSubObjects()) {
-                sub.setLocationAsOfLastTick(sub.location);
-                sub.setRotationAsOfLastTick(sub.getRotationRealTime());
+              tasks.add(syncService.submit(new SyncTask(go)));
+        }
+        for(Future<?> f : tasks) {
+            try {
+                f.get();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }
@@ -338,6 +337,30 @@ public class Handler {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+
+    }
+    
+    private class SyncTask implements Runnable {
+        public GameObject2 go;
+        
+        SyncTask (GameObject2 g) {
+            go = g;
+        }
+
+        @Override
+        public void run() {
+            go.setLocationAsOfLastTick(go.location);
+            go.setRotationAsOfLastTick(go.getRotationRealTime());
+            go.setScaleAsOfLastTick(go.getScale());
+            go.setWidthAsOfLastTick(go.getWidth());
+            go.setHeightAsOfLastTick(go.getHeight());
+            go.updateSyncedState();
+            storageAsOfLastTick.put(go.ID, go);
+            for (SubObject sub : go.getAllSubObjects()) {
+                sub.setLocationAsOfLastTick(sub.location);
+                sub.setRotationAsOfLastTick(sub.getRotationRealTime());
             }
         }
 

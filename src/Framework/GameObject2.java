@@ -45,6 +45,7 @@ public class GameObject2 {
     public boolean shouldFlushGraphicOnDestroy = false;
     private HashMap<String, Object> syncedState = new HashMap<>();
     private HashMap<String, Object> futerSyncedState = new HashMap<>();
+    private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
     
      /**
      * how the object behaves when traveling in two directions (up/down and
@@ -334,8 +335,8 @@ public class GameObject2 {
     public void render(Graphics2D g, boolean ignoreRestrictions){
         Graphics2D graphics = (Graphics2D)g.create();
         renderNumber++;
-        if (getGraphic() != null && getGraphic().getScale() != scale) {
-            getGraphic().scaleTo(scale);
+        if (getGraphic() != null && getGraphic().getScale()!= getScale()) {
+            getGraphic().scaleTo(getScale());
         }
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = graphics.getTransform();
@@ -420,7 +421,7 @@ public class GameObject2 {
      */
     public void updateHitbox() {
         //if no hitbox, create the default box hitbox
-        if (getHitbox() == null && getWidth()>0 && renderNumber>0) {
+        if (getHitbox() == null && getWidthAsOfLastTick()>0 && renderNumber>0) {
             int width = getWidth();
             int height = getHeight();
             Coordinate[] verts = new Coordinate[4];
@@ -445,7 +446,7 @@ public class GameObject2 {
             getHitbox().setVertices(verts);
         }else if(getHitbox() != null && getHitbox().type == Hitbox.Type.circle){
             //maintain default circle hitbox
-            getHitbox().radius = getWidth()/2;
+            getHitbox().radius = getWidthAsOfLastTick()/2;
         }
         
     }
@@ -473,6 +474,7 @@ public class GameObject2 {
      * this method runs every "tick" AFTER all objects have ticked
      */
     public void postTick(){
+        updateHitbox();
     }
     
     private boolean canCollideWith(GameObject2 other) {
@@ -631,7 +633,6 @@ public class GameObject2 {
         if(hostGame.pathingLayer==null || pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
              location = newLocation;
         }
-        updateHitbox();
         constrainToWorld();
     }
 
@@ -814,7 +815,7 @@ public class GameObject2 {
      * @return current size multiplier of object
      */
     public double getScale(){
-        return scaleAsOfLastTick;
+        return scale;
     }
 
     protected void setHostGame(Game g){
@@ -839,10 +840,6 @@ public class GameObject2 {
     
     protected void setRotationAsOfLastTick(double r) {
         this.rotationAsOfLastTick = r;
-    }
-    
-    public double getScaleRealTime() {
-        return scale;
     }
     
     protected void setScaleAsOfLastTick(double d) {
@@ -871,6 +868,23 @@ public class GameObject2 {
     public Object getSycnedProperty(String key) {
         return syncedState.get(key);
     }
+
+    public int getWidthAsOfLastTick() {
+        return widthAsOfLastTick;
+    }
+
+    protected void setWidthAsOfLastTick(int widthAsOfLastTick) {
+        this.widthAsOfLastTick = widthAsOfLastTick;
+    }
+
+    public int getHeightAsOfLastTick() {
+        return heightAsOfLastTick;
+    }
+
+    protected void setHeightAsOfLastTick(int heightAsOfLastTick) {
+        this.heightAsOfLastTick = heightAsOfLastTick;
+    }
      
+    
 
 }
