@@ -70,13 +70,7 @@ public class Handler {
             if(event.a == null || event.b == null) return;
             tasks.add(collisionService.submit(event));
         }
-        for(Future<?> f : tasks) {
-            try {
-                f.get();
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
+        waitForAllJobs(tasks);
         collisionLedger.clear();
     }
     
@@ -201,11 +195,7 @@ public class Handler {
         populateStorageAsOfLastTick();
         Collection<Future<?>> tickTasks = new LinkedList<>();
         for (GameObject2 go : getAllObjects()) {
-            if (Main.tickThreadCount > 1) {
-                tickTasks.add(tickService.submit(new TickTask(go, "preTick")));     
-            } else {
-                (new TickTask(go, "preTick")).run();
-            }
+            (new TickTask(go, "preTick")).run();
         }
         waitForAllJobs(tickTasks);
         tickTasks.clear();
