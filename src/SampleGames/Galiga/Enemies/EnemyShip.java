@@ -9,6 +9,7 @@ import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
+import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
@@ -69,7 +70,7 @@ public class EnemyShip extends GameObject2{
 
     @Override
     public void onDestroy(){
-        new OnceThroughSticker(GaligaGame.mainGame,SpriteManager.explosionSequence,getPixelLocation());
+        new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence) ,getPixelLocation());
         SoundEffect explosionEffect = GaligaGame.deathSound.createCopy();
         explosionEffect.setVolume(.7f);
         explosionEffect.start();

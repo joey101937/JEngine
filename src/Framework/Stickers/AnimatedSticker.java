@@ -8,8 +8,7 @@ package Framework.Stickers;
 
 import Framework.Coordinate;
 import Framework.Game;
-import Framework.GraphicalAssets.Graphic;
-import Framework.Main;
+import Framework.GraphicalAssets.Sequence;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
@@ -18,95 +17,53 @@ import java.awt.image.BufferedImage;
  * @author Joseph
  */
 public class AnimatedSticker extends Sticker{
-    public BufferedImage[] sprites;
-    public volatile int frameCount = 0;
-    public volatile int currentFrame = 0;
-    public volatile int frameDuration = 40;
+    public Sequence sequence;
     
     
     /**
      * @param g Game to spawn in
-     * @param i array of Bufferedimages to be played for animation
+     * @param s Sequence to be played for animation
      * @param c location to display
      * @param duration how long to display
      */
-    public AnimatedSticker(Game g, BufferedImage[] i, Coordinate c, int duration) {
-          super(g, null, c, duration);
-          BufferedImage[] toUse = new BufferedImage[i.length];
-          for(int index = 0; index < i.length; index++){
-              toUse[index] = i[index];
-          }
-          i=toUse;
-        if(i==null){
+    public AnimatedSticker(Game g, Sequence s, Coordinate c, int duration) {
+        super(g, null, c, duration);
+        if(s==null){
             System.out.println("Sticker attempted to be made with null image");
             this.disable();
             return;
         }
-        sprites = i;
-        frameCount = i.length;
-        new AnimationHelper(this);
+        sequence = s.copy();
+        sequence.frameDelay = 40;
     }
     
-    /**
-     * sets current frame back to 0, restarting animation
-     */
-    public void resetCurrentFrame(){
-        currentFrame = 0;
-    }
 
     @Override
     public void render(Graphics2D g) {
+        if(System.currentTimeMillis() > creationTime + timeToRender) {
+            disable();
+            return;
+        }
         Graphics2D gToUse = (Graphics2D)g.create();
         try {
-            if (sprites == null) {
+            if (sequence == null) {
                 return;
             }
-            try {
-                image = sprites[currentFrame];
-            } catch (ArrayIndexOutOfBoundsException e) {
-                //sometimes thread scheduler will increase frame beyond maximum
-                System.out.println("Animated sticker FrameIndexOutOfBounds, likely its fine");
-                resetCurrentFrame();
-                image = sprites[currentFrame];
-            }
-            centerCoordinate(image);
+            image = sequence.getCurrentImage();
             gToUse.rotate(Math.toRadians(rotation), spawnLocation.x, spawnLocation.y);
             if (spawnLocation.x < 0 || spawnLocation.y < 0) {
                 disable();     //if the coordinates are bad, dont render
             }
             if (!disabled) {
                 if (image != null) {
-                    gToUse.drawImage(image, renderLocation.x, renderLocation.y, null);
+                   BufferedImage toRender = sequence.getCurrentFrame();
+                   gToUse.drawImage(toRender, spawnLocation.x-toRender.getWidth()/2 , spawnLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-    public class AnimationHelper implements Runnable {
-
-        public AnimatedSticker host;
-
-        public AnimationHelper(AnimatedSticker as){
-            host = as;
-            Thread t = new Thread(this);
-            t.setName("Sticker animator " + numSticker);
-            t.start();
-        }
-
-        @Override
-        public void run() {
-           while(!host.disabled){
-               Main.wait(host.frameDuration);
-               currentFrame++;
-               if(currentFrame>=frameCount){
-                  host.resetCurrentFrame();
-               }
-           }
-        }
-    }
-    
     
     /**
      * scales all frames in this sequence by a given amount
@@ -114,10 +71,8 @@ public class AnimatedSticker extends Sticker{
      */
     @Override
     public void scale(double d) {
-        for(int i = 0; i < sprites.length; i++){
-            sprites[i] = Graphic.scaleImage(sprites[i],d);
-        }
         scale *=d;
+        sequence.scale(d);
     }
     
     /**
@@ -126,10 +81,8 @@ public class AnimatedSticker extends Sticker{
      */
     @Override
     public void scaleTo(double d) {
-        for(int i = 0; i < sprites.length; i++){
-            sprites[i] = Graphic.scaleImage(sprites[i],d/scale);
-        }
         scale = d;
+        sequence.scaleTo(d);
     }
     /**
      * returns current scaling of this sequence
@@ -140,28 +93,10 @@ public class AnimatedSticker extends Sticker{
         return scale;
     }
     
-    
-        /**
-     * reverses the animation sequence. 
-     * first frame becomes last frame and vice versa
-     */
-    public void reverse(){
-        BufferedImage[] newFrames = new BufferedImage[sprites.length];
-        for(int i =0 ; i<sprites.length;i++){
-            newFrames[sprites.length - (i + 1)] = sprites[i];
-        }
-        sprites = newFrames;
-    }
 
     @Override
     public void disable() {
-        if (sprites != null) {
-            for (BufferedImage bi : sprites) {
-                bi.flush();
-                bi = null;
-            }
-            sprites = null;
-        }
+        sequence = null;
         super.disable();
     }
 

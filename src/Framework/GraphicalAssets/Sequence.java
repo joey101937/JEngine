@@ -240,4 +240,9 @@ public class Sequence implements Graphic{
     }
     
     
+    public int getFrameCount() {
+        return frames.length;
+    }
+    
+    
 }

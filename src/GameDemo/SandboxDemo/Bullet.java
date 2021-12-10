@@ -7,6 +7,7 @@ package GameDemo.SandboxDemo;
 
 import Framework.DCoordinate;
 import Framework.GameObject2;
+import Framework.GraphicalAssets.Sequence;
 import Framework.Hitbox;
 import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sprite;
@@ -43,7 +44,7 @@ public class Bullet extends Projectile{
     //when this is destroyed, cause explosion
     @Override
     public void onDestroy(){
-        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence,this.getPixelLocation());
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), this.getPixelLocation());
         s.scaleTo(getScale());
     }
     

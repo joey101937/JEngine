@@ -8,6 +8,7 @@ package GameDemo.SandboxDemo;
 import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
+import Framework.GraphicalAssets.Sequence;
 import Framework.InputHandler;
 import Framework.UtilityObjects.Projectile;
 import Framework.SpriteManager;
@@ -72,7 +73,7 @@ public class DemoInputHandler extends InputHandler{
                 int i = (int)Math.random()*hostGame.handler.getAllObjects().size();
                 GameObject2 victim = hostGame.handler.getAllObjects().get(i);
                 hostGame.handler.removeObject(victim);
-                new OnceThroughSticker(hostGame, SpriteManager.explosionSequence,victim.getPixelLocation(),999);
+                new OnceThroughSticker(hostGame, new Sequence(SpriteManager.explosionSequence), victim.getPixelLocation(),999);
                 System.out.println(hostGame.handler.size() + " -> " + prev);
                 SampleBird bird = new SampleBird(new DCoordinate(hostGame.getWorldWidth()*Math.random(),hostGame.getWorldHeight()*Math.random()));
                 

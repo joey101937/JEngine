@@ -61,6 +61,10 @@ public class Sticker {
     }
 
     public void render(Graphics2D g) {
+        if (System.currentTimeMillis() > creationTime + timeToRender) {
+            disable();
+            return;
+        }
         Graphics2D gCopy = (Graphics2D)g.create();
         try {
             if (host != null && host.isAlive()) {
@@ -94,15 +98,8 @@ public class Sticker {
                 cme.printStackTrace();
             }
         }
-       if(image!=null)image.flush();
-       image=null;
        renderLocation=null;
        spawnLocation=null;
-        try {
-            finalize();
-        } catch (Throwable ex) {
-          ex.printStackTrace();
-        }
     }
 
     /**

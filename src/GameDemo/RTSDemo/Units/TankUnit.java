@@ -222,7 +222,7 @@ public class TankUnit extends RTSUnit{
 
     @Override
     public void onDestroy() {
-        OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
+        OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
         deathAni.scale(1.5);
         try {
             if(isOnScreen()) {

@@ -38,18 +38,20 @@ public class TankBullet extends Projectile {
     public void onCollide(GameObject2 other, boolean fromMyTick){
         if(other==shooter || other instanceof Tank.Turret)return; //dont collde with the gameobject that launched this projectile
         if(other instanceof Creature) {
+            System.out.println("colliding with creature");
             Creature c = (Creature) other;
             c.takeDamage(10);
-            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
-            impactExplosion.scaleTo(2);
+             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+             impactExplosion.scaleTo(2);
         }
         destroy();
     }
 
     @Override
     public void onTimeOut() {
-        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, this.getPixelLocation());
-        s.scaleTo(2);
+        System.out.println("timeout");
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), this.getPixelLocation());
+        //s.scaleTo(2);
     }
 
     /**

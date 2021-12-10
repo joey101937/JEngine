@@ -14,9 +14,7 @@ import Framework.GraphicalAssets.Sequence;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
-import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
-import GameDemo.SandboxDemo.Creature;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -49,7 +47,7 @@ public class TankBullet extends Projectile {
                 if(((RTSUnit)shooter).team == otherUnit.team) return; // no friendly fire
             }
             otherUnit.takeDamage(20);
-            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
             impactExplosion.scaleTo(.5);
             try {
                 if(this.isOnScreen()) {
@@ -67,7 +65,7 @@ public class TankBullet extends Projectile {
 
     @Override
     public void onTimeOut() {
-        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, this.getPixelLocation());
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), this.getPixelLocation());
         s.scaleTo(.5);
     }
 
