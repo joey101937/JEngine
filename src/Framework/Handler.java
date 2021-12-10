@@ -375,7 +375,7 @@ public class Handler {
         @Override
         public void run() {
             a.onCollide(b, true);
-            b.onCollide(b, false);
+            b.onCollide(a, false);
         }
         
     }
