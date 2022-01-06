@@ -43,8 +43,8 @@ public class GameObject2 implements Comparable<GameObject2>{
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
     public boolean shouldFlushGraphicOnDestroy = false;
-    private HashMap<String, Object> syncedState = new HashMap<>();
-    private HashMap<String, Object> futerSyncedState = new HashMap<>();
+    private final HashMap<String, Object> syncedState = new HashMap<>();
+    private final HashMap<String, Object> futureSyncedState = new HashMap<>();
     private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
     
      /**
@@ -855,10 +855,10 @@ public class GameObject2 implements Comparable<GameObject2>{
      * moves future synced state into synced state, then clears it
      */
     protected void updateSyncedState() {
-        for(String key : futerSyncedState.keySet()) {
-            syncedState.put(key, futerSyncedState.get(key));
+        for(String key : futureSyncedState.keySet()) {
+            syncedState.put(key, futureSyncedState.get(key));
         }
-        futerSyncedState.clear();
+        futureSyncedState.clear();
     }
     
     /**
@@ -867,7 +867,7 @@ public class GameObject2 implements Comparable<GameObject2>{
      * @param value value to store
      */
     public void setSycnedProperty(String key, Object value) {
-        futerSyncedState.put(key, value);
+        futureSyncedState.put(key, value);
     }
     
     public Object getSycnedProperty(String key) {
