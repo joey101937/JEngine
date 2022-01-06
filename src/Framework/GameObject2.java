@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Parent class for all objects that appear in the gameworld
  * @author Joseph
  */
-public class GameObject2 {    
+public class GameObject2 implements Comparable<GameObject2>{    
     private Game hostGame;
     private String name= "Unnamed " + this.getClass().getSimpleName(); 
     public long tickNumber = 0; //used for debugging, counts number of times this has ticked
@@ -145,6 +145,14 @@ public class GameObject2 {
     * @param input true = pausing. false = unpausing
     */
     public void onGamePause(boolean input) {   
+    }
+
+    @Override
+    public int compareTo(GameObject2 o) {
+        double myNum = getLocationAsOfLastTick().x + getLocationAsOfLastTick().y;
+        double theirNum = o.getLocationAsOfLastTick().x + o.getLocationAsOfLastTick().y;
+        if (myNum != theirNum) return myNum < theirNum ? -1 : 1;
+        else return ID < o.ID ? -1 : 1;
     }
     
     
@@ -335,9 +343,6 @@ public class GameObject2 {
     public void render(Graphics2D g, boolean ignoreRestrictions){
         Graphics2D graphics = (Graphics2D)g.create();
         renderNumber++;
-        if (getGraphic() != null && getGraphic().getScale()!= getScale()) {
-            getGraphic().scaleTo(getScale());
-        }
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = graphics.getTransform();
         if (!isOnScreen() && !Main.overviewMode() && !ignoreRestrictions) {
@@ -459,6 +464,9 @@ public class GameObject2 {
     public void preTick() {
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
+        if (getGraphic() != null && getGraphic().getScale() != getScale()) {
+            getGraphic().scaleTo(getScale());
+        }
         updateLocation();
         tickNumber++;
     }
@@ -525,10 +533,7 @@ public class GameObject2 {
                 if (!canCollideWith(other)) {
                     continue;
                 }
-                double[] movementLine = {current.location.x, current.location.y, newLocation.x, newLocation.y};
-                boolean needsMovementLine = proposedMovement.x + proposedMovement.y > getWidth();
-                if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)
-                        || (needsMovementLine && other.getHitbox().intersectsWithLine(movementLine))) {
+                if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)) {
                     getHostGame().handler.registerCollision(this, other);
 //                    current.onCollide(other, true);
 //                    other.onCollide(current, false);
@@ -698,13 +703,13 @@ public class GameObject2 {
         if (!(this instanceof SubObject)) {
             hostGame.removeObject(this);
         }else{
-//            SubObject me = (SubObject)this;
-//            me.setHost(null);
+            SubObject me = (SubObject)this;
+            if(me.getHost() != null) me.getHost().subObjects.remove(me);
+            me.setHost(null);
+            
         }
-        // this.detatchAllStickers();
-        // if(hitbox!=null)hitbox.host=null;
+        this.detatchAllStickers();
         if(graphic!=null && this.shouldFlushGraphicOnDestroy)graphic.destroy();
-        // graphic = null;
     }
 
     /**
@@ -831,11 +836,11 @@ public class GameObject2 {
     }
 
     public DCoordinate getLocationAsOfLastTick() {
-        return locationAsOfLastTick;
+        return locationAsOfLastTick.copy();
     }
 
     protected void setLocationAsOfLastTick(DCoordinate locationAsOfLastTIck) {
-        this.locationAsOfLastTick = locationAsOfLastTIck;
+        this.locationAsOfLastTick = locationAsOfLastTIck.copy();
     }
     
     protected void setRotationAsOfLastTick(double r) {

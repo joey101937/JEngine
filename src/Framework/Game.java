@@ -788,4 +788,8 @@ public class Game extends Canvas implements Runnable {
     public int getWindowHeight() {
         return windowHeight;
     }
+    
+    public long getGameTickNumber() {
+        return handler.globalTickNumber;
+    }
 }

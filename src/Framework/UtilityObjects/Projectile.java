@@ -27,7 +27,7 @@ public class Projectile extends GameObject2{
     @Override
     public void tick(){
         super.tick();
-        if((lifeTime>1 && tickNumber > lifeTime) || (maxRange>1 && location.distanceFrom(start) > maxRange)){
+        if((lifeTime>1 && tickNumber > lifeTime) || (maxRange>1 && getLocationAsOfLastTick().distanceFrom(start) > maxRange)){
             onTimeOut();
             destroy();
         }

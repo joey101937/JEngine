@@ -7,6 +7,7 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GameObject2.MovementType;
 import Framework.GraphicalAssets.Sequence;

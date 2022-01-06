@@ -59,19 +59,20 @@ public class TankBullet extends Projectile {
      */
     @Override
     public void constrainToWorld() {
-        if (location.x < getHostGame().worldBorder) {
+        DCoordinate loc = location;
+        if (loc.x < getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.y < getHostGame().worldBorder) {
+        if (loc.y < getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
+        if (loc.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
+        if (loc.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
