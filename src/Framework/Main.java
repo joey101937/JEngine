@@ -14,6 +14,7 @@ import SampleGames.Galiga.GaligaGame;
 import SampleGames.SideScroller.MinotaurGame;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
@@ -26,13 +27,15 @@ public class Main {
 
     /* FIELDS */
     public static String assets = "Assets" + File.separator;
-    public static int renderDelay = 0; //the higher this is the worse the fps and max fps but the better the performance
-                                        //If performance is an issue, renderDelay likely needs to be raised
+    public static int renderDelay = 0; 
     public static int ticksPerSecond = 60; //how fast the game logic runs. lower to help performance but at noticable reduction to gamespeed
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
     private static boolean overviewMode = false;
     public static boolean debugMode = false;
-    public static int tickThreadCount = 4;
+    public static int tickThreadCount = 12;
+    public static Handler.TickType tickType = Handler.TickType.modular;
+    public static long seed = (long)(Math.random()*9999999999999L);
+    private static Random random;
     
     /**
      * @param args the command line arguments
@@ -63,6 +66,18 @@ public class Main {
                 System.exit(1);
             }
         }
+    }
+    
+    public static void setRandomSeed(long seed) {
+        Main.seed = seed;
+        Main.random = new Random(seed);
+    }
+    
+    public static Random getRandomSource() {
+        if(random == null) {
+            random = new Random(seed);
+        }
+        return random;
     }
     
     public static void setOverviewMode(boolean b) {
@@ -168,7 +183,7 @@ public class Main {
         } else {
             //here is the body of our method
             int diff = max - min;
-            int output = (int) (Math.random() * diff); //generates a random number between 0 and the difference between the numbers
+            int output = (int) (Main.getRandomSource().nextDouble() * diff); //generates a random number between 0 and the difference between the numbers
             return (min + output);                //returns that random number plus the min
         }
     }

@@ -7,6 +7,7 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GameObject2.MovementType;
 import Framework.GraphicalAssets.Sequence;
@@ -168,8 +169,8 @@ public class TankUnit extends RTSUnit{
                         continue;
                     }
                     if(((TankUnit)go).team == team) continue;
-                    if (location.distanceFrom(go.location) < closestDistance) {
-                        closestDistance = location.distanceFrom(go.location);
+                    if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
+                        closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
                         closest = go;
                     }
                 }
@@ -179,6 +180,7 @@ public class TankUnit extends RTSUnit{
         //tank turret tick
         @Override
         public void tick() {
+            // System.out.println(this + " " + this.ID);
             super.tick();
             RTSUnit enemy = nearestInRange();
             if (enemy == null) {
@@ -215,13 +217,13 @@ public class TankUnit extends RTSUnit{
     }
 
     @Override
-    public void onCollide(GameObject2 other){
+    public void onCollide(GameObject2 other, boolean fromMyTick){
         
     }
 
     @Override
     public void onDestroy() {
-        OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
+        OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
         deathAni.scale(1.5);
         try {
             if(isOnScreen()) {

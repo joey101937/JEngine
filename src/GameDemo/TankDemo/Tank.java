@@ -79,7 +79,7 @@ public class Tank extends Creature{
             muzzelLocation.y-=fireAnimation.frames[0].getHeight()*2/5;
             muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotation());
             muzzelLocation.add(getPixelLocation());
-            OnceThroughSticker muzzelFlash = new OnceThroughSticker(getHostGame(),SpriteManager.explosionSequence,muzzelLocation);
+            OnceThroughSticker muzzelFlash = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), muzzelLocation);
             muzzelFlash.scaleTo(.75);
             TankBullet bullet = new TankBullet(muzzelLocation.toDCoordinate(),target.toDCoordinate());
             bullet.shooter=this.getHost();
@@ -102,7 +102,7 @@ public class Tank extends Creature{
     }
     
     @Override
-    public void onCollide(GameObject2 other){
+    public void onCollide(GameObject2 other, boolean fromMyTick){
         System.out.println("colliding with " + other);
     }
     

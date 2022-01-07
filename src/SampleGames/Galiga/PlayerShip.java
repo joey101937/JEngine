@@ -9,6 +9,7 @@ import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
+import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.SpriteManager;
@@ -63,7 +64,7 @@ public class PlayerShip extends GameObject2{
         }
         lastHitTick = tickNumber;
         GaligaGame.UI.onDeath();
-        new OnceThroughSticker(GaligaGame.mainGame, SpriteManager.explosionSequence, getPixelLocation());
+        new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence), getPixelLocation());
         SoundEffect explosionEffect = GaligaGame.deathSound.createCopy();
         explosionEffect.setVolume(.7f);
         explosionEffect.start();

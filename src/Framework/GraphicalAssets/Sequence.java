@@ -200,7 +200,7 @@ public class Sequence implements Graphic{
      * sets the animation to either pause or resume
      * @param in true = pause, false = resume
      */
-    public synchronized void setPaused(boolean in){
+    public void setPaused(boolean in){
         if(in && isPaused()){
             //pause but already paused
             return;
@@ -237,6 +237,11 @@ public class Sequence implements Graphic{
             newFrames[frames.length-(i+1)]=frames[i];
         }
         frames = newFrames;
+    }
+    
+    
+    public int getFrameCount() {
+        return frames.length;
     }
     
     

@@ -125,12 +125,14 @@ public class SubObject extends GameObject2{
     @Override
     public void tick(){
         super.tick();
-        isAlive = host.isAlive; 
+        if(!host.isAlive()){
+            destroy();
+        }
     }
     
     @Override
-    public void onCollide(GameObject2 other){
-        host.onCollide(other);
+    public void onCollide(GameObject2 other, boolean fromMyTick){
+        host.onCollide(other, fromMyTick);
     }
     
     /**
@@ -146,6 +148,14 @@ public class SubObject extends GameObject2{
         if(host==null)return;
         adjustedOffset = offset.copy();
         adjustedOffset.adjustForRotation(host.getRotation());
+    }
+    
+    /**
+     * runs when a host or a host of a host dies
+     * @param host the gameobject2 that was destroyed
+     */
+    public void onHostDestroy(GameObject2 host) {
+        
     }
     
 }

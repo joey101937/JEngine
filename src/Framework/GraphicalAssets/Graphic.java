@@ -43,8 +43,10 @@ public interface Graphic {
      * @param d percentage of original size to scale to
      */
     public void scaleTo(double d);
+
     /**
      * gets current size percentage of image relative to original size
+     * AS OF LAST TICK
      * @return current size percentage of image relative to original size
      */
     public double getScale();

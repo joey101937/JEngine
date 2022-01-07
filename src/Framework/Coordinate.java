@@ -68,16 +68,6 @@ public class Coordinate {
         return hash;
     }
 
-    public static void main(String[] args) {
-
-        Coordinate one = new Coordinate(1, 1);
-
-        Coordinate two = new Coordinate(1, 1);
-
-        System.out.println(one == two);
-        System.out.println(one.equals(two));
-    }
-
     public static Coordinate sum(Coordinate a, Coordinate b) {
         return new Coordinate(a.x + b.x, a.y + b.y);
     }

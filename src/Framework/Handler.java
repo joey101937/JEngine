@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -21,15 +22,18 @@ import java.util.concurrent.Future;
  * @author Joseph
  */
 public class Handler {
+    protected long globalTickNumber = 0;
     
     public ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
-
-    // private volatile LinkedList<GameObject2> storage = new LinkedList<>();
+    public ExecutorService syncService = Executors.newFixedThreadPool(4);
+    
     private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, GameObject2> storageAsOfLastTick = new ConcurrentHashMap<>();
     public Game hostGame;
     
-    // private Map<Integer, GameObject2> toRenger = storage;
     private List<GameObject2> toRender = new LinkedList<GameObject2>();
+    private List<GameObject2> toTick = new LinkedList<GameObject2>();
+
     
     public Handler(Game g){
         hostGame=g;
@@ -39,10 +43,35 @@ public class Handler {
      * @return number of gameobjects this handler oversees
      */
     public int size(){
+        return storageAsOfLastTick.size();
+    }
+    
+    /**
+     * number of gameobjects this handler is resoincible for
+     * @return number of gameobjects this handler oversees
+     */
+    public int sizeRealTime(){
         return storage.size();
     }
     
-    public synchronized void addObject(GameObject2 o) {
+    public void registerCollision(GameObject2 a, GameObject2 b) {
+            a.onCollide(b, true);
+            b.onCollide(a, false);
+    }
+    
+    /**
+     * updates sycned values for determinism
+     */
+    private void populateStorageAsOfLastTick() {
+        storageAsOfLastTick.clear();
+        LinkedList<Future<?>> tasks = new LinkedList<>();
+        for(GameObject2 go : storage.values()) {
+              tasks.add(syncService.submit(new SyncTask(go)));
+        }
+        waitForAllJobs(tasks);
+    }
+    
+    public void addObject(GameObject2 o) {
         if (!storage.containsKey(o.ID)) {
             storage.put(o.ID, o);
             if(o.getHostGame()!=null && o.getHostGame()!=this.hostGame){
@@ -66,12 +95,32 @@ public class Handler {
      * should be used primarily when accessing items in game to minimize access to
      * the raw storage list and in turn reduce the liklihood of concurrent
      * modification exceptions
+     * 
+     *  USE THIS TO MAKE GAME DETERMINSTIC
      */
     public ArrayList<GameObject2> getAllObjects(){
         ArrayList<GameObject2> output = new ArrayList<>();
-        for(GameObject2 go : storage.values()) output.add(go);
+        for(GameObject2 go : storageAsOfLastTick.values()) output.add(go);
+        if(Main.tickType != TickType.unified) output.sort(null);
         return output;
     }
+    
+     /**
+     * @return a list of all objects in the game, note changing this list does
+     * NOT change the game state, however modifying items within it may. This 
+     * should be used primarily when accessing items in game to minimize access to
+     * the raw storage list and in turn reduce the liklihood of concurrent
+     * modification exceptions
+     * 
+     * MAY CAUSE RANDOMNESS IN MULTITHREADED GAMES
+     */
+    public ArrayList<GameObject2> getAllObjectsRealTime(){
+        ArrayList<GameObject2> output = new ArrayList<>();
+        for(GameObject2 go : storage.values()) output.add(go);
+        if(Main.tickType != TickType.unified) output.sort(null);
+        return output;
+    }
+    
     
     /**
      * renders all objects in the game, along with their subobjects
@@ -95,25 +144,67 @@ public class Handler {
      * ticks all objects in the game along with their subobjects
      */
     public void tick() {
+        globalTickNumber++;
+        if(Main.tickType == TickType.unified) {
+            tickUnified();
+        } else if (Main.tickType == TickType.modular) {
+            tickModular();
+        }
+    }
+    
+    private void tickUnified() {
+        populateStorageAsOfLastTick();
         toRender = getAllObjects();
         toRender.sort(new renderSorter());
+        toTick = getAllObjects();
+        toTick.sort(null);
         Collection<Future<?>> tickTasks = new LinkedList<>();
-        for (GameObject2 go : getAllObjects()) {
-            if(Main.tickThreadCount > 1) {
-                tickTasks.add(tickService.submit(new TickTask(go)));
+        for (GameObject2 go : toTick) {
+            if (Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go, "unifiedTick")));
             } else {
-                try {
-                    go.setHostGame(hostGame);
-                    go.tick();
-                    for (SubObject so : go.getAllSubObjects()) {
-                        so.tick();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+              (new TickTask(go, "unifiedTick")).run();
             }
         }
-        for (Future<?> currTask : tickTasks) {
+        waitForAllJobs(tickTasks);
+        tickTasks.clear();
+    }
+    
+    private void tickModular() {
+        toRender = getAllObjectsRealTime();
+        toRender.sort(new renderSorter());
+        toTick = getAllObjectsRealTime();
+        toTick.sort(null);
+        populateStorageAsOfLastTick();
+        Collection<Future<?>> tickTasks = new LinkedList<>();
+        for (GameObject2 go : toTick) {
+            (new TickTask(go, "preTick")).run();
+        }
+        toTick = getAllObjectsRealTime();
+        toTick.sort(null);
+        populateStorageAsOfLastTick(); // remove this prob
+        for (GameObject2 go : toTick) {
+            if (Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go, "tick")));
+            } else {
+              (new TickTask(go, "tick")).run();
+            }
+        }
+        waitForAllJobs(tickTasks);
+        tickTasks.clear();
+        
+        for (GameObject2 go : toTick) {
+            if (Main.tickThreadCount > 1) {
+                tickTasks.add(tickService.submit(new TickTask(go, "postTick")));
+            } else {
+               (new TickTask(go, "postTick")).run();
+            }
+        }
+        waitForAllJobs(tickTasks);
+    }
+
+    private void waitForAllJobs(Collection<Future<?>> a) {
+        for (Future<?> currTask : a) {
             try {
                 currTask.get();
             } catch (Exception e) {
@@ -143,25 +234,86 @@ public class Handler {
     
     private class TickTask implements Runnable {
         GameObject2 go;
+        String type = "tick";
         
-        public TickTask (GameObject2 go2) {
+        public TickTask (GameObject2 go2, String type) {
             go = go2;
+            this.type = type;
         }
 
         @Override
         public void run() {
             try {
                 go.setHostGame(hostGame);
-                go.tick();
-                for (SubObject so : go.getAllSubObjects()) {
-                    so.tick();
+                if (type.equals("preTick")) {
+                    go.preTick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.preTick();
+                    }
+                } else if (type.equals("tick")) {
+                    go.tick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.tick();
+                    }
+                } else if (type.equals("postTick")) {
+                    go.postTick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.postTick();
+                    }
+                } else if (type.equals("unifiedTick")) {
+                    go.preTick();
+                    go.tick();
+                    go.postTick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.preTick();
+                        so.tick();
+                        so.postTick();
+                    }
+                } else if (type.equals("semiModularTick")) {
+                    go.preTick();
+                    go.tick();
+                    for (SubObject so : go.getAllSubObjects()) {
+                        so.preTick();
+                        so.tick();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
+    }
+    
+    private class SyncTask implements Runnable {
+        public GameObject2 go;
+        
+        SyncTask (GameObject2 g) {
+            go = g;
+        }
+
+        @Override
+        public void run() {
+            go.setLocationAsOfLastTick(go.location);
+            go.setRotationAsOfLastTick(go.getRotationRealTime());
+            go.setScaleAsOfLastTick(go.getScale());
+            go.setWidthAsOfLastTick(go.getWidth());
+            go.setHeightAsOfLastTick(go.getHeight());
+            go.updateSyncedState();
+            storageAsOfLastTick.put(go.ID, go);
+            for (SubObject sub : go.getAllSubObjects()) {
+                sub.setLocationAsOfLastTick(sub.location);
+                sub.setRotationAsOfLastTick(sub.getRotationRealTime());
+                sub.setScaleAsOfLastTick(sub.getScale());
+                sub.setWidthAsOfLastTick(sub.getWidth());
+                sub.setHeightAsOfLastTick(sub.getHeight());
+                sub.updateSyncedState();
+            }
+        }
 
     }
 
+    public static enum TickType{
+        unified, // tick threads execute preTick - tick - postTick as a single instance. onCollide is triggered immediately. more performant but has thread randomness
+        modular, // tick threads execute preTick synchronously- tick (async) - postTick(async) as separate events that happen separately in order. less performant but deterministic with high level of control
+    }
 }

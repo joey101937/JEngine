@@ -35,21 +35,23 @@ public class TankBullet extends Projectile {
 
     //when this runs into a creature, deal damage to it then destroy this projectile
     @Override
-    public void onCollide(GameObject2 other){
+    public void onCollide(GameObject2 other, boolean fromMyTick){
         if(other==shooter || other instanceof Tank.Turret)return; //dont collde with the gameobject that launched this projectile
         if(other instanceof Creature) {
+            System.out.println("colliding with creature");
             Creature c = (Creature) other;
             c.takeDamage(10);
-            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, getPixelLocation());
-            impactExplosion.scaleTo(2);
+             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+             impactExplosion.scaleTo(2);
         }
         destroy();
     }
 
     @Override
     public void onTimeOut() {
-        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), SpriteManager.explosionSequence, this.getPixelLocation());
-        s.scaleTo(2);
+        System.out.println("timeout");
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), this.getPixelLocation());
+        //s.scaleTo(2);
     }
 
     /**
@@ -57,19 +59,20 @@ public class TankBullet extends Projectile {
      */
     @Override
     public void constrainToWorld() {
-        if (location.x < getHostGame().worldBorder) {
+        DCoordinate loc = location;
+        if (loc.x < getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.y < getHostGame().worldBorder) {
+        if (loc.y < getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
+        if (loc.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }
-        if (location.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
+        if (loc.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
             onTimeOut();
             destroy();
         }

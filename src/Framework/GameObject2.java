@@ -23,24 +23,29 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Parent class for all objects that appear in the gameworld
  * @author Joseph
  */
-public class GameObject2 {
+public class GameObject2 implements Comparable<GameObject2>{    
     private Game hostGame;
     private String name= "Unnamed " + this.getClass().getSimpleName(); 
     public long tickNumber = 0; //used for debugging, counts number of times this has ticked
     public long renderNumber = 0; //used for debugging, counts number of times this has rendered
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
+    protected DCoordinate locationAsOfLastTick = new DCoordinate(0,0);
     public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
     protected double baseSpeed = 2; //total distance the object can move per tick
     private Graphic graphic; //visual representation of the object
     private double rotation = 0; //rotatoin in degrees (not radians)
+    private double rotationAsOfLastTick = 0; // rotation in degrees as of last tick
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
     public boolean isSolid = false; //weather or not this object collides with other objects
     public boolean isInvisible = false; //invisible gameobjects are not rendered
-    private volatile double scale = 1; //size multiplier
-    protected boolean isAlive = true; //weather or not the object has been destroyed
+    private double scale = 1; //size multiplier
+    protected double scaleAsOfLastTick = 1;
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
     public boolean shouldFlushGraphicOnDestroy = false;
+    private final HashMap<String, Object> syncedState = new HashMap<>();
+    private final HashMap<String, Object> futureSyncedState = new HashMap<>();
+    private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
     
      /**
      * how the object behaves when traveling in two directions (up/down and
@@ -141,6 +146,14 @@ public class GameObject2 {
     */
     public void onGamePause(boolean input) {   
     }
+
+    @Override
+    public int compareTo(GameObject2 o) {
+        double myNum = getLocationAsOfLastTick().x + getLocationAsOfLastTick().y;
+        double theirNum = o.getLocationAsOfLastTick().x + o.getLocationAsOfLastTick().y;
+        if (myNum != theirNum) return myNum < theirNum ? -1 : 1;
+        else return ID < o.ID ? -1 : 1;
+    }
     
     
     public static enum MovementType{
@@ -150,10 +163,20 @@ public class GameObject2 {
     
     /**
      * used to get integer location of object, used when rendering to screen
+     * AS OF LAST TICK- PREFER WHEN MULTITHREADING
      * @return integer location
      */
     public Coordinate getPixelLocation() {
-        return new Coordinate(location);
+        return new Coordinate(locationAsOfLastTick);
+    }
+    
+     /**
+     * used to get integer location of object, used when rendering to screen
+     * @param realtime is this realtime location or location as of last tick. 
+     * @return integer location
+     */
+    public Coordinate getPixelLocation(boolean realtime) {
+        return new Coordinate( realtime ? location : getLocationAsOfLastTick());
     }
     /**
      * @return The Rectangle object used as hitbox
@@ -177,6 +200,7 @@ public class GameObject2 {
         try{
         return graphic.getCurrentImage().getWidth();
         }catch(NullPointerException npe){
+            System.out.println("Returnning 0 for width of GameObject2 with no graphic " + this);
             return 0;
         }
     }
@@ -224,6 +248,10 @@ public class GameObject2 {
      * @return Rotation of this object in degrees.
      */
     public double getRotation(){
+        return rotationAsOfLastTick;
+    }
+    
+    public double getRotationRealTime() {
         return rotation;
     }
     
@@ -246,14 +274,15 @@ public class GameObject2 {
             //if solid first check collisions
             for(GameObject2 other : getHostGame().getAllObjects()){
                 if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
-                     onCollide(other);
-                     other.onCollide(this);
+                     getHostGame().handler.registerCollision(this, other);
+//                     this.onCollide(other, true);
+//                     other.onCollide(this, false);
                      return; 
                 }
             }
         }
         rotation += degrees;
-        for(SubObject sub : subObjects){
+        for (SubObject sub : subObjects){
             sub.onHostRotate(degrees);
         }
         if(getHitbox()!=null){
@@ -267,7 +296,7 @@ public class GameObject2 {
      * @param other object whos location we will look at
      */
     public void lookAt(GameObject2 other) {
-        rotateTo(DCoordinate.angleFrom(location, other.location));
+        rotateTo(DCoordinate.angleFrom(location, other.getLocationAsOfLastTick()));
     }
     /**
      * Rotates this object so that its front (determined by innate rotation) is
@@ -309,13 +338,11 @@ public class GameObject2 {
     /**
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
+     * @param ignoreRestrictions if this is true, it will render even if it usually wouldnt due to being off screen
      */
     public void render(Graphics2D g, boolean ignoreRestrictions){
         Graphics2D graphics = (Graphics2D)g.create();
         renderNumber++;
-        if (getGraphic() != null && getGraphic().getScale() != scale) {
-            getGraphic().scaleTo(scale);
-        }
         Coordinate pixelLocation = getPixelLocation();
         AffineTransform old = graphics.getTransform();
         if (!isOnScreen() && !Main.overviewMode() && !ignoreRestrictions) {
@@ -337,9 +364,7 @@ public class GameObject2 {
                 }
             }
             return;
-        }    
-        while(rotation > 360){rotation-=360;}  //constrain rotation size
-        while(rotation < -360){rotation+=360;}
+        }
         graphics.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
         if (getGraphic() == null) {
             //System.out.println("Warning null graphic for " + name);
@@ -401,7 +426,7 @@ public class GameObject2 {
      */
     public void updateHitbox() {
         //if no hitbox, create the default box hitbox
-        if (getHitbox() == null && getWidth()>0 && renderNumber>0) {
+        if (getHitbox() == null && getWidthAsOfLastTick()>0 && renderNumber>0) {
             int width = getWidth();
             int height = getHeight();
             Coordinate[] verts = new Coordinate[4];
@@ -426,9 +451,24 @@ public class GameObject2 {
             getHitbox().setVertices(verts);
         }else if(getHitbox() != null && getHitbox().type == Hitbox.Type.circle){
             //maintain default circle hitbox
-            getHitbox().radius = getWidth()/2;
+            getHitbox().radius = getWidthAsOfLastTick()/2;
         }
         
+    }
+    
+    
+      /**
+     * this method runs every "tick". All ticking objects will execute this method before any objects can tick.
+     * so every tick all preticks fire, then all ticks fire.
+     */
+    public void preTick() {
+        while(rotation > 360){rotation-=360;}  //constrain rotation size
+        while(rotation < -360){rotation+=360;}
+        if (getGraphic() != null && getGraphic().getScale() != getScale()) {
+            getGraphic().scaleTo(getScale());
+        }
+        updateLocation();
+        tickNumber++;
     }
 
     /**
@@ -437,8 +477,12 @@ public class GameObject2 {
      * method runs and tickNumber continues counting
      */
     public void tick(){
-        updateLocation();
-        tickNumber++;
+    }
+     /**
+     * this method runs every "tick" AFTER all objects have ticked
+     */
+    public void postTick(){
+        updateHitbox();
     }
     
     private boolean canCollideWith(GameObject2 other) {
@@ -489,16 +533,16 @@ public class GameObject2 {
                 if (!canCollideWith(other)) {
                     continue;
                 }
-                double[] movementLine = {current.location.x, current.location.y, newLocation.x, newLocation.y};
                 if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)) {
-                    current.onCollide(other);
-                    other.onCollide(current);
+                    getHostGame().handler.registerCollision(this, other);
+//                    current.onCollide(other, true);
+//                    other.onCollide(current, false);
                     if (!current.preventOverlap || !other.preventOverlap) {
                         continue;
                     }
                     // already overlapping
                     if (current.getHitbox().intersects(other.getHitbox())) {
-                        if (newLocation.distanceFrom(other.location) > current.location.distanceFrom(other.location)) {
+                        if (newLocation.distanceFrom(other.getLocationAsOfLastTick()) > current.location.distanceFrom(other.getLocationAsOfLastTick())) {
                             continue; //if we are moving away from it, allow the movement
                         } else {
                             xClear = false;
@@ -594,7 +638,6 @@ public class GameObject2 {
         if(hostGame.pathingLayer==null || pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
              location = newLocation;
         }
-        updateHitbox();
         constrainToWorld();
     }
 
@@ -641,6 +684,7 @@ public class GameObject2 {
      */
     private final void init(DCoordinate dc){
         location = dc;
+        locationAsOfLastTick = dc;
         //set up default pathing modifiers. Move normal on ground, reduced speed in water, not at all in impass
         pathingModifiers.put(PathingLayer.Type.ground, 1.0);
         pathingModifiers.put(PathingLayer.Type.hostile, 1.0);
@@ -651,19 +695,21 @@ public class GameObject2 {
      * removes object from game, functionally
      */
     public final void destroy() {
-        isAlive = false;
         onDestroy();
+        for(SubObject so : getAllSubObjects()) {
+            so.onHostDestroy(this);
+            so.onDestroy();
+        }
         if (!(this instanceof SubObject)) {
             hostGame.removeObject(this);
-
         }else{
             SubObject me = (SubObject)this;
+            if(me.getHost() != null) me.getHost().subObjects.remove(me);
             me.setHost(null);
+            
         }
         this.detatchAllStickers();
-        if(hitbox!=null)hitbox.host=null;
         if(graphic!=null && this.shouldFlushGraphicOnDestroy)graphic.destroy();
-        graphic = null;
     }
 
     /**
@@ -682,7 +728,7 @@ public class GameObject2 {
      * @return weather or not this object is considered alive 
      */
     public boolean isAlive(){
-        return isAlive;
+        return hostGame.getAllObjects().contains(this);
     }
     /**
      * Weather or not this object is using an animated sequence or static sprite
@@ -697,8 +743,9 @@ public class GameObject2 {
     /**
      * Runs each tick this object's hitbox is touching another object's hitbox
      * @param other the object whose hitbox we are touching
+     * @param fromMyTick if this gameobject's tick initiated the collision
      */
-    public void onCollide(GameObject2 other){
+    public void onCollide(GameObject2 other, boolean fromMyTick){
     }
     
     /**
@@ -787,6 +834,62 @@ public class GameObject2 {
     public void setName(String name) {
         this.name = name;
     }
+
+    public DCoordinate getLocationAsOfLastTick() {
+        return locationAsOfLastTick.copy();
+    }
+
+    protected void setLocationAsOfLastTick(DCoordinate locationAsOfLastTIck) {
+        this.locationAsOfLastTick = locationAsOfLastTIck.copy();
+    }
+    
+    protected void setRotationAsOfLastTick(double r) {
+        this.rotationAsOfLastTick = r;
+    }
+    
+    protected void setScaleAsOfLastTick(double d) {
+        scaleAsOfLastTick = d;
+    }
+    
+    /**
+     * moves future synced state into synced state, then clears it
+     */
+    protected void updateSyncedState() {
+        for(String key : futureSyncedState.keySet()) {
+            syncedState.put(key, futureSyncedState.get(key));
+        }
+        futureSyncedState.clear();
+    }
+    
+    /**
+     * sets a property to be tick-synced. this will not be accesable until next tick. or pretick
+     * @param key name of property
+     * @param value value to store
+     */
+    public void setSycnedProperty(String key, Object value) {
+        futureSyncedState.put(key, value);
+    }
+    
+    public Object getSycnedProperty(String key) {
+        return syncedState.get(key);
+    }
+
+    public int getWidthAsOfLastTick() {
+        return widthAsOfLastTick;
+    }
+
+    protected void setWidthAsOfLastTick(int widthAsOfLastTick) {
+        this.widthAsOfLastTick = widthAsOfLastTick;
+    }
+
+    public int getHeightAsOfLastTick() {
+        return heightAsOfLastTick;
+    }
+
+    protected void setHeightAsOfLastTick(int heightAsOfLastTick) {
+        this.heightAsOfLastTick = heightAsOfLastTick;
+    }
      
+    
 
 }

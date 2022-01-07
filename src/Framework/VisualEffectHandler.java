@@ -42,7 +42,7 @@ public class VisualEffectHandler {
             }
             Collection<Future<?>> stickerTasks = new LinkedList<>();
             for (Sticker s : stickers) {
-                 stickerTasks.add(stickerService.submit(new StickerTask(s, g)));
+                 stickerTasks.add(stickerService.submit(new StickerTask(s, g, stickers)));
              }
              for (Future<?> currTask : stickerTasks) {
                  try {
@@ -91,11 +91,12 @@ public class VisualEffectHandler {
         stickers = new CopyOnWriteArrayList<>();
     }
     
-    private class StickerTask implements Runnable{
+    private static class StickerTask implements Runnable{
         public Sticker s;
         public Graphics2D g;
+        public CopyOnWriteArrayList<Sticker> stkrs;
         
-        public StickerTask (Sticker st, Graphics2D g2d) {
+        public StickerTask (Sticker st, Graphics2D g2d, CopyOnWriteArrayList<Sticker> stickers) {
             s = st;
             g = g2d;
         }
@@ -103,11 +104,11 @@ public class VisualEffectHandler {
         @Override
         public void run() {
             if (s == null) {
-                stickers.remove(s);
+                stkrs.remove(s);
                 return;
             }
             if (s.disabled) {
-                stickers.remove(s);
+                stkrs.remove(s);
             }
             if (System.currentTimeMillis() > s.creationTime + s.timeToRender) {
                 s.disable();

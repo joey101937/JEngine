@@ -7,6 +7,7 @@ package GameDemo.AudioDemo;
 
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
+import Framework.GraphicalAssets.Sequence;
 import Framework.InputHandler;
 import Framework.Main;
 import Framework.SpriteManager;
@@ -47,7 +48,7 @@ public class AudioDemoInputHandler extends InputHandler {
     public void mousePressed(MouseEvent e){
         //store location of mouse press and create an explosion effec there
         Coordinate c = locationOfMouseEvent(e);
-        OnceThroughSticker s = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,c);
+        OnceThroughSticker s = new OnceThroughSticker(hostGame, new Sequence(SpriteManager.explosionSequence),c);
         //create a blast sound effect
         File blastFile = new File(Main.assets+"/Sounds/blast1.au");
         SoundEffect sound = new SoundEffect(blastFile);

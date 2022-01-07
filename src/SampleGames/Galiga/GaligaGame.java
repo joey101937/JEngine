@@ -5,7 +5,6 @@
  */
 package SampleGames.Galiga;
 
-import SampleGames.Galiga.Enemies.*;
 import Framework.Audio.SoundEffect;
 import Framework.DCoordinate;
 import Framework.Game;

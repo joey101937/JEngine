@@ -8,7 +8,6 @@ package Framework;
 import static Framework.Hitbox.Type.box;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 
 /**
@@ -160,7 +159,7 @@ public class Hitbox {
     
     public DCoordinate getCenter(){
         if(host==null)return staticCenter;
-        else return host.location.copy();
+        else return host.getLocationAsOfLastTick().copy();
     }
     
     private DCoordinate[] getRenderVerts() {
@@ -333,7 +332,7 @@ public class Hitbox {
      * @param line2 second line to eval
      * @return weather or not the two lines intersect
      */
-    private static synchronized boolean linesIntersect(double[] line1, double[] line2) {
+    private static boolean linesIntersect(double[] line1, double[] line2) {
         return Line2D.linesIntersect(line1[0], line1[1], line1[2], line1[3], line2[0], line2[1], line2[2], line2[3]);
     }
     
@@ -472,7 +471,7 @@ public class Hitbox {
      * @param other hitbox to compare to
      * @return weather or not they overlap
      */
-    public synchronized boolean intersects(Hitbox other) {
+    public boolean intersects(Hitbox other) {
         if(other==null || other==this){
             return false;
         }
@@ -526,30 +525,30 @@ public class Hitbox {
      * @param velocity contains the amount to move this hitbox
      * @return weather or not the hitbox would be intersecting another if moved
      */
-    public synchronized boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
+    public  boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
         double saftyScaler = 1; //how much we scale the velocity to account for extramovement
                                    //large scaler = less chance of overlap but farther apart units must stay
-        staticCenter.x += velocity.x * saftyScaler;
-        staticCenter.y += velocity.y * saftyScaler;
-        if (host != null) {
-            host.location.x += velocity.x * saftyScaler;
-            host.location.y += velocity.y * saftyScaler;
+        Hitbox simulatedHitbox;
+        if(this.type == Type.box) {
+            Coordinate[] simulatedVerts = new Coordinate[4];
+            for (int i = 0; i < 4; i++) {
+                simulatedVerts[i] = vertices[i].copy();
+                simulatedVerts[i].add(velocity);
+                simulatedVerts[i].add(getCenter());
+            }            
+            simulatedHitbox = new Hitbox(simulatedVerts);
+        } else {
+            DCoordinate simulatedCenter = getCenter().copy();
+            simulatedCenter.add(velocity);
+            simulatedHitbox = new Hitbox(simulatedCenter, radius);
         }
-        updateFarthestAndShortest();
-        boolean result = intersects(other);
-            if (host != null) {
-            host.location.x -= velocity.x * saftyScaler;
-            host.location.y -= velocity.y * saftyScaler;
-        }
-        staticCenter.x -= velocity.x * saftyScaler;
-        staticCenter.y -= velocity.y * saftyScaler;
-        updateFarthestAndShortest();
+        boolean result = simulatedHitbox.intersects(other);
         return result;
     }
     
     
     
-    public synchronized boolean intersectsIfRotated(Hitbox other, double possibleRotation){
+    public boolean intersectsIfRotated(Hitbox other, double possibleRotation){
         rotate(possibleRotation);
         updateFarthestAndShortest();
         boolean result = intersects(other);

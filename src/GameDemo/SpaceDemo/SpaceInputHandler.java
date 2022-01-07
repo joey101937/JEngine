@@ -7,6 +7,7 @@ package GameDemo.SpaceDemo;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.GraphicalAssets.Sequence;
 import Framework.InputHandler;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
@@ -28,7 +29,7 @@ public class SpaceInputHandler extends InputHandler{
     */
     @Override
     public void mousePressed(MouseEvent e){
-        OnceThroughSticker effect = new OnceThroughSticker(hostGame,SpriteManager.explosionSequence,locationOfMouseEvent(e));
+        OnceThroughSticker effect = new OnceThroughSticker(hostGame,new Sequence(SpriteManager.explosionSequence),locationOfMouseEvent(e));
     }
     
     /*

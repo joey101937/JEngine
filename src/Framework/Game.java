@@ -719,17 +719,26 @@ public class Game extends Canvas implements Runnable {
     }
     
     /**
-     * @return all game objects in this world
+     * @return all game objects in this world as of start of current tick
      */
     public ArrayList<GameObject2> getAllObjects(){
         return handler.getAllObjects();
     }
+    
+        /**
+     * @return all game objects in this world in real time- includes objects
+     * that were added during the course of this tick
+     */
+    public ArrayList<GameObject2> getAllObjectsRealTime(){
+        return handler.getAllObjectsRealTime();
+    }
+    
     /**
      * removes object from the game
      * @param o object to remove
      */
     public void removeObject(GameObject2 o){
-        while(handler.getAllObjects().contains(o)){
+        while(handler.getAllObjectsRealTime().contains(o)){
             try{
             handler.removeObject(o);
             }catch(ConcurrentModificationException cme){
@@ -778,5 +787,9 @@ public class Game extends Canvas implements Runnable {
     }
     public int getWindowHeight() {
         return windowHeight;
+    }
+    
+    public long getGameTickNumber() {
+        return handler.globalTickNumber;
     }
 }
