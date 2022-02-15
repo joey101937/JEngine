@@ -185,6 +185,11 @@ public class TankUnit extends RTSUnit{
             RTSUnit enemy = nearestInRange();
             if (enemy == null) {
                 double desiredRotation = getHost().getRotation()-getRotation();
+                if(desiredRotation > 180) {
+                    desiredRotation -= 360;
+                } else if (desiredRotation < -180) {
+                    desiredRotation += 360;
+                }
                 double maxRotation = 5;
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);

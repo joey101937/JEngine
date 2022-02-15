@@ -352,7 +352,7 @@ public class Game extends Canvas implements Runnable {
     public ArrayList<GameObject2> getPreciseObjectsIntersecting(Hitbox h) {
         ArrayList<GameObject2> output = new ArrayList<>();
         for (GameObject2 go : getAllObjects()) {
-            if (go.getHitbox().intersects(h)) {
+            if (go.getHitbox() != null && go.getHitbox().intersects(h)) {
                 output.add(go);
             }
             for (SubObject sub : go.getAllSubObjects()) {
