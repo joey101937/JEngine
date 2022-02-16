@@ -88,7 +88,6 @@ public class Handler {
     public void removeObject(GameObject2 toRemove){
          storage.remove(toRemove.ID);
     }
-    
     /**
      * @return a list of all objects in the game, note changing this list does
      * NOT change the game state, however modifying items within it may. This 
@@ -129,10 +128,10 @@ public class Handler {
     public synchronized void render(Graphics2D g) {
         for (GameObject2 go : toRender) {
             try{
-             go.render(g);
-                 for(SubObject so : go.getAllSubObjects()){
-                     so.render(g);
-                 }
+            go.render(g);
+            for(SubObject so : go.getAllSubObjects()){
+                so.render(g);
+            }
             }catch(Exception e){
                 e.printStackTrace();
             }

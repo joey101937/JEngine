@@ -728,7 +728,7 @@ public class GameObject2 implements Comparable<GameObject2>{
      * @return weather or not this object is considered alive 
      */
     public boolean isAlive(){
-        return hostGame.getAllObjects().contains(this);
+        return hostGame != null ? hostGame.getAllObjects().contains(this) : false;
     }
     /**
      * Weather or not this object is using an animated sequence or static sprite

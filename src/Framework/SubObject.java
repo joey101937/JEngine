@@ -125,9 +125,6 @@ public class SubObject extends GameObject2{
     @Override
     public void tick(){
         super.tick();
-        if(!host.isAlive()){
-            destroy();
-        }
     }
     
     @Override

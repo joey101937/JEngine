@@ -7,6 +7,8 @@ package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.Handler;
+import Framework.Main;
 import Framework.SpriteManager;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
@@ -22,6 +24,7 @@ public class RTSGame {
     public static MinimapButton button = new MinimapButton(game, new Coordinate(0, minimap.getHeight()));
     
     public static void main(String[] args) {
+        Main.tickType = Handler.TickType.unified;
         Window.initialize(game);
         game.setInputHandler(new RTSInput());
         game.getCamera().camSpeed=20;
