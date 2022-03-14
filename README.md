@@ -150,12 +150,14 @@ Every Game object has a handler and VisualEffectHandler. These keep track of all
 ## Loading Assets
 JEngine contaons a built in class to load Assets though the file structure, this is what is used in the demos and demonstrates the reccommended setup. **Using SpriteManager class is NOT required**. You may make your own class to import files from, however it is very important that you do it properly. All files should be loaded *one time* at the start of a run and then stored internally in variables. DO NOT load an image every time you need it as this will destroy your performance. Single sprites should be stored as BufferedImages, and Animation Sequences should be storred as an array of BufferedImages. Look at SpriteManager for reference.
 
-JEngine demos load all visual assets using the **SpriteManager** class, which is one of the framework classes you can and may want to modify regularly. Image assets are stored in either static BufferedImage for images or BufferedImage arrays for frame based animation sequences. To use it for your own assets, first declare the variable and name it appropriately, then add code to load it in SpriteManager's **Initialize** method. Initialize runs once using the static block to pre-load all assets before they need to be rendered and stores them in memory rather than using ImageIO every time we need
+JEngine demos load all visual assets using the **SpriteManager** class. You may want to look at it and create a similar class for your own project. Image assets are stored in either static BufferedImage for images or BufferedImage arrays for frame based animation sequences. To use it for your own assets, first declare the variable and name it appropriately, then add code to load it in SpriteManager's **Initialize** method. Initialize runs once using the static block to pre-load all assets before they need to be rendered and stores them in memory rather than using ImageIO every time we need
 to get outside assets.
 
 To make it easy, use SpriteManager's **load(String filename)** and **loadSequence(String folderName)** to load images and animation
 sequences respectively. Note these filepaths are *within* the assets folder. The demos included load their assets with this class and you 
 should follow the same system. Once this is done, you can reference your image using SpriteManager.<your variable name>.
+
+**It is highly recommended that you pre-scale your graphics. Doing so at run time can be expensive- especially if your are scaling several objects concurrently.**
 
 ## Using Assets
 Once you have loaded the raw image data using SpriteManger, we are now ready to apply them to either a game background, GameObject, or Sticker. To do this we create either a **Sprite** oject for plain images or a **Sequence** object for animation sequences. Creating them is as easy as **new Sprite(BufferedImage);** and **new Sequence(BufferdImage[]);**
@@ -420,6 +422,7 @@ Once you have the SoundEffect instantiated, you can start it by calling its .sta
 
 ### Playing Sounds and Best Practices
 Because creating a sound effect from a file is fairly expensive in terms of performance, as with any IO operation, you will want to do this only once per sound. To do this it is reccommended you have a static SoundEffect variable that will act as the 'source', and whenever you want to play that sound, create a copy of it (this does not require IO operations) and use that instead. 
+For best performance, avoid creating and running large amounts of sound effects at simultaneously as this can lead to stuttering. For best performance use <20 concurrent sound effects 
 
 ### SoundEffect Example
 ***BASIC EXAMPLE***<br>

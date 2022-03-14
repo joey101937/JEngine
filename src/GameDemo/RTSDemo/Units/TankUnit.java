@@ -86,8 +86,6 @@ public class TankUnit extends RTSUnit{
     public void fire(Coordinate target) {
         if (turret.firing || target.distanceFrom(location) < getHeight() * 3 / 5 || tickNumber-lastFiredTime < 60L || Math.abs(turret.angleFrom(target))>1) { //limited to one shot per 60 ticks
             return;
-        }else{
-            System.out.println("tickNumber " + tickNumber);
         }
         lastFiredTime = this.tickNumber;
         turret.onFire(target);
@@ -148,7 +146,6 @@ public class TankUnit extends RTSUnit{
         */
         @Override
         public void onAnimationCycle(){
-            System.out.println("animation cycle " + getName());
             if(getGraphic() == fireAnimation){
                 firing = false;
                 setGraphic(turretSprite);
@@ -234,7 +231,7 @@ public class TankUnit extends RTSUnit{
             if(isOnScreen()) {
                 SoundEffect deathSoundCopy = this.deathSound.createCopy();
                 deathSoundCopy.linkToGame(getHostGame());
-                deathSoundCopy.setVolume(.5f);
+                deathSoundCopy.setVolume(.75f);
                 deathSoundCopy.start();    
             }
         } catch (Exception e) {

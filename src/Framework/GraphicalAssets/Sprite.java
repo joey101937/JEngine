@@ -89,13 +89,7 @@ public class Sprite implements Graphic{
      */
     @Override
     public void destroy(){
-        image.flush();
         image = null;
-        try {
-            finalize();
-        } catch (Throwable ex) {
-            ex.printStackTrace();
-        }
     }
 
     @Override

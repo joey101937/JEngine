@@ -47,18 +47,7 @@ public class TankBullet extends Projectile {
                 if(((RTSUnit)shooter).team == otherUnit.team) return; // no friendly fire
             }
             otherUnit.takeDamage(20);
-            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
-            impactExplosion.scaleTo(.5);
-            try {
-                if(this.isOnScreen()) {
-                    SoundEffect impactSound = impactSoundSource.createCopy();
-                    impactSound.linkToGame(getHostGame());
-                    impactSound.start();
-                    impactSound.setVolume(.7f);   
-                }
-            }catch(Exception e){
-                e.printStackTrace();
-            }
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequenceSmall), getPixelLocation());
             destroy();
         }
     }

@@ -512,6 +512,7 @@ public class Game extends Canvas implements Runnable {
         double delta = 0;
         long timer = System.currentTimeMillis();
         int frames = 0;
+        int ticks = 0;
         while (running) {
             if (isPaused()) {
                 //if paused, just wait
@@ -556,7 +557,10 @@ public class Game extends Canvas implements Runnable {
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
                 //if frames = 1 then it likeley is an error from swapping scenes
-                if(frames!=1 && shouldShowFPS)System.out.println(name + " FPS: " + frames);
+                if(frames!=1 && shouldShowFPS) {
+                    System.out.println(name + " FPS: " + frames);
+                    if (Main.debugMode) System.out.println(" Ticks Per Second: " + ticks);
+                }
                 frames = 0;
                 ///this triggers once a second
             }

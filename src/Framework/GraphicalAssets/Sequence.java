@@ -97,11 +97,6 @@ public class Sequence implements Graphic{
         for(Sprite bi : frames){
             bi=null;
         }
-        try {
-            finalize();
-        } catch (Throwable ex) {
-            ex.printStackTrace();
-        }
     }
     
     /**
