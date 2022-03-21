@@ -128,9 +128,9 @@ public class Handler {
     public synchronized void render(Graphics2D g) {
         for (GameObject2 go : toRender) {
             try{
-            go.render(g);
+            go.render((Graphics2D)g.create());
             for(SubObject so : go.getAllSubObjects()){
-                so.render(g);
+                so.render((Graphics2D)g.create());
             }
             }catch(Exception e){
                 e.printStackTrace();

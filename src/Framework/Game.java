@@ -48,7 +48,7 @@ public class Game extends Canvas implements Runnable {
      * your 1080p game on a 4k display so that they don't just see the entire world 
      * and have to squint to see their character
     */
-    private static Dimension NATIVE_RESOLUTION = new Dimension((int)(1920*1),(int)(1080*1));  
+    public static Dimension NATIVE_RESOLUTION = new Dimension((int)(1920*1),(int)(1080*1));  
    
     
 
@@ -535,6 +535,7 @@ public class Game extends Canvas implements Runnable {
             lastTime = now;
             while (delta >= 1) {
                 tick();
+                ticks++;
                 delta--;
             }
             if (running) {
@@ -562,6 +563,7 @@ public class Game extends Canvas implements Runnable {
                     if (Main.debugMode) System.out.println(" Ticks Per Second: " + ticks);
                 }
                 frames = 0;
+                ticks = 0;
                 ///this triggers once a second
             }
         }
