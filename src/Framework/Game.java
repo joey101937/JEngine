@@ -427,7 +427,6 @@ public class Game extends Canvas implements Runnable {
             Main.wait(3);
             return;
         }
-        if(isPaused())return;
         Window.UIElementsOnRender();
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) { ///run once at the start
@@ -540,8 +539,8 @@ public class Game extends Canvas implements Runnable {
             }
             if (running) {
                 try{    
-                this.render();
-                Main.wait(Main.renderDelay);
+                    this.render();
+                    Main.wait(Main.renderDelay);
                 }catch(ConcurrentModificationException cme){
                     System.out.println("cme render");
                 }catch(IllegalStateException ise){
@@ -656,9 +655,9 @@ public class Game extends Canvas implements Runnable {
         if (input) {
             applyInputHandler(false);
             if (this.getBufferStrategy() != null) {
-                this.getBufferStrategy().dispose();
+                // this.getBufferStrategy().dispose();
             }
-        }
+        }        
         for (GameObject2 go : handler.getAllObjects()) {
             go.onGamePause(input);
         }
