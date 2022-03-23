@@ -11,6 +11,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -25,7 +26,7 @@ public class Window {
     public static String title = "JEngine Window"; //name of window
     public static Window mainWindow;
     public static Game currentGame;
-    private static ArrayList<UIElement> UIElements = new ArrayList<>();
+    private static CopyOnWriteArrayList<UIElement> UIElements = new CopyOnWriteArrayList<>();
     public static final Coordinate screenSize = new Coordinate(Toolkit.getDefaultToolkit().getScreenSize().width,Toolkit.getDefaultToolkit().getScreenSize().height);
 
     
@@ -126,7 +127,7 @@ public class Window {
     }
     
     
-    public static ArrayList<UIElement> getUIElements() {
+    public static CopyOnWriteArrayList<UIElement> getUIElements() {
         return UIElements;
     }
 

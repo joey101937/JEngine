@@ -25,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class GameObject2 implements Comparable<GameObject2>{    
     private Game hostGame;
-    private String name= "Unnamed " + this.getClass().getSimpleName(); 
+    private String name= this.getClass().getSimpleName(); 
     public long tickNumber = 0; //used for debugging, counts number of times this has ticked
     public long renderNumber = 0; //used for debugging, counts number of times this has rendered
     public DCoordinate location = new DCoordinate(0,0); //location relative to the world
