@@ -231,7 +231,8 @@ public class GameObject2 implements Comparable<GameObject2>{
      * @param g new graphic object
      */
     public void setGraphic(Graphic g){
-        g.scaleTo(getScale());
+        if(graphic == g) return;
+        if(g.getScale() != getScale()) g.scaleTo(getScale());
         graphic = g;
     }
 
