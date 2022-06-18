@@ -8,9 +8,11 @@ package SampleGames.SideScroller.Actors;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
+import Framework.Hitbox;
 import Framework.PathingLayer.Type;
 import SampleGames.SideScroller.DamageNumber;
 import SampleGames.SideScroller.MinotaurGame;
+import SampleGames.SideScroller.Terrain.Terrain;
 
 /**
  *
@@ -122,7 +124,24 @@ public abstract class SSActor extends GameObject2 {
     }
 
     public void jump(){
-        jumpTick=tickNumber;
+        if(isJumping()) return;
+        boolean canJump = false;
+        Coordinate[] jumpHitboxDims = {        
+            new Coordinate(getPixelLocation().x - getWidth()/2, getPixelLocation().y + getHeight()/2), // bot left of sprite
+            new Coordinate(getPixelLocation().x + getWidth()/2, getPixelLocation().y + getHeight()/2), // bot right of sprite     
+            new Coordinate(getPixelLocation().x - getWidth()/2, getPixelLocation().y + getHeight()/2 + 10), // extend 10px under sprite
+            new Coordinate(getPixelLocation().x + getWidth()/2, getPixelLocation().y + getHeight()/2 + 10),
+        };
+        Hitbox jumpHitbox = new Hitbox(jumpHitboxDims);
+        for(GameObject2 other : getHostGame().getObjectsIntersecting(jumpHitbox)) {
+            if(other != this && other.isSolid) {
+                canJump = true;
+                break;
+            }
+        }
+        if(canJump) {
+            jumpTick=tickNumber;
+        }
     }
     
     

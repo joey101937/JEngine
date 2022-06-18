@@ -56,6 +56,7 @@ public class Game extends Canvas implements Runnable {
     public static final double OVERVIEW_MODE_ZOOM = .25;
     protected static double resolutionScaleX = 1, resolutionScaleY = 1;
     /*  FIELDS   */
+    public boolean alwaysRenderFullBackground = false;
     public volatile boolean shouldShowFPS = true;
     private double zoom = 1;
     protected int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
@@ -490,7 +491,26 @@ public class Game extends Canvas implements Runnable {
                 return;
             }
             if(!Main.debugMode || pathingLayer==null){
-                g.drawImage(backgroundImage.getCurrentImage(), 0, 0, null);
+                BufferedImage bufferedImage = backgroundImage.getCurrentImage();
+                if(!alwaysRenderFullBackground  && bufferedImage.getHeight() * bufferedImage.getWidth() > 2560*1440) {
+                    // large image only render whats on screen
+                    g.drawRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
+                    g.drawImage(
+                            bufferedImage,
+                            -getCamera().getPixelLocation().x,
+                            -getCamera().getPixelLocation().y,
+                            -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
+                            -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
+                            -getCamera().getPixelLocation().x,
+                            -getCamera().getPixelLocation().y,
+                            -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
+                            -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
+                            null                            
+                    );
+                } else {
+                    // small backgrounds just render the whole thing
+                   g.drawImage(bufferedImage, 0, 0, null);
+                }
             }else if(pathingLayer!=null && pathingLayer.getSource()!=null){
                 pathingLayer.internalizeSource();
                 g.drawImage(pathingLayer.getSource(), 0, 0, null); //if in debug view, display pathing map
