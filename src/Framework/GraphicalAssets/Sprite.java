@@ -6,6 +6,7 @@
 package Framework.GraphicalAssets;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 
 /**
  * Represents an image used to be rendered in the world
@@ -13,6 +14,8 @@ import java.awt.image.BufferedImage;
  */
 public class Sprite implements Graphic{
     private BufferedImage image;
+
+    private VolatileImage volatileImage;
      private double scale = 1;
     
      /**
@@ -29,11 +32,23 @@ public class Sprite implements Graphic{
      */
     public void setImage(BufferedImage b){
         image= b;
+        volatileImage = Graphic.getVolatileFromBuffered(b);
     }
     
    
     public Sprite(BufferedImage bi){
         image = bi;
+        volatileImage = Graphic.getVolatileFromBuffered(image);
+    }
+    
+    @Override
+    public VolatileImage getCurrentVolatileImage() {
+        if(volatileImage != null && image != null) {
+            volatileImage = Graphic.getValidatedVolatileImage(volatileImage, image);
+            return volatileImage;
+        } else {
+            return null;
+        }
     }
     
     @Override
@@ -55,6 +70,7 @@ public class Sprite implements Graphic{
     @Override
     public void scale(double d) {
         image = Graphic.scaleImage(image, d);
+        volatileImage = Graphic.getVolatileFromBuffered(image);
         scale *= d;
     }
     
@@ -80,6 +96,7 @@ public class Sprite implements Graphic{
     @Override
     public void scaleTo(double d) {
         image = Graphic.scaleImage(image, d / scale);
+        volatileImage = Graphic.getVolatileFromBuffered(image);
         scale = d;
     }
     
@@ -90,12 +107,14 @@ public class Sprite implements Graphic{
     @Override
     public void destroy(){
         image = null;
+        volatileImage = null;
     }
 
     @Override
     public BufferedImage getCurrentImage() {
         return getImage();
     }
+
     @Override
     public boolean isAnimated(){
         return false;

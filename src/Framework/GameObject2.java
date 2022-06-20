@@ -12,10 +12,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
+import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -378,9 +378,9 @@ public class GameObject2 implements Comparable<GameObject2>{
                 }
                 return;
             }
-            if(sequence.getCurrentFrame()!=null){
+            if(sequence.getCurrentVolatileFrame()!=null){
                 sequence.startAnimating();
-                BufferedImage toRender = sequence.getCurrentFrame();
+                VolatileImage toRender = sequence.getCurrentVolatileFrame();
                 graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
                 if(sequence.currentFrameIndex == sequence.frames.length-1) this.onAnimationCycle();
             }else{
@@ -389,7 +389,7 @@ public class GameObject2 implements Comparable<GameObject2>{
         }else{
             Sprite sprite = (Sprite)getGraphic();
             if(sprite!=null){                
-                graphics.drawImage(sprite.getImage(), pixelLocation.x - sprite.getImage().getWidth() / 2, pixelLocation.y - sprite.getImage().getHeight() / 2, null); //draws sprite centered on pixelLocation
+                graphics.drawImage(sprite.getCurrentVolatileImage(), pixelLocation.x - sprite.getImage().getWidth() / 2, pixelLocation.y - sprite.getImage().getHeight() / 2, null); //draws sprite centered on pixelLocation
             } else {
                 if (renderNumber > 10 && tickNumber > 2) {
                     System.out.println("Warning: unanimated game object sprite is null " + getName());

@@ -31,6 +31,7 @@ import static java.awt.RenderingHints.VALUE_ANTIALIAS_OFF;
 import static java.awt.RenderingHints.VALUE_COLOR_RENDER_SPEED;
 import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
 import java.awt.Stroke;
+import java.awt.image.VolatileImage;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -491,12 +492,12 @@ public class Game extends Canvas implements Runnable {
                 return;
             }
             if(!Main.debugMode || pathingLayer==null){
-                BufferedImage bufferedImage = backgroundImage.getCurrentImage();
-                if(!alwaysRenderFullBackground  && bufferedImage.getHeight() * bufferedImage.getWidth() > 2560*1440) {
+                VolatileImage volatileImage = backgroundImage.getCurrentVolatileImage();
+                if(!alwaysRenderFullBackground  && volatileImage.getHeight() * volatileImage.getWidth() > 2560*1440) {
                     // large image only render whats on screen
-                    g.drawRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
+                    g.drawRect(0, 0, volatileImage.getWidth(), volatileImage.getHeight());
                     g.drawImage(
-                            bufferedImage,
+                            volatileImage,
                             -getCamera().getPixelLocation().x,
                             -getCamera().getPixelLocation().y,
                             -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
@@ -509,7 +510,7 @@ public class Game extends Canvas implements Runnable {
                     );
                 } else {
                     // small backgrounds just render the whole thing
-                   g.drawImage(bufferedImage, 0, 0, null);
+                   g.drawImage(volatileImage, 0, 0, null);
                 }
             }else if(pathingLayer!=null && pathingLayer.getSource()!=null){
                 pathingLayer.internalizeSource();

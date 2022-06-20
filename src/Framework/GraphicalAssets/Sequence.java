@@ -8,6 +8,7 @@ package Framework.GraphicalAssets;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 /**
  * Animation sequence
  * @author Joseph
@@ -52,6 +53,40 @@ public class Sequence implements Graphic{
             if (currentFrameIndex != 0) {
                 currentFrameIndex = 0;
                 return getCurrentFrame();
+            }
+        }
+        return output;
+    }
+    
+    /**
+     * @return BufferedImage to be rendered based on frame index, null if 
+     * the frames array is null or if the actual image is null
+     */
+    public VolatileImage getCurrentVolatileFrame() {
+        if(startTime == null) {
+            startTime = System.currentTimeMillis();
+        }
+        if(frames==null){
+            System.out.println("Attempting to get current frame with null array");
+            return null;
+        }
+        if(frames.length==0){
+            System.out.println("Attempting to get frame of empty sequence");
+            return null;
+        }
+        VolatileImage output = null;
+        try {
+            if (!isPaused()) {
+                currentFrameIndex = getCurrentFrameIndex();
+            }
+            output = frames[currentFrameIndex].getCurrentVolatileImage();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            //check to see if threads got out of sync and updated index too fast
+            //if so, reset index rather than returning null
+            //UPDATE: this is likely unneeded after I fixed some issues but i will leave just in case
+            if (currentFrameIndex != 0) {
+                currentFrameIndex = 0;
+                return getCurrentVolatileFrame();
             }
         }
         return output;
@@ -174,6 +209,13 @@ public class Sequence implements Graphic{
         startAnimating();
         return getCurrentFrame();
     }
+
+    @Override
+    public VolatileImage getCurrentVolatileImage() {
+        startAnimating();
+        return getCurrentVolatileFrame();
+    }
+    
     @Override
     public boolean isAnimated(){
         return true;
