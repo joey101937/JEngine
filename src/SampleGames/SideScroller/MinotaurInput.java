@@ -21,11 +21,11 @@ public class MinotaurInput extends AsyncInputHandler{
         switch(e.getKeyChar()){
             case 'a':
                 if(!MinotaurGame.playerMinotaur.freeToAct())break;
-                MinotaurGame.playerMinotaur.velocity.x = -3;
+                MinotaurGame.playerMinotaur.velocity.x = -MinotaurGame.playerMinotaur.getBaseSpeed();
                 break;
             case 'd':
                  if(!MinotaurGame.playerMinotaur.freeToAct())break;
-                MinotaurGame.playerMinotaur.velocity.x = 3;
+                MinotaurGame.playerMinotaur.velocity.x = MinotaurGame.playerMinotaur.getBaseSpeed();
                 break;
             case ' ':
                 if(MinotaurGame.playerMinotaur.isOnGround()){

@@ -31,6 +31,7 @@ public class RTSGame {
         game.addIndependentEffect(new SelectionBoxEffect());
         Window.addUIElement(minimap);
         Window.addUIElement(button);
+        minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
         
         for (int i = 0; i < 30; i++) {
             game.addObject(new TankUnit(100 + (i * 120), 800, 0));

@@ -7,6 +7,7 @@ package SampleGames.SideScroller;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.Main;
 import Framework.UtilityObjects.BlockObject;
 import Framework.Window;
 import SampleGames.SideScroller.Actors.Minotaur;
@@ -25,6 +26,7 @@ public class MinotaurGame {
     
     public static void main(String[] args) {
         Window.initialize(scene1);
+        Main.ticksPerSecond = 240; // high ticks per second for more responsiveness
         scene1.worldBorder = 30;
         scene1.addObject(playerMinotaur);
         playerMinotaur.setMaxHealth(300);

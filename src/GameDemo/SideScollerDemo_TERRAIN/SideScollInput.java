@@ -16,10 +16,10 @@ public class SideScollInput extends InputHandler{
     public void keyPressed(KeyEvent e){
         switch(e.getKeyChar()){
             case 'a':
-                SideScrollDemo.playerCharacter.velocity.x = -3;
+                SideScrollDemo.playerCharacter.velocity.x = -1.5;
                 break;
             case 'd':
-                SideScrollDemo.playerCharacter.velocity.x = 3;
+                SideScrollDemo.playerCharacter.velocity.x = 1.5;
                 break;
             case ' ':
                 if(SideScrollDemo.playerCharacter.isOnGround()){

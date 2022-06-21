@@ -71,17 +71,17 @@ public class SideScrollCharacter extends GameObject2{
     }
 
     public boolean isJumping(){
-    return 25 - (tickNumber - jumpTick) > 0;
+    return 50 - (tickNumber - jumpTick) > 0;
     }
     
     private void adjustVelocityForGravityAndJump() {
         if(velocity.y>0)velocity.y=0;
         if (isJumping()) {
-            velocity.y = -7;
+            velocity.y = -3.5;
             return;
         }
         if (!isOnGround()) {
-            velocity.y = 5;        
+            velocity.y = 2.5;        
             //System.out.println(velocity);
         } else if (velocity.y > 0) {
             velocity.y = 0;

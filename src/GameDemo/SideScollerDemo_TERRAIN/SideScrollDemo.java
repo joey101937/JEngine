@@ -20,7 +20,7 @@ public class SideScrollDemo {
     protected static SideScrollCharacter playerCharacter = new SideScrollCharacter(new Coordinate(100,100));
  
     public static void main(String[] args) {
-        
+        Main.ticksPerSecond = 120;
         Game g = new Game(SpriteManager.platformBG);
         g.setPathingLayer(SpriteManager.platformPathing);
         g.start();
