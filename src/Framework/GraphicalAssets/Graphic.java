@@ -5,6 +5,7 @@
  */
 package Framework.GraphicalAssets;
 
+import Framework.Main;
 import Framework.Window;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
@@ -124,7 +125,7 @@ public interface Graphic {
         GraphicsConfiguration gc = Window.frame.getGraphicsConfiguration();
         int status = vi.validate(gc);
         if(vi.contentsLost() || status != 0) {
-            System.out.println("image contents lost");
+            if(Main.debugMode) System.out.println("Graphic- volatile image contents lost");
             return getVolatileFromBuffered(source);
         }
         else return vi;
