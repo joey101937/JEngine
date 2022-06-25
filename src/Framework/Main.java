@@ -166,6 +166,26 @@ public class Main {
         }
         return input;
     }
+    
+        /**
+     * clamps the input to a given set of constraints and returns the max or min
+     * rather than the inputed value if the input is outside the given range
+     *
+     * @param input the number to test
+     * @param max maximum value
+     * @param min minimum value
+     * @return if the number is between max and min then return input, else
+     * return the min or max respectively
+     */
+    public static double clamp(double input, double max, double min) {
+        if (input > max) {
+            return input = max;
+        }
+        if (input < min) {
+            return input = min;
+        }
+        return input;
+    }
 
     /**
      * returns a random integer between the given parameters

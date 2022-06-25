@@ -146,15 +146,15 @@ public abstract class SSActor extends GameObject2 {
     
     
     public boolean isJumping(){
-    return 25 - (tickNumber - jumpTick) > 0;
+    return 100 - (tickNumber - jumpTick) > 0;
     }
     
     public void adjustVelocityForGravityAndJump() {
         if (isJumping()) {
-            velocity.y = -7;
+            velocity.y = -3.5 / 2;
             return;
         } else {
-                velocity.y = 5;
+                velocity.y = 2.5 / 2;
         }
 
     }

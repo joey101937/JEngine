@@ -41,6 +41,7 @@ public final class Minimap extends UIElement {
     public boolean useSimpleRender = false;
     private double widthOfFrame = 1;
     private double heightOfFrame = 1;
+    private SimpleRenderHelper simpleRenderHelper = null;
 
     /**
      * creates a minimap object based on given game. Automatically attaches
@@ -66,6 +67,10 @@ public final class Minimap extends UIElement {
         interior.setLocation(0, 0);
         this.setBackground(Color.black);
         this.add(interior);
+    }
+    
+    public void setSimpleRenderHelper (SimpleRenderHelper srh) {
+        this.simpleRenderHelper = srh;
     }
 
     /*
@@ -233,7 +238,11 @@ public final class Minimap extends UIElement {
             g2d.scale(xScale, yScale);
             for (GameObject2 go : hostGame.getAllObjects()) {
                 if (useSimpleRender) {
-                    g.fillOval(go.getPixelLocation().x - go.getWidth()/2, go.getPixelLocation().y - go.getHeight()/2, go.getWidth(), go.getHeight());
+                    if(simpleRenderHelper != null) {
+                        simpleRenderHelper.simpleRender(go, g2d);
+                    } else {
+                        g.fillOval(go.getPixelLocation().x - go.getWidth()/2, go.getPixelLocation().y - go.getHeight()/2, go.getWidth(), go.getHeight());
+                    }
                 } else {
                     go.render(g2d, true);
                     for (SubObject sub : go.getAllSubObjects()) {

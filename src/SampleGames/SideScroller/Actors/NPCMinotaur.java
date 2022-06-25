@@ -50,7 +50,7 @@ public class NPCMinotaur extends Minotaur{
                 }
             }
         }
-        this.velocity.x = Main.clamp(desiredXCoordinate - getPixelLocation().x, 3 , -3 ); // cap speed to 3 left or right
+        this.velocity.x = Main.clamp(desiredXCoordinate - getPixelLocation().x, getBaseSpeed() , -getBaseSpeed() ); // cap speed to 3 left or right
     }
     
 }
