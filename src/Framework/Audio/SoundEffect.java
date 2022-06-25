@@ -37,6 +37,7 @@ public class SoundEffect implements Runnable{
     private volatile boolean paused = false;    //paused directly
     private volatile Game hostGame = null;
     private volatile Long currentFrame = 0L;
+    private volatile int startDelay = 0;
     private boolean looping = false;
     
     /**
@@ -89,6 +90,16 @@ public class SoundEffect implements Runnable{
             }
         }
     }
+    
+    public void startWithRandomDelay(int min, int max){
+        startDelay = Main.generateRandom(min, max);
+        start();
+    }
+    
+    public void startWithDelay(int delay){
+        startDelay = delay;
+        start();
+    }
 
     /**
      * Gets the thread that is supporting this soundeffect
@@ -126,6 +137,9 @@ public class SoundEffect implements Runnable{
      */
     @Override
     public void run() {
+        if(startDelay > 0) {
+            Main.wait(startDelay);
+        }
         clip.start();
         while (!isDisabled()) {
             Main.wait(1000);        //check every 1 second
