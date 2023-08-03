@@ -117,6 +117,16 @@ public class Coordinate {
         x = (int) offset.x;
         y = (int) offset.y;
     }
+    
+    
+    public Coordinate offsetBy(Coordinate other) {
+      return new Coordinate(x - other.x, y - other.y);  
+    }
+    
+    public DCoordinate offsetBy(DCoordinate other) {
+        return new DCoordinate((double)x - other.x, (double)y - other.y);
+    }
+    
 
     /**
      * adjusts this coordinate to reflect the location it would be at if it were

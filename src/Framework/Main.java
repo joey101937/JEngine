@@ -37,11 +37,32 @@ public class Main {
     public static long seed = (long)(Math.random()*9999999999999L);
     private static Random random;
     
+    
     /**
-     * @param args the command line arguments
+     * this is the new main method that only shows the nicer looking demos... not that any of them look particularly good
      */
-    public static void main(String[] args) {
-
+    private static void showCuratedDemos(String[] args) {
+        String[] options = { "Demo - RTS", "Demo - Side Scroller" , "Game - Minotaur", "Game - Galiga"};
+        int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
+        System.out.println(choice);
+        switch(choice){
+            case -1: System.exit(0);
+            case 0: SideScrollDemo.main(args);
+            break;
+            case 1: RTSGame.main(args);
+            break;
+            case 2: MinotaurGame.main(args);
+            break;
+            case 3: GaligaGame.main(args);
+            break;
+            default: {
+                System.out.println("unknown selection");
+                System.exit(1);
+            }
+        }
+    }
+    
+    private static void showAllDemos(String[] args) {
         String[] options = {"Demo - Sandbox" , "Demo - Tank", "Demo - RTS", "Demo - Misc" , "Demo - Side Scroller" , "Game - Minotaur", "Game - Galiga"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
@@ -66,6 +87,14 @@ public class Main {
                 System.exit(1);
             }
         }
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        showCuratedDemos(args);
+        // showAllDemos(args);
     }
     
     public static void setRandomSeed(long seed) {

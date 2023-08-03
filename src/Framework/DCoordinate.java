@@ -197,6 +197,15 @@ public class DCoordinate {
         x = offset.x;
         y = offset.y;
     }
+    
+    
+    public DCoordinate offsetBy(Coordinate other) {
+      return new DCoordinate(x - other.x, y - other.y);  
+    }
+    
+    public DCoordinate offsetBy(DCoordinate other) {
+        return new DCoordinate((double)x - other.x, (double)y - other.y);
+    }
 
     /**
      * returns a coordinate whos x and y values have been rotated around the

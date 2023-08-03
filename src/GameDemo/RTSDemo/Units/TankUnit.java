@@ -66,21 +66,6 @@ public class TankUnit extends RTSUnit{
         this.currentHealth = maxHealth;
     }
 
-    @Override
-    public void render(Graphics2D g) {
-        super.render(g);
-        if (isSelected()) {
-            Color original = g.getColor();
-            Stroke originalStroke = g.getStroke();
-            g.setColor(Color.red);
-            g.setStroke(new BasicStroke(10));
-            Coordinate c = getPixelLocation();
-            g.drawOval(c.x - RANGE, c.y - RANGE, RANGE * 2, RANGE * 2);
-            g.setColor(original);
-            g.setStroke(originalStroke);
-        }
-    }
-
     //when a tank tries to fire, it first checks if its turret is still firing. 
     //if not, tell the turret to fire at target location
     public void fire(Coordinate target) {
@@ -226,18 +211,6 @@ public class TankUnit extends RTSUnit{
     @Override
     public void onDestroy() {
         OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
-        deathAni.scale(1.5);
-        try {
-            if(isOnScreen()) {
-                SoundEffect deathSoundCopy = this.deathSound.createCopy();
-                deathSoundCopy.linkToGame(getHostGame());
-                deathSoundCopy.setVolume(.75f);
-                deathSoundCopy.start();    
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 }
 

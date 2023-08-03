@@ -13,6 +13,8 @@ import Framework.AsyncInputHandler;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -21,6 +23,18 @@ import java.util.ArrayList;
 public class RTSInput extends AsyncInputHandler {
     private static Coordinate mouseDownLocation = null;
     private static Coordinate mouseDraggedLocation = null;
+    
+    private Coordinate averageLocation(ArrayList<RTSUnit> input) {
+        List<RTSUnit> livingMembers = input.stream().filter(x -> x.isAlive()).collect(Collectors.toList());
+        Coordinate output = new Coordinate(0,0);
+        livingMembers.forEach((item) -> {
+            output.x += item.getPixelLocation().x;
+            output.y += item.getPixelLocation().y;
+        });
+        output.x /= livingMembers.size();
+        output.y /= livingMembers.size();
+        return output;
+    }
     
     @Override
     public void onMousePressed(MouseEvent e){
@@ -32,8 +46,19 @@ public class RTSInput extends AsyncInputHandler {
             mouseDownLocation = locationOfMouseEvent(e);
             mouseDraggedLocation = locationOfMouseEvent(e);
         }else if(e.getButton()==3){ //3 means right click
-            for(RTSUnit u : SelectionBoxEffect.selectedUnits){
-                u.setDesiredLocation(locationOfMouseEvent(e));
+            if(e.isControlDown()) {
+                // all move to exact position of mouse click
+                for(RTSUnit u : SelectionBoxEffect.selectedUnits){
+                    u.setDesiredLocation(locationOfMouseEvent(e));
+                }
+            } else {
+                // formation move
+                Coordinate target = locationOfMouseEvent(e);
+                Coordinate avgStartLocation = averageLocation(SelectionBoxEffect.selectedUnits);
+                for(RTSUnit u : SelectionBoxEffect.selectedUnits){
+                    Coordinate offset = new Coordinate(avgStartLocation.x - u.getPixelLocation().x, avgStartLocation.y - u.getPixelLocation().y);
+                    u.setDesiredLocation(target.offsetBy(offset));
+                }
             }
         }
 

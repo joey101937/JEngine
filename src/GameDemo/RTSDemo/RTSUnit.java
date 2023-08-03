@@ -31,14 +31,13 @@ public class RTSUnit extends Creature {
         Stroke originalStroke= g.getStroke();
         g.setColor(Color.green);
         g.setStroke(new BasicStroke(5));
-        g.drawLine(pixelLocation.x - getWidth()/2, pixelLocation.y + getHeight()/2, pixelLocation.x - getWidth()/2 + (int)(getWidth() * ((double)currentHealth/maxHealth)), pixelLocation.y + getHeight()/2);
+        g.drawLine(pixelLocation.x - getWidth()/2, pixelLocation.y + getHeight()/2 + 20, pixelLocation.x - getWidth()/2 + (int)(getWidth() * ((double)currentHealth/maxHealth)), pixelLocation.y + getHeight()/2 + 20);
         if (selected) {
             Coordinate renderLocation = getPixelLocation();
             renderLocation.x -= getWidth() / 2;
             renderLocation.y -= getHeight() / 2;
             g.drawOval(renderLocation.x, renderLocation.y, getWidth(), getHeight());
             g.drawLine(getPixelLocation().x, getPixelLocation().y, desiredLocation.x, desiredLocation.y);
-            g.drawString(this.currentHealth+"/"+maxHealth, getPixelLocation().x + 100, getPixelLocation().y);
         }
         g.setStroke(originalStroke);
         g.setColor(originalColor);
