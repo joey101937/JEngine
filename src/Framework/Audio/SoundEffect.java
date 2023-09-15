@@ -9,6 +9,7 @@ import Framework.Game;
 import Framework.Main;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -39,6 +40,13 @@ public class SoundEffect implements Runnable{
     private volatile Long currentFrame = 0L;
     private volatile int startDelay = 0;
     private boolean looping = false;
+    
+    /**
+     * determines max number of async players that this sound effect can have active at once
+     */
+    public int maxAsyncCopies = 3;
+    public ArrayList<AsyncPlayer> asyncPlayers = new ArrayList<>();
+    
     
     /**
      * creates a new sound effect with the given file.
@@ -323,7 +331,7 @@ public class SoundEffect implements Runnable{
     private synchronized void resetAudioStream() {
         try {
             System.out.println("resetting audio stream");
-            clip.close();
+            clip.close(); 
             stream = AudioSystem.getAudioInputStream(source);
             clip.open(stream);
         } catch (Exception e) {
@@ -340,7 +348,7 @@ public class SoundEffect implements Runnable{
         if(disabled){
             throw new RuntimeException("Cannot restart disabled sound");
         }
-        resetAudioStream();
+        clip.setMicrosecondPosition(0);
         if (isLooping()) {
             clip.loop(Clip.LOOP_CONTINUOUSLY);
         }
@@ -405,6 +413,22 @@ public class SoundEffect implements Runnable{
      */
     public SoundEffect createCopy(){
         return new SoundEffect(source);
+    }
+    
+    public void playCopyAsync(float volume) {
+        if (asyncPlayers.stream().filter(x -> x.mySound != null && x.mySound.getClip().isActive()).toArray().length < maxAsyncCopies) {
+            AsyncPlayer player = new AsyncPlayer(this, volume);
+            Thread t = new Thread(player);
+            t.start();
+        } else {
+            // if we at max capacity, just restart one
+            for (AsyncPlayer player : asyncPlayers) {
+                if(player.mySound.getClip().isActive()) {
+                    player.mySound.restart();
+                    break;
+                }
+            }
+        }
     }
 
     /**

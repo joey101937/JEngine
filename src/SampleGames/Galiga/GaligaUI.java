@@ -16,7 +16,7 @@ import java.awt.Graphics2D;
  */
 public class GaligaUI extends IndependentEffect{
     private int score = 0;
-    private int lives = 3;
+    private int lives = 5;
     
     public int getScore(){
         return score;

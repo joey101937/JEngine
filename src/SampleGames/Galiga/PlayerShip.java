@@ -21,11 +21,10 @@ import Framework.Stickers.OnceThroughSticker;
  */
 public class PlayerShip extends GameObject2{
 
-    private volatile long lastHitTick = 0;
+    private long lastHitTick = 0;
     public final static int maxHeight = 200;
     public PlayerShip(Coordinate c) {
         super(c);
-        
     }
 
     public PlayerShip(DCoordinate dc) {
@@ -45,7 +44,7 @@ public class PlayerShip extends GameObject2{
         isSolid=true;
         setName("Player");
         movementType = MovementType.SpeedRatio;
-        baseSpeed = 4;  
+        baseSpeed = 5;  
     }
     
     @Override
@@ -57,7 +56,7 @@ public class PlayerShip extends GameObject2{
     }
     
     //run when ship takes damage that costs a life.
-    public synchronized void onHit(){
+    public void onHit(){
         if(lastHitTick + Main.ticksPerSecond > tickNumber){
             //cannot be hit more than once per second
             return;
@@ -65,9 +64,7 @@ public class PlayerShip extends GameObject2{
         lastHitTick = tickNumber;
         GaligaGame.UI.onDeath();
         new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence), getPixelLocation());
-        SoundEffect explosionEffect = GaligaGame.deathSound.createCopy();
-        explosionEffect.setVolume(.7f);
-        explosionEffect.start();
+         GaligaGame.deathSound.playCopyAsync(.7f);
         if (GaligaGame.UI.getLives() > 0) {
             System.out.println("life lost");
         } else {

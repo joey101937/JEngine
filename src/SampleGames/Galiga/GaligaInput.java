@@ -71,9 +71,7 @@ public class GaligaInput extends AsyncInputHandler{
                 Bolt b = new Bolt(spawnPoint, dest);
                 b.isFriendly = true;
                 GaligaGame.mainGame.addObject(b);
-                SoundEffect se = GaligaGame.pewSound.createCopy();
-                se.setVolume(.7f);
-                se.start();
+                GaligaGame.pewSound.playCopyAsync(.7f);
                 break;
         }
     }

@@ -49,7 +49,6 @@ public class Bolt extends Projectile{
     
     @Override
     public void onCollide(GameObject2 other, boolean fromMyTick) {
-        System.out.println("on collide");
         if (other instanceof PlayerShip) {
             if (isFriendly) {
                 //do nothing

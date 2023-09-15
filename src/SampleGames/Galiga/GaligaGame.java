@@ -8,6 +8,7 @@ package SampleGames.Galiga;
 import Framework.Audio.SoundEffect;
 import Framework.DCoordinate;
 import Framework.Game;
+import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
 import java.io.File;
@@ -28,13 +29,13 @@ public class GaligaGame {
     public static void main(String[] args) {
         mainGame = new Game(SpriteManager.spaceBG);
         Window.initialize(mainGame);
-        //Main.debugMode=true;
         DCoordinate spawnPoint = new DCoordinate(mainGame.getWorldWidth()/2,mainGame.getWorldHeight()-150);
         player = new PlayerShip(spawnPoint);
         mainGame.addObject(player);
         mainGame.setInputHandler(new GaligaInput());
         mainGame.addIndependentEffect(UI);
         mainGame.addIndependentEffect(new GameDriver());
+        bgMusic.setVolume(.75f);
         bgMusic.setLooping(true);
         bgMusic.start();
     }

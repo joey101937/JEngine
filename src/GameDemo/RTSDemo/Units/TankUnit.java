@@ -104,10 +104,7 @@ public class TankUnit extends RTSUnit{
             setGraphic(fireAnimation);
             try {
                 if(isOnScreen()) {
-                   SoundEffect launchSound = launchSoundSource.createCopy();
-                    launchSound.linkToGame(getHostGame());
-                    launchSound.setVolume(.5f);
-                    launchSound.start(); 
+                    launchSoundSource.playCopyAsync(.5f);
                 }                
             } catch (Exception e) {
                 e.printStackTrace();

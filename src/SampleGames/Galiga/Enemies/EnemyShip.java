@@ -58,7 +58,7 @@ public class EnemyShip extends GameObject2{
             location.x = getHostGame().getWorldWidth() - getHostGame().worldBorder;
         }
         if (location.y < getHostGame().worldBorder) {
-            location.y = getHostGame().getWorldHeight() - getHostGame().worldBorder;
+            location.y = getHostGame().getWorldHeight() - getHostGame().worldBorder - 200; // dont let ships teleport behind the player
         }
         if (location.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
             location.x = getHostGame().worldBorder;
@@ -71,9 +71,7 @@ public class EnemyShip extends GameObject2{
     @Override
     public void onDestroy(){
         new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence) ,getPixelLocation());
-        SoundEffect explosionEffect = GaligaGame.deathSound.createCopy();
-        explosionEffect.setVolume(.7f);
-        explosionEffect.start();
+        GaligaGame.deathSound.playCopyAsync(.7f);
         GaligaGame.UI.increaseScore(500);
     }
     
@@ -83,10 +81,8 @@ public class EnemyShip extends GameObject2{
         b.isFriendly=false;
         DCoordinate target = GaligaGame.player.location;
         b.launch(target);
-        SoundEffect se = GaligaGame.pewSound.createCopy();
-        se.setVolume(.7f);
-        se.start();
         getHostGame().addObject(b);
+        GaligaGame.pewSound.playCopyAsync(.7f);
     }
     
     @Override
