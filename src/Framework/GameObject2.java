@@ -627,8 +627,8 @@ public class GameObject2 implements Comparable<GameObject2>{
             if (pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) < .05 && collisionSliding) {
                 //pathing at new location is blocked. (speed multiplier < .05)
                 //check directions to see which are blocked so we can possibly slide
-                boolean xClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) Math.ceil(newLocation.x), (int) Math.ceil(location.y)))) > .05;
-                boolean yClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) Math.ceil(location.x), (int) Math.ceil(newLocation.y)))) > .05;
+                boolean xClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) newLocation.x, (int) location.y))) > .05;
+                boolean yClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) location.x, (int) newLocation.y))) > .05;
                 if (!xClear) {
                     newLocation.x = location.x;
                 }
