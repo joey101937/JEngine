@@ -543,7 +543,8 @@ public class GameObject2 implements Comparable<GameObject2>{
                     }
                     // already overlapping
                     if (current.getHitbox().intersects(other.getHitbox())) {
-                        if (newLocation.distanceFrom(other.getLocationAsOfLastTick()) > current.location.distanceFrom(other.getLocationAsOfLastTick())) {
+                        if (newLocation.distanceFrom(other.getCenterForCollisionSliding()) > current.location.distanceFrom(other.getCenterForCollisionSliding())) {
+                            System.out.println("test" + other.getCenterForCollisionSliding());
                             continue; //if we are moving away from it, allow the movement
                         } else {
                             xClear = false;
@@ -838,6 +839,15 @@ public class GameObject2 implements Comparable<GameObject2>{
 
     public DCoordinate getLocationAsOfLastTick() {
         return locationAsOfLastTick.copy();
+    }
+    
+    /**
+     * this method is used to determine the centerpoint of the object for collision when collision sliding is enabled.
+     * ie if other objects want to move to a point intersecting with this object, it is allowed as long as their new position places them farther than this point.
+     * @return DCoordinate the point
+     */
+    public DCoordinate getCenterForCollisionSliding() {
+        return getLocationAsOfLastTick();
     }
 
     protected void setLocationAsOfLastTick(DCoordinate locationAsOfLastTIck) {

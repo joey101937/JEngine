@@ -78,6 +78,15 @@ public class BlockObject extends GameObject2{
     }
     
     @Override
+    public DCoordinate getCenterForCollisionSliding() {
+        if(centered) return super.getCenterForCollisionSliding();
+        DCoordinate out = super.getCenterForCollisionSliding();
+        out.x += getWidth() / 2;
+        out.y += getHeight() / 2;
+        return out;
+    }
+    
+    @Override
     public void updateHitbox(){
          //if no hitbox, create the default box hitbox
         if (getHitbox() == null && getWidth()>0 && renderNumber>0) {

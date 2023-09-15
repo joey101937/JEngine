@@ -17,6 +17,8 @@ import java.util.Collection;
  */
 public class NPCMinotaur extends Minotaur{
     
+    public int attackInterval = 100; //attack max once per 100 ticks
+    
     public int desiredXCoordinate = 0;
     
     public Long lastAttackedTick = 0L;
@@ -31,7 +33,7 @@ public class NPCMinotaur extends Minotaur{
         super.tick();
         Collection<GameObject2> nearbyObjects = this.getHostGame().getObjectsNearPoint(getPixelLocation(), 400);
         nearbyObjects.remove(this);
-        if(nearbyObjects.isEmpty()) {
+        if(nearbyObjects.isEmpty() || getCurrentHealth() <= 0) {
             this.velocity.x = 0;
             return;
         }
@@ -42,7 +44,7 @@ public class NPCMinotaur extends Minotaur{
                 if (Coordinate.distanceBetween(this.getPixelLocation(), nearbyObject.getPixelLocation()) < 100) {
                     // if player is right next to this npc, stop moving and attack
                     this.velocity.x = 0;
-                    if(freeToAct() && lastAttackedTick + 30 < tickNumber) { //attack max once per 30 ticks
+                    if(freeToAct() && lastAttackedTick + attackInterval < tickNumber) {
                        lastAttackedTick = this.tickNumber;
                        this.attack((nearbyObject.location.x - this.location.x) > 0); // right or left attack based on if their x is farther to right than ours
                     }

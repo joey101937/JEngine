@@ -6,6 +6,7 @@
 package GameDemo.SideScollerDemo_TERRAIN;
 
 import Framework.InputHandler;
+import Framework.Main;
 import java.awt.event.KeyEvent;
 /**
  *
@@ -40,6 +41,9 @@ public class SideScollInput extends InputHandler{
                 break;
             case 'd':
                 if(player.velocity.x>0)player.velocity.x = 0;
+                break;
+            case 'x':
+                Main.debugMode = !Main.debugMode;
                 break;
             default: 
                 break;

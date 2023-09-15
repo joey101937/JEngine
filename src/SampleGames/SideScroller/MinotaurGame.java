@@ -25,7 +25,6 @@ public class MinotaurGame {
     
     
     public static void main(String[] args) {
-        Window.initialize(scene1);
         Main.ticksPerSecond = 240; // high ticks per second for more responsiveness
         scene1.worldBorder = 30;
         scene1.addObject(playerMinotaur);
@@ -33,6 +32,7 @@ public class MinotaurGame {
         playerMinotaur.setCurrentHealth(300);
         scene1.getCamera().setTarget(playerMinotaur);
         scene1.setInputHandler(new MinotaurInput());
+        Window.initialize(scene1);
         Game.scaleForResolutionAspectRatio();
     }
 }

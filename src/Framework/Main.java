@@ -47,9 +47,9 @@ public class Main {
         System.out.println(choice);
         switch(choice){
             case -1: System.exit(0);
-            case 0: SideScrollDemo.main(args);
+            case 0: RTSGame.main(args);
             break;
-            case 1: RTSGame.main(args);
+            case 1: SideScrollDemo.main(args);
             break;
             case 2: MinotaurGame.main(args);
             break;
