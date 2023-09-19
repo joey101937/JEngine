@@ -72,24 +72,34 @@ public class Coordinate {
         return new Coordinate(a.x + b.x, a.y + b.y);
     }
 
-    public void add(DCoordinate other) {
+    public Coordinate add(DCoordinate other) {
         x += other.x;
         y += other.y;
+        return this;
     }
 
-    public void add(Coordinate other) {
+    public Coordinate add(Coordinate other) {
         x += other.x;
         y += other.y;
+        return this;
+    }
+    
+    public Coordinate add(int x, int y) {
+        this.x += x;
+        this.y += y;
+        return this;
     }
 
-    public void subtract(Coordinate other) {
+    public Coordinate subtract(Coordinate other) {
         x -= other.x;
         y -= other.y;
+        return this;
     }
 
-    public void subtract(DCoordinate other) {
+    public Coordinate subtract(DCoordinate other) {
         x -= other.x;
         y -= other.y;
+        return this;
     }
 
     public Coordinate getInverse() {
@@ -100,9 +110,10 @@ public class Coordinate {
         return new Coordinate(this);
     }
 
-    public void scale(double s) {
+    public Coordinate scale(double s) {
         x *= s;
         y *= s;
+        return this;
     }
 
     public void rotateAboutPoint(Coordinate point, double degrees) {
@@ -166,8 +177,9 @@ public class Coordinate {
     /**
      * scales this Coordinate by -1
      */
-    public void invert() {
+    public Coordinate invert() {
         x *= -1;
         y *= -1;
+        return this;
     }
 }

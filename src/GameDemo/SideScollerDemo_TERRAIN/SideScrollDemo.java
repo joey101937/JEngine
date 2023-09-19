@@ -17,7 +17,7 @@ import Framework.Window;
  */
 public class SideScrollDemo {
     
-    protected static SideScrollCharacter playerCharacter = new SideScrollCharacter(new Coordinate(100,100));
+    protected static SideScrollCharacter playerCharacter = new SideScrollCharacter(new Coordinate(100,200));
  
     public static void main(String[] args) {
         Main.ticksPerSecond = 120;
@@ -31,7 +31,8 @@ public class SideScrollDemo {
         g.worldBorder=20;
         g.getCamera().setTarget(playerCharacter);
         Game.scaleForResolutionAspectRatio();
+        playerCharacter.generateDefaultPathingOffsets();
         //g.setZoom(1.5);
-        //Main.debugMode=true;
+        // Main.debugMode=true;
     }
 }

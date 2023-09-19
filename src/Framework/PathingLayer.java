@@ -111,9 +111,13 @@ public class PathingLayer {
                 return getType(source.getRGB(c.x, c.y));
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("trying to get pathing layer outside of world");
+            System.out.println("trying to get pathing layer outside of world " + c);
             return Type.impass;
         }
+    }
+    
+    public Type getTypeAt(int x, int y) {
+        return this.getTypeAt(new Coordinate(x,y));
     }
 
     public BufferedImage getSource() {
@@ -122,7 +126,7 @@ public class PathingLayer {
 
     public void setSource(BufferedImage source) {
         if(this.mapGenerated){
-            throw new RuntimeException("Cannot change souce once map has been generated");
+            throw new RuntimeException("Cannot change source once map has been generated");
         }
         this.source = source;
     }

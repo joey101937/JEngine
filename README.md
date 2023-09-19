@@ -373,13 +373,18 @@ Subobjects are special GameObject2's that are attached to a 'host' GameObject2. 
 # Pathing Layer
 A pathingLayer is an image file with the same dimensions as the world. This image however is made up of only a handful of colors with each of those colors representing a type of terrain. By default, there are four types defined: green= ground; red=hostile, blue= water; black= impassable.
 
-GameObject2s can check what type of terrain they are on and it may effect movement. GameObjecs contain a **HashMap<PathingLayer.Type,Double>** called **pathingModifers**, which implements a speed modifier based on what type of terrain they are on. 1=standard speed, .5 = half speed, 2= double speed. *Modifiers of less than 0.05 will be considered impassable and the GameObject will NOT be able to move onto it*.
+GameObject2s can check what type of terrain they are on and it may effect movement. GameObjecs contain a **HashMap<PathingLayer.Type,Double>** called **pathingModifers**, which implements a speed modifier based on what type of terrain they are on. 1=standard speed, .5 = half speed, 2= double speed. *Modifiers of less than 0.01 will be considered impassable and the GameObject will NOT be able to move onto it*.
 
 *Default Movement Modifiers: ground,hostile: 1.0 | water:0.33 | impass:0.0*
 
 GameObject2s by default move regularly on ground and hostile terrain, slowly in water, and not at all in impassable terrain. Hostile terrain has no intrinsic function but an example use case is setting a player character object to take damage when it detects that the current terrain is hostile.
 
 You can use a GameObject2's **getCurrentTerrain()** method to fetch the terrain type that the object is currently on. **Note: terrain is determined by the object's *exact* location, usually the object's center point.**
+
+### Pathing And Collision
+Impassable terrain will block a GameObject2 from moving onto it and it suppoorts collisionSliding just like collision with other GameObject2s. However by default ther is a limitation to this method because gameobject2s determine their current terrain by only their center point. We can eleviate this by  using the GameObject2's **additionalPathingChecks** field which is an ArrayList of Coordinates which each represent an offset from the objects location. These points are additionally checked for collision with impassable terrain along with the center point so that GameObject2s will more neatly stay in their allowed pathing zones.
+
+There is a method on GameObject2 called **generateDefaultPathingOffsets** which will automatically set default values based on the objects hitbox. Because this method relies on the hitbox, it cannot be used on the first render. Calling it too early is fine, it will simply queue itself up internally to trigger when ready.
 
 *Example:*
 

@@ -46,6 +46,12 @@ public class GameObject2 implements Comparable<GameObject2>{
     private final HashMap<String, Object> syncedState = new HashMap<>();
     private final HashMap<String, Object> futureSyncedState = new HashMap<>();
     private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
+    /**
+     * this list is a list of point offsets from the center of the game object. When determining if a location is valid to move to
+     * via velocity when using a pathing map, it will also check these points to make sure that the points do not overlap with impassable terrain
+     */
+    public ArrayList<Coordinate> additionalPathingChecks = new ArrayList<>();
+    private boolean waitingToGenerateDefaultPathingChecks = false;
     
      /**
      * how the object behaves when traveling in two directions (up/down and
@@ -417,6 +423,49 @@ public class GameObject2 implements Comparable<GameObject2>{
         g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
         g.drawString(getName(), (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
         g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
+        for (Coordinate c: additionalPathingChecks) {
+            Coordinate centerOfItem = location.copy().add(c).toCoordinate();
+            int widthOfVisal = 8;
+            g.drawRect(centerOfItem.x - widthOfVisal/2, centerOfItem.y - widthOfVisal/2, widthOfVisal, widthOfVisal);
+        }
+    }
+    
+    /**
+     * populates the additionalPathingChecks with a basic set of offset points based on the object's
+     * height, width and hit box type.
+     */
+    public void generateDefaultPathingOffsets() {
+        if(renderNumber <= 1) {
+            // this method needs hitbox to be instantiated (happens on render 1, based on graphic)
+            waitingToGenerateDefaultPathingChecks = true;
+            return;
+        }
+        additionalPathingChecks.clear();
+        
+        // corner points based on hitbox type
+        if(getHitbox().type == Hitbox.Type.box) {
+            additionalPathingChecks.add(new Coordinate(getWidth()/2, 0)); // right middle
+            additionalPathingChecks.add(new Coordinate(-getWidth()/2, 0)); // left middle
+            additionalPathingChecks.add(new Coordinate(0, -getHeight()/2)); // top middle
+            additionalPathingChecks.add(new Coordinate(0, getHeight()/2)); // bottom middle
+        
+            additionalPathingChecks.add(new Coordinate(getWidth()/2, getHeight()/2)); // bot right
+            additionalPathingChecks.add(new Coordinate(getWidth()/2, -getHeight()/2)); // top right
+            additionalPathingChecks.add(new Coordinate(-getWidth()/2, getHeight()/2)); // bot left
+            additionalPathingChecks.add(new Coordinate(-getWidth()/2, -getHeight()/2)); // top left
+        } else {
+            // circle
+            additionalPathingChecks.add(new Coordinate(getWidth()/2, 0)); // right middle
+            additionalPathingChecks.add(new Coordinate(-getWidth()/2, 0)); // left middle
+            additionalPathingChecks.add(new Coordinate(0, -getWidth()/2)); // top middle
+            additionalPathingChecks.add(new Coordinate(0, getWidth()/2)); // bottom middle
+            // find points on a circle https://math.stackexchange.com/questions/260096/find-the-coordinates-of-a-point-on-a-circle.
+            // need to use *Math.PI/180 to turn raidans into degrees
+            additionalPathingChecks.add(new DCoordinate(getWidth()/2 * Math.sin(45*Math.PI/180), getWidth()/2 * Math.cos(45*Math.PI/180)).toCoordinate()); // bot right
+            additionalPathingChecks.add(new DCoordinate(getWidth()/2 * Math.sin(135*Math.PI/180), getWidth()/2 * Math.cos(135*Math.PI/180)).toCoordinate()); // bot left
+            additionalPathingChecks.add(new DCoordinate(getWidth()/2 * Math.sin(225*Math.PI/180), getWidth()/2 * Math.cos(225*Math.PI/180)).toCoordinate()); // top left
+            additionalPathingChecks.add(new DCoordinate(getWidth()/2 * Math.sin(315*Math.PI/180), getWidth()/2 * Math.cos(315*Math.PI/180)).toCoordinate()); // top right
+        }
     }
 
     /**
@@ -467,6 +516,11 @@ public class GameObject2 implements Comparable<GameObject2>{
         while(rotation < -360){rotation+=360;}
         if (getGraphic() != null && getGraphic().getScale() != getScale()) {
             getGraphic().scaleTo(getScale());
+        }
+        if(waitingToGenerateDefaultPathingChecks && renderNumber > 1) {
+            System.out.println("queue done");
+            waitingToGenerateDefaultPathingChecks = false;
+            generateDefaultPathingOffsets();
         }
         updateLocation();
         tickNumber++;
@@ -573,6 +627,68 @@ public class GameObject2 implements Comparable<GameObject2>{
         );
         return newMovement;
     }
+    
+    /**
+     * checks if overlapping impassable terrain if moved on x axis
+     * @param xModifier amount to add to location
+     */
+    private boolean isXClearForPathingAtNewLocation(double xModifier) {
+       Coordinate newLocation = location.copy().add(xModifier, 0.0).toCoordinate();
+       
+       ArrayList<Coordinate> pointsToCheck = new ArrayList<>();
+       pointsToCheck.add(newLocation);
+       for(Coordinate offset : this.additionalPathingChecks) {
+           pointsToCheck.add(newLocation.copy().add(offset));
+       }
+       for(Coordinate c : pointsToCheck) {
+           if(pathingModifiers.get(hostGame.pathingLayer.getTypeAt(Math.max(c.x, 0), Math.max(c.y, 0))) < .01) {
+               return false;
+           }
+       }
+       return true;
+    }
+    
+    /**
+     * checks if overlapping impassable terrain if moved on y axis
+     * @param yModifier amount to add to location
+     */
+    private boolean isYClearForPathingAtNewLocation(double yModifier) {
+       Coordinate newLocation = location.copy().add(0.0, yModifier).toCoordinate();
+       
+       ArrayList<Coordinate> pointsToCheck = new ArrayList<>();
+       pointsToCheck.add(newLocation);
+       for(Coordinate offset : this.additionalPathingChecks) {
+           pointsToCheck.add(newLocation.copy().add(offset));
+       }
+       for(Coordinate c : pointsToCheck) {
+           if(pathingModifiers.get(hostGame.pathingLayer.getTypeAt(Math.max(c.x, 0), Math.max(c.y, 0))) < .01) {
+               return false;
+           }
+       }
+       return true;
+    }
+    
+    /**
+     * checks if overlapping impassable terrain if moved to new location
+     * @param newLocation new Location
+     * @return whether or not its clear
+     */
+    public boolean isNewLocationClearForPathing(Coordinate newLocation) {
+        if(hostGame.getPathingLayer() == null) return true;
+       
+       ArrayList<Coordinate> pointsToCheck = new ArrayList<>();
+       pointsToCheck.add(newLocation);
+       for(Coordinate offset : this.additionalPathingChecks) {
+           pointsToCheck.add(newLocation.copy().add(offset));
+       }
+       for(Coordinate c : pointsToCheck) {
+           if(pathingModifiers.get(hostGame.pathingLayer.getTypeAt(Math.max(c.x, 0), Math.max(c.y, 0))) < .01) {
+               return false;
+           }
+       }
+       return true;
+    }
+    
     /**
      * This method runs every tick and controls object positioning regarding:
      * note: called as part of default tick; if you want to override tick then
@@ -583,7 +699,7 @@ public class GameObject2 implements Comparable<GameObject2>{
      * -updates hitbox
      */
     public void updateLocation() {
-      DCoordinate newLocation = location.copy();
+        DCoordinate newLocation = location.copy();
         switch (movementType) {
             case SpeedRatio:
                 double delta = 0.0;
@@ -608,27 +724,24 @@ public class GameObject2 implements Comparable<GameObject2>{
             case RawVelocity:
                 newLocation.add(velocity);
                 break;
-            default :
+            default:
                 throw new RuntimeException("Movement Type undefined for object: " + this);
         }
-         DCoordinate proposedMovement = new DCoordinate((newLocation.x-location.x),(newLocation.y-location.y));
-           //COLLISION
-          newLocation = location.copy();
-          newLocation.add(updateMovementBasedOnCollision(proposedMovement));
-           
+        DCoordinate proposedMovement = new DCoordinate((newLocation.x - location.x), (newLocation.y - location.y));
+        //COLLISION
+        newLocation = location.copy();
+        newLocation.add(updateMovementBasedOnCollision(proposedMovement));
 
-        
-        //pathing layer now
-        
+        // pathing layer now
         if (hostGame.pathingLayer != null) {
-            if(!hostGame.pathingLayer.getTypeAt(getPixelLocation()).name.equals(hostGame.pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
+            if (!hostGame.pathingLayer.getTypeAt(getPixelLocation()).name.equals(hostGame.pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
                 this.onPathingLayerCollision(hostGame.pathingLayer.getTypeAt(newLocation.toCoordinate()));
             }
-            if (pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) < .05 && collisionSliding) {
-                //pathing at new location is blocked. (speed multiplier < .05)
+            if (!isNewLocationClearForPathing(newLocation.toCoordinate()) && collisionSliding) {
+                //pathing at new location is blocked. (speed multiplier < .01)
                 //check directions to see which are blocked so we can possibly slide
-                boolean xClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) newLocation.x, (int) location.y))) > .05;
-                boolean yClear = pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate((int) location.x, (int) newLocation.y))) > .05;
+                boolean xClear = isXClearForPathingAtNewLocation(newLocation.x - location.x);
+                boolean yClear = isYClearForPathingAtNewLocation(newLocation.y - location.y);
                 if (!xClear) {
                     newLocation.x = location.x;
                 }
@@ -637,8 +750,8 @@ public class GameObject2 implements Comparable<GameObject2>{
                 }
             }
         }
-        if(hostGame.pathingLayer==null || pathingModifiers.get(hostGame.pathingLayer.getTypeAt(new Coordinate(newLocation))) > .05){
-             location = newLocation;
+        if (hostGame.pathingLayer == null || isNewLocationClearForPathing(newLocation.toCoordinate())) {
+            location = newLocation;
         }
         constrainToWorld();
     }

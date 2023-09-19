@@ -82,24 +82,36 @@ public class DCoordinate {
         return new Coordinate(a.x + b.x, a.y + b.y);
     }
 
-    public void add(DCoordinate other) {
+    public DCoordinate add(DCoordinate other) {
         x += other.x;
         y += other.y;
+        return this;
     }
 
-    public void add(Coordinate other) {
+    public DCoordinate add(Coordinate other) {
         x += other.x;
         y += other.y;
+        return this;
     }
+    
+    
+    public DCoordinate add(Double x, Double y) {
+        this.x += x;
+        this.y += y;
+        return this;
+    }
+    
 
-    public void subtract(Coordinate other) {
+    public DCoordinate subtract(Coordinate other) {
         x -= other.x;
         y -= other.y;
+        return this;
     }
 
-    public void subtract(DCoordinate other) {
+    public DCoordinate subtract(DCoordinate other) {
         x -= other.x;
         y -= other.y;
+        return this;
     }
 
     public DCoordinate getInverse() {
@@ -166,9 +178,10 @@ public class DCoordinate {
         }
     }
 
-    public void scale(double s) {
+    public DCoordinate scale(double s) {
         x *= s;
         y *= s;
+        return this;
     }
 
     /**
@@ -231,8 +244,9 @@ public class DCoordinate {
     /**
      * scales this Coordinate by -1
      */
-    public void invert() {
+    public DCoordinate invert() {
         x *= -1;
         y *= -1;
+        return this;
     }
 }

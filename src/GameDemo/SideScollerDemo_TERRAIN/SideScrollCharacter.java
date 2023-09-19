@@ -10,6 +10,7 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.PathingLayer;
 import Framework.GraphicalAssets.Sequence;
+import Framework.Hitbox;
 import Framework.SpriteManager;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +22,9 @@ import java.util.Map;
 public class SideScrollCharacter extends GameObject2{
     
     public Map<String,Sequence> animations = new HashMap<String,Sequence>(); //stores known animation sequences for ease of access
-    public Long jumpTick = 0L; //last tick the character started jumpin at
+    public Long jumpTick = -1000L; //last tick the character started jumpin at
+    public boolean isOnGround = false;
+    
     public SideScrollCharacter(DCoordinate c) {
         super(c);
         characterSetup();
@@ -53,7 +56,8 @@ public class SideScrollCharacter extends GameObject2{
         this.animations.put("walkLeft", new Sequence(SpriteManager.sampleChar_walkLeft));
         for(String s : animations.keySet()){
             animations.get(s).frameDelay*=3;  //slow animation speed by 3x
-        }        
+        }
+        this.setHitbox(new Hitbox(this, getWidth()/2));
     }
     
     /**
@@ -71,7 +75,7 @@ public class SideScrollCharacter extends GameObject2{
     }
 
     public boolean isJumping(){
-    return 50 - (tickNumber - jumpTick) > 0;
+        return 50 - (tickNumber - jumpTick) > 0;
     }
     
     private void adjustVelocityForGravityAndJump() {
@@ -79,12 +83,8 @@ public class SideScrollCharacter extends GameObject2{
         if (isJumping()) {
             velocity.y = -3.5;
             return;
-        }
-        if (!isOnGround()) {
-            velocity.y = 2.5;        
-            //System.out.println(velocity);
-        } else if (velocity.y > 0) {
-            velocity.y = 0;
+        } else {
+            velocity.y = 2.5;
         }
     }
 
@@ -107,10 +107,7 @@ public class SideScrollCharacter extends GameObject2{
      * @return if terrain under this object is pathable
      */
     protected boolean isOnGround() {
-        Coordinate c = getPixelLocation().copy();
-        c.y+=(getHeight()/2)-5;
-        PathingLayer.Type type = getHostGame().getPathingLayer().getTypeAt(c);
-        return pathingModifiers.get(type) < .05;
+        return !this.isNewLocationClearForPathing(getPixelLocation().add(0, 25));
     }
     
    
