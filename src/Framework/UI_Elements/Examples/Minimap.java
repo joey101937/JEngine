@@ -38,7 +38,7 @@ public final class Minimap extends UIElement {
     public final MinimapInterior interior;
     private double screenPortion = .12; //how much of the screen to take up
     public Game hostGame;
-    public boolean useSimpleRender = false;
+    public boolean useSimpleRender = true;
     private double widthOfFrame = 1;
     private double heightOfFrame = 1;
     private SimpleRenderHelper simpleRenderHelper = null;

@@ -104,6 +104,7 @@ public class BlockObject extends GameObject2{
                 verts[2] = new Coordinate(0, height);
                 verts[3] = new Coordinate(width , height);
             }
+            System.out.println("setting hitbox");
             Hitbox hb = new Hitbox(this, verts);
             hb.rotateTo(getRotation());
             setHitbox(hb);
@@ -114,17 +115,10 @@ public class BlockObject extends GameObject2{
             int width = getWidth();
             int height = getHeight();
             Coordinate[] verts = new Coordinate[4];
-            if (centered) {
-                verts[0] = new Coordinate(-width / 2, -height / 2);
-                verts[1] = new Coordinate(width / 2, -height / 2);
-                verts[2] = new Coordinate(-width / 2, height / 2);
-                verts[3] = new Coordinate(width / 2, height / 2);
-            }else{
-                verts[0] = new Coordinate(0, 0);
-                verts[1] = new Coordinate(width, 0);
-                verts[2] = new Coordinate(0, height);
-                verts[3] = new Coordinate(width , height);
-            }
+            verts[0] = new Coordinate(-width / 2, -height / 2);
+            verts[1] = new Coordinate(width / 2, -height / 2);
+            verts[2] = new Coordinate(-width / 2, height / 2);
+            verts[3] = new Coordinate(width / 2, height / 2);
             getHitbox().setVertices(verts);
         }else if(getHitbox() != null && getHitbox().type == Hitbox.Type.circle){
             //maintain default circle hitbox

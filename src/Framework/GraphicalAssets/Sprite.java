@@ -74,6 +74,18 @@ public class Sprite implements Graphic{
         scale *= d;
     }
     
+    @Override
+    public void mirrorHorizontal () {
+        image = Graphic.mirrorHorizontal(image);
+        volatileImage = Graphic.getVolatileFromBuffered(image);
+    }
+    
+    @Override
+    public void mirrorVertical () {
+        image = Graphic.mirrorVertical(image);
+        volatileImage = Graphic.getVolatileFromBuffered(image);
+    }
+    
     /**
      * gets height of image in px
      * @return number of pixels tall

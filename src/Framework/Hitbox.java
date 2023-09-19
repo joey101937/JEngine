@@ -159,7 +159,7 @@ public class Hitbox {
     
     public DCoordinate getCenter(){
         if(host==null)return staticCenter;
-        else return host.getLocationAsOfLastTick().copy();
+        else return host.getCenterForCollisionSliding().copy();
     }
     
     private DCoordinate[] getRenderVerts() {
@@ -465,6 +465,64 @@ public class Hitbox {
                 || circle.intersectsWithLine(rect.botSide());
         return lineIntersection;
     }
+    
+    private static boolean doBoxAndBoxIntersect(Hitbox a, Hitbox b) {
+        double distance = a.getCenter().distanceFrom(b.getCenter());
+        if (distance - b.farthestRange > a.farthestRange) {
+            return false; //too far to possibly intersect
+        }
+        if (distance <= a.shortestRange + b.shortestRange) {
+            return true; //must be touching
+        }
+
+        for (Coordinate vert : a.vertices) {
+            Coordinate adjustedVert = vert.copy().add(a.getCenter());
+            // draw line from each vert to origin. if any of the lines intersect other hitbox exactly one time
+            // then it must be inside that other hitbox
+            double[] lineComingOut = {adjustedVert.x, adjustedVert.y, 0, 0}; // line from circle center to 0,0int intersections = 0;
+            int intersections = 0;
+            if (linesIntersect(lineComingOut, b.topSide())) {
+                intersections++;
+            }
+            if (linesIntersect(lineComingOut, b.botSide())) {
+                intersections++;
+            }
+            if (linesIntersect(lineComingOut, b.rightSide())) {
+                intersections++;
+            }
+            if (linesIntersect(lineComingOut, b.leftSide())) {
+                intersections++;
+            }
+            if (intersections == 1) {
+                return true;
+            }
+        }
+
+        for (Coordinate vert : b.vertices) {
+            Coordinate adjustedVert = vert.copy().add(b.getCenter());
+            // draw line from each vert to origin. if any of the lines intersect other hitbox exactly one time
+            // then it must be inside that other hitbox
+            double[] lineComingOut = {adjustedVert.x, adjustedVert.y, 0, 0}; // line from circle center to 0,0int intersections = 0;
+            int intersections = 0;
+            if (linesIntersect(lineComingOut, a.topSide())) {
+                intersections++;
+            }
+            if (linesIntersect(lineComingOut, a.botSide())) {
+                intersections++;
+            }
+            if (linesIntersect(lineComingOut, a.rightSide())) {
+                intersections++;
+            }
+            if (linesIntersect(lineComingOut, a.leftSide())) {
+                intersections++;
+            }
+            if (intersections == 1) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     /**
      * returns true if this hitbox touches the given hitbox
@@ -476,33 +534,10 @@ public class Hitbox {
             return false;
         }
         double distance = getCenter().distanceFrom(other.getCenter());
+        // System.out.println("" + host + staticCenter + getCenter() + " distance " + distance + " other fartheest " + other.shortestRange + " " + shortestRange);
         //box on box collision
         if(this.type==Type.box && other.type==Type.box){
-            if(distance-other.farthestRange > this.farthestRange)return false; //too far to possibly intersect
-            if (distance <= shortestRange + other.shortestRange) {
-                return true; //must be touching
-            }
-        if (linesIntersect(rightSide(), other.leftSide()) || linesIntersect(rightSide(), other.rightSide())
-                || linesIntersect(rightSide(), other.topSide()) || linesIntersect(rightSide(), other.botSide())) {
-            //our right side intersects one of their lines
-            return true;
-        }
-        if (linesIntersect(leftSide(), other.leftSide()) || linesIntersect(leftSide(), other.rightSide())
-                || linesIntersect(leftSide(), other.topSide()) || linesIntersect(leftSide(), other.botSide())) {
-            //our left side intersects one of their lines
-            return true;
-        }
-        if (linesIntersect(topSide(), other.leftSide()) || linesIntersect(topSide(), other.rightSide())
-                || linesIntersect(topSide(), other.topSide()) || linesIntersect(topSide(), other.botSide())) {
-            //our top side intersects one of their lines
-            return true;
-        }
-        if (linesIntersect(botSide(), other.leftSide()) || linesIntersect(botSide(), other.rightSide())
-                || linesIntersect(botSide(), other.topSide()) || linesIntersect(botSide(), other.botSide())) {
-            //our bot side intersects one of their lines
-            return true;
-        }
-        return false;
+            return doBoxAndBoxIntersect(this, other);
         }
         if (this.type == Type.box && other.type == Type.circle) { //box on circle collision
             return doCircleAndBoxInterset(other, this);
@@ -526,8 +561,6 @@ public class Hitbox {
      * @return weather or not the hitbox would be intersecting another if moved
      */
     public  boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
-        double saftyScaler = 1; //how much we scale the velocity to account for extramovement
-                                   //large scaler = less chance of overlap but farther apart units must stay
         Hitbox simulatedHitbox;
         if(this.type == Type.box) {
             Coordinate[] simulatedVerts = new Coordinate[4];

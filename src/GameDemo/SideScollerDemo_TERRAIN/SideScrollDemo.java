@@ -10,6 +10,7 @@ import Framework.Game;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
+import java.awt.Dimension;
 
 /**
  *
@@ -30,9 +31,9 @@ public class SideScrollDemo {
         g.requestFocus();
         g.worldBorder=20;
         g.getCamera().setTarget(playerCharacter);
+        g.addObject(new SidescrollerBird(g.getWorldWidth() - g.worldBorder, 100));
+        Game.NATIVE_RESOLUTION = new Dimension(1920, 1080);
         Game.scaleForResolutionAspectRatio();
         playerCharacter.generateDefaultPathingOffsets();
-        //g.setZoom(1.5);
-        // Main.debugMode=true;
     }
 }

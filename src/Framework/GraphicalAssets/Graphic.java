@@ -17,6 +17,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 /**
  * Represents a graphical asset that can be displayed to the screen
@@ -31,8 +35,8 @@ public interface Graphic {
      * @return either image of sprite or current frame of animated sequence
      */
     public BufferedImage getCurrentImage();
-    
-        /**
+
+    /**
      * gets either image of sprite or current frame of animated sequence
      *
      * @return either image of sprite or current frame of animated sequence
@@ -81,6 +85,16 @@ public interface Graphic {
     public double getScale();
 
     /**
+     * flips the graphic horizontally
+     */
+    public void mirrorHorizontal();
+
+    /**
+     * flips the graphic vertically
+     */
+    public void mirrorVertical();
+
+    /**
      * returns a scaled copy of the image
      *
      * @param before
@@ -93,6 +107,44 @@ public interface Graphic {
         BufferedImage after = new BufferedImage((int) (w * scaleAmount), (int) (h * scaleAmount), BufferedImage.TYPE_INT_ARGB);
         AffineTransform at = new AffineTransform();
         at.scale(scaleAmount, scaleAmount);
+        AffineTransformOp scaleOp
+                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+        after = scaleOp.filter(before, after);
+        return after;
+    }
+
+    /**
+     * returns a horizontally mirrored copy of the image
+     *
+     * @param before
+     * @return
+     */
+    public static BufferedImage mirrorHorizontal(BufferedImage before) {
+        int w = before.getWidth();
+        int h = before.getHeight();
+        BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(-1, 1));
+        at.concatenate(AffineTransform.getTranslateInstance(-before.getWidth(), 0));
+        AffineTransformOp scaleOp
+                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+        after = scaleOp.filter(before, after);
+        return after;
+    }
+
+    /**
+     * returns a horizontally mirrored copy of the image
+     *
+     * @param before
+     * @return
+     */
+    public static BufferedImage mirrorVertical(BufferedImage before) {
+        int w = before.getWidth();
+        int h = before.getHeight();
+        BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(1, -1));
+        at.concatenate(AffineTransform.getTranslateInstance(0, -before.getHeight()));
         AffineTransformOp scaleOp
                 = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         after = scaleOp.filter(before, after);
@@ -112,22 +164,63 @@ public interface Graphic {
         g2d.dispose();
         return output;
     }
-    
+
     /**
-     * returns valid volatile image given the volatile image and the buffered image it was based on.
-     * if the volatile image has been lost, it creates a new volatile image based on the passed buffered image
+     * returns valid volatile image given the volatile image and the buffered
+     * image it was based on. if the volatile image has been lost, it creates a
+     * new volatile image based on the passed buffered image
+     *
      * @param vi volatile image
      * @param source buffered backup
-     * @return 
+     * @return
      */
     public static VolatileImage getValidatedVolatileImage(VolatileImage vi, BufferedImage source) {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsConfiguration gc = Window.frame.getGraphicsConfiguration();
         int status = vi.validate(gc);
-        if(vi.contentsLost() || status != 0) {
-            if(Main.debugMode) System.out.println("Graphic- volatile image contents lost");
+        if (vi.contentsLost() || status != 0) {
+            if (Main.debugMode) {
+                System.out.println("Graphic- volatile image contents lost");
+            }
             return getVolatileFromBuffered(source);
+        } else {
+            return vi;
         }
-        else return vi;
+    }
+    
+    /**
+     * returns a bufferedImage loaded from the given filename, located in assets
+     * folder.
+     * @param filename name of file including extension
+     * @return buffered image render
+     * @throws IOException if file cannot be found or loaded
+     */
+    public static BufferedImage load(String filename) throws IOException {
+        return ImageIO.read(new File(Main.assets + filename));
+    }
+    
+    /**
+     *  loads a sprite sequence from given directory
+     * @param filename name of folder to load
+     * @return list of files in directory
+     * @throws IOException if there is a problem
+     */ 
+    public static BufferedImage[] loadSequence(String filename) throws IOException{
+        filename = Main.assets + filename;
+        ArrayList<BufferedImage> a = new ArrayList<>();
+        ArrayList<File> children = new ArrayList<>();
+        for(File f : new File(filename).listFiles()){
+            children.add(f);
+        }
+        children.sort(null);
+        for(File child : children){
+            System.out.println("loading " + child.getPath().substring(6)); //to remove the redundant /Assets
+           a.add(load(child.getPath().substring(6)));
+        }
+        BufferedImage[] output = new BufferedImage[a.size()];
+        for(BufferedImage b : a){
+            output[a.indexOf(b)]=b;
+        }
+        return output;
     }
 }

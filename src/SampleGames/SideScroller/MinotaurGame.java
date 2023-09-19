@@ -20,7 +20,7 @@ import SampleGames.SideScroller.Levels.SSLevel1;
 public class MinotaurGame {
     public static Game scene1 = new SSLevel1();
     public static BlockObject floor;
-    public static Minotaur playerMinotaur = new Minotaur(new Coordinate(100,700));
+    public static Minotaur playerMinotaur = new Minotaur(new Coordinate(100,600));
     
     
     

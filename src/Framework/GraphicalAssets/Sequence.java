@@ -192,6 +192,20 @@ public class Sequence implements Graphic{
         after = scaleOp.filter(before, after);
         return after;
     }
+    
+    @Override
+    public void mirrorHorizontal() {
+        for(Sprite s : frames) {
+            s.mirrorHorizontal();
+        }
+    }    
+    
+    @Override
+    public void mirrorVertical() {
+        for(Sprite s : frames) {
+            s.mirrorVertical();
+        }
+    }
 
     /**
      * returns a copy of this sequence in contained in a new object

@@ -17,9 +17,11 @@ public class SideScollInput extends InputHandler{
     public void keyPressed(KeyEvent e){
         switch(e.getKeyChar()){
             case 'a':
+            case 'A':
                 SideScrollDemo.playerCharacter.velocity.x = -1.5;
                 break;
             case 'd':
+            case 'D':
                 SideScrollDemo.playerCharacter.velocity.x = 1.5;
                 break;
             case ' ':
@@ -37,9 +39,11 @@ public class SideScollInput extends InputHandler{
         SideScrollCharacter player = SideScrollDemo.playerCharacter;
         switch(e.getKeyChar()){
             case 'a':
+            case 'A':
                 if(player.velocity.x<0)player.velocity.x = 0;
                 break;
             case 'd':
+            case 'D':
                 if(player.velocity.x>0)player.velocity.x = 0;
                 break;
             case 'x':

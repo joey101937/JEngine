@@ -5,14 +5,12 @@
  */
 package Framework;
 
+import static Framework.GraphicalAssets.Graphic.load;
+import static Framework.GraphicalAssets.Graphic.loadSequence;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import javax.imageio.ImageIO;
 
 /**
- * This class acts as a central hub for accessing exterior assets; particularly
+ * This class acts as a central hub for accessing exterior assets used in the demos; particularly
  * for images. 
  * NOTE: You dont have to use it but it makes things easy to have all in
  * one place
@@ -123,41 +121,5 @@ public abstract class SpriteManager {
             Main.display("Error loading all assets. Please Verify Assets folder.");
             System.exit(1);
         }
-    }
-
-    /**
-     * returns a bufferedImage loaded from the given filename, located in assets
-     * folder.
-     * @param filename name of file including extension
-     * @return buffered image render
-     * @throws IOException if file cannot be found or loaded
-     */
-    private static BufferedImage load(String filename) throws IOException {
-        return ImageIO.read(new File(Main.assets + filename));
-    }
-    
-    /**
-     *  loads a sprite sequence from given directory
-     * @param filename name of folder to load
-     * @return list of files in directory
-     * @throws IOException if there is a problem
-     */ 
-    private static BufferedImage[] loadSequence(String filename) throws IOException{
-        filename = Main.assets + filename;
-        ArrayList<BufferedImage> a = new ArrayList<>();
-        ArrayList<File> children = new ArrayList<>();
-        for(File f : new File(filename).listFiles()){
-            children.add(f);
-        }
-        children.sort(null);
-        for(File child : children){
-            System.out.println("loading " + child.getPath().substring(6)); //to remove the redundant /Assets
-           a.add(load(child.getPath().substring(6)));
-        }
-        BufferedImage[] output = new BufferedImage[a.size()];
-        for(BufferedImage b : a){
-            output[a.indexOf(b)]=b;
-        }
-        return output;
     }
 }

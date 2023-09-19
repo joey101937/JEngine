@@ -590,15 +590,12 @@ public class GameObject2 implements Comparable<GameObject2>{
                 }
                 if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)) {
                     getHostGame().handler.registerCollision(this, other);
-//                    current.onCollide(other, true);
-//                    other.onCollide(current, false);
                     if (!current.preventOverlap || !other.preventOverlap) {
                         continue;
                     }
                     // already overlapping
                     if (current.getHitbox().intersects(other.getHitbox())) {
                         if (newLocation.distanceFrom(other.getCenterForCollisionSliding()) > current.location.distanceFrom(other.getCenterForCollisionSliding())) {
-                            System.out.println("test" + other.getCenterForCollisionSliding());
                             continue; //if we are moving away from it, allow the movement
                         } else {
                             xClear = false;
@@ -683,6 +680,7 @@ public class GameObject2 implements Comparable<GameObject2>{
        }
        for(Coordinate c : pointsToCheck) {
            if(pathingModifiers.get(hostGame.pathingLayer.getTypeAt(Math.max(c.x, 0), Math.max(c.y, 0))) < .01) {
+               onPathingLayerCollision(getHostGame().getPathingLayer().getTypeAt(c));
                return false;
            }
        }
@@ -756,17 +754,34 @@ public class GameObject2 implements Comparable<GameObject2>{
         constrainToWorld();
     }
 
+    /**
+     * this method is triggered from the default constrainToWorld function when
+     * it detects that it's x or y coordinates are outside playable bounds and needs to be brought back in
+     */
+    public void onCollideWorldBorder() {};
     
     /**
-     * runs whevenever an object would run out of bounds
+     * runs whenever an object would run out of bounds
      * by default, prevents the object from moving outside the world by 
      * resetting the location to a legal, in-bounds location
      */
     public void constrainToWorld(){
-        if(location.x < hostGame.worldBorder) location.x=hostGame.worldBorder;
-        if(location.y < hostGame.worldBorder) location.y=hostGame.worldBorder;
-        if(location.x > hostGame.getWorldWidth() - hostGame.worldBorder) location.x = hostGame.getWorldWidth()- hostGame.worldBorder;
-        if(location.y > hostGame.getWorldHeight() - hostGame.worldBorder) location.y = hostGame.getWorldHeight()- hostGame.worldBorder;
+        if(location.x < hostGame.worldBorder) {
+            location.x=hostGame.worldBorder;
+            onCollideWorldBorder();
+        }
+        if(location.y < hostGame.worldBorder) {
+            location.y=hostGame.worldBorder;
+            onCollideWorldBorder();
+        }
+        if(location.x > hostGame.getWorldWidth() - hostGame.worldBorder) {
+            location.x = hostGame.getWorldWidth()- hostGame.worldBorder;
+            onCollideWorldBorder();
+        }
+        if(location.y > hostGame.getWorldHeight() - hostGame.worldBorder){
+            location.y = hostGame.getWorldHeight()- hostGame.worldBorder;
+            onCollideWorldBorder();
+        }
     }
     /**
      * Creates new GameObject2 at location

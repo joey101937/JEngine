@@ -15,25 +15,30 @@ import java.awt.event.KeyEvent;
  *
  * @author Joseph
  */
-public class GaligaInput extends AsyncInputHandler{
-    
+public class GaligaInput extends AsyncInputHandler {
+
     @Override
     public void onKeyPressed(KeyEvent e) {
         PlayerShip player = GaligaGame.player;
-        switch(e.getKeyChar()){
+        switch (e.getKeyChar()) {
             case 'a':
+            case 'A':
                 player.velocity.x = -1;
                 break;
             case 'd':
+            case 'D':
                 player.velocity.x = 1;
                 break;
             case 'w':
+            case 'W':
                 player.velocity.y = -1;
                 break;
             case 's':
+            case 'S':
                 player.velocity.y = 1;
                 break;
             case 'x':
+            case 'X':
                 OptionsMenu.display();
                 break;
         }
@@ -43,27 +48,33 @@ public class GaligaInput extends AsyncInputHandler{
     public void onKeyReleased(KeyEvent e) {
         switch (e.getKeyChar()) {
             case 'a':
+            case 'A':
                 if (GaligaGame.player.velocity.x < 0) {
                     GaligaGame.player.velocity.x = 0;
                 }
                 break;
             case 'd':
+            case 'D':
                 if (GaligaGame.player.velocity.x > 0) {
                     GaligaGame.player.velocity.x = 0;
                 }
                 break;
             case 'w':
+            case 'W':
                 if (GaligaGame.player.velocity.y < 0) {
                     GaligaGame.player.velocity.y = 0;
                 }
                 break;
             case 's':
+            case 'S':
                 if (GaligaGame.player.velocity.y > 0) {
                     GaligaGame.player.velocity.y = 0;
                 }
                 break;
             case ' ':
-                if(!GaligaGame.player.isAlive())break;
+                if (!GaligaGame.player.isAlive()) {
+                    break;
+                }
                 Coordinate spawnPoint = GaligaGame.player.getPixelLocation();
                 spawnPoint.y -= GaligaGame.player.getHeight() / 2;
                 Coordinate dest = new Coordinate(spawnPoint);

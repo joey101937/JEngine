@@ -21,7 +21,7 @@ import SampleGames.SideScroller.Terrain.Terrain;
 public abstract class SSActor extends GameObject2 {
     private Action currentAction = Action.Idle;
     public static enum Action {Idle,Walk,PreAttack1,PreAttack2,PostAttack,TakingDamage,Dying};
-    public Long jumpTick = 0L; //last tick the character started jumpin at
+    public Long jumpTick = -1000L; //last tick the character started jumpin at
     
     private int currentHealth = 100,maxHealth =100;
     public boolean isInvuln = false;
@@ -146,7 +146,7 @@ public abstract class SSActor extends GameObject2 {
     
     
     public boolean isJumping(){
-    return 100 - (tickNumber - jumpTick) > 0;
+        return 100 - (tickNumber - jumpTick) > 0;
     }
     
     public void adjustVelocityForGravityAndJump() {
@@ -154,7 +154,7 @@ public abstract class SSActor extends GameObject2 {
             velocity.y = -3.5 / 2;
             return;
         } else {
-                velocity.y = 2.5 / 2;
+            velocity.y = 2.5 / 2;
         }
 
     }
