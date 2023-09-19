@@ -700,13 +700,14 @@ public class GameObject2 implements Comparable<GameObject2>{
         DCoordinate newLocation = location.copy();
         switch (movementType) {
             case SpeedRatio:
-                double delta = 0.0;
-                double totalVelocity = Math.abs(velocity.x) + Math.abs(velocity.y);
-                if (totalVelocity != 0) {
-                    delta = (getSpeed()) / totalVelocity;
-                }
-                newLocation.x += velocity.x * delta;
-                newLocation.y += velocity.y * delta;
+                    // https://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point
+                  DCoordinate start = location.copy();
+                  DCoordinate rawEnd = location.copy().add(velocity);
+                  double rawDistance = start.distanceFrom(rawEnd);
+                  if(getSpeed() == 0 || rawDistance == 0) break;
+                  double ratioOfDistance = getSpeed() / rawDistance;
+                  newLocation.x = ((1.0 - ratioOfDistance) * start.x) + (ratioOfDistance * rawEnd.x);
+                  newLocation.y = ((1.0 - ratioOfDistance) * start.y) + (ratioOfDistance * rawEnd.y);
                 break;
             case RotationBased:
                 double deltaR = 0.0;
