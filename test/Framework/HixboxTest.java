@@ -200,4 +200,30 @@ public class HixboxTest {
         assert b.intersects(a2);
     }
     
+    @Test
+    public void rotatedTest() {
+        System.out.println("starting");
+        Coordinate[] spaceshipVerts = {
+            new Coordinate(-39,-45),
+            new Coordinate(39,45),
+            new Coordinate(-39,45),
+            new Coordinate(39,45),
+        };
+        Hitbox spaceship = new Hitbox(spaceshipVerts);
+        spaceship.setStaticCenter(new DCoordinate(403, 403));
+        spaceship.rotateTo(69);
+        // spaceship is box hitbox rotated to 69 degrees
+        
+        Coordinate[] boxVerts = {
+            new Coordinate(450,300),
+            new Coordinate(550,300),
+            new Coordinate(450,500),
+            new Coordinate(550,500),
+        };
+        Hitbox box = new Hitbox(boxVerts);
+        
+        assert spaceship.intersects(box);
+        assert box.intersects(spaceship);
+    }
+    
 }

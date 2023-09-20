@@ -40,7 +40,7 @@ public class Hitbox {
     /**
      * topLeft, topRight, botLeft, botRight
      */
-    private Coordinate[] vertices = null;            //topLeft, topRight, botLeft, botRight
+    public Coordinate[] vertices = null;            //topLeft, topRight, botLeft, botRight
     private double farthestRange = 0; //stores the distance of the farthest vertex, used for optimising performance
     private double shortestRange = 9999999; //shortest distance from center to a flat side
     private String vertsKey_midpoint = ""; // string made up of vert coordinates to detect changes for recalculating midpoiunt
@@ -160,6 +160,10 @@ public class Hitbox {
     public DCoordinate getCenter(){
         if(host==null)return staticCenter;
         else return host.getCenterForCollisionSliding().copy();
+    }
+    
+    public void setStaticCenter(DCoordinate sc) {
+        this.staticCenter = sc;
     }
     
     private DCoordinate[] getRenderVerts() {
@@ -291,8 +295,8 @@ public class Hitbox {
      * @return leftside line coordinates x1,y1,x2,y2
      */
     private double[] leftSide() {
-        Coordinate hostLoc = new Coordinate(getCenter());      
-        double[] output = {adjustForRotation(vertices[0]).x+ hostLoc.x, adjustForRotation(vertices[0]).y+ hostLoc.y, adjustForRotation(vertices[2]).x+ hostLoc.x, adjustForRotation(vertices[2]).y+ hostLoc.y};
+        Coordinate centerLoc = new Coordinate(getCenter());      
+        double[] output = {adjustForRotation(vertices[0]).x+ centerLoc.x, adjustForRotation(vertices[0]).y+ centerLoc.y, adjustForRotation(vertices[2]).x+ centerLoc.x, adjustForRotation(vertices[2]).y+ centerLoc.y};
         return output;
     }
 
@@ -301,8 +305,8 @@ public class Hitbox {
      * @return  line coordinates x1,y1,x2,y2
      */
     private double[] topSide() {
-        Coordinate hostLoc = new Coordinate(getCenter());    
-        double[] output = {adjustForRotation(vertices[0]).x+ hostLoc.x,adjustForRotation(vertices[0]).y+ hostLoc.y, adjustForRotation(vertices[1]).x+ hostLoc.x, adjustForRotation(vertices[1]).y+ hostLoc.y};
+        Coordinate centerLoc = new Coordinate(getCenter());    
+        double[] output = {adjustForRotation(vertices[0]).x+ centerLoc.x,adjustForRotation(vertices[0]).y+ centerLoc.y, adjustForRotation(vertices[1]).x+ centerLoc.x, adjustForRotation(vertices[1]).y+ centerLoc.y};
         return output;
     }
 
@@ -311,8 +315,8 @@ public class Hitbox {
      * @return  line coordinates x1,y1,x2,y2
      */
     private double[] rightSide() {
-        Coordinate hostLoc = new Coordinate(getCenter());    
-        double[] output = {adjustForRotation(vertices[1]).x+ hostLoc.x, adjustForRotation(vertices[1]).y+ hostLoc.y, adjustForRotation(vertices[3]).x+ hostLoc.x,adjustForRotation(vertices[3]).y+ hostLoc.y};
+        Coordinate centerLoc = new Coordinate(getCenter());    
+        double[] output = {adjustForRotation(vertices[1]).x+ centerLoc.x, adjustForRotation(vertices[1]).y+ centerLoc.y, adjustForRotation(vertices[3]).x+ centerLoc.x,adjustForRotation(vertices[3]).y+ centerLoc.y};
         return output;
     }
 
@@ -321,8 +325,8 @@ public class Hitbox {
      * @return  line coordinates x1,y1,x2,y2
      */
     private double[] botSide() {
-        Coordinate hostLoc = new Coordinate(getCenter());    
-        double[] output = { adjustForRotation(vertices[2]).x+ hostLoc.x,  adjustForRotation(vertices[2]).y+ hostLoc.y,  adjustForRotation(vertices[3]).x+ hostLoc.x,  adjustForRotation(vertices[3]).y+ hostLoc.y};
+        Coordinate centerLoc = new Coordinate(getCenter());    
+        double[] output = { adjustForRotation(vertices[2]).x+ centerLoc.x,  adjustForRotation(vertices[2]).y+ centerLoc.y,  adjustForRotation(vertices[3]).x+ centerLoc.x,  adjustForRotation(vertices[3]).y+ centerLoc.y};
         return output;
     }
 
@@ -475,8 +479,11 @@ public class Hitbox {
             return true; //must be touching
         }
 
-        for (Coordinate vert : a.vertices) {
-            Coordinate adjustedVert = vert.copy().add(a.getCenter());
+        for (int i =0; i < a.vertices.length; i++) {
+            Coordinate vert = a.vertices[i];
+            Coordinate adjustedVert = a.adjustForRotation(vert.copy()).add(a.getCenter());
+            
+            double[] leftSideOfBox = b.leftSide();
             // draw line from each vert to origin. if any of the lines intersect other hitbox exactly one time
             // then it must be inside that other hitbox
             double[] lineComingOut = {adjustedVert.x, adjustedVert.y, 0, 0}; // line from circle center to 0,0int intersections = 0;
@@ -497,9 +504,8 @@ public class Hitbox {
                 return true;
             }
         }
-
         for (Coordinate vert : b.vertices) {
-            Coordinate adjustedVert = vert.copy().add(b.getCenter());
+            Coordinate adjustedVert = b.adjustForRotation(vert.copy()).add(b.getCenter());
             // draw line from each vert to origin. if any of the lines intersect other hitbox exactly one time
             // then it must be inside that other hitbox
             double[] lineComingOut = {adjustedVert.x, adjustedVert.y, 0, 0}; // line from circle center to 0,0int intersections = 0;
@@ -534,7 +540,6 @@ public class Hitbox {
             return false;
         }
         double distance = getCenter().distanceFrom(other.getCenter());
-        // System.out.println("" + host + staticCenter + getCenter() + " distance " + distance + " other fartheest " + other.shortestRange + " " + shortestRange);
         //box on box collision
         if(this.type==Type.box && other.type==Type.box){
             return doBoxAndBoxIntersect(this, other);
@@ -565,7 +570,7 @@ public class Hitbox {
         if(this.type == Type.box) {
             Coordinate[] simulatedVerts = new Coordinate[4];
             for (int i = 0; i < 4; i++) {
-                simulatedVerts[i] = vertices[i].copy();
+                simulatedVerts[i] = adjustForRotation(vertices[i]);
                 simulatedVerts[i].add(velocity);
                 simulatedVerts[i].add(getCenter());
             }            
