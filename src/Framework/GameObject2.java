@@ -111,6 +111,11 @@ public class GameObject2 implements Comparable<GameObject2>{
     }
     
     /**
+     * triggers when this object is added to a game
+     */
+    public void onGameEnter(){}
+    
+    /**
      * @return speed this unit should be able to move at with the current terrain
      */
     public double getSpeed() {
@@ -334,6 +339,38 @@ public class GameObject2 implements Comparable<GameObject2>{
     }
     
     
+    /**
+     * distance between my exact location and the other object's exact point location
+     * usually this means center-to-center
+     * @param other other gameobject
+     * @return  distance
+     */
+    public double distanceFrom(GameObject2 other) {
+        if(this.getHostGame() != other.getHostGame()) return -1;
+        return this.getLocationAsOfLastTick().distanceFrom(other.getLocationAsOfLastTick());
+    }
+    
+    /**
+     * distance between my exact location and the other exact point location
+     * usually this means center-to-center
+     * @param other other coord
+     * @return  distance
+     */
+    public double distanceFrom(DCoordinate other) {
+        return this.getLocationAsOfLastTick().distanceFrom(other);
+    }
+    
+     /**
+     * distance between my exact location and the other exact point location
+     * usually this means center-to-center
+     * @param other other coord
+     * @return  distance
+     */
+    public double distanceFrom(Coordinate other) {
+        return this.getLocationAsOfLastTick().distanceFrom(other);
+    }
+    
+    
      /**
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
@@ -432,7 +469,7 @@ public class GameObject2 implements Comparable<GameObject2>{
     
     /**
      * populates the additionalPathingChecks with a basic set of offset points based on the object's
-     * height, width and hit box type.
+     * height, width and hit box type. USed to make the object collide with impassable terrain at its edges
      */
     public void generateDefaultPathingOffsets() {
         if(renderNumber <= 1) {

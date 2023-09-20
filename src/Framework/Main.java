@@ -10,6 +10,7 @@ import GameDemo.SandboxDemo.LaunchMenu;
 import GameDemo.SideScollerDemo_TERRAIN.SideScrollDemo;
 import GameDemo.SpaceDemo.SpaceGame;
 import GameDemo.TankDemo.TankGame;
+import GameDemo.TownDemo.TownDemo;
 import SampleGames.Galiga.GaligaGame;
 import SampleGames.SideScroller.MinotaurGame;
 import java.awt.image.BufferedImage;
@@ -42,7 +43,7 @@ public class Main {
      * this is the new main method that only shows the nicer looking demos... not that any of them look particularly good
      */
     private static void showCuratedDemos(String[] args) {
-        String[] options = { "Demo - RTS", "Demo - Side Scroller" , "Game - Minotaur", "Game - Galiga"};
+        String[] options = { "Demo - RTS", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
@@ -51,9 +52,11 @@ public class Main {
             break;
             case 1: SideScrollDemo.main(args);
             break;
-            case 2: MinotaurGame.main(args);
+            case 2: TownDemo.main(args);
             break;
-            case 3: GaligaGame.main(args);
+            case 3: MinotaurGame.main(args);
+            break;
+            case 4: GaligaGame.main(args);
             break;
             default: {
                 System.out.println("unknown selection");

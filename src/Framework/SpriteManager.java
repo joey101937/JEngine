@@ -60,6 +60,14 @@ public abstract class SpriteManager {
     public static BufferedImage terrain260x125, terrain585x120;
     public static BufferedImage barrel;
     public static BufferedImage[] barrelDeath;
+    
+    //TOWN ASSETS
+    public static BufferedImage townOutside;
+    public static BufferedImage townOutsidePathing;
+    public static BufferedImage buildingInterior;
+    public static BufferedImage buildingInteriorPathing;
+
+    
     /*--------------------------------------------------------*/
     static{
         initialize();
@@ -115,6 +123,12 @@ public abstract class SpriteManager {
            terrain585x120 = load("DemoAssets/SideScroll/Terrain/terrain585x120.png");
            barrel = load("DemoAssets/SideScroll/Barrel/barrel.png");
            barrelDeath = loadSequence("DemoAssets/SideScroll/Barrel/barrelBreak");
+           
+           townOutside = load("DemoAssets/town/outside.png");
+           townOutsidePathing = load("DemoAssets/town/outside_pathing.png");
+           buildingInterior = load("DemoAssets/town/interior1.png");
+           buildingInteriorPathing = load("DemoAssets/town/interior1_PATHING.png");
+           
            initialized=true;
         }catch(Exception e){
             e.printStackTrace();

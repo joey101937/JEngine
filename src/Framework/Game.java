@@ -767,6 +767,7 @@ public class Game extends Canvas implements Runnable {
         while(handler.getAllObjectsRealTime().contains(o)){
             try{
             handler.removeObject(o);
+            o.setHostGame(null);
             }catch(ConcurrentModificationException cme){
                 System.out.println("cme when removing " + o.getName());
             }

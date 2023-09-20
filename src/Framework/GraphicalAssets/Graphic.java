@@ -196,7 +196,12 @@ public interface Graphic {
      * @throws IOException if file cannot be found or loaded
      */
     public static BufferedImage load(String filename) throws IOException {
-        return ImageIO.read(new File(Main.assets + filename));
+        try {
+            return ImageIO.read(new File(Main.assets + filename));
+        } catch (Exception e) {
+            System.out.println("Exception while trying to load " + filename);
+           throw e;
+        }
     }
     
     /**

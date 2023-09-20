@@ -89,28 +89,31 @@ public class TextObject extends GameObject2{
         return text;
     }
 
-    public void setText(String text) {
+    public TextObject setText(String text) {
         this.text = text;
+        return this;
     }
 
     public Font getFont() {
         return font;
     }
 
-    public void setFont(Font font) {
+    public TextObject setFont(Font font) {
         if(font==null){
             System.out.println("Warning, refusing to set font to null");
-            return;
+            return this;
         }
         this.font = font;
+        return this;
     }
 
     public Color getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public TextObject setColor(Color color) {
         this.color = color;
+        return this;
     }
     
     @Override

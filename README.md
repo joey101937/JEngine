@@ -285,6 +285,9 @@ This method triggers when the gameobject becomes centered on a different pathing
 **onAnimationCycle**
 This method runs if the GameObject2 has a sequence as a graphic. It triggers upon the completion of that sequence.
 
+**onGameEnter**
+This method runs when the GameObject2 is added to a game
+
 **updateHitbox()**
 This method creates and maintains the default hitbox on an object. If you want to change the hitbox or use no hitbox at all, overide this method. Creates a box hitbox by default but will also work with circular ones if you set the hitbox to a circle. This method ensures the hitbox is always sized to match the current visual representation of the object on screen. If using image sprites or sequences, This will be a box matching the dimensions of the on-screen image. If you have a circle hitbox, it will be a circle with a diameter equal to the *width* of the current sprite.
 
@@ -378,6 +381,14 @@ Where the object is location is determined by it's location however this point m
 Beyond the usual GameObject methods, the BoxObject also has a number of unique methods for modification. BoxObject may have their color via the setColor(Color) method, and may be set to filled or not filled. A filled object is just a solid rectangle of whatever color you chose while a non-filled object will only display a border of the color it is. This border may be changed via setBorderThickness(int) method (default 5). The box may also be set to invisible or solid/non-solid via the usual GO2 way.
 
 
+ ### Portal
+The portal utility object is used to move other GameObject2s between Scenes. The town demo features this utility object. By default you need to create the portal by passing a coordinate (portal location) dimension (size of portal), Game (destination) and Coordinate (point to put the object within destination game) to the constructor. To activate the portal, you will need to call its **trigger(GameObject2 go)** command. By default this trigers on all GameObject2s it collides with however you can also trigger this manually.
+
+The portal will set the destination game to be active if it's **shouldMakeDestinationGameActive(GameObejct2 go)** returns true. By default this method returns true if the given GameObject2 is the target if its host game's camera has it selected as the target. You can extend the portal class to change this logic.
+
+Note that games that are not active are paused so if something has velocity and runs into a portal, that velocity will not continue moving the object until the game it is in has become active again. it also does not tick during this time.
+
+If your object seemingly disappears after stepping on a portal, make sure that the destination does not cause the object to land on another portal which would immediately remove it from the game again and put it somewhere else.
 # SubObjects
 Subobjects are special GameObject2's that are attached to a 'host' GameObject2. The location of a subobject refers to the offset it is from its host. For example if you want to center a tank turret subobject onto a tank object, you would give it a location of 0,0 and attach that subobject to the tank. There is no limit to how many subobjects an object can have. Subobjects may have their own subobjects.
  
