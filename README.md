@@ -282,6 +282,9 @@ This method is triggered from the default constrainToWorld function when it dete
 **onPathingLayerCollision(PathingLayer.Type type)**
 This method triggers when the gameobject becomes centered on a different pathing type than before OR when movement is blocked due to an impassable pathing layer (movement multiplier <0.01)
 
+**onCollide(GameObject2 other, boolean myTick)**
+This method triggers every tick that the gameobject would collide or is currently colliding with another gameobject. The boolean param determines if this method was triggered during the current gameobject's tick (ie it ran into something) or if it was triggered by the other gameobject's tick (other ran into this)
+
 **onAnimationCycle**
 This method runs if the GameObject2 has a sequence as a graphic. It triggers upon the completion of that sequence.
 
@@ -292,10 +295,16 @@ This method runs when the GameObject2 is added to a game
 This method creates and maintains the default hitbox on an object. If you want to change the hitbox or use no hitbox at all, overide this method. Creates a box hitbox by default but will also work with circular ones if you set the hitbox to a circle. This method ensures the hitbox is always sized to match the current visual representation of the object on screen. If using image sprites or sequences, This will be a box matching the dimensions of the on-screen image. If you have a circle hitbox, it will be a circle with a diameter equal to the *width* of the current sprite.
 
 **getPixelLocation()**
-This method returns a coordinate object whoes values coorespond to the object's location measured in pixels. This location is based on number of pixels from the top-right origin of the world (not window). Modifying the object returned by this method does **not** modify the location of the GameObject2 it was called on, unlike accessing the GameObject2's *location* field directly.
+This method returns a coordinate object whoes values coorespond to the object's location measured in pixels. This location isf based on number of pixels from the top-right origin of the world (not window). Modifying the object returned by this method does **not** modify the location of the GameObject2 it was called on, unlike accessing the GameObject2's *location* field directly.
 
 **getLocationAsOfLastTick()**
 This method returns the location that the object was at as of last tick. helpful for async games
+
+**isOnScreen()**
+If this onbject's hitbox is intersected by the camera's field of view
+
+**onGamePause()**
+Triggers when hostgame is paused
 
 **destroy()**
 Destroys the object and removes it from play. isAlive will be *false* after this.
