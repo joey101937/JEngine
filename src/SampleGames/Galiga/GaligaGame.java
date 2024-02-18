@@ -8,6 +8,7 @@ package SampleGames.Galiga;
 import Framework.Audio.SoundEffect;
 import Framework.DCoordinate;
 import Framework.Game;
+import Framework.Handler;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
@@ -28,6 +29,7 @@ public class GaligaGame {
     
     public static void main(String[] args) {
         mainGame = new Game(SpriteManager.spaceBG);
+        mainGame.setName("Galiga Game");
         Window.initialize(mainGame);
         DCoordinate spawnPoint = new DCoordinate(mainGame.getWorldWidth()/2,mainGame.getWorldHeight()-150);
         player = new PlayerShip(spawnPoint);

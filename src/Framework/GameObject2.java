@@ -107,7 +107,12 @@ public class GameObject2 implements Comparable<GameObject2>{
     
     
     public Game getHostGame(){
-    return hostGame;
+        if(hostGame == null) {
+            if(Main.debugMode && Window.currentGame != null) System.out.println("Null hostgame for " + this.name + " returning " + Window.currentGame.getName());
+            this.hostGame = Window.currentGame;
+            return hostGame;
+        }
+        return hostGame;
     }
     
     /**
@@ -769,9 +774,9 @@ public class GameObject2 implements Comparable<GameObject2>{
         newLocation.add(updateMovementBasedOnCollision(proposedMovement));
 
         // pathing layer now
-        if (hostGame.pathingLayer != null) {
-            if (!hostGame.pathingLayer.getTypeAt(getPixelLocation()).name.equals(hostGame.pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
-                this.onPathingLayerCollision(hostGame.pathingLayer.getTypeAt(newLocation.toCoordinate()));
+        if (getHostGame().pathingLayer != null) {
+            if (!getHostGame().pathingLayer.getTypeAt(getPixelLocation()).name.equals(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
+                this.onPathingLayerCollision(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()));
             }
             if (!isNewLocationClearForPathing(newLocation.toCoordinate()) && collisionSliding) {
                 //pathing at new location is blocked. (speed multiplier < .01)
@@ -786,7 +791,7 @@ public class GameObject2 implements Comparable<GameObject2>{
                 }
             }
         }
-        if (hostGame.pathingLayer == null || isNewLocationClearForPathing(newLocation.toCoordinate())) {
+        if (getHostGame().pathingLayer == null || isNewLocationClearForPathing(newLocation.toCoordinate())) {
             location = newLocation;
         }
         constrainToWorld();
@@ -869,7 +874,7 @@ public class GameObject2 implements Comparable<GameObject2>{
             so.onDestroy();
         }
         if (!(this instanceof SubObject)) {
-            hostGame.removeObject(this);
+            getHostGame().removeObject(this);
         }else{
             SubObject me = (SubObject)this;
             if(me.getHost() != null) me.getHost().subObjects.remove(me);
@@ -922,7 +927,7 @@ public class GameObject2 implements Comparable<GameObject2>{
      */
     public boolean isOnScreen(){
         Rectangle sightBox = new Rectangle((int)(this.location.x-getWidth()/2),(int)this.location.y-(getHeight()/2),getWidth()+1,getHeight()+1);
-        return sightBox.intersects(hostGame.getCamera().getFieldOfView());
+        return sightBox.intersects(getHostGame().getCamera().getFieldOfView());
     }
     
     @Override

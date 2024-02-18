@@ -70,13 +70,13 @@ public class Handler {
         waitForAllJobs(tasks);
     }
     
-    public void addObject(GameObject2 o) {
+    public synchronized void addObject(GameObject2 o) {
         if (!storage.containsKey(o.ID)) {
-            storage.put(o.ID, o);
             if(o.getHostGame()!=null && o.getHostGame()!=this.hostGame){
                 o.getHostGame().removeObject(o);
             }
-            o.setHostGame(hostGame);
+            o.setHostGame(this.hostGame);
+            storage.put(o.ID, o);
             o.onGameEnter();
         }
     }

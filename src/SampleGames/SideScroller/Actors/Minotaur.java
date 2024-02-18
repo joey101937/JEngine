@@ -25,6 +25,25 @@ public class Minotaur extends SSActor{
     public boolean facingRight = true;
     private Hitbox damageArea = null;
     private boolean actionDirection = true; //what direction the most recent action was facing
+    private Sequence rightAttack = null;
+    private Sequence leftAttack = null;
+    
+    public Sequence getAttackSequence(boolean isRight){
+        if(isRight) {
+            if(rightAttack == null) {
+                rightAttack = new Sequence(SpriteManager.minotaurSwing_Right);
+                rightAttack.frameDelay = 100;
+            }
+            return rightAttack;
+        } else {
+            if(leftAttack == null) {
+                leftAttack = new Sequence(SpriteManager.minotaurSwing_Left);
+                leftAttack.frameDelay = 100;
+            }
+            return leftAttack;
+        }
+    }
+    
     public Minotaur(DCoordinate c) {
         super(c);
         characterSetup();
@@ -182,18 +201,12 @@ public class Minotaur extends SSActor{
     
     
     @Override
-    public void attack(boolean right){
+    public void attack(boolean isRight){
         if(this.freeToAct()){
             this.setCurrentAction(Action.PreAttack1);
-            Sequence swingSequence;
-            if(right){
-                swingSequence = new Sequence(SpriteManager.minotaurSwing_Right);
-                actionDirection = true;
-            }else{
-                swingSequence = new Sequence(SpriteManager.minotaurSwing_Left);
-                actionDirection = false;
-            }           
-            swingSequence.frameDelay = 85;
+            Sequence swingSequence = getAttackSequence(isRight);
+            swingSequence.restart();
+            actionDirection = isRight;
             this.setGraphic(swingSequence);
         }else{
             System.out.println("unable to attack due to currentAction: " + getCurrentAction());
