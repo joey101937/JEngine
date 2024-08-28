@@ -34,6 +34,9 @@ public class Main {
     private static boolean overviewMode = false;
     public static boolean debugMode = false;
     public static int tickThreadCount = 12;
+    public static int renderThreadCount = 12;
+    public static boolean enableMotionSmoothing = true;
+
     public static Handler.TickType tickType = Handler.TickType.modular;
     public static long seed = (long)(Math.random()*9999999999999L);
     private static Random random;

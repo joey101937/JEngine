@@ -29,8 +29,8 @@ import java.util.ArrayList;
  * @author Joseph
  */
 public class TankUnit extends RTSUnit{
-    private final SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
-    private final SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
+    public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
+    public static SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
     public Turret turret;
     private final static double VISUAL_SCALE = .15;
     private Long lastFiredTime = 0L;

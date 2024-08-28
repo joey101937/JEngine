@@ -46,6 +46,8 @@ public class GameObject2 implements Comparable<GameObject2>{
     private final HashMap<String, Object> syncedState = new HashMap<>();
     private final HashMap<String, Object> futureSyncedState = new HashMap<>();
     private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
+    public Coordinate lastRenderLocation = null;
+    
     /**
      * this list is a list of point offsets from the center of the game object. When determining if a location is valid to move to
      * via velocity when using a pathing map, it will also check these points to make sure that the points do not overlap with impassable terrain
@@ -393,6 +395,17 @@ public class GameObject2 implements Comparable<GameObject2>{
         Graphics2D graphics = (Graphics2D)g.create();
         renderNumber++;
         Coordinate pixelLocation = getPixelLocation();
+        
+        
+        // smoothing
+        if(
+            Main.enableMotionSmoothing
+            && lastRenderLocation != null
+            && pixelLocation.distanceFrom(lastRenderLocation) < this.getWidth()) {
+            pixelLocation = new Coordinate((pixelLocation.x + lastRenderLocation.x)/2, (pixelLocation.y + lastRenderLocation.y)/2 );
+        }
+        lastRenderLocation = pixelLocation;
+        
         AffineTransform old = graphics.getTransform();
         if (!isOnScreen() && !Main.overviewMode() && !ignoreRestrictions) {
             //offscreen without overview mode? dont bother rendering anything.

@@ -5,6 +5,8 @@
  */
 package Framework.Audio;
 
+import java.util.function.Consumer;
+
 /**
  *
  * @author guydu
@@ -13,6 +15,11 @@ public class AsyncPlayer implements Runnable {
         public SoundEffect myParentSound;
         public SoundEffect mySound;
         public float myVolume;
+        public Consumer onReady;
+        
+        public void setOnReady (Consumer c) {
+            onReady = c;
+        }
         
         public AsyncPlayer (SoundEffect se, float volume) {
             myParentSound = se;
@@ -23,9 +30,10 @@ public class AsyncPlayer implements Runnable {
         public void run() {
             myParentSound.asyncPlayers.add(this);
             SoundEffect copy = myParentSound.createCopy();
+            mySound = copy;
             copy.setListener(new AsyncPlayerListener(this));
             copy.setVolume(myVolume);
-            copy.start();
-            mySound = copy;
+            copy.start(); 
+            if(onReady != null) onReady.accept(this);
         }
 }

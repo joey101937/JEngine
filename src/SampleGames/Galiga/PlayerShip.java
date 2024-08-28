@@ -5,7 +5,6 @@
  */
 package SampleGames.Galiga;
 
-import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;

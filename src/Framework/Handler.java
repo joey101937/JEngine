@@ -9,12 +9,14 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Manages aggregate lists of GameObjects
@@ -24,6 +26,7 @@ public class Handler {
     protected long globalTickNumber = 0;
     
     public ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
+    public ExecutorService renderService = Executors.newFixedThreadPool(Main.renderThreadCount);
     public ExecutorService syncService = Executors.newFixedThreadPool(4);
     
     private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
@@ -126,16 +129,26 @@ public class Handler {
      * @param g should be the game's graphics
      */
     public synchronized void render(Graphics2D g) {
-        for (GameObject2 go : toRender) {
-            try{
-            go.render((Graphics2D)g.create());
-            for(SubObject so : go.getAllSubObjects()){
-                so.render((Graphics2D)g.create());
+        HashMap<Integer, LinkedList<GameObject2>> renderMap = new HashMap<>();
+        for(GameObject2 go : toRender) {
+            if(renderMap.get(go.getZLayer()) == null) {
+                LinkedList<GameObject2> list = new LinkedList<>();
+                list.add(go);
+                renderMap.put(go.getZLayer(), list);
+            } else {
+                renderMap.get(go.getZLayer()).add(go);
             }
-            }catch(Exception e){
-                e.printStackTrace();
+        }
+        
+        List<Integer> zLayers = renderMap.keySet().stream().sorted().collect(Collectors.toList());
+        
+        // all objects in a z layer can render together
+        for(Integer zLayer: zLayers) {
+            Collection<Future<?>> renderTasks = new LinkedList<>();
+            for(GameObject2 go : renderMap.get(zLayer)) {
+                renderTasks.add(renderService.submit(new RenderTask(go, g)));
             }
-            
+            waitForAllJobs(renderTasks);
         }
     }
 
@@ -229,6 +242,29 @@ public class Handler {
             }
         }
 
+    }
+    
+    private class RenderTask implements Runnable {
+        public GameObject2 gameObejct;
+        public Graphics2D graphics;
+        
+        public RenderTask (GameObject2 obj, Graphics2D g) {
+            this.gameObejct = obj;
+            this.graphics = g;
+        }
+
+        @Override
+        public void run() {
+          try{
+            gameObejct.render((Graphics2D)graphics.create());
+            for(SubObject so : gameObejct.getAllSubObjects()){
+                so.render((Graphics2D)graphics.create());
+            }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        
     }
     
     private class TickTask implements Runnable {

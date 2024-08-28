@@ -10,6 +10,8 @@ import Framework.Main;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -40,11 +42,12 @@ public class SoundEffect implements Runnable{
     private volatile Long currentFrame = 0L;
     private volatile int startDelay = 0;
     private boolean looping = false;
+    public volatile boolean running = false;
     
     /**
      * determines max number of async players that this sound effect can have active at once
      */
-    public int maxAsyncCopies = 3;
+    public int maxAsyncCopies = 6;
     public ArrayList<AsyncPlayer> asyncPlayers = new ArrayList<>();
     
     
@@ -145,6 +148,7 @@ public class SoundEffect implements Runnable{
      */
     @Override
     public void run() {
+        running = true;
         if(startDelay > 0) {
             Main.wait(startDelay);
         }
@@ -159,6 +163,7 @@ public class SoundEffect implements Runnable{
             }
         }
         disable();
+        running = false;
         //thread ending
     }
 
@@ -345,10 +350,9 @@ public class SoundEffect implements Runnable{
      * source. This can be obtained with .createCopy() method
      */
     public void restart() {
-        if(disabled){
-            throw new RuntimeException("Cannot restart disabled sound");
-        }
+        System.out.println("restarting sound");
         clip.setMicrosecondPosition(0);
+        if(!clip.isRunning()) clip.start();
         if (isLooping()) {
             clip.loop(Clip.LOOP_CONTINUOUSLY);
         }
@@ -400,12 +404,12 @@ public class SoundEffect implements Runnable{
     
     /**
      @return Percentage of how far into the sound is playing
-     * 1.0 = 100%, sound is over
-     * 0.5 = 50%, sound is half over
-     * 0.0 = 0%, the sound is at its begining
+     * 100 = 100%, sound is over
+     * 50 = 50%, sound is half over
+     * 0 = 0%, the sound is at its begining
      */
     public double getPercentDone(){
-        return getMicroPosition()/getSoundLength();
+        return (getMicroPosition() * 100) / getSoundLength();
     }
     
     /**
@@ -415,20 +419,36 @@ public class SoundEffect implements Runnable{
         return new SoundEffect(source);
     }
     
-    public void playCopyAsync(float volume) {
-        if (asyncPlayers.stream().filter(x -> x.mySound != null && x.mySound.getClip().isActive()).toArray().length < maxAsyncCopies) {
+    public synchronized AsyncPlayer playCopyAsync(float volume) {
+        System.out.println("playing async");
+        System.out.println("total: " + asyncPlayers.size());
+        // List<AsyncPlayer> activeItems = asyncPlayers.stream().filter(x -> x.mySound != null && x.mySound.getClip().isRunning()).collect(Collectors.toList());
+        List<AsyncPlayer> activeItems = asyncPlayers.stream().filter(x -> x.mySound != null && x.mySound.running).collect(Collectors.toList());
+        this.asyncPlayers = (ArrayList)activeItems;
+        System.out.println("active items are " + activeItems.size());
+        if (activeItems.size() < maxAsyncCopies) {
+            System.out.println("creating...");
             AsyncPlayer player = new AsyncPlayer(this, volume);
             Thread t = new Thread(player);
             t.start();
+            player.setOnReady(pl -> asyncPlayers.add((AsyncPlayer)pl));
+            // asyncPlayers.add(player);
+            return player;
         } else {
+            System.out.println("at max capacity");
             // if we at max capacity, just restart one
+            AsyncPlayer playerToRestart = null;
             for (AsyncPlayer player : asyncPlayers) {
-                if(player.mySound.getClip().isActive()) {
-                    player.mySound.restart();
-                    break;
-                }
+               if(player.mySound == null || !player.mySound.running) continue;
+               if(playerToRestart == null) playerToRestart = player;
+               if(playerToRestart.mySound.getMicroPosition() < player.mySound.getMicroPosition()) {
+                   playerToRestart = player;
+               }
             }
+            if(playerToRestart != null && playerToRestart.mySound.getPercentDone() > 33) playerToRestart.mySound.restart();
+            else System.out.println("nothing to restart");
         }
+        return null;
     }
 
     /**

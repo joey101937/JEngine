@@ -36,10 +36,10 @@ public class RTSGame {
         int spacer = 160;
         
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 800, 0));
+            game.addObject(new TankUnit(100 + (i * spacer), 400, 0));
         }
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1500, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1100, 1));
         }
     }
 }

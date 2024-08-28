@@ -18,7 +18,9 @@ public class AsyncPlayerListener implements SoundEffectListener{
         
         @Override
         public void onDisable() {
-            myPlayer.myParentSound.asyncPlayers.remove(myPlayer);
+//            System.out.println("removing");
+//            boolean res = myPlayer.myParentSound.asyncPlayers.remove(myPlayer);
+//            System.out.println("remove res" + res);
         }
 
         @Override
