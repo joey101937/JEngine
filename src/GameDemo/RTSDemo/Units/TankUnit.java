@@ -7,7 +7,6 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
-import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GameObject2.MovementType;
 import Framework.GraphicalAssets.Sequence;
@@ -17,10 +16,6 @@ import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Stroke;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -104,7 +99,7 @@ public class TankUnit extends RTSUnit{
             setGraphic(fireAnimation);
             try {
                 if(isOnScreen()) {
-                    launchSoundSource.playCopyAsync(.5f);
+                   launchSoundSource.playCopy(.5f);
                 }                
             } catch (Exception e) {
                 e.printStackTrace();

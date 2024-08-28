@@ -55,7 +55,7 @@ public class SideScrollCharacter extends GameObject2{
         this.animations.put("walkRight", new Sequence(SpriteManager.sampleChar_walkRight));
         this.animations.put("walkLeft", new Sequence(SpriteManager.sampleChar_walkLeft));
         for(String s : animations.keySet()){
-            animations.get(s).frameDelay*=3;  //slow animation speed by 3x
+            animations.get(s).setFrameDelay(animations.get(s).getFrameDelay()*3);  //slow animation speed by 3x
         }
         this.setHitbox(new Hitbox(this, getWidth()/2));
     }

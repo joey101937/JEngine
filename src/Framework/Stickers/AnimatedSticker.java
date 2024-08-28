@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
  */
 public class AnimatedSticker extends Sticker{
     public Sequence sequence;
+    public static int defaultFrameDelay = 40;
     
     
     /**
@@ -34,7 +35,7 @@ public class AnimatedSticker extends Sticker{
             return;
         }
         sequence = s.copy();
-        sequence.frameDelay = 40;
+        if(defaultFrameDelay > 0) sequence.setFrameDelay(defaultFrameDelay);
     }
     
 

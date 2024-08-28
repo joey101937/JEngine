@@ -96,13 +96,40 @@ public interface Graphic {
 
     /**
      * returns a scaled copy of the image
-     *
+     * scales over 16 steps
      * @param before
      * @param scaleAmount
      * @return
      */
     public static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
-        int w = before.getWidth();
+        if(scaleAmount == 1) return before;
+        
+        boolean isSmallImage = before.getWidth() < 200 || before.getHeight() < 200;
+        System.out.println("is small image");
+        
+        int numScales = isSmallImage ? 1 : 1;
+        double stepAmount = Math.pow(scaleAmount, 1.0/numScales);
+        
+        System.out.println("step is " + stepAmount);
+        
+        BufferedImage output = before;
+        
+        for(int i = 0; i < numScales; i++) {
+            output = scaleImageDirect(output, stepAmount);
+        }
+        
+        return output;
+    }
+    
+    /**
+     * returns a scaled copy of the image
+     * scales once straight to the target value
+     * @param before
+     * @param scaleAmount
+     * @return
+     */
+    private static BufferedImage scaleImageDirect(BufferedImage before, double scaleAmount) {
+         int w = before.getWidth();
         int h = before.getHeight();
         BufferedImage after = new BufferedImage((int) (w * scaleAmount), (int) (h * scaleAmount), BufferedImage.TYPE_INT_ARGB);
         AffineTransform at = new AffineTransform();
@@ -227,5 +254,16 @@ public interface Graphic {
             output[a.indexOf(b)]=b;
         }
         return output;
+    }
+    
+    public static BufferedImage[] loadSequenceBouncing(String filename) throws IOException {
+        BufferedImage[] forwards = loadSequence(filename);
+        BufferedImage[] backwards = new BufferedImage[forwards.length];
+        for(int i = forwards.length -1; i >=0; i--) {
+            var imageToCopy = forwards[forwards.length-i - 1];
+            backwards[i] = imageToCopy.getSubimage(0, 0, imageToCopy.getWidth(), imageToCopy.getHeight());
+        }
+        
+        return Main.arrayConcatenate(forwards, backwards);
     }
 }

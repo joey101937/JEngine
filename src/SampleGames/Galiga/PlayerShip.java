@@ -37,9 +37,10 @@ public class PlayerShip extends GameObject2{
     }
     
     private void initialize(){
-        Sprite s = new Sprite(SpriteManager.spaceship);
+        // Sprite s = new Sprite(SpriteManager.spaceship);
+        Sprite s = new Sprite(SpriteManager.localizedLight);
         setGraphic(s);
-        scale(.25);
+        // scale(.3);
         isSolid=true;
         setName("Player");
         movementType = MovementType.SpeedRatio;
@@ -63,7 +64,7 @@ public class PlayerShip extends GameObject2{
         lastHitTick = tickNumber;
         GaligaGame.UI.onDeath();
         new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence), getPixelLocation());
-         GaligaGame.deathSound.playCopyAsync(.7f);
+         GaligaGame.deathSound.playCopy(.7f);
         if (GaligaGame.UI.getLives() > 0) {
             System.out.println("life lost");
         } else {

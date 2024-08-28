@@ -7,6 +7,7 @@ package Framework;
 
 import static Framework.GraphicalAssets.Graphic.load;
 import static Framework.GraphicalAssets.Graphic.loadSequence;
+import static Framework.GraphicalAssets.Graphic.loadSequenceBouncing;
 import java.awt.image.BufferedImage;
 
 /**
@@ -29,6 +30,10 @@ public abstract class SpriteManager {
     public static BufferedImage[] explosionSequenceSmall;
     public static BufferedImage[] birdySequence;
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
+    public static BufferedImage localizedLight;
+    public static BufferedImage fog;
+    public static BufferedImage[] fogSequence;
+
     
     //TANK ASSETS
     public static BufferedImage tankChasis;
@@ -36,6 +41,8 @@ public abstract class SpriteManager {
     public static BufferedImage bullet;
     public static BufferedImage[] tankFireAnimation;
     public static BufferedImage dirtBG;
+    public static BufferedImage dirtBGNight;
+
     
     //SPACE ASSETS
     public static BufferedImage spaceBG;
@@ -95,12 +102,15 @@ public abstract class SpriteManager {
            sampleChar_walkLeft = loadSequence("DemoAssets/SampleCharacter/WalkLeft");
            sampleChar_walkRight = loadSequence("DemoAssets/SampleCharacter/WalkRight");
            pathingLayer = load("DemoAssets/terrainBG-PATHING.png");
-           
+           localizedLight = load("DemoAssets/localizedLight2.png");
+           fog = load("DemoAssets/fog.png");
+           fogSequence = loadSequenceBouncing("DemoAssets/fogSequence");
            tankChasis = load("DemoAssets/TankGame/tankChasis.png");
            tankTurret = load("DemoAssets/TankGame/tankTurret.png");
            bullet = load("DemoAssets/TankGame/bullet.png");
            tankFireAnimation = loadSequence("DemoAssets/TankGame/turretFireSequence");
            dirtBG = load("DemoAssets/TankGame/dirtBG.png");
+           dirtBGNight = load("DemoAssets/TankGame/dirtBGNight.png");
            
            spaceBG = load("DemoAssets/spacebg.png");
            spaceBG2 = load("DemoAssets/spacebg2.png");

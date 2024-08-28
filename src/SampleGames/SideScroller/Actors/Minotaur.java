@@ -32,13 +32,13 @@ public class Minotaur extends SSActor{
         if(isRight) {
             if(rightAttack == null) {
                 rightAttack = new Sequence(SpriteManager.minotaurSwing_Right);
-                rightAttack.frameDelay = 100;
+                rightAttack.setFrameDelay(100);
             }
             return rightAttack;
         } else {
             if(leftAttack == null) {
                 leftAttack = new Sequence(SpriteManager.minotaurSwing_Left);
-                leftAttack.frameDelay = 100;
+                leftAttack.setFrameDelay(100);
             }
             return leftAttack;
         }
@@ -173,7 +173,7 @@ public class Minotaur extends SSActor{
         isSolid=false;
         velocity.y=0;
         Sequence deathSeq = new Sequence(SpriteManager.minotaurDeath_Right);
-        deathSeq.frameDelay=150;
+        deathSeq.setFrameDelay(150);
         this.setGraphic(deathSeq);
     }
     

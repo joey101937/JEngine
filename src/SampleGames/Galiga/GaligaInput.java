@@ -6,7 +6,6 @@
 package SampleGames.Galiga;
 
 import Framework.AsyncInputHandler;
-import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.UI_Elements.OptionsMenu;
 import java.awt.event.KeyEvent;
@@ -82,7 +81,7 @@ public class GaligaInput extends AsyncInputHandler {
                 Bolt b = new Bolt(spawnPoint, dest);
                 b.isFriendly = true;
                 GaligaGame.mainGame.addObject(b);
-                GaligaGame.pewSound.playCopyAsync(.7f);
+                GaligaGame.pewSound.playCopy(.7f);
                 break;
         }
     }

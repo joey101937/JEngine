@@ -9,9 +9,6 @@ import Framework.Game;
 import Framework.Main;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -28,8 +25,6 @@ public class SoundEffect implements Runnable{
     private static int IDGenerator = 0;
       
     public final int ID; //unique identifier
-    
-    private Thread thread;                  //thread used to keep audio going
     private SoundEffectListener listener;   //listens to events of this sound
     private volatile File source;           //source file
     private volatile AudioInputStream stream;//stream connected to source
@@ -43,12 +38,6 @@ public class SoundEffect implements Runnable{
     private volatile int startDelay = 0;
     private boolean looping = false;
     public volatile boolean running = false;
-    
-    /**
-     * determines max number of async players that this sound effect can have active at once
-     */
-    public int maxAsyncCopies = 6;
-    public ArrayList<AsyncPlayer> asyncPlayers = new ArrayList<>();
     
     
     /**
@@ -82,8 +71,6 @@ public class SoundEffect implements Runnable{
         } catch (IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
-        thread = new Thread(this);
-        thread.setName("SoundEffect " + stream.toString());
     }
 
     /**
@@ -94,7 +81,7 @@ public class SoundEffect implements Runnable{
         if (hasStarted) {
             System.out.println("Sound already started " + source.getName() + " ID:" + ID);
         } else {
-            thread.start();
+            Thread.ofVirtual().start(this);
             hasStarted = true;
             if (listener != null) {
                 listener.onStart();
@@ -110,14 +97,6 @@ public class SoundEffect implements Runnable{
     public void startWithDelay(int delay){
         startDelay = delay;
         start();
-    }
-
-    /**
-     * Gets the thread that is supporting this soundeffect
-     * @return Gets the thread that is supporting this soundeffect
-     */
-    public Thread getThread(){
-        return thread;
     }
     
     /**
@@ -350,7 +329,6 @@ public class SoundEffect implements Runnable{
      * source. This can be obtained with .createCopy() method
      */
     public void restart() {
-        System.out.println("restarting sound");
         clip.setMicrosecondPosition(0);
         if(!clip.isRunning()) clip.start();
         if (isLooping()) {
@@ -419,38 +397,20 @@ public class SoundEffect implements Runnable{
         return new SoundEffect(source);
     }
     
-    public synchronized AsyncPlayer playCopyAsync(float volume) {
-        System.out.println("playing async");
-        System.out.println("total: " + asyncPlayers.size());
-        // List<AsyncPlayer> activeItems = asyncPlayers.stream().filter(x -> x.mySound != null && x.mySound.getClip().isRunning()).collect(Collectors.toList());
-        List<AsyncPlayer> activeItems = asyncPlayers.stream().filter(x -> x.mySound != null && x.mySound.running).collect(Collectors.toList());
-        this.asyncPlayers = (ArrayList)activeItems;
-        System.out.println("active items are " + activeItems.size());
-        if (activeItems.size() < maxAsyncCopies) {
-            System.out.println("creating...");
-            AsyncPlayer player = new AsyncPlayer(this, volume);
-            Thread t = new Thread(player);
-            t.start();
-            player.setOnReady(pl -> asyncPlayers.add((AsyncPlayer)pl));
-            // asyncPlayers.add(player);
-            return player;
-        } else {
-            System.out.println("at max capacity");
-            // if we at max capacity, just restart one
-            AsyncPlayer playerToRestart = null;
-            for (AsyncPlayer player : asyncPlayers) {
-               if(player.mySound == null || !player.mySound.running) continue;
-               if(playerToRestart == null) playerToRestart = player;
-               if(playerToRestart.mySound.getMicroPosition() < player.mySound.getMicroPosition()) {
-                   playerToRestart = player;
-               }
-            }
-            if(playerToRestart != null && playerToRestart.mySound.getPercentDone() > 33) playerToRestart.mySound.restart();
-            else System.out.println("nothing to restart");
-        }
-        return null;
+    public void playCopy() {
+        playCopy(1f);
     }
-
+    
+    public void playCopy(Float volume) {
+        playCopy(volume, 0);
+    }
+    
+    public void playCopy(Float volume, int msDelay) {
+        SoundEffect copy = this.createCopy();
+        copy.setVolume(volume);
+        copy.startWithDelay(msDelay);
+    }
+    
     /**
      * Assigns a host game to this sound effect. The sound effect will not play
      * while its linked game is paused.

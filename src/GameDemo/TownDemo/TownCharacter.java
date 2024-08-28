@@ -42,7 +42,7 @@ public class TownCharacter extends GameObject2 {
         this.animations.put("walkRight", new Sequence(SpriteManager.sampleChar_walkRight));
         this.animations.put("walkLeft", new Sequence(SpriteManager.sampleChar_walkLeft));
         for(String s : animations.keySet()){
-            animations.get(s).frameDelay=150;  //slow animation speed to 150ms
+            animations.get(s).setFrameDelay(150);  //slow animation speed to 150ms
         }        
     }
     

@@ -23,13 +23,22 @@ public class RTSUnit extends Creature {
     private Coordinate desiredLocation;
     public int team;
     
+    private Color getColorFromTeam(int team) {
+        return switch(team) {
+            case 0 -> Color.GREEN;
+            case 1 -> Color.RED;
+            case 2 -> Color.ORANGE;
+            default -> Color.BLACK;
+        };
+    }
+    
     @Override
     public void render(Graphics2D g) {
         super.render(g);
         Coordinate pixelLocation = getPixelLocation();
         Color originalColor = g.getColor();
         Stroke originalStroke= g.getStroke();
-        g.setColor(Color.green);
+        g.setColor(getColorFromTeam(this.team));
         g.setStroke(new BasicStroke(5));
         g.drawLine(pixelLocation.x - getWidth()/2, pixelLocation.y + getHeight()/2 + 20, pixelLocation.x - getWidth()/2 + (int)(getWidth() * ((double)currentHealth/maxHealth)), pixelLocation.y + getHeight()/2 + 20);
         if (selected) {

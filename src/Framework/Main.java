@@ -15,7 +15,11 @@ import SampleGames.Galiga.GaligaGame;
 import SampleGames.SideScroller.MinotaurGame;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Random;
+import java.util.function.Function;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
@@ -36,6 +40,7 @@ public class Main {
     public static int tickThreadCount = 12;
     public static int renderThreadCount = 12;
     public static boolean enableMotionSmoothing = true;
+    public static int numGraphicScalingSteps = 4; // only applies to images larger than 200x200. higher number = more color smoothing (blur)
 
     public static Handler.TickType tickType = Handler.TickType.modular;
     public static long seed = (long)(Math.random()*9999999999999L);
@@ -242,6 +247,27 @@ public class Main {
             return (min + output);                //returns that random number plus the min
         }
     }
+    
+    public static <I,R> ArrayList<R> jMap (Collection<I> list, Function<I, R> mapper) {
+       ArrayList<R> output = new ArrayList<>();
+       for(I item : list) {
+           output.add(mapper.apply(item));
+       }
+       return output;
+    }
+  
+    public static <T> T[] arrayConcatenate(T[] a, T[] b) {
+        int aLen = a.length;
+        int bLen = b.length;
+
+        @SuppressWarnings("unchecked")
+        T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+
+        return c;
+    }
+    
 /**
  * loads the sprite related to the given filename from assets folder
  * returns null if exception thrown

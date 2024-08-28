@@ -41,7 +41,7 @@ public class OnceThroughSticker extends AnimatedSticker{
     
     @Override
     public void render(Graphics2D g) {
-        if(System.currentTimeMillis() > creationTime + (sequence.getFrameCount() * sequence.frameDelay)) {
+        if(System.currentTimeMillis() > creationTime + (sequence.getFrameCount() * sequence.getFrameDelay())) {
             disable();
             return;
         }

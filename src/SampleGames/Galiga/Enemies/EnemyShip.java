@@ -71,7 +71,7 @@ public class EnemyShip extends GameObject2{
     @Override
     public void onDestroy(){
         new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence) ,getPixelLocation());
-        GaligaGame.deathSound.playCopyAsync(.7f);
+        GaligaGame.deathSound.playCopy(.7f);
         GaligaGame.UI.increaseScore(500);
     }
     
@@ -82,7 +82,7 @@ public class EnemyShip extends GameObject2{
         DCoordinate target = GaligaGame.player.location;
         b.launch(target);
         getHostGame().addObject(b);
-        GaligaGame.pewSound.playCopyAsync(.7f);
+        GaligaGame.pewSound.playCopy(.7f);
     }
     
     @Override

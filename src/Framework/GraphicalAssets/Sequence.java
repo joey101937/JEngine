@@ -17,12 +17,13 @@ public class Sequence implements Graphic{
     public Sprite[] frames;
     private double scale = 1;
     /**Duration to wait before switching frames in ms*/
-    public int frameDelay = 100;
+    private int frameDelay = 100;
     /**Index of frame currently set to render*/
     public volatile int currentFrameIndex = 0;
     private volatile boolean disabled = false;
     private volatile boolean paused = false;
     private Long startTime;
+    private int startTimeOffset = 0;
     private int pausedOnFrame = 0;
     /**
      * @return BufferedImage to be rendered based on frame index, null if 
@@ -64,7 +65,7 @@ public class Sequence implements Graphic{
      */
     public VolatileImage getCurrentVolatileFrame() {
         if(startTime == null) {
-            startTime = System.currentTimeMillis();
+            startTime = System.currentTimeMillis() + startTimeOffset;
         }
         if(frames==null){
             System.out.println("Attempting to get current frame with null array");
@@ -106,7 +107,7 @@ public class Sequence implements Graphic{
      */
     public void startAnimating() {
         if(startTime==null){
-            startTime = System.currentTimeMillis();
+            startTime = System.currentTimeMillis() + startTimeOffset;
         }      
     }
     
@@ -215,6 +216,7 @@ public class Sequence implements Graphic{
     public Sequence copy(){
         Sequence output = new Sequence(frames);
         output.scale=scale;
+        output.frameDelay = this.frameDelay;
         return output;
     }
 
@@ -293,6 +295,23 @@ public class Sequence implements Graphic{
     
     public int getFrameCount() {
         return frames.length;
+    }
+    
+    public void setFrameDelay(int x) {
+        this.frameDelay = x;
+    }
+    
+    public int getFrameDelay() {
+        return this.frameDelay;
+    }
+    
+    /**
+     * Advances the animation by this number of milliseconds
+     * @param ms number of ms to advance
+     */
+    public void advanceMs(int ms) {
+        if(startTime != null) this.startTime += ms;
+        this.startTimeOffset += ms;
     }
     
     

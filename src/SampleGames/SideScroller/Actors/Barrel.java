@@ -59,7 +59,7 @@ public class Barrel extends SSActor{
     public void startDying(){
         setCurrentAction(Action.Dying);
         Sequence deathSeq = new Sequence(SpriteManager.barrelDeath);
-        deathSeq.frameDelay=150;
+        deathSeq.setFrameDelay(150);
         this.setGraphic(deathSeq);
     }
 }
