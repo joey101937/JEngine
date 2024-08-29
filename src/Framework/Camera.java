@@ -17,7 +17,6 @@ public class Camera {
     protected DCoordinate location = new DCoordinate(0,0); //location of camera, 0,0 is top left. NOTE these will be negative
     public int camSpeed = 3;//how fast the camera moves
     public double xVel, yVel;  //camera velocity. Change in position each render
-    private boolean readyToUpdate = false; //render only runs after a tick
     public GameObject2.MovementType movementType = GameObject2.MovementType.SpeedRatio;
     public boolean disableMovement = false;
     public int tickNumber = 0; //for debug usage
@@ -70,27 +69,20 @@ public class Camera {
      * @param g runs at the beginning of game render to keep camera at correct location
      */
     public synchronized void render(Graphics2D g) {
-        g.translate(location.x, location.y); //this runs regardless of ticks because it keeps the camera location still (g resets to 0,0 every render)
-        if (!readyToUpdate) {
-            return;
-        }
-        if (!disableMovement) {
-            updateLocation(g);
-        }
-        constrainCameraToWorld();
-        readyToUpdate = false;
+        g.translate(location.x, location.y); //this runs regardless of ticks because it keeps the camera location still (g resets to 0,0 every render)   
     }
 
     public void tick() {
-        readyToUpdate = true;
         tickNumber++;
+        updateLocation();
+        constrainCameraToWorld();
     }
 
     /**
      * updates the camera position based on either velocity or to follow target
      * @param g graphics for which this camera operates
      */
-    private synchronized void updateLocation(Graphics2D g) {
+    private synchronized void updateLocation() {
         if (disableMovement) {
             return;
         }

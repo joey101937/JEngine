@@ -105,12 +105,9 @@ public interface Graphic {
         if(scaleAmount == 1) return before;
         
         boolean isSmallImage = before.getWidth() < 200 || before.getHeight() < 200;
-        System.out.println("is small image");
         
         int numScales = isSmallImage ? 1 : 1;
         double stepAmount = Math.pow(scaleAmount, 1.0/numScales);
-        
-        System.out.println("step is " + stepAmount);
         
         BufferedImage output = before;
         

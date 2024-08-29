@@ -53,6 +53,10 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
         return hostGame;
     }
     
+    public void tick() {
+        
+    }
+    
     @Override
     public void keyTyped(KeyEvent e) {
     }

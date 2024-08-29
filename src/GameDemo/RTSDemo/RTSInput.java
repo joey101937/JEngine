@@ -24,6 +24,22 @@ public class RTSInput extends AsyncInputHandler {
     private static Coordinate mouseDownLocation = null;
     private static Coordinate mouseDraggedLocation = null;
     
+    public static boolean wDown = false, aDown = false, sDown = false, dDown = false;
+    
+    @Override
+    public void tick(){
+        Camera cam = getHostGame().getCamera();
+        double xVelocity = 0;
+        double yVelocity = 0;
+        if(wDown) yVelocity += 1;
+        if(sDown) yVelocity -= 1;
+        if(aDown) xVelocity += 1;
+        if(dDown) xVelocity -= 1;
+        
+        cam.xVel = xVelocity;
+        cam.yVel = yVelocity;
+    }
+    
     private Coordinate averageLocation(ArrayList<RTSUnit> input) {
         List<RTSUnit> livingMembers = input.stream().filter(x -> x.isAlive()).collect(Collectors.toList());
         Coordinate output = new Coordinate(0,0);
@@ -152,55 +168,38 @@ public class RTSInput extends AsyncInputHandler {
      */
     @Override
     public void onKeyPressed(KeyEvent e) {
-        Camera cam = getHostGame().getCamera();
         switch (e.getKeyChar()) {
-            case 'x':       //x for stop command
+            case 'x' -> {
+                //x for stop command
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                     u.setDesiredLocation(u.getPixelLocation());
                 }
-                break;
-            case 'w':
-                cam.yVel=1;
-                break;
-            case 'a':
-                cam.xVel=1;
-                break;
-            case 's':
-                cam.yVel=-1;
-                break;
-            case 'd':
-                cam.xVel=-1;
-                break;
-            default:
-                return;
+            }
+            case 'w' -> {
+                wDown = true;
+                sDown = false;
+            }
+            case 'a' -> {
+                aDown = true;
+                dDown = false;
+            }
+            case 's' -> {
+                sDown = true;
+                wDown = false;
+            }
+            case 'd' -> {
+                dDown = true;
+                aDown = false;
+            }
         }
     }
     @Override
     public void onKeyReleased(KeyEvent e){
-         Camera cam = getHostGame().getCamera();
         switch (e.getKeyChar()) {
-            case 'w':
-                if(cam.yVel>0){
-                cam.yVel=0;
-                }
-                break;
-            case 'a':
-                if(cam.xVel>0){
-                    cam.xVel=0;
-                }
-                break;
-            case 's':
-                if(cam.yVel<0){
-                cam.yVel=0;
-                }
-                break;
-            case 'd':
-                 if(cam.xVel<0){
-                    cam.xVel=0;
-                }
-                break;
-            default:
-                return;
+            case 'w' -> wDown = false;
+            case 'a' -> aDown = false;
+            case 's' -> sDown = false;
+            case 'd' -> dDown = false;
         }
     }
     

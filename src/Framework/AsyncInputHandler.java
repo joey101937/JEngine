@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
  */
 public abstract class AsyncInputHandler extends InputHandler implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener{
     
-    private ExecutorService asyncService = Executors.newCachedThreadPool();
+    private ExecutorService asyncService = Executors.newVirtualThreadPerTaskExecutor();
     
     public AsyncInputHandler(Game x, boolean isAsync){
         hostGame = x;

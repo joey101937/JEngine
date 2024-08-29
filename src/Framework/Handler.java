@@ -348,7 +348,7 @@ public class Handler {
     }
 
     public static enum TickType{
-        unified, // tick threads execute preTick - tick - postTick as a single instance. onCollide is triggered immediately. more performant but has thread randomness
+        unified, // tick threads in paralell execute in preTick - tick - postTick as a single instance. onCollide is triggered immediately. more performant but has thread randomness
         modular, // tick threads execute preTick synchronously- tick (async) - postTick(async) as separate events that happen separately in order. less performant but deterministic with high level of control
     }
 }

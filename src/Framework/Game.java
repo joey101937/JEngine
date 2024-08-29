@@ -81,6 +81,7 @@ public class Game extends Canvas implements Runnable {
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
+    public volatile long lastTickMs = 0L;
     
     /**
      * ticks all applied effects
@@ -414,8 +415,10 @@ public class Game extends Canvas implements Runnable {
 
     //core tick, tells all game Objects to tick
     private synchronized void tick() {
+        lastTickMs = System.currentTimeMillis();
         handler.tick();
         camera.tick();  
+        if(getInputHandler() != null) getInputHandler().tick();
         tickIndependentEffects();
         Window.TickUIElements();
         Window.updateFrameSize();
