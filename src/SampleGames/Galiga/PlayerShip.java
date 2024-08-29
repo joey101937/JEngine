@@ -37,10 +37,10 @@ public class PlayerShip extends GameObject2{
     }
     
     private void initialize(){
-        // Sprite s = new Sprite(SpriteManager.spaceship);
-        Sprite s = new Sprite(SpriteManager.localizedLight);
+        Sprite s = new Sprite(SpriteManager.spaceship);
+        // Sprite s = new Sprite(SpriteManager.localizedLight);
         setGraphic(s);
-        // scale(.3);
+        scale(.3);
         isSolid=true;
         setName("Player");
         movementType = MovementType.SpeedRatio;

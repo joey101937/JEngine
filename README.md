@@ -479,7 +479,7 @@ Once you have the SoundEffect instantiated, you can start it by calling its .sta
 Because creating a sound effect from a file is fairly expensive in terms of performance, as with any IO operation, you will want to do this only once per sound. To do this it is reccommended you have a static SoundEffect variable that will act as the 'source', and whenever you want to play that sound, create a copy of it (this does not require IO operations) and use that instead. 
 For best performance, avoid creating and running large amounts of sound effects at simultaneously as this can lead to stuttering. For best performance use <20 concurrent sound effects 
 
-It is recommended that you simply use the playCopyAsync method to quickly and asynchronously create a copy of the sound, then play it. Doing it this way will have less of a performance hit to your game. Also, this method respects the maxAsyncCopies variable (default 3) which controls how many copies of this sound can play at once. Beyond the maximium, it wll just restart one of hte active sounds instead of creating a new one which will greatly improve performance when you have situations where there are lots of the sound playing at once.
+It is recommended that you simply use the playCopy method to quickly and asynchronously create a copy of the sound, then play it. Doing it this way will have less of a performance hit to your game.
 
 ### SoundEffect Example
 ***BASIC EXAMPLE***<br>
@@ -501,13 +501,12 @@ private static SoundEffect soundSource = new SoundEffect(new File("mySound.au"))
 }
 </pre>
 
-***BEST PRACTICE EXAMPLE (ASYNC)***
+***BEST PRACTICE EXAMPLE (INLINE)***
 <pre>
 public class Example{
 private static SoundEffect soundSource = new SoundEffect(new File("mySound.au"));
   public void playSound(){
-   float volume = 1f;
-   soundSource.playCopyAsync(volume);
+   soundSource.playCopy();
   }
 }
 </pre>
