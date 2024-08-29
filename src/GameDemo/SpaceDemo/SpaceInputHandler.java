@@ -29,7 +29,8 @@ public class SpaceInputHandler extends InputHandler{
     */
     @Override
     public void mousePressed(MouseEvent e){
-        OnceThroughSticker effect = new OnceThroughSticker(hostGame,new Sequence(SpriteManager.explosionSequence),locationOfMouseEvent(e));
+        Sequence s = new Sequence(SpriteManager.explosionSequence);
+        OnceThroughSticker effect = new OnceThroughSticker(hostGame,s,locationOfMouseEvent(e));
     }
     
     /*

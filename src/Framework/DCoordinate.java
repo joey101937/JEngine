@@ -72,12 +72,6 @@ public class DCoordinate {
         return hash;
     }
 
-    public static void main(String[] args) {
-        Coordinate one = new Coordinate(1, 1);
-        Coordinate two = new Coordinate(1, 1);
-        System.out.println(one.equals(two));
-    }
-
     public static Coordinate sum(Coordinate a, Coordinate b) {
         return new Coordinate(a.x + b.x, a.y + b.y);
     }
@@ -141,10 +135,8 @@ public class DCoordinate {
                 return 180.0;
             }
         } else {
-            double adjacent = 0.0;
-            double opposite = 0.0;
-            adjacent = end.x - start.x;
-            opposite = end.y - start.y;
+            double adjacent = end.x - start.x;
+            double opposite = end.y - start.y;
             double angle = Math.toDegrees(Math.atan2(opposite, adjacent)) + 90;
             return angle;
         }
@@ -169,10 +161,8 @@ public class DCoordinate {
                 return 180.0;
             }
         } else {
-            double adjacent = 0.0;
-            double opposite = 0.0;
-            adjacent = end.x - start.x;
-            opposite = end.y - start.y;
+            double adjacent = end.x - start.x;
+            double opposite = end.y - start.y;
             double angle = Math.toDegrees(Math.atan2(opposite, adjacent)) + 90;
             return angle;
         }

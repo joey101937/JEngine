@@ -8,6 +8,7 @@ package Framework.Stickers;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GraphicalAssets.Sequence;
+import Framework.Main;
 import java.awt.Graphics2D;
 
 /**
@@ -41,6 +42,12 @@ public class OnceThroughSticker extends AnimatedSticker{
     
     @Override
     public void render(Graphics2D g) {
+        if(sequence == null) {
+            if(Main.debugMode) {
+                System.out.println("Sticker attempting to render without sequence");
+            }
+            return;
+        }
         if(System.currentTimeMillis() > creationTime + (sequence.getFrameCount() * sequence.getFrameDelay())) {
             disable();
             return;
