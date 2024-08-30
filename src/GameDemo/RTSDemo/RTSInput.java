@@ -169,25 +169,25 @@ public class RTSInput extends AsyncInputHandler {
     @Override
     public void onKeyPressed(KeyEvent e) {
         switch (e.getKeyChar()) {
-            case 'x' -> {
+            case 'X', 'x' -> {
                 //x for stop command
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                     u.setDesiredLocation(u.getPixelLocation());
                 }
             }
-            case 'w' -> {
+            case 'W', 'w' -> {
                 wDown = true;
                 sDown = false;
             }
-            case 'a' -> {
+            case 'A', 'a' ->{
                 aDown = true;
                 dDown = false;
             }
-            case 's' -> {
+            case 'S', 's' ->{
                 sDown = true;
                 wDown = false;
             }
-            case 'd' -> {
+            case 'D','d' ->{
                 dDown = true;
                 aDown = false;
             }

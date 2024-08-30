@@ -18,7 +18,6 @@ import java.awt.Graphics2D;
  * This is a helper object used to move GameObject2s from one game to another.
  * Uses the shouldMakeDestinationGameActive method to determine if it should make the destination active.
  * extend this class and override that method to change the logic.
- * @author joey101937 <g.uydude@yahoo.com>
  */
 public class Portal extends BlockObject {
     Thread helperThread; // use this to execute the transport so the host game can safely pause

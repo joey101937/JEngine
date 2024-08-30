@@ -80,7 +80,6 @@ public class Camera {
 
     /**
      * updates the camera position based on either velocity or to follow target
-     * @param g graphics for which this camera operates
      */
     private void updateLocation() {
         if (disableMovement) {

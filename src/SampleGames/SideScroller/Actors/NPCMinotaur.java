@@ -13,7 +13,7 @@ import java.util.Collection;
 
 /**
  *
- * @author joey101937 <g.uydude@yahoo.com>
+ * @author joey101937
  */
 public class NPCMinotaur extends Minotaur{
     

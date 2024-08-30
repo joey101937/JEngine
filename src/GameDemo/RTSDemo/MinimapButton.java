@@ -9,10 +9,6 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.UI_Elements.Examples.UiButton;
 
-/**
- *
- * @author joey101937 <g.uydude@yahoo.com>
- */
 public class MinimapButton extends UiButton {
     
     public MinimapButton(Game g, Coordinate location) {
