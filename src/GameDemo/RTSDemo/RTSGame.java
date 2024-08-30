@@ -32,14 +32,24 @@ public class RTSGame {
         Window.addUIElement(minimap);
         Window.addUIElement(button);
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
+        Main.splitBackgroundRender = true;
         
         int spacer = 160;
         
         for (int i = 0; i < 20; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 400, 0));
         }
+           for (int i = 0; i < 20; i++) {
+            game.addObject(new TankUnit(100 + (i * spacer), 300, 0));
+        }
+           
+           
         for (int i = 0; i < 20; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1100, 1));
         }
+        for (int i = 0; i < 20; i++) {
+            game.addObject(new TankUnit(100 + (i * spacer), 1200, 1));
+        }
+        
     }
 }

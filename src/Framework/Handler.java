@@ -27,7 +27,7 @@ public class Handler {
     
     public ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
     public ExecutorService renderService = Executors.newFixedThreadPool(Main.renderThreadCount);
-    public ExecutorService syncService = Executors.newFixedThreadPool(4);
+    public ExecutorService syncService = Executors.newVirtualThreadPerTaskExecutor();
     
     private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, GameObject2> storageAsOfLastTick = new ConcurrentHashMap<>();
@@ -215,7 +215,7 @@ public class Handler {
         waitForAllJobs(tickTasks);
     }
 
-    private void waitForAllJobs(Collection<Future<?>> a) {
+    public static void waitForAllJobs(Collection<Future<?>> a) {
         for (Future<?> currTask : a) {
             try {
                 currTask.get();

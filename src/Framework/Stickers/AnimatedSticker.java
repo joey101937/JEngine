@@ -10,7 +10,7 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.GraphicalAssets.Sequence;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 
 /**
  * Animated sticker
@@ -57,7 +57,7 @@ public class AnimatedSticker extends Sticker{
             }
             if (!disabled) {
                 if (image != null) {
-                   BufferedImage toRender = sequence.getCurrentFrame();
+                   VolatileImage toRender = sequence.getCurrentVolatileFrame();
                    gToUse.drawImage(toRender, spawnLocation.x-toRender.getWidth()/2 , spawnLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
                 }
             }

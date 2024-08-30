@@ -37,9 +37,10 @@ public class Main {
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
     private static boolean overviewMode = false;
     public static boolean debugMode = false;
-    public static int tickThreadCount = 2;
-    public static int renderThreadCount = 6;
+    public static int tickThreadCount = 1;
+    public static int renderThreadCount = 2;
     public static int numGraphicScalingSteps = 4; // only applies to images larger than 200x200. higher number = more color smoothing (blur)
+    public static boolean splitBackgroundRender = true;
 
     public static Handler.TickType tickType = Handler.TickType.modular;
     public static long seed = (long)(Math.random()*9999999999999L);
