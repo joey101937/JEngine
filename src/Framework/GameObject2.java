@@ -185,7 +185,7 @@ public class GameObject2 implements Comparable<GameObject2>{
      * @return integer location
      */
     public Coordinate getPixelLocation() {
-        return new Coordinate(locationAsOfLastTick);
+        return locationAsOfLastTick.toPixelCoordinate(); // new Coordinate(locationAsOfLastTick);
     }
     
      /**
@@ -194,7 +194,7 @@ public class GameObject2 implements Comparable<GameObject2>{
      * @return integer location
      */
     public Coordinate getPixelLocation(boolean realtime) {
-        return new Coordinate( realtime ? location : getLocationAsOfLastTick());
+        return (realtime ? location : getLocationAsOfLastTick()).toPixelCoordinate();
     }
     /**
      * @return The Rectangle object used as hitbox
@@ -397,13 +397,6 @@ public class GameObject2 implements Comparable<GameObject2>{
         Coordinate pixelLocation = getPixelLocation();
         
         
-        // smoothing
-        if(
-            Main.enableMotionSmoothing
-            && lastRenderLocation != null
-            && pixelLocation.distanceFrom(lastRenderLocation) < this.getWidth()) {
-            pixelLocation = new Coordinate((pixelLocation.x + lastRenderLocation.x)/2, (pixelLocation.y + lastRenderLocation.y)/2 );
-        }
         lastRenderLocation = pixelLocation;
         
         AffineTransform old = graphics.getTransform();

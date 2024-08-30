@@ -39,7 +39,6 @@ public class Main {
     public static boolean debugMode = false;
     public static int tickThreadCount = 2;
     public static int renderThreadCount = 6;
-    public static boolean enableMotionSmoothing = true;
     public static int numGraphicScalingSteps = 4; // only applies to images larger than 200x200. higher number = more color smoothing (blur)
 
     public static Handler.TickType tickType = Handler.TickType.modular;

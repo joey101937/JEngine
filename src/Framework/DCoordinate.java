@@ -239,4 +239,12 @@ public class DCoordinate {
         y *= -1;
         return this;
     }
+    
+    /**
+     * like toCoordinate except rounded to nearest whole number not, floor
+     * @return nearest coordinate to this DCoordinate
+     */
+    public Coordinate toPixelCoordinate() {
+        return new Coordinate((int)Math.round(x), (int)Math.round(y));
+    }
 }

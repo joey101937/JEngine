@@ -81,7 +81,6 @@ public class Game extends Canvas implements Runnable {
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
-    public volatile long lastTickMs = 0L;
     
     /**
      * ticks all applied effects
@@ -415,7 +414,6 @@ public class Game extends Canvas implements Runnable {
 
     //core tick, tells all game Objects to tick
     private synchronized void tick() {
-        lastTickMs = System.currentTimeMillis();
         handler.tick();
         camera.tick();  
         if(getInputHandler() != null) getInputHandler().tick();
@@ -582,7 +580,7 @@ public class Game extends Canvas implements Runnable {
                 timer += 1000;
                 //if frames = 1 then it likeley is an error from swapping scenes
                 if(frames!=1 && shouldShowFPS) {
-                    System.out.println(name + " FPS: " + frames);
+                    System.out.println(name + " FPS: " + frames + "   TPS: " + ticks);
                     if (Main.debugMode) System.out.println(" Ticks Per Second: " + ticks);
                 }
                 frames = 0;

@@ -114,7 +114,7 @@ public class RTSInput extends AsyncInputHandler {
 
     @Override
     public void onMouseMoved(MouseEvent e){
-        panCamera(e);
+        // panCamera(e);
     }
     
     private void panCamera(MouseEvent e){
