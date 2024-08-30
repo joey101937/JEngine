@@ -176,6 +176,7 @@ public class Coordinate {
 
     /**
      * scales this Coordinate by -1
+     * @return this scaled
      */
     public Coordinate invert() {
         x *= -1;

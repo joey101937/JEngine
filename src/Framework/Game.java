@@ -423,7 +423,7 @@ public class Game extends Canvas implements Runnable {
     }
 
     //core render method, tells all game Objects to render
-    private synchronized void render() {
+    private void render() {
         pausedSafely = false;       
         if(Window.mainWindow.currentGame != this){
             System.out.println("Refusing to render without container " + name);

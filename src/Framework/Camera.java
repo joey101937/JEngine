@@ -68,7 +68,7 @@ public class Camera {
      * runs at the beginning of game render to keep camera at correct location
      * @param g runs at the beginning of game render to keep camera at correct location
      */
-    public synchronized void render(Graphics2D g) {
+    public void render(Graphics2D g) {
         g.translate(location.x, location.y); //this runs regardless of ticks because it keeps the camera location still (g resets to 0,0 every render)   
     }
 
@@ -82,7 +82,7 @@ public class Camera {
      * updates the camera position based on either velocity or to follow target
      * @param g graphics for which this camera operates
      */
-    private synchronized void updateLocation() {
+    private void updateLocation() {
         if (disableMovement) {
             return;
         }

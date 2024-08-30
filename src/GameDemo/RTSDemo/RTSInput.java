@@ -109,7 +109,7 @@ public class RTSInput extends AsyncInputHandler {
     @Override
     public void onMouseDragged(MouseEvent e) {
         mouseDraggedLocation = locationOfMouseEvent(e);
-        panCamera(e);
+        // panCamera(e);
     }
 
     @Override

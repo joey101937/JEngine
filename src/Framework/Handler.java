@@ -73,7 +73,7 @@ public class Handler {
         waitForAllJobs(tasks);
     }
     
-    public synchronized void addObject(GameObject2 o) {
+    public void addObject(GameObject2 o) {
         if (!storage.containsKey(o.ID)) {
             if(o.getHostGame()!=null && o.getHostGame()!=this.hostGame){
                 o.getHostGame().removeObject(o);
@@ -128,7 +128,7 @@ public class Handler {
      * renders all objects in the game, along with their subobjects
      * @param g should be the game's graphics
      */
-    public synchronized void render(Graphics2D g) {
+    public void render(Graphics2D g) {
         HashMap<Integer, LinkedList<GameObject2>> renderMap = new HashMap<>();
         for(GameObject2 go : toRender) {
             if(renderMap.get(go.getZLayer()) == null) {

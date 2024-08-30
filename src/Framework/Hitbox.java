@@ -133,8 +133,7 @@ public class Hitbox {
      */
     private DCoordinate findClosestPointOnCircleFromPoint(DCoordinate target) {
         DCoordinate center = getCenter();
-        DCoordinate targetOffset = target.copy();
-        targetOffset.subtract(center);
+        DCoordinate targetOffset = target.copy().subtract(center);
         double angle = Math.atan(targetOffset.y / targetOffset.x);
         double x = Math.cos(angle) * radius;
         double y = Math.sin(angle) * radius;
@@ -246,8 +245,7 @@ public class Hitbox {
         staticCenter = new DCoordinate(avgX/4, avgY/4);
         Coordinate[] given2 = new Coordinate[given.length];
         for(int i = 0 ; i < given.length; i++){
-            given2[i]=given[i].copy();
-            given2[i].subtract(staticCenter);
+            given2[i]=given[i].copy().subtract(staticCenter);
         }
         vertices = given2;
         type = Type.box;
