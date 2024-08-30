@@ -298,7 +298,7 @@ This method creates and maintains the default hitbox on an object. If you want t
 This method returns a coordinate object whoes values coorespond to the object's location measured in pixels. This location isf based on number of pixels from the top-right origin of the world (not window). Modifying the object returned by this method does **not** modify the location of the GameObject2 it was called on, unlike accessing the GameObject2's *location* field directly.
 
 **getLocationAsOfLastTick()**
-This method returns the location that the object was at as of last tick. helpful for async games
+This method returns the location that the object was at as of last tick. helpful for deterministic games
 
 **isOnScreen()**
 If this onbject's hitbox is intersected by the camera's field of view
@@ -460,6 +460,12 @@ If false, uses only a double buffer. More buffers require more cpu power but mak
 How fast scenes run their tick method. Slows or speeds up the game relative to real time. lower number = slower game but smoother performance for weak hardware.
 ### **Resolution Scaling**
 When you create a project that uses visual image assets, those assets are rendered pixel per pixel and their size (without in-engine scaling) is determined by the actual size of the image asset used. Ie: a 200x200 image will display over a distance of 200x200 in the game. The problem is that different screens have different resolutions than the screen you are testing your project on, so a character that looks large on your 1080p display will look tiny on a 4k display. To keep things looking uniform across all screen resolutions, set the final static field **NATIVE_RESOLUTION** in game class to reflect the resolution of you, the programmer's screen. Now you may call the **Game.scaleForResolution()** option and it will automatically scale your entire project to look the same on whatever screen size the project is run in as it does on the screen you are testing on.
+### **tickThreadCount**
+This determines how many threads to use to execute ticks. More threads means faster ticks up to a point however using more than one thread here may make your game non-deterministic in multiplayer
+### **tickThreadCount**
+This determines how many threads to dedicate for use in rendering game objects in your scenes. Note this does not effect stickers, independent effects, or the background
+### **numGraphicScalingSteps**
+This setting changes how image assets are scaled. Only applies to images larger than 200x200. Larger number = softer/blurrier. Lower number = hard/sharp.
 
 # IndependentEffects
 Independent effects may be added to a game via the addIndependentEffect. This allows you to run tick and render logic without it being tied to any one GameObject2. This is used in the example demos to create UI effects such as the selection box effect in the RTS demo
