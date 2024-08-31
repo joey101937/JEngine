@@ -15,6 +15,9 @@ import Framework.Window;
 public class FogDemo {
     public static void main(String[] args) {
         Game game = new Game(SpriteManager.dirtBGNight);
+        if(Game.runningOnSmallerScreen()) {
+            Game.scaleForResolutionAspectRatio();
+        }
         Main.ticksPerSecond = 120;
         Window.initialize(game);
         AnimatedSticker.defaultFrameDelay = -1;

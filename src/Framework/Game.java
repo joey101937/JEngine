@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
 import java.awt.BasicStroke;
+import java.awt.GraphicsEnvironment;
 import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
 import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.KEY_COLOR_RENDERING;
@@ -708,15 +709,30 @@ public class Game extends Canvas implements Runnable {
         }
         //stop();
     }
-
+    
+    
+    
+    public static final boolean runningOnSmallerScreen () {
+        var device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
+        return device.getWidth() < NATIVE_RESOLUTION.getWidth()
+                || device.getHeight() < NATIVE_RESOLUTION.getHeight();
+    }
+    
     /**
      * Scales this Game to scale to current display's size based on
      * NATIVE_RESOLUTION will scale to fill screen proportionately to native,
      * does NOT maintain aspect ratio Game.NATIVE_RESOLUTION.
+     * 
+     * Screens larger than NATIVE_RESOLUTION will appear to zoomed in
+     * Screens smaller than NATIVE_RESOLUTIONS will appear zoomed out
      */
     public static final void scaleForResolution() {
-        Game.resolutionScaleX = (double) Toolkit.getDefaultToolkit().getScreenSize().width / Game.NATIVE_RESOLUTION.width;
-        Game.resolutionScaleY = (double) Toolkit.getDefaultToolkit().getScreenSize().height / Game.NATIVE_RESOLUTION.height;
+        var device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
+        System.out.println(
+                "Scaling for screen dimensions: " + NATIVE_RESOLUTION.width + "x" + NATIVE_RESOLUTION.height
+                + " to " + device.getWidth() + "x" + device.getHeight());
+        Game.resolutionScaleX = (double) device.getWidth() / Game.NATIVE_RESOLUTION.width;
+        Game.resolutionScaleY = (double) device.getHeight() / Game.NATIVE_RESOLUTION.height;
         Window.updateFrameSize();
     }
 
@@ -724,10 +740,17 @@ public class Game extends Canvas implements Runnable {
      * Scales this Game to mimic the native resolution's appearance for the
      * given display resolution set native resolution in Game class,
      * Game.NATIVE_RESOLUTION. Maintains aspect ratio
+     * 
+     * Screens larger than NATIVE_RESOLUTION will appear to zoomed in
+     * Screens smaller than NATIVE_RESOLUTIONS will appear zoomed out
      */
     public static final void scaleForResolutionAspectRatio() {
-        double scaleX = (double) Toolkit.getDefaultToolkit().getScreenSize().width / Game.NATIVE_RESOLUTION.width;
-        double scaleY = (double) Toolkit.getDefaultToolkit().getScreenSize().height / Game.NATIVE_RESOLUTION.height;
+        var device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
+        System.out.println(
+                "Scaling for screen dimensions (aspectRatio): " + NATIVE_RESOLUTION.width + "x" + NATIVE_RESOLUTION.height
+                + " to " + device.getWidth() + "x" + device.getHeight());
+        double scaleX = (double) device.getWidth() / Game.NATIVE_RESOLUTION.width;
+        double scaleY = (double) device.getHeight() / Game.NATIVE_RESOLUTION.height;
         if (scaleX < scaleY) {
             Game.resolutionScaleX = scaleX;
             Game.resolutionScaleY = scaleX;

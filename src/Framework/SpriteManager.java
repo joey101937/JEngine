@@ -106,7 +106,7 @@ public abstract class SpriteManager {
            localizedLight = load("DemoAssets/localizedLight2.png");
            fog = load("DemoAssets/fog.png");
            fogSequence = loadSequenceBouncing("DemoAssets/fogSequence");
-           car = load("DemoAssets/topDownCarShadowDark.png");
+           car = load("DemoAssets/topDownCarShadowDarkGrit.png");
            
            
            tankChasis = load("DemoAssets/TankGame/tankChasis.png");

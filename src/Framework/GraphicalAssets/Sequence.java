@@ -65,7 +65,7 @@ public class Sequence implements Graphic{
      */
     public VolatileImage getCurrentVolatileFrame() {
         if(startTime == null) {
-            startTime = System.currentTimeMillis() + startTimeOffset;
+            startTime = System.currentTimeMillis();
         }
         if(frames==null){
             System.out.println("Attempting to get current frame with null array");
@@ -95,7 +95,7 @@ public class Sequence implements Graphic{
     
     public int getCurrentFrameIndex(){
         try{
-           return (int) (((System.currentTimeMillis() - startTime) / frameDelay) % frames.length);   
+           return (int) (((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) % frames.length);   
         }catch (NullPointerException e){
             System.out.println("null pointer trying to get Sequence Frame Index");
             return 0;
@@ -107,7 +107,7 @@ public class Sequence implements Graphic{
      */
     public void startAnimating() {
         if(startTime==null){
-            startTime = System.currentTimeMillis() + startTimeOffset;
+            startTime = System.currentTimeMillis();
         }      
     }
     
@@ -326,7 +326,7 @@ public class Sequence implements Graphic{
      * @param ms number of ms to advance
      */
     public void advanceMs(int ms) {
-        if(startTime != null) this.startTime += ms;
+        System.out.println("setting " + ms);
         this.startTimeOffset += ms;
     }
     

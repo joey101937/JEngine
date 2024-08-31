@@ -18,7 +18,6 @@ public class FogObject extends GameObject2 {
     
     static {
         fogSequence = new Sequence(SpriteManager.fogSequence);
-        fogSequence.setFrameDelay(160);
     }
     
     public FogObject(int x, int y) {
@@ -28,11 +27,13 @@ public class FogObject extends GameObject2 {
     
     private void init() {
         Sequence s = fogSequence.copy();
-        s.setFrameDelay(60 + (int)(Main.getRandomSource().nextDouble() * 80));
-        s.advanceMs( Main.getRandomSource().nextInt(0, 2000));
-        this.setGraphic(fogSequence);
+        s.setFrameDelay(100 + (int)(Main.getRandomSource().nextDouble() * 80));
+        s.advanceMs( (int)(Math.random() * 6000));
+        this.setGraphic(s);
         this.setRotation(Main.getRandomSource().nextDouble() * 360);
         this.setZLayer(2);
+        this.setBaseSpeed(.1);
+        this.velocity.x = 1;
     }
     
 }
