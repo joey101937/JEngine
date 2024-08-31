@@ -1,15 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package GameDemo.FogDemo;
 
-import Framework.Coordinate;
 import Framework.Game;
 import Framework.GraphicalAssets.Sequence;
 import Framework.SpriteManager;
 import Framework.Stickers.AnimatedSticker;
-import Framework.Stickers.Sticker;
 import Framework.Window;
 
 /**
@@ -33,7 +28,7 @@ public class FogDemo {
         game.addObject(new FogObject(000, 500));
         game.addObject(new FogObject(800, 800));
         game.addObject(new FogObject(1000, 500));
-        game.addObject(new FogBird(500,500));
+        game.addObject(new FogCar(500,500));
         
         
         // Sticker lightSticker = new Sticker(game, SpriteManager.localizedLight, new Coordinate(500, 500), 5000);

@@ -20,8 +20,6 @@ public class FogBird extends GameObject2{
         this.setGraphic(new Sequence(SpriteManager.birdySequence));
         this.setScale(1);
         this.setBaseSpeed(2);
-        this.isSolid = true; // needs to be solid to collide with portal
-        this.hitbox = new Hitbox(this, 0);
         this.velocity.x = 1;
     }
     

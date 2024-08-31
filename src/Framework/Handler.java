@@ -26,7 +26,10 @@ public class Handler {
     protected long globalTickNumber = 0;
     
     public ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
-    public ExecutorService renderService = Executors.newFixedThreadPool(Main.renderThreadCount);
+    public ExecutorService renderService = Main.renderThreadCount > 0
+                ? Executors.newFixedThreadPool(Main.renderThreadCount)
+                :  Executors.newFixedThreadPool(1);
+    public ExecutorService renderServiceCached = Executors.newCachedThreadPool();
     public ExecutorService syncService = Executors.newVirtualThreadPerTaskExecutor();
     
     private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
@@ -146,7 +149,7 @@ public class Handler {
         for(Integer zLayer: zLayers) {
             Collection<Future<?>> renderTasks = new LinkedList<>();
             for(GameObject2 go : renderMap.get(zLayer)) {
-                renderTasks.add(renderService.submit(new RenderTask(go, g)));
+                renderTasks.add((Main.renderThreadCount > 0 ? renderService : renderServiceCached).submit(new RenderTask(go, g)));
             }
             waitForAllJobs(renderTasks);
         }

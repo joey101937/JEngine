@@ -33,6 +33,7 @@ public abstract class SpriteManager {
     public static BufferedImage localizedLight;
     public static BufferedImage fog;
     public static BufferedImage[] fogSequence;
+    public static BufferedImage car;
 
     
     //TANK ASSETS
@@ -105,6 +106,9 @@ public abstract class SpriteManager {
            localizedLight = load("DemoAssets/localizedLight2.png");
            fog = load("DemoAssets/fog.png");
            fogSequence = loadSequenceBouncing("DemoAssets/fogSequence");
+           car = load("DemoAssets/topDownCar.png");
+           
+           
            tankChasis = load("DemoAssets/TankGame/tankChasis.png");
            tankTurret = load("DemoAssets/TankGame/tankTurret.png");
            bullet = load("DemoAssets/TankGame/bullet.png");

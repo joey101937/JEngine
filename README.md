@@ -461,9 +461,9 @@ How fast scenes run their tick method. Slows or speeds up the game relative to r
 ### **Resolution Scaling**
 When you create a project that uses visual image assets, those assets are rendered pixel per pixel and their size (without in-engine scaling) is determined by the actual size of the image asset used. Ie: a 200x200 image will display over a distance of 200x200 in the game. The problem is that different screens have different resolutions than the screen you are testing your project on, so a character that looks large on your 1080p display will look tiny on a 4k display. To keep things looking uniform across all screen resolutions, set the final static field **NATIVE_RESOLUTION** in game class to reflect the resolution of you, the programmer's screen. Now you may call the **Game.scaleForResolution()** option and it will automatically scale your entire project to look the same on whatever screen size the project is run in as it does on the screen you are testing on.
 ### **tickThreadCount**
-This determines how many threads to use to execute ticks. More threads means faster ticks up to a point however using more than one thread here may make your game non-deterministic in multiplayer
+This determines how many threads to use to execute ticks. More threads means faster ticks up to a point however using more than one thread here may make your game non-deterministic in multiplayer. Set once before game start.
 ### **tickThreadCount**
-This determines how many threads to dedicate for use in rendering game objects in your scenes. Note this does not effect stickers, independent effects, or the background
+This determines how many threads to dedicate for use in rendering game objects in your scenes. Note this does not effect stickers, independent effects, or the background. values <=0 mean to use a cachedThreadPool instead (reccommended). Set once before game start.
 ### **numGraphicScalingSteps**
 This setting changes how image assets are scaled. Only applies to images larger than 200x200. Larger number = softer/blurrier. Lower number = hard/sharp.
 

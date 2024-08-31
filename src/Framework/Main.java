@@ -5,6 +5,7 @@
  */
 package Framework;
 
+import GameDemo.FogDemo.FogDemo;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.SandboxDemo.LaunchMenu;
 import GameDemo.SideScollerDemo_TERRAIN.SideScrollDemo;
@@ -38,7 +39,7 @@ public class Main {
     private static boolean overviewMode = false;
     public static boolean debugMode = false;
     public static int tickThreadCount = 1;
-    public static int renderThreadCount = 2;
+    public static int renderThreadCount = -1; // positive number = that number fixed. <=0 means use cachedThreadPool
     public static int numGraphicScalingSteps = 4; // only applies to images larger than 200x200. higher number = more color smoothing (blur)
     public static boolean splitBackgroundRender = true;
 
@@ -51,7 +52,7 @@ public class Main {
      * this is the new main method that only shows the nicer looking demos... not that any of them look particularly good
      */
     private static void showCuratedDemos(String[] args) {
-        String[] options = { "Demo - RTS", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga"};
+        String[] options = { "Demo - RTS", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Demo - Fog"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
@@ -65,6 +66,8 @@ public class Main {
             case 3: MinotaurGame.main(args);
             break;
             case 4: GaligaGame.main(args);
+            break;
+            case 5: FogDemo.main(args);
             break;
             default: {
                 System.out.println("unknown selection");
