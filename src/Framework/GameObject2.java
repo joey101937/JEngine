@@ -243,6 +243,8 @@ public class GameObject2 implements Comparable<GameObject2>{
         return graphic;
     }
     
+    public void onSetGraphic(Graphic newGraphic){};
+    
      /**
      * Sets current visual representation of this object
      * could be Sprite class if not animated or Sequence class if animated
@@ -252,6 +254,7 @@ public class GameObject2 implements Comparable<GameObject2>{
         if(graphic == g) return;
         if(g.getScale() != getScale()) g.scaleTo(getScale());
         graphic = g;
+        onSetGraphic(g);
     }
 
     /**

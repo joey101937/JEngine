@@ -40,6 +40,12 @@ public class Sprite implements Graphic{
         image = bi;
         volatileImage = Graphic.getVolatileFromBuffered(image);
     }
+       
+    public Sprite(BufferedImage bi, double inputScale){
+        image = bi;
+        this.scale = inputScale;
+        volatileImage = Graphic.getVolatileFromBuffered(image);
+    }
     
     @Override
     public VolatileImage getCurrentVolatileImage() {

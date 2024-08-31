@@ -111,6 +111,22 @@ public class Sequence implements Graphic{
         }      
     }
     
+    public Sequence(BufferedImage[] input, double inputScale){
+        frames = new Sprite[input.length];
+        for(int i = 0; i < input.length; i++){
+            frames[i]=new Sprite(input[i]);
+        }
+        this.scale = inputScale;
+    }
+
+    public Sequence(Sprite[] input, double inputScale) {
+        frames = new Sprite[input.length];
+        for (int i = 0; i < input.length; i++) {
+            frames[i] = input[i].copy();
+        }
+        this.scale = inputScale;
+    }
+    
     public Sequence(BufferedImage[] input){
         frames = new Sprite[input.length];
         for(int i = 0; i < input.length; i++){
@@ -145,7 +161,7 @@ public class Sequence implements Graphic{
         if(i<0 || i > frames.length-1){
             throw new ArrayIndexOutOfBoundsException("jumpToFrame argument must be between 1 and number of frames");
         }else{
-            startTime = new Long((i*frameDelay));
+            startTime = Long.valueOf(i*frameDelay);
         }
     }
 

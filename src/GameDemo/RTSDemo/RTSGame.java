@@ -39,12 +39,12 @@ public class RTSGame {
         int spacer = 160;
         
         for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 400, 0);
+            TankUnit tank = new TankUnit(100 + (i * spacer), 350, 0);
             tank.rotateTo(180);
             game.addObject(tank);
         }
         for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 300, 0);
+            TankUnit tank = new TankUnit(100 + (i * spacer), 200, 0);
             tank.rotateTo(180);
             game.addObject(tank);
         }
@@ -53,24 +53,16 @@ public class RTSGame {
             tank.rotateTo(180);
             game.addObject(tank);
         }
-         for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 200, 0);
-            tank.rotateTo(180);
-            game.addObject(tank);
-        }
+ 
            
-           
-        for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1100, 1));
-        }
         for (int i = 0; i < 20; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1200, 1));
         }
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1300, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1350, 1));
         }
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1400, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1500, 1));
         }
         
     }

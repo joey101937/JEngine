@@ -16,6 +16,7 @@ import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -27,9 +28,14 @@ public class TankUnit extends RTSUnit{
     public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
     public static SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
     public Turret turret;
-    private final static double VISUAL_SCALE = .15;
+    public final static double VISUAL_SCALE = .15;
     private Long lastFiredTime = 0L;
-    public static final int RANGE = 500;
+    public static final int RANGE = 500; 
+    
+    public static BufferedImage enemyTankChasisImage = greenToRed(SpriteManager.tankChasis);
+    public static BufferedImage enemyTankTurretImage = greenToRed(SpriteManager.tankTurret);
+    public static BufferedImage[] enemyTankFireAnimation = greenToRed(SpriteManager.tankFireAnimation);
+    
     /*
     sets up the tank values
      */
@@ -49,7 +55,7 @@ public class TankUnit extends RTSUnit{
     }
 
     private void init() {
-        Sprite chassSprite = new Sprite(SpriteManager.tankChasis);
+        Sprite chassSprite = new Sprite( team == 0 ? SpriteManager.tankChasis : enemyTankChasisImage);
         this.setGraphic(chassSprite);
         this.movementType = MovementType.RotationBased;
         turret = new Turret(new Coordinate(0, 0));
@@ -72,8 +78,8 @@ public class TankUnit extends RTSUnit{
     }
 
     public class Turret extends SubObject{
-        Sequence fireAnimation = new Sequence(SpriteManager.tankFireAnimation);    //simple recoil animation
-        Sprite turretSprite = new Sprite(SpriteManager.tankTurret);                 //simple turret sprite
+        Sequence fireAnimation = new Sequence(team == 0 ? SpriteManager.tankFireAnimation : enemyTankFireAnimation);    //simple recoil animation
+        Sprite turretSprite = new Sprite(team == 0 ? SpriteManager.tankTurret : enemyTankTurretImage);            //simple turret sprite
         
         /*
         this firing boolean is linked to the animation  with the onAnimationCycle

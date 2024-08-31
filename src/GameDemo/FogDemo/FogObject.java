@@ -32,6 +32,7 @@ public class FogObject extends GameObject2 {
         s.advanceMs( Main.getRandomSource().nextInt(0, 2000));
         this.setGraphic(fogSequence);
         this.setRotation(Main.getRandomSource().nextDouble() * 360);
+        this.setZLayer(2);
     }
     
 }

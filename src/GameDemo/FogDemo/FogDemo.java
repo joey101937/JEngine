@@ -3,6 +3,7 @@ package GameDemo.FogDemo;
 
 import Framework.Game;
 import Framework.GraphicalAssets.Sequence;
+import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Stickers.AnimatedSticker;
 import Framework.Window;
@@ -14,8 +15,10 @@ import Framework.Window;
 public class FogDemo {
     public static void main(String[] args) {
         Game game = new Game(SpriteManager.dirtBGNight);
+        Main.ticksPerSecond = 120;
         Window.initialize(game);
         AnimatedSticker.defaultFrameDelay = -1;
+        game.setZoom(1);
         
         
         Sequence fogSequence = new Sequence(SpriteManager.fogSequence);

@@ -7,12 +7,16 @@ package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
+import Framework.GameObject2;
+import Framework.GraphicalAssets.Sprite;
 import Framework.Hitbox;
+import GameDemo.RTSDemo.Units.TankUnit;
 import GameDemo.SandboxDemo.Creature;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -22,7 +26,7 @@ public class RTSUnit extends Creature {
     private boolean selected = false;
     private Coordinate desiredLocation;
     public int team;
-    
+
     private Color getColorFromTeam(int team) {
         return switch(team) {
             case 0 -> Color.GREEN;
@@ -30,6 +34,58 @@ public class RTSUnit extends Creature {
             case 2 -> Color.ORANGE;
             default -> Color.BLACK;
         };
+    }
+    
+    
+    public static BufferedImage[] greenToRed(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for(int i = 0; i < out.length; i++) {
+            out[i] = greenToRed(input[i]);
+        }
+        return out;
+    }
+    
+    
+    public static BufferedImage greenToRed (BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+         for(int y = 0; y < bi.getHeight(); y++) {
+            for(int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if(prevColor.getGreen() > prevColor.getRed() + prevColor.getBlue()) {
+                     int newRed = Math.min(255, (int)(prevColor.getGreen() * 1.5));
+                     int newGreen = (int)(prevColor.getRed() * .75);
+                     int newBlue = (int)(prevColor.getBlue() * .75);
+                     Color newColor = new Color(newRed, newGreen, newBlue);
+                     bi.setRGB(x, y, newColor.getRGB());
+                } else {
+                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
+                     bi.setRGB(x, y, newColor.getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+    
+    
+    public static void updateColorForTeam (GameObject2 go, int team) {
+        if(team == 0) return;
+        BufferedImage bi = go.getGraphic().getCurrentImage();
+        Graphics2D g = bi.createGraphics();
+        for(int y = 0; y < bi.getHeight(); y++) {
+            for(int x = 0; x < bi.getWidth(); x++) {
+                int rgba = bi.getRGB(x, y);
+                Color prevCOlor = new Color(rgba, true);
+                if(prevCOlor.getGreen() > prevCOlor.getRed() + prevCOlor.getBlue()) {
+                     prevCOlor = new Color(230, prevCOlor.getRed(),prevCOlor.getBlue());
+                bi.setRGB(x, y, prevCOlor.getRGB());
+                }
+            }
+        }
+        go.setGraphic(new Sprite(bi, TankUnit.VISUAL_SCALE));
+        for(GameObject2 sub : go.getAllSubObjects()) {
+            updateColorForTeam(sub, team);
+        }
     }
     
     @Override
