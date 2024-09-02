@@ -27,9 +27,9 @@ public class FogCar extends GameObject2 {
             accellerationStage = 0;
         }
         // fade out audio after the car leaves the screen
-        if(!this.isOnScreen() && tickNumber > 1 && tickNumber % 60 == 0) {
+        if(!this.isOnScreen() && tickNumber > 1 && tickNumber % 30 == 0) {
             var sound = FogDemo.engineSound;
-            if(sound.getVolume() < .5f) {
+            if(sound.getVolume() < .2f) {
                 sound.setLooping(false);
             } else {
                 sound.setVolume(sound.getVolume() - .01f);

@@ -401,11 +401,14 @@ public class SoundEffect implements Runnable{
         playCopy(1f);
     }
     
-    public void playCopy(Float volume) {
+    public void playCopy(float volume) {
         playCopy(volume, 0);
     }
+    public void playCopy(double volume) {
+        playCopy((float)volume, 0);
+    }
     
-    public void playCopy(Float volume, int msDelay) {
+    public void playCopy(float volume, int msDelay) {
         SoundEffect copy = this.createCopy();
         copy.setVolume(volume);
         copy.startWithDelay(msDelay);

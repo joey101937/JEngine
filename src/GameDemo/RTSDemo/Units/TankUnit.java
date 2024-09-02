@@ -105,7 +105,7 @@ public class TankUnit extends RTSUnit{
             setGraphic(fireAnimation);
             try {
                 if(isOnScreen()) {
-                   launchSoundSource.playCopy(.5f);
+                   launchSoundSource.playCopy((Math.random() * .2) + .4f);
                 }                
             } catch (Exception e) {
                 e.printStackTrace();
