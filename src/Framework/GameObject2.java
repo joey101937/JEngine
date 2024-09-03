@@ -552,7 +552,7 @@ public class GameObject2 implements Comparable<GameObject2>{
             getHitbox().setVertices(verts);
         }else if(getHitbox() != null && getHitbox().type == Hitbox.Type.circle){
             //maintain default circle hitbox
-            getHitbox().radius = getWidthAsOfLastTick()/2;
+            getHitbox().radius = Math.max(getWidthAsOfLastTick(), getHeightAsOfLastTick())/2;
         }
         
     }

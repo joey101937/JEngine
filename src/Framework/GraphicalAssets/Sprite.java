@@ -10,65 +10,70 @@ import java.awt.image.VolatileImage;
 
 /**
  * Represents an image used to be rendered in the world
+ *
  * @author Joseph
  */
-public class Sprite implements Graphic{
-    private BufferedImage image;
+public class Sprite implements Graphic {
 
+    private BufferedImage image;
     private VolatileImage volatileImage;
-     private double scale = 1;
-    
-     /**
-      * gets raw underlying image
-      * @return underlying image
-      */
-    public BufferedImage getImage(){
+    private String signuature;
+
+    private double scale = 1;
+
+    /**
+     * gets raw underlying image
+     *
+     * @return underlying image
+     */
+    public BufferedImage getImage() {
         return image;
     }
-    
+
     /**
      * sets underlying image
+     *
      * @param b new underlying image
      */
-    public void setImage(BufferedImage b){
-        image= b;
+    public void setImage(BufferedImage b) {
+        image = b;
         volatileImage = Graphic.getVolatileFromBuffered(b);
     }
-    
-   
-    public Sprite(BufferedImage bi){
+
+    public Sprite(BufferedImage bi) {
         image = bi;
         volatileImage = Graphic.getVolatileFromBuffered(image);
     }
-       
-    public Sprite(BufferedImage bi, double inputScale){
+
+    public Sprite(BufferedImage bi, double inputScale) {
         image = bi;
         this.scale = inputScale;
         volatileImage = Graphic.getVolatileFromBuffered(image);
     }
-    
+
     @Override
     public VolatileImage getCurrentVolatileImage() {
-        if(volatileImage != null && image != null) {
+        if (volatileImage != null && image != null) {
             volatileImage = Graphic.getValidatedVolatileImage(volatileImage, image);
             return volatileImage;
         } else {
             return null;
         }
     }
-    
+
     @Override
     public Sprite copy() {
         Sprite output = new Sprite(image);
         output.scale = scale;
+        output.signuature = this.signuature;
         return output;
     }
-
+    
     @Override
-    public double getScale(){
+    public double getScale() {
         return scale;
     }
-    
+
     /**
      * image by a given amount
      * @param d multiplier to scale by
@@ -79,36 +84,40 @@ public class Sprite implements Graphic{
         volatileImage = Graphic.getVolatileFromBuffered(image);
         scale *= d;
     }
-    
+
     @Override
-    public void mirrorHorizontal () {
+    public void mirrorHorizontal() {
         image = Graphic.mirrorHorizontal(image);
         volatileImage = Graphic.getVolatileFromBuffered(image);
     }
-    
+
     @Override
-    public void mirrorVertical () {
+    public void mirrorVertical() {
         image = Graphic.mirrorVertical(image);
         volatileImage = Graphic.getVolatileFromBuffered(image);
     }
-    
+
     /**
      * gets height of image in px
+     *
      * @return number of pixels tall
      */
-    public int getHeight(){
+    public int getHeight() {
         return image.getHeight();
     }
+
     /**
      * gets width of image in px
+     *
      * @return number of pixels wide
      */
-    public int getWidth(){
+    public int getWidth() {
         return image.getWidth();
     }
 
     /**
      * sets the scale of image to a given scale
+     *
      * @param d new value to be scale, relative to the default scale of image
      */
     @Override
@@ -117,13 +126,13 @@ public class Sprite implements Graphic{
         volatileImage = Graphic.getVolatileFromBuffered(image);
         scale = d;
     }
-    
+
     /**
-     * destroys this sprite and releases memory
-     * do not call unless you know what your doing
+     * destroys this sprite and releases memory do not call unless you know what
+     * your doing
      */
     @Override
-    public void destroy(){
+    public void destroy() {
         image = null;
         volatileImage = null;
     }
@@ -134,7 +143,17 @@ public class Sprite implements Graphic{
     }
 
     @Override
-    public boolean isAnimated(){
+    public boolean isAnimated() {
         return false;
+    }
+
+    @Override
+    public String getSignature() {
+        return signuature;
+    }
+
+    @Override
+    public void setSignature(String s) {
+        signuature = s;
     }
 }

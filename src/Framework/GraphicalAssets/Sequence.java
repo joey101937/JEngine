@@ -25,6 +25,11 @@ public class Sequence implements Graphic{
     private Long startTime;
     private int startTimeOffset = 0;
     private int pausedOnFrame = 0;
+    private String signuature = "";
+    
+    
+    // indicates that another sequence object has been created with references to this same sprite
+    private boolean sharingReferences = true;
     /**
      * @return BufferedImage to be rendered based on frame index, null if 
      * the frames array is null or if the actual image is null
@@ -133,6 +138,14 @@ public class Sequence implements Graphic{
             frames[i]=new Sprite(input[i]);
         }
     }
+    
+    public Sequence(Sprite[] input, double inputScale, boolean keepSourceReference){
+       frames = new Sprite[input.length];
+        for (int i = 0; i < input.length; i++) {
+            frames[i] = keepSourceReference ? input[i] : input[i].copy();
+        }
+        this.scale = inputScale;
+    }
 
     public Sequence(Sprite[] input) {
         frames = new Sprite[input.length];
@@ -164,6 +177,13 @@ public class Sequence implements Graphic{
             startTime = Long.valueOf(i*frameDelay);
         }
     }
+    
+    private void resetReferences() {
+         this.sharingReferences = false;
+        for(int i = 0; i < frames.length; i++) {
+            frames[i] = frames[i].copy();
+        }
+    }
 
     /**
      * scales all frames in this sequence by a given amount
@@ -171,6 +191,10 @@ public class Sequence implements Graphic{
      */
     @Override
     public void scale(double d) {
+        // if there is another sequence possibly sharing references, make new ones first
+        if(sharingReferences) {
+            resetReferences();
+        }
         for (Sprite bi : frames) {
             bi.scale(d);
         }
@@ -183,6 +207,9 @@ public class Sequence implements Graphic{
      */
     @Override
     public void scaleTo(double d) {
+        if(sharingReferences) {
+            resetReferences();
+        }
         for (Sprite bi : frames) {
             bi.scaleTo(d);
         }
@@ -233,6 +260,25 @@ public class Sequence implements Graphic{
         Sequence output = new Sequence(frames);
         output.scale=scale;
         output.frameDelay = this.frameDelay;
+        output.signuature = signuature;
+        return output;
+    }
+    
+    
+    /**
+     * creates a new sequence that uses the same sprites reference as the parent
+     * This should be used to create multiple of the same sequence without using that much more memory
+     * 
+     * scaling either the original or the output sequence after this operator will cause it to create a new source
+     * @return new sequence that uses same internal references as the calling sequence.
+     */
+    public Sequence copyMaintainSource() {
+        Sequence output = new Sequence(this.frames, scale, true);
+        output.frameDelay = this.frameDelay;
+        this.sharingReferences = true;
+        output.sharingReferences = true;
+        output.signuature = this.signuature;
+        System.out.println(output.startTime);
         return output;
     }
 
@@ -328,6 +374,16 @@ public class Sequence implements Graphic{
     public void advanceMs(int ms) {
         System.out.println("setting " + ms);
         this.startTimeOffset += ms;
+    }
+
+    @Override
+    public String getSignature() {
+        return signuature;
+    }
+
+    @Override
+    public void setSignature(String s) {
+        this.signuature = s;
     }
     
     

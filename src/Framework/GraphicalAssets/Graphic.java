@@ -10,7 +10,6 @@ import Framework.Window;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
@@ -28,6 +27,18 @@ import javax.imageio.ImageIO;
  * @author Joseph
  */
 public interface Graphic {
+    
+    /**
+     * used for identifying the graphic
+     * @return string signature
+     */
+    public String getSignature();
+    
+    /**
+     * used for identifying the graphic
+     * @param s new signuature
+     */
+    public void setSignature(String s);
 
     /**
      * gets either image of sprite or current frame of animated sequence
