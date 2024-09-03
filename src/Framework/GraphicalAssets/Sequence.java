@@ -179,6 +179,7 @@ public class Sequence implements Graphic{
     }
     
     private void resetReferences() {
+        System.out.println("resetting sequence references " + (signuature.length() > 0 ? signuature : ""));
          this.sharingReferences = false;
         for(int i = 0; i < frames.length; i++) {
             frames[i] = frames[i].copy();
@@ -207,6 +208,7 @@ public class Sequence implements Graphic{
      */
     @Override
     public void scaleTo(double d) {
+        if(d == scale) return;
         if(sharingReferences) {
             resetReferences();
         }

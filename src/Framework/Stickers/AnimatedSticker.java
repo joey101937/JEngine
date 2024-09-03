@@ -34,7 +34,7 @@ public class AnimatedSticker extends Sticker{
             this.disable();
             return;
         }
-        sequence = s.copy();
+        sequence = s.copyMaintainSource();
         if(defaultFrameDelay > 0) sequence.setFrameDelay(defaultFrameDelay);
     }
     

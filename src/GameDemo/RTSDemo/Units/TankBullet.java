@@ -28,9 +28,11 @@ public class TankBullet extends Projectile {
 
     public TankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
+        bulletGraphic.setSignature("bullet graphic");
+        bulletGraphic.scaleTo(.25); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
+        setScale(.25);
         this.setGraphic(bulletGraphic.copyMaintainSource());
         baseSpeed = 20;
-        setScale(.25);
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 750;
     }
