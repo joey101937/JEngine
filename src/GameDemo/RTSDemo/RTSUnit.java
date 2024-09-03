@@ -52,7 +52,7 @@ public class RTSUnit extends Creature {
             for(int x = 0; x < bi.getWidth(); x++) {
                 int rgba = input.getRGB(x, y);
                 Color prevColor = new Color(rgba, true);
-                if(prevColor.getGreen() > prevColor.getRed() + prevColor.getBlue()) {
+                if(prevColor.getGreen() > (prevColor.getRed() + prevColor.getBlue()) * .5) {
                      int newRed = Math.min(255, (int)(prevColor.getGreen() * 1.5));
                      int newGreen = (int)(prevColor.getRed() * .75);
                      int newBlue = (int)(prevColor.getBlue() * .75);
@@ -98,10 +98,11 @@ public class RTSUnit extends Creature {
         g.setStroke(new BasicStroke(5));
         g.drawLine(pixelLocation.x - getWidth()/2, pixelLocation.y + getHeight()/2 + 20, pixelLocation.x - getWidth()/2 + (int)(getWidth() * ((double)currentHealth/maxHealth)), pixelLocation.y + getHeight()/2 + 20);
         if (selected) {
+            int diameter = Math.max(getWidth(), getHeight());
             Coordinate renderLocation = getPixelLocation();
-            renderLocation.x -= getWidth() / 2;
-            renderLocation.y -= getHeight() / 2;
-            g.drawOval(renderLocation.x, renderLocation.y, getWidth(), getHeight());
+            renderLocation.x -= diameter / 2;
+            renderLocation.y -= diameter / 2;
+            g.drawOval(renderLocation.x, renderLocation.y, diameter, diameter);
             g.drawLine(getPixelLocation().x, getPixelLocation().y, desiredLocation.x, desiredLocation.y);
         }
         g.setStroke(originalStroke);

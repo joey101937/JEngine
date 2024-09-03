@@ -19,6 +19,7 @@ import GameDemo.RTSDemo.RTSUnit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a gank gameobject. Tank class is the chasis
@@ -32,9 +33,39 @@ public class TankUnit extends RTSUnit{
     private Long lastFiredTime = 0L;
     public static final int RANGE = 500; 
     
+    // Modified buffered images for team color
     public static BufferedImage enemyTankChasisImage = greenToRed(SpriteManager.tankChasis);
-    public static BufferedImage enemyTankTurretImage = greenToRed(SpriteManager.tankTurret);
+    public static BufferedImage enemyTankTurretImage =  greenToRed(SpriteManager.tankTurret);
     public static BufferedImage[] enemyTankFireAnimation = greenToRed(SpriteManager.tankFireAnimation);
+    
+    // sprites for reuse
+    public static volatile Sprite chasisSpriteGreen = null; // new Sprite(SpriteManager.tankChasis2);
+    public static volatile Sprite chasisSpriteRed = null; // new Sprite(enemyTankChasisImage);
+    public static volatile Sprite turretSpriteGreen = null; // new Sprite(SpriteManager.tankTurret);
+    public static volatile Sprite turretSpriteRed = null; // new Sprite(enemyTankTurretImage);
+    
+    public static volatile Sequence turretFireAnimationGreen = null; // new Sequence(SpriteManager.tankFireAnimation);
+    public static volatile Sequence turretFireAnimationRed = null; // new Sequence(enemyTankFireAnimation);
+    
+    public static void initGraphics() {
+        if(chasisSpriteGreen != null) return;
+        chasisSpriteGreen = new Sprite(SpriteManager.tankChasis);
+        chasisSpriteRed = new Sprite(enemyTankChasisImage);
+        turretSpriteGreen = new Sprite(SpriteManager.tankTurret);
+        turretSpriteRed =  new Sprite(enemyTankTurretImage);
+        turretFireAnimationGreen = new Sequence(SpriteManager.tankFireAnimation);
+        turretFireAnimationRed = new Sequence(enemyTankFireAnimation);
+        List.of(
+                chasisSpriteGreen,
+                chasisSpriteRed,
+                turretSpriteGreen,
+                turretSpriteRed,
+                turretFireAnimationGreen,      
+                turretFireAnimationRed
+                ).forEach(x -> x.scaleTo(VISUAL_SCALE));
+    }
+    
+    
     
     /*
     sets up the tank values
@@ -55,7 +86,8 @@ public class TankUnit extends RTSUnit{
     }
 
     private void init() {
-        Sprite chassSprite = new Sprite( team == 0 ? SpriteManager.tankChasis : enemyTankChasisImage);
+        initGraphics();
+        Sprite chassSprite = team == 0 ? chasisSpriteGreen : chasisSpriteRed;
         this.setGraphic(chassSprite);
         this.movementType = MovementType.RotationBased;
         turret = new Turret(new Coordinate(0, 0));
@@ -78,8 +110,8 @@ public class TankUnit extends RTSUnit{
     }
 
     public class Turret extends SubObject{
-        Sequence fireAnimation = new Sequence(team == 0 ? SpriteManager.tankFireAnimation : enemyTankFireAnimation);    //simple recoil animation
-        Sprite turretSprite = new Sprite(team == 0 ? SpriteManager.tankTurret : enemyTankTurretImage);            //simple turret sprite
+        Sequence fireAnimation = team == 0 ? turretFireAnimationGreen : turretFireAnimationRed;    //simple recoil animation
+        Sprite turretSprite = team == 0 ? turretSpriteGreen : turretSpriteRed; 
         
         /*
         this firing boolean is linked to the animation  with the onAnimationCycle
@@ -92,8 +124,7 @@ public class TankUnit extends RTSUnit{
             super(offset);
             this.setGraphic(turretSprite);
             setScale(VISUAL_SCALE);
-            turretSprite.scaleTo(getScale());
-            fireAnimation.scaleTo(getScale());
+            fireAnimation.setSignature("fireAnimation");
         }
         /*
         fires the gun at the location.
@@ -102,7 +133,7 @@ public class TankUnit extends RTSUnit{
         into the game world
          */
         public void onFire(Coordinate target) {
-            setGraphic(fireAnimation);
+            setGraphic(fireAnimation.copyMaintainSource());
             try {
                 if(isOnScreen()) {
                    launchSoundSource.playCopy((Math.random() * .2) + .4f);
@@ -115,8 +146,6 @@ public class TankUnit extends RTSUnit{
             muzzelLocation.y -= fireAnimation.frames[0].getHeight()*2/5;
             muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotation());
             muzzelLocation.add(getPixelLocation());
-            //OnceThroughSticker muzzelFlash = new OnceThroughSticker(getHostGame(),SpriteManager.explosionSequence,muzzelLocation);
-            //muzzelFlash.scaleTo(.25);
             TankBullet bullet = new TankBullet(muzzelLocation.toDCoordinate(),target.toDCoordinate());
             bullet.shooter=this.getHost();
             getHostGame().addObject(bullet);
@@ -129,7 +158,7 @@ public class TankUnit extends RTSUnit{
         */
         @Override
         public void onAnimationCycle(){
-            if(getGraphic() == fireAnimation){
+            if(getGraphic().getSignature().equals("fireAnimation")){
                 firing = false;
                 setGraphic(turretSprite);
             }

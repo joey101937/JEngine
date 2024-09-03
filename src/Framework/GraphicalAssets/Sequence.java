@@ -278,7 +278,6 @@ public class Sequence implements Graphic{
         this.sharingReferences = true;
         output.sharingReferences = true;
         output.signuature = this.signuature;
-        System.out.println(output.startTime);
         return output;
     }
 

@@ -10,6 +10,7 @@ import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.AsyncInputHandler;
+import Framework.Main;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -191,6 +192,7 @@ public class RTSInput extends AsyncInputHandler {
                 dDown = true;
                 aDown = false;
             }
+            case 'Z', 'z' -> Main.debugMode = !Main.debugMode;
         }
     }
     @Override

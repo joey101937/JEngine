@@ -5,18 +5,15 @@
  */
 package GameDemo.RTSDemo.Units;
 
-import Framework.Audio.SoundEffect;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sequence;
-import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.image.BufferedImage;
-import java.io.File;
 
 /**
  *
@@ -25,7 +22,6 @@ import java.io.File;
 public class TankBullet extends Projectile {
 
     public GameObject2 shooter; //the object that launched this projectile
-    private final static SoundEffect impactSoundSource = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
 
     public TankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
