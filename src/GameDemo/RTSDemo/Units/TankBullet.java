@@ -22,15 +22,20 @@ import java.awt.image.BufferedImage;
 public class TankBullet extends Projectile {
 
     public GameObject2 shooter; //the object that launched this projectile
+    
+    public static Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet});
+    public static Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall);
 
     public TankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
-        this.setGraphic(new Sequence(new BufferedImage[]{SpriteManager.bullet}));
+        this.setGraphic(bulletGraphic.copyMaintainSource());
         baseSpeed = 20;
         setScale(.25);
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 750;
     }
+    
+    
 
 
     //when this runs into a creature, deal damage to it then destroy this projectile
@@ -43,15 +48,14 @@ public class TankBullet extends Projectile {
                 if(((RTSUnit)shooter).team == otherUnit.team) return; // no friendly fire
             }
             otherUnit.takeDamage(20);
-            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequenceSmall), getPixelLocation());
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), getPixelLocation());
             destroy();
         }
     }
 
     @Override
     public void onTimeOut() {
-        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), this.getPixelLocation());
-        s.scaleTo(.5);
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), this.getPixelLocation());
     }
 
     /**
