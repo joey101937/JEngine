@@ -937,7 +937,8 @@ public class GameObject2 implements Comparable<GameObject2>{
      * @return if the object is visable by the camera
      */
     public boolean isOnScreen(){
-        Rectangle sightBox = new Rectangle((int)(this.location.x-getWidth()/2),(int)this.location.y-(getHeight()/2),getWidth()+1,getHeight()+1);
+        int longestSide = Math.max(getWidth(), getHeight());
+        Rectangle sightBox = new Rectangle((int)(this.location.x-(longestSide/2)),(int)this.location.y-(longestSide/2),longestSide+1,longestSide+1);
         return sightBox.intersects(getHostGame().getCamera().getFieldOfView());
     }
     

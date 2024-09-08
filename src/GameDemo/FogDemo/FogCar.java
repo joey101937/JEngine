@@ -12,17 +12,24 @@ import Framework.SpriteManager;
  */
 public class FogCar extends GameObject2 {
     // num ticks before getting to top speed
-    private double accelleration = Main.ticksPerSecond * 2;
+    private double accelleration = Main.ticksPerSecond * 4;
     private double accellerationStage = 0;
-    private double maxSpeed = 3;
+    private double maxSpeed = 12;
     
     @Override
     public void tick(){
         double accellarationPercent = accellerationStage / accelleration;
         this.setBaseSpeed(maxSpeed * accellarationPercent);
-        if(this.velocity.x != 0 && accellerationStage < accelleration) {
+        this.movementType = MovementType.RotationBased;
+        if(this.velocity.y != 0 && accellerationStage < accelleration) {
+            if(accellarationPercent > 40) {
+                accellerationStage++;
+            }
+            if(accellarationPercent > 60) {
+                accellerationStage+=5;
+            }
             accellerationStage++;
-        } else if (this.velocity.x == 0) {
+        } else if (this.velocity.y == 0) {
             // lose accumulated accelleration when stopped
             accellerationStage = 0;
         }
@@ -43,7 +50,7 @@ public class FogCar extends GameObject2 {
         this.setScale(1);
         this.setRotation(90);
         this.setBaseSpeed(2);
-        this.velocity.x = 1;
+        this.velocity.y = -1;
     }
     
 }
