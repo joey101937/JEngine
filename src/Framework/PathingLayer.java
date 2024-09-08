@@ -5,9 +5,14 @@
  */
 package Framework;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
+import Framework.GraphicalAssets.Graphic;
 import java.util.HashMap;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
+import static Framework.GraphicalAssets.Graphic.getRGBA;
 
 /**
  * represented by an image, uses colors to determine pathing area
@@ -19,19 +24,20 @@ public class PathingLayer {
      * constructor, creates pathing layer based on given image
      * @param image image to create based on
      */
-    protected PathingLayer(BufferedImage image) {
+    protected PathingLayer(Image image) {
         source = image;
         initLegend();
     }
+    
     
     /**
      * loads the legend with build in terrain types
      */
     private void initLegend(){
-       legend.put(new Color(0,0,0).getRGB(), Type.impass);
-       legend.put(new Color(255,0,0).getRGB(), Type.hostile);
-       legend.put(new Color(0,255,0).getRGB(), Type.ground);
-       legend.put(new Color(0,0,255).getRGB(),Type.water);
+       legend.put(getRGBA(Color.rgb(0, 0, 0)), Type.impass);
+       legend.put(getRGBA(Color.rgb(255, 0, 0)), Type.hostile);
+       legend.put(getRGBA(Color.rgb(0, 255, 0)), Type.ground);
+       legend.put(getRGBA(Color.rgb(0, 0, 255)), Type.water);
     }
 
     /**
@@ -55,10 +61,10 @@ public class PathingLayer {
             this.name = name;
             color = c;
         }        
-        public static final Type ground = new Type("ground",Color.green);
-        public static final Type water = new Type("water",Color.blue);
-        public static final Type hostile = new Type("hostile",Color.red);
-        public static final Type impass = new Type("impass",Color.black);
+        public static final Type ground = new Type("ground",Color.GREEN);
+        public static final Type water = new Type("water",Color.BLUE);
+        public static final Type hostile = new Type("hostile",Color.RED);
+        public static final Type impass = new Type("impass",Color.BLACK);
     }
     
     /**
@@ -70,11 +76,11 @@ public class PathingLayer {
         if(mapGenerated){
             throw new RuntimeException("Unable to assign color to legend of PathingLayer once map has been generated");
         }
-        legend.put(c.getRGB(), t);
+        legend.put(getRGBA(c), t);
     }
 
     
-    private BufferedImage source = null;
+    private Image source = null;
     private HashMap<Integer,Type> legend = new HashMap<>();
     private Type[][] map;
     private boolean mapGenerated = false;
@@ -85,14 +91,40 @@ public class PathingLayer {
      * in debug view. 
      */
     public void internalizeSource(){
-        if(sourceInternalized) return;
-        for(int i = 0; i < source.getWidth(); i++){
-            for(int j = 0; j < source.getHeight(); j++){
-                source.setRGB(i, j, getTypeAt(new Coordinate(i,j)).color.getRGB());
+//        if(sourceInternalized) return;
+//        for(int i = 0; i < source.getWidth(); i++){
+//            for(int j = 0; j < source.getHeight(); j++){
+//                source.setRGB(i, j, getTypeAt(new Coordinate(i,j)).color.getRGB());
+//            }
+//        }
+//        sourceInternalized = true;
+//        System.out.println("done");
+        int width = (int) source.getWidth();
+        int height = (int) source.getHeight();
+        WritableImage writableImage = new WritableImage(width, height);
+
+        PixelReader pixelReader = source.getPixelReader();
+        PixelWriter pixelWriter = writableImage.getPixelWriter();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int argb = pixelReader.getArgb(x, y);
+
+                if (map[argb] != null) {
+                    Color fxColor = getTypeAt(x,y).color;
+
+                    // Convert JavaFX Color to ARGB value
+                    int newArgb = getRGBA(fxColor);
+
+                    pixelWriter.setArgb(x, y, newArgb);
+                } else {
+                    // If the color is not found in the map, keep the original color
+                    pixelWriter.setArgb(x, y, argb);
+                }
             }
         }
-        sourceInternalized = true;
-        System.out.println("done");
+
+        source = writableImage;
     }
     
     /**
@@ -108,7 +140,7 @@ public class PathingLayer {
             if (mapGenerated) {
                 return map[c.x][c.y];
             } else {
-                return getType(source.getRGB(c.x, c.y));
+                return getType(getRGBA(source, c.x, c.y));
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("trying to get pathing layer outside of world " + c);
@@ -120,11 +152,11 @@ public class PathingLayer {
         return this.getTypeAt(new Coordinate(x,y));
     }
 
-    public BufferedImage getSource() {
+    public Image getSource() {
         return source;
     }
 
-    public void setSource(BufferedImage source) {
+    public void setSource(Image source) {
         if(this.mapGenerated){
             throw new RuntimeException("Cannot change source once map has been generated");
         }
@@ -138,10 +170,10 @@ public class PathingLayer {
      * but requires alot of memory. ONCE DONE LEGEND AND SOURCE WILL BE UNCHANGABLE
      */
     public void generateMap(){
-        map = new Type[source.getWidth()][source.getHeight()];
+        map = new Type[(int)source.getWidth()][(int)source.getHeight()];
         for(int i = 0; i < source.getWidth(); i++){
             for(int j = 0; j < source.getHeight(); j++){
-                map[i][j] = getType(source.getRGB(i, j));
+                map[i][j] = getType(getRGBA(source, j, j));
             }
         }
         mapGenerated = true;
@@ -172,7 +204,7 @@ public class PathingLayer {
      */
     private Type getType(Color c) {
         for (int code : legend.keySet()) {
-            if (c.getRGB() == code) {
+            if (getRGBA(c) == code) {
                 return legend.get(code);
             }
         }

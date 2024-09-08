@@ -5,8 +5,8 @@
  */
 package Framework.GraphicalAssets;
 
-import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
+import javafx.scene.image.Image;
 
 /**
  * Represents an image used to be rendered in the world
@@ -15,8 +15,7 @@ import java.awt.image.VolatileImage;
  */
 public class Sprite implements Graphic {
 
-    private BufferedImage image;
-    private VolatileImage volatileImage;
+    private Image image;
     private String signuature;
 
     private double scale = 1;
@@ -26,7 +25,7 @@ public class Sprite implements Graphic {
      *
      * @return underlying image
      */
-    public BufferedImage getImage() {
+    public Image getImage() {
         return image;
     }
 
@@ -35,30 +34,20 @@ public class Sprite implements Graphic {
      *
      * @param b new underlying image
      */
-    public void setImage(BufferedImage b) {
+    public void setImage(Image b) {
         image = b;
-        volatileImage = Graphic.getVolatileFromBuffered(b);
+        // volatileImage = Graphic.getVolatileFromBuffered(b);
     }
 
-    public Sprite(BufferedImage bi) {
+    public Sprite(Image bi) {
         image = bi;
-        volatileImage = Graphic.getVolatileFromBuffered(image);
+        // volatileImage = Graphic.getVolatileFromBuffered(image);
     }
 
-    public Sprite(BufferedImage bi, double inputScale) {
+    public Sprite(Image bi, double inputScale) {
         image = bi;
         this.scale = inputScale;
-        volatileImage = Graphic.getVolatileFromBuffered(image);
-    }
-
-    @Override
-    public VolatileImage getCurrentVolatileImage() {
-        if (volatileImage != null && image != null) {
-            volatileImage = Graphic.getValidatedVolatileImage(volatileImage, image);
-            return volatileImage;
-        } else {
-            return null;
-        }
+        // volatileImage = Graphic.getVolatileFromBuffered(image);
     }
 
     @Override
@@ -81,20 +70,17 @@ public class Sprite implements Graphic {
     @Override
     public void scale(double d) {
         image = Graphic.scaleImage(image, d);
-        volatileImage = Graphic.getVolatileFromBuffered(image);
         scale *= d;
     }
 
     @Override
     public void mirrorHorizontal() {
         image = Graphic.mirrorHorizontal(image);
-        volatileImage = Graphic.getVolatileFromBuffered(image);
     }
 
     @Override
     public void mirrorVertical() {
         image = Graphic.mirrorVertical(image);
-        volatileImage = Graphic.getVolatileFromBuffered(image);
     }
 
     /**
@@ -102,7 +88,7 @@ public class Sprite implements Graphic {
      *
      * @return number of pixels tall
      */
-    public int getHeight() {
+    public double getHeight() {
         return image.getHeight();
     }
 
@@ -111,7 +97,7 @@ public class Sprite implements Graphic {
      *
      * @return number of pixels wide
      */
-    public int getWidth() {
+    public double getWidth() {
         return image.getWidth();
     }
 
@@ -123,7 +109,6 @@ public class Sprite implements Graphic {
     @Override
     public void scaleTo(double d) {
         image = Graphic.scaleImage(image, d / scale);
-        volatileImage = Graphic.getVolatileFromBuffered(image);
         scale = d;
     }
 
@@ -134,11 +119,10 @@ public class Sprite implements Graphic {
     @Override
     public void destroy() {
         image = null;
-        volatileImage = null;
     }
 
     @Override
-    public BufferedImage getCurrentImage() {
+    public Image getCurrentImage() {
         return getImage();
     }
 

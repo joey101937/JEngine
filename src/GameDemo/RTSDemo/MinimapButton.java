@@ -18,7 +18,7 @@ public class MinimapButton extends UiButton {
     
     @Override
     public void onPress() {
-        RTSGame.minimap.useSimpleRender = !RTSGame.minimap.useSimpleRender;
+//        RTSGame.minimap.useSimpleRender = !RTSGame.minimap.useSimpleRender;
     }
     
 }

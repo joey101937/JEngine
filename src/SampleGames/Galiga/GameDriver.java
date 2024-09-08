@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  *
@@ -31,16 +32,16 @@ public class GameDriver extends IndependentEffect{
     private String toShow;
     
     @Override
-    public void render(Graphics2D g) {
-        if(refNumber > tickNumber-Main.ticksPerSecond*2){
-            Font toUse = new Font("Arial",Font.BOLD,30);           
-            Font original = g.getFont();
-            g.setFont(toUse);
-            g.setColor(Color.green);
-            toShow = "Level " + level;
-            g.drawString(toShow, GaligaGame.mainGame.getWorldWidth()/2-50, 350);
-            g.setFont(original);
-        }
+    public void render(GraphicsContext g) {
+//        if(refNumber > tickNumber-Main.ticksPerSecond*2){
+//            Font toUse = new Font("Arial",Font.BOLD,30);           
+//            Font original = g.getFont();
+//            g.setFont(toUse);
+//            g.setColor(Color.green);
+//            toShow = "Level " + level;
+//            g.drawString(toShow, GaligaGame.mainGame.getWorldWidth()/2-50, 350);
+//            g.setFont(original);
+//        }
     }
 
     @Override

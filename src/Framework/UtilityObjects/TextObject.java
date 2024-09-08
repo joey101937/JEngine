@@ -9,10 +9,13 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Main;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 /**
  * Gameobject that instead of rendering a sprite, renders text.
  * has no hitbox
@@ -23,8 +26,8 @@ public class TextObject extends GameObject2{
      * This is the text that is rendered
      */
     private String text = "";
-    private Font font = new Font("TimesRoman",Font.BOLD,18);
-    private Color color = Color.red;
+    private Font font = Font.font("TimesRoman", FontWeight.BOLD, FontPosture.REGULAR, 18);
+    private Color color = Color.RED;
     private int width  = 1;
     private int height = 1;
     
@@ -47,18 +50,19 @@ public class TextObject extends GameObject2{
     }
         
     @Override
-    public void render(Graphics2D g){
+    public void render(GraphicsContext g){
         renderNumber++; //for debug purposes
-        AffineTransform old = g.getTransform();
+        g.save();
         g.scale(getScale(), getScale());
+        Text textObj = new Text(text);
         if(!isOnScreen() || isInvisible || text==null || font==null)return;  //dont render if off screen or invisible or no text
         Coordinate renderLocation = getPixelLocation();
         //record original font and color settings to restore after rendering
         Font originalFont = g.getFont();
-        Color originalColor = g.getColor();
+        Paint originalColor = g.getStroke();
          //update size info
         if(text!=null){
-            width=(int)g.getFontMetrics().getStringBounds(text, g).getWidth();
+            width=(int)textObj.getLayoutBounds().getWidth();
         }else{
             width=0;
         }
@@ -66,23 +70,24 @@ public class TextObject extends GameObject2{
         if (font != null) {
             g.setFont(font);
         }
-        g.setColor(color);
+        g.setStroke(color);
         String[] lines = text.split("\n");
-        g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y);
+        g.translate(getPixelLocation().x, getPixelLocation().y);
+        g.rotate(Math.toRadians(getRotation()));
         for(String s : lines){
-            g.drawString(s, renderLocation.x, renderLocation.y);
+            g.fillText(s, renderLocation.x, renderLocation.y);
             renderLocation.y+=font.getSize();
         }
         //reset font and color to original
         g.setFont(originalFont);
-        g.setColor(originalColor);
+        g.setStroke(originalColor);
         if (Main.debugMode) {
-            g.setColor(Color.red);
-            g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
-            g.drawString(getName(), (int) location.x, (int) location.y - getHeight() / 2);
-            g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
+            g.setStroke(Color.RED);
+            g.strokeRect((int) location.x - 15, (int) location.y - 15, 30, 30);
+            g.fillText(getName(), (int) location.x, (int) location.y - getHeight() / 2);
+            g.strokeLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
         }
-        g.setTransform(old); //reset rotation for next item to render
+        g.restore();
     }
     
     public String getText() {
@@ -124,7 +129,7 @@ public class TextObject extends GameObject2{
     @Override
     public int getHeight(){
         if(font==null)return 0;
-        return font.getSize()*getNumLines();
+        return (int)font.getSize()*getNumLines();
     }
     /**
      * how many lines of text there are, defined by linebreaks (\n)

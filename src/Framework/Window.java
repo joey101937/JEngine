@@ -6,23 +6,25 @@
 package Framework;
 
 import Framework.UI_Elements.UIElement;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.ArrayList;
+import java.security.InvalidParameterException;
 import java.util.concurrent.CopyOnWriteArrayList;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  * This contains the code that actually displays the game in a window and starts the game
  * @author Joseph
  */
-public class Window {
+public class Window extends Application{
     /*  FIELDS  */
-    public static JPanel panel = new JPanel();
-    public static JFrame frame;
+    public static StackPane layout = new StackPane();
+    public static Stage stage;
     public static String title = "JEngine Window"; //name of window
     public static Window mainWindow;
     public static Game currentGame;
@@ -36,8 +38,12 @@ public class Window {
      * @param g Initial game to be loaded on window creation
      */
     public static void initialize(Game g){
+        if(g == null) {
+            throw new InvalidParameterException("Game must not be null");
+        }
         if(mainWindow == null){
-             mainWindow = new Window(g);
+             currentGame = g; 
+             launch();
              if(g.hasStarted==false){
                  g.start();
              }
@@ -55,25 +61,8 @@ public class Window {
     }
     
     
-    private Window(Game g) {
-        panel.setLayout(null);
-        frame = new JFrame(title);
-        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Window.class.getResource("/Resources/JEngineIcon.png")));
-        Dimension d = new Dimension(g.windowWidth,g.windowHeight);
-        g.setBounds(0, 0, g.windowWidth, g.windowHeight);
-        panel.setSize(d);
-        panel.add(g);
-        panel.setBackground(new Color(85, 85, 115)); //blue background
-        frame.add(panel);
-        frame.setMinimumSize(d);
-        frame.setMaximumSize(d);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-        frame.requestFocus();
-        g.window=this;
-        mainWindow = this;
-        currentGame = g;
-        frame.setResizable(false);
+    // this is called within the launch 
+    private Window() {
     }
     
     /**
@@ -88,21 +77,24 @@ public class Window {
         //panel.remove(currentGame);
         currentGame.setVisible(false);
         
-        Dimension d = new Dimension(g.windowWidth, g.windowHeight);
-        g.setBounds(0, 0, g.windowWidth, g.windowHeight);
-        frame.setSize(d);
-        panel.setSize(d);
-        boolean alreadyContained = false;
-        for (Component c : panel.getComponents()) {
-            if (c == g) {
-                g.setVisible(true);
-                panel.setComponentZOrder(g, 0);
-                alreadyContained = true;
-            }
-        }
-        if (!alreadyContained) {
-            panel.add(g);
-        }
+        // Dimension d = new Dimension(g.windowWidth, g.windowHeight);
+        // g.setBounds(0, 0, g.windowWidth, g.windowHeight);
+        // frame.setSize(d);
+        // layout.setSize(d);
+ 
+        
+        // coming back to this
+//        boolean alreadyContained = false;
+//        for (Component c : layout.getComponents()) {
+//            if (c == g) {
+//                g.setVisible(true);
+//                layout.setComponentZOrder(g, 0);
+//                alreadyContained = true;
+//            }
+//        }
+//        if (!alreadyContained) {
+//            layout.add(g);
+//        }
         //panel.setComponentZOrder(currentGame, panel.getComponentCount()-1);
         if (g.hasStarted) {
             g.setPaused(false);
@@ -132,30 +124,31 @@ public class Window {
     }
 
     public synchronized static void addUIElement(UIElement uie){
-        if(getUIElements().contains(uie))return;
-        getUIElements().add(uie);
-        Window.panel.add(uie);
-        setZOrders();
+//        if(getUIElements().contains(uie))return;
+//        getUIElements().add(uie);
+//        Window.layout.add(uie);
+//        setZOrders();
     }
     public synchronized static boolean removeUIElement(UIElement uie){
-        if(getUIElements().remove(uie)){
-            Window.panel.remove(uie);
-            setZOrders();
-            return true;
-        }
-        return false;
+//        if(getUIElements().remove(uie)){
+//            Window.layout.remove(uie);
+//            setZOrders();
+//            return true;
+//        }
+//        return false;
+    return true;
     }
     
     private static void setZOrders(){
-        System.out.println(Window.UIElements.size() + " ui elements");
-        for(UIElement ele : Window.UIElements){
-            Window.panel.setComponentZOrder(ele, Window.UIElements.indexOf(ele));
-            Window.panel.setComponentZOrder(currentGame, Window.UIElements.size());
-        }
+//        System.out.println(Window.UIElements.size() + " ui elements");
+//        for(UIElement ele : Window.UIElements){
+//            Window.layout.setComponentZOrder(ele, Window.UIElements.indexOf(ele));
+//            Window.layout.setComponentZOrder(currentGame, Window.UIElements.size());
+//        }
     }
 
     protected static void updateFrameSize() {
-        if (frame != null && panel != null && currentGame != null) {
+        if (stage != null && layout != null && currentGame != null) {
             Coordinate worldSize = new Coordinate(currentGame.getWorldWidth(), currentGame.getWorldHeight());
             if (worldSize.x < Window.screenSize.x && Game.resolutionScaleX <= 1) {
                 worldSize.x *= Game.resolutionScaleX;
@@ -175,8 +168,29 @@ public class Window {
             } else {
                 d.height = worldSize.y;
             }
-            frame.setMinimumSize(d);
-            frame.setSize(d);
+            stage.setMinWidth(d.width);
+            stage.setMinHeight(d.height);
+            stage.setWidth(d.width);
+            stage.setHeight(d.height);
         }
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        if(currentGame == null) throw new Exception("Trying to start window application with null game");
+        stage = primaryStage;
+        mainWindow = this;
+        currentGame.window=this;
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+          @Override
+          public void handle(WindowEvent t) {
+              System.exit(0);
+          }
+        });
+        stage.setScene(currentGame.scene);
+        stage.show();
+        stage.requestFocus();
+        mainWindow = this;
+        stage.setResizable(false);
     }
 }

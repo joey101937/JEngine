@@ -29,7 +29,7 @@ public class GaligaGame {
     
     public static void main(String[] args) {
         mainGame = new Game(SpriteManager.spaceBG);
-        mainGame.setName("Galiga Game");
+        mainGame.name = "Galiga Game";
         Window.initialize(mainGame);
         DCoordinate spawnPoint = new DCoordinate(mainGame.getWorldWidth()/2,mainGame.getWorldHeight()-150);
         player = new PlayerShip(spawnPoint);

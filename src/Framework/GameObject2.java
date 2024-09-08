@@ -8,16 +8,16 @@ package Framework;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Stickers.Sticker;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import javafx.scene.paint.Color;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
-import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Paint;
 
 /**
  * Parent class for all objects that appear in the gameworld
@@ -110,7 +110,8 @@ public class GameObject2 implements Comparable<GameObject2>{
     
     public Game getHostGame(){
         if(hostGame == null) {
-            if(Main.debugMode && Window.currentGame != null) System.out.println("Null hostgame for " + this.name + " returning " + Window.currentGame.getName());
+            // if(Main.debugMode && Window.currentGame != null) System.out.println("Null hostgame for " + this.name + " returning " + Window.currentGame.getName());
+            if(Main.debugMode && Window.currentGame != null) System.out.println("Null hostgame for " + this.name + " returning " + Window.currentGame.name);
             this.hostGame = Window.currentGame;
             return hostGame;
         }
@@ -216,7 +217,7 @@ public class GameObject2 implements Comparable<GameObject2>{
      */
     public int getWidth() {
         try{
-        return graphic.getCurrentImage().getWidth();
+        return (int)graphic.getCurrentImage().getWidth();
         }catch(NullPointerException npe){
             System.out.println("Returnning 0 for width of GameObject2 with no graphic " + this);
             return 0;
@@ -228,7 +229,7 @@ public class GameObject2 implements Comparable<GameObject2>{
      */
     public int getHeight() {
         try {
-            return graphic.getCurrentImage().getHeight();
+            return (int)graphic.getCurrentImage().getHeight();
         } catch (NullPointerException npe) {
             return 0;
         }
@@ -387,24 +388,22 @@ public class GameObject2 implements Comparable<GameObject2>{
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
      */
-    public void render(Graphics2D g) {
+    public void render(GraphicsContext g) {
         render(g, false);
     }
     
     /**
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
-     * @param ignoreRestrictions if this is true, it will render even if it usually wouldnt due to being off screen
+     * @param ignoreRestrictions if this is true, it will render even if it usually wouldn't due to being off screen
      */
-    public void render(Graphics2D g, boolean ignoreRestrictions){
-        Graphics2D graphics = (Graphics2D)g.create();
+    public void render(GraphicsContext graphics, boolean ignoreRestrictions){
         renderNumber++;
         Coordinate pixelLocation = getPixelLocation();
         
         
         lastRenderLocation = pixelLocation;
-        
-        AffineTransform old = graphics.getTransform();
+        graphics.save();
         if (!isOnScreen() && !Main.overviewMode() && !ignoreRestrictions) {
             //offscreen without overview mode? dont bother rendering anything.
             if (isAnimated()) {
@@ -419,13 +418,14 @@ public class GameObject2 implements Comparable<GameObject2>{
             if (Main.debugMode) {
                 renderDebugVisuals(graphics);
                 if (getHitbox() != null) {
-                    graphics.setTransform(old);
+                    graphics.restore();
                     getHitbox().render(graphics);
                 }
             }
             return;
         }
-        graphics.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
+        graphics.translate(getPixelLocation().x, getPixelLocation().y);
+        graphics.rotate(Math.toRadians(rotation));
         if (getGraphic() == null) {
             //System.out.println("Warning null graphic for " + name);
         } else if (isAnimated()) {
@@ -437,10 +437,10 @@ public class GameObject2 implements Comparable<GameObject2>{
                 }
                 return;
             }
-            if(sequence.getCurrentVolatileFrame()!=null){
+            if(sequence.getCurrentFrame()!=null){
                 sequence.startAnimating();
-                VolatileImage toRender = sequence.getCurrentVolatileFrame();
-                graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
+                Image toRender = sequence.getCurrentFrame();
+                graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2); //draws frmae centered on pixelLocation
                 if(sequence.currentFrameIndex == sequence.frames.length-1) this.onAnimationCycle();
             }else{
                 if(renderNumber>10 && tickNumber>2)System.out.println("Warning: null frame in sequence of " + getName());
@@ -448,7 +448,7 @@ public class GameObject2 implements Comparable<GameObject2>{
         }else{
             Sprite sprite = (Sprite)getGraphic();
             if(sprite!=null){                
-                graphics.drawImage(sprite.getCurrentVolatileImage(), pixelLocation.x - sprite.getImage().getWidth() / 2, pixelLocation.y - sprite.getImage().getHeight() / 2, null); //draws sprite centered on pixelLocation
+                graphics.drawImage(sprite.getCurrentImage(), pixelLocation.x - sprite.getImage().getWidth() / 2, pixelLocation.y - sprite.getImage().getHeight() / 2); //draws sprite centered on pixelLocation
             } else {
                 if (renderNumber > 10 && tickNumber > 2) {
                     System.out.println("Warning: unanimated game object sprite is null " + getName());
@@ -458,7 +458,7 @@ public class GameObject2 implements Comparable<GameObject2>{
         if (Main.debugMode) {
             renderDebugVisuals(graphics);
         }
-        graphics.setTransform(old); //reset rotation for next item to render
+        graphics.restore(); //reset rotation for next item to render
         if (getHitbox() != null && Main.debugMode) {
             getHitbox().render(graphics);
         }
@@ -470,16 +470,16 @@ public class GameObject2 implements Comparable<GameObject2>{
      *
      * @param g graphics to use
      */
-    public void renderDebugVisuals(Graphics2D g) {
-        Color originalColor = g.getColor();
-        g.setColor(Color.red);
-        g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
-        g.drawString(getName(), (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
-        g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
+    public void renderDebugVisuals(GraphicsContext g) {
+        Paint originalColor = g.getStroke();
+        g.setStroke(Color.RED);
+        g.strokeRect((int) location.x - 15, (int) location.y - 15, 30, 30);
+        g.fillText(getName(), (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);
+        g.strokeLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
         for (Coordinate c: additionalPathingChecks) {
             Coordinate centerOfItem = location.copy().add(c).toCoordinate();
             int widthOfVisal = 8;
-            g.drawRect(centerOfItem.x - widthOfVisal/2, centerOfItem.y - widthOfVisal/2, widthOfVisal, widthOfVisal);
+            g.strokeRect(centerOfItem.x - widthOfVisal/2, centerOfItem.y - widthOfVisal/2, widthOfVisal, widthOfVisal);
         }
     }
     

@@ -1,170 +1,170 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package GameDemo.RTSDemo;
-
-import Framework.Coordinate;
-import Framework.DCoordinate;
-import Framework.GameObject2;
-import Framework.GraphicalAssets.Sprite;
-import Framework.Hitbox;
-import GameDemo.RTSDemo.Units.TankUnit;
-import GameDemo.SandboxDemo.Creature;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Stroke;
-import java.awt.image.BufferedImage;
-
-/**
- *
- * @author Joseph
- */
-public class RTSUnit extends Creature {
-    private boolean selected = false;
-    private Coordinate desiredLocation;
-    public int team;
-
-    private Color getColorFromTeam(int team) {
-        return switch(team) {
-            case 0 -> Color.GREEN;
-            case 1 -> Color.RED;
-            case 2 -> Color.ORANGE;
-            default -> Color.BLACK;
-        };
-    }
-    
-    
-    public static BufferedImage[] greenToRed(BufferedImage[] input) {
-        BufferedImage[] out = new BufferedImage[input.length];
-        for(int i = 0; i < out.length; i++) {
-            out[i] = greenToRed(input[i]);
-        }
-        return out;
-    }
-    
-    
-    public static BufferedImage greenToRed (BufferedImage input) {
-        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
-         for(int y = 0; y < bi.getHeight(); y++) {
-            for(int x = 0; x < bi.getWidth(); x++) {
-                int rgba = input.getRGB(x, y);
-                Color prevColor = new Color(rgba, true);
-                if(prevColor.getGreen() > (prevColor.getRed() + prevColor.getBlue()) * .5) {
-                     int newRed = Math.min(255, (int)(prevColor.getGreen() * 1.5));
-                     int newGreen = (int)(prevColor.getRed() * .75);
-                     int newBlue = (int)(prevColor.getBlue() * .75);
-                     Color newColor = new Color(newRed, newGreen, newBlue);
-                     bi.setRGB(x, y, newColor.getRGB());
-                } else {
-                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
-                     bi.setRGB(x, y, newColor.getRGB());
-                }
-            }
-        }
-        return bi;
-    }
-    
-    
-    public static void updateColorForTeam (GameObject2 go, int team) {
-        if(team == 0) return;
-        BufferedImage bi = go.getGraphic().getCurrentImage();
-        Graphics2D g = bi.createGraphics();
-        for(int y = 0; y < bi.getHeight(); y++) {
-            for(int x = 0; x < bi.getWidth(); x++) {
-                int rgba = bi.getRGB(x, y);
-                Color prevCOlor = new Color(rgba, true);
-                if(prevCOlor.getGreen() > prevCOlor.getRed() + prevCOlor.getBlue()) {
-                     prevCOlor = new Color(230, prevCOlor.getRed(),prevCOlor.getBlue());
-                bi.setRGB(x, y, prevCOlor.getRGB());
-                }
-            }
-        }
-        go.setGraphic(new Sprite(bi, TankUnit.VISUAL_SCALE));
-        for(GameObject2 sub : go.getAllSubObjects()) {
-            updateColorForTeam(sub, team);
-        }
-    }
-    
-    @Override
-    public void render(Graphics2D g) {
-        super.render(g);
-        Coordinate pixelLocation = getPixelLocation();
-        Color originalColor = g.getColor();
-        Stroke originalStroke= g.getStroke();
-        g.setColor(getColorFromTeam(this.team));
-        g.setStroke(new BasicStroke(5));
-        g.drawLine(pixelLocation.x - getWidth()/2, pixelLocation.y + getHeight()/2 + 20, pixelLocation.x - getWidth()/2 + (int)(getWidth() * ((double)currentHealth/maxHealth)), pixelLocation.y + getHeight()/2 + 20);
-        if (selected) {
-            int diameter = Math.max(getWidth(), getHeight());
-            Coordinate renderLocation = getPixelLocation();
-            renderLocation.x -= diameter / 2;
-            renderLocation.y -= diameter / 2;
-            g.drawOval(renderLocation.x, renderLocation.y, diameter, diameter);
-            g.drawLine(getPixelLocation().x, getPixelLocation().y, desiredLocation.x, desiredLocation.y);
-        }
-        g.setStroke(originalStroke);
-        g.setColor(originalColor);
-    }
-    
-    //every tick turn towards and move towards destination if not there already
-    @Override
-    public void tick() {
-        super.tick();
-        if (desiredLocation.distanceFrom(location) > getWidth() / 2) {
-            double desiredRotation = this.angleFrom(desiredLocation);
-            double maxRotation = 5;
-            if(Math.abs(desiredRotation)<maxRotation){
-                rotate(desiredRotation);
-            }else{
-                if(desiredRotation>0){
-                    rotate(maxRotation); 
-                }else{
-                    rotate(-maxRotation);
-                }
-            }
-            //this.lookAt(desiredLocation);
-            this.velocity.y = -100; //remember negative means forward because reasons
-        } else {
-            this.velocity.y = 0;
-        }
-
-    }
-
-    private void init(int team) {
-        desiredLocation = getPixelLocation();
-        this.movementType = MovementType.RotationBased;
-        this.hitbox = new Hitbox(this,0); //sets to a circle with radius 0. radius will be auto set based on width becauase of updateHitbox method
-        this.team = team;
-    }
-
-    public RTSUnit(Coordinate c, int team) {
-        super(c);
-        init(team);
-    }
-
-    public RTSUnit(DCoordinate c, int team) {
-        super(c);
-        init(team);
-    }
-
-    public RTSUnit(int x, int y, int team) {
-        super(x, y);
-        init(team);
-    }
-
-    public boolean isSelected(){
-        return selected;
-    }
-    public void setSelected(boolean b){
-        selected  = b;
-    }
-    public Coordinate getDesiredLocation(){
-        return desiredLocation.copy();
-    }
-    public void setDesiredLocation(Coordinate c){
-        desiredLocation = c;
-    }
-}
+///*
+// * To change this license header, choose License Headers in Project Properties.
+// * To change this template file, choose Tools | Templates
+// * and open the template in the editor.
+// */
+//package GameDemo.RTSDemo;
+//
+//import Framework.Coordinate;
+//import Framework.DCoordinate;
+//import Framework.GameObject2;
+//import Framework.GraphicalAssets.Sprite;
+//import Framework.Hitbox;
+//import GameDemo.RTSDemo.Units.TankUnit;
+//import GameDemo.SandboxDemo.Creature;
+//import java.awt.BasicStroke;
+//import java.awt.Color;
+//import java.awt.Graphics2D;
+//import java.awt.Stroke;
+//import java.awt.image.BufferedImage;
+//
+///**
+// *
+// * @author Joseph
+// */
+//public class RTSUnit extends Creature {
+//    private boolean selected = false;
+//    private Coordinate desiredLocation;
+//    public int team;
+//
+//    private Color getColorFromTeam(int team) {
+//        return switch(team) {
+//            case 0 -> Color.GREEN;
+//            case 1 -> Color.RED;
+//            case 2 -> Color.ORANGE;
+//            default -> Color.BLACK;
+//        };
+//    }
+//    
+//    
+//    public static BufferedImage[] greenToRed(BufferedImage[] input) {
+//        BufferedImage[] out = new BufferedImage[input.length];
+//        for(int i = 0; i < out.length; i++) {
+//            out[i] = greenToRed(input[i]);
+//        }
+//        return out;
+//    }
+//    
+//    
+//    public static BufferedImage greenToRed (BufferedImage input) {
+//        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+//         for(int y = 0; y < bi.getHeight(); y++) {
+//            for(int x = 0; x < bi.getWidth(); x++) {
+//                int rgba = input.getRGB(x, y);
+//                Color prevColor = new Color(rgba, true);
+//                if(prevColor.getGreen() > (prevColor.getRed() + prevColor.getBlue()) * .5) {
+//                     int newRed = Math.min(255, (int)(prevColor.getGreen() * 1.5));
+//                     int newGreen = (int)(prevColor.getRed() * .75);
+//                     int newBlue = (int)(prevColor.getBlue() * .75);
+//                     Color newColor = new Color(newRed, newGreen, newBlue);
+//                     bi.setRGB(x, y, newColor.getRGB());
+//                } else {
+//                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
+//                     bi.setRGB(x, y, newColor.getRGB());
+//                }
+//            }
+//        }
+//        return bi;
+//    }
+//    
+//    
+//    public static void updateColorForTeam (GameObject2 go, int team) {
+//        if(team == 0) return;
+//        BufferedImage bi = go.getGraphic().getCurrentImage();
+//        Graphics2D g = bi.createGraphics();
+//        for(int y = 0; y < bi.getHeight(); y++) {
+//            for(int x = 0; x < bi.getWidth(); x++) {
+//                int rgba = bi.getRGB(x, y);
+//                Color prevCOlor = new Color(rgba, true);
+//                if(prevCOlor.getGreen() > prevCOlor.getRed() + prevCOlor.getBlue()) {
+//                     prevCOlor = new Color(230, prevCOlor.getRed(),prevCOlor.getBlue());
+//                bi.setRGB(x, y, prevCOlor.getRGB());
+//                }
+//            }
+//        }
+//        go.setGraphic(new Sprite(bi, TankUnit.VISUAL_SCALE));
+//        for(GameObject2 sub : go.getAllSubObjects()) {
+//            updateColorForTeam(sub, team);
+//        }
+//    }
+//    
+//    @Override
+//    public void render(Graphics2D g) {
+//        super.render(g);
+//        Coordinate pixelLocation = getPixelLocation();
+//        Color originalColor = g.getColor();
+//        Stroke originalStroke= g.getStroke();
+//        g.setColor(getColorFromTeam(this.team));
+//        g.setStroke(new BasicStroke(5));
+//        g.drawLine(pixelLocation.x - getWidth()/2, pixelLocation.y + getHeight()/2 + 20, pixelLocation.x - getWidth()/2 + (int)(getWidth() * ((double)currentHealth/maxHealth)), pixelLocation.y + getHeight()/2 + 20);
+//        if (selected) {
+//            int diameter = Math.max(getWidth(), getHeight());
+//            Coordinate renderLocation = getPixelLocation();
+//            renderLocation.x -= diameter / 2;
+//            renderLocation.y -= diameter / 2;
+//            g.drawOval(renderLocation.x, renderLocation.y, diameter, diameter);
+//            g.drawLine(getPixelLocation().x, getPixelLocation().y, desiredLocation.x, desiredLocation.y);
+//        }
+//        g.setStroke(originalStroke);
+//        g.setColor(originalColor);
+//    }
+//    
+//    //every tick turn towards and move towards destination if not there already
+//    @Override
+//    public void tick() {
+//        super.tick();
+//        if (desiredLocation.distanceFrom(location) > getWidth() / 2) {
+//            double desiredRotation = this.angleFrom(desiredLocation);
+//            double maxRotation = 5;
+//            if(Math.abs(desiredRotation)<maxRotation){
+//                rotate(desiredRotation);
+//            }else{
+//                if(desiredRotation>0){
+//                    rotate(maxRotation); 
+//                }else{
+//                    rotate(-maxRotation);
+//                }
+//            }
+//            //this.lookAt(desiredLocation);
+//            this.velocity.y = -100; //remember negative means forward because reasons
+//        } else {
+//            this.velocity.y = 0;
+//        }
+//
+//    }
+//
+//    private void init(int team) {
+//        desiredLocation = getPixelLocation();
+//        this.movementType = MovementType.RotationBased;
+//        this.hitbox = new Hitbox(this,0); //sets to a circle with radius 0. radius will be auto set based on width becauase of updateHitbox method
+//        this.team = team;
+//    }
+//
+//    public RTSUnit(Coordinate c, int team) {
+//        super(c);
+//        init(team);
+//    }
+//
+//    public RTSUnit(DCoordinate c, int team) {
+//        super(c);
+//        init(team);
+//    }
+//
+//    public RTSUnit(int x, int y, int team) {
+//        super(x, y);
+//        init(team);
+//    }
+//
+//    public boolean isSelected(){
+//        return selected;
+//    }
+//    public void setSelected(boolean b){
+//        selected  = b;
+//    }
+//    public Coordinate getDesiredLocation(){
+//        return desiredLocation.copy();
+//    }
+//    public void setDesiredLocation(Coordinate c){
+//        desiredLocation = c;
+//    }
+//}

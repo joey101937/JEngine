@@ -5,8 +5,8 @@
  */
 package Framework;
 
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  * Controls the viewing frame location for the user
@@ -68,7 +68,7 @@ public class Camera {
      * runs at the beginning of game render to keep camera at correct location
      * @param g runs at the beginning of game render to keep camera at correct location
      */
-    public void render(Graphics2D g) {
+    public void render(GraphicsContext g) {
         g.translate(location.x, location.y); //this runs regardless of ticks because it keeps the camera location still (g resets to 0,0 every render)   
     }
 

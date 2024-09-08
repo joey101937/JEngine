@@ -10,9 +10,9 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.util.ConcurrentModificationException;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 /**
  * Renders an image at a location for a given length of time
@@ -21,7 +21,7 @@ import java.util.ConcurrentModificationException;
 public class Sticker {
     protected Game hostGame = null;
     protected GameObject2 host = null; //used if attached to a game object
-    public volatile BufferedImage image;
+    public volatile Image image;
     public Coordinate spawnLocation = new Coordinate(0,0); //canter of where we want the sticker
     protected Coordinate renderLocation = new Coordinate(0,0); //top left position of sticker, to allow the center to be on spawnLocation
     public volatile boolean disabled = false;
@@ -38,7 +38,7 @@ public class Sticker {
      * @param c location to display
      * @param duration how long to display IN MILLIS
      */
-    public Sticker(Game g, BufferedImage i, Coordinate c, int duration){
+    public Sticker(Game g, Image i, Coordinate c, int duration){
         image = i;
         hostGame = g;
         spawnLocation = new Coordinate(c);//where we want the sticker
@@ -50,28 +50,30 @@ public class Sticker {
      * Calibrates the render location to center the image on spawn location
      * @param toRender image to adjust renderLocation based on
      */
-    protected final void centerCoordinate(BufferedImage toRender) {
+    protected final void centerCoordinate(Image toRender) {
         try{
         if(spawnLocation==null)return;
-        renderLocation.x = spawnLocation.x - toRender.getWidth() / 2;
-        renderLocation.y = spawnLocation.y - toRender.getHeight() / 2;
+        renderLocation.x = spawnLocation.x - (int)toRender.getWidth() / 2;
+        renderLocation.y = spawnLocation.y - (int)toRender.getHeight() / 2;
         }catch(Exception e){
            e.printStackTrace();
         }
     }
 
-    public void render(Graphics2D g) {
+    public void render(GraphicsContext g) {
+        g.save();
         if (System.currentTimeMillis() > creationTime + timeToRender) {
             disable();
             return;
         }
-        Graphics2D gCopy = (Graphics2D)g.create();
+        double rotationAmount = Math.toRadians(rotation);
         try {
             if (host != null && host.isAlive()) {
                 spawnLocation = host.getPixelLocation();
             }
             centerCoordinate(image);
-            gCopy.rotate(Math.toRadians(rotation), spawnLocation.x, spawnLocation.y);
+            g.translate(spawnLocation.x, spawnLocation.y);
+            g.rotate(rotationAmount);
             if (spawnLocation == null) {
                 return;
             }
@@ -80,9 +82,10 @@ public class Sticker {
             }
             if (!disabled) {
                 if (image != null) {
-                    gCopy.drawImage(image, renderLocation.x, renderLocation.y, null);
+                    g.drawImage(image, renderLocation.x, renderLocation.y);
                 }
             }
+            g.restore();
         } catch (Exception e) {
             e.printStackTrace();
         }

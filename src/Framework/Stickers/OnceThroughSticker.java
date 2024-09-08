@@ -9,7 +9,7 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.GraphicalAssets.Sequence;
 import Framework.Main;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  * An animated sticker that disables itself after one animation cycle
@@ -41,7 +41,7 @@ public class OnceThroughSticker extends AnimatedSticker{
     }
     
     @Override
-    public void render(Graphics2D g) {
+    public void render(GraphicsContext g) {
         if(sequence == null) {
             if(Main.debugMode) {
                 System.out.println("Sticker attempting to render without sequence");

@@ -6,20 +6,15 @@
 package Framework.GraphicalAssets;
 
 import Framework.Main;
-import Framework.Window;
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.Transparency;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.VolatileImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 
 /**
  * Represents a graphical asset that can be displayed to the screen
@@ -45,14 +40,7 @@ public interface Graphic {
      *
      * @return either image of sprite or current frame of animated sequence
      */
-    public BufferedImage getCurrentImage();
-
-    /**
-     * gets either image of sprite or current frame of animated sequence
-     *
-     * @return either image of sprite or current frame of animated sequence
-     */
-    public VolatileImage getCurrentVolatileImage();
+    public Image getCurrentImage();
 
     /**
      * weather or not the asset is animated. sprite = false, sequence = true.
@@ -112,7 +100,7 @@ public interface Graphic {
      * @param scaleAmount
      * @return
      */
-    public static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
+    public static Image scaleImage(Image before, double scaleAmount) {
         if(scaleAmount == 1) return before;
         
         boolean isSmallImage = before.getWidth() < 200 || before.getHeight() < 200;
@@ -120,7 +108,7 @@ public interface Graphic {
         int numScales = isSmallImage ? 1 : 1;
         double stepAmount = Math.pow(scaleAmount, 1.0/numScales);
         
-        BufferedImage output = before;
+        Image output = before;
         
         for(int i = 0; i < numScales; i++) {
             output = scaleImageDirect(output, stepAmount);
@@ -136,16 +124,87 @@ public interface Graphic {
      * @param scaleAmount
      * @return
      */
-    private static BufferedImage scaleImageDirect(BufferedImage before, double scaleAmount) {
-         int w = before.getWidth();
-        int h = before.getHeight();
-        BufferedImage after = new BufferedImage((int) (w * scaleAmount), (int) (h * scaleAmount), BufferedImage.TYPE_INT_ARGB);
-        AffineTransform at = new AffineTransform();
-        at.scale(scaleAmount, scaleAmount);
-        AffineTransformOp scaleOp
-                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        after = scaleOp.filter(before, after);
-        return after;
+    private static Image scaleImageDirect(Image before, double scaleAmount) {
+        // Calculate the new dimensions
+        double newWidth = before.getWidth() * scaleAmount;
+        double newHeight = before.getHeight() * scaleAmount;
+
+        // Create a writable image with the new dimensions
+        WritableImage scaledImage = new WritableImage((int) newWidth, (int) newHeight);
+
+        // Create a canvas to draw the scaled image
+        Canvas canvas = new Canvas(newWidth, newHeight);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // Draw the original image onto the canvas with scaling
+        gc.scale(scaleAmount, scaleAmount);
+        gc.drawImage(before, 0, 0);
+
+        // Copy the canvas content into the writable image
+        scaledImage = canvas.snapshot(null, scaledImage);
+
+        return scaledImage;
+    }
+
+        /**
+     * returns a scaled copy of the image
+     * scales once straight to the target value
+     * @param before
+     * @param scaleAmountX
+     * @param scaleAmountY
+     * @return
+     */
+    public static Image scaleImageDirect(Image before, double scaleAmountX, double scaleAmountY) {
+        // Calculate the new dimensions
+        double newWidth = before.getWidth() * scaleAmountX;
+        double newHeight = before.getHeight() * scaleAmountY;
+
+        // Create a writable image with the new dimensions
+        WritableImage scaledImage = new WritableImage((int) newWidth, (int) newHeight);
+
+        // Create a canvas to draw the scaled image
+        Canvas canvas = new Canvas(newWidth, newHeight);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // Draw the original image onto the canvas with scaling
+        gc.scale(scaleAmountX, scaleAmountY);
+        gc.drawImage(before, 0, 0);
+
+        // Copy the canvas content into the writable image
+        scaledImage = canvas.snapshot(null, scaledImage);
+
+        return scaledImage;
+    }
+
+    
+    
+    /**
+     * returns a horizontally mirrored copy of the image
+     *
+     * @param before
+     * @return
+     */
+    public static Image mirrorHorizontal(Image originalImage) {
+       // Create a writable image with the same dimensions as the original
+        WritableImage mirroredImage = new WritableImage(
+            (int) originalImage.getWidth(), 
+            (int) originalImage.getHeight()
+        );
+
+        // Create a canvas to draw the mirrored image
+        Canvas canvas = new Canvas(originalImage.getWidth(), originalImage.getHeight());
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // Apply horizontal flip by scaling -1 on the x-axis
+        gc.scale(-1, 1);
+
+        // Draw the original image on the flipped canvas
+        gc.drawImage(originalImage, -originalImage.getWidth(), 0);
+
+        // Copy the canvas content into the writable image
+        mirroredImage = canvas.snapshot(null, mirroredImage);
+
+        return mirroredImage;
     }
 
     /**
@@ -154,85 +213,84 @@ public interface Graphic {
      * @param before
      * @return
      */
-    public static BufferedImage mirrorHorizontal(BufferedImage before) {
-        int w = before.getWidth();
-        int h = before.getHeight();
-        BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        AffineTransform at = new AffineTransform();
-        at.concatenate(AffineTransform.getScaleInstance(-1, 1));
-        at.concatenate(AffineTransform.getTranslateInstance(-before.getWidth(), 0));
-        AffineTransformOp scaleOp
-                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        after = scaleOp.filter(before, after);
-        return after;
-    }
+    public static Image mirrorVertical(Image originalImage) {
+      // Create a writable image with the same dimensions as the original
+        WritableImage mirroredImage = new WritableImage(
+            (int) originalImage.getWidth(), 
+            (int) originalImage.getHeight()
+        );
 
+        // Create a canvas to draw the mirrored image
+        Canvas canvas = new Canvas(originalImage.getWidth(), originalImage.getHeight());
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // Apply horizontal flip by scaling -1 on the x-axis
+        gc.scale(1, -1);
+
+        // Draw the original image on the flipped canvas
+        gc.drawImage(originalImage, -originalImage.getWidth(), 0);
+
+        // Copy the canvas content into the writable image
+        mirroredImage = canvas.snapshot(null, mirroredImage);
+
+        return mirroredImage;
+    }
+    
     /**
-     * returns a horizontally mirrored copy of the image
-     *
-     * @param before
-     * @return
+     * gets the RGB integer code from the given image at given coordinates
+     * @param image Image
+     * @param x x coord
+     * @param y y coord
+     * @return integer representation of RGB value. Similar to BufferedImage.getRGB(x,y)
      */
-    public static BufferedImage mirrorVertical(BufferedImage before) {
-        int w = before.getWidth();
-        int h = before.getHeight();
-        BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        AffineTransform at = new AffineTransform();
-        at.concatenate(AffineTransform.getScaleInstance(1, -1));
-        at.concatenate(AffineTransform.getTranslateInstance(0, -before.getHeight()));
-        AffineTransformOp scaleOp
-                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        after = scaleOp.filter(before, after);
-        return after;
-    }
+    public static int getRGBA(Image image, int x, int y) {
+        PixelReader pixelReader = image.getPixelReader();
+        if (pixelReader != null) {
+            Color color = pixelReader.getColor(x, y);
+            int r = (int) (color.getRed() * 255);
+            int g = (int) (color.getGreen() * 255);
+            int b = (int) (color.getBlue() * 255);
+            int a = (int) (color.getOpacity() * 255);
 
-    public static VolatileImage getVolatileFromBuffered(BufferedImage bi) {
-        VolatileImage output = null;
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsConfiguration gc = Window.frame != null ? Window.frame.getGraphicsConfiguration() : ge.getDefaultScreenDevice().getDefaultConfiguration();
-        output = gc.createCompatibleVolatileImage(bi.getWidth(), bi.getHeight(), Transparency.TRANSLUCENT);
-        output.validate(gc);
-        Graphics2D g2d = output.createGraphics();
-        g2d.setComposite(AlphaComposite.Src);
-        // clear rect here maybe
-        g2d.drawImage(bi, 0, 0, null);
-        g2d.dispose();
-        return output;
-    }
-
-    /**
-     * returns valid volatile image given the volatile image and the buffered
-     * image it was based on. if the volatile image has been lost, it creates a
-     * new volatile image based on the passed buffered image
-     *
-     * @param vi volatile image
-     * @param source buffered backup
-     * @return
-     */
-    public static VolatileImage getValidatedVolatileImage(VolatileImage vi, BufferedImage source) {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsConfiguration gc = Window.frame.getGraphicsConfiguration();
-        int status = vi.validate(gc);
-        if (vi.contentsLost() || status != 0) {
-            if (Main.debugMode) {
-                System.out.println("Graphic- volatile image contents lost");
-            }
-            return getVolatileFromBuffered(source);
+            return (a << 24) | (r << 16) | (g << 8) | b;
         } else {
-            return vi;
+            throw new IllegalArgumentException("PixelReader is null for the provided image.");
         }
     }
     
     /**
-     * returns a bufferedImage loaded from the given filename, located in assets
+     * gets int represntation of color
+     * @param color color obj
+     * @return 
+     */
+    public static int getRGBA(Color color) {
+        int r = (int) (color.getRed() * 255);
+        int g = (int) (color.getGreen() * 255);
+        int b = (int) (color.getBlue() * 255);
+        int a = (int) (color.getOpacity() * 255);
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+    
+    public static Color generateColor(int rgba) {
+        int r = (rgba >> 16) & 0xFF;
+        int g = (rgba >> 8) & 0xFF;
+        int b = rgba & 0xFF;
+        int a = (rgba >> 24) & 0xFF;
+
+        // Normalize the RGB and Alpha values to the range [0.0, 1.0]
+        return Color.rgb(r, g, b, a / 255.0);
+    }
+    
+    /**
+     * returns a Image loaded from the given filename, located in assets
      * folder.
      * @param filename name of file including extension
      * @return buffered image render
      * @throws IOException if file cannot be found or loaded
      */
-    public static BufferedImage load(String filename) throws IOException {
+    public static Image load(String filename) throws IOException {
         try {
-            return ImageIO.read(new File(Main.assets + filename));
+            return new Image(Main.assets + filename);
         } catch (Exception e) {
             System.out.println("Exception while trying to load " + filename);
            throw e;
@@ -245,9 +303,9 @@ public interface Graphic {
      * @return list of files in directory
      * @throws IOException if there is a problem
      */ 
-    public static BufferedImage[] loadSequence(String filename) throws IOException{
+    public static Image[] loadSequence(String filename) throws IOException{
         filename = Main.assets + filename;
-        ArrayList<BufferedImage> a = new ArrayList<>();
+        ArrayList<Image> a = new ArrayList<>();
         ArrayList<File> children = new ArrayList<>();
         for(File f : new File(filename).listFiles()){
             children.add(f);
@@ -257,19 +315,44 @@ public interface Graphic {
             System.out.println("loading " + child.getPath().substring(6)); //to remove the redundant /Assets
            a.add(load(child.getPath().substring(6)));
         }
-        BufferedImage[] output = new BufferedImage[a.size()];
-        for(BufferedImage b : a){
+        Image[] output = new Image[a.size()];
+        for(Image b : a){
             output[a.indexOf(b)]=b;
         }
         return output;
     }
     
-    public static BufferedImage[] loadSequenceBouncing(String filename) throws IOException {
-        BufferedImage[] forwards = loadSequence(filename);
-        BufferedImage[] backwards = new BufferedImage[forwards.length];
+    /**
+     * Extracts a subimage from the given image.
+     *
+     * @param originalImage The original image to extract from.
+     * @param x The x coordinate of the upper-left corner of the subimage.
+     * @param y The y coordinate of the upper-left corner of the subimage.
+     * @param width The width of the subimage.
+     * @param height The height of the subimage.
+     * @return A new Image object representing the extracted subimage.
+     */
+    public static Image getSubImage(Image originalImage, int x, int y, int width, int height) {
+        // Ensure the subimage dimensions are within the bounds of the original image
+        if (x < 0 || y < 0 || x + width > originalImage.getWidth() || y + height > originalImage.getHeight()) {
+            throw new IllegalArgumentException("Subimage bounds are outside the original image.");
+        }
+
+        // Get the PixelReader for reading the original image
+        PixelReader pixelReader = originalImage.getPixelReader();
+
+        // Create a WritableImage to hold the subimage
+        WritableImage subImage = new WritableImage(pixelReader, x, y, width, height);
+
+        return subImage;
+    }
+    
+    public static Image[] loadSequenceBouncing(String filename) throws IOException {
+        Image[] forwards = loadSequence(filename);
+        Image[] backwards = new Image[forwards.length];
         for(int i = forwards.length -1; i >=0; i--) {
             var imageToCopy = forwards[forwards.length-i - 1];
-            backwards[i] = imageToCopy.getSubimage(0, 0, imageToCopy.getWidth(), imageToCopy.getHeight());
+            backwards[i] = getSubImage(imageToCopy, 0, 0, (int)imageToCopy.getWidth(), (int)imageToCopy.getHeight());
         }
         
         return Main.arrayConcatenate(forwards, backwards);

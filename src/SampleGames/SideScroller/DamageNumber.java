@@ -7,7 +7,6 @@ package SampleGames.SideScroller;
 
 import Framework.Coordinate;
 import Framework.UtilityObjects.TextObject;
-import java.awt.Color;
 
 /**
  *
@@ -18,11 +17,11 @@ public class DamageNumber extends TextObject{
     
     public DamageNumber(int amount, Coordinate loc){
         super(loc,String.valueOf(amount));
-        this.velocity.y= -1;
-        this.baseSpeed= baseSpeed/4;
-        this.setColor(Color.red);
-        this.isSolid=false;
-        this.setZLayer(2); //render on top of other objects
+//        this.velocity.y= -1;
+//        this.baseSpeed= baseSpeed/4;
+//        this.setColor(Color.red);
+//        this.isSolid=false;
+//        this.setZLayer(2); //render on top of other objects
     }
     
     @Override

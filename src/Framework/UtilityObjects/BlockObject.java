@@ -10,11 +10,8 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.Main;
-import java.awt.BasicStroke;
-import java.awt.Graphics2D;
-import java.awt.Stroke;
-import java.awt.Color;
-import java.awt.geom.AffineTransform;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 /**
  * GameObject that instead of rendering a sprite, just renders a solid block
  * has hitbox and is initially solid.
@@ -24,50 +21,48 @@ import java.awt.geom.AffineTransform;
 public class BlockObject extends GameObject2{
     private int width, height;
     private boolean centered = true; //this is either true for location centered or false for location = topleft coord
-    private Color color = Color.orange;
+    private Color color = Color.ORANGE;
     private boolean filled = true;
     private int borderThickness = 5; 
     
     @Override
-    public void render(Graphics2D g) {
+    public void render(GraphicsContext g) {
         renderNumber++;
-        AffineTransform old = g.getTransform();
-        g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y);
+        g.save();
+        g.translate(getPixelLocation().x, getPixelLocation().y);
+        g.rotate(Math.toRadians(getRotation()));
         if (isInvisible) {
             if (Main.debugMode) {
                 renderDebugVisuals(g);
             }
-            g.setTransform(old); //reset rotation for next item to render
+            g.restore();
             if (Main.debugMode && getHitbox() != null) {
                 getHitbox().render(g); //render hitbox without graphics rotation
             }
             return;
         }
-        Stroke originalStroke = g.getStroke();
-        Color originalColor = g.getColor();
-        g.setStroke(new BasicStroke(borderThickness));
-        g.setColor(color);
+        g.setLineWidth(borderThickness);
+        g.setStroke(color);
         Coordinate renderLocation = getPixelLocation();
         if (centered) {
             if (filled) {
                 g.fillRect(renderLocation.x - getWidth() / 2, renderLocation.y - getHeight() / 2, getWidth(), getHeight());
             } else {
-                g.drawRect(renderLocation.x - getWidth() / 2, renderLocation.y - getHeight() / 2, getWidth(), getHeight());
+                g.strokeRect(renderLocation.x - getWidth() / 2, renderLocation.y - getHeight() / 2, getWidth(), getHeight());
             }
 
         } else {
             if (filled) {
                 g.fillRect(renderLocation.x, renderLocation.y, getWidth(), getHeight());
             } else {
-                g.drawRect(renderLocation.x, renderLocation.y, getWidth(), getHeight());
+                g.strokeRect(renderLocation.x, renderLocation.y, getWidth(), getHeight());
             }
         }
-        g.setColor(originalColor);
-        g.setStroke(originalStroke);
+        g.restore();
         if (Main.debugMode) {
         renderDebugVisuals(g);
         }
-        g.setTransform(old); //reset rotation for next item to render
+        g.restore();
         if(Main.debugMode && getHitbox()!=null)getHitbox().render(g); //render hitbox without graphics rotation
     }
     

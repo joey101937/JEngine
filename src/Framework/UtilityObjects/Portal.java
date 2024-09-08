@@ -10,9 +10,10 @@ import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.Window;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 /**
  * This is a helper object used to move GameObject2s from one game to another.
@@ -50,20 +51,20 @@ public class Portal extends BlockObject {
     private void init(Game g, Coordinate c) {
         this.destination = g;
         this.destinationPoint = c;
-        this.setColor(Color.orange);
+        this.setColor(Color.ORANGE);
         this.preventOverlap = false;
         this.setName("Portal to " + g);
         this.isInvisible = true;
     }
     
     @Override
-    public void renderDebugVisuals(Graphics2D g){
-        Color originalColor = g.getColor();
-        g.setColor(this.getColor());
+    public void renderDebugVisuals(GraphicsContext g){
+        Paint originalColor = g.getStroke();
+        g.setStroke(this.getColor());
         g.fillRect(getPixelLocation().x - getWidth()/2, getPixelLocation().y - getHeight()/2, getWidth(), getHeight());
-        g.setColor(Color.red);
-        g.drawString(getName(), (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);      
-        g.setColor(originalColor);
+        g.setStroke(Color.RED);
+        g.fillText(getName(), (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);      
+        g.setStroke(originalColor);
     }
     
     @Override

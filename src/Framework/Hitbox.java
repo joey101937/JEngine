@@ -6,9 +6,10 @@
 package Framework;
 
 import static Framework.Hitbox.Type.box;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import javafx.scene.paint.Color;
 import java.awt.geom.Line2D;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Paint;
 
 /**
  * Htbox class represents either a 2D polygon or circle in the world, able to 
@@ -595,22 +596,22 @@ public class Hitbox {
     
 
 
-    public void render(Graphics2D g){
+    public void render(GraphicsContext g){
         this.updateFarthestAndShortest();
-        Color col = g.getColor();
+        Paint oldStroke = g.getStroke();
         if(this.type == Type.box){ 
             //render all sides
-            g.drawLine((int) leftSide()[0], (int) leftSide()[1], (int) leftSide()[2], (int) leftSide()[3]);
-            g.drawLine((int) rightSide()[0], (int) rightSide()[1], (int) rightSide()[2], (int) rightSide()[3]);
-            g.drawLine((int) topSide()[0], (int) topSide()[1], (int) topSide()[2], (int) topSide()[3]);
-            g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);
+            g.strokeLine((int) leftSide()[0], (int) leftSide()[1], (int) leftSide()[2], (int) leftSide()[3]);
+            g.strokeLine((int) rightSide()[0], (int) rightSide()[1], (int) rightSide()[2], (int) rightSide()[3]);
+            g.strokeLine((int) topSide()[0], (int) topSide()[1], (int) topSide()[2], (int) topSide()[3]);
+            g.strokeLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);
         } else if (type == Type.circle) {
             if(host!=null && !host.isSolid){
-                g.setColor(Color.blue);
+                g.setStroke(Color.BLUE);
             }
-            g.drawOval((int) (getCenter().x-radius), (int) (getCenter().y-radius), (int) radius*2, (int) radius*2);
+            g.strokeOval((int) (getCenter().x-radius), (int) (getCenter().y-radius), (int) radius*2, (int) radius*2);
         }
-        g.setColor(col);
+        g.setStroke(oldStroke);
     }
 
     public double getFarthestRange() {

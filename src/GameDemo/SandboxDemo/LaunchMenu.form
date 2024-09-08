@@ -317,7 +317,7 @@
         </Property>
         <Property name="name" type="java.lang.String" value="" noResource="true"/>
         <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Game.birdCount" type="code"/>
+          <Connection code="birdCount" type="code"/>
         </Property>
       </Properties>
     </Component>

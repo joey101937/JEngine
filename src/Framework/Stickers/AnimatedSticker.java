@@ -9,8 +9,8 @@ package Framework.Stickers;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GraphicalAssets.Sequence;
-import java.awt.Graphics2D;
-import java.awt.image.VolatileImage;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 /**
  * Animated sticker
@@ -40,29 +40,32 @@ public class AnimatedSticker extends Sticker{
     
 
     @Override
-    public void render(Graphics2D g) {
+    public void render(GraphicsContext g) {
+        g.save();
         if(System.currentTimeMillis() > creationTime + timeToRender) {
             disable();
             return;
         }
-        Graphics2D gToUse = (Graphics2D)g.create();
         try {
             if (sequence == null) {
                 return;
             }
             image = sequence.getCurrentImage();
-            gToUse.rotate(Math.toRadians(rotation), spawnLocation.x, spawnLocation.y);
+            g.translate(spawnLocation.x, spawnLocation.y);
+            g.rotate(Math.toRadians(rotation));
             if (spawnLocation.x < 0 || spawnLocation.y < 0) {
                 disable();     //if the coordinates are bad, dont render
             }
             if (!disabled) {
                 if (image != null) {
-                   VolatileImage toRender = sequence.getCurrentVolatileFrame();
-                   gToUse.drawImage(toRender, spawnLocation.x-toRender.getWidth()/2 , spawnLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
+                   Image toRender = sequence.getCurrentFrame();
+                   g.drawImage(toRender, spawnLocation.x-toRender.getWidth()/2 , spawnLocation.y-toRender.getHeight()/2); //draws frmae centered on pixelLocation
                 }
             }
+            g.restore();
         } catch (Exception e) {
             e.printStackTrace();
+            g.restore();
         }
     }
     

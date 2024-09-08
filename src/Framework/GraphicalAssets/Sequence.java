@@ -5,10 +5,7 @@
  */
 package Framework.GraphicalAssets;
 
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.VolatileImage;
+import javafx.scene.image.Image;
 /**
  * Animation sequence
  * @author Joseph
@@ -31,10 +28,10 @@ public class Sequence implements Graphic{
     // indicates that another sequence object has been created with references to this same sprite
     private boolean sharingReferences = true;
     /**
-     * @return BufferedImage to be rendered based on frame index, null if 
+     * @return Image to be rendered based on frame index, null if 
      * the frames array is null or if the actual image is null
      */
-    public BufferedImage getCurrentFrame() {
+    public Image getCurrentFrame() {
         if(startTime == null) {
             startTime = System.currentTimeMillis();
         }
@@ -46,7 +43,7 @@ public class Sequence implements Graphic{
             System.out.println("Attempting to get frame of empty sequence");
             return null;
         }
-        BufferedImage output = null;
+        Image output = null;
         try {
             if (!isPaused()) {
                 currentFrameIndex = getCurrentFrameIndex();
@@ -59,40 +56,6 @@ public class Sequence implements Graphic{
             if (currentFrameIndex != 0) {
                 currentFrameIndex = 0;
                 return getCurrentFrame();
-            }
-        }
-        return output;
-    }
-    
-    /**
-     * @return BufferedImage to be rendered based on frame index, null if 
-     * the frames array is null or if the actual image is null
-     */
-    public VolatileImage getCurrentVolatileFrame() {
-        if(startTime == null) {
-            startTime = System.currentTimeMillis();
-        }
-        if(frames==null){
-            System.out.println("Attempting to get current frame with null array");
-            return null;
-        }
-        if(frames.length==0){
-            System.out.println("Attempting to get frame of empty sequence");
-            return null;
-        }
-        VolatileImage output = null;
-        try {
-            if (!isPaused()) {
-                currentFrameIndex = getCurrentFrameIndex();
-            }
-            output = frames[currentFrameIndex].getCurrentVolatileImage();
-        } catch (ArrayIndexOutOfBoundsException e) {
-            //check to see if threads got out of sync and updated index too fast
-            //if so, reset index rather than returning null
-            //UPDATE: this is likely unneeded after I fixed some issues but i will leave just in case
-            if (currentFrameIndex != 0) {
-                currentFrameIndex = 0;
-                return getCurrentVolatileFrame();
             }
         }
         return output;
@@ -116,7 +79,7 @@ public class Sequence implements Graphic{
         }      
     }
     
-    public Sequence(BufferedImage[] input, double inputScale){
+    public Sequence(Image[] input, double inputScale){
         frames = new Sprite[input.length];
         for(int i = 0; i < input.length; i++){
             frames[i]=new Sprite(input[i]);
@@ -132,7 +95,7 @@ public class Sequence implements Graphic{
         this.scale = inputScale;
     }
     
-    public Sequence(BufferedImage[] input){
+    public Sequence(Image[] input){
         frames = new Sprite[input.length];
         for(int i = 0; i < input.length; i++){
             frames[i]=new Sprite(input[i]);
@@ -226,18 +189,6 @@ public class Sequence implements Graphic{
     public double getScale() {
         return scale;
     }
-
-    private BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
-        int w = before.getWidth();
-        int h = before.getHeight();
-        BufferedImage after = new BufferedImage((int)(w*scaleAmount), (int)(h*scaleAmount), BufferedImage.TYPE_INT_ARGB);
-        AffineTransform at = new AffineTransform();
-        at.scale(scaleAmount, scaleAmount);
-        AffineTransformOp scaleOp
-                = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        after = scaleOp.filter(before, after);
-        return after;
-    }
     
     @Override
     public void mirrorHorizontal() {
@@ -284,15 +235,9 @@ public class Sequence implements Graphic{
     }
 
     @Override
-    public BufferedImage getCurrentImage() {
+    public Image getCurrentImage() {
         startAnimating();
         return getCurrentFrame();
-    }
-
-    @Override
-    public VolatileImage getCurrentVolatileImage() {
-        startAnimating();
-        return getCurrentVolatileFrame();
     }
     
     @Override

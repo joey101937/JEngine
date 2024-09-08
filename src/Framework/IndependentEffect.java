@@ -5,7 +5,7 @@
  */
 package Framework;
 
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  * This class represents a visual effect not tied to any GameObject2 nor location
@@ -16,7 +16,7 @@ public abstract class IndependentEffect {
      * renders something to the game it has been applied to
      * @param g  
      */
-    public abstract void render(Graphics2D g);
+    public abstract void render(GraphicsContext g);
     /**
      * runs whenever a game this is applied to ticks. 
      */

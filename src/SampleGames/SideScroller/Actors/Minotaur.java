@@ -15,6 +15,7 @@ import Framework.SpriteManager;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  *
@@ -160,7 +161,7 @@ public class Minotaur extends SSActor{
     }
     
     @Override
-    public void render(Graphics2D g){
+    public void render(GraphicsContext g){
         super.render(g);
         if(damageArea !=null && Main.debugMode){
             damageArea.render(g);

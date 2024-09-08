@@ -5,7 +5,6 @@
  */
 package Framework;
 
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -17,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  * Manages aggregate lists of GameObjects
@@ -131,7 +131,7 @@ public class Handler {
      * renders all objects in the game, along with their subobjects
      * @param g should be the game's graphics
      */
-    public void render(Graphics2D g) {
+    public void render(GraphicsContext g) {
         HashMap<Integer, LinkedList<GameObject2>> renderMap = new HashMap<>();
         for(GameObject2 go : toRender) {
             if(renderMap.get(go.getZLayer()) == null) {
@@ -249,9 +249,9 @@ public class Handler {
     
     private class RenderTask implements Runnable {
         public GameObject2 gameObejct;
-        public Graphics2D graphics;
+        public GraphicsContext graphics;
         
-        public RenderTask (GameObject2 obj, Graphics2D g) {
+        public RenderTask (GameObject2 obj, GraphicsContext g) {
             this.gameObejct = obj;
             this.graphics = g;
         }
@@ -259,9 +259,10 @@ public class Handler {
         @Override
         public void run() {
           try{
-            gameObejct.render((Graphics2D)graphics.create());
             for(SubObject so : gameObejct.getAllSubObjects()){
-                so.render((Graphics2D)graphics.create());
+                graphics.save();
+                so.render(graphics);
+                graphics.restore();
             }
             }catch(Exception e){
                 e.printStackTrace();

@@ -6,13 +6,13 @@
 package Framework;
 
 import Framework.Stickers.Sticker;
-import java.awt.Graphics2D;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  * Handler to control all stickers and non-GameObject visual effects in a game
@@ -25,17 +25,17 @@ public class VisualEffectHandler {
     public ExecutorService stickerService = Executors.newCachedThreadPool();
     /**
      * renders all visual effects to canvas
-     * @param g Graphics2D object to use
+     * @param g GraphicsContext object to use
      */
-    public void render(Graphics2D g){
+    public void render(GraphicsContext g){
         renderStickers(g);
         renderLines(g);
     }
     /**
      * renders all stickers to canvas
-     * @param g Graphics2D object to use
+     * @param g GraphicsContext object to use
      */
-    private void renderStickers(Graphics2D g){
+    private void renderStickers(GraphicsContext g){
          try {
             if (stickers == null) {
                 resetStickers();
@@ -60,13 +60,13 @@ public class VisualEffectHandler {
     }
     /**
      * renders all lines to canvas
-     * @param g Graphics2D object to use
+     * @param g GraphicsContext object to use
      */
-    private void renderLines(Graphics2D g){
+    private void renderLines(GraphicsContext g){
         for(Coordinate[] line: lines){
             try{
             if(line != null && line.length==2){
-                 g.drawLine(line[0].x, line[0].y, line[1].x, line[1].y);
+                 g.strokeLine(line[0].x, line[0].y, line[1].x, line[1].y);
             }
             }catch(Exception e){
                 e.printStackTrace();
@@ -93,10 +93,10 @@ public class VisualEffectHandler {
     
     private static class StickerTask implements Runnable{
         public Sticker s;
-        public Graphics2D g;
+        public GraphicsContext g;
         public CopyOnWriteArrayList<Sticker> stkrs;
         
-        public StickerTask (Sticker st, Graphics2D g2d, CopyOnWriteArrayList<Sticker> stickers) {
+        public StickerTask (Sticker st, GraphicsContext g2d, CopyOnWriteArrayList<Sticker> stickers) {
             s = st;
             g = g2d;
         }

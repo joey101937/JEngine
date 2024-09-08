@@ -8,7 +8,7 @@ package Framework;
 import static Framework.GraphicalAssets.Graphic.load;
 import static Framework.GraphicalAssets.Graphic.loadSequence;
 import static Framework.GraphicalAssets.Graphic.loadSequenceBouncing;
-import java.awt.image.BufferedImage;
+import javafx.scene.image.Image;
 
 /**
  * This class acts as a central hub for accessing exterior assets used in the demos; particularly
@@ -23,57 +23,57 @@ public abstract class SpriteManager {
     /*--------------------------------------------------------*/
     
     //SANDBOX ASSETS
-    public static BufferedImage terrainBG;
-    public static BufferedImage up;
-    public static BufferedImage pathingLayer;
-    public static BufferedImage[] explosionSequence;
-    public static BufferedImage[] explosionSequenceSmall;
-    public static BufferedImage[] birdySequence;
-    public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
-    public static BufferedImage localizedLight;
-    public static BufferedImage fog;
-    public static BufferedImage[] fogSequence;
-    public static BufferedImage car;
+    public static Image terrainBG;
+    public static Image up;
+    public static Image pathingLayer;
+    public static Image[] explosionSequence;
+    public static Image[] explosionSequenceSmall;
+    public static Image[] birdySequence;
+    public static Image[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
+    public static Image localizedLight;
+    public static Image fog;
+    public static Image[] fogSequence;
+    public static Image car;
 
     
     //TANK ASSETS
-    public static BufferedImage tankChasis;
-    public static BufferedImage tankTurret;
-    public static BufferedImage bullet;
-    public static BufferedImage[] tankFireAnimation;
-    public static BufferedImage dirtBG;
-    public static BufferedImage dirtBGNight;
+    public static Image tankChasis;
+    public static Image tankTurret;
+    public static Image bullet;
+    public static Image[] tankFireAnimation;
+    public static Image dirtBG;
+    public static Image dirtBGNight;
 
     
     //SPACE ASSETS
-    public static BufferedImage spaceBG;
-    public static BufferedImage spaceBG2;
-    public static BufferedImage spaceship;
-    public static BufferedImage evilShip;
-    public static BufferedImage bolt;
+    public static Image spaceBG;
+    public static Image spaceBG2;
+    public static Image spaceship;
+    public static Image evilShip;
+    public static Image bolt;
     
     //PLATFORMER ASSETS
-    public static BufferedImage platformBG;
-    public static BufferedImage platformPathing;
+    public static Image platformBG;
+    public static Image platformPathing;
     
     //SIDESCROLL GAME ASSETS
-    public static BufferedImage[] minotaurIdle_Right;
-    public static BufferedImage[] minotaurIdle_Left; 
-    public static BufferedImage[] minotaurRun_Right;
-    public static BufferedImage[] minotaurRun_Left;
-    public static BufferedImage[] minotaurSwing_Right;
-    public static BufferedImage[] minotaurSwing_Left;
-    public static BufferedImage[] minotaurDeath_Right;
-    public static BufferedImage SSBackground;
-    public static BufferedImage terrain260x125, terrain585x120;
-    public static BufferedImage barrel;
-    public static BufferedImage[] barrelDeath;
+    public static Image[] minotaurIdle_Right;
+    public static Image[] minotaurIdle_Left; 
+    public static Image[] minotaurRun_Right;
+    public static Image[] minotaurRun_Left;
+    public static Image[] minotaurSwing_Right;
+    public static Image[] minotaurSwing_Left;
+    public static Image[] minotaurDeath_Right;
+    public static Image SSBackground;
+    public static Image terrain260x125, terrain585x120;
+    public static Image barrel;
+    public static Image[] barrelDeath;
     
     //TOWN ASSETS
-    public static BufferedImage townOutside;
-    public static BufferedImage townOutsidePathing;
-    public static BufferedImage buildingInterior;
-    public static BufferedImage buildingInteriorPathing;
+    public static Image townOutside;
+    public static Image townOutsidePathing;
+    public static Image buildingInterior;
+    public static Image buildingInteriorPathing;
 
     
     /*--------------------------------------------------------*/

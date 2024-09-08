@@ -9,36 +9,25 @@ import Framework.Audio.AudioManager;
 import Framework.Audio.SoundEffect;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
-import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
-import java.awt.BasicStroke;
 import java.awt.GraphicsEnvironment;
-import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
-import static java.awt.RenderingHints.KEY_ANTIALIASING;
-import static java.awt.RenderingHints.KEY_COLOR_RENDERING;
-import static java.awt.RenderingHints.KEY_RENDERING;
-import static java.awt.RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;
-import static java.awt.RenderingHints.VALUE_ANTIALIAS_OFF;
-import static java.awt.RenderingHints.VALUE_COLOR_RENDER_SPEED;
-import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
-import java.awt.Stroke;
-import java.awt.image.VolatileImage;
 import java.util.LinkedList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 
 /**
  * This is the part of the screen that you look at while playing and that
@@ -58,10 +47,10 @@ public class Game extends Canvas implements Runnable {
      * character
      */
     public static Dimension NATIVE_RESOLUTION = new Dimension((int) (1920 * 1), (int) (1080 * 1));
+    
 
     public static ExecutorService backgroundRenderService = Executors.newCachedThreadPool();
 
-    public static int birdCount = 20; //how many birds to spawn in the demo
     public static final double OVERVIEW_MODE_ZOOM = .25;
     protected static double resolutionScaleX = 1, resolutionScaleY = 1;
     /*  FIELDS   */
@@ -89,7 +78,9 @@ public class Game extends Canvas implements Runnable {
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
-
+    //JavaFx
+    public Scene scene = new Scene(new AnchorPane(this));
+    
     /**
      * ticks all applied effects
      */
@@ -104,7 +95,7 @@ public class Game extends Canvas implements Runnable {
      *
      * @param g graphics to use
      */
-    private void renderIndependentEffects(Graphics2D g) {
+    private void renderIndependentEffects(GraphicsContext g) {
         for (IndependentEffect ie : effects) {
             ie.render(g);
         }
@@ -164,11 +155,10 @@ public class Game extends Canvas implements Runnable {
      *
      * @param image image to use as background
      */
-    public Game(BufferedImage image) {
+    public Game(Image image) {
         Sprite sprite = new Sprite(image);
         this.backgroundImage = sprite;
         setBackground(sprite);
-        this.setIgnoreRepaint(true);
     }
 
     /**
@@ -177,11 +167,10 @@ public class Game extends Canvas implements Runnable {
      *
      * @param imageSet image to use as background
      */
-    public Game(BufferedImage[] imageSet) {
+    public Game(Image[] imageSet) {
         Sequence sequ = new Sequence(imageSet);
         this.backgroundImage = sequ;
         setBackground(sequ);
-        this.setIgnoreRepaint(true);
     }
 
     /**
@@ -208,8 +197,8 @@ public class Game extends Canvas implements Runnable {
      * @param bi new background image
      */
     public final void setBackground(Graphic bi) {
-        worldHeight = backgroundImage.getCurrentImage().getHeight();
-        worldWidth = backgroundImage.getCurrentImage().getWidth();
+        worldHeight = (int)backgroundImage.getCurrentImage().getHeight();
+        worldWidth = (int)backgroundImage.getCurrentImage().getWidth();
         backgroundImage = bi;
         if (resolutionScaleX >= 1) {
             if (worldWidth < Window.screenSize.x) {
@@ -459,26 +448,25 @@ public class Game extends Canvas implements Runnable {
             return;
         }
         Window.UIElementsOnRender();
-        BufferStrategy bs = this.getBufferStrategy();
-        if (bs == null) { ///run once at the start
-            int numBuffer = 2;
-            if (Main.tripleBuffer) {
-                numBuffer = 3;
-            }
-            this.createBufferStrategy(numBuffer);
-            return;
-        }
-        Graphics g = bs.getDrawGraphics();
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(KEY_COLOR_RENDERING, VALUE_COLOR_RENDER_SPEED);
-        g2d.setRenderingHint(KEY_RENDERING, VALUE_RENDER_SPEED);
-        g2d.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_SPEED);
-        g2d.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_OFF);
+        GraphicsContext g2d = this.getGraphicsContext2D();
+//        BufferStrategy bs = this.getBufferStrategy();
+//        if (bs == null) { ///run once at the start
+//            int numBuffer = 2;
+//            if (Main.tripleBuffer) {
+//                numBuffer = 3;
+//            }
+//            this.createBufferStrategy(numBuffer);
+//            return;
+//        }
+//        g2d.setRenderingHint(KEY_COLOR_RENDERING, VALUE_COLOR_RENDER_SPEED);
+//        g2d.setRenderingHint(KEY_RENDERING, VALUE_RENDER_SPEED);
+//        g2d.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_SPEED);
+//        g2d.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_OFF);
 
         g2d.scale(resolutionScaleX, resolutionScaleY);
         g2d.scale(zoom, zoom);
-        g2d.setColor(Color.GREEN);
-        g2d.setBackground(Color.white);
+        // g2d.setColor(Color.GREEN);
+        // g2d.setBackground(Color.white);
         if (Main.overviewMode()) {
             g2d.scale(OVERVIEW_MODE_ZOOM, OVERVIEW_MODE_ZOOM);
         }
@@ -490,10 +478,8 @@ public class Game extends Canvas implements Runnable {
         if (Main.debugMode) {
             renderBounds(g2d);
         }
-        g.dispose();
-        g2d.dispose();
         if (Window.currentGame == this && !this.isPaused()) {
-            bs.show();
+//            bs.show();
         }
     }
 
@@ -503,17 +489,26 @@ public class Game extends Canvas implements Runnable {
      *
      * @param g graphics object to draw with
      */
-    private void renderBounds(Graphics2D g) {
-        Color originalColor = g.getColor();
-        Stroke originalStroke = g.getStroke();
-        g.setStroke(new BasicStroke(2));
-        g.setColor(Color.BLUE);
-        g.drawLine(worldBorder, worldBorder, worldWidth - worldBorder, worldBorder); //top
-        g.drawLine(worldBorder, worldBorder, worldBorder, worldHeight - worldBorder); //left
-        g.drawLine(worldWidth - worldBorder, worldBorder, worldWidth - worldBorder, worldHeight - worldBorder); //right
-        g.drawLine(worldBorder, worldHeight - worldBorder, worldWidth - worldBorder, worldHeight - worldBorder); //bottom 
-        g.setStroke(originalStroke);
-        g.setColor(originalColor);
+    private void renderBounds(GraphicsContext g) {
+//        Color originalColor = g.getColor();
+//        Stroke originalStroke = g.getStroke();
+//        g.setStroke(new BasicStroke(2));
+//        g.setColor(Color.BLUE);
+//        g.drawLine(worldBorder, worldBorder, worldWidth - worldBorder, worldBorder); //top
+//        g.drawLine(worldBorder, worldBorder, worldBorder, worldHeight - worldBorder); //left
+//        g.drawLine(worldWidth - worldBorder, worldBorder, worldWidth - worldBorder, worldHeight - worldBorder); //right
+//        g.drawLine(worldBorder, worldHeight - worldBorder, worldWidth - worldBorder, worldHeight - worldBorder); //bottom 
+//        g.setStroke(originalStroke);
+//        g.setColor(originalColor);
+
+        g.save();
+        g.setLineWidth(2);
+        g.setStroke(Color.BLUE);
+        g.strokeLine(worldBorder, worldBorder, worldWidth - worldBorder, worldBorder); //top
+        g.strokeLine(worldBorder, worldBorder, worldBorder, worldHeight - worldBorder); //left
+        g.strokeLine(worldWidth - worldBorder, worldBorder, worldWidth - worldBorder, worldHeight - worldBorder); //right
+        g.strokeLine(worldBorder, worldHeight - worldBorder, worldWidth - worldBorder, worldHeight - worldBorder); //bottom 
+        g.restore();
     }
 
     private static class BackgroundRenderTask implements Runnable {
@@ -536,78 +531,75 @@ public class Game extends Canvas implements Runnable {
      *
      * @param g graphics to render with. should be the game's graphics
      */
-    public void renderBackGround(Graphics g) {
+    public void renderBackGround(GraphicsContext g) {
         try {
             if (backgroundImage == null) {
                 System.out.println("NO BACKGROUND IMAGE TO RENDER IN GAME: " + name);
                 return;
             }
             if (!Main.debugMode || pathingLayer == null) {
-                VolatileImage volatileImage = backgroundImage.getCurrentVolatileImage();
+                Image volatileImage = backgroundImage.getCurrentImage();
+                       
                 if (!alwaysRenderFullBackground && volatileImage.getHeight() * volatileImage.getWidth() > 2560 * 1440) {
                     // large image only render whats on screen
-                    g.drawRect(0, 0, volatileImage.getWidth(), volatileImage.getHeight());
+                    g.clearRect(0, 0, volatileImage.getWidth(), volatileImage.getHeight());
                     // split into quadrants and render each on a separate thread
-                    if (Main.splitBackgroundRender) {
+                    if (Main.splitBackgroundRender && false) {
                         // Top Left
                         LinkedList<Future<?>> results = new LinkedList<>();
                         results.push(backgroundRenderService.submit(new BackgroundRenderTask(c -> {
                             g.drawImage(
                                     volatileImage,
-                                    -getCamera().getPixelLocation().x,
-                                    -getCamera().getPixelLocation().y,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x,
-                                    -getCamera().getPixelLocation().y,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    null
+                                    -getCamera().location.x,
+                                    -getCamera().location.y,
+                                    -getCamera().location.x + getCamera().getFieldOfView().width / 2,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height / 2,
+                                    -getCamera().location.x,
+                                    -getCamera().location.y,
+                                    -getCamera().location.x + getCamera().getFieldOfView().width / 2,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height / 2
                             );
                         })));
                         // Top Right
                         results.push(backgroundRenderService.submit(new BackgroundRenderTask(c -> {
                             g.drawImage(
                                     volatileImage,
-                                    (-getCamera().getPixelLocation().x) + getCamera().getFieldOfView().width / 2,
-                                    (-getCamera().getPixelLocation().y),
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    null
+                                    (-getCamera().location.x) + getCamera().getFieldOfView().width / 2,
+                                    (-getCamera().location.y),
+                                    -getCamera().location.x + getCamera().getFieldOfView().width,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height / 2,
+                                    -getCamera().location.x + getCamera().getFieldOfView().width / 2,
+                                    -getCamera().location.y,
+                                    -getCamera().location.x + getCamera().getFieldOfView().width,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height / 2
                             );
                         })));
                         // bottom left
                         results.push(backgroundRenderService.submit(new BackgroundRenderTask(c -> {
                             g.drawImage(
                                     volatileImage,
-                                    -getCamera().getPixelLocation().x,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
-                                    -getCamera().getPixelLocation().x,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
-                                    null
+                                    -getCamera().location.x,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height / 2,
+                                    -getCamera().location.x + getCamera().getFieldOfView().width / 2,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height,
+                                    -getCamera().location.x,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height / 2,
+                                    -getCamera().location.x + getCamera().getFieldOfView().width / 2,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height
                             );
                         })));
                         // bottom right
                         results.push(backgroundRenderService.submit(new BackgroundRenderTask(c -> {
                             g.drawImage(
                                     volatileImage,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
-                                    null
+                                    -getCamera().location.x + getCamera().getFieldOfView().width / 2,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height / 2,
+                                    -getCamera().location.x + getCamera().getFieldOfView().width,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height,
+                                    -getCamera().location.x + getCamera().getFieldOfView().width / 2,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height / 2,
+                                    -getCamera().location.x + getCamera().getFieldOfView().width,
+                                    -getCamera().location.y + getCamera().getFieldOfView().height
                             );
                         })));
 
@@ -622,23 +614,23 @@ public class Game extends Canvas implements Runnable {
                                 -getCamera().getPixelLocation().x,
                                 -getCamera().getPixelLocation().y,
                                 -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
-                                -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
-                                null
+                                -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height
                         );
                     }
 
                 } else {
                     // small backgrounds just render the whole thing
-                    g.drawImage(volatileImage, 0, 0, null);
+                    g.drawImage(volatileImage, 0, 0);
                 }
             } else if (pathingLayer != null && pathingLayer.getSource() != null) {
                 pathingLayer.internalizeSource();
-                g.drawImage(pathingLayer.getSource(), 0, 0, null); //if in debug view, display pathing map
+                g.drawImage(pathingLayer.getSource(), 0, 0); //if in debug view, display pathing map
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
 
     //Core game loop 
     @Override
@@ -818,9 +810,6 @@ public class Game extends Canvas implements Runnable {
         System.out.println(name + " setting paused " + input);
         if (input) {
             applyInputHandler(false);
-            if (this.getBufferStrategy() != null) {
-                // this.getBufferStrategy().dispose();
-            }
         }
         for (GameObject2 go : handler.getAllObjects()) {
             go.onGamePause(input);
@@ -843,16 +832,16 @@ public class Game extends Canvas implements Runnable {
             return;
         }
         if (applying && !inputHandlerApplied) {
-            this.addMouseListener(inputHandler);
-            this.addMouseMotionListener(inputHandler);
-            this.addKeyListener(inputHandler);
-            this.addMouseWheelListener(inputHandler);
+//            this.addMouseListener(inputHandler);
+//            this.addMouseMotionListener(inputHandler);
+//            this.addKeyListener(inputHandler);
+//            this.addMouseWheelListener(inputHandler);
             inputHandlerApplied = true;
         } else {
-            this.removeMouseListener(inputHandler);
-            this.removeMouseMotionListener(inputHandler);
-            this.removeKeyListener(inputHandler);
-            this.removeMouseWheelListener(inputHandler);
+//            this.removeMouseListener(inputHandler);
+//            this.removeMouseMotionListener(inputHandler);
+//            this.removeKeyListener(inputHandler);
+//            this.removeMouseWheelListener(inputHandler);
             inputHandlerApplied = false;
         }
 
@@ -873,7 +862,7 @@ public class Game extends Canvas implements Runnable {
      *
      * @param bi source image for pathinglayer
      */
-    public void setPathingLayer(BufferedImage bi) {
+    public void setPathingLayer(Image bi) {
         this.pathingLayer = new PathingLayer(bi);
     }
 

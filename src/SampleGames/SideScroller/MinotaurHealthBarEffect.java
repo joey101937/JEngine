@@ -10,6 +10,7 @@ import Framework.Game;
 import Framework.IndependentEffect;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  *
@@ -28,18 +29,18 @@ public class MinotaurHealthBarEffect extends IndependentEffect{
     
 
     @Override
-    public void render(Graphics2D g) {
-        Coordinate topCenterOfScreen = hostGame.getCamera().getCenterPoint();
-        topCenterOfScreen.y = 0;
-        g.setColor(Color.green);
-        g.fillRect(topCenterOfScreen.x - baseWidth/2, topCenterOfScreen.y, baseWidth, height);
-        g.setColor(Color.red);
-        g.fillRect(
-                topCenterOfScreen.x - baseWidth/2,
-                topCenterOfScreen.y,
-                (int)(baseWidth * MinotaurGame.playerMinotaur.getPercentHealthMissing()),
-                height
-        );
+    public void render(GraphicsContext g) {
+//        Coordinate topCenterOfScreen = hostGame.getCamera().getCenterPoint();
+//        topCenterOfScreen.y = 0;
+//        g.setColor(Color.green);
+//        g.fillRect(topCenterOfScreen.x - baseWidth/2, topCenterOfScreen.y, baseWidth, height);
+//        g.setColor(Color.red);
+//        g.fillRect(
+//                topCenterOfScreen.x - baseWidth/2,
+//                topCenterOfScreen.y,
+//                (int)(baseWidth * MinotaurGame.playerMinotaur.getPercentHealthMissing()),
+//                height
+//        );
     }
 
     @Override
