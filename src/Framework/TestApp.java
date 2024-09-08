@@ -1,4 +1,4 @@
-package framework;
+package Framework;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
