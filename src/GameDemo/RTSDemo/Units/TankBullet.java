@@ -5,6 +5,7 @@
  */
 package GameDemo.RTSDemo.Units;
 
+import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
@@ -50,7 +51,8 @@ public class TankBullet extends Projectile {
                 if(((RTSUnit)shooter).team == otherUnit.team) return; // no friendly fire
             }
             otherUnit.takeDamage(20);
-            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), getPixelLocation());
+            Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth()*.75);
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
             destroy();
         }
     }
