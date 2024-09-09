@@ -152,6 +152,24 @@ public class Coordinate {
         x = (int) (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
         y = (int) (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
     }
+    
+    public static Coordinate nearestPointOnCircle(Coordinate origin, Coordinate target, double radius) {
+        double dx = target.x - origin.x;
+        double dy = target.y - origin.y;
+
+        // Calculate the distance from the origin to the target
+        double distanceToTarget = Math.sqrt(dx * dx + dy * dy);
+
+        // Normalize the direction vector (dx, dy)
+        double directionX = dx / distanceToTarget;
+        double directionY = dy / distanceToTarget;
+
+        // Calculate the nearest point on the circle
+        double nearestX = origin.x + radius * directionX;
+        double nearestY = origin.y + radius * directionY;
+
+        return new Coordinate((int)nearestX, (int)nearestY);
+    }
 
     /**
      * returns a coordinate whos x and y values have been rotated around the

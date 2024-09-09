@@ -6,14 +6,15 @@
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.GameObject2;
-import Framework.Hitbox;
 import Framework.IndependentEffect;
+import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * draws the green rectangular selection box
@@ -27,7 +28,8 @@ public class SelectionBoxEffect extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
-        drawSelectionBox(g);       
+        drawSelectionBox(g);
+        drawSelectionCircles(g);
     }
 
     @Override
@@ -48,7 +50,8 @@ public class SelectionBoxEffect extends IndependentEffect {
         }
     }
     
-    private void drawSelectionBox(Graphics g) {
+    private void drawSelectionBox(Graphics2D g) {
+        g.setStroke(new BasicStroke(1));
         Color originalColor = g.getColor();
         g.setColor(Color.green);
         Coordinate downLoc = RTSInput.getMouseDownLocation();
@@ -91,6 +94,25 @@ public class SelectionBoxEffect extends IndependentEffect {
         }else{
             selectionZone=null;
         }
+    }
+    
+    private void drawSelectionCircles(Graphics2D g) {
+        g.setStroke(new BasicStroke(3));
+       List<GameObject2> gos = RTSGame.game.getAllObjects();
+       for(GameObject2 go: gos) {
+           if(go instanceof RTSUnit unit) {
+               if(unit.isSelected()) {
+                   Coordinate coord = unit.getPixelLocation();
+                   int sideLength = Math.max(unit.getWidth(), unit.getHeight());
+                   g.drawOval(coord.x - sideLength/2, coord.y - sideLength/2, sideLength, sideLength);
+                   var desiredLoc = unit.getDesiredLocation();
+                   if(desiredLoc != null && Coordinate.distanceBetween(coord, desiredLoc) > sideLength/2) {
+                       Coordinate lineStart = Coordinate.nearestPointOnCircle(coord, desiredLoc, sideLength/2);
+                       g.drawLine(lineStart.x, lineStart.y, desiredLoc.x, desiredLoc.y);
+                   }
+               }
+           }
+       }
     }
     
     public static Rectangle getSelectionZone(){

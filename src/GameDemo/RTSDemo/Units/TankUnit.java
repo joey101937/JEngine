@@ -146,6 +146,10 @@ public class TankUnit extends RTSUnit{
             muzzelLocation.y -= fireAnimation.frames[0].getHeight()*2/5;
             muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotation());
             muzzelLocation.add(getPixelLocation());
+            RTSUnit targetUnit = ((RTSUnit)this.getHost()).currentTarget;
+            int longestSide = Math.max(targetUnit.getWidth(), targetUnit.getHeight());
+            Coordinate offset = new Coordinate(Main.generateRandom(-longestSide / 3, longestSide / 3), Main.generateRandom(-longestSide / 3, longestSide / 3));
+            target.add(offset);
             TankBullet bullet = new TankBullet(muzzelLocation.toDCoordinate(),target.toDCoordinate());
             bullet.shooter=this.getHost();
             getHostGame().addObject(bullet);
@@ -192,6 +196,7 @@ public class TankUnit extends RTSUnit{
             // System.out.println(this + " " + this.ID);
             super.tick();
             RTSUnit enemy = nearestInRange();
+            ((RTSUnit)getHost()).currentTarget = enemy;
             if (enemy == null) {
                 double desiredRotation = getHost().getRotation()-getRotation();
                 if(desiredRotation > 180) {
@@ -221,9 +226,7 @@ public class TankUnit extends RTSUnit{
                         rotate(-maxRotation);
                     }
                 }
-                Coordinate offset = new Coordinate(Main.generateRandom(-enemy.getWidth() / 2, enemy.getWidth() / 2), Main.generateRandom(-enemy.getHeight() / 2, enemy.getHeight() / 2));
                 Coordinate targetPoint = enemy.getPixelLocation();
-                targetPoint.add(offset);
                 ((TankUnit)getHost()).fire(targetPoint);
             }
         }

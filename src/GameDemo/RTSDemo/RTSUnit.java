@@ -26,6 +26,7 @@ public class RTSUnit extends Creature {
     private boolean selected = false;
     private Coordinate desiredLocation;
     public int team;
+    public RTSUnit currentTarget;
 
     private Color getColorFromTeam(int team) {
         return switch(team) {
@@ -97,14 +98,6 @@ public class RTSUnit extends Creature {
         g.setColor(getColorFromTeam(this.team));
         g.setStroke(new BasicStroke(5));
         g.drawLine(pixelLocation.x - getWidth()/2, pixelLocation.y + getHeight()/2 + 20, pixelLocation.x - getWidth()/2 + (int)(getWidth() * ((double)currentHealth/maxHealth)), pixelLocation.y + getHeight()/2 + 20);
-        if (selected) {
-            int diameter = Math.max(getWidth(), getHeight());
-            Coordinate renderLocation = getPixelLocation();
-            renderLocation.x -= diameter / 2;
-            renderLocation.y -= diameter / 2;
-            g.drawOval(renderLocation.x, renderLocation.y, diameter, diameter);
-            g.drawLine(getPixelLocation().x, getPixelLocation().y, desiredLocation.x, desiredLocation.y);
-        }
         g.setStroke(originalStroke);
         g.setColor(originalColor);
     }
@@ -116,6 +109,7 @@ public class RTSUnit extends Creature {
         if (desiredLocation.distanceFrom(location) > getWidth() / 2) {
             double desiredRotation = this.angleFrom(desiredLocation);
             double maxRotation = 5;
+            if(Math.abs(desiredRotation) < 20) maxRotation = 2; // slow down as we get closer
             if(Math.abs(desiredRotation)<maxRotation){
                 rotate(desiredRotation);
             }else{
