@@ -27,7 +27,7 @@ public class RTSGame {
     
     public static void main(String[] args) {
         Main.tickType = Handler.TickType.unified;
-        Main.tickThreadCount = 2;
+        Main.tickThreadCount = 1;
         Window.initialize(game);
         game.setInputHandler(new RTSInput());
         game.getCamera().camSpeed=20;
@@ -40,8 +40,8 @@ public class RTSGame {
         
         int spacer = 160;
         
-        for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 450, 0);
+         for (int i = 0; i < 20; i++) {
+            TankUnit tank = new TankUnit(100 + (i * spacer), 150, 0);
             tank.rotateTo(180);
             game.addObject(tank);
         }
@@ -51,23 +51,39 @@ public class RTSGame {
             game.addObject(tank);
         }
         for (int i = 0; i < 20; i++) {
+            TankUnit tank = new TankUnit(100 + (i * spacer), 450, 0);
+            tank.rotateTo(180);
+            game.addObject(tank);
+        }
+        for (int i = 0; i < 20; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 600, 0);
+            tank.rotateTo(180);
+            game.addObject(tank);
+        }
+         for (int i = 0; i < 20; i++) {
+            TankUnit tank = new TankUnit(100 + (i * spacer), 750, 0);
             tank.rotateTo(180);
             game.addObject(tank);
         }
  
            
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1300, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1400, 1));
         }
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1450, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1550, 1));
         }
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1600, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1700, 1));
+        }
+        for (int i = 0; i < 20; i++) {
+            game.addObject(new TankUnit(100 + (i * spacer), 1850, 1));
+        }
+          for (int i = 0; i < 20; i++) {
+            game.addObject(new TankUnit(100 + (i * spacer), 2000, 1));
         }
         
-        // testing this getting instantiated
+        // testing this getting instantiated. Not sure if this helps
         new TankBullet(new DCoordinate(0, 0), new DCoordinate(0, 0));
     }
 }
