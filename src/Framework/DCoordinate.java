@@ -242,7 +242,7 @@ public class DCoordinate {
         double nearestX = origin.x + radius * directionX;
         double nearestY = origin.y + radius * directionY;
 
-        return new Coordinate(nearestX, nearestY);
+        return new DCoordinate(nearestX, nearestY);
     }
     
     public Coordinate toCoordinate() {
