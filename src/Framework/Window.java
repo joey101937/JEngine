@@ -9,8 +9,9 @@ import Framework.UI_Elements.UIElement;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
-import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -179,4 +180,27 @@ public class Window {
             frame.setSize(d);
         }
     }
+    
+    /**
+     * tries to make the window fullscreen if the OS allows it
+     * @param x whether or not to make it fs
+     */
+    public static void setFullscreen(boolean x) {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+
+        if(!gd.isFullScreenSupported()) {
+            System.out.println("Fullscreen not supported");
+            return;
+        } else{
+            System.out.println("fullscreen is supported");
+        }
+        frame.setLocationRelativeTo(null);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frame.setUndecorated(true);
+        frame.setVisible(true);
+         gd.setFullScreenWindow(x ? frame : null);
+
+    }
+    
 }
