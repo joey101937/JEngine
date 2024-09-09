@@ -6,12 +6,14 @@
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.Game;
 import Framework.Handler;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
+import GameDemo.RTSDemo.Units.TankBullet;
 import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
@@ -19,7 +21,7 @@ import GameDemo.RTSDemo.Units.TankUnit;
  * @author Joseph
  */
 public class RTSGame {
-    public static Game game = new Game(SpriteManager.dirtBG);
+    public static Game game = new Game(SpriteManager.grassBG);
     public static Minimap minimap = new Minimap(game, new Coordinate(0,0));
     public static MinimapButton button = new MinimapButton(game, new Coordinate(0, minimap.getHeight()));
     
@@ -39,31 +41,33 @@ public class RTSGame {
         int spacer = 160;
         
         for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 350, 0);
+            TankUnit tank = new TankUnit(100 + (i * spacer), 450, 0);
             tank.rotateTo(180);
             game.addObject(tank);
         }
         for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 200, 0);
+            TankUnit tank = new TankUnit(100 + (i * spacer), 300, 0);
             tank.rotateTo(180);
             game.addObject(tank);
         }
         for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 500, 0);
+            TankUnit tank = new TankUnit(100 + (i * spacer), 600, 0);
             tank.rotateTo(180);
             game.addObject(tank);
         }
  
            
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1200, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1300, 1));
         }
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1350, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1450, 1));
         }
         for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1500, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1600, 1));
         }
         
+        // testing this getting instantiated
+        new TankBullet(new DCoordinate(0, 0), new DCoordinate(0, 0));
     }
 }

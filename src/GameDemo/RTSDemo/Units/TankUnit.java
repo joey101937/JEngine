@@ -29,14 +29,14 @@ public class TankUnit extends RTSUnit{
     public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
     public static SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
     public Turret turret;
-    public final static double VISUAL_SCALE = .15;
+    public final static double VISUAL_SCALE = 1;
     private Long lastFiredTime = 0L;
     public static final int RANGE = 500; 
     
     // Modified buffered images for team color
-    public static BufferedImage enemyTankChasisImage = greenToRed(SpriteManager.tankChasis);
-    public static BufferedImage enemyTankTurretImage =  greenToRed(SpriteManager.tankTurret);
-    public static BufferedImage[] enemyTankFireAnimation = greenToRed(SpriteManager.tankFireAnimation);
+    public static BufferedImage enemyTankChasisImage = greenToRed(SpriteManager.tankChasis2);
+    public static BufferedImage enemyTankTurretImage =  greenToRed(SpriteManager.tankTurret2);
+    public static BufferedImage[] enemyTankFireAnimation = greenToRed(SpriteManager.tankFireAnimation2);
     
     // sprites for reuse
     public static volatile Sprite chasisSpriteGreen = null; // new Sprite(SpriteManager.tankChasis2);
@@ -49,11 +49,11 @@ public class TankUnit extends RTSUnit{
     
     public static void initGraphics() {
         if(chasisSpriteGreen != null) return;
-        chasisSpriteGreen = new Sprite(SpriteManager.tankChasis);
+        chasisSpriteGreen = new Sprite(SpriteManager.tankChasis2);
         chasisSpriteRed = new Sprite(enemyTankChasisImage);
-        turretSpriteGreen = new Sprite(SpriteManager.tankTurret);
+        turretSpriteGreen = new Sprite(SpriteManager.tankTurret2);
         turretSpriteRed =  new Sprite(enemyTankTurretImage);
-        turretFireAnimationGreen = new Sequence(SpriteManager.tankFireAnimation);
+        turretFireAnimationGreen = new Sequence(SpriteManager.tankFireAnimation2);
         turretFireAnimationRed = new Sequence(enemyTankFireAnimation);
         List.of(
                 chasisSpriteGreen,
@@ -221,7 +221,7 @@ public class TankUnit extends RTSUnit{
                         rotate(-maxRotation);
                     }
                 }
-                Coordinate offset = new Coordinate(Main.generateRandom(-enemy.getWidth() / 4, enemy.getWidth() / 4), Main.generateRandom(-enemy.getHeight() / 4, enemy.getHeight() / 4));
+                Coordinate offset = new Coordinate(Main.generateRandom(-enemy.getWidth() / 2, enemy.getWidth() / 2), Main.generateRandom(-enemy.getHeight() / 2, enemy.getHeight() / 2));
                 Coordinate targetPoint = enemy.getPixelLocation();
                 targetPoint.add(offset);
                 ((TankUnit)getHost()).fire(targetPoint);

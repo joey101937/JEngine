@@ -39,11 +39,15 @@ public abstract class SpriteManager {
     //TANK ASSETS
     public static BufferedImage tankChasis;
     public static BufferedImage tankTurret;
+    public static BufferedImage tankChasis2;
+    public static BufferedImage tankTurret2;
+    public static BufferedImage[] tankFireAnimation2;
     public static BufferedImage bullet;
     public static BufferedImage[] tankFireAnimation;
     public static BufferedImage dirtBG;
     public static BufferedImage dirtBGNight;
-
+    public static BufferedImage grassBG;
+    public static BufferedImage grassBGMega;
     
     //SPACE ASSETS
     public static BufferedImage spaceBG;
@@ -111,11 +115,19 @@ public abstract class SpriteManager {
            
            tankChasis = load("DemoAssets/TankGame/tankChasis.png");
            tankTurret = load("DemoAssets/TankGame/tankTurret.png");
-           bullet = load("DemoAssets/TankGame/bullet.png");
            tankFireAnimation = loadSequence("DemoAssets/TankGame/turretFireSequence");
+           tankChasis2 = load("DemoAssets/TankGame/tank1-hull.png");
+           tankTurret2 = load("DemoAssets/TankGame/tank1-turret.png");
+           tankFireAnimation2 = loadSequence("DemoAssets/TankGame/tank1Fire");
+           bullet = load("DemoAssets/TankGame/bullet.png");
            dirtBG = load("DemoAssets/TankGame/dirtBG.png");
            dirtBGNight = load("DemoAssets/TankGame/dirtBGNight.png");
-           
+           grassBG = load("DemoAssets/TankGame/grassTerrain.png");
+           // uncomment to load this large bg file 
+           // grassBGMega = load("DemoAssets/TankGame/grassTerrain_mega.png");
+
+
+                      
            spaceBG = load("DemoAssets/spacebg.png");
            spaceBG2 = load("DemoAssets/spacebg2.png");
            spaceship = load("DemoAssets/spaceship.png");

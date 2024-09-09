@@ -42,6 +42,8 @@ public class FogCar extends GameObject2 {
                 sound.setVolume(sound.getVolume() - .01f);
             }
         }
+        
+        this.setRotation(getRotation()+.03);
     }
     
     public FogCar(int x, int y) {
