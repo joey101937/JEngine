@@ -49,8 +49,8 @@ public class HellicopterBullet extends Projectile {
         this.setScale(.12);
         this.setGraphic(missileSprite);
         int shortestSide = Math.min(other.getWidth(), other.getHeight());
-        double offsetX = Main.generateRandom(-shortestSide / 2, shortestSide / 2);
-        double offsetY = Main.generateRandom(-shortestSide / 2, shortestSide / 2);
+        double offsetX = Main.generateRandomInt(-shortestSide / 2, shortestSide / 2);
+        double offsetY = Main.generateRandomInt(-shortestSide / 2, shortestSide / 2);
         this.setZLayer(11);
         this.plane = other.plane;
 
@@ -59,8 +59,8 @@ public class HellicopterBullet extends Projectile {
         shadowSprite.scaleTo(.12);
         this.initialDistance = distanceFrom(other);
         explosionSmall.scaleTo(.85);
-        minSpeed = Main.generateRandom(3, 5);
-        maxSpeed = Main.generateRandom(14, 18);
+        minSpeed = Main.generateRandomInt(3, 5);
+        maxSpeed = Main.generateRandomInt(14, 18);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class HellicopterBullet extends Projectile {
                 return;
             } else if (!hasCollided) {
                 hasCollided = true;
-                int tickDelay = Main.generateRandom(2, 5);
+                int tickDelay = Main.generateRandomInt(2, 5);
                 tickToDestroy = tickNumber + tickDelay;
                 collidedUnit = unit;
             }

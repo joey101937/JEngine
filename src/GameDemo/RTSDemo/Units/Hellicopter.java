@@ -50,6 +50,12 @@ public class Hellicopter extends RTSUnit {
         this.addSubObject(turret);
         this.canAttackAir = true;
     }
+    
+    @Override
+    public void setRotation(double d) {
+        super.setRotation(d);
+        turret.setRotation(d);
+    }
 
     public void fire(RTSUnit targetUnit) {
         Coordinate center = getPixelLocation();
@@ -61,7 +67,9 @@ public class Hellicopter extends RTSUnit {
         
         getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), targetUnit));
         getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), targetUnit));
-        attackSound.playCopy(.7f);
+        if(isOnScreen()) {
+            attackSound.playCopy(Main.generateRandomDouble(.65, .75));
+        }
     }
 
     @Override

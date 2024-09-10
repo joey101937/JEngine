@@ -96,6 +96,14 @@ public class RTSInput extends AsyncInputHandler {
                 RTSUnit unit = (RTSUnit)go;
                 unit.setSelected(true);
                 SelectionBoxEffect.selectedUnits.add(unit);
+                if(e.isControlDown() && grabbed.size() == 1) {
+                    getHostGame().getAllObjects().stream().filter(x -> x instanceof RTSUnit u && x.isOnScreen() && x.isAlive() && x.getClass() == unit.getClass())
+                            .forEach(x -> {
+                               RTSUnit xUnit = (RTSUnit)x;
+                               xUnit.setSelected(true);
+                               SelectionBoxEffect.selectedUnits.add(xUnit);
+                            });
+                }
                 return;
             }
         }

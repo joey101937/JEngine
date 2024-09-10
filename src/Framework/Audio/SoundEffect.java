@@ -90,7 +90,7 @@ public class SoundEffect implements Runnable{
     }
     
     public void startWithRandomDelay(int min, int max){
-        startDelay = Main.generateRandom(min, max);
+        startDelay = Main.generateRandomInt(min, max);
         start();
     }
     

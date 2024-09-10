@@ -146,7 +146,7 @@ public class TankUnit extends RTSUnit{
             muzzelLocation.add(getPixelLocation());
             RTSUnit targetUnit = ((RTSUnit)this.getHost()).currentTarget;
             int longestSide = Math.max(targetUnit.getWidth(), targetUnit.getHeight());
-            Coordinate offset = new Coordinate(Main.generateRandom(-longestSide / 3, longestSide / 3), Main.generateRandom(-longestSide / 3, longestSide / 3));
+            Coordinate offset = new Coordinate(Main.generateRandomInt(-longestSide / 3, longestSide / 3), Main.generateRandomInt(-longestSide / 3, longestSide / 3));
             target.add(offset);
             TankBullet bullet = new TankBullet(muzzelLocation.toDCoordinate(),target.toDCoordinate());
             bullet.shooter=this.getHost();

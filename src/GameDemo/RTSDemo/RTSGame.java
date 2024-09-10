@@ -22,52 +22,51 @@ import GameDemo.RTSDemo.Units.TankUnit;
  * @author Joseph
  */
 public class RTSGame {
+
     public static Game game = new Game(SpriteManager.grassBG);
-    public static Minimap minimap = new Minimap(game, new Coordinate(0,0));
+    public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
     public static MinimapButton button = new MinimapButton(game, new Coordinate(0, minimap.getHeight()));
-    
+
     public static void main(String[] args) {
         Main.tickType = Handler.TickType.unified;
         Main.tickThreadCount = 1;
         Window.initialize(game);
         game.setInputHandler(new RTSInput());
-        game.getCamera().camSpeed=20;
+        game.getCamera().camSpeed = 20;
         game.addIndependentEffect(new SelectionBoxEffect());
         Window.addUIElement(minimap);
         Window.addUIElement(button);
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
         Main.splitBackgroundRender = true;
-        
-        
+
         int spacer = 160;
-        
-         for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 150, 0);
-            tank.rotateTo(180);
+
+        for (int i = 0; i < 20; i++) {
+            Hellicopter heli = new Hellicopter(100 + (i * spacer), 150, 0);
+            heli.setRotation(180);
+            game.addObject(heli);
+        }
+        for (int i = 0; i < 20; i++) {
+            TankUnit tank = new TankUnit(100 + (i * spacer), 750, 0);
+            tank.setRotation(180);
             game.addObject(tank);
         }
         for (int i = 0; i < 20; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 300, 0);
-            tank.rotateTo(180);
+            tank.setRotation(180);
             game.addObject(tank);
         }
         for (int i = 0; i < 20; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 450, 0);
-            tank.rotateTo(180);
+            tank.setRotation(180);
             game.addObject(tank);
         }
         for (int i = 0; i < 20; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 600, 0);
-            tank.rotateTo(180);
+            tank.setRotation(180);
             game.addObject(tank);
         }
-         for (int i = 0; i < 20; i++) {
-            Hellicopter heli = new Hellicopter(100 + (i * spacer), 750, 0);
-            heli.rotateTo(180);
-            game.addObject(heli);
-        }
- 
-           
+
         for (int i = 0; i < 20; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1400, 1));
         }
@@ -80,10 +79,10 @@ public class RTSGame {
         for (int i = 0; i < 20; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1850, 1));
         }
-          for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 20; i++) {
             game.addObject(new Hellicopter(100 + (i * spacer), 2000, 1));
         }
-        
+
         // testing this getting instantiated. Not sure if this helps
         new TankBullet(new DCoordinate(0, 0), new DCoordinate(0, 0));
     }

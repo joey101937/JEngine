@@ -236,16 +236,37 @@ public class Main {
      * @param max maximum value the gnerated value can be
      * @return the number
      */
-    public static int generateRandom(int min, int max) {
+    public static int generateRandomInt(int min, int max) {
         if (min == max) {
             return min; //if they are the same return that number
         }
         if (max < min) {
             //if the numbers are entered backwards, rerun the method with the correct order
-            return generateRandom(max, min);
+            return generateRandomInt(max, min);
         } else {
             //here is the body of our method
             int diff = max - min;
+            int output = (int) (Main.getRandomSource().nextDouble() * diff); //generates a random number between 0 and the difference between the numbers
+            return (min + output);                //returns that random number plus the min
+        }
+    }
+    
+        /**
+     * returns a random integer between the given parameters
+     *@param min minimum value the generated value can be
+     * @param max maximum value the gnerated value can be
+     * @return the number
+     */
+    public static double generateRandomDouble(double min, double max) {
+        if (min == max) {
+            return min; //if they are the same return that number
+        }
+        if (max < min) {
+            //if the numbers are entered backwards, rerun the method with the correct order
+            return generateRandomDouble(max, min);
+        } else {
+            //here is the body of our method
+            double diff = max - min;
             int output = (int) (Main.getRandomSource().nextDouble() * diff); //generates a random number between 0 and the difference between the numbers
             return (min + output);                //returns that random number plus the min
         }
