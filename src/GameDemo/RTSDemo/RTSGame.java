@@ -42,7 +42,7 @@ public class RTSGame {
         int spacer = 160;
 
         for (int i = 0; i < 20; i++) {
-            Hellicopter heli = new Hellicopter(100 + (i * spacer), 150, 0);
+            Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
             heli.setRotation(180);
             game.addObject(heli);
         }
