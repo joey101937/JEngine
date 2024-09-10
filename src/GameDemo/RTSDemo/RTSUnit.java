@@ -27,6 +27,7 @@ public class RTSUnit extends Creature {
     public int team;
     public RTSUnit currentTarget;
     public int range = 500;
+    public boolean canAttackAir = false;
 
     private Color getColorFromTeam(int team) {
         return switch(team) {
@@ -87,6 +88,14 @@ public class RTSUnit extends Creature {
             }
         }
         return bi;
+    }
+    
+    public static BufferedImage[] blueToRed(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for(int i = 0; i < out.length; i++) {
+            out[i] = blueToRed(input[i]);
+        }
+        return out;
     }
     
     @Override
@@ -175,6 +184,7 @@ public class RTSUnit extends Creature {
                     if (!(go instanceof RTSUnit) || go == this) {
                         continue;
                     }
+                    if(!canAttackAir && go.plane == 2) continue;
                     if(((RTSUnit)go).team == team) continue;
                     if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
                         closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
