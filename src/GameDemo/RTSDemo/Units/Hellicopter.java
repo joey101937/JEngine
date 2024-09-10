@@ -4,6 +4,7 @@
  */
 package GameDemo.RTSDemo.Units;
 
+import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
@@ -14,6 +15,7 @@ import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
+import java.io.File;
 
 /**
  * the hellicopter itself is invisible, instead we render the subobject to
@@ -26,7 +28,8 @@ public class Hellicopter extends RTSUnit {
     public static Sprite baseSprite = new Sprite(SpriteManager.hellicopter);
     public static Sprite shadowSprite = new Sprite(SpriteManager.hellicopterShadow);
     public static Sequence attackSequence = new Sequence(SpriteManager.hellicopterAttack);
-
+    public static SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
+    
     public Sprite baseSpriteRed = new Sprite(blueToRed(SpriteManager.hellicopter));
     public Sequence attackSequenceRed = new Sequence(blueToRed(SpriteManager.hellicopterAttack));
 
@@ -58,6 +61,7 @@ public class Hellicopter extends RTSUnit {
         
         getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), targetUnit));
         getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), targetUnit));
+        attackSound.playCopy(.7f);
     }
 
     @Override
