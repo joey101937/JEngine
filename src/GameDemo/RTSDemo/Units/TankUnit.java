@@ -18,7 +18,6 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,7 +30,6 @@ public class TankUnit extends RTSUnit{
     public Turret turret;
     public final static double VISUAL_SCALE = 1;
     private Long lastFiredTime = 0L;
-    public static final int RANGE = 500; 
     
     // Modified buffered images for team color
     public static BufferedImage enemyTankChasisImage = greenToRed(SpriteManager.tankChasis2);
@@ -168,34 +166,12 @@ public class TankUnit extends RTSUnit{
             }
         }
 
-        public RTSUnit nearestInRange() {
-            if(getHostGame()==null){
-                System.out.println("null host game");
-                return null;
-            }
-            ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), RANGE);
-            double closestDistance = RANGE + 1;
-            GameObject2 closest = null;
-            if (!nearby.isEmpty()) {
-                for (GameObject2 go : nearby) {
-                    if (!(go instanceof TankUnit) || go==this.getHost()) {
-                        continue;
-                    }
-                    if(((TankUnit)go).team == team) continue;
-                    if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
-                        closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
-                        closest = go;
-                    }
-                }
-            }
-            return (RTSUnit) closest;
-        }
         //tank turret tick
         @Override
         public void tick() {
             // System.out.println(this + " " + this.ID);
             super.tick();
-            RTSUnit enemy = nearestInRange();
+            RTSUnit enemy = nearestEnemyInRange();
             ((RTSUnit)getHost()).currentTarget = enemy;
             if (enemy == null) {
                 double desiredRotation = getHost().getRotation()-getRotation();

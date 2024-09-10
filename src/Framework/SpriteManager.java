@@ -48,6 +48,10 @@ public abstract class SpriteManager {
     public static BufferedImage dirtBGNight;
     public static BufferedImage grassBG;
     public static BufferedImage grassBGMega;
+    public static BufferedImage hellicopter;
+    public static BufferedImage hellicopterShadow;
+    public static BufferedImage[] hellicopterAttack;
+
     
     //SPACE ASSETS
     public static BufferedImage spaceBG;
@@ -125,6 +129,9 @@ public abstract class SpriteManager {
            grassBG = load("DemoAssets/TankGame/grassTerrain.png");
            // uncomment to load this large bg file 
            // grassBGMega = load("DemoAssets/TankGame/grassTerrain_mega.png");
+           hellicopter = load("DemoAssets/TankGame/copter/base.png");
+           hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
+           hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");
 
 
                       

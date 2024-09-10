@@ -8,15 +8,14 @@ package GameDemo.RTSDemo;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
-import Framework.GraphicalAssets.Sprite;
 import Framework.Hitbox;
-import GameDemo.RTSDemo.Units.TankUnit;
 import GameDemo.SandboxDemo.Creature;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /**
  *
@@ -27,6 +26,7 @@ public class RTSUnit extends Creature {
     private Coordinate desiredLocation;
     public int team;
     public RTSUnit currentTarget;
+    public int range = 500;
 
     private Color getColorFromTeam(int team) {
         return switch(team) {
@@ -68,25 +68,25 @@ public class RTSUnit extends Creature {
         return bi;
     }
     
-    
-    public static void updateColorForTeam (GameObject2 go, int team) {
-        if(team == 0) return;
-        BufferedImage bi = go.getGraphic().getCurrentImage();
-        Graphics2D g = bi.createGraphics();
-        for(int y = 0; y < bi.getHeight(); y++) {
+    public static BufferedImage blueToRed (BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+         for(int y = 0; y < bi.getHeight(); y++) {
             for(int x = 0; x < bi.getWidth(); x++) {
-                int rgba = bi.getRGB(x, y);
-                Color prevCOlor = new Color(rgba, true);
-                if(prevCOlor.getGreen() > prevCOlor.getRed() + prevCOlor.getBlue()) {
-                     prevCOlor = new Color(230, prevCOlor.getRed(),prevCOlor.getBlue());
-                bi.setRGB(x, y, prevCOlor.getRGB());
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if(prevColor.getBlue()> (prevColor.getRed() + prevColor.getGreen()) * .5) {
+                     int newRed = Math.min(255, (int)(prevColor.getBlue()* 1.5));
+                     int newGreen = (int)(prevColor.getRed() * .75);
+                     int newBlue = (int)(prevColor.getGreen()* .75);
+                     Color newColor = new Color(newRed, newGreen, newBlue);
+                     bi.setRGB(x, y, newColor.getRGB());
+                } else {
+                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
+                    bi.setRGB(x, y, newColor.getRGB());
                 }
             }
         }
-        go.setGraphic(new Sprite(bi, TankUnit.VISUAL_SCALE));
-        for(GameObject2 sub : go.getAllSubObjects()) {
-            updateColorForTeam(sub, team);
-        }
+        return bi;
     }
     
     @Override
@@ -161,4 +161,27 @@ public class RTSUnit extends Creature {
     public void setDesiredLocation(Coordinate c){
         desiredLocation = c;
     }
+    
+    public RTSUnit nearestEnemyInRange() {
+            if(getHostGame()==null){
+                System.out.println("null host game");
+                return null;
+            }
+            ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
+            double closestDistance = range + 1;
+            GameObject2 closest = null;
+            if (!nearby.isEmpty()) {
+                for (GameObject2 go : nearby) {
+                    if (!(go instanceof RTSUnit) || go == this) {
+                        continue;
+                    }
+                    if(((RTSUnit)go).team == team) continue;
+                    if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
+                        closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
+                        closest = go;
+                    }
+                }
+            }
+            return (RTSUnit) closest;
+        }
 }

@@ -13,6 +13,7 @@ import Framework.Main;
 import Framework.SpriteManager;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
+import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.TankBullet;
 import GameDemo.RTSDemo.Units.TankUnit;
 
@@ -61,9 +62,9 @@ public class RTSGame {
             game.addObject(tank);
         }
          for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 750, 0);
-            tank.rotateTo(180);
-            game.addObject(tank);
+            Hellicopter heli = new Hellicopter(100 + (i * spacer), 750, 0);
+            heli.rotateTo(180);
+            game.addObject(heli);
         }
  
            
@@ -80,7 +81,7 @@ public class RTSGame {
             game.addObject(new TankUnit(100 + (i * spacer), 1850, 1));
         }
           for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 2000, 1));
+            game.addObject(new Hellicopter(100 + (i * spacer), 2000, 1));
         }
         
         // testing this getting instantiated. Not sure if this helps
