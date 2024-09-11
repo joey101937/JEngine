@@ -18,6 +18,7 @@ import Framework.GraphicalAssets.Graphic;
 import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  * Parent class for all objects that appear in the gameworld
@@ -1084,6 +1085,18 @@ public class GameObject2 implements Comparable<GameObject2>{
         this.heightAsOfLastTick = heightAsOfLastTick;
     }
      
-    
+    /**
+     * Executes the given function after a set number of ticks have passed.
+     * This function will happen before the pretick on the given tick number
+     * executes in the order submitted
+     * @param tickDelay number of ticks to wait before executing the function
+     * @param c function to execute. Game will be passed as the only parameter
+     */
+    public void addTickDelayedEffect(int tickDelay, Consumer c) {
+        if(hostGame == null) {
+            System.out.println("error trying to add tickDelayedEffect with null game");
+        }
+        hostGame.tickDelayedEffects.add(new TickDelayedEffect(hostGame.handler.globalTickNumber + tickDelay, c));
+    }
 
 }

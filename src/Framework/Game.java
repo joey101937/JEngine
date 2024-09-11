@@ -89,6 +89,7 @@ public class Game extends Canvas implements Runnable {
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
+    protected CopyOnWriteArrayList<TickDelayedEffect> tickDelayedEffects = new CopyOnWriteArrayList<>();
 
     /**
      * ticks all applied effects

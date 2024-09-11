@@ -160,6 +160,14 @@ public class Handler {
      */
     public void tick() {
         globalTickNumber++;
+        LinkedList<TickDelayedEffect> effectsRun = new LinkedList<>();
+        for(TickDelayedEffect tde : hostGame.tickDelayedEffects) {
+            if(tde.targetTick == globalTickNumber) {
+                tde.consumer.accept(hostGame);
+                effectsRun.add(tde);
+            }
+        }
+        hostGame.tickDelayedEffects.removeAll(effectsRun);
         if(Main.tickType == TickType.unified) {
             tickUnified();
         } else if (Main.tickType == TickType.modular) {
