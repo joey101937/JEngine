@@ -576,6 +576,9 @@ public class GameObject2 implements Comparable<GameObject2>{
             waitingToGenerateDefaultPathingChecks = false;
             generateDefaultPathingOffsets();
         }
+        if(this.getHitbox() != null) {
+            getHitbox().updateFarthestAndShortest();
+        }
         updateLocation();
         tickNumber++;
     }

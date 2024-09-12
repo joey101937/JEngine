@@ -85,7 +85,7 @@ public class Hitbox {
     /**
      * used to set farthestRange. used for optimizing
      */
-    private void updateFarthestAndShortest(){
+    protected void updateFarthestAndShortest(){
         String thisVertsKey = generateVertsKey();
         if(thisVertsKey.equals(vertsKey_shortest_farthest)) return; // already up to date
         if(type == type.circle) {
@@ -596,7 +596,6 @@ public class Hitbox {
 
 
     public void render(Graphics2D g){
-        this.updateFarthestAndShortest();
         Color col = g.getColor();
         if(this.type == Type.box){ 
             //render all sides

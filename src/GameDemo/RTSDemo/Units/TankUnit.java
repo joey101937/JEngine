@@ -29,7 +29,7 @@ public class TankUnit extends RTSUnit{
     public static SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
     public Turret turret;
     public final static double VISUAL_SCALE = 1;
-    private Long lastFiredTime = 0L;
+    public boolean weaponOnCooldown = false;
     
     // Modified buffered images for team color
     public static BufferedImage enemyTankChasisImage = greenToRed(SpriteManager.tankChasis2);
@@ -100,11 +100,12 @@ public class TankUnit extends RTSUnit{
     //when a tank tries to fire, it first checks if its turret is still firing. 
     //if not, tell the turret to fire at target location
     public void fire(Coordinate target) {
-        if (turret.firing || target.distanceFrom(location) < getHeight() * 3 / 5 || tickNumber-lastFiredTime < 60L || Math.abs(turret.angleFrom(target))>1) { //limited to one shot per 60 ticks
+        if (weaponOnCooldown || target.distanceFrom(location) < getHeight() * 3 / 5 || Math.abs(turret.angleFrom(target))>1) { //limited to one shot per 60 ticks
             return;
         }
-        lastFiredTime = this.tickNumber;
+        weaponOnCooldown = true;
         turret.onFire(target);
+        this.addTickDelayedEffect(Main.ticksPerSecond, x -> {weaponOnCooldown = false;});
     }
 
     public class Turret extends SubObject{
