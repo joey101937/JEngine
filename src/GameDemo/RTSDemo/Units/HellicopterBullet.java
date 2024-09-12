@@ -61,6 +61,8 @@ public class HellicopterBullet extends Projectile {
         explosionSmall.scaleTo(.85);
         minSpeed = Main.generateRandomInt(3, 5);
         maxSpeed = Main.generateRandomInt(14, 18);
+        if(plane == 1) maxRange = 750;
+        else maxRange = 1400;
     }
 
     @Override

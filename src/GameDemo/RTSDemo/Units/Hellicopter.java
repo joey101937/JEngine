@@ -29,15 +29,13 @@ public class Hellicopter extends RTSUnit {
     public static Sprite shadowSprite = new Sprite(SpriteManager.hellicopterShadow);
     public static Sequence attackSequence = new Sequence(SpriteManager.hellicopterAttack);
     public static SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
-    
+
     public static Sprite baseSpriteRed = new Sprite(blueToRed(SpriteManager.hellicopter));
     public static Sequence attackSequenceRed = new Sequence(blueToRed(SpriteManager.hellicopterAttack));
 
     public HellicopterTurret turret;
     public long lastFireTick = 0;
-    public RTSUnit firedOnUnit = null;
     public int attackInterval = Main.ticksPerSecond * 2;
-    public long tickToFireOn = -1;
 
     public Hellicopter(int x, int y, int team) {
         super(x, y, team);
@@ -50,26 +48,29 @@ public class Hellicopter extends RTSUnit {
         this.addSubObject(turret);
         this.canAttackAir = true;
     }
-    
+
     @Override
     public void setRotation(double d) {
         super.setRotation(d);
         turret.setRotation(d);
     }
 
-    public void fire(RTSUnit targetUnit) {
-        Coordinate center = getPixelLocation();
-        Coordinate leftOffset = new Coordinate(-30, -30);
-        Coordinate rightOffset = new Coordinate(30, -30);
+    public void fireDelayed(RTSUnit targetUnit, int delay) {
+        addTickDelayedEffect(delay, game -> {
+            if(!this.isAlive() || !targetUnit.isAlive()) return;
+            Coordinate center = getPixelLocation();
+            Coordinate leftOffset = new Coordinate(-30, -30);
+            Coordinate rightOffset = new Coordinate(30, -30);
 
-        leftOffset.adjustForRotation(turret.getRotation());
-        rightOffset.adjustForRotation(turret.getRotation());
-        
-        getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), targetUnit));
-        getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), targetUnit));
-        if(isOnScreen()) {
-            attackSound.playCopy(Main.generateRandomDouble(.65, .75));
-        }
+            leftOffset.adjustForRotation(turret.getRotation());
+            rightOffset.adjustForRotation(turret.getRotation());
+
+            getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), targetUnit));
+            getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), targetUnit));
+            if (isOnScreen()) {
+                attackSound.playCopy(Main.generateRandomDouble(.65, .75));
+            }
+        });
     }
 
     @Override
@@ -78,17 +79,12 @@ public class Hellicopter extends RTSUnit {
         currentTarget = nearestEnemyInRange();
         boolean offCooldown = (tickNumber - lastFireTick) > attackInterval;
         if (currentTarget != null && offCooldown) {
-            if(Math.abs(turret.angleFrom(currentTarget.getPixelLocation())) < 2) {
+            if (Math.abs(turret.angleFrom(currentTarget.getPixelLocation())) < 2) {
                 lastFireTick = tickNumber;
-                tickToFireOn = tickNumber + 10;
                 Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
                 turret.setGraphic(attackAnimation.copyMaintainSource());
-                firedOnUnit = currentTarget;
+                fireDelayed(currentTarget, 10);
             }
-        }
-        
-        if(tickNumber == tickToFireOn && firedOnUnit.isAlive()) {
-            fire(firedOnUnit);
         }
     }
 
