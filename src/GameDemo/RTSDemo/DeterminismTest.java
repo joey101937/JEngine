@@ -51,6 +51,9 @@ public class DeterminismTest {
         }
         
         Main.wait(1000);
+        while(game.getGameTickNumber() < 10) {
+            Main.wait(50);
+        }
         for(GameObject2 go : game.getAllObjects()) {
             if(go instanceof RTSUnit unit) {
                 unit.setDesiredLocation(new Coordinate(1000, 1000));
