@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package SampleGames.SideScroller;
+package SampleGames.Minotaur;
 
 import Framework.AsyncInputHandler;
 import Framework.UI_Elements.OptionsMenu;
-import SampleGames.SideScroller.Actors.Minotaur;
+import SampleGames.Minotaur.Actors.Minotaur;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 

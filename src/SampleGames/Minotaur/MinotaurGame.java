@@ -3,15 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package SampleGames.SideScroller;
+package SampleGames.Minotaur;
 
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.Main;
 import Framework.UtilityObjects.BlockObject;
 import Framework.Window;
-import SampleGames.SideScroller.Actors.Minotaur;
-import SampleGames.SideScroller.Levels.SSLevel1;
+import SampleGames.Minotaur.Actors.Minotaur;
+import SampleGames.Minotaur.Levels.SSLevel1;
 
 /**
  * Sidescroll Game main class

@@ -13,7 +13,7 @@ import GameDemo.SpaceDemo.SpaceGame;
 import GameDemo.TankDemo.TankGame;
 import GameDemo.TownDemo.TownDemo;
 import SampleGames.Galiga.GaligaGame;
-import SampleGames.SideScroller.MinotaurGame;
+import SampleGames.Minotaur.MinotaurGame;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Array;

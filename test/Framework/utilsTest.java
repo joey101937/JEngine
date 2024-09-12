@@ -5,7 +5,7 @@
 package Framework;
 
 import static Framework.Main.jMap;
-import SampleGames.SideScroller.Actors.Barrel;
+import SampleGames.Minotaur.Actors.Barrel;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

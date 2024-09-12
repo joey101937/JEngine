@@ -90,6 +90,7 @@ public class Game extends Canvas implements Runnable {
     private final Camera camera = new Camera(this);
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
     protected CopyOnWriteArrayList<TickDelayedEffect> tickDelayedEffects = new CopyOnWriteArrayList<>();
+    private Consumer handleSyncTick;
 
     /**
      * ticks all applied effects
@@ -449,6 +450,7 @@ public class Game extends Canvas implements Runnable {
         tickIndependentEffects();
         Window.TickUIElements();
         Window.updateFrameSize();
+        if(this.handleSyncTick != null)this.handleSyncTick.accept(this);
     }
 
     //core render method, tells all game Objects to render
@@ -973,5 +975,14 @@ public class Game extends Canvas implements Runnable {
 
     public long getGameTickNumber() {
         return handler.globalTickNumber;
+    }
+    
+    /**
+     * the game's handleSyncTick is a function that runs immediately after each tick
+     * the game cannot proceed to the next tick until this function resolves
+     * @param c 
+     */
+    public void setHandleSyncTick(Consumer c) {
+        this.handleSyncTick = c;
     }
 }
