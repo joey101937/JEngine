@@ -8,8 +8,6 @@ package SampleGames.Galiga;
 import Framework.Audio.SoundEffect;
 import Framework.DCoordinate;
 import Framework.Game;
-import Framework.Handler;
-import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
 import java.io.File;

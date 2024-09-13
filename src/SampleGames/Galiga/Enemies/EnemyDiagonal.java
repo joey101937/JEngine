@@ -15,6 +15,7 @@ import Framework.SpriteManager;
  * @author Joseph
  */
 public class EnemyDiagonal extends EnemyShip{
+    public static Sprite sprite = new Sprite(SpriteManager.evilShip);
 
     public EnemyDiagonal(Coordinate c) {
         super(c);
@@ -30,9 +31,9 @@ public class EnemyDiagonal extends EnemyShip{
     
     @Override
     protected void init() {
-        Sprite s = new Sprite(SpriteManager.evilShip);
-        setGraphic(s);
+        Sprite s = sprite;
         scale(.2);
+        setGraphic(s);
         isSolid = true;
         preventOverlap=false;
         setName("Enemy " + ID);

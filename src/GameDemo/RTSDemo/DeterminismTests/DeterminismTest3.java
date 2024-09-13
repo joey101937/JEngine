@@ -24,15 +24,15 @@ public class DeterminismTest3 {
         for (int i = 0; i < 20; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 750, 0);
             tank.setRotation(180);
-            game.addObjectMidTick(tank);
+            game.addObject(tank);
         }
        
         for (int i = 0; i < 20; i++) {
-            game.addObjectMidTick(new TankUnit(100 + (i * spacer), 1300, 1));
+            game.addObject(new TankUnit(100 + (i * spacer), 1300, 1));
         }
         
         game.tick();
-        for(GameObject2 go : game.getAllObjectsRealTime()) {
+        for(GameObject2 go : game.getAllObjects()) {
             if(go instanceof RTSUnit unit) {
                 unit.setDesiredLocation(new Coordinate(1000, 900));
             }
@@ -45,7 +45,7 @@ public class DeterminismTest3 {
             game.tick(); 
             boolean greenAlive = false;
             boolean redAlive = false;
-            for(GameObject2 go : game.getAllObjectsRealTime()) {
+            for(GameObject2 go : game.getAllObjects()) {
                 if(go instanceof RTSUnit unit) {
                     if(unit.team == 0) greenAlive = true;
                     if(unit.team ==1 ) redAlive  = true;

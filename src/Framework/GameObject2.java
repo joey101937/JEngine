@@ -15,6 +15,7 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
+import Framework.UtilityObjects.BlockObject;
 import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -300,8 +301,6 @@ public class GameObject2 implements Comparable<GameObject2>{
             for(GameObject2 other : getHostGame().getAllObjects()){
                 if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
                      getHostGame().handler.registerCollision(this, other);
-//                     this.onCollide(other, true);
-//                     other.onCollide(this, false);
                      return; 
                 }
             }
@@ -1012,7 +1011,7 @@ public class GameObject2 implements Comparable<GameObject2>{
         return scale;
     }
 
-    protected void setHostGame(Game g){
+    public void setHostGame(Game g){
         hostGame = g;
     }
 
@@ -1037,22 +1036,22 @@ public class GameObject2 implements Comparable<GameObject2>{
         return getLocationAsOfLastTick();
     }
 
-    protected void setLocationAsOfLastTick(DCoordinate locationAsOfLastTIck) {
+    public void setLocationAsOfLastTick(DCoordinate locationAsOfLastTIck) {
         this.locationAsOfLastTick = locationAsOfLastTIck.copy();
     }
     
-    protected void setRotationAsOfLastTick(double r) {
+    public void setRotationAsOfLastTick(double r) {
         this.rotationAsOfLastTick = r;
     }
     
-    protected void setScaleAsOfLastTick(double d) {
+    public void setScaleAsOfLastTick(double d) {
         scaleAsOfLastTick = d;
     }
     
     /**
      * moves future synced state into synced state, then clears it
      */
-    protected void updateSyncedState() {
+    public void updateSyncedState() {
         for(String key : futureSyncedState.keySet()) {
             syncedState.put(key, futureSyncedState.get(key));
         }
@@ -1076,7 +1075,7 @@ public class GameObject2 implements Comparable<GameObject2>{
         return widthAsOfLastTick;
     }
 
-    protected void setWidthAsOfLastTick(int widthAsOfLastTick) {
+    public void setWidthAsOfLastTick(int widthAsOfLastTick) {
         this.widthAsOfLastTick = widthAsOfLastTick;
     }
 
@@ -1084,7 +1083,7 @@ public class GameObject2 implements Comparable<GameObject2>{
         return heightAsOfLastTick;
     }
 
-    protected void setHeightAsOfLastTick(int heightAsOfLastTick) {
+    public void setHeightAsOfLastTick(int heightAsOfLastTick) {
         this.heightAsOfLastTick = heightAsOfLastTick;
     }
      

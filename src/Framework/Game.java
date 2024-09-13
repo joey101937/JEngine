@@ -7,6 +7,7 @@ package Framework;
 
 import Framework.Audio.AudioManager;
 import Framework.Audio.SoundEffect;
+import Framework.CoreLoop.Handler;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import java.awt.Canvas;
@@ -34,7 +35,6 @@ import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
 import java.awt.Stroke;
 import java.awt.image.VolatileImage;
 import java.util.LinkedList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -90,7 +90,7 @@ public class Game extends Canvas implements Runnable {
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
-    protected CopyOnWriteArrayList<TickDelayedEffect> tickDelayedEffects = new CopyOnWriteArrayList<>();
+    public CopyOnWriteArrayList<TickDelayedEffect> tickDelayedEffects = new CopyOnWriteArrayList<>();
     private Consumer handleSyncTick;
 
     /**
@@ -898,32 +898,12 @@ public class Game extends Canvas implements Runnable {
         }
         handler.addObject(o);
     }
-    
-    /**
-     * Adds the gameobject to the world directly, and in the middle of the tick
-     * this is bad for determinism
-     */
-    public void addObjectMidTick(GameObject2 go) {
-          if (go == null) {
-            throw new NullPointerException("Trying to add null GameObject2 to Game " + name);
-        }
-          
-        handler.addObjectMidTick(go);
-    }
 
     /**
      * @return all game objects in this world as of start of current tick
      */
     public ArrayList<GameObject2> getAllObjects() {
         return handler.getAllObjects();
-    }
-
-    /**
-     * @return all game objects in this world in real time- includes objects
-     * that were added during the course of this tick
-     */
-    public ArrayList<GameObject2> getAllObjectsRealTime() {
-        return handler.getAllObjectsRealTime();
     }
 
     /**

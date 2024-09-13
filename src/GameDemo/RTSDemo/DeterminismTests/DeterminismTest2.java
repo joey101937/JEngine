@@ -6,10 +6,8 @@ package GameDemo.RTSDemo.DeterminismTests;
 
 import Framework.Coordinate;
 import Framework.Game;
-import Framework.Handler.TickType;
 import Framework.Main;
 import Framework.SpriteManager;
-import Framework.Window;
 import GameDemo.RTSDemo.Units.TankUnit;
 
 /**

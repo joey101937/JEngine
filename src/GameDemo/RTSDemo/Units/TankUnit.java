@@ -113,8 +113,6 @@ public class TankUnit extends RTSUnit{
         Sequence fireAnimation = team == 0 ? turretFireAnimationGreen : turretFireAnimationRed;    //simple recoil animation
         Sprite turretSprite = team == 0 ? turretSpriteGreen : turretSpriteRed; 
 
-        @Override
-        public void render(Graphics2D g) {}
         
         public Turret(Coordinate offset) {
             super(offset);

@@ -6,9 +6,9 @@
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
+import Framework.CoreLoop.Handler;
 import Framework.DCoordinate;
 import Framework.Game;
-import Framework.Handler;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.UI_Elements.Examples.Minimap;

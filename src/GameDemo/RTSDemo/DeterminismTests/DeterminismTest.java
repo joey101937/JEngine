@@ -4,7 +4,6 @@ package GameDemo.RTSDemo.DeterminismTests;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
-import Framework.Handler;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;

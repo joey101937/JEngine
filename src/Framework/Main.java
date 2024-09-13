@@ -5,6 +5,7 @@
  */
 package Framework;
 
+import Framework.CoreLoop.Handler;
 import GameDemo.FogDemo.FogDemo;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.SideScollerDemo_TERRAIN.SideScrollDemo;

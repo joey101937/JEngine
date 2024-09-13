@@ -24,6 +24,7 @@ import SampleGames.Galiga.PlayerShip;
 public class EnemyShip extends GameObject2{
     
     public static double difficultyMultiplier = 1.0; //increase this to increase difficulty
+    public static Sprite enemySprite = new Sprite(SpriteManager.evilShip);
     
     public EnemyShip(Coordinate c) {
         super(c);
@@ -41,9 +42,9 @@ public class EnemyShip extends GameObject2{
     }
  
     protected void init() {
-        Sprite s = new Sprite(SpriteManager.evilShip);
-        setGraphic(s);
+        Sprite s = enemySprite;
         scale(.2);
+        setGraphic(s);
         isSolid = true;
         preventOverlap=false;
         setName("Enemy " + ID);
