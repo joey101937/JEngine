@@ -146,8 +146,8 @@ public abstract class SpriteManager {
            tankDeadHull = load("DemoAssets/TankGame/destroyedHull.png");
            tankDeadHullShadow = load("DemoAssets/TankGame/destroyedHullShadow.png");
            tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
-           tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
-           tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");   
+           tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath2");
+           tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath2");   
            
                       
            spaceBG = load("DemoAssets/spacebg.png");
