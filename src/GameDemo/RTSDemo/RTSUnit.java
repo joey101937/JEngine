@@ -28,7 +28,8 @@ public class RTSUnit extends Creature {
     public RTSUnit currentTarget;
     public int range = 500;
     public boolean canAttackAir = false;
-
+    public boolean isRubble = false;
+    
     private Color getColorFromTeam(int team) {
         return switch(team) {
             case 0 -> Color.GREEN;
@@ -101,6 +102,7 @@ public class RTSUnit extends Creature {
     @Override
     public void render(Graphics2D g) {
         super.render(g);
+        if(isRubble) return;
         Coordinate pixelLocation = getPixelLocation();
         Color originalColor = g.getColor();
         Stroke originalStroke= g.getStroke();
@@ -115,6 +117,7 @@ public class RTSUnit extends Creature {
     @Override
     public void tick() {
         super.tick();
+        if(isRubble) return;
         if (desiredLocation.distanceFrom(location) > getWidth() / 2) {
             double desiredRotation = this.angleFrom(desiredLocation);
             double maxRotation = 5;
@@ -186,6 +189,7 @@ public class RTSUnit extends Creature {
                     }
                     if(!canAttackAir && go.plane == 2) continue;
                     if(((RTSUnit)go).team == team) continue;
+                     if(((RTSUnit)go).isRubble == true) continue;
                     if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
                         closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
                         closest = go;

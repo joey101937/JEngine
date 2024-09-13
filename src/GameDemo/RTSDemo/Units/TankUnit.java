@@ -41,6 +41,12 @@ public class TankUnit extends RTSUnit{
     public static volatile Sprite chasisSpriteRed = null; // new Sprite(enemyTankChasisImage);
     public static volatile Sprite turretSpriteGreen = null; // new Sprite(SpriteManager.tankTurret);
     public static volatile Sprite turretSpriteRed = null; // new Sprite(enemyTankTurretImage);
+    public static volatile Sprite rubbleHullSprite = null;
+    public static volatile Sprite rubbleTurretSprite = null;
+    public static volatile Sequence deathAnimationHull = null;
+    public static volatile Sequence deathAnimationTurret = null;
+    public static volatile Sprite deathShadow = null;
+    public static volatile Sequence deathFadeout;
     
     public static volatile Sequence turretFireAnimationGreen = null; // new Sequence(SpriteManager.tankFireAnimation);
     public static volatile Sequence turretFireAnimationRed = null; // new Sequence(enemyTankFireAnimation);
@@ -53,16 +59,40 @@ public class TankUnit extends RTSUnit{
         turretSpriteRed =  new Sprite(enemyTankTurretImage);
         turretFireAnimationGreen = new Sequence(SpriteManager.tankFireAnimation2);
         turretFireAnimationRed = new Sequence(enemyTankFireAnimation);
-        List.of(
-                chasisSpriteGreen,
+        rubbleHullSprite = new Sprite(SpriteManager.tankDeadHull);
+        rubbleTurretSprite = new Sprite(SpriteManager.tankDeadTurret);
+        deathAnimationHull = new Sequence(SpriteManager.tankHullDeathAni);
+        deathAnimationHull.setSignature("deathHull");
+        deathAnimationTurret = new Sequence(SpriteManager.tankTurretDeathAni);
+        deathShadow = new Sprite(SpriteManager.tankDeadHullShadow);
+        deathFadeout = Sequence.createFadeout(SpriteManager.tankDeadHullShadow, 40);
+        deathFadeout.setSignature("fadeout");
+        
+        deathAnimationHull.setFrameDelay(60);
+        deathAnimationTurret.setFrameDelay(60);
+        
+        List.of(chasisSpriteGreen,
                 chasisSpriteRed,
                 turretSpriteGreen,
                 turretSpriteRed,
                 turretFireAnimationGreen,      
-                turretFireAnimationRed
+                turretFireAnimationRed,
+                rubbleHullSprite,
+                rubbleTurretSprite,
+                deathShadow,
+                deathAnimationHull
                 ).forEach(x -> x.scaleTo(VISUAL_SCALE));
     }
     
+    @Override
+    public void onAnimationCycle() {
+        if("deathHull".equals(getGraphic().getSignature())) {
+            this.setGraphic(rubbleHullSprite);
+        }
+        if("fadeout".equals(getGraphic().getSignature())) {
+            this.isInvisible = true;
+        }
+    }
     
     
     /*
@@ -108,7 +138,7 @@ public class TankUnit extends RTSUnit{
         this.addTickDelayedEffect(Main.ticksPerSecond, x -> {weaponOnCooldown = false;});
     }
 
-    public class Turret extends SubObject{
+    public class Turret extends SubObject {
         Sequence fireAnimation = team == 0 ? turretFireAnimationGreen : turretFireAnimationRed;    //simple recoil animation
         Sprite turretSprite = team == 0 ? turretSpriteGreen : turretSpriteRed; 
         
@@ -165,6 +195,10 @@ public class TankUnit extends RTSUnit{
                 firing = false;
                 setGraphic(turretSprite);
             }
+            if(isRubble) {
+                setGraphic(rubbleTurretSprite);
+            }
+            
         }
 
         //tank turret tick
@@ -172,6 +206,7 @@ public class TankUnit extends RTSUnit{
         public void tick() {
             // System.out.println(this + " " + this.ID);
             super.tick();
+            if(isRubble) return;
             RTSUnit enemy = nearestEnemyInRange();
             ((RTSUnit)getHost()).currentTarget = enemy;
             if (enemy == null) {
@@ -209,15 +244,27 @@ public class TankUnit extends RTSUnit{
         }
 
     }
-
+    
     @Override
-    public void onCollide(GameObject2 other, boolean fromMyTick){
-        
+    public void die() {
+        if(this.isRubble) return;
+        OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+        this.isRubble = true;
+        this.setBaseSpeed(0);
+        this.setDesiredLocation(this.getPixelLocation());
+        this.setGraphic(deathAnimationHull.copyMaintainSource());
+        turret.setGraphic(deathAnimationTurret.copyMaintainSource());
+        addTickDelayedEffect(Main.ticksPerSecond*10, c -> {
+            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+            this.setGraphic(deathFadeout.copyMaintainSource());
+            this.isSolid = false;
+            this.turret.isInvisible = true;
+            addTickDelayedEffect(Main.ticksPerSecond * 3, c2 -> {
+                this.destroy();
+            });
+            // this.destroy();
+        });
     }
 
-    @Override
-    public void onDestroy() {
-        OnceThroughSticker deathAni = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
-    }
 }
 

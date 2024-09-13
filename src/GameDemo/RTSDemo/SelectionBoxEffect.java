@@ -101,7 +101,7 @@ public class SelectionBoxEffect extends IndependentEffect {
        List<GameObject2> gos = RTSGame.game.getAllObjects();
        for(GameObject2 go: gos) {
            if(go instanceof RTSUnit unit) {
-               if(unit.isSelected()) {
+               if(unit.isSelected() && !unit.isRubble) {
                    Coordinate coord = unit.getPixelLocation();
                    int sideLength = Math.max(unit.getWidth(), unit.getHeight());
                    g.drawOval(coord.x - sideLength/2, coord.y - sideLength/2, sideLength, sideLength);

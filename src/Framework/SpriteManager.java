@@ -53,6 +53,13 @@ public abstract class SpriteManager {
     public static BufferedImage[] hellicopterAttack;
     public static BufferedImage missile;
     public static BufferedImage missileShadow;
+    public static BufferedImage tankDeadHull;
+    public static BufferedImage tankDeadHullShadow;
+    public static BufferedImage tankDeadTurret;
+    public static BufferedImage[] tankHullDeathAni;
+    public static BufferedImage[] tankTurretDeathAni;
+    
+
 
     
     //SPACE ASSETS
@@ -136,8 +143,12 @@ public abstract class SpriteManager {
            hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");
            missile = load("DemoAssets/TankGame/copter/missile.png");
            missileShadow = load("DemoAssets/TankGame/copter/missileShadow.png");
-
-
+           tankDeadHull = load("DemoAssets/TankGame/destroyedHull.png");
+           tankDeadHullShadow = load("DemoAssets/TankGame/destroyedHullShadow.png");
+           tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
+           tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
+           tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");   
+           
                       
            spaceBG = load("DemoAssets/spacebg.png");
            spaceBG2 = load("DemoAssets/spacebg2.png");

@@ -205,6 +205,13 @@ public class RTSInput extends AsyncInputHandler {
                 dDown = true;
                 aDown = false;
             }
+            case 'p', 'P' -> {
+                SelectionBoxEffect.selectedUnits.forEach(x -> {
+                    if(x instanceof RTSUnit unit) {
+                        unit.die();
+                    }
+                });
+            }
             case 'Z', 'z' -> Main.debugMode = !Main.debugMode;
         }
     }

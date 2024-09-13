@@ -47,11 +47,6 @@ public class RTSGame {
             game.addObject(heli);
         }
         for (int i = 0; i < 20; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 750, 0);
-            tank.setRotation(180);
-            game.addObject(tank);
-        }
-        for (int i = 0; i < 20; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 300, 0);
             tank.setRotation(180);
             game.addObject(tank);
@@ -67,9 +62,6 @@ public class RTSGame {
             game.addObject(tank);
         }
 
-        for (int i = 0; i < 20; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1400, 1));
-        }
         for (int i = 0; i < 20; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1550, 1));
         }

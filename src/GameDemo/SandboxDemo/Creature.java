@@ -22,7 +22,7 @@ public abstract class Creature extends GameObject2 {
         if(invuln)return;
         currentHealth-=amount;
         if(currentHealth<=0){
-            destroy();
+            this.die();
         }
     }
     
@@ -31,6 +31,10 @@ public abstract class Creature extends GameObject2 {
         if(currentHealth>maxHealth){
             currentHealth=maxHealth;
         }
+    }
+    
+    public void die () {
+        this.destroy();
     }
     
     public Creature(Coordinate c) {

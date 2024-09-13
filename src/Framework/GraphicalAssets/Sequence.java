@@ -5,6 +5,8 @@
  */
 package Framework.GraphicalAssets;
 
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -387,5 +389,40 @@ public class Sequence implements Graphic{
         this.signuature = s;
     }
     
+    public static Sequence createFadeout(BufferedImage image, int numFrames) {
+        BufferedImage[] frames = new BufferedImage[numFrames];
+
+        // Ensure the image has an alpha channel (for transparency)
+        BufferedImage sourceImage = new BufferedImage(
+            image.getWidth(),
+            image.getHeight(),
+            BufferedImage.TYPE_INT_ARGB
+        );
+        Graphics2D g2d = sourceImage.createGraphics();
+        g2d.drawImage(image, 0, 0, null);
+        g2d.dispose();
+
+        // Loop to create each frame
+        for (int i = 0; i < numFrames; i++) {
+            // Create a new image for each frame
+            BufferedImage frame = new BufferedImage(
+                sourceImage.getWidth(),
+                sourceImage.getHeight(),
+                BufferedImage.TYPE_INT_ARGB
+            );
+            Graphics2D g = frame.createGraphics();
+            
+            // Calculate the alpha value for this frame (fades from 1 to 0)
+            float alpha = 1.0f - ((float) i / (numFrames - 1));
+
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+            g.drawImage(sourceImage, 0, 0, null);
+            g.dispose();
+
+            frames[i] = frame;
+        }
+
+        return new Sequence(frames);
+    }
     
 }
