@@ -42,7 +42,7 @@ public class RTSInput extends AsyncInputHandler {
     }
     
     private Coordinate averageLocation(ArrayList<RTSUnit> input) {
-        List<RTSUnit> livingMembers = input.stream().filter(x -> x.isAlive()).collect(Collectors.toList());
+        List<RTSUnit> livingMembers = input.stream().filter(x -> x.isAlive() && !x.isRubble).collect(Collectors.toList());
         Coordinate output = new Coordinate(0,0);
         livingMembers.forEach((item) -> {
             output.x += item.getPixelLocation().x;
