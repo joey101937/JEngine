@@ -7,7 +7,6 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
-import Framework.GameObject2;
 import Framework.GameObject2.MovementType;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
@@ -16,7 +15,6 @@ import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
@@ -251,6 +249,7 @@ public class TankUnit extends RTSUnit{
             OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());
             this.isSolid = false;
+            this.setZLayer(0);
             this.turret.isInvisible = true;
             addTickDelayedEffect(Main.ticksPerSecond * 3, c2 -> {
                 this.destroy();

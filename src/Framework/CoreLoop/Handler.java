@@ -92,8 +92,7 @@ public class Handler {
         } else if (Main.tickType == Handler.TickType.modular) {
             tickModular();
         }
-        conductRemoval();
-        condunctAdditions();
+        conductAdditionsAndRemovals();
         createSnapshot();
     }
 
@@ -173,8 +172,13 @@ public class Handler {
     public synchronized void removeObject(GameObject2 toRemove) {
         this.toRemove.add(toRemove);
     }
+    
+    private synchronized void conductAdditionsAndRemovals() {
+        conductRemovals();
+        condunctAdditions();
+    }
 
-    private void conductRemoval() {
+    private synchronized void conductRemovals() {
         for (GameObject2 go : toRemove) {
             activeObjects.remove(go);
             go.setHostGame(null);
@@ -182,7 +186,7 @@ public class Handler {
         toRemove.clear();
     }
 
-    private void condunctAdditions() {
+    private synchronized void condunctAdditions() {
         for (GameObject2 go : toAdd) {
             activeObjects.add(go);
         }

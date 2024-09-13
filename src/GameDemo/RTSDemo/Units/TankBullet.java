@@ -52,7 +52,7 @@ public class TankBullet extends Projectile {
                 if(((RTSUnit)shooter).team == otherUnit.team) return; // no friendly fire
             }
             otherUnit.takeDamage(20);
-            Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth()*.75);
+            Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth()*.25);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
             System.out.println(this + "exploded");
             destroy();
