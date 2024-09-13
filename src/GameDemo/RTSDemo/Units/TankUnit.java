@@ -16,6 +16,7 @@ import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
@@ -141,13 +142,7 @@ public class TankUnit extends RTSUnit{
     public class Turret extends SubObject {
         Sequence fireAnimation = team == 0 ? turretFireAnimationGreen : turretFireAnimationRed;    //simple recoil animation
         Sprite turretSprite = team == 0 ? turretSpriteGreen : turretSpriteRed; 
-        
-        /*
-        this firing boolean is linked to the animation  with the onAnimationCycle
-        method below. This means the tank will not fire until the fire animation is
-        done playing. 
-        */
-        public boolean firing = false;
+
         
         public Turret(Coordinate offset) {
             super(offset);
@@ -170,7 +165,6 @@ public class TankUnit extends RTSUnit{
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            firing = true;
             Coordinate muzzelLocation = new Coordinate(0, 0);
             muzzelLocation.y -= fireAnimation.frames[0].getHeight()*2/5;
             muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotation());
@@ -192,7 +186,6 @@ public class TankUnit extends RTSUnit{
         @Override
         public void onAnimationCycle(){
             if(getGraphic().getSignature().equals("fireAnimation")){
-                firing = false;
                 setGraphic(turretSprite);
             }
             if(isRubble) {

@@ -6,6 +6,7 @@
 package SampleGames.Minotaur;
 
 import Framework.Coordinate;
+import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.Main;
 import Framework.UtilityObjects.BlockObject;
@@ -20,7 +21,7 @@ import SampleGames.Minotaur.Levels.SSLevel1;
 public class MinotaurGame {
     public static Game scene1 = new SSLevel1();
     public static BlockObject floor;
-    public static Minotaur playerMinotaur = new Minotaur(new Coordinate(100,600));
+    public static Minotaur playerMinotaur = new Minotaur(new Coordinate(100, 0));
     
     
     

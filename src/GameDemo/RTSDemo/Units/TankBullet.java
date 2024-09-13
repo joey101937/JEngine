@@ -36,6 +36,7 @@ public class TankBullet extends Projectile {
         baseSpeed = 20;
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 750;
+        System.out.println("tank bullet created with params " + start + " " + end);
     }
     
     
@@ -53,12 +54,14 @@ public class TankBullet extends Projectile {
             otherUnit.takeDamage(20);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth()*.75);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
+            System.out.println(this + "exploded");
             destroy();
         }
     }
 
     @Override
     public void onTimeOut() {
+        System.out.println(this + " timed out");
         OnceThroughSticker s = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), this.getPixelLocation());
     }
 
@@ -69,18 +72,22 @@ public class TankBullet extends Projectile {
     public void constrainToWorld() {
         DCoordinate loc = location;
         if (loc.x < getHostGame().worldBorder) {
+            System.out.println(this + " constrained" );
             onTimeOut();
             destroy();
         }
         if (loc.y < getHostGame().worldBorder) {
+            System.out.println(this + " constrained" );
             onTimeOut();
             destroy();
         }
         if (loc.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
+            System.out.println(this + " constrained" );
             onTimeOut();
             destroy();
         }
         if (loc.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
+            System.out.println(this + " constrained" );
             onTimeOut();
             destroy();
         }

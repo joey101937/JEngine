@@ -53,8 +53,11 @@ public class GameDriver extends IndependentEffect{
             goToNextLevel();
         }
         if(refNumber > tickNumber-Main.ticksPerSecond*2 || tickNumber%Main.ticksPerSecond*2!=0)return;
-        while(numEnemiesOut() < maxShipsOut && !toSpawn.isEmpty()){
+        int numSpawned = 0;
+        
+        while(numEnemiesOut() + numSpawned < maxShipsOut && !toSpawn.isEmpty()){
             GaligaGame.mainGame.addObject(toSpawn.remove(0));
+            numSpawned++;
         }
     }
 
@@ -92,7 +95,7 @@ public class GameDriver extends IndependentEffect{
    
    private int numEnemiesOut(){
        int output = 0;
-       for(GameObject2 g : GaligaGame.mainGame.getAllObjectsRealTime()){
+       for(GameObject2 g : GaligaGame.mainGame.getAllObjects()){
            if(g instanceof EnemyShip){
                output++;
            }

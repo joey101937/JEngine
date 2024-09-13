@@ -7,6 +7,7 @@ package Framework;
 
 import Framework.Audio.AudioManager;
 import Framework.Audio.SoundEffect;
+import Framework.CoreLoop.Handler;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import java.awt.Canvas;
@@ -89,7 +90,7 @@ public class Game extends Canvas implements Runnable {
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
-    protected CopyOnWriteArrayList<TickDelayedEffect> tickDelayedEffects = new CopyOnWriteArrayList<>();
+    public CopyOnWriteArrayList<TickDelayedEffect> tickDelayedEffects = new CopyOnWriteArrayList<>();
     private Consumer handleSyncTick;
 
     /**
@@ -441,15 +442,15 @@ public class Game extends Canvas implements Runnable {
     }
 
     //core tick, tells all game Objects to tick
-    private synchronized void tick() {
+    public synchronized void tick() {
         handler.tick();
         camera.tick();
         if (getInputHandler() != null) {
             getInputHandler().tick();
         }
         tickIndependentEffects();
-        Window.TickUIElements();
-        Window.updateFrameSize();
+//        Window.TickUIElements();
+//        Window.updateFrameSize();
         if(this.handleSyncTick != null)this.handleSyncTick.accept(this);
     }
 
@@ -885,8 +886,9 @@ public class Game extends Canvas implements Runnable {
     }
 
     /**
-     * adds object to the world, the object will be located at whatever x/y
+     * adds object to the world at the end of this tick, the object will be located at whatever x/y
      * coordinates it has
+     * 
      *
      * @param o object to add
      */
@@ -905,26 +907,15 @@ public class Game extends Canvas implements Runnable {
     }
 
     /**
-     * @return all game objects in this world in real time- includes objects
-     * that were added during the course of this tick
-     */
-    public ArrayList<GameObject2> getAllObjectsRealTime() {
-        return handler.getAllObjectsRealTime();
-    }
-
-    /**
      * removes object from the game
      *
      * @param o object to remove
      */
     public void removeObject(GameObject2 o) {
-        while (handler.getAllObjectsRealTime().contains(o)) {
-            try {
-                handler.removeObject(o);
-                o.setHostGame(null);
-            } catch (ConcurrentModificationException cme) {
-                System.out.println("cme when removing " + o.getName());
-            }
+        try {
+            handler.removeObject(o);
+        } catch (ConcurrentModificationException cme) {
+            System.out.println("cme when removing " + o.getName());
         }
     }
 

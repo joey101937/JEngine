@@ -5,12 +5,10 @@
  */
 package Framework;
 
+import Framework.CoreLoop.Handler;
 import GameDemo.FogDemo.FogDemo;
 import GameDemo.RTSDemo.RTSGame;
-import GameDemo.SandboxDemo.LaunchMenu;
 import GameDemo.SideScollerDemo_TERRAIN.SideScrollDemo;
-import GameDemo.SpaceDemo.SpaceGame;
-import GameDemo.TankDemo.TankGame;
 import GameDemo.TownDemo.TownDemo;
 import SampleGames.Galiga.GaligaGame;
 import SampleGames.Minotaur.MinotaurGame;
@@ -68,33 +66,6 @@ public class Main {
             case 4: GaligaGame.main(args);
             break;
             case 5: FogDemo.main(args);
-            break;
-            default: {
-                System.out.println("unknown selection");
-                System.exit(1);
-            }
-        }
-    }
-    
-    private static void showAllDemos(String[] args) {
-        String[] options = {"Demo - Sandbox" , "Demo - Tank", "Demo - RTS", "Demo - Misc" , "Demo - Side Scroller" , "Game - Minotaur", "Game - Galiga"};
-        int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
-        System.out.println(choice);
-        switch(choice){
-            case -1: System.exit(0);
-            case 0: LaunchMenu.main(args);
-            break;
-            case 1: TankGame.main(args);
-            break;
-            case 2: RTSGame.main(args);
-            break;
-            case 3: SpaceGame.main(args);
-            break;
-            case 4: SideScrollDemo.main(args);
-            break;
-            case 5: MinotaurGame.main(args);
-            break;
-            case 6: GaligaGame.main(args);
             break;
             default: {
                 System.out.println("unknown selection");
