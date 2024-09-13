@@ -948,7 +948,7 @@ public class GameObject2 implements Comparable<GameObject2>{
     
     @Override
     public String toString(){
-        return this.getName() + " at " + location;
+        return this.getName() + ID + " at " + location;
     }
  
     

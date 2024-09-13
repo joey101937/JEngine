@@ -34,6 +34,7 @@ import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
 import java.awt.Stroke;
 import java.awt.image.VolatileImage;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -441,15 +442,15 @@ public class Game extends Canvas implements Runnable {
     }
 
     //core tick, tells all game Objects to tick
-    private synchronized void tick() {
+    public synchronized void tick() {
         handler.tick();
         camera.tick();
         if (getInputHandler() != null) {
             getInputHandler().tick();
         }
         tickIndependentEffects();
-        Window.TickUIElements();
-        Window.updateFrameSize();
+//        Window.TickUIElements();
+//        Window.updateFrameSize();
         if(this.handleSyncTick != null)this.handleSyncTick.accept(this);
     }
 
@@ -885,8 +886,9 @@ public class Game extends Canvas implements Runnable {
     }
 
     /**
-     * adds object to the world, the object will be located at whatever x/y
+     * adds object to the world at the end of this tick, the object will be located at whatever x/y
      * coordinates it has
+     * 
      *
      * @param o object to add
      */
@@ -895,6 +897,18 @@ public class Game extends Canvas implements Runnable {
             throw new NullPointerException("Trying to add null GameObject2 to Game " + name);
         }
         handler.addObject(o);
+    }
+    
+    /**
+     * Adds the gameobject to the world directly, and in the middle of the tick
+     * this is bad for determinism
+     */
+    public void addObjectMidTick(GameObject2 go) {
+          if (go == null) {
+            throw new NullPointerException("Trying to add null GameObject2 to Game " + name);
+        }
+          
+        handler.addObjectMidTick(go);
     }
 
     /**
@@ -918,13 +932,10 @@ public class Game extends Canvas implements Runnable {
      * @param o object to remove
      */
     public void removeObject(GameObject2 o) {
-        while (handler.getAllObjectsRealTime().contains(o)) {
-            try {
-                handler.removeObject(o);
-                o.setHostGame(null);
-            } catch (ConcurrentModificationException cme) {
-                System.out.println("cme when removing " + o.getName());
-            }
+        try {
+            handler.removeObject(o);
+        } catch (ConcurrentModificationException cme) {
+            System.out.println("cme when removing " + o.getName());
         }
     }
 

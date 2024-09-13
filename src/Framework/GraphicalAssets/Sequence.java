@@ -28,6 +28,10 @@ public class Sequence implements Graphic{
     private String signuature = "";
     
     
+    // joey note to self for determinism
+    // need to add a way to set fixed height and width not based on current rendered frame as rendering is random
+    
+    
     // indicates that another sequence object has been created with references to this same sprite
     private boolean sharingReferences = true;
     /**

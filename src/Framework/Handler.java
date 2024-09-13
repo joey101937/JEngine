@@ -8,10 +8,11 @@ package Framework;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,13 +33,15 @@ public class Handler {
     public ExecutorService renderServiceCached = Executors.newCachedThreadPool();
     public ExecutorService syncService = Executors.newVirtualThreadPerTaskExecutor();
     
-    private ConcurrentHashMap<Integer, GameObject2> storage = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer, GameObject2> storageAsOfLastTick = new ConcurrentHashMap<>();
-    public Game hostGame;
+    Map<Integer, GameObject2> storage = Collections.synchronizedMap(new HashMap());
+    Map<Integer, GameObject2> storageAsOfLastTick = Collections.synchronizedMap(new HashMap());
+    public volatile Game hostGame;
+    
     
     private List<GameObject2> toRender = new LinkedList<GameObject2>();
     private List<GameObject2> toTick = new LinkedList<GameObject2>();
-
+    private List<GameObject2> toRemove = new LinkedList<GameObject2>();
+    private List<GameObject2> toAdd = new LinkedList<GameObject2>();
     
     public Handler(Game g){
         hostGame=g;
@@ -76,15 +79,25 @@ public class Handler {
         waitForAllJobs(tasks);
     }
     
+    /**
+     * adds object at the end of the tick
+     * @param o 
+     */
     public void addObject(GameObject2 o) {
-        if (!storage.containsKey(o.ID)) {
-            if(o.getHostGame()!=null && o.getHostGame()!=this.hostGame){
-                o.getHostGame().removeObject(o);
+        this.toAdd.add(o);
+    }
+    
+    /**
+     * Adds the gameobject to the world directly, and in the middle of the tick
+     * this is bad for determinism
+     */
+    public void addObjectMidTick(GameObject2 go) {
+        if(go.getHostGame()!=null && go.getHostGame()!=this.hostGame){
+                go.getHostGame().removeObject(go);
             }
-            o.setHostGame(this.hostGame);
-            storage.put(o.ID, o);
-            o.onGameEnter();
-        }
+            storage.put(go.ID, go);
+            go.setHostGame(hostGame);
+            go.onGameEnter();
     }
     
     /**
@@ -92,7 +105,7 @@ public class Handler {
      * @param toRemove  object to remove
      */
     public void removeObject(GameObject2 toRemove){
-         storage.remove(toRemove.ID);
+        this.toRemove.add(toRemove);
     }
     /**
      * @return a list of all objects in the game, note changing this list does
@@ -173,12 +186,13 @@ public class Handler {
         } else if (Main.tickType == TickType.modular) {
             tickModular();
         }
+        conductRemoval();
+        condunctAdditions();
     }
     
     private void tickUnified() {
         populateStorageAsOfLastTick();
         toRender = getAllObjects();
-        toRender.sort(new renderSorter());
         toTick = getAllObjects();
         toTick.sort(null);
         Collection<Future<?>> tickTasks = new LinkedList<>();
@@ -195,7 +209,6 @@ public class Handler {
     
     private void tickModular() {
         toRender = getAllObjectsRealTime();
-        toRender.sort(new renderSorter());
         toTick = getAllObjectsRealTime();
         toTick.sort(null);
         populateStorageAsOfLastTick();
@@ -235,25 +248,6 @@ public class Handler {
             }
         }
     }
-
-    /**
-     * used to sort rendering based on zLayer
-     */
-    private static class renderSorter implements Comparator<GameObject2> {
-
-        @Override
-        public int compare(GameObject2 o1, GameObject2 o2) {
-            if (o1.getZLayer() > o2.getZLayer()) {
-                return 1;
-            } else if (o1.getZLayer() < o2.getZLayer()) {
-                return -1;
-            } else {
-                //must be equal
-                return 0;
-            }
-        }
-
-    }
     
     private class RenderTask implements Runnable {
         public GameObject2 gameObejct;
@@ -292,16 +286,19 @@ public class Handler {
             try {
                 go.setHostGame(hostGame);
                 if (type.equals("preTick")) {
+//                    System.out.println("pretick " + go);
                     go.preTick();
                     for (SubObject so : go.getAllSubObjects()) {
                         so.preTick();
                     }
                 } else if (type.equals("tick")) {
+                    System.out.println("tick " + go);
                     go.tick();
                     for (SubObject so : go.getAllSubObjects()) {
                         so.tick();
                     }
                 } else if (type.equals("postTick")) {
+//                    System.out.println("posttick " + go);
                     go.postTick();
                     for (SubObject so : go.getAllSubObjects()) {
                         so.postTick();
@@ -355,7 +352,26 @@ public class Handler {
                 sub.updateSyncedState();
             }
         }
-
+    }
+    
+    private void conductRemoval() {
+        for(GameObject2 go : toRemove) {
+            storage.remove(go.ID);
+            go.setHostGame(null);
+        }
+        toRemove.clear();
+    }
+    
+    private void condunctAdditions() {
+        for(GameObject2 go : toAdd) {
+            if(go.getHostGame()!=null && go.getHostGame()!=this.hostGame){
+                go.getHostGame().removeObject(go);
+            }
+            storage.put(go.ID, go);
+            go.setHostGame(hostGame);
+            go.onGameEnter();
+        }
+        toAdd.clear();
     }
 
     public static enum TickType{

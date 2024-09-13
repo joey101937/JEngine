@@ -28,7 +28,7 @@ public class RTSGame {
     public static MinimapButton button = new MinimapButton(game, new Coordinate(0, minimap.getHeight()));
 
     public static void main(String[] args) {
-        Main.tickType = Handler.TickType.unified;
+        Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
         Window.initialize(game);
         game.setInputHandler(new RTSInput());

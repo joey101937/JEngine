@@ -54,7 +54,7 @@ public class GameDriver extends IndependentEffect{
         }
         if(refNumber > tickNumber-Main.ticksPerSecond*2 || tickNumber%Main.ticksPerSecond*2!=0)return;
         while(numEnemiesOut() < maxShipsOut && !toSpawn.isEmpty()){
-            GaligaGame.mainGame.addObject(toSpawn.remove(0));
+            GaligaGame.mainGame.addObjectMidTick(toSpawn.remove(0));
         }
     }
 

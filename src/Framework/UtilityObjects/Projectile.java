@@ -10,6 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.PathingLayer;
+import java.awt.Graphics2D;
 
 
 /**
@@ -51,6 +52,9 @@ public class Projectile extends GameObject2{
             pathingModifiers.put(type, 1.0);
         }
     }
+    
+//    @Override
+//    public void render(Graphics2D g){}
     
     public void launch(DCoordinate destination){
         DCoordinate vel = destination.copy();

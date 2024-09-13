@@ -1,5 +1,5 @@
 
-package GameDemo.RTSDemo;
+package GameDemo.RTSDemo.DeterminismTests;
 
 import Framework.Coordinate;
 import Framework.Game;
@@ -8,6 +8,9 @@ import Framework.Handler;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
+import GameDemo.RTSDemo.RTSInput;
+import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.SelectionBoxEffect;
 import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
@@ -19,7 +22,6 @@ public class DeterminismTest {
     public static Game game = new Game(SpriteManager.grassBG);
 
     public static void main(String[] args) {
-        Main.tickType = Handler.TickType.unified;
         Main.tickThreadCount = 1;
         Main.setRandomSeed(10);
         Window.initialize(game);
