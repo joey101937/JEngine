@@ -102,16 +102,6 @@ public class Game extends Canvas implements Runnable {
         }
     }
 
-    /**
-     * renders all applied effects to this game
-     *
-     * @param g graphics to use
-     */
-    private void renderIndependentEffects(Graphics2D g) {
-        for (IndependentEffect ie : effects) {
-            ie.render(g);
-        }
-    }
 
     /**
      * applies an independent effect to this game. It will tick with this game
@@ -490,7 +480,6 @@ public class Game extends Canvas implements Runnable {
         this.renderBackGround(g2d);
         handler.render(g2d);
         visHandler.render(g2d);
-        renderIndependentEffects(g2d);
         if (Main.debugMode) {
             renderBounds(g2d);
         }

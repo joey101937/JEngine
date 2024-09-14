@@ -18,15 +18,16 @@ public class SimpleRenderHelperRTS extends SimpleRenderHelper {
 
     @Override
     public void simpleRender(GameObject2 go, Graphics2D g) {
-        if(go instanceof RTSUnit) {
+        if(go instanceof RTSUnit unit && !unit.isRubble) {
             Color originalColor = g.getColor();
-            if(((RTSUnit) go).team == 0) {
+            if(unit.team == 0) {
                 g.setColor(Color.green);
             } else {
                 g.setColor(Color.red);
             }
-            g.fillOval(go.getPixelLocation().x - go.getWidth()/2, go.getPixelLocation().y - go.getHeight()/2, go.getWidth(), go.getHeight());
-            g.setColor(originalColor);
+            int shorterSide = Math.min(go.getWidth(), go.getHeight());
+            g.fillOval(go.getPixelLocation().x - shorterSide/2, go.getPixelLocation().y - shorterSide/2, shorterSide, shorterSide);
+
         }
     }
     

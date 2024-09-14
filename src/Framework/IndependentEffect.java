@@ -5,13 +5,18 @@
  */
 package Framework;
 
+import Framework.CoreLoop.Renderable;
 import java.awt.Graphics2D;
 
 /**
  * This class represents a visual effect not tied to any GameObject2 nor location
  * @author Joseph
  */
-public abstract class IndependentEffect {
+public abstract class IndependentEffect implements Renderable{
+    
+    public int getZLayer() {
+        return 10;
+    };
     /**
      * renders something to the game it has been applied to
      * @param g  

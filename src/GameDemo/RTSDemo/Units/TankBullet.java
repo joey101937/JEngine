@@ -11,6 +11,7 @@ import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sequence;
+import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import GameDemo.RTSDemo.RTSUnit;
@@ -26,6 +27,7 @@ public class TankBullet extends Projectile {
     
     public static Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet});
     public static Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall);
+    private DCoordinate startPosition;
 
     public TankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
@@ -36,7 +38,7 @@ public class TankBullet extends Projectile {
         baseSpeed = 20;
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 750;
-        System.out.println("tank bullet created with params " + start + " " + end);
+        startPosition = start;
     }
     
     
@@ -51,17 +53,21 @@ public class TankBullet extends Projectile {
             if (shooter instanceof RTSUnit) {
                 if(((RTSUnit)shooter).team == otherUnit.team) return; // no friendly fire
             }
+            if(otherUnit.isRubble) {
+                if(startPosition.distanceFrom(otherUnit.getPixelLocation()) < 90) {
+                    // if shooting unit is next to the rubble, it can shoot over it
+                    return;
+                }
+            }
             otherUnit.takeDamage(20);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth()*.25);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
-            System.out.println(this + "exploded");
             destroy();
         }
     }
 
     @Override
     public void onTimeOut() {
-        System.out.println(this + " timed out");
         OnceThroughSticker s = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), this.getPixelLocation());
     }
 
@@ -72,22 +78,18 @@ public class TankBullet extends Projectile {
     public void constrainToWorld() {
         DCoordinate loc = location;
         if (loc.x < getHostGame().worldBorder) {
-            System.out.println(this + " constrained" );
             onTimeOut();
             destroy();
         }
         if (loc.y < getHostGame().worldBorder) {
-            System.out.println(this + " constrained" );
             onTimeOut();
             destroy();
         }
         if (loc.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
-            System.out.println(this + " constrained" );
             onTimeOut();
             destroy();
         }
         if (loc.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
-            System.out.println(this + " constrained" );
             onTimeOut();
             destroy();
         }

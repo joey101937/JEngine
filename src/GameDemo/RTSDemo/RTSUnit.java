@@ -22,6 +22,7 @@ import java.util.ArrayList;
  * @author Joseph
  */
 public class RTSUnit extends Creature {
+
     private boolean selected = false;
     private Coordinate desiredLocation;
     public int team;
@@ -29,59 +30,40 @@ public class RTSUnit extends Creature {
     public int range = 500;
     public boolean canAttackAir = false;
     public boolean isRubble = false;
-    
+
     private Color getColorFromTeam(int team) {
-        return switch(team) {
-            case 0 -> Color.GREEN;
-            case 1 -> Color.RED;
-            case 2 -> Color.ORANGE;
-            default -> Color.BLACK;
+        return switch (team) {
+            case 0 ->
+                Color.GREEN;
+            case 1 ->
+                Color.RED;
+            case 2 ->
+                Color.ORANGE;
+            default ->
+                Color.BLACK;
         };
     }
-    
-    
+
     public static BufferedImage[] greenToRed(BufferedImage[] input) {
         BufferedImage[] out = new BufferedImage[input.length];
-        for(int i = 0; i < out.length; i++) {
+        for (int i = 0; i < out.length; i++) {
             out[i] = greenToRed(input[i]);
         }
         return out;
     }
-    
-    
-    public static BufferedImage greenToRed (BufferedImage input) {
+
+    public static BufferedImage greenToRed(BufferedImage input) {
         BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
-         for(int y = 0; y < bi.getHeight(); y++) {
-            for(int x = 0; x < bi.getWidth(); x++) {
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
                 int rgba = input.getRGB(x, y);
                 Color prevColor = new Color(rgba, true);
-                if(prevColor.getGreen() > (prevColor.getRed() + prevColor.getBlue()) * .5) {
-                     int newRed = Math.min(255, (int)(prevColor.getGreen() * 1.5));
-                     int newGreen = (int)(prevColor.getRed() * .75);
-                     int newBlue = (int)(prevColor.getBlue() * .75);
-                     Color newColor = new Color(newRed, newGreen, newBlue);
-                     bi.setRGB(x, y, newColor.getRGB());
-                } else {
-                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
-                     bi.setRGB(x, y, newColor.getRGB());
-                }
-            }
-        }
-        return bi;
-    }
-    
-    public static BufferedImage blueToRed (BufferedImage input) {
-        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
-         for(int y = 0; y < bi.getHeight(); y++) {
-            for(int x = 0; x < bi.getWidth(); x++) {
-                int rgba = input.getRGB(x, y);
-                Color prevColor = new Color(rgba, true);
-                if(prevColor.getBlue()> (prevColor.getRed() + prevColor.getGreen()) * .5) {
-                     int newRed = Math.min(255, (int)(prevColor.getBlue()* 1.5));
-                     int newGreen = (int)(prevColor.getRed() * .75);
-                     int newBlue = (int)(prevColor.getGreen()* .75);
-                     Color newColor = new Color(newRed, newGreen, newBlue);
-                     bi.setRGB(x, y, newColor.getRGB());
+                if (prevColor.getGreen() > (prevColor.getRed() + prevColor.getBlue()) * .5) {
+                    int newRed = Math.min(255, (int) (prevColor.getGreen() * 1.5));
+                    int newGreen = (int) (prevColor.getRed() * .75);
+                    int newBlue = (int) (prevColor.getBlue() * .75);
+                    Color newColor = new Color(newRed, newGreen, newBlue);
+                    bi.setRGB(x, y, newColor.getRGB());
                 } else {
                     Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
                     bi.setRGB(x, y, newColor.getRGB());
@@ -90,44 +72,76 @@ public class RTSUnit extends Creature {
         }
         return bi;
     }
-    
+
+    public static BufferedImage blueToRed(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getBlue() > (prevColor.getRed() + prevColor.getGreen()) * .5) {
+                    int newRed = Math.min(255, (int) (prevColor.getBlue() * 1.5));
+                    int newGreen = (int) (prevColor.getRed() * .75);
+                    int newBlue = (int) (prevColor.getGreen() * .75);
+                    Color newColor = new Color(newRed, newGreen, newBlue);
+                    bi.setRGB(x, y, newColor.getRGB());
+                } else {
+                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
+                    bi.setRGB(x, y, newColor.getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+
     public static BufferedImage[] blueToRed(BufferedImage[] input) {
         BufferedImage[] out = new BufferedImage[input.length];
-        for(int i = 0; i < out.length; i++) {
+        for (int i = 0; i < out.length; i++) {
             out[i] = blueToRed(input[i]);
         }
         return out;
     }
-    
-    @Override
-    public void render(Graphics2D g) {
-        super.render(g);
-        if(isRubble) return;
-        Coordinate pixelLocation = getPixelLocation();
+
+    public void drawHealthBar(Graphics2D g) {
         Color originalColor = g.getColor();
-        Stroke originalStroke= g.getStroke();
+        Stroke originalStroke = g.getStroke();
         g.setColor(getColorFromTeam(this.team));
         g.setStroke(new BasicStroke(5));
-        g.drawLine(pixelLocation.x - getWidth()/2, pixelLocation.y + getHeight()/2 + 20, pixelLocation.x - getWidth()/2 + (int)(getWidth() * ((double)currentHealth/maxHealth)), pixelLocation.y + getHeight()/2 + 20);
+        g.drawLine(getPixelLocation().x - getWidth() / 2, getPixelLocation().y + getHeight() / 2 + 20, getPixelLocation().x - getWidth() / 2 + (int) (getWidth() * ((double) currentHealth / maxHealth)), getPixelLocation().y + getHeight() / 2 + 20);
         g.setStroke(originalStroke);
         g.setColor(originalColor);
     }
-    
+
+    @Override
+    public void render(Graphics2D g) {
+        super.render(g);
+        if (isRubble) {
+            return;
+        }
+        if(selected) {
+            drawHealthBar(g);
+        }
+    }
+
     //every tick turn towards and move towards destination if not there already
     @Override
     public void tick() {
         super.tick();
-        if(isRubble) return;
+        if (isRubble) {
+            return;
+        }
         if (desiredLocation.distanceFrom(location) > getWidth() / 2) {
             double desiredRotation = this.angleFrom(desiredLocation);
             double maxRotation = 5;
-            if(Math.abs(desiredRotation) < 20) maxRotation = 2; // slow down as we get closer
-            if(Math.abs(desiredRotation)<maxRotation){
+            if (Math.abs(desiredRotation) < 20) {
+                maxRotation = 2; // slow down as we get closer
+            }
+            if (Math.abs(desiredRotation) < maxRotation) {
                 rotate(desiredRotation);
-            }else{
-                if(desiredRotation>0){
-                    rotate(maxRotation); 
-                }else{
+            } else {
+                if (desiredRotation > 0) {
+                    rotate(maxRotation);
+                } else {
                     rotate(-maxRotation);
                 }
             }
@@ -142,7 +156,7 @@ public class RTSUnit extends Creature {
     private void init(int team) {
         desiredLocation = getPixelLocation();
         this.movementType = MovementType.RotationBased;
-        this.hitbox = new Hitbox(this,0); //sets to a circle with radius 0. radius will be auto set based on width becauase of updateHitbox method
+        this.hitbox = new Hitbox(this, 0); //sets to a circle with radius 0. radius will be auto set based on width becauase of updateHitbox method
         this.team = team;
     }
 
@@ -161,41 +175,50 @@ public class RTSUnit extends Creature {
         init(team);
     }
 
-    public boolean isSelected(){
+    public boolean isSelected() {
         return selected;
     }
-    public void setSelected(boolean b){
-        selected  = b;
+
+    public void setSelected(boolean b) {
+        selected = b;
     }
-    public Coordinate getDesiredLocation(){
+
+    public Coordinate getDesiredLocation() {
         return desiredLocation.copy();
     }
-    public void setDesiredLocation(Coordinate c){
+
+    public void setDesiredLocation(Coordinate c) {
         desiredLocation = c;
     }
-    
+
     public RTSUnit nearestEnemyInRange() {
-            if(getHostGame()==null){
-                System.out.println("null host game");
-                return null;
-            }
-            ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
-            double closestDistance = range + 1;
-            GameObject2 closest = null;
-            if (!nearby.isEmpty()) {
-                for (GameObject2 go : nearby) {
-                    if (!(go instanceof RTSUnit) || go == this) {
-                        continue;
-                    }
-                    if(!canAttackAir && go.plane == 2) continue;
-                    if(((RTSUnit)go).team == team) continue;
-                     if(((RTSUnit)go).isRubble == true) continue;
-                    if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
-                        closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
-                        closest = go;
-                    }
+        if (getHostGame() == null) {
+            System.out.println("null host game");
+            return null;
+        }
+        ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
+        double closestDistance = range + 1;
+        GameObject2 closest = null;
+        if (!nearby.isEmpty()) {
+            for (GameObject2 go : nearby) {
+                if (!(go instanceof RTSUnit) || go == this) {
+                    continue;
+                }
+                if (!canAttackAir && go.plane == 2) {
+                    continue;
+                }
+                if (((RTSUnit) go).team == team) {
+                    continue;
+                }
+                if (((RTSUnit) go).isRubble == true) {
+                    continue;
+                }
+                if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
+                    closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
+                    closest = go;
                 }
             }
-            return (RTSUnit) closest;
         }
+        return (RTSUnit) closest;
+    }
 }

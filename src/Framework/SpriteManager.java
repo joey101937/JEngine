@@ -39,11 +39,11 @@ public abstract class SpriteManager {
     //TANK ASSETS
     public static BufferedImage tankChasis;
     public static BufferedImage tankTurret;
-    public static BufferedImage tankChasis2;
-    public static BufferedImage tankTurret2;
-    public static BufferedImage[] tankFireAnimation2;
-    public static BufferedImage bullet;
+    public static BufferedImage tankHullDamaged;
+    public static BufferedImage tankTurretDamaged;
     public static BufferedImage[] tankFireAnimation;
+    public static BufferedImage[] tankFireAnimationDamaged;
+    public static BufferedImage bullet;
     public static BufferedImage dirtBG;
     public static BufferedImage dirtBGNight;
     public static BufferedImage grassBG;
@@ -55,6 +55,7 @@ public abstract class SpriteManager {
     public static BufferedImage missileShadow;
     public static BufferedImage tankDeadHull;
     public static BufferedImage tankDeadHullShadow;
+    public static BufferedImage tankShadow;
     public static BufferedImage tankDeadTurret;
     public static BufferedImage[] tankHullDeathAni;
     public static BufferedImage[] tankTurretDeathAni;
@@ -125,13 +126,10 @@ public abstract class SpriteManager {
            fogSequence = loadSequenceBouncing("DemoAssets/fogSequence");
            car = load("DemoAssets/topDownCarShadowDarkGrit.png");
            
-           
-           tankChasis = load("DemoAssets/TankGame/tankChasis.png");
-           tankTurret = load("DemoAssets/TankGame/tankTurret.png");
-           tankFireAnimation = loadSequence("DemoAssets/TankGame/turretFireSequence");
-           tankChasis2 = load("DemoAssets/TankGame/tank1-hull.png");
-           tankTurret2 = load("DemoAssets/TankGame/tank1-turret.png");
-           tankFireAnimation2 = loadSequence("DemoAssets/TankGame/tank1Fire");
+
+           tankChasis = load("DemoAssets/TankGame/tank1-hull.png");
+           tankTurret = load("DemoAssets/TankGame/tank1-turret.png");
+           tankFireAnimation = loadSequence("DemoAssets/TankGame/tank1Fire");
            bullet = load("DemoAssets/TankGame/bullet.png");
            dirtBG = load("DemoAssets/TankGame/dirtBG.png");
            dirtBGNight = load("DemoAssets/TankGame/dirtBGNight.png");
@@ -145,6 +143,11 @@ public abstract class SpriteManager {
            missileShadow = load("DemoAssets/TankGame/copter/missileShadow.png");
            tankDeadHull = load("DemoAssets/TankGame/destroyedHull.png");
            tankDeadHullShadow = load("DemoAssets/TankGame/destroyedHullShadow.png");
+           tankShadow = load("DemoAssets/TankGame/tankShadow.png");
+           tankHullDamaged = load("DemoAssets/TankGame/tankHullDamaged.png");
+           tankTurretDamaged = load("DemoAssets/TankGame/tankTurretDamaged.png");
+           tankFireAnimationDamaged = loadSequence("DemoAssets/TankGame/tank1FireDamaged");
+
            tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
            tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
            tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");   

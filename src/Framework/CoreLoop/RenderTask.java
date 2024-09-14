@@ -14,21 +14,23 @@ import java.awt.Graphics2D;
  */
 public class RenderTask implements Runnable {
 
-    public GameObject2 gameObejct;
+    public Renderable renderable;
     public Graphics2D graphics;
 
-    public RenderTask(GameObject2 obj, Graphics2D g) {
-        this.gameObejct = obj;
+    public RenderTask(Renderable obj, Graphics2D g) {
+        this.renderable = obj;
         this.graphics = g;
     }
 
     @Override
     public void run() {
         try {
-            gameObejct.render((Graphics2D) graphics.create());
-            for (SubObject so : gameObejct.getAllSubObjects()) {
-                so.render((Graphics2D) graphics.create());
-            }
+            renderable.render((Graphics2D) graphics.create());
+            if(renderable instanceof GameObject2 go) {
+                for (SubObject so : go.getAllSubObjects()) {
+                    so.render((Graphics2D) graphics.create());
+                }   
+            } 
         } catch (Exception e) {
             e.printStackTrace();
         }

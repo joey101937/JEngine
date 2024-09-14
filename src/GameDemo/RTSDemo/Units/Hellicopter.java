@@ -98,6 +98,9 @@ public class Hellicopter extends RTSUnit {
         g.rotate(Math.toRadians(turret.getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
         g.drawImage(toRender, renderX, renderY + shadowOffset, null);
         g.setTransform(old);
+        if(isSelected()) {
+            drawHealthBar(g);
+        }
     }
 
     public class HellicopterTurret extends SubObject {

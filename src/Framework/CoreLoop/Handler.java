@@ -6,6 +6,7 @@ package Framework.CoreLoop;
 
 import Framework.Game;
 import Framework.GameObject2;
+import Framework.IndependentEffect;
 import Framework.Main;
 import Framework.TickDelayedEffect;
 import java.awt.Graphics2D;
@@ -31,7 +32,7 @@ public class Handler {
             : Executors.newFixedThreadPool(1);
     protected ExecutorService renderServiceCached = Executors.newCachedThreadPool();
     protected ExecutorService syncService = Executors.newVirtualThreadPerTaskExecutor();
-    
+
     public Game hostGame;
     private LinkedList<GameObject2> toAdd = new LinkedList<>();
     private LinkedList<GameObject2> toRemove = new LinkedList<>();
@@ -44,7 +45,7 @@ public class Handler {
     public Handler(Game g) {
         hostGame = g;
     }
-    
+
     public int size() {
         return currentSnapshot.gameObjects.size();
     }
@@ -54,14 +55,23 @@ public class Handler {
     }
 
     public void render(Graphics2D g) {
-        HashMap<Integer, LinkedList<GameObject2>> renderMap = new HashMap<>();
+        HashMap<Integer, LinkedList<Renderable>> renderMap = new HashMap<>();
         for (GameObject2 go : activeObjects) {
             if (renderMap.get(go.getZLayer()) == null) {
-                LinkedList<GameObject2> list = new LinkedList<>();
+                LinkedList<Renderable> list = new LinkedList<>();
                 list.add(go);
                 renderMap.put(go.getZLayer(), list);
             } else {
                 renderMap.get(go.getZLayer()).add(go);
+            }
+        }
+        for (IndependentEffect ie : hostGame.getIndependentEffects()) {
+            if (renderMap.get(ie.getZLayer()) == null) {
+                LinkedList<Renderable> list = new LinkedList<>();
+                list.add(ie);
+                renderMap.put(ie.getZLayer(), list);
+            } else {
+                renderMap.get(ie.getZLayer()).add(ie);
             }
         }
 
@@ -70,7 +80,7 @@ public class Handler {
         // all objects in a z layer can render together
         for (Integer zLayer : zLayers) {
             Collection<Future<?>> renderTasks = new LinkedList<>();
-            for (GameObject2 go : renderMap.get(zLayer)) {
+            for (Renderable go : renderMap.get(zLayer)) {
                 renderTasks.add((Main.renderThreadCount > 0 ? renderService : renderServiceCached).submit(new RenderTask(go, g)));
             }
             waitForAllJobs(renderTasks);
@@ -172,7 +182,7 @@ public class Handler {
     public synchronized void removeObject(GameObject2 toRemove) {
         this.toRemove.add(toRemove);
     }
-    
+
     private synchronized void conductAdditionsAndRemovals() {
         conductRemovals();
         condunctAdditions();

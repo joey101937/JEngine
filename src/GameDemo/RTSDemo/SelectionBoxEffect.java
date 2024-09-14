@@ -25,6 +25,12 @@ public class SelectionBoxEffect extends IndependentEffect {
 
     private static volatile Rectangle selectionZone = null;
     public static ArrayList<RTSUnit> selectedUnits = new ArrayList<>();
+    
+    @Override
+    public int getZLayer() {
+        // under ground units
+        return 0;
+    }
 
     @Override
     public void render(Graphics2D g) {

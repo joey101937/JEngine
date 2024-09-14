@@ -24,7 +24,7 @@ public class Window {
     /*  FIELDS  */
     public static JPanel panel = new JPanel();
     public static JFrame frame;
-    public static String title = "JEngine Window"; //name of window
+    public static String title = "JEngine Window";
     public static Window mainWindow;
     public static Game currentGame;
     private static CopyOnWriteArrayList<UIElement> UIElements = new CopyOnWriteArrayList<>();
@@ -55,6 +55,11 @@ public class Window {
         return mainWindow;
     }
     
+    private static void updateTitlePerGame(Game g) {
+        if(g.name != null && !g.name.equals("Untitled Game")) {
+            title = g.name;
+        }
+    }
     
     private Window(Game g) {
         panel.setLayout(null);
@@ -75,6 +80,7 @@ public class Window {
         mainWindow = this;
         currentGame = g;
         frame.setResizable(false);
+        updateTitlePerGame(g);
     }
     
     /**
@@ -113,6 +119,7 @@ public class Window {
         currentGame = g;
         currentGame.requestFocus();
         setZOrders();
+        updateTitlePerGame(g);
     }
     
     protected static void UIElementsOnRender(){
@@ -132,6 +139,7 @@ public class Window {
         return UIElements;
     }
 
+    // note for joey- this has potential for concurrency issues, need single add/remove synchronized method
     public synchronized static void addUIElement(UIElement uie){
         if(getUIElements().contains(uie))return;
         getUIElements().add(uie);

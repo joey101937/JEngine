@@ -5,6 +5,7 @@
  */
 package Framework;
 
+import Framework.CoreLoop.Renderable;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Stickers.Sticker;
@@ -15,7 +16,6 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
-import Framework.UtilityObjects.BlockObject;
 import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  * Parent class for all objects that appear in the gameworld
  * @author Joseph
  */
-public class GameObject2 implements Comparable<GameObject2>{    
+public class GameObject2 implements Comparable<GameObject2>, Renderable{    
     private Game hostGame;
     private String name= this.getClass().getSimpleName(); 
     public long tickNumber = 0; //used for debugging, counts number of times this has ticked
@@ -187,7 +187,7 @@ public class GameObject2 implements Comparable<GameObject2>{
      * @return integer location
      */
     public Coordinate getPixelLocation() {
-        return locationAsOfLastTick.toPixelCoordinate(); // new Coordinate(locationAsOfLastTick);
+        return new Coordinate(locationAsOfLastTick);
     }
     
      /**
