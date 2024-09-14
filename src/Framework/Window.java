@@ -192,8 +192,11 @@ public class Window {
     /**
      * REAL FULLSCREEN REQUIRES -Dsun.java2d.d3d=true
      * JEngine works much better with that flag set to false when not full screen
-     * tries to make the window fullscreen if the OS allows it
-     * @param x whether or not to make it fs
+     * Real fullscreen will not respect UIElements
+     * 
+     * 
+     * Tries to make the window fullscreen if the OS allows it
+     * @param x whether or not to make it fullscreen
      */
     public static void setFullscreen(boolean x) {
         try {
