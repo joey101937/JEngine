@@ -252,7 +252,7 @@ public final class Minimap extends UIElement {
             }
             g2d.setColor(Color.black);
             g2d.draw(hostGame.getCamera().getFieldOfView());
-            g2d.setStroke(new BasicStroke(70));
+            g2d.setStroke(new BasicStroke(90));
             g2d.drawRect(0, 0, (int)(widthOfFrame/xScale), (int) (heightOfFrame/yScale));
             g2d.dispose();
         }

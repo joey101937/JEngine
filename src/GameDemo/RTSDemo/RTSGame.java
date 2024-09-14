@@ -25,7 +25,7 @@ public class RTSGame {
 
     public static Game game = new Game(SpriteManager.grassBG);
     public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
-    public static MinimapButton button = new MinimapButton(game, new Coordinate(0, minimap.getHeight()));
+    public static MinimapButton button = new MinimapButton(game, new Coordinate(0, 0));
 
     public static void main(String[] args) {
         Main.tickType = Handler.TickType.modular;
@@ -38,7 +38,10 @@ public class RTSGame {
         Window.addUIElement(button);
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
         Main.splitBackgroundRender = true;
-
+        minimap.setLocation(0, game.getWindowHeight() - minimap.getHeight() - 38);
+        button.setLocation(0, game.getWindowHeight() - minimap.getHeight() - 38 - button.getHeight());
+        Window.setFullscreen(true);
+        
         int spacer = 160;
 
         for (int i = 0; i < 20; i++) {
@@ -74,8 +77,5 @@ public class RTSGame {
         for (int i = 0; i < 20; i++) {
             game.addObject(new Hellicopter(100 + (i * spacer), 2000, 1));
         }
-
-        // testing this getting instantiated. Not sure if this helps
-        new TankBullet(new DCoordinate(0, 0), new DCoordinate(0, 0));
     }
 }

@@ -194,20 +194,25 @@ public class Window {
      * @param x whether or not to make it fs
      */
     public static void setFullscreen(boolean x) {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        try {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-        if(!gd.isFullScreenSupported()) {
-            System.out.println("Fullscreen not supported");
-            return;
-        } else{
-            System.out.println("fullscreen is supported");
+            if (!gd.isFullScreenSupported()) {
+                System.out.println("Fullscreen not supported");
+                return;
+            } else {
+                System.out.println("fullscreen is supported");
+            }
+            gd.setFullScreenWindow(x ? frame : null);
+            frame.setLocationRelativeTo(null);
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            frame.setVisible(true);
+            frame.setUndecorated(true);
+        } catch (Exception e) {
+            System.out.println("exception making window fullscreen. Has the game started and is it visible?");
+            e.printStackTrace();
         }
-        frame.setLocationRelativeTo(null);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-        frame.setUndecorated(true);
-        frame.setVisible(true);
-         gd.setFullScreenWindow(x ? frame : null);
 
     }
     

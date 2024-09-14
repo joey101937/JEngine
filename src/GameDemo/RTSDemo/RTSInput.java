@@ -11,6 +11,7 @@ import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.AsyncInputHandler;
 import Framework.Main;
+import Framework.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -218,10 +219,10 @@ public class RTSInput extends AsyncInputHandler {
     @Override
     public void onKeyReleased(KeyEvent e){
         switch (e.getKeyChar()) {
-            case 'w' -> wDown = false;
-            case 'a' -> aDown = false;
-            case 's' -> sDown = false;
-            case 'd' -> dDown = false;
+            case 'w', 'W' -> wDown = false;
+            case 'a', 'A' -> aDown = false;
+            case 's', 'S' -> sDown = false;
+            case 'd', 'D' -> dDown = false;
         }
     }
     
