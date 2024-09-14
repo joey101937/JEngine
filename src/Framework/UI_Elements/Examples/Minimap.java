@@ -42,6 +42,7 @@ public final class Minimap extends UIElement {
     private double widthOfFrame = 1;
     private double heightOfFrame = 1;
     private SimpleRenderHelper simpleRenderHelper = null;
+    private MinimapMouseListener listener;
 
     /**
      * creates a minimap object based on given game. Automatically attaches
@@ -58,9 +59,9 @@ public final class Minimap extends UIElement {
         heightOfFrame = (widthOfFrame * ((double)hostGame.getWorldHeight()/hostGame.getWorldWidth()));
         Dimension size = new Dimension((int)widthOfFrame, (int) heightOfFrame);
         interior = new MinimapInterior(size);
-        MinimapMouseListener mmm = new MinimapMouseListener(hostGame, this);
-        interior.addMouseListener(mmm);
-        interior.addMouseMotionListener(mmm);
+        listener = new MinimapMouseListener(hostGame, this);
+        interior.addMouseListener(listener);
+        interior.addMouseMotionListener(listener);
         interior.setSize(size);
         this.setSize(size);
         this.setLayout(null);
@@ -71,6 +72,14 @@ public final class Minimap extends UIElement {
     
     public void setSimpleRenderHelper (SimpleRenderHelper srh) {
         this.simpleRenderHelper = srh;
+    }
+    
+    public void setMinimapMouseListener(MinimapMouseListener listener) {
+        interior.removeMouseListener(this.listener);
+        interior.removeMouseMotionListener(this.listener);
+        this.listener = listener;
+        interior.addMouseListener(listener);
+        interior.addMouseMotionListener(listener);
     }
 
     /*
@@ -128,10 +137,10 @@ public final class Minimap extends UIElement {
     public void tick() {
     }
     
-    private static class MinimapMouseListener implements MouseListener, MouseMotionListener {
+    public static class MinimapMouseListener implements MouseListener, MouseMotionListener {
 
-        Game hostGame;
-        Minimap map;
+        public Game hostGame;
+        public Minimap map;
             
         public MinimapMouseListener(Game hostGame, Minimap m) {
             this.hostGame = hostGame;
@@ -163,14 +172,14 @@ public final class Minimap extends UIElement {
 
         @Override
         public void mouseDragged(MouseEvent e) {
-        Coordinate relativePoint = new Coordinate(0, 0);
+            Coordinate relativePoint = new Coordinate(0, 0);
             panTo(e);
         }
 
         @Override
         public void mouseMoved(MouseEvent e) {}
         
-        private void panTo(MouseEvent e) {
+        public void panTo(MouseEvent e) {
             DCoordinate relativePoint = new DCoordinate(0, 0);
             relativePoint.x = (double) e.getX() / (double) map.getWidth();
             relativePoint.x *= hostGame.getWorldWidth();

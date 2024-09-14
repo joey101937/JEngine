@@ -27,7 +27,6 @@ public class SimpleRenderHelperRTS extends SimpleRenderHelper {
             }
             int shorterSide = Math.min(go.getWidth(), go.getHeight());
             g.fillOval(go.getPixelLocation().x - shorterSide/2, go.getPixelLocation().y - shorterSide/2, shorterSide, shorterSide);
-
         }
     }
     

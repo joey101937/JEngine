@@ -211,7 +211,7 @@ public class Window {
             frame.setUndecorated(true);
         } catch (Exception e) {
             System.out.println("exception making window fullscreen. Has the game started and is it visible?");
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
     }

@@ -32,6 +32,7 @@ public class HellicopterBullet extends Projectile {
     public RTSUnit target;
     public RTSUnit collidedUnit;
     public double initialDistance;
+    public Coordinate startPosition;
 
     public long tickToDestroy = -1;
     public boolean hasCollided = false;
@@ -63,11 +64,18 @@ public class HellicopterBullet extends Projectile {
         maxSpeed = Main.generateRandomInt(14, 18);
         if(plane == 1) maxRange = 750;
         else maxRange = 1400;
+        startPosition = startingLocation;
     }
 
     @Override
     public void onCollide(GameObject2 other, boolean myTick) {
         if (other != shooter && other instanceof RTSUnit unit) {
+             if(unit.isRubble) {
+                if(startPosition.distanceFrom(unit.getPixelLocation()) < 100) {
+                    // if shooting unit is next to the rubble, it can shoot over it
+                    return;
+                }
+            }
             if (unit.team == shooter.team) {
                 return;
             } else if (!hasCollided) {

@@ -64,7 +64,7 @@ public class Game extends Canvas implements Runnable {
 
     public static int birdCount = 20; //how many birds to spawn in the demo
     public static final double OVERVIEW_MODE_ZOOM = .25;
-    protected static double resolutionScaleX = 1, resolutionScaleY = 1;
+    public static double resolutionScaleX = 1, resolutionScaleY = 1;
     /*  FIELDS   */
     public boolean alwaysRenderFullBackground = false;
     public volatile boolean shouldShowFPS = true;

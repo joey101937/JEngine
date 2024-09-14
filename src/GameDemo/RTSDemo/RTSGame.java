@@ -7,14 +7,12 @@ package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
 import Framework.CoreLoop.Handler;
-import Framework.DCoordinate;
 import Framework.Game;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import GameDemo.RTSDemo.Units.Hellicopter;
-import GameDemo.RTSDemo.Units.TankBullet;
 import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
@@ -37,6 +35,7 @@ public class RTSGame {
         Window.addUIElement(minimap);
         Window.addUIElement(button);
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
+        minimap.setMinimapMouseListener(new MinimapListener(game, minimap));
         Main.splitBackgroundRender = true;
         minimap.setLocation(0, game.getWindowHeight() - minimap.getHeight() - 38);
         button.setLocation(0, game.getWindowHeight() - minimap.getHeight() - 38 - button.getHeight());
