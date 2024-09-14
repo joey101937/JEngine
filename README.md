@@ -466,6 +466,8 @@ This determines how many threads to use to execute ticks. More threads means fas
 This determines how many threads to dedicate for use in rendering game objects in your scenes. Note this does not effect stickers, independent effects, or the background. values <=0 mean to use a cachedThreadPool instead (reccommended). Set once before game start.
 ### **numGraphicScalingSteps**
 This setting changes how image assets are scaled. Only applies to images larger than 200x200. Larger number = softer/blurrier. Lower number = hard/sharp.
+### **Window.setFullscreen(boolean)**
+This function allows you to toggle the application as fullscreen. Note that "real" fullscreen requires direct3d to be enabled. Direct3d should remain disabled unless you plan on running only in fullscreen mode due to performance issues.
 
 # IndependentEffects
 Independent effects may be added to a game via the addIndependentEffect. This allows you to run tick and render logic without it being tied to any one GameObject2. This is used in the example demos to create UI effects such as the selection box effect in the RTS demo
@@ -524,7 +526,8 @@ Linking a sound to a game will make that sound be part of that game rather than 
 You may want to detect and react to happenings on a sound effect. Implementing this interface then calling the .setListener method on the desired sound effect will allow you react to events in a sound effect. For example, override the onPause() method with a function that prints "the sound was paused!" to the console and every time the sound is paused, your listener will print that to the console. 
 
 # Running Your .Jar Outside IDE
-To run JEngine projects, you must run the java executable jar but with special options to allow it to run correctly. These are *-Dsun.java2d.d3d=false* for graphics and *-Xmx1024* for memory allocation. To make things easier, I have included a run.bat and run.sh for windows and ubuntu linux respectively; running these files will automatically run the jar with correct commandline parameters if it is in the same directory as the .jar file. Use shortcuts to these files to run the jar from a different directory. If you have an operating system that is not windows or ubuntu, you can create the file equivilent for your specific distrebution and have it exeute the following line of code (or call it directly via command line): 
+It is recommended you increase the ram allocation using -Xmx1024m or -Xmx2084m (1gb or 2gb) so that it has enough memory
+For non-fullscreen applications, it is *Highly** recommended that you run your jar with direct3d **disabled**. This make your game run really poorly unless its fullscreen
 
 **java -Dsun.java2d.d3d=false -Xmx1024m -jar 2DTemplate.jar**  
 (note 2DTemplate.jar is name of project jar)
