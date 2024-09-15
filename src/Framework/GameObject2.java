@@ -620,14 +620,18 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();
         for (GameObject2 other : otherObjects) {
             otherObjsAndOtherSubObjects.add(other);
-            for (GameObject2 sub : other.getAllSubObjects()) {
-                otherObjsAndOtherSubObjects.add(sub);
+            if(!Main.ignoreSubobjectCollision) {
+                for (GameObject2 sub : other.getAllSubObjects()) {
+                    otherObjsAndOtherSubObjects.add(sub);
+                }
             }
         }
         ArrayList<GameObject2> thisAndSubs = new ArrayList<>();
         thisAndSubs.add(this);
-        for (GameObject2 sub : this.getAllSubObjects()) {
-            thisAndSubs.add(sub);
+        if(!Main.ignoreSubobjectCollision) {
+            for (GameObject2 sub : this.getAllSubObjects()) {
+                thisAndSubs.add(sub);
+            }
         }
         boolean xClear = true;
         boolean yClear = true;

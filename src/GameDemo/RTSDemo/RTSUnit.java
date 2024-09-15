@@ -30,6 +30,7 @@ public class RTSUnit extends Creature {
     public int range = 500;
     public boolean canAttackAir = false;
     public boolean isRubble = false;
+    public double rotationSpeed = 5;
 
     private Color getColorFromTeam(int team) {
         return switch (team) {
@@ -132,7 +133,7 @@ public class RTSUnit extends Creature {
         }
         if (desiredLocation.distanceFrom(location) > getWidth() / 2) {
             double desiredRotation = this.angleFrom(desiredLocation);
-            double maxRotation = 5;
+            double maxRotation = rotationSpeed;
             if (Math.abs(desiredRotation) < 20) {
                 maxRotation = 2; // slow down as we get closer
             }

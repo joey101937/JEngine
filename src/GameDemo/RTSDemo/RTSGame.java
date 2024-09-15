@@ -13,6 +13,7 @@ import Framework.SpriteManager;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
@@ -40,6 +41,7 @@ public class RTSGame {
         minimap.setLocation(0, game.getWindowHeight() - minimap.getHeight() - 38);
         button.setLocation(0, game.getWindowHeight() - minimap.getHeight() - 38 - button.getHeight());
         Window.setFullscreen(true);
+        Main.ignoreSubobjectCollision = true; // better performance
         
         int spacer = 160;
 
@@ -62,6 +64,11 @@ public class RTSGame {
             TankUnit tank = new TankUnit(100 + (i * spacer), 600, 0);
             tank.setRotation(180);
             game.addObject(tank);
+        }
+        for (int i = 0; i < 20; i++) {
+            Rifleman rifleman = new Rifleman(100 + (i * spacer), 750, 0);
+            rifleman.setRotation(180);
+            game.addObject(rifleman);
         }
 
         for (int i = 0; i < 20; i++) {
