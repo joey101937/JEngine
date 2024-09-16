@@ -157,6 +157,18 @@ public class TankUnit extends RTSUnit {
             this.setGraphic(getHullSprite());
         }
     }
+    
+    @Override
+    public int getWidth() {
+        // consistent width so that width is not tied to animation frame
+        return chasisSpriteGreen.getWidth();
+    }
+    
+    @Override
+    public int getHeight() {
+        // consistent height so that width is not tied to animation frame
+        return chasisSpriteGreen.getHeight();
+    }
 
     /*
     sets up the tank values
