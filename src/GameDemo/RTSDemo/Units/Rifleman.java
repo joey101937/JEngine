@@ -1,4 +1,3 @@
-
 package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
@@ -19,22 +18,27 @@ import java.io.File;
  * @author guydu
  */
 public class Rifleman extends RTSUnit {
+
     public static double VISUAL_SCALE = .4;
     public static Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
     public static Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
     public static Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
     public static Sequence attackSequence = new Sequence(SpriteManager.infantryRifleFire);
+    public static Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryRifleFire));
     public static Sequence idleAnimation = new Sequence(SpriteManager.infantryRifleIdle);
-    // public static Sequence idleAnimation = new Sequence(greenToRed(SpriteManager.infantryRifleIdle));
+    public static Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryRifleIdle));
     public static SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
-    
+    public boolean attackCoolingDown = false;
+
     static {
         runningSequence.setFrameDelay(35);
+        attackSequence.setSignature("attackSequence");
+        attackSequenceRed.setSignature("attackSequence");
     }
-    
+
     // fields
     public RiflemanTurret turret = new RiflemanTurret(this);
-    
+
     public Rifleman(int x, int y, int team) {
         super(x, y, team);
         this.setScale(VISUAL_SCALE);
@@ -48,31 +52,45 @@ public class Rifleman extends RTSUnit {
         this.rotationSpeed = 15;
         this.maxHealth = 30;
         this.currentHealth = 30;
+        this.range = 400;
     }
-    
+
     @Override
     public int getWidth() {
-       return baseSprite.getWidth() + 10;
+        return baseSprite.getWidth() + 10;
     }
-    
+
     @Override
     public int getHeight() {
         return baseSprite.getHeight() + 10;
     }
-    
+
     @Override
     public void tick() {
         super.tick();
-        if(this.velocity.y != 0 && !getGraphic().isAnimated()) {
+        if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
             this.setGraphic(runningSequence.copyMaintainSource());
         }
-        if(this.velocity.y == 0 && getGraphic().isAnimated()) {
+        if (this.velocity.y == 0 && getGraphic().isAnimated()) {
             this.setGraphic(baseSprite);
         }
     }
-    
-   @Override
-   public void render(Graphics2D g) {
+
+    public void fire(RTSUnit target) {
+        if (attackCoolingDown || Math.abs(turret.angleFrom(target.getPixelLocation())) > 1) {
+            return;
+        }
+        attackCoolingDown = true;
+        attackSound.playCopy(Main.generateRandomDouble(.65f, .75f));
+        turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
+        target.takeDamage(5);
+        addTickDelayedEffect(Main.ticksPerSecond, c -> {
+            this.attackCoolingDown = false;
+        });
+    }
+
+    @Override
+    public void render(Graphics2D g) {
         super.render(g);
         shadowSprite.scaleTo(VISUAL_SCALE);
         AffineTransform old = g.getTransform();
@@ -83,26 +101,72 @@ public class Rifleman extends RTSUnit {
         g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
         g.drawImage(toRender, renderX, renderY + shadowOffset, null);
         g.setTransform(old);
-   }
-    
-    
-    
-    public class RiflemanTurret extends SubObject{
+    }
+
+    public class RiflemanTurret extends SubObject {
+
         public Rifleman hull;
-        
-        
+
         public RiflemanTurret(Rifleman r) {
-            super(new Coordinate(0,0));
+            super(new Coordinate(0, 0));
             this.setScale(VISUAL_SCALE);
             this.hull = r;
-            this.setGraphic(idleAnimation);
+            this.setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
         }
-        
+
         @Override
         public void tick() {
+            // System.out.println(this + " " + this.ID);
             super.tick();
-            this.setRotation(hull.getRotation());
+            if (isRubble) {
+                return;
+            }
+            RTSUnit enemy = nearestEnemyInRange();
+            ((RTSUnit) getHost()).currentTarget = enemy;
+            if (enemy == null) {
+                double desiredRotation = getHost().getRotation() - getRotation();
+                if (desiredRotation > 180) {
+                    desiredRotation -= 360;
+                } else if (desiredRotation < -180) {
+                    desiredRotation += 360;
+                }
+                double maxRotation = 5;
+                if (Math.abs(desiredRotation) < maxRotation) {
+                    rotate(desiredRotation);
+                } else {
+                    if (desiredRotation > 0) {
+                        rotate(maxRotation);
+                    } else {
+                        rotate(-maxRotation);
+                    }
+                }
+            } else {
+                double desiredRotation = angleFrom(enemy.getPixelLocation());
+                double maxRotation = 5;
+                if (Math.abs(desiredRotation) < maxRotation) {
+                    rotate(desiredRotation);
+                } else {
+                    if (desiredRotation > 0) {
+                        rotate(maxRotation);
+                    } else {
+                        rotate(-maxRotation);
+                    }
+                }
+                hull.fire(enemy);
+            }
+        }
+
+        /*
+        this runs whenever an animation cycle ends.
+        here we use it to tell the gank when its ready to fire again and
+        also to reset the object back to using the regular turret sprite
+         */
+        @Override
+        public void onAnimationCycle() {
+            if (getGraphic().getSignature().equals("attackSequence")) {
+                setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
+            }
         }
     }
-    
+
 }
