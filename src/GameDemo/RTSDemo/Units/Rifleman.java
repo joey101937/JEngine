@@ -24,14 +24,16 @@ public class Rifleman extends RTSUnit {
     public static Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
     public static Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
     public static Sequence attackSequence = new Sequence(SpriteManager.infantryRifleFire);
+    public static Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryRifleFire));
     public static Sequence idleAnimation = new Sequence(SpriteManager.infantryRifleIdle);
-    // public static Sequence idleAnimation = new Sequence(greenToRed(SpriteManager.infantryRifleIdle));
+    public static Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryRifleIdle));
     public static SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
     public boolean attackCoolingDown = false;
 
     static {
         runningSequence.setFrameDelay(35);
         attackSequence.setSignature("attackSequence");
+        attackSequenceRed.setSignature("attackSequence");
     }
 
     // fields
@@ -50,6 +52,7 @@ public class Rifleman extends RTSUnit {
         this.rotationSpeed = 15;
         this.maxHealth = 30;
         this.currentHealth = 30;
+        this.range = 400;
     }
 
     @Override
@@ -79,7 +82,7 @@ public class Rifleman extends RTSUnit {
         }
         attackCoolingDown = true;
         attackSound.playCopy(Main.generateRandomDouble(.65f, .75f));
-        turret.setGraphic(attackSequence.copyMaintainSource());
+        turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
         target.takeDamage(5);
         addTickDelayedEffect(Main.ticksPerSecond, c -> {
             this.attackCoolingDown = false;
@@ -108,7 +111,7 @@ public class Rifleman extends RTSUnit {
             super(new Coordinate(0, 0));
             this.setScale(VISUAL_SCALE);
             this.hull = r;
-            this.setGraphic(idleAnimation);
+            this.setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
         }
 
         @Override
@@ -161,7 +164,7 @@ public class Rifleman extends RTSUnit {
         @Override
         public void onAnimationCycle() {
             if (getGraphic().getSignature().equals("attackSequence")) {
-                setGraphic(idleAnimation);
+                setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
             }
         }
     }

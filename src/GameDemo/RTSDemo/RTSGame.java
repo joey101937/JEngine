@@ -72,6 +72,9 @@ public class RTSGame {
         }
 
         for (int i = 0; i < 20; i++) {
+            game.addObject(new Rifleman(100 + (i * spacer), 1450, 1));
+        }
+        for (int i = 0; i < 20; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1550, 1));
         }
         for (int i = 0; i < 20; i++) {
