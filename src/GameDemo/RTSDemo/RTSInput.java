@@ -11,7 +11,7 @@ import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.AsyncInputHandler;
 import Framework.Main;
-import Framework.Window;
+import GameDemo.RTSDemo.MultiplayerTest.Client;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -56,26 +56,35 @@ public class RTSInput extends AsyncInputHandler {
     
     @Override
     public void onMousePressed(MouseEvent e){
+            Coordinate locatoinOfMouseEvent = locationOfMouseEvent(e);
             if (e.getButton() == 1) { //1 means left click
             for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                 u.setSelected(false);
             }
             SelectionBoxEffect.selectedUnits.clear();
-            mouseDownLocation = locationOfMouseEvent(e);
-            mouseDraggedLocation = locationOfMouseEvent(e);
+            mouseDownLocation = locatoinOfMouseEvent;
+            mouseDraggedLocation = locatoinOfMouseEvent;
         }else if(e.getButton()==3){ //3 means right click
             if(e.isControlDown()) {
                 // all move to exact position of mouse click
                 for(RTSUnit u : SelectionBoxEffect.selectedUnits){
-                    u.setDesiredLocation(locationOfMouseEvent(e));
+                    // delay 1 tick for multiplayer sync
+                    hostGame.addTickDelayedEffect(1, x -> {
+                        u.setDesiredLocation(locatoinOfMouseEvent);
+                    });
+                    Client.sendMessage("m:"+u.ID+","+locatoinOfMouseEvent.x + ','+locatoinOfMouseEvent.y);
                 }
             } else {
                 // formation move
-                Coordinate target = locationOfMouseEvent(e);
+                Coordinate target = locatoinOfMouseEvent;
                 Coordinate avgStartLocation = averageLocation(SelectionBoxEffect.selectedUnits);
                 for(RTSUnit u : SelectionBoxEffect.selectedUnits){
                     Coordinate offset = new Coordinate(avgStartLocation.x - u.getPixelLocation().x, avgStartLocation.y - u.getPixelLocation().y);
-                    u.setDesiredLocation(target.offsetBy(offset));
+                    Coordinate targetOffset = target.offsetBy(offset);
+                    hostGame.addTickDelayedEffect(1, x -> {
+                        u.setDesiredLocation(targetOffset);
+                    });
+                    Client.sendMessage("m:"+u.ID+","+targetOffset.x + ','+targetOffset.y);
                 }
             }
         }
@@ -187,7 +196,10 @@ public class RTSInput extends AsyncInputHandler {
             case 'X', 'x' -> {
                 //x for stop command
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
-                    u.setDesiredLocation(u.getPixelLocation());
+                    hostGame.addTickDelayedEffect(1, x -> {
+                        u.setDesiredLocation(u.getPixelLocation());
+                    });
+                    Client.sendMessage("m:"+u.ID+","+u.getPixelLocation().x + ','+u.getPixelLocation().y);
                 }
             }
             case 'W', 'w' -> {

@@ -26,23 +26,27 @@ public class RTSGame {
     public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
     public static MinimapButton button = new MinimapButton(game, new Coordinate(0, 0));
 
-    public static void main(String[] args) {
+    public static void setup(Game g) {
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
-        Window.initialize(game);
-        game.setInputHandler(new RTSInput());
-        game.getCamera().camSpeed = 20;
-        game.addIndependentEffect(new SelectionBoxEffect());
+        g.setInputHandler(new RTSInput());
+        g.getCamera().camSpeed = 20;
+        g.addIndependentEffect(new SelectionBoxEffect());
         Window.addUIElement(minimap);
         Window.addUIElement(button);
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
-        minimap.setMinimapMouseListener(new MinimapListener(game, minimap));
+        minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
         Main.splitBackgroundRender = true;
-        minimap.setLocation(0, game.getWindowHeight() - minimap.getHeight() - 38);
-        button.setLocation(0, game.getWindowHeight() - minimap.getHeight() - 38 - button.getHeight());
+        minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38);
+        button.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38 - button.getHeight());
         Window.setFullscreen(true);
         Main.ignoreSubobjectCollision = true; // better performance
-        
+    }
+
+    public static void main(String[] args) {
+        Window.initialize(game);
+        setup(game);
+
         int spacer = 160;
 
         for (int i = 0; i < 20; i++) {
