@@ -34,6 +34,7 @@ import static java.awt.RenderingHints.VALUE_COLOR_RENDER_SPEED;
 import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
 import java.awt.Stroke;
 import java.awt.image.VolatileImage;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -335,6 +336,18 @@ public class Game extends Canvas implements Runnable {
             }
 
         }
+        return out;
+    }
+    
+    public GameObject2 getObjectById(int id) {
+        return this.handler.currentSnapshot.objectMap.get(id);
+    }
+    
+    public ArrayList<GameObject2> getObjectById(Collection<Integer> ids) {
+        ArrayList<GameObject2> out = new ArrayList<>();
+        ids.forEach(x -> {
+            out.add(this.handler.currentSnapshot.objectMap.get(x));
+        });
         return out;
     }
 
@@ -968,5 +981,9 @@ public class Game extends Canvas implements Runnable {
     
     public synchronized void addTickDelayedEffect(TickDelayedEffect tde) {
         this.handler.addTickDelayedEffect(tde);
+    }
+    
+    public synchronized void addTickDelayedEffect(int delay, Consumer c) {
+         this.addTickDelayedEffect(new TickDelayedEffect(handler.globalTickNumber + delay, c));
     }
 }
