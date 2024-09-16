@@ -90,7 +90,7 @@ public class Game extends Canvas implements Runnable {
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
-    public CopyOnWriteArrayList<TickDelayedEffect> tickDelayedEffects = new CopyOnWriteArrayList<>();
+    
     private Consumer handleSyncTick;
 
     /**
@@ -964,5 +964,9 @@ public class Game extends Canvas implements Runnable {
      */
     public void setHandleSyncTick(Consumer c) {
         this.handleSyncTick = c;
+    }
+    
+    public synchronized void addTickDelayedEffect(TickDelayedEffect tde) {
+        this.handler.addTickDelayedEffect(tde);
     }
 }

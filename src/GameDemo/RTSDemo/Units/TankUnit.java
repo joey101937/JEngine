@@ -248,6 +248,9 @@ public class TankUnit extends RTSUnit {
             int longestSide = Math.max(targetUnit.getWidth(), targetUnit.getHeight());
             Coordinate offset = new Coordinate(Main.generateRandomInt(-longestSide / 3, longestSide / 3), Main.generateRandomInt(-longestSide / 3, longestSide / 3));
             target.add(offset);
+//            addTickDelayedEffect(4, c -> {
+//                new OnceThroughSticker(getHostGame(), TankBullet.explosionSmall, target);
+//            });
             TankBullet bullet = new TankBullet(muzzelLocation.toDCoordinate(), target.toDCoordinate());
             bullet.shooter = this.getHost();
             getHostGame().addObject(bullet);

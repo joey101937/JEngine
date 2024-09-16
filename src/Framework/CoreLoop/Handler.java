@@ -36,7 +36,8 @@ public class Handler {
     public Game hostGame;
     private LinkedList<GameObject2> toAdd = new LinkedList<>();
     private LinkedList<GameObject2> toRemove = new LinkedList<>();
-    private ArrayList<GameObject2> activeObjects = new ArrayList<>();
+    private ArrayList<GameObject2> activeObjects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
+    private ArrayList<TickDelayedEffect> tickDelayedEffects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
 
     public long globalTickNumber = 0L;
 
@@ -87,16 +88,18 @@ public class Handler {
         }
     }
 
-    public void tick() {
+    public synchronized void tick() {
         globalTickNumber++;
         LinkedList<TickDelayedEffect> effectsRun = new LinkedList<>();
-        for (TickDelayedEffect tde : hostGame.tickDelayedEffects) {
+        // create a copy to iterate on
+        LinkedList<TickDelayedEffect> currentDelayedEffects = new LinkedList(tickDelayedEffects);
+        for (TickDelayedEffect tde : currentDelayedEffects) {
             if (tde.targetTick == globalTickNumber) {
                 tde.consumer.accept(hostGame);
                 effectsRun.add(tde);
             }
         }
-        hostGame.tickDelayedEffects.removeAll(effectsRun);
+        updateTickDelayedEffects(effectsRun, true);
         if (Main.tickType == Handler.TickType.unified) {
             tickUnified();
         } else if (Main.tickType == Handler.TickType.modular) {
@@ -212,5 +215,19 @@ public class Handler {
         unified, // tick threads in paralell execute in preTick - tick - postTick as a single instance. onCollide is triggered immediately. more performant but has thread randomness
         modular, // tick threads execute preTick synchronously- tick (async) - postTick(async) as separate events that happen separately in order. less performant but deterministic with high level of control
     }
-
+    
+    private synchronized void updateTickDelayedEffects(Collection<TickDelayedEffect> tdes, boolean forRemoval) {
+        if(!forRemoval) {
+            this.tickDelayedEffects.addAll(tdes);
+        }
+        else {
+            this.tickDelayedEffects.removeAll(tdes);
+        }
+    }
+    
+    public synchronized void addTickDelayedEffect(TickDelayedEffect tde) {
+        var list = new LinkedList<TickDelayedEffect>();
+        list.add(tde);
+        updateTickDelayedEffects(list, false);
+    }
 }
