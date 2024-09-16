@@ -54,7 +54,9 @@ public class Client implements Runnable {
     }
     
     public static void sendMessage(String message){
-        printStream.println(message);
-        printStream.flush();
+        if(printStream!=null) {            
+            printStream.println(message);
+            printStream.flush();
+        }
     }
 }
