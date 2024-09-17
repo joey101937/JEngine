@@ -69,7 +69,9 @@ public class Rifleman extends RTSUnit {
     public void tick() {
         super.tick();
         if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
-            this.setGraphic(runningSequence.copyMaintainSource());
+            Sequence runInstance = runningSequence.copyMaintainSource();
+            runInstance.advanceMs((int)(Math.random() * 1000));
+            this.setGraphic(runInstance);
         }
         if (this.velocity.y == 0 && getGraphic().isAnimated()) {
             this.setGraphic(baseSprite);
