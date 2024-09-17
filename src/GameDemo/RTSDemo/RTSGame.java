@@ -29,6 +29,7 @@ public class RTSGame {
     public static void setup(Game g) {
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
+        Main.ticksPerSecond = 60;
         g.setInputHandler(new RTSInput());
         g.getCamera().camSpeed = 20;
         g.addIndependentEffect(new SelectionBoxEffect());
@@ -41,6 +42,7 @@ public class RTSGame {
         button.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38 - button.getHeight());
         Window.setFullscreen(true);
         Main.ignoreSubobjectCollision = true; // better performance
+        Main.ignoreCollisionsForStillObjects = true; // better performance
     }
 
     public static void main(String[] args) {
@@ -49,45 +51,45 @@ public class RTSGame {
 
         int spacer = 160;
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
             heli.setRotation(180);
             game.addObject(heli);
         }
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 300, 0);
             tank.setRotation(180);
             game.addObject(tank);
         }
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 450, 0);
             tank.setRotation(180);
             game.addObject(tank);
         }
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 600, 0);
             tank.setRotation(180);
             game.addObject(tank);
         }
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             Rifleman rifleman = new Rifleman(100 + (i * spacer), 750, 0);
             rifleman.setRotation(180);
             game.addObject(rifleman);
         }
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             game.addObject(new Rifleman(100 + (i * spacer), 1450, 1));
         }
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1550, 1));
         }
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1700, 1));
         }
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1850, 1));
         }
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             game.addObject(new Hellicopter(100 + (i * spacer), 2000, 1));
         }
     }

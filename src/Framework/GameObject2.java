@@ -618,13 +618,16 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         ArrayList<GameObject2> otherObjects = hostGame.handler.getAllObjects();
         otherObjects.remove(this);
         ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();
-        for (GameObject2 other : otherObjects) {
-            otherObjsAndOtherSubObjects.add(other);
-            if(!Main.ignoreSubobjectCollision) {
+        if(!Main.ignoreSubobjectCollision) {
+            for (GameObject2 other : otherObjects) {
+                otherObjsAndOtherSubObjects.add(other);
                 for (GameObject2 sub : other.getAllSubObjects()) {
                     otherObjsAndOtherSubObjects.add(sub);
                 }
+                
             }
+        } else {
+            otherObjsAndOtherSubObjects = otherObjects;
         }
         ArrayList<GameObject2> thisAndSubs = new ArrayList<>();
         thisAndSubs.add(this);
@@ -757,6 +760,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      * -updates hitbox
      */
     public void updateLocation() {
+        if(Main.ignoreCollisionsForStillObjects && velocity.x == 0 && velocity.y == 0) return;
         DCoordinate newLocation = location.copy();
         switch (movementType) {
             case SpeedRatio:

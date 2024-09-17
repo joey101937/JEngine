@@ -41,6 +41,7 @@ public class Main {
     public static int numGraphicScalingSteps = 4; // only applies to images larger than 200x200. higher number = more color smoothing (blur)
     public static boolean splitBackgroundRender = true;
     public static boolean ignoreSubobjectCollision = false;
+    public static boolean ignoreCollisionsForStillObjects = false;
 
     public static Handler.TickType tickType = Handler.TickType.modular;
     public static long seed = (long)(Math.random()*9999999999999L);
