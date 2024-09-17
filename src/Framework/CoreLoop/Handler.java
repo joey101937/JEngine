@@ -90,11 +90,12 @@ public class Handler {
 
     public synchronized void tick() {
         globalTickNumber++;
+        System.out.println("tick: " + globalTickNumber);
         LinkedList<TickDelayedEffect> effectsRun = new LinkedList<>();
         // create a copy to iterate on
         LinkedList<TickDelayedEffect> currentDelayedEffects = new LinkedList(tickDelayedEffects);
         for (TickDelayedEffect tde : currentDelayedEffects) {
-            if (tde.targetTick == globalTickNumber) {
+            if (tde.targetTick <= globalTickNumber) {
                 tde.consumer.accept(hostGame);
                 effectsRun.add(tde);
             }
@@ -133,6 +134,7 @@ public class Handler {
         }
 
         for (GameObject2 go : toTick) {
+            System.out.println("ticking " + go);
             if (Main.tickThreadCount > 1) {
                 tickTasks.add(tickService.submit(new TickTask(hostGame, go, "tick")));
             } else {

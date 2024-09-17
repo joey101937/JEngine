@@ -50,8 +50,8 @@ public class Rifleman extends RTSUnit {
         this.setBaseSpeed(1.88);
         this.canAttackAir = true;
         this.rotationSpeed = 15;
-        this.maxHealth = 30;
-        this.currentHealth = 30;
+        this.maxHealth = 20;
+        this.currentHealth = 20;
         this.range = 400;
     }
 
@@ -83,9 +83,9 @@ public class Rifleman extends RTSUnit {
             return;
         }
         attackCoolingDown = true;
-        attackSound.playCopy(Main.generateRandomDouble(.65f, .75f));
+        attackSound.playCopy(Main.generateRandomDouble(.6f, .68f));
         turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
-        target.takeDamage(5);
+        target.takeDamage(6);
         addTickDelayedEffect(Main.ticksPerSecond, c -> {
             this.attackCoolingDown = false;
         });

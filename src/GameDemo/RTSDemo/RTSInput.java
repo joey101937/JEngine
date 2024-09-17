@@ -49,8 +49,9 @@ public class RTSInput extends InputHandler {
             output.x += item.getPixelLocation().x;
             output.y += item.getPixelLocation().y;
         });
-        output.x /= livingMembers.size();
-        output.y /= livingMembers.size();
+        int denominator = Math.max(livingMembers.size(), 1);
+        output.x /= denominator;
+        output.y /= denominator;
         return output;
     }
     
@@ -71,7 +72,7 @@ public class RTSInput extends InputHandler {
                     // delay 1 tick for multiplayer sync
                     long originalTick = hostGame.handler.globalTickNumber;
                     hostGame.addTickDelayedEffect(1, x -> {
-                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
+//                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
                         u.setDesiredLocation(locationOfMouseEvent);
                     });
                     Client.sendMessage("m:"+u.ID+","+locationOfMouseEvent.x + ','+locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber);
@@ -85,7 +86,7 @@ public class RTSInput extends InputHandler {
                     Coordinate targetOffset = target.offsetBy(offset);
                     long originalTick = hostGame.handler.globalTickNumber;
                     hostGame.addTickDelayedEffect(1, x -> {
-                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
+//                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
                         u.setDesiredLocation(targetOffset);
                     });
                     Client.sendMessage("m:"+u.ID+","+targetOffset.x + ','+targetOffset.y+ "," + hostGame.handler.globalTickNumber);

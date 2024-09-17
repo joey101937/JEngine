@@ -59,9 +59,9 @@ public class Client implements Runnable {
         }
     }
     
-    public static void sendMessage(String message){
+    public static synchronized void sendMessage(String message){
         if(printStream != null) {     
-            System.out.println("sending message: " + message);
+//            System.out.println("sending message: " + message);
             printStream.println(message);
         } else {
             System.out.println("ERROR NULL PRINTSTREAM");

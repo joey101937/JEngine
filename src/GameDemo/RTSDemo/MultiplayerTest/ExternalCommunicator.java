@@ -63,18 +63,18 @@ public class ExternalCommunicator implements Runnable {
     public static Consumer handleSyncTick = c -> {
         Game game = (Game) c;
         long currentTick = game.handler.globalTickNumber;
-        if (isMultiplayer && currentTick % 1 == 0) {
+        if (isMultiplayer && currentTick % 500 == 0) {
 //            Thread.ofVirtual().start(new Sender("finished:" + currentTick));
             Client.sendMessage("finished:" + currentTick);
         }
-        while (partnerTick < currentTick && currentTick % 1 == 0) {
-            // Main.wait(1);
-            try {
-                listenerThread.join(1);
-            } catch (Exception e) {
-                System.out.println("exception joining");
-                Main.wait(1);
-            }
+        while (partnerTick < currentTick && currentTick % 500 == 0) {
+             Main.wait(1);
+//            try {
+//                listenerThread.join(1);
+//            } catch (Exception e) {
+//                System.out.println("exception joining");
+//                Main.wait(1);
+//            }
 //            Client.sendMessage("finished:" + currentTick);
         }
     };
@@ -85,7 +85,7 @@ public class ExternalCommunicator implements Runnable {
             try {
                 // wait for partner to finish tick
                 String nextMessage = bufferdReader.readLine();
-                System.out.println("next message is " + nextMessage);
+//                System.out.println("next message is " + nextMessage);
                 interperateMessage(nextMessage);
             } catch (Exception e) {
 //                e.printStackTrace();
@@ -99,7 +99,7 @@ public class ExternalCommunicator implements Runnable {
         }
         if (s.startsWith("randomSeed:")) {
             Main.setRandomSeed(Long.parseLong(s.substring("randomSeed:".length())));
-            System.out.println("setting random seed to " + Long.parseLong(s.substring("randomSeed:".length())));
+//            System.out.println("setting random seed to " + Long.parseLong(s.substring("randomSeed:".length())));
             return;
         }
         if (s.startsWith("finished:")) {
@@ -117,20 +117,20 @@ public class ExternalCommunicator implements Runnable {
             Coordinate coord = new Coordinate(x, y);
             long currentTick = Window.currentGame.handler.globalTickNumber;
             long tickToIssueOn = intendedTick + 1; // the input handler adds one tick delay for this purpose
-            if(tickToIssueOn <= currentTick) {
-                System.out.println("issuing order to unit " + id + " to move to " + coord + " on tick " + Window.currentGame.handler.globalTickNumber);
+            if(tickToIssueOn <= currentTick || true) {
+//                System.out.println("issuing order to unit " + id + " to move to " + coord + " on tick " + Window.currentGame.handler.globalTickNumber);
                 GameObject2 go = Window.currentGame.getObjectById(id);
                 if (go instanceof RTSUnit unit) {
                     unit.setDesiredLocation(coord);
-                    System.out.println("done");
+//                    System.out.println("done");
                 }
             } else {
                 Window.currentGame.addTickDelayedEffect((int)(tickToIssueOn - Window.currentGame.handler.globalTickNumber), c->{
-                    System.out.println("issuing order to unit " + id + " to move to " + coord + " on tick " + Window.currentGame.handler.globalTickNumber);
+//                    System.out.println("issuing order to unit " + id + " to move to " + coord + " on tick " + Window.currentGame.handler.globalTickNumber);
                     GameObject2 go = Window.currentGame.getObjectById(id);
                     if (go instanceof RTSUnit unit) {
                         unit.setDesiredLocation(coord);
-                        System.out.println("done");
+//                        System.out.println("done");
                     }
                 });
             }

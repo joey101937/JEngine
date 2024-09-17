@@ -210,7 +210,7 @@ public class TankUnit extends RTSUnit {
         }
         weaponOnCooldown = true;
         turret.onFire(target);
-        this.addTickDelayedEffect(Main.ticksPerSecond, x -> {
+        this.addTickDelayedEffect((int)(Main.ticksPerSecond * 1.25), x -> {
             weaponOnCooldown = false;
         });
     }
