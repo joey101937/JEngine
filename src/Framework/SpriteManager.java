@@ -135,6 +135,7 @@ public abstract class SpriteManager {
             grassBG = load("DemoAssets/TankGame/grassTerrain.png");
             // uncomment to load this large bg file 
             // grassBGMega = load("DemoAssets/TankGame/grassTerrain_mega.png");
+            grassBG = load("DemoAssets/TankGame/grassTerrain_mega_pathing2.png");
             hellicopter = load("DemoAssets/TankGame/copter/base.png");
             hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
             hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");
