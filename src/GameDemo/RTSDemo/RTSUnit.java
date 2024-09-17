@@ -291,7 +291,6 @@ public class RTSUnit extends Creature {
     }
 
     public void setFieldsPerString(String input) {
-        System.out.println("setting based on input " + input);
         var components = input.split(",");
         this.location.x = Double.parseDouble(components[1]);
         this.location.y = Double.parseDouble(components[2]);

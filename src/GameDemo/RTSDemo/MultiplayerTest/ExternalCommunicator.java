@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
  * @author guydu
  */
 public class ExternalCommunicator implements Runnable {
+    public static int port = 444;
 
     public static boolean isMultiplayer = true;
 
@@ -47,8 +48,11 @@ public class ExternalCommunicator implements Runnable {
         try {
             if (server) {
                 isServer = server;
-                JOptionPane.showMessageDialog(null, "Server starting from your public ip:" + getPublicIP());
-                servSocket = new ServerSocket(444);
+                String publicIp = getPublicIP();
+                System.out.println(publicIp);
+                JOptionPane.showMessageDialog(null, "Server starting from your public ip: " + publicIp + ":" + port);
+                servSocket = new ServerSocket(port);
+                System.out.println("server Inet Address: " + servSocket.getInetAddress()); 
                 // blocks until connection
                 socket = servSocket.accept();
                 printStream = new PrintStream(socket.getOutputStream()); //output stream is what we are sending
@@ -60,7 +64,8 @@ public class ExternalCommunicator implements Runnable {
                 System.out.println("setting random seed" + seed);
                 localTeam = 0;
             } else {
-                socket = new Socket("localhost", 444);
+                String peerAddress = JOptionPane.showInputDialog("Enter Connection Address");
+                socket = new Socket(peerAddress, port);
                 printStream = new PrintStream(socket.getOutputStream()); //output stream is what we are sending
                 InputStreamReader ir = new InputStreamReader(socket.getInputStream());
                 bufferdReader = new BufferedReader(ir);
