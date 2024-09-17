@@ -40,7 +40,7 @@ public class RTSGame {
         Main.splitBackgroundRender = true;
         minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38);
         button.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38 - button.getHeight());
-        Window.setFullscreen(true);
+        // Window.setFullscreen(true);
         Main.ignoreSubobjectCollision = true; // better performance
         Main.ignoreCollisionsForStillObjects = true; // better performance
     }

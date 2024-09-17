@@ -5,6 +5,7 @@
 package GameDemo.RTSDemo.MultiplayerTest;
 
 import Framework.Game;
+import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
 import GameDemo.RTSDemo.RTSGame;
@@ -36,7 +37,7 @@ public class Server implements Runnable {
         Window.initialize(g);
         RTSGame.setup(g);
         RTSGame.game = g;
-        Thread.ofVirtual().start(server);
+        // Thread.ofVirtual().start(server);
         // server.run();
     }
 
