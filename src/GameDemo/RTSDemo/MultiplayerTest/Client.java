@@ -17,24 +17,30 @@ import java.io.PrintStream;
  * @author guydu
  */
 public class Client {
-    
+
     public static PrintStream printStream;
 
     public static void main(String[] args) {
         Client c = new Client();
-        Game g = new Game(SpriteManager.grassBG);
+        Game g = RTSGame.game;
         ExternalCommunicator.initialize(false);
         g.setHandleSyncTick(ExternalCommunicator.handleSyncTick);
-        g.addObject(new Hellicopter(200, 200, 0));
-        g.addObject(new Hellicopter(300, 200, 0));
-        g.addObject(new Hellicopter(400, 200, 0));
-        g.addObject(new Hellicopter(200, 1000, 1));
-        g.addObject(new Hellicopter(300, 1000, 1));
-        g.addObject(new Hellicopter(400, 1000, 1));
+        int spacer = 160;
+        for (int i = 0; i < 20; i++) {
+            g.addObject(new Hellicopter(200 + (i * spacer), 200, 0));
+        }
+        for (int i = 0; i < 20; i++) {
+            g.addObject(new TankUnit(350 + (i * spacer), 200, 0));
+        }
+        for (int i = 0; i < 20; i++) {
+            g.addObject(new Hellicopter(200 + (i * spacer), 1000, 1));
+        }
+        for (int i = 0; i < 20; i++) {
+            g.addObject(new TankUnit(200 + (i * spacer), 850, 1));
+        }
         Window.initialize(g);
         RTSGame.setup(g);
         RTSGame.game = g;
     }
 
-   
 }

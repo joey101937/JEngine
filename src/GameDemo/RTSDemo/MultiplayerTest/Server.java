@@ -5,22 +5,30 @@ import Framework.SpriteManager;
 import Framework.Window;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
  *
  * @author guydu
  */
-public class Server{
+public class Server {
 
     public static void main(String[] args) {
-        Game g = new Game(SpriteManager.grassBG);
+        Game g = RTSGame.game;
         System.out.println("adding");
-        g.addObject(new Hellicopter(200, 200, 0));
-        g.addObject(new Hellicopter(300, 200, 0));
-        g.addObject(new Hellicopter(400, 200, 0));
-        g.addObject(new Hellicopter(200, 1000, 1));
-        g.addObject(new Hellicopter(300, 1000, 1));
-        g.addObject(new Hellicopter(400, 1000, 1));
+        int spacer = 160;
+        for (int i = 0; i < 20; i++) {
+            g.addObject(new Hellicopter(200 + (i * spacer), 200, 0));
+        }
+        for (int i = 0; i < 20; i++) {
+            g.addObject(new TankUnit(350 + (i * spacer), 200, 0));
+        }
+        for (int i = 0; i < 20; i++) {
+            g.addObject(new Hellicopter(200 + (i * spacer), 1000, 1));
+        }
+        for (int i = 0; i < 20; i++) {
+            g.addObject(new TankUnit(200 + (i * spacer), 850, 1));
+        }
         ExternalCommunicator.initialize(true);
         g.setHandleSyncTick(ExternalCommunicator.handleSyncTick);
         Window.initialize(g);
