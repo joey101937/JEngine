@@ -26,6 +26,11 @@ public class Server implements Runnable {
         Game g = new Game(SpriteManager.grassBG);
         System.out.println("adding");
         g.addObject(new TankUnit(200, 200, 0));
+        g.addObject(new TankUnit(300, 200, 0));
+        g.addObject(new TankUnit(400, 200, 0));
+        g.addObject(new TankUnit(200, 1000, 1));
+        g.addObject(new TankUnit(300, 1000, 1));
+        g.addObject(new TankUnit(400, 1000, 1));
         ExternalCommunicator.initialize(true);
         g.setHandleSyncTick(ExternalCommunicator.handleSyncTick);
         Window.initialize(g);

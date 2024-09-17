@@ -29,6 +29,11 @@ public class Client implements Runnable {
         ExternalCommunicator.initialize(false);
         g.setHandleSyncTick(ExternalCommunicator.handleSyncTick);
         g.addObject(new TankUnit(200, 200, 0));
+        g.addObject(new TankUnit(300, 200, 0));
+        g.addObject(new TankUnit(400, 200, 0));
+        g.addObject(new TankUnit(200, 1000, 1));
+        g.addObject(new TankUnit(300, 1000, 1));
+        g.addObject(new TankUnit(400, 1000, 1));
         Window.initialize(g);
         RTSGame.setup(g);
         RTSGame.game = g;
