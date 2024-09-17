@@ -43,7 +43,11 @@ public class RTSInput extends InputHandler {
     }
     
     private Coordinate averageLocation(ArrayList<RTSUnit> input) {
-        List<RTSUnit> livingMembers = input.stream().filter(x -> x.isAlive() && !x.isRubble).collect(Collectors.toList());
+        List<RTSUnit> livingMembers = input.stream().filter(
+                x -> x.isAlive()
+                && !x.isRubble
+                && (!ExternalCommunicator.isMultiplayer || x.team == ExternalCommunicator.localTeam)
+        ).collect(Collectors.toList());
         Coordinate output = new Coordinate(0,0);
         livingMembers.forEach((item) -> {
             output.x += item.getPixelLocation().x;
@@ -69,6 +73,7 @@ public class RTSInput extends InputHandler {
             if(e.isControlDown()) {
                 // all move to exact position of mouse click
                 for(RTSUnit u : SelectionBoxEffect.selectedUnits){
+                    if(ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) continue;
                     // delay 1 tick for multiplayer sync
                     long originalTick = hostGame.handler.globalTickNumber;
                     hostGame.addTickDelayedEffect(1, x -> {
@@ -82,6 +87,7 @@ public class RTSInput extends InputHandler {
                 Coordinate target = locationOfMouseEvent;
                 Coordinate avgStartLocation = averageLocation(SelectionBoxEffect.selectedUnits);
                 for(RTSUnit u : SelectionBoxEffect.selectedUnits){
+                    if(ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) continue;
                     Coordinate offset = new Coordinate(avgStartLocation.x - u.getPixelLocation().x, avgStartLocation.y - u.getPixelLocation().y);
                     Coordinate targetOffset = target.offsetBy(offset);
                     long originalTick = hostGame.handler.globalTickNumber;
@@ -107,8 +113,7 @@ public class RTSInput extends InputHandler {
         //selects one nidevidual unit at a clicked point
         ArrayList<GameObject2> grabbed =RTSGame.game.getObjectsIntersecting(new Hitbox(locationOfMouseEvent(e).toDCoordinate(),5));
         for(GameObject2 go : grabbed){
-            if(go instanceof RTSUnit){
-                RTSUnit unit = (RTSUnit)go;
+            if (go instanceof RTSUnit unit){
                 unit.setSelected(true);
                 SelectionBoxEffect.selectedUnits.add(unit);
                 if(e.isControlDown() && grabbed.size() == 1) {
@@ -201,6 +206,7 @@ public class RTSInput extends InputHandler {
             case 'X', 'x' -> {
                 //x for stop command
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
+                    if(ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) continue;
                     System.out.println("sending message for stoppage");
                     ExternalCommunicator.sendMessage("m:"+u.ID+","+u.getPixelLocation().x + ','+u.getPixelLocation().y + "," + hostGame.handler.globalTickNumber);
                     hostGame.addTickDelayedEffect(1, x -> {

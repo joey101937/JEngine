@@ -27,9 +27,9 @@ import javax.swing.JOptionPane;
  * @author guydu
  */
 public class ExternalCommunicator implements Runnable {
-    public static int port = 444;
+    public static int port = 443;
 
-    public static boolean isMultiplayer = true;
+    public static boolean isMultiplayer = false;
 
     public static ServerSocket servSocket;
     public static Socket socket;
@@ -46,6 +46,7 @@ public class ExternalCommunicator implements Runnable {
     public static void initialize(boolean server) {
 
         try {
+            isMultiplayer = true;
             if (server) {
                 isServer = server;
                 String publicIp = getPublicIP();
