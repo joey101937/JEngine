@@ -5,11 +5,9 @@
 package GameDemo.RTSDemo.MultiplayerTest;
 
 import Framework.Game;
-import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
 import GameDemo.RTSDemo.RTSGame;
-import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.Units.TankUnit;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -26,12 +24,15 @@ public class Server implements Runnable {
     public static void main(String[] args) {
         Server server = new Server();
         Game g = new Game(SpriteManager.grassBG);
+        System.out.println("adding");
         g.addObject(new TankUnit(200, 200, 0));
+        ExternalCommunicator.initialize(true);
+        g.setHandleSyncTick(ExternalCommunicator.handleSyncTick);
         Window.initialize(g);
         RTSGame.setup(g);
         RTSGame.game = g;
         Thread.ofVirtual().start(server);
-        server.run();
+        // server.run();
     }
 
     @Override

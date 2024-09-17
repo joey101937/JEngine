@@ -9,7 +9,7 @@ import Framework.Camera;
 import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
-import Framework.AsyncInputHandler;
+import Framework.InputHandler;
 import Framework.Main;
 import GameDemo.RTSDemo.MultiplayerTest.Client;
 import java.awt.event.KeyEvent;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  *
  * @author Joseph
  */
-public class RTSInput extends AsyncInputHandler {
+public class RTSInput extends InputHandler {
     private static Coordinate mouseDownLocation = null;
     private static Coordinate mouseDraggedLocation = null;
     
@@ -55,28 +55,28 @@ public class RTSInput extends AsyncInputHandler {
     }
     
     @Override
-    public void onMousePressed(MouseEvent e){
-            Coordinate locatoinOfMouseEvent = locationOfMouseEvent(e);
+    public void mousePressed(MouseEvent e){
+            Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
             if (e.getButton() == 1) { //1 means left click
             for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                 u.setSelected(false);
             }
             SelectionBoxEffect.selectedUnits.clear();
-            mouseDownLocation = locatoinOfMouseEvent;
-            mouseDraggedLocation = locatoinOfMouseEvent;
+            mouseDownLocation = locationOfMouseEvent;
+            mouseDraggedLocation = locationOfMouseEvent;
         }else if(e.getButton()==3){ //3 means right click
             if(e.isControlDown()) {
                 // all move to exact position of mouse click
                 for(RTSUnit u : SelectionBoxEffect.selectedUnits){
                     // delay 1 tick for multiplayer sync
                     hostGame.addTickDelayedEffect(1, x -> {
-                        u.setDesiredLocation(locatoinOfMouseEvent);
+                        u.setDesiredLocation(locationOfMouseEvent);
                     });
-                    Client.sendMessage("m:"+u.ID+","+locatoinOfMouseEvent.x + ','+locatoinOfMouseEvent.y);
+                    Client.sendMessage("m:"+u.ID+","+locationOfMouseEvent.x + ','+locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber);
                 }
             } else {
                 // formation move
-                Coordinate target = locatoinOfMouseEvent;
+                Coordinate target = locationOfMouseEvent;
                 Coordinate avgStartLocation = averageLocation(SelectionBoxEffect.selectedUnits);
                 for(RTSUnit u : SelectionBoxEffect.selectedUnits){
                     Coordinate offset = new Coordinate(avgStartLocation.x - u.getPixelLocation().x, avgStartLocation.y - u.getPixelLocation().y);
@@ -84,7 +84,7 @@ public class RTSInput extends AsyncInputHandler {
                     hostGame.addTickDelayedEffect(1, x -> {
                         u.setDesiredLocation(targetOffset);
                     });
-                    Client.sendMessage("m:"+u.ID+","+targetOffset.x + ','+targetOffset.y);
+                    Client.sendMessage("m:"+u.ID+","+targetOffset.x + ','+targetOffset.y+ "," + hostGame.handler.globalTickNumber);
                 }
             }
         }
@@ -92,13 +92,13 @@ public class RTSInput extends AsyncInputHandler {
     }
     
     @Override
-    public void onMouseExited(MouseEvent e){
+    public void mouseExited(MouseEvent e){
         getHostGame().getCamera().xVel=0;
         getHostGame().getCamera().yVel=0;
     }
     
     @Override
-    public void onMouseClicked(MouseEvent e){
+    public void mouseClicked(MouseEvent e){
         //selects one nidevidual unit at a clicked point
         ArrayList<GameObject2> grabbed =RTSGame.game.getObjectsIntersecting(new Hitbox(locationOfMouseEvent(e).toDCoordinate(),5));
         for(GameObject2 go : grabbed){
@@ -125,19 +125,19 @@ public class RTSInput extends AsyncInputHandler {
     }
     
     @Override
-    public void onMouseReleased(MouseEvent e){
+    public void mouseReleased(MouseEvent e){
         mouseDownLocation = null;
         mouseDraggedLocation = null;
     }
     
     @Override
-    public void onMouseDragged(MouseEvent e) {
+    public void mouseDragged(MouseEvent e) {
         mouseDraggedLocation = locationOfMouseEvent(e);
         // panCamera(e);
     }
 
     @Override
-    public void onMouseMoved(MouseEvent e){
+    public void mouseMoved(MouseEvent e){
         // panCamera(e);
     }
     
@@ -191,7 +191,7 @@ public class RTSInput extends AsyncInputHandler {
      * @param e 
      */
     @Override
-    public void onKeyPressed(KeyEvent e) {
+    public void keyPressed(KeyEvent e) {
         switch (e.getKeyChar()) {
             case 'X', 'x' -> {
                 //x for stop command
@@ -229,7 +229,7 @@ public class RTSInput extends AsyncInputHandler {
         }
     }
     @Override
-    public void onKeyReleased(KeyEvent e){
+    public void keyReleased(KeyEvent e){
         switch (e.getKeyChar()) {
             case 'w', 'W' -> wDown = false;
             case 'a', 'A' -> aDown = false;

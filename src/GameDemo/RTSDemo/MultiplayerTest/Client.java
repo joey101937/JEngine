@@ -26,11 +26,13 @@ public class Client implements Runnable {
     public static void main(String[] args) {
         Client c = new Client();
         Game g = new Game(SpriteManager.grassBG);
+        ExternalCommunicator.initialize(false);
+        g.setHandleSyncTick(ExternalCommunicator.handleSyncTick);
         g.addObject(new TankUnit(200, 200, 0));
         Window.initialize(g);
         RTSGame.setup(g);
         RTSGame.game = g;
-        c.run();
+        // c.run();
     }
 
     @Override
@@ -54,9 +56,11 @@ public class Client implements Runnable {
     }
     
     public static void sendMessage(String message){
-        if(printStream!=null) {            
+        if(printStream != null) {     
+            System.out.println("sending message: " + message);
             printStream.println(message);
-            printStream.flush();
+        } else {
+            System.out.println("ERROR NULL PRINTSTREAM");
         }
     }
 }
