@@ -11,7 +11,7 @@ import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.InputHandler;
 import Framework.Main;
-import GameDemo.RTSDemo.MultiplayerTest.Client;
+import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class RTSInput extends InputHandler {
 //                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
                         u.setDesiredLocation(locationOfMouseEvent);
                     });
-                    Client.sendMessage("m:"+u.ID+","+locationOfMouseEvent.x + ','+locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber);
+                    ExternalCommunicator.sendMessage("m:"+u.ID+","+locationOfMouseEvent.x + ','+locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber);
                 }
             } else {
                 // formation move
@@ -89,7 +89,7 @@ public class RTSInput extends InputHandler {
 //                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
                         u.setDesiredLocation(targetOffset);
                     });
-                    Client.sendMessage("m:"+u.ID+","+targetOffset.x + ','+targetOffset.y+ "," + hostGame.handler.globalTickNumber);
+                    ExternalCommunicator.sendMessage("m:"+u.ID+","+targetOffset.x + ','+targetOffset.y+ "," + hostGame.handler.globalTickNumber);
                 }
             }
         }
@@ -201,10 +201,11 @@ public class RTSInput extends InputHandler {
             case 'X', 'x' -> {
                 //x for stop command
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
+                    System.out.println("sending message for stoppage");
+                    ExternalCommunicator.sendMessage("m:"+u.ID+","+u.getPixelLocation().x + ','+u.getPixelLocation().y + "," + hostGame.handler.globalTickNumber);
                     hostGame.addTickDelayedEffect(1, x -> {
                         u.setDesiredLocation(u.getPixelLocation());
                     });
-                    Client.sendMessage("m:"+u.ID+","+u.getPixelLocation().x + ','+u.getPixelLocation().y);
                 }
             }
             case 'W', 'w' -> {

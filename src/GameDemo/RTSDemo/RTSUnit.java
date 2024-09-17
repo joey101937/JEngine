@@ -9,6 +9,7 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
+import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.SandboxDemo.Creature;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -102,7 +103,7 @@ public class RTSUnit extends Creature {
         }
         return out;
     }
-    
+
     public static BufferedImage darkToRed(BufferedImage input) {
         BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < bi.getHeight(); y++) {
@@ -110,9 +111,9 @@ public class RTSUnit extends Creature {
                 int rgba = input.getRGB(x, y);
                 Color prevColor = new Color(rgba, true);
                 if (prevColor.getBlue() + prevColor.getRed() + prevColor.getGreen() < 300) {
-                    
+
                     int newRed = 0;
-                    if(prevColor.getRed() > 0) {
+                    if (prevColor.getRed() > 0) {
                         newRed = Math.min(255, (int) (prevColor.getRed() + 50 * 1.5));
                     }
                     int newGreen = (int) (prevColor.getRed());
@@ -127,7 +128,7 @@ public class RTSUnit extends Creature {
         }
         return bi;
     }
-    
+
     public static BufferedImage[] darkToRed(BufferedImage[] input) {
         BufferedImage[] out = new BufferedImage[input.length];
         for (int i = 0; i < out.length; i++) {
@@ -152,7 +153,7 @@ public class RTSUnit extends Creature {
         if (isRubble) {
             return;
         }
-        if(selected) {
+        if (selected) {
             drawHealthBar(g);
         }
     }
@@ -185,6 +186,14 @@ public class RTSUnit extends Creature {
             this.velocity.y = 0;
         }
 
+    }
+
+    @Override
+    public void die() {
+        super.die();
+        if (ExternalCommunicator.isMultiplayer && ExternalCommunicator.isServer) {
+            ExternalCommunicator.sendMessage("unitDeath:" + this.ID);
+        }
     }
 
     private void init(int team) {
@@ -254,5 +263,48 @@ public class RTSUnit extends Creature {
             }
         }
         return (RTSUnit) closest;
+    }
+
+    @Override
+    public void onDestroy() {
+        ExternalCommunicator.sendMessage("unitRemoval:" + this.ID);
+    }
+
+    public String toTransportString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.ID);
+        builder.append(",");
+        builder.append(location.x); // 1
+        builder.append(",");
+        builder.append(location.y); //2
+        builder.append(",");
+        builder.append(currentHealth); //3
+        builder.append(",");
+        builder.append(this.getRotationRealTime()); //4
+        builder.append(",");
+        builder.append(this.getDesiredLocation().x); //5
+        builder.append(",");
+        builder.append(this.getDesiredLocation().y); // 6
+        builder.append(",");
+        builder.append(this.isRubble); // 7
+        return builder.toString();
+    }
+
+    public void setFieldsPerString(String input) {
+        System.out.println("setting based on input " + input);
+        var components = input.split(",");
+        this.location.x = Double.parseDouble(components[1]);
+        this.location.y = Double.parseDouble(components[2]);
+        this.currentHealth = Integer.parseInt(components[3]);
+        this.setRotation(Double.parseDouble(components[4]));
+        this.setDesiredLocation(new Coordinate(
+                Integer.parseInt(components[5]),
+                Integer.parseInt(components[6])));
+        if (Boolean.parseBoolean(components[7])) {
+            if (!isRubble) {
+                this.die();
+            }
+        }
+
     }
 }

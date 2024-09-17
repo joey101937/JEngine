@@ -52,7 +52,6 @@ public class Hellicopter extends RTSUnit {
     @Override
     public void setRotation(double d) {
         super.setRotation(d);
-        turret.setRotation(d);
     }
 
     public void fireDelayed(RTSUnit targetUnit, int delay) {
