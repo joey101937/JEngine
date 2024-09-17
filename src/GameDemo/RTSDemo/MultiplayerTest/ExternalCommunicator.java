@@ -16,9 +16,11 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -45,6 +47,7 @@ public class ExternalCommunicator implements Runnable {
         try {
             if (server) {
                 isServer = server;
+                JOptionPane.showMessageDialog(null, "Server starting from your public ip:" + getPublicIP());
                 servSocket = new ServerSocket(444);
                 // blocks until connection
                 socket = servSocket.accept();
@@ -164,11 +167,22 @@ public class ExternalCommunicator implements Runnable {
         if(!isMultiplayer) return;
         if (printStream != null) {
             ExternalCommunicator.asyncService.submit(() -> {
-                Main.wait(60); // simulate lag
+                // Main.wait(60); // simulate lag
                 printStream.println(message);
             });
         } else {
             System.out.println("ERROR NULL PRINTSTREAM");
+        }
+    }
+    
+    public static String getPublicIP() {
+        try{
+        URL whatismyip = new URL("http://checkip.amazonaws.com");
+        BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+        String ip = in.readLine(); //you get the IP as a String
+        return ip;
+        }catch(Exception e){
+         return "<public IP unknown>";   
         }
     }
 }

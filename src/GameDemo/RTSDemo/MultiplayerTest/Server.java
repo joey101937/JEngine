@@ -14,7 +14,6 @@ import GameDemo.RTSDemo.Units.TankUnit;
 public class Server{
 
     public static void main(String[] args) {
-        Server server = new Server();
         Game g = new Game(SpriteManager.grassBG);
         System.out.println("adding");
         g.addObject(new Hellicopter(200, 200, 0));
