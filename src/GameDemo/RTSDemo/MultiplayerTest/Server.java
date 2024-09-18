@@ -41,7 +41,7 @@ public class Server {
         }
 
         if(ExternalCommunicator.localTeam == 1) {
-            g.getCamera().centerOn(new Coordinate(200, 2000));
+            g.getCamera().location.y = -2000;
         }
         for (int i = 0; i < 20; i++) {
             g.addObject(new Hellicopter(200 + (i * spacer), 3000, 1));
