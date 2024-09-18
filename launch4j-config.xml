@@ -1,0 +1,22 @@
+<launch4jConfig>
+    <dontWrapJar>false</dontWrapJar>
+    <headerType>gui</headerType>
+    <jar>./dist/JEngine.jar</jar> <!-- Path to your .jar file -->
+    <outfile>./dist/JEngine.exe</outfile> <!-- Path to the .exe file -->
+    <errTitle>Launch4J Error Title</errTitle>
+    <cmdLine/>
+    <chdir>.</chdir>
+    <priority>normal</priority>
+    <downloadUrl>http://java.com/download</downloadUrl>
+    <supportUrl>http://yourgame.com/support</supportUrl>
+    <icon>./src/Resources/JEngineIcon.ico</icon> <!-- Path to your icon -->
+    <jre>
+        <!--<path>C:\Program Files\Java\jdk-22\bin</path>  Optional: Path to a bundled JRE -->
+        <minVersion>22</minVersion> <!-- Minimum Java version required -->
+        <maxVersion/>
+        <jdkPreference>preferJre</jdkPreference>
+        <initialHeapSize>128</initialHeapSize>
+        <maxHeapSize>2048</maxHeapSize>
+        <opt>-Xms128m -Xmx2048m -Dsun.java2d.d3d=false</opt>
+    </jre>
+</launch4jConfig>

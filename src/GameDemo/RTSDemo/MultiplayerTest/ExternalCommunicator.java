@@ -27,7 +27,7 @@ import javax.swing.JOptionPane;
  * @author guydu
  */
 public class ExternalCommunicator implements Runnable {
-    public static int port = 443;
+    public static int port = 444;
 
     public static boolean isMultiplayer = false;
 

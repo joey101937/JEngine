@@ -70,4 +70,39 @@
     nbproject/build-impl.xml file. 
 
     -->
+    
+      <taskdef name="launch4j" 
+             classname="net.sf.launch4j.ant.Launch4jTask" 
+             classpath="C:\Program Files (x86)\Launch4j\launch4j.jar"/>
+      
+      <!-- Compile Target -->
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes" includeantruntime="false">
+            <classpath>
+                <pathelement location="lib/javafx-sdk/lib"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- Jar Target -->
+    <target name="jar" depends="compile">
+        <mkdir dir="build"/>
+        <jar destfile="build/yourGame.jar" basedir="build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="Framework.Main"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- Launch4j Target -->
+    <target name="launch4j" depends="jar">
+        <launch4j configFile="launch4j-config.xml"/>
+    </target>
+
+    <!-- Distribution Target -->
+    <target name="dist" depends="launch4j">
+        <mkdir dir="dist"/>
+        <copy file="build/yourGame.exe" todir="dist"/>
+    </target>
 </project>
