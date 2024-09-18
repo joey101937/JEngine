@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
  * @author guydu
  */
 public class ExternalCommunicator implements Runnable {
+
     public static int port = 444;
 
     public static boolean isMultiplayer = false;
@@ -40,6 +41,7 @@ public class ExternalCommunicator implements Runnable {
     public static Thread listenerThread;
     public static boolean isServer = false;
     public static int localTeam = 0;
+    public static boolean isConnected = false;
 
     public static ExecutorService asyncService = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -48,14 +50,24 @@ public class ExternalCommunicator implements Runnable {
         try {
             isMultiplayer = true;
             if (server) {
+                localTeam = 0;
                 isServer = server;
                 String publicIp = getPublicIP();
                 System.out.println(publicIp);
-                JOptionPane.showMessageDialog(null, "Server starting from your public ip: " + publicIp + ":" + port);
+                JOptionPane.showMessageDialog(null, "Server starting from your public ip: " + publicIp + ":" + port + "\n If no connection is made, will timeout in 30s");
                 servSocket = new ServerSocket(port);
-                System.out.println("server Inet Address: " + servSocket.getInetAddress()); 
+                System.out.println("server Inet Address: " + servSocket.getInetAddress());
                 // blocks until connection
+                asyncService.submit(() -> {
+                    Main.wait(30000);
+                    if (!isConnected) {
+                        JOptionPane.showMessageDialog(null, "Timeout");
+                        System.exit(0);
+                    }
+                    return null;
+                });
                 socket = servSocket.accept();
+                isConnected = true;
                 printStream = new PrintStream(socket.getOutputStream()); //output stream is what we are sending
                 inputReader = new InputStreamReader(socket.getInputStream());
                 bufferdReader = new BufferedReader(inputReader);
@@ -63,14 +75,14 @@ public class ExternalCommunicator implements Runnable {
                 Main.setRandomSeed(seed);
                 sendMessage("randomSeed:" + seed);
                 System.out.println("setting random seed" + seed);
-                localTeam = 0;
+
             } else {
+                localTeam = 1;
                 String peerAddress = JOptionPane.showInputDialog("Enter Connection Address");
                 socket = new Socket(peerAddress, port);
                 printStream = new PrintStream(socket.getOutputStream()); //output stream is what we are sending
                 InputStreamReader ir = new InputStreamReader(socket.getInputStream());
                 bufferdReader = new BufferedReader(ir);
-                localTeam = 1;
             }
             listenerThread = new Thread(new ExternalCommunicator());
             listenerThread.start();
@@ -83,16 +95,24 @@ public class ExternalCommunicator implements Runnable {
         Game game = (Game) c;
         long currentTick = game.handler.globalTickNumber;
         if (isMultiplayer && currentTick % Main.ticksPerSecond == 0) {
-           communicateState();
+            communicateState();
         }
     };
 
     public static void communicateState() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("unitstate:");
         for (GameObject2 go : Window.currentGame.getAllObjects()) {
             if (go instanceof RTSUnit unit && unit.team == localTeam) {
-                sendMessage("unitstate," + unit.toTransportString());
+                builder.append(unit.toTransportString());
+                builder.append(';');
             }
         }
+        sendMessage(builder.toString());
+    }
+
+    public static void communicateState(RTSUnit unit) {
+        sendMessage("unitstate:" + unit.toTransportString());
     }
 
     @Override
@@ -149,13 +169,21 @@ public class ExternalCommunicator implements Runnable {
             }
         }
 
-        if (s.startsWith("unitstate,")) {
-            var components = s.split(",");
-            for (GameObject2 go : Window.currentGame.getAllObjects()) {
-                if (go instanceof RTSUnit unit) {
-                    if (unit.ID == Integer.parseInt(components[1])) {
-                        unit.setFieldsPerString(s.substring("unitstate,".length()));
+        if (s.startsWith("unitstate:")) {
+            String s2 = s.substring(10);
+            var lineItems = s2.split(";");
+            for (String line : lineItems) {
+                var components = line.split(",");
+                try {
+                    GameObject2 go = Window.currentGame.getObjectById(Integer.parseInt(components[0]));
+                    if (go != null && go instanceof RTSUnit unit) {
+                        unit.setFieldsPerString(line);
+                    } else if (go == null) {
+                        System.out.println("null for id" + components[0]);
                     }
+                } catch (Exception e) {
+                    System.out.println("unit state interpretation error " + line);
+                    e.printStackTrace();
                 }
             }
         }
@@ -170,7 +198,9 @@ public class ExternalCommunicator implements Runnable {
     }
 
     public static void sendMessage(String message) {
-        if(!isMultiplayer) return;
+        if (!isMultiplayer) {
+            return;
+        }
         if (printStream != null) {
             ExternalCommunicator.asyncService.submit(() -> {
                 // Main.wait(60); // simulate lag
@@ -180,15 +210,15 @@ public class ExternalCommunicator implements Runnable {
             System.out.println("ERROR NULL PRINTSTREAM");
         }
     }
-    
+
     public static String getPublicIP() {
-        try{
-        URL whatismyip = new URL("http://checkip.amazonaws.com");
-        BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
-        String ip = in.readLine(); //you get the IP as a String
-        return ip;
-        }catch(Exception e){
-         return "<public IP unknown>";   
+        try {
+            URL whatismyip = new URL("http://checkip.amazonaws.com");
+            BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+            String ip = in.readLine(); //you get the IP as a String
+            return ip;
+        } catch (Exception e) {
+            return "<public IP unknown>";
         }
     }
 }

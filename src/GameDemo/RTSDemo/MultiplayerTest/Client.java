@@ -7,6 +7,7 @@ package GameDemo.RTSDemo.MultiplayerTest;
 import Framework.Game;
 import Framework.SpriteManager;
 import Framework.Window;
+import static GameDemo.RTSDemo.MultiplayerTest.Server.createStartingUnits;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -25,19 +26,7 @@ public class Client {
         Game g = RTSGame.game;
         ExternalCommunicator.initialize(false);
         g.setHandleSyncTick(ExternalCommunicator.handleSyncTick);
-        int spacer = 160;
-        for (int i = 0; i < 20; i++) {
-            g.addObject(new Hellicopter(200 + (i * spacer), 200, 0));
-        }
-        for (int i = 0; i < 20; i++) {
-            g.addObject(new TankUnit(350 + (i * spacer), 200, 0));
-        }
-        for (int i = 0; i < 20; i++) {
-            g.addObject(new Hellicopter(200 + (i * spacer), 1000, 1));
-        }
-        for (int i = 0; i < 20; i++) {
-            g.addObject(new TankUnit(200 + (i * spacer), 850, 1));
-        }
+        createStartingUnits(g);
         Window.initialize(g);
         RTSGame.setup(g);
         RTSGame.game = g;

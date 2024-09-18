@@ -7,6 +7,8 @@ package Framework;
 
 import Framework.CoreLoop.Handler;
 import GameDemo.FogDemo.FogDemo;
+import GameDemo.RTSDemo.MultiplayerTest.Client;
+import GameDemo.RTSDemo.MultiplayerTest.Server;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.SideScollerDemo_PathingLayer.SideScrollDemo;
 import GameDemo.TownDemo.TownDemo;
@@ -52,7 +54,7 @@ public class Main {
      * this is the new main method that only shows the nicer looking demos... not that any of them look particularly good
      */
     private static void showCuratedDemos(String[] args) {
-        String[] options = { "Demo - RTS", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Demo - Fog"};
+        String[] options = { "RTS Singleplayer", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Demo - Fog", "RTS Multiplayer (host)", "RTS Multiplayer (client)"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
@@ -68,6 +70,10 @@ public class Main {
             case 4: GaligaGame.main(args);
             break;
             case 5: FogDemo.main(args);
+            break;
+            case 6: Server.main(args);
+            break;
+            case 7: Client.main(args);
             break;
             default: {
                 System.out.println("unknown selection");

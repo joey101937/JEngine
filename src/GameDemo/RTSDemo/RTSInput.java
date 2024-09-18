@@ -79,6 +79,7 @@ public class RTSInput extends InputHandler {
                     hostGame.addTickDelayedEffect(1, x -> {
 //                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
                         u.setDesiredLocation(locationOfMouseEvent);
+                        ExternalCommunicator.communicateState(u);
                     });
                     ExternalCommunicator.sendMessage("m:"+u.ID+","+locationOfMouseEvent.x + ','+locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber);
                 }
@@ -94,6 +95,7 @@ public class RTSInput extends InputHandler {
                     hostGame.addTickDelayedEffect(1, x -> {
 //                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
                         u.setDesiredLocation(targetOffset);
+                        ExternalCommunicator.communicateState(u);
                     });
                     ExternalCommunicator.sendMessage("m:"+u.ID+","+targetOffset.x + ','+targetOffset.y+ "," + hostGame.handler.globalTickNumber);
                 }
@@ -211,6 +213,7 @@ public class RTSInput extends InputHandler {
                     ExternalCommunicator.sendMessage("m:"+u.ID+","+u.getPixelLocation().x + ','+u.getPixelLocation().y + "," + hostGame.handler.globalTickNumber);
                     hostGame.addTickDelayedEffect(1, x -> {
                         u.setDesiredLocation(u.getPixelLocation());
+                        ExternalCommunicator.communicateState(u);
                     });
                 }
             }
