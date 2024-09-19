@@ -38,7 +38,16 @@ public class SoundEffect implements Runnable{
     private volatile int startDelay = 0;
     private boolean looping = false;
     public volatile boolean running = false;
+    private int numCopiesPlaying = 0;
+    private SoundEffect parent = null;
     
+    public void changeNumCopiesPlaying(int change) {
+        numCopiesPlaying += change;
+    }
+    
+    public int getNumCopiesPlaying () {
+        return numCopiesPlaying;
+    }
     
     /**
      * creates a new sound effect with the given file.
@@ -47,6 +56,16 @@ public class SoundEffect implements Runnable{
     public SoundEffect(File f) {
         ID = ++IDGenerator;
         initialize(f);   
+    }
+    
+    /**
+     * creates a new sound effect with the given file.
+     * @param f File to create sound with
+     */
+    private SoundEffect(File f, SoundEffect parent) {
+        this.parent = parent;
+        ID = ++IDGenerator;
+        initialize(f);
     }
 
 
@@ -78,6 +97,7 @@ public class SoundEffect implements Runnable{
      * the sound to play globally.
      */
     public void start() {
+        changeNumCopiesPlaying(1);
         if (hasStarted) {
             System.out.println("Sound already started " + source.getName() + " ID:" + ID);
         } else {
@@ -394,7 +414,7 @@ public class SoundEffect implements Runnable{
      * @return A fresh SoundEffect of the same source
      */
     public SoundEffect createCopy(){
-        return new SoundEffect(source);
+        return new SoundEffect(source, this);
     }
     
     public void playCopy() {
@@ -409,6 +429,7 @@ public class SoundEffect implements Runnable{
     }
     
     public void playCopy(float volume, int msDelay) {
+        changeNumCopiesPlaying(1);
         SoundEffect copy = this.createCopy();
         copy.setVolume(volume);
         copy.startWithDelay(msDelay);

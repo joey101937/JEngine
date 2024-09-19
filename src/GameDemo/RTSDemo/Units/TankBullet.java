@@ -11,7 +11,6 @@ import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sequence;
-import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import GameDemo.RTSDemo.RTSUnit;
@@ -35,7 +34,7 @@ public class TankBullet extends Projectile {
         bulletGraphic.scaleTo(.2); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
         setScale(.2);
         this.setGraphic(bulletGraphic.copyMaintainSource());
-        baseSpeed = 20;
+        baseSpeed = 24;
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 750;
         startPosition = start;

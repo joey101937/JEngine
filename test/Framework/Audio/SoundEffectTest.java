@@ -38,7 +38,7 @@ public class SoundEffectTest {
     @Before
     public void setUp() throws IOException {
         game = new Game(ImageIO.read(Window.class.getResource("/Resources/JEngineIcon.png")));
-        effect = new SoundEffect(new File(Main.assets+"/Sounds/Music.au"));
+        effect = new SoundEffect(new File(Main.assets+"/Sounds/A-few-jumps-away-by-Arthur-Vyncke.au"));
     }
     
     @After

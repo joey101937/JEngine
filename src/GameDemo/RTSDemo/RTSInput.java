@@ -209,7 +209,6 @@ public class RTSInput extends InputHandler {
                 //x for stop command
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                     if(ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) continue;
-                    System.out.println("sending message for stoppage");
                     ExternalCommunicator.sendMessage("m:"+u.ID+","+u.getPixelLocation().x + ','+u.getPixelLocation().y + "," + hostGame.handler.globalTickNumber);
                     hostGame.addTickDelayedEffect(1, x -> {
                         u.setDesiredLocation(u.getPixelLocation());

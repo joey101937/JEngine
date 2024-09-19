@@ -66,8 +66,14 @@ public class Hellicopter extends RTSUnit {
 
             getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), targetUnit));
             getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), targetUnit));
-            if (isOnScreen()) {
-                attackSound.playCopy(Main.generateRandomDouble(.65, .75));
+            if(attackSound.getNumCopiesPlaying() < 10) {
+                if (isOnScreen()) {
+                    attackSound.playCopy(Main.generateRandomDoubleLocally(.65, .75));
+                    addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+                } else {
+                    attackSound.playCopy(Main.generateRandomDoubleLocally(.55, .6));
+                    addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+                }
             }
         });
     }

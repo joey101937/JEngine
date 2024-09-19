@@ -53,8 +53,6 @@ public class Projectile extends GameObject2{
         }
     }
     
-//    @Override
-//    public void render(Graphics2D g){}
     
     public void launch(DCoordinate destination){
         DCoordinate vel = destination.copy();

@@ -51,15 +51,15 @@ public abstract class SpriteManager {
     public static BufferedImage hellicopter;
     public static BufferedImage hellicopterShadow;
     public static BufferedImage[] hellicopterAttack;
-    public static BufferedImage missile;
-    public static BufferedImage missileShadow;
+    public static BufferedImage missile, yellowMissile;
+    public static BufferedImage missileShadow, yellowMissileShadow;
     public static BufferedImage tankDeadHull;
     public static BufferedImage tankDeadHullShadow;
     public static BufferedImage tankShadow;
     public static BufferedImage tankDeadTurret;
     public static BufferedImage[] tankHullDeathAni;
     public static BufferedImage[] tankTurretDeathAni;
-    public static BufferedImage[] infantryLegsRun, infantryRifleIdle, infantryRifleFire, infantryRifleMoving;
+    public static BufferedImage[] infantryLegsRun, infantryRifleIdle, infantryRifleFire, infantryRifleMoving, infantryBazookaIdle, infantryBazookaFire;
     public static BufferedImage infantryLegs, infantryShadow;
 
     //SPACE ASSETS
@@ -139,8 +139,10 @@ public abstract class SpriteManager {
             hellicopter = load("DemoAssets/TankGame/copter/base.png");
             hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
             hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");
-            missile = load("DemoAssets/TankGame/copter/missile.png");
-            missileShadow = load("DemoAssets/TankGame/copter/missileShadow.png");
+            missile = load("DemoAssets/TankGame/missile.png");
+            missileShadow = load("DemoAssets/TankGame/missileShadow.png");
+            yellowMissile = load("DemoAssets/TankGame/yellowMissile.png");
+            yellowMissileShadow = load("DemoAssets/TankGame/yellowMissileShadow.png");
             tankDeadHull = load("DemoAssets/TankGame/destroyedHull.png");
             tankDeadHullShadow = load("DemoAssets/TankGame/destroyedHullShadow.png");
             tankShadow = load("DemoAssets/TankGame/tankShadow.png");
@@ -150,9 +152,11 @@ public abstract class SpriteManager {
             // Infantry
             infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run(small)");
             infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle(small)");
+            infantryBazookaIdle = loadSequence("DemoAssets/TankGame/Infantry/bazooka/idle");
             infantryRifleMoving = loadSequence("DemoAssets/TankGame/Infantry/rifle/move"); //todo
             infantryLegs = load("DemoAssets/TankGame/Infantry/feet/idle/survivor-idle_0.png");
             infantryRifleFire = loadSequence("DemoAssets/TankGame/Infantry/rifle/shoot");
+            infantryBazookaFire = loadSequence("DemoAssets/TankGame/Infantry/bazooka/shoot");
             infantryShadow = load("DemoAssets/TankGame/Infantry/infantryShadow.png");
 
             tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");

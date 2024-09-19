@@ -22,7 +22,7 @@ public class SoundEffectTester_MANUAL_TEST {
      * @param args 
      */
     public static void main(String[] args) {
-        SoundEffect effect = new SoundEffect(new File(Main.assets+"/Sounds/Music.au"));
+        SoundEffect effect = new SoundEffect(new File(Main.assets+"/Sounds/A-few-jumps-away-by-Arthur-Vyncke.au"));
         effect.start();
         effect.setLooping(true);
         Main.wait(2000);

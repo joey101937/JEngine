@@ -19,6 +19,7 @@ import java.awt.image.VolatileImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import javax.imageio.ImageIO;
 
 /**
@@ -252,7 +253,16 @@ public interface Graphic {
         for(File f : new File(filename).listFiles()){
             children.add(f);
         }
-        children.sort(null);
+        // they are all text that ends with numbers
+        if(children.stream().allMatch(x -> x.getName().matches("^[A-z]*\\d+$"))) {
+            children.sort((File o1, File o2) -> {
+                Integer a1 = Integer.valueOf(o1.getName().split("[A-z]")[1]);
+                Integer b = Integer.valueOf(o2.getName().split("[A-z]")[1]);
+                return a1.compareTo(b);
+            });
+        } else {
+            children.sort(null);
+        }
         for(File child : children){
             System.out.println("loading " + child.getPath().substring(6)); //to remove the redundant /Assets
            a.add(load(child.getPath().substring(6)));

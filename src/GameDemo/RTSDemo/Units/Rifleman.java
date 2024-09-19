@@ -83,7 +83,15 @@ public class Rifleman extends RTSUnit {
             return;
         }
         attackCoolingDown = true;
-        attackSound.playCopy(Main.generateRandomDouble(.6f, .68f));
+        if(attackSound.getNumCopiesPlaying() < 10) {
+            if(isOnScreen()) {
+                attackSound.playCopy(Main.generateRandomDoubleLocally(.6f, .68f));
+                addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+            } else {
+                attackSound.playCopy(Main.generateRandomDoubleLocally(.4f, .48f));
+                addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+            }
+        }
         turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
         target.takeDamage(6);
         addTickDelayedEffect(Main.ticksPerSecond, c -> {

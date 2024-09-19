@@ -29,8 +29,8 @@ import java.util.List;
  */
 public class TankUnit extends RTSUnit {
 
+    // public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/blast4.62.wav"));
     public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
-    public static SoundEffect deathSound = new SoundEffect(new File(Main.assets + "Sounds/blast2.wav"));
     public Turret turret;
     public final static double VISUAL_SCALE = 1;
     public boolean weaponOnCooldown = false;
@@ -246,8 +246,14 @@ public class TankUnit extends RTSUnit {
         public void onFire(Coordinate target) {
             setGraphic(getFireSequence().copyMaintainSource());
             try {
-                if (isOnScreen()) {
-                    launchSoundSource.playCopy((Math.random() * .2) + .4f);
+                if(launchSoundSource.getNumCopiesPlaying() < 10) {
+                    if (isOnScreen()) {
+                        launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.6, .65));
+                        addTickDelayedEffect(Main.ticksPerSecond/2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
+                    } else {
+                        launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.5, .55));
+                        addTickDelayedEffect(Main.ticksPerSecond/2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

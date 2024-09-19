@@ -12,6 +12,7 @@ import Framework.Main;
 import Framework.SpriteManager;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
+import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -69,13 +70,17 @@ public class RTSGame {
             game.addObject(tank);
         }
         for (int i = 0; i < 40; i++) {
-            Rifleman rifleman = new Rifleman(100 + (i * spacer), 750, 0);
-            rifleman.setRotation(180);
-            game.addObject(rifleman);
+            RTSUnit infantryUnit = i % 2 == 0 ? new Bazookaman(100 + (i * spacer), 750, 0) : new Rifleman(100 + (i * spacer), 750, 0);
+            infantryUnit.setRotation(180);
+            game.addObject(infantryUnit);
         }
 
         for (int i = 0; i < 40; i++) {
-            game.addObject(new Rifleman(100 + (i * spacer), 1450, 1));
+            if(i % 2 == 0 ){ 
+                game.addObject(new Bazookaman(100 + (i * spacer), 1450, 1));
+            } else {
+                game.addObject(new Rifleman(100 + (i * spacer), 1450, 1));
+            }
         }
         for (int i = 0; i < 40; i++) {
             game.addObject(new TankUnit(100 + (i * spacer), 1550, 1));
