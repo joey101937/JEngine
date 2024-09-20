@@ -20,15 +20,15 @@ import java.io.File;
  */
 public class Bazookaman extends RTSUnit {
 
-    public static double VISUAL_SCALE = .18;
-    public static Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
-    public static Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
-    public static Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
-    public static Sequence attackSequence = new Sequence(SpriteManager.infantryBazookaFire);
-    public static Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryBazookaFire));
-    public static Sequence idleAnimation = new Sequence(SpriteManager.infantryBazookaIdle);
-    public static Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryBazookaIdle));
-    public static SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
+    public static final double VISUAL_SCALE = .18;
+    public static final Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
+    public static final Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
+    public static final Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
+    public static final Sequence attackSequence = new Sequence(SpriteManager.infantryBazookaFire);
+    public static final Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryBazookaFire));
+    public static final Sequence idleAnimation = new Sequence(SpriteManager.infantryBazookaIdle);
+    public static final Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryBazookaIdle));
+    public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
     public boolean attackCoolingDown = false;
 
     static {

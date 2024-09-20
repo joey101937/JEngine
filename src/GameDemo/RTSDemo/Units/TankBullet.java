@@ -24,8 +24,8 @@ public class TankBullet extends Projectile {
 
     public GameObject2 shooter; //the object that launched this projectile
     
-    public static Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet});
-    public static Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall);
+    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet});
+    public static final Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall);
     private DCoordinate startPosition;
 
     public TankBullet(DCoordinate start, DCoordinate end) {
@@ -58,7 +58,7 @@ public class TankBullet extends Projectile {
                     return;
                 }
             }
-            otherUnit.takeDamage(20);
+            otherUnit.takeDamage(40);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth()*.25);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
             destroy();

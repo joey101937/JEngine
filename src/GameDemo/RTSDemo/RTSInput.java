@@ -204,8 +204,9 @@ public class RTSInput extends InputHandler {
      */
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyChar()) {
-            case 'X', 'x' -> {
+        switch (e.getKeyCode()) {
+            // X
+            case 88 -> {
                 //x for stop command
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                     if(ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) continue;
@@ -216,30 +217,53 @@ public class RTSInput extends InputHandler {
                     });
                 }
             }
-            case 'W', 'w' -> {
+            // W
+            case 87 -> {
                 wDown = true;
                 sDown = false;
             }
-            case 'A', 'a' ->{
+            // A
+            case 65 ->{
                 aDown = true;
                 dDown = false;
             }
-            case 'S', 's' ->{
+            // S
+            case 83 ->{
                 sDown = true;
                 wDown = false;
             }
-            case 'D','d' ->{
+            // D
+            case 68 ->{
                 dDown = true;
                 aDown = false;
             }
-            case 'p', 'P' -> {
+            // P
+            case 80 -> {
                 SelectionBoxEffect.selectedUnits.forEach(x -> {
                     if(x instanceof RTSUnit unit) {
                         unit.die();
                     }
                 });
             }
-            case 'Z', 'z' -> Main.debugMode = !Main.debugMode;
+            // Z
+            case 90 -> Main.debugMode = !Main.debugMode;
+            // case 0-9
+            case 48,49,50,51,52,53,54,55,56,57 -> {
+                System.out.println("triggering for " + e.getKeyChar() + e.isShiftDown() + e.isControlDown() + e.isAltDown());
+                Integer groupNumber = Integer.valueOf(e.getKeyCode() - 48);
+                if(e.isShiftDown()) {
+                    ControlGroupHelper.addToGroup(groupNumber, SelectionBoxEffect.selectedUnits);
+                    return;
+                }
+                if(e.isControlDown()) {
+                    ControlGroupHelper.clearGroup(groupNumber);
+                    ControlGroupHelper.addToGroup(groupNumber, SelectionBoxEffect.selectedUnits);
+                    return;
+                }
+                if(!e.isControlDown() && !e.isShiftDown() && !e.isAltDown()) {
+                    ControlGroupHelper.selectGroup(groupNumber);
+                }
+            }
         }
     }
     @Override

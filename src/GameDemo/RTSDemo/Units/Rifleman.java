@@ -20,14 +20,14 @@ import java.io.File;
 public class Rifleman extends RTSUnit {
 
     public static double VISUAL_SCALE = .4;
-    public static Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
-    public static Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
-    public static Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
-    public static Sequence attackSequence = new Sequence(SpriteManager.infantryRifleFire);
-    public static Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryRifleFire));
-    public static Sequence idleAnimation = new Sequence(SpriteManager.infantryRifleIdle);
-    public static Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryRifleIdle));
-    public static SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
+    public static final Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
+    public static final Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
+    public static final Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
+    public static final Sequence attackSequence = new Sequence(SpriteManager.infantryRifleFire);
+    public static final Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryRifleFire));
+    public static final Sequence idleAnimation = new Sequence(SpriteManager.infantryRifleIdle);
+    public static final Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryRifleIdle));
+    public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
     public boolean attackCoolingDown = false;
 
     static {
@@ -52,7 +52,7 @@ public class Rifleman extends RTSUnit {
         this.rotationSpeed = 15;
         this.maxHealth = 20;
         this.currentHealth = 20;
-        this.range = 400;
+        this.range = 450;
     }
 
     @Override
