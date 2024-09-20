@@ -1,12 +1,10 @@
 package GameDemo.RTSDemo.MultiplayerTest;
 
-import Framework.Coordinate;
 import Framework.Game;
 import Framework.Window;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
-import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
 
 /**

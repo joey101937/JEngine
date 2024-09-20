@@ -8,7 +8,8 @@ Particularly an open-source 2D game engine that is simple and easy to use, highl
 
 # JEngine Quick Basics
 
-### [**VIEW JAVADOC HERE**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)  
+### Download .jar + javadoc.zip from the root of this repo
+
 [![CodeFactor](https://www.codefactor.io/repository/github/joey101937/jengine/badge)](https://www.codefactor.io/repository/github/joey101937/jengine)
 
 -The physical window that displays your project is controlled by the **Window** class
@@ -531,3 +532,6 @@ For non-fullscreen applications, it is *Highly** recommended that you run your j
 
 **java -Dsun.java2d.d3d=false -Xmx1024m -jar 2DTemplate.jar**  
 (note 2DTemplate.jar is name of project jar)
+
+
+[**Old javadoc here**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)  

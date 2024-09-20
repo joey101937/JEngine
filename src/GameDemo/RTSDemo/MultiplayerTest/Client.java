@@ -5,12 +5,9 @@
 package GameDemo.RTSDemo.MultiplayerTest;
 
 import Framework.Game;
-import Framework.SpriteManager;
 import Framework.Window;
 import static GameDemo.RTSDemo.MultiplayerTest.Server.createStartingUnits;
 import GameDemo.RTSDemo.RTSGame;
-import GameDemo.RTSDemo.Units.Hellicopter;
-import GameDemo.RTSDemo.Units.TankUnit;
 import java.io.PrintStream;
 
 /**
