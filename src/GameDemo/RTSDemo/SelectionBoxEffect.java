@@ -36,7 +36,7 @@ public class SelectionBoxEffect extends IndependentEffect {
     @Override
     public void render(Graphics2D g) {
         drawSelectionBox(g);
-        drawSelectionCircles(g);
+        drawSelectionCirclesGround(g);
     }
 
     @Override
@@ -105,11 +105,12 @@ public class SelectionBoxEffect extends IndependentEffect {
         }
     }
 
-    private void drawSelectionCircles(Graphics2D g) {
+    private void drawSelectionCirclesGround(Graphics2D g) {
         g.setStroke(new BasicStroke(3));
         List<GameObject2> gos = RTSGame.game.getAllObjects();
         for (GameObject2 go : gos) {
             if (go instanceof RTSUnit unit) {
+                if(unit.plane > 1) continue;
                 g.setColor(Color.green);
                 if (ExternalCommunicator.isMultiplayer && ExternalCommunicator.localTeam != unit.team) {
                     g.setColor(uncontrollableColor);

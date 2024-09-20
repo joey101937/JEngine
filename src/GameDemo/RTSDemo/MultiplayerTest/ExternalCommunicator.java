@@ -173,6 +173,7 @@ public class ExternalCommunicator implements Runnable {
             String s2 = s.substring(10);
             var lineItems = s2.split(";");
             for (String line : lineItems) {
+                if(line.equals("")) continue;
                 var components = line.split(",");
                 try {
                     GameObject2 go = Window.currentGame.getObjectById(Integer.parseInt(components[0]));

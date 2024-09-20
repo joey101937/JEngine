@@ -33,11 +33,13 @@ public class RTSGame {
         g.setInputHandler(new RTSInput());
         g.getCamera().camSpeed = 20;
         g.addIndependentEffect(new SelectionBoxEffect());
+        g.addIndependentEffect(new SelectionBoxEffectAir());
         Window.addUIElement(minimap);
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
         minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
         Main.splitBackgroundRender = true;
-        minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38);
+        // minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38);
+        minimap.setLocation(g.getWindowWidth() - minimap.getWidth(), 0);
         Window.setFullscreen(true);
         Main.ignoreSubobjectCollision = true; // better performance
         Main.ignoreCollisionsForStillObjects = true; // better performance

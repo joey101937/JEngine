@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package GameDemo.RTSDemo;
 
 import Framework.DCoordinate;
@@ -25,9 +22,8 @@ public class MinimapListener extends MinimapMouseListener {
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == 3) {
-            System.out.println("test");
             SelectionBoxEffect.selectedUnits.forEach(unit -> {
-                 DCoordinate relativePoint = new DCoordinate(0, 0);
+                DCoordinate relativePoint = new DCoordinate(0, 0);
                 relativePoint.x = (double) e.getX() / (double) map.getWidth();
                 relativePoint.x *= hostGame.getWorldWidth();
                 relativePoint.y = (double) e.getY() / (double) map.getHeight();

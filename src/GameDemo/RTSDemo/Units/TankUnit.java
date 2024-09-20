@@ -51,6 +51,8 @@ public class TankUnit extends RTSUnit {
     public static volatile Sequence deathAnimationTurret = null;
     public static volatile Sprite deathShadow = null;
     public static volatile Sprite shadow = null;
+    public static volatile Sprite turretShadow = null;
+
     public static volatile Sprite tankHullDamagedGreen;
     public static volatile Sprite tankTurretDamagedGreen;
     public static volatile Sprite tankHullDamagedRed;
@@ -82,6 +84,8 @@ public class TankUnit extends RTSUnit {
         deathFadeout = Sequence.createFadeout(SpriteManager.tankDeadHullShadow, 40);
         deathFadeout.setSignature("fadeout");
         shadow = new Sprite(SpriteManager.tankShadow);
+        turretShadow = new Sprite(SpriteManager.tankTurretShadow);
+
         tankHullDamagedGreen = new Sprite(SpriteManager.tankHullDamaged);
         tankTurretDamagedGreen = new Sprite(SpriteManager.tankTurretDamaged);
         tankHullDamagedRed = new Sprite(greenToRed(SpriteManager.tankHullDamaged));
@@ -157,13 +161,13 @@ public class TankUnit extends RTSUnit {
             this.setGraphic(getHullSprite());
         }
     }
-    
+
     @Override
     public int getWidth() {
         // consistent width so that width is not tied to animation frame
         return chasisSpriteGreen.getWidth();
     }
-    
+
     @Override
     public int getHeight() {
         // consistent height so that width is not tied to animation frame
@@ -210,7 +214,7 @@ public class TankUnit extends RTSUnit {
         }
         weaponOnCooldown = true;
         turret.onFire(target);
-        this.addTickDelayedEffect((int)(Main.ticksPerSecond * 2), x -> {
+        this.addTickDelayedEffect((int) (Main.ticksPerSecond * 2), x -> {
             weaponOnCooldown = false;
         });
     }
@@ -246,13 +250,13 @@ public class TankUnit extends RTSUnit {
         public void onFire(Coordinate target) {
             setGraphic(getFireSequence().copyMaintainSource());
             try {
-                if(launchSoundSource.getNumCopiesPlaying() < 10) {
+                if (launchSoundSource.getNumCopiesPlaying() < 10) {
                     if (isOnScreen()) {
                         launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.6, .65));
-                        addTickDelayedEffect(Main.ticksPerSecond/2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
+                        addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
                     } else {
                         launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.5, .55));
-                        addTickDelayedEffect(Main.ticksPerSecond/2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
+                        addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
                     }
                 }
             } catch (Exception e) {
@@ -335,6 +339,12 @@ public class TankUnit extends RTSUnit {
                 Coordinate targetPoint = enemy.getPixelLocation();
                 ((TankUnit) getHost()).fire(targetPoint);
             }
+        }
+
+        // turret render
+        @Override
+        public void render(Graphics2D g) {
+            super.render(g);
         }
 
     }

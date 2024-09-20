@@ -38,7 +38,7 @@ public abstract class SpriteManager {
 
     //TANK ASSETS
     public static BufferedImage tankChasis;
-    public static BufferedImage tankTurret;
+    public static BufferedImage tankTurret, tankTurretShadow;
     public static BufferedImage tankHullDamaged;
     public static BufferedImage tankTurretDamaged;
     public static BufferedImage[] tankFireAnimation;
@@ -128,14 +128,15 @@ public abstract class SpriteManager {
 
             tankChasis = load("DemoAssets/TankGame/tank1-hull.png");
             tankTurret = load("DemoAssets/TankGame/tank1-turret.png");
+            tankTurretShadow = load("DemoAssets/TankGame/tank1-turret-shadow.png");
             tankFireAnimation = loadSequence("DemoAssets/TankGame/tank1Fire");
             bullet = load("DemoAssets/TankGame/bullet.png");
             dirtBG = load("DemoAssets/TankGame/dirtBG.png");
             dirtBGNight = load("DemoAssets/TankGame/dirtBGNight.png");
-            grassBG = load("DemoAssets/TankGame/grassTerrain.png");
+            // grassBG = load("DemoAssets/TankGame/grassTerrain.png");
             // uncomment to load this large bg file 
             // grassBGMega = load("DemoAssets/TankGame/grassTerrain_mega.png");
-            grassBG = load("DemoAssets/TankGame/grassTerrain_mega_pathing2.png");
+            grassBG = load("DemoAssets/TankGame/grassTerrain_mega3.png");
             hellicopter = load("DemoAssets/TankGame/copter/base.png");
             hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
             hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");

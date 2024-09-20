@@ -210,10 +210,12 @@ public class Window {
                 System.out.println("fullscreen is supported");
             }
             gd.setFullScreenWindow(x ? frame : null);
-            frame.setLocationRelativeTo(null);
-            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            frame.setVisible(true);
-            frame.setUndecorated(true);
+            if(x) {
+                frame.setLocationRelativeTo(null);
+                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                frame.setVisible(true);
+                frame.setUndecorated(true);
+            }
         } catch (Exception e) {
             System.out.println("exception making window fullscreen. Has the game started and is it visible?");
             System.out.println(e.getMessage());
