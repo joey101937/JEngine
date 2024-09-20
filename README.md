@@ -25,18 +25,21 @@ Games have their own InputHandlers to take in user input via mouse and keyboard.
 -**Coordinate** and **DCoordinate** classes are used heavily when talking about location in the gameworld. Coordinate uses ints and often used to reflect the location of an object in pixels while DCoordinates use doubles and are typically used to store an object's true location and velocity. Both classes have considerable utility methods built in. Note these classes are not immutable, so use caution when modifying coordinates that may be referenced elsewhere. Use the .copy() method to generate an equivilent copy of a coordinate to avoid modifying the original coordinate. Add and Subtract methods modify the calling coordinate, they do not return a new coordinate based on the operation like you may find with strings.
 
 # Your First Project
-**Technical Note Before Starting** Once you have imported JEngine to your IDE, go into run properties of the project and set the VM options to include *-Dsun.java2d.d3d=false -Xmx1024*. Also you need to change the **Game.NATIVE_RESOLUTION**  field to match the resolution of *your* monitor. This value is used to scale the game display onto whatever monitor it runs on such that object scale is consistent on both your development monitor and someone else's when they run your game. Once again this should be *your* resolution, not the resolution you plan to run on. Setting this field enabled the use of the `Game.scaleForResolution()` method
+**Technical Note Before Starting** Once you have imported JEngine to your IDE, go into run properties of the project and set the VM options to include ***-Dsun.java2d.d3d=false -Xmx2048***. This disable direct3d which causes alot of bugs and then allows for 2gb of ram usage. This can be increased as necessary.
 
 **Check out the GameDemo package to see small example projects and their setup**
 JEngine is super easy to use and get started; You can either use this repositoy as a base or import it as a dependency.
+
 First you should gather your assets for the project and put them into an 'assets' folder in the working directory (like this repo has). JEngine by default
 supports plain images (.png reccomended) or animation sequences, loaded by frame. See Visual Assets section of readme.
 
-Now that you have your assets imported, you should create a scene for the user to see. *Note the a Game object is a single scene*.  Scenes are instances of the Game class and created with a background image, which is important because it creates the gameworld using the parameters of the given image.
+Now that you have your assets imported, you can get started. First create a **Game** object and pass in your background image to the constructor. This will automatically make a game world of that image's size and use that image as the background. Next, Call the **Window.initialize(Game g)** method and pass in your newly created game. And presto, that game world should appear in a window on the screen!
 
-Once you have your first Scene, create the **Window** around it by calling Window.initialize(Game). Now call start() method on your game. If done correctly, you should see a window with your given background image inside. Initialize should only be called once at the start of the program. Once you have your window, call setGame(Game) to swap out different games in the window.
+The Game object represents the game world, while the Window represents the literal window on the screen (its actually a awt.JFrame inside).
 
-Now you can create a character to go inside the world. I would reccomend copying the simple character from the sandbox demo, or you can make your own class that extends GameObject2. You just need a location for the object to be at and you should create a visual for the object so you can see it in the scene. you can use the method **setGraphic(Sprite image)** to set the object to be unanimated and use the given sprite as its visual. Hitboxes are automatically managed for you by default. Once you have your character object, call **addObject(GameObject2 go)** on your world and pass in your character. If done correctly, you should see your character's sprite at the character's location in your gameworld. note if you picked an out of bounds coordinate, the object may have been pulled back in to the nearest in-bounds location. 
+Now you can create a character to go inside the world. I would reccomend copying the simple character from the sandbox demo, or you can make your own class that extends GameObject2. You just need a location for the object to be at and you should create a visual for the object so you can see it in the scene. you can use the method **setGraphic(Sprite image)** to set the object to be represented by a simple still image. See the Graphical Assets section for information on generating a sprite. Hitboxes are automatically managed for you by default based on the GameObject2's graphic.
+
+Once you have your character object, call **addObject(GameObject2 go)** on your world and pass in your character. If done correctly, you should see your character's sprite at the character's location in your gameworld. note if you picked an out of bounds coordinate, the object may have been pulled back in to the nearest in-bounds location. 
 
 Moving a GameObject can be done by modifying it's location directly (forcibly teleports the object), or by changing its velocity. Velocity is the prefered way to move things if you want them to move around the world rather than just teleport to a different location. 
 
@@ -93,8 +96,8 @@ public static void Main(String[] args){
 To aid in creating input methods, InputHandlers also have the method **locationOfMouseEvent(MouseEvent e)**, which returns the in-game pixel location of a mouse event rather than the X/Y coordinate on screen.
 
 
-# Scenes/Games
-To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the scene(s) and presents them to the user. Create using **Window.intitialize(Game)** Game class should be created *before* the Window. 
+# Games
+To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the Game(s) and presents them to the user. Create using **Window.intitialize(Game)** Game class should be created *before* the Window. Technical note: Game objects are actually built off of AWT Canvases.
 
 To make the Game start running, call the .start() method on your Game instance.
 
@@ -168,6 +171,15 @@ Sprites and Sequences implement the **Graphic** interface which means can both b
 
 To reiterate: Once loaded, dont modify the original BufferedImage, if you want to distort it, Create a Sprite object with it as a reference and then modify that Sprite. Modifying the original image will effect everything that references that image and may result in having visual effects on that image doubled.
 
+Graphics can have a String "signature" set which can be used for identifying which animation a sequence represents for the GameObject2 `onAnimationCycle` function.
+
+Sequence class has a static helper method called `createFadeout` which can be used to automatically create a fade-out animation for the given still imgae. 
+
+### Best Practice Notes
+Loading and storing image information is expensive from a computational and storage perspective! You should aim to instantiate as few Sprite and Sequence objects as possible and re-use them. Look at the RTS game demo as an example. The sprites and sequences are all static and they are scaled one time at initialization. Then, all the units refer to those same intances. This means that each tank does not get its own image data, they all share the same image data because they are all the same. 
+
+This is simple for Sprites because a sprite is just a still image, but for sequences, reusing the smae sequence would mean that all the game objects that use that sequence would have a synced animation. You can create and start a new sequence object that uses the same underlying image data by calling the function **copyMaintainSource** on your sequence
+
 ### Graphic Interface
 This is the interface both Sprite and Sequence implement, and is used to store a graphical asset. To know if the Graphic is a Sprite or a Sequence, use the isAnimated() method. Sequences return true, sprites return false as they are simply images. To get the current frame of a sequence or image of a sprite use the getCurrentImage() method. This interface allows for scaling, copying, and destroying.
 *Note destroy() method does **not** destroy the underlying asset*.
@@ -176,6 +188,9 @@ This is the interface both Sprite and Sequence implement, and is used to store a
 A sequence represents a frame-based animation.Each Image in the array represents a single frame. Options include scaling the size of the visuals with **scale(double s)** and scaleTo(double s)** methods; and changing the speed of animation by adjusting **frameDelay** field.
 
 Sequnces can pause animation using setPaused(true) method or resumed with setPaused(false). Sequences can also be reversed using reverse() method and resumed by calling it again. 
+
+Sequences can use the **advanceMs** method to jump forward in the animation the given number ms
+
 
 
 # Stickers
@@ -220,9 +235,9 @@ GameObject2's are the core of all functional objects within a scene. GameObject2
 
 **name** This is used to help debugging; effectively a tag on the object. Displays on object when in debug view
 
-**renderNumber** Used to help debugging; tracks how many times this object has rendered
+**renderNumber** Tracks how many times this object has rendered
   
-**tickNumber** Used to help debugging; tracks how many times this object has ticked
+**tickNumber** Tracks how many times this object has ticked
 
 **location** This is a DCoordinate that determines the object's absolute position. This is then rounded to a Coordinate to render to pixel based screen. **Modifying this value will change the location of the object**. This field should not be confused with the getPixelLocation() method, which returns a rounded Coordinate version of this value. Modifying the result of getPixelLocation() will **not** change the location of the object it was called on.
 
@@ -265,8 +280,17 @@ GameObject2's are the core of all functional objects within a scene. GameObject2
 
 
 ### Important Methods
+**preTick()**
+preTick runs every game tick before the normal tick method. This method always execute in serial (not async- all units pretick in a determinisitic order). This method by default handles the velocity based movement and other core functions. It should always contain super() when overriden unless you know what you are doing.
+
 **tick()** 
-Tick runs every game 'tick', a number of times per second equal to the TPS (ticks per second), settable in the options menu. Tick is used to update logical computations. When overriding tick, you should generally first call super.tick, which maintains the variable that counts ticks as well as the updateLocation method.
+This is the main tick and may be run async depending on Main.tickThreadCount. Runs after all preticks have been run 
+
+**postTick()**
+This is always executed after all the tick functions have been completed. May be run async depending on Main.tickThreadCount. By default this handles updating the object's hitbox and should contain super(); when overriding unless you know what youre doing.
+
+**note about tickType**
+if unified tick type is active, each unit will run pretick-tick-posttick individually. If modular, then they all run pretick, then they all run tick, then they all run posttick.
 
 **render(Graphics2D g)**
 Render is run *every frame* and should be used to draw things to the scene. Generally you do not need to override this method unless you know what you are doing. Avoid adding complex logic checks to this as it runs very often and is not set to run in consistant intervals. If you do want to override this, remember that graphics transforms may be used so you will want to call the .create method on the graphics object you get. This will create a copy of the graphics object that you can safely trasform/rotate without effecting other rendering that may be happening elsewhere.
@@ -307,8 +331,15 @@ If this onbject's hitbox is intersected by the camera's field of view
 **onGamePause()**
 Triggers when hostgame is paused
 
+**angleFrom(DCoordinate)**
+The amount of degrees needed to rotate in order to face the specified point
+
 **destroy()**
 Destroys the object and removes it from play. isAlive will be *false* after this.
+
+### Tick Delayed Effects
+GameObejct2s and the Game object both have methods that allow you to add a tick-delayed effect. This method takes in a number of ticks to wait, and a Consumer. Then after the ticks have elapsed, it will trigger the consumer using the game as the parameter.
+tick delayed effects happen synchronously in the order added, and always before pretick.
 
 ### Visual Representation
 A GameObejct2 is rendered to the screen at its *pixelLocation*, this is the Coordinate approximation of its *location*, which is stored using a separate DCoordinate for greater location accuracy. *pixelLocation* represents where in the world the object will be rendered, measured in pixels.
@@ -413,13 +444,20 @@ Thsi Tick type iterates over all game objects and has them execute their pretick
 **Modular**
 This tick type breaks our the ticking into three stages. First all objects invoke their preTick methods one at a time, in a predictible order. After all preticks are done, all objects invoke their tick methods together asyncronously. Once all of those ticks are complete, all objects run their postTick methods one at a time in a predictable manner.
 
+Keeping Main.tickThreadCount = 1 is a good way to be safe about determinism. You most likely will not need multithreaded ticks for most games.
 
 ### Working with determinism
 If you have a game like an RTS where you need determinism and also to support a large number of concurrent GameObject2s, you will want to use Unified tick type but also need to keep in mind that tick methods are not executed in order. You should use **getLocationAsOfLastTick()** only to determine locations because getting location directly may not reflect what other objects see. For example unit 1 thinks unit 2 is at point 100,100 however some other unit's tick method moved unit2 to 105,105 beteen unit1 and 2 ticking. so now if unit1 uses the following code: unit2.location it may differ from what is returned when unit2 uses this code: this.location. to get around this, use **getLocationAsOfLastTick()** so that all parties see the same results.
 
 This same dillemma may come up for any business logic fields as well, which is why gameObejct2s have a map that you can store synced fields other than just location. **setSycnedProperty(key,value)** and **getSycnedProperty(key)** are used to store any value synced across ticks.
 
+Randomness is also an issue. This is why we have Main.setRandomSeed function that allows you to manually set a random seed for use in the main functions for generating random numbers. This can be synced across runs to ensure that random values are the same on both.
+
 **asOfLastTick** methods exist for the following fields as well: height, width, scale, rotation
+
+# Online Multiplayer
+Jengine does not pre-supply any networking code for general use, however it does provide an example in the RTS game folder. Your game should be deterministic in order for multiplayer to work correctly.
+You can use game.setHandleSyncTick(Consumer c) in order to add a new phase to the game's tick. After the game ticks each time, it will run the supplied Consumer with itself as the parameter. The game will not move to the next tick until this consumer is done executing. You can use this to coordinate sync logic between multiple running game instances
 
 # Pathing Layer
 A pathingLayer is an image file with the same dimensions as the world. This image however is made up of only a handful of colors with each of those colors representing a type of terrain. By default, there are four types defined: green= ground; red=hostile, blue= water; black= impassable.
@@ -449,17 +487,27 @@ Adding your own terrain type involves two steps
 2. Get the PathingLayer object out of your game object using game.getPathingLayer() and call assignColor method on it, providing it both a color, and the Type object you just created. Once done, any color in the source image matching the one prodived to this method will map to the given Type object
 
 # Engine Options
-### **Debug Mode** 
-set with Main.debugMode field, this is the one of the most useful tools for viewing your scene on a technical level. This view replaces the background with the game's pathing map if applicable, renders hitbox outlines *(red=solid, blue=non-solid, grey=solid but preventOverlap is off)*; Object names; and orientation markers on all objects.
-### **Overview Mode**
-Zooms out on the scene allowing you to see the whole thing on screen. Enable with Main.setOverviewMode(boolean) and check with Main.overviewMode().
-### **RenderDelay** 
-slow the rendering process by this much. Lowers FPS and response time but smoothes performance on weaker hardware. Changed with **Main.renderDelay**
-### **Triple Buffer (boolean)** 
-If false, uses only a double buffer. More buffers require more cpu power but make things animate smoother. Changed with  **Main.tripleBuffer**
-### **Ticks per Second**
-How fast scenes run their tick method. Slows or speeds up the game relative to real time. lower number = slower game but smoother performance for weak hardware.
+### Quick Reference
+*The following are public static values that can be changed at any time along with their default value.*
+* **Main.debugMode = false;** // set to true to view debug visuals
+* **Main.ticksPerSecond = 60;**
+* **Main.trippleBuffer = true;**
+* **Main.overviewMode = false;**
+* **Main.tickThreadCount = 1;**
+* **Main.renderThreadCount = -1;** // -1 means use cachedThreadPool. Otherwise its fixed number
+* **numGraphicScalingSteps = 4;** // only applies to images larger than 200x200. higher number = more color smoothing (blur)
+* **splitBackgreoundRender = true;** // when true, the background is rendered as 4 independent quadrants
+* **ignoreSubobjectCollision = false;** // set to true for improved performance. Subobjects will not be considered for collision
+* **ignoreCollosionsForStillObjects = false;** // set to true for improved performance. Objects with 0 velocity will not check for collisions (the things that run into them will still trigger for both tho)
+
+### Fullscreen
+You can use Window.initializeFullscreen(Game) instead of initialize() to go straight to fullscreen mode with best results.
+You can use Window.setFullscreenWindowed(boolen) after the game has started. However re-entering fullscreen after the game has started can be buggy
+
+
 ### **Resolution Scaling**
+You may want to change the **Game.NATIVE_RESOLUTION**  field to match the resolution of *your* monitor. This value is used to scale the game display onto whatever monitor it runs on such that object scale is consistent on both your development monitor and someone else's when they run your game. Once again this should be *your* resolution, not the resolution you plan to run on. Setting this field enabled the use of the `Game.scaleForResolution()` method, which zooms in based on the current screen in order to match the development screen's scale. For Example, if you develop a game on a 1000x1000 monitor, and someone runs it on a 2000x2000 monitor, this method will zoom into the game such that they only see what would have been visible on a 1000x100 monitor. **This is not necesary and may even downgrade graphical fidelity. Use only if you want to restrict what is visible.**
+
 When you create a project that uses visual image assets, those assets are rendered pixel per pixel and their size (without in-engine scaling) is determined by the actual size of the image asset used. Ie: a 200x200 image will display over a distance of 200x200 in the game. The problem is that different screens have different resolutions than the screen you are testing your project on, so a character that looks large on your 1080p display will look tiny on a 4k display. To keep things looking uniform across all screen resolutions, set the final static field **NATIVE_RESOLUTION** in game class to reflect the resolution of you, the programmer's screen. Now you may call the **Game.scaleForResolution()** option and it will automatically scale your entire project to look the same on whatever screen size the project is run in as it does on the screen you are testing on.
 ### **tickThreadCount**
 This determines how many threads to use to execute ticks. More threads means faster ticks up to a point however using more than one thread here may make your game non-deterministic in multiplayer. Set once before game start.
@@ -520,6 +568,18 @@ private static SoundEffect soundSource = new SoundEffect(new File("mySound.au"))
 }
 </pre>
 
+## Limiting number of playing copies
+Sometimes you want to limit how many copies of the same sound can play at once. The playCopy method automatically adds 1 to the field numCopiesPlaying. This number needs to be manually decremented back down by your logic. If you do, you can reference the value to limit how many sounds are playing. The following example limits the number of sounds that can be played in any .5 second timeframe to 10
+<pre>
+private static SoundEffect soundSource = new SoundEffect(new File("mySound.au"));
+  public void playSound(){
+    if(soundSource.getNumCopiesPlaying() < 10) {
+       soundSource.playCopy();
+       addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+      }
+  }
+</pre>
+
 ### Linking SoundEffects To Games
 Linking a sound to a game will make that sound be part of that game rather than a simple global sound. Sounds that are linked to games will only play while that game is unpaused. SoundEffects linked in such a way only play if both they *and their linked game* are unpaused. Linked sounds are stored in the Game's **AudioManager**. Access all sounds linked to a game by using game.audioManager.getAllSounds();
 
@@ -527,11 +587,10 @@ Linking a sound to a game will make that sound be part of that game rather than 
 You may want to detect and react to happenings on a sound effect. Implementing this interface then calling the .setListener method on the desired sound effect will allow you react to events in a sound effect. For example, override the onPause() method with a function that prints "the sound was paused!" to the console and every time the sound is paused, your listener will print that to the console. 
 
 # Running Your .Jar Outside IDE
-It is recommended you increase the ram allocation using -Xmx1024m or -Xmx2084m (1gb or 2gb) so that it has enough memory
-For non-fullscreen applications, it is *Highly** recommended that you run your jar with direct3d **disabled**. This make your game run really poorly unless its fullscreen
+It is recommended you increase the ram allocation using -Xmx1024m or -Xmx2084m (1gb or 2gb) so that it has enough memory. more if needed.
+It is *Highly** recommended that you run your jar with direct3d **disabled**. This make your game run really poorly unless its fullscreen
 
-**java -Dsun.java2d.d3d=false -Xmx1024m -jar 2DTemplate.jar**  
-(note 2DTemplate.jar is name of project jar)
-
+**java -Dsun.java2d.d3d=false -Xmx1024m -jar JEngine.jar**  
+(note JEngine.jar is name of project jar)
 
 [**Old javadoc here**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)  
