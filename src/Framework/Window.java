@@ -38,7 +38,18 @@ public class Window {
      */
     public static void initialize(Game g){
         if(mainWindow == null){
-             mainWindow = new Window(g);
+             mainWindow = new Window(g, false);
+             if(g.hasStarted==false){
+                 g.start();
+             }
+        }else{
+            System.out.println("WARNING, TRYING TO INITIALIZE WINDOW WHEN ALREADY INITIALIZED");
+        }
+    }
+    
+    public static void initializeFullScreen(Game g) {
+          if(mainWindow == null){
+             mainWindow = new Window(g, true);
              if(g.hasStarted==false){
                  g.start();
              }
@@ -61,9 +72,10 @@ public class Window {
         }
     }
     
-    private Window(Game g) {
+    private Window(Game g, boolean fullscreen) {
         panel.setLayout(null);
         frame = new JFrame(title);
+        if(fullscreen) setFullscreenWindowed(true);
         frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Window.class.getResource("/Resources/JEngineIcon.png")));
         Dimension d = new Dimension(g.windowWidth,g.windowHeight);
         g.setBounds(0, 0, g.windowWidth, g.windowHeight);
@@ -189,38 +201,25 @@ public class Window {
         }
     }
     
-    /**
-     * REAL FULLSCREEN REQUIRES -Dsun.java2d.d3d=true
-     * JEngine works much better with that flag set to false when not full screen
-     * Real fullscreen will not respect UIElements
-     * 
-     * 
-     * Tries to make the window fullscreen if the OS allows it
-     * @param x whether or not to make it fullscreen
-     */
-    public static void setFullscreen(boolean x) {
-        try {
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gd = ge.getDefaultScreenDevice();
-
-            if (!gd.isFullScreenSupported()) {
-                System.out.println("Fullscreen not supported");
-                return;
-            } else {
-                System.out.println("fullscreen is supported");
-            }
-            gd.setFullScreenWindow(x ? frame : null);
-            if(x) {
-                frame.setLocationRelativeTo(null);
-                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                frame.setVisible(true);
-                frame.setUndecorated(true);
-            }
-        } catch (Exception e) {
-            System.out.println("exception making window fullscreen. Has the game started and is it visible?");
-            System.out.println(e.getMessage());
-        }
-
-    }
     
+    public static void setFullscreenWindowed(boolean x) {
+        if(x) {
+            frame.setLocationRelativeTo(null);
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            frame.setVisible(false);
+            frame.dispose();
+            frame.setUndecorated(true);
+            frame.pack();
+            frame.setVisible(true);
+        } else {
+            frame.setLocationRelativeTo(null);
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            frame.setVisible(false);
+            frame.dispose();
+            frame.setUndecorated(false);
+            frame.pack();
+            frame.setVisible(true);
+        }
+    }
+
 }

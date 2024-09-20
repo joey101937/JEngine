@@ -452,7 +452,7 @@ public class Game extends Canvas implements Runnable {
             getInputHandler().tick();
         }
         tickIndependentEffects();
-//        Window.TickUIElements();
+        Window.TickUIElements();
 //        Window.updateFrameSize();
         if(this.handleSyncTick != null)this.handleSyncTick.accept(this);
     }
@@ -473,6 +473,7 @@ public class Game extends Canvas implements Runnable {
                 numBuffer = 3;
             }
             this.createBufferStrategy(numBuffer);
+            System.out.println("generating buffer");
             return;
         }
         Graphics g = bs.getDrawGraphics();
@@ -499,7 +500,11 @@ public class Game extends Canvas implements Runnable {
         g.dispose();
         g2d.dispose();
         if (Window.currentGame == this && !this.isPaused()) {
-            bs.show();
+            try {
+                bs.show();
+            } catch (Exception e) {
+                System.out.println("Exception on buffer show");
+            }
         }
     }
 

@@ -19,7 +19,7 @@ import java.io.File;
  */
 public class Rifleman extends RTSUnit {
 
-    public static double VISUAL_SCALE = .4;
+    public static final double VISUAL_SCALE = .4;
     public static final Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
     public static final Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
     public static final Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
@@ -34,6 +34,7 @@ public class Rifleman extends RTSUnit {
         runningSequence.setFrameDelay(35);
         attackSequence.setSignature("attackSequence");
         attackSequenceRed.setSignature("attackSequence");
+        shadowSprite.scaleTo(VISUAL_SCALE);
     }
 
     // fields
@@ -102,7 +103,6 @@ public class Rifleman extends RTSUnit {
     @Override
     public void render(Graphics2D g) {
         super.render(g);
-        shadowSprite.scaleTo(VISUAL_SCALE);
         AffineTransform old = g.getTransform();
         VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
         int renderX = getPixelLocation().x - toRender.getWidth() / 2;

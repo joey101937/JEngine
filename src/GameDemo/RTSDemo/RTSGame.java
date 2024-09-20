@@ -37,16 +37,16 @@ public class RTSGame {
         Window.addUIElement(minimap);
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
         minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
+        Window.addUIElement(new MinimapButton(game, new Coordinate(0,0)));
         Main.splitBackgroundRender = true;
         // minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38);
         minimap.setLocation(g.getWindowWidth() - minimap.getWidth(), 0);
-        Window.setFullscreen(true);
         Main.ignoreSubobjectCollision = true; // better performance
         Main.ignoreCollisionsForStillObjects = true; // better performance
     }
 
     public static void main(String[] args) {
-        Window.initialize(game);
+        Window.initializeFullScreen(game);
         setup(game);
 
         int spacer = 160;

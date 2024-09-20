@@ -298,6 +298,11 @@ public class RTSInput extends InputHandler {
             // Z
             case 90 ->
                 Main.debugMode = !Main.debugMode;
+           // backspace
+            case 8 -> {
+                // System.out.println(Window.getUIElements().get(0).isVisible());
+                Window.setFullscreenWindowed(true);
+            }
             // case 0-9
             case 48, 49, 50, 51, 52, 53, 54, 55, 56, 57 -> {
                 System.out.println("triggering for " + e.getKeyChar() + e.isShiftDown() + e.isControlDown() + e.isAltDown());
@@ -318,7 +323,7 @@ public class RTSInput extends InputHandler {
             }
             // Escape
             case 27 -> {
-                Window.setFullscreen(false);
+                Window.setFullscreenWindowed(false);
                 return;
             }
         }
