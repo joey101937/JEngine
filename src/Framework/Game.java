@@ -800,6 +800,13 @@ public class Game extends Canvas implements Runnable {
         thread.start();
         running = true;
     }
+    
+    @Override
+    public void setName(String s) {
+        super.setName(s);
+        this.name = s;
+        Window.updateTitlePerGame(this);
+    }
 
     /**
      * Stops the running of this game. Note this is different than pause in that
