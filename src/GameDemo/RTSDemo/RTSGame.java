@@ -27,6 +27,8 @@ public class RTSGame {
     public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
 
     public static void setup(Game g) {
+        Main.minSizeForScalingSteps = 0;
+        Main.numGraphicScalingSteps = 32;
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
         Main.ticksPerSecond = 60;

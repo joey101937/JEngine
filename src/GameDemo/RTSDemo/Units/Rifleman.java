@@ -19,7 +19,7 @@ import java.io.File;
  */
 public class Rifleman extends RTSUnit {
 
-    public static final double VISUAL_SCALE = .4;
+    public static final double VISUAL_SCALE = .2;
     public static final Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
     public static final Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
     public static final Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
@@ -35,6 +35,12 @@ public class Rifleman extends RTSUnit {
         attackSequence.setSignature("attackSequence");
         attackSequenceRed.setSignature("attackSequence");
         shadowSprite.scaleTo(VISUAL_SCALE);
+        idleAnimation.scaleTo(VISUAL_SCALE);
+        idleAnimationRed.scaleTo(VISUAL_SCALE);
+        attackSequence.scaleTo(VISUAL_SCALE);
+        attackSequenceRed.scale(VISUAL_SCALE);
+        baseSprite.scaleTo(VISUAL_SCALE * .8);
+        runningSequence.scaleTo(VISUAL_SCALE * .8);
     }
 
     // fields
@@ -42,7 +48,7 @@ public class Rifleman extends RTSUnit {
 
     public Rifleman(int x, int y, int team) {
         super(x, y, team);
-        this.setScale(VISUAL_SCALE);
+        this.setScale(VISUAL_SCALE * .8);
         this.setGraphic(baseSprite);
         this.maxHealth = 20;
         this.addSubObject(this.turret);
@@ -53,17 +59,17 @@ public class Rifleman extends RTSUnit {
         this.rotationSpeed = 15;
         this.maxHealth = 20;
         this.currentHealth = 20;
-        this.range = 450;
+        this.range = 500;
     }
 
     @Override
     public int getWidth() {
-        return baseSprite.getWidth() + 10;
+        return baseSprite.getWidth() + 20;
     }
 
     @Override
     public int getHeight() {
-        return baseSprite.getHeight() + 10;
+        return baseSprite.getHeight() + 20;
     }
 
     @Override
@@ -84,13 +90,13 @@ public class Rifleman extends RTSUnit {
             return;
         }
         attackCoolingDown = true;
-        if(attackSound.getNumCopiesPlaying() < 10) {
+        if(attackSound.getNumCopiesPlaying() < 7) {
             if(isOnScreen()) {
-                attackSound.playCopy(Main.generateRandomDoubleLocally(.6f, .68f));
-                addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+                attackSound.playCopy(Main.generateRandomDoubleLocally(.55f, .63f));
+                addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
             } else {
                 attackSound.playCopy(Main.generateRandomDoubleLocally(.4f, .48f));
-                addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+                addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
             }
         }
         turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());

@@ -151,8 +151,8 @@ public abstract class SpriteManager {
             tankTurretDamaged = load("DemoAssets/TankGame/tankTurretDamaged.png");
             tankFireAnimationDamaged = loadSequence("DemoAssets/TankGame/tank1FireDamaged");
             // Infantry
-            infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run(small)");
-            infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle(small)");
+            infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run");
+            infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle");
             infantryBazookaIdle = loadSequence("DemoAssets/TankGame/Infantry/bazooka/idle");
             infantryRifleMoving = loadSequence("DemoAssets/TankGame/Infantry/rifle/move"); //todo
             infantryLegs = load("DemoAssets/TankGame/Infantry/feet/idle/survivor-idle_0.png");

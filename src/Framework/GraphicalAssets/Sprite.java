@@ -68,7 +68,7 @@ public class Sprite implements Graphic {
         output.signuature = this.signuature;
         return output;
     }
-    
+
     @Override
     public double getScale() {
         return scale;
@@ -76,6 +76,7 @@ public class Sprite implements Graphic {
 
     /**
      * image by a given amount
+     *
      * @param d multiplier to scale by
      */
     @Override
@@ -155,5 +156,33 @@ public class Sprite implements Graphic {
     @Override
     public void setSignature(String s) {
         signuature = s;
+    }
+
+    public static Sprite generateShadowSprite(BufferedImage input, double opacity) {
+        opacity = Math.max(0, Math.min(1, opacity));
+
+        // Create a new BufferedImage with the same dimensions and type as the input
+        BufferedImage shadowImage = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+        // Iterate over every pixel in the input image
+        for (int x = 0; x < input.getWidth(); x++) {
+            for (int y = 0; y < input.getHeight(); y++) {
+                // Get the original pixel color
+                int argb = input.getRGB(x, y);
+
+                // Extract the alpha value of the pixel
+                int originalAlpha = (argb >> 24) & 0xff;
+
+                // Create a dark gray color (e.g., RGB 50, 50, 50) and apply the input opacity and original alpha
+                int shadowAlpha = (int) (originalAlpha * opacity); // Adjust alpha based on opacity
+                int gray = 50; // Dark gray color
+                int shadowColor = (shadowAlpha << 24) | (gray << 16) | (gray << 8) | gray;
+
+                // Set the pixel in the shadow image
+                shadowImage.setRGB(x, y, shadowColor);
+            }
+        }
+
+        return new Sprite(shadowImage);
     }
 }
