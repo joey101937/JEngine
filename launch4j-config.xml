@@ -11,12 +11,12 @@
     <supportUrl>http://yourgame.com/support</supportUrl>
     <icon>./src/Resources/JEngineIcon.ico</icon> <!-- Path to your icon -->
     <jre>
-        <path>.\jdk-22\bin</path>  Optional: Path to a bundled JRE 
+        <path>.\jdk-22\bin</path>  <!-- Optional: Path to a bundled JRE -->
         <minVersion>22</minVersion> <!-- Minimum Java version required -->
         <maxVersion/>
         <jdkPreference>preferJre</jdkPreference>
         <initialHeapSize>128</initialHeapSize>
         <maxHeapSize>2048</maxHeapSize>
-        <opt>-Xms128m -Xmx2048m -Dsun.java2d.d3d=true</opt>
+        <opt>-Xms128m -Xmx2048m -Dsun.java2d.d3d=false</opt>
     </jre>
 </launch4jConfig>

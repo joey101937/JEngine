@@ -34,7 +34,7 @@ public class Rifleman extends RTSUnit {
         runningSequence.setFrameDelay(35);
         attackSequence.setSignature("attackSequence");
         attackSequenceRed.setSignature("attackSequence");
-        shadowSprite.scaleTo(VISUAL_SCALE);
+        shadowSprite.scaleTo(VISUAL_SCALE * 2);
         idleAnimation.scaleTo(VISUAL_SCALE);
         idleAnimationRed.scaleTo(VISUAL_SCALE);
         attackSequence.scaleTo(VISUAL_SCALE);
@@ -64,12 +64,12 @@ public class Rifleman extends RTSUnit {
 
     @Override
     public int getWidth() {
-        return baseSprite.getWidth() + 20;
+        return baseSprite.getWidth() + 24;
     }
 
     @Override
     public int getHeight() {
-        return baseSprite.getHeight() + 20;
+        return baseSprite.getHeight() + 24;
     }
 
     @Override

@@ -102,7 +102,7 @@ public class BazookaBullet extends Projectile {
     public void onDestroy() {
         OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), getPixelLocation(true));
         if (collidedUnit != null) {
-            collidedUnit.takeDamage(20);
+            collidedUnit.takeDamage(23);
         }
     }
 

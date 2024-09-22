@@ -64,12 +64,12 @@ public class Bazookaman extends RTSUnit {
 
     @Override
     public int getWidth() {
-        return baseSprite.getWidth() + 18;
+        return baseSprite.getWidth() + 30;
     }
 
     @Override
     public int getHeight() {
-        return baseSprite.getHeight() + 10;
+        return baseSprite.getHeight() + 40;
     }
 
     @Override
@@ -117,7 +117,7 @@ public class Bazookaman extends RTSUnit {
             System.out.println("shadow null for bazooka");
             return;
         }
-        shadowSprite.scaleTo(VISUAL_SCALE); //shadow is small
+        shadowSprite.scaleTo(VISUAL_SCALE * 2); //shadow is small
         AffineTransform old = g.getTransform();
         VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
         int renderX = getPixelLocation().x - toRender.getWidth() / 2;
