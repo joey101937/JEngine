@@ -305,7 +305,6 @@ public class RTSInput extends InputHandler {
             }
             // case 0-9
             case 48, 49, 50, 51, 52, 53, 54, 55, 56, 57 -> {
-                System.out.println("triggering for " + e.getKeyChar() + e.isShiftDown() + e.isControlDown() + e.isAltDown());
                 Integer groupNumber = Integer.valueOf(e.getKeyCode() - 48);
                 if (e.isShiftDown()) {
                     ControlGroupHelper.addToGroup(groupNumber, SelectionBoxEffect.selectedUnits);

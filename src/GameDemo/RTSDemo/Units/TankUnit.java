@@ -32,7 +32,7 @@ public class TankUnit extends RTSUnit {
     // public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/blast4.62.wav"));
     public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
     public Turret turret;
-    public final static double VISUAL_SCALE = 1;
+    public final static double VISUAL_SCALE = 1.15;
     public boolean weaponOnCooldown = false;
 
     // Modified buffered images for team color
@@ -104,7 +104,7 @@ public class TankUnit extends RTSUnit {
 
         deathAnimationHull.setFrameDelay(60);
         deathAnimationTurret.setFrameDelay(60);
-
+        
         List.of(chasisSpriteGreen,
                 chasisSpriteRed,
                 turretSpriteGreen,
@@ -114,6 +114,7 @@ public class TankUnit extends RTSUnit {
                 rubbleHullSprite,
                 rubbleTurretSprite,
                 deathShadow,
+                shadow,
                 deathAnimationHull,
                 tankHullDamagedRed,
                 tankHullDamagedGreen,
@@ -194,12 +195,12 @@ public class TankUnit extends RTSUnit {
 
     private void init() {
         initGraphics();
+        setScale(VISUAL_SCALE); 
         Sprite chassSprite = getHullSprite();
         this.setGraphic(chassSprite);
         this.movementType = MovementType.RotationBased;
         turret = new Turret(new Coordinate(0, 0));
         this.addSubObject(turret);
-        setScale(VISUAL_SCALE);
         isSolid = true;
         preventOverlap = true;
         this.maxHealth = 200;//tanks can take 4 shots
@@ -237,8 +238,8 @@ public class TankUnit extends RTSUnit {
 
         public Turret(Coordinate offset) {
             super(offset);
-            this.setGraphic(getTurretSprite());
             setScale(VISUAL_SCALE);
+            this.setGraphic(getTurretSprite());
         }
 
         /*

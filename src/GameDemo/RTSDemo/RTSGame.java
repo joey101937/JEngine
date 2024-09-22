@@ -14,6 +14,7 @@ import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
 
@@ -69,7 +70,7 @@ public class RTSGame {
             game.addObject(tank);
         }
         for (int i = 0; i < 40; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 600, 0);
+            LightTank tank = new LightTank(100 + (i * spacer), 600, 0);
             tank.setRotation(180);
             game.addObject(tank);
         }
@@ -93,7 +94,7 @@ public class RTSGame {
             game.addObject(new TankUnit(100 + (i * spacer), 1700, 1));
         }
         for (int i = 0; i < 40; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 1850, 1));
+            game.addObject(new LightTank(100 + (i * spacer), 1850, 1));
         }
         for (int i = 0; i < 40; i++) {
             game.addObject(new Hellicopter(100 + (i * spacer), 2000, 1));

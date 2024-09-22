@@ -24,6 +24,7 @@ import java.io.File;
  * @author guydu
  */
 public class Hellicopter extends RTSUnit {
+    public static double VISUAL_SCALE = 1.1;
 
     public static Sprite baseSprite = new Sprite(SpriteManager.hellicopter);
     public static Sprite shadowSprite = new Sprite(SpriteManager.hellicopterShadow);
@@ -39,6 +40,7 @@ public class Hellicopter extends RTSUnit {
 
     public Hellicopter(int x, int y, int team) {
         super(x, y, team);
+        this.setScale(VISUAL_SCALE);
         this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
         this.setZLayer(11);
         this.plane = 2;
@@ -116,6 +118,7 @@ public class Hellicopter extends RTSUnit {
 
         public HellicopterTurret(Coordinate offset) {
             super(offset);
+            this.setScale(VISUAL_SCALE);
             this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
             this.setZLayer(11);
         }

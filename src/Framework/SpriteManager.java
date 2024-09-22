@@ -59,6 +59,8 @@ public abstract class SpriteManager {
     public static BufferedImage tankDeadTurret;
     public static BufferedImage[] tankHullDeathAni;
     public static BufferedImage[] tankTurretDeathAni;
+    public static BufferedImage lightTankHull, lightTankTurret;
+    
     public static BufferedImage[] infantryLegsRun, infantryRifleIdle, infantryRifleFire, infantryRifleMoving, infantryBazookaIdle, infantryBazookaFire;
     public static BufferedImage infantryLegs, infantryShadow;
 
@@ -150,6 +152,12 @@ public abstract class SpriteManager {
             tankHullDamaged = load("DemoAssets/TankGame/tankHullDamaged.png");
             tankTurretDamaged = load("DemoAssets/TankGame/tankTurretDamaged.png");
             tankFireAnimationDamaged = loadSequence("DemoAssets/TankGame/tank1FireDamaged");
+            tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
+            tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
+            tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
+            // light tank
+            lightTankHull = load("DemoAssets/TankGame/lightTank/lightTankHull.png");
+            lightTankTurret = load("DemoAssets/TankGame/lightTank/lightTankTurret.png");
             // Infantry
             infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run");
             infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle");
@@ -160,9 +168,6 @@ public abstract class SpriteManager {
             infantryBazookaFire = loadSequence("DemoAssets/TankGame/Infantry/bazooka/shoot");
             infantryShadow = load("DemoAssets/TankGame/Infantry/infantryShadow.png");
 
-            tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
-            tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
-            tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
 
             spaceBG = load("DemoAssets/spacebg.png");
             spaceBG2 = load("DemoAssets/spacebg2.png");
