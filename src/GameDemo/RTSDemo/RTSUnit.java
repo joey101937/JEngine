@@ -8,6 +8,7 @@ package GameDemo.RTSDemo;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
+import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.SandboxDemo.Creature;
@@ -15,8 +16,11 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  *
@@ -32,6 +36,8 @@ public class RTSUnit extends Creature {
     public boolean canAttackAir = false;
     public boolean isRubble = false;
     public double rotationSpeed = 5;
+    public boolean isInfantry = false;
+    public RTSUnit nearestEnemyInfantry, nearestEnemeyGroundVehicle, nearestEnemyAircraft, nearestEnemyGroundUnit, nearestEnemyUnit;
 
     private Color getColorFromTeam(int team) {
         return switch (team) {
@@ -166,7 +172,7 @@ public class RTSUnit extends Creature {
             return;
         }
         if (desiredLocation.distanceFrom(location) > getWidth() / 2) {
-            double desiredRotation = this.angleFrom(desiredLocation);
+            double desiredRotation = this.rotationNeededToFace(desiredLocation);
             double maxRotation = rotationSpeed;
             if (Math.abs(desiredRotation) < 20) {
                 maxRotation = 2; // slow down as we get closer
@@ -304,6 +310,58 @@ public class RTSUnit extends Creature {
                 this.die();
             }
         }
+    }
 
+    public void drawShadow(Graphics2D g, Graphic image, int xOffset, int yOffset) {
+        int shadowOffsetX = xOffset;
+        int shadowOffsetY = yOffset;
+        Coordinate pixelLocation = getPixelLocation();
+        pixelLocation.x += shadowOffsetX;
+        pixelLocation.y += shadowOffsetY;
+        AffineTransform old = g.getTransform();
+        VolatileImage toRender = image.getCurrentVolatileImage();
+        int renderX = pixelLocation.x - toRender.getWidth() / 2;
+        int renderY = pixelLocation.y - toRender.getHeight() / 2;
+        g.rotate(Math.toRadians(getRotation()), pixelLocation.x, pixelLocation.y);
+        g.drawImage(toRender, renderX, renderY, null);
+        g.setTransform(old);
+    }
+
+    public void populateNearbyEnemies() {
+        RTSUnit nearestInfantry = null, nearestVehicle = null, nearestAircraft = null, nearestUnit = null;
+        double infantryDistance = 999999999, vehicleDistance = 999999999, aircraftDistance = 999999999, closestDistance = 999999999;
+        Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
+        for(GameObject2 go : nearby) {
+            if(go instanceof RTSUnit unit && unit.team != team) {
+                System.out.println("nearby is " + unit);
+                double distance = distanceFrom(unit);
+                if(unit.plane > 1) {
+                    if(nearestAircraft == null || distance < aircraftDistance) {
+                        nearestAircraft = unit;
+                        aircraftDistance = distance;
+                    }
+                }
+                else if(unit.isInfantry) {
+                    if(nearestInfantry == null || distance < infantryDistance) {
+                        nearestInfantry = unit;
+                        infantryDistance = distance;
+                    }
+                }
+                else {
+                    if(nearestVehicle == null || distance < vehicleDistance) {
+                        nearestVehicle = unit;
+                        vehicleDistance = distance;
+                    }
+                }
+                if(distance < closestDistance) {
+                    nearestUnit = unit;
+                }
+            }
+        }
+        this.nearestEnemeyGroundVehicle = nearestVehicle;
+        this.nearestEnemyInfantry = nearestInfantry;
+        this.nearestEnemyAircraft = nearestAircraft;
+        this.nearestEnemyGroundUnit = vehicleDistance < infantryDistance ? nearestVehicle : nearestInfantry;
+        this.nearestEnemyUnit = nearestUnit;
     }
 }

@@ -158,6 +158,12 @@ public class Sprite implements Graphic {
         signuature = s;
     }
 
+    /**
+     * generates a topdown shadow sprite based on given input
+     * @param input image to make shadow of
+     * @param opacity opacity of shadow
+     * @return new sprite from gnerated image
+     */
     public static Sprite generateShadowSprite(BufferedImage input, double opacity) {
         opacity = Math.max(0, Math.min(1, opacity));
 
@@ -173,9 +179,9 @@ public class Sprite implements Graphic {
                 // Extract the alpha value of the pixel
                 int originalAlpha = (argb >> 24) & 0xff;
 
-                // Create a dark gray color (e.g., RGB 50, 50, 50) and apply the input opacity and original alpha
+                // Create a dark gray color (e.g., RGB 30, 30, 30) and apply the input opacity and original alpha
                 int shadowAlpha = (int) (originalAlpha * opacity); // Adjust alpha based on opacity
-                int gray = 50; // Dark gray color
+                int gray = 30; // Dark gray color
                 int shadowColor = (shadowAlpha << 24) | (gray << 16) | (gray << 8) | gray;
 
                 // Set the pixel in the shadow image

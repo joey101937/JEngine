@@ -344,10 +344,22 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      * @param point point to look at
      * @return degree of rotation required to face given point from current orientation
      */
-    public double angleFrom(Coordinate point){
+    public double rotationNeededToFace(Coordinate point){
         double result = DCoordinate.angleFrom(getPixelLocation(), point);
         if(result-getRotation()>180)result-=360;
         return result - getRotation();
+    }
+    
+    /**
+     * This is like rotationNeededToFace as if current rotation is always 0
+     * returns degree of angle between this location and given location
+     * @param point point to look at
+     * @return 
+     */
+    public double angleFrom(Coordinate point){
+        double result = DCoordinate.angleFrom(getPixelLocation(), point);
+        if(result>180)result-=360;
+        return result;
     }
     
     

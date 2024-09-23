@@ -86,7 +86,7 @@ public class BazookaBullet extends Projectile {
         // lockon
         if(target.maxHealth > 50) {
             Coordinate updatedTarget = target.getPixelLocation();
-            double desiredRotation = angleFrom(updatedTarget);
+            double desiredRotation = rotationNeededToFace(updatedTarget);
             
             if(Math.abs(desiredRotation) < 90) {
                 if(Math.abs(desiredRotation) < maxRotationPerTick) {

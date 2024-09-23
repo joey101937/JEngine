@@ -32,7 +32,7 @@ public class TankUnit extends RTSUnit {
     // public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/blast4.62.wav"));
     public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
     public Turret turret;
-    public final static double VISUAL_SCALE = 1.15;
+    public final static double VISUAL_SCALE = 1.10;
     public boolean weaponOnCooldown = false;
 
     // Modified buffered images for team color
@@ -143,14 +143,7 @@ public class TankUnit extends RTSUnit {
     @Override
     public void render(Graphics2D g) {
         if (isSolid) {
-            AffineTransform old = g.getTransform();
-            VolatileImage toRender = shadow.getCurrentVolatileImage();
-            int renderX = getPixelLocation().x - toRender.getWidth() / 2;
-            int renderY = getPixelLocation().y - toRender.getHeight() / 2;
-            int shadowOffset = 9;
-            g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
-            g.drawImage(toRender, renderX, renderY + shadowOffset, null);
-            g.setTransform(old);
+            drawShadow(g, shadow, 5, 9);
         }
         super.render(g);
     }
@@ -210,7 +203,7 @@ public class TankUnit extends RTSUnit {
     //when a tank tries to fire, it first checks if its turret is still firing. 
     //if not, tell the turret to fire at target location
     public void fire(Coordinate target) {
-        if (weaponOnCooldown || target.distanceFrom(location) < getHeight() * 3 / 5 || Math.abs(turret.angleFrom(target)) > 1) { //limited to one shot per 60 ticks
+        if (weaponOnCooldown || target.distanceFrom(location) < getHeight() * 3 / 5 || Math.abs(turret.rotationNeededToFace(target)) > 1) { //limited to one shot per 60 ticks
             return;
         }
         weaponOnCooldown = true;
@@ -326,7 +319,7 @@ public class TankUnit extends RTSUnit {
                     }
                 }
             } else {
-                double desiredRotation = angleFrom(enemy.getPixelLocation());
+                double desiredRotation = rotationNeededToFace(enemy.getPixelLocation());
                 double maxRotation = 5;
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);
@@ -345,6 +338,17 @@ public class TankUnit extends RTSUnit {
         // turret render
         @Override
         public void render(Graphics2D g) {
+            if (getHost().isSolid) {
+                AffineTransform old = g.getTransform();
+                VolatileImage toRender = turretShadow.getCurrentVolatileImage();
+                int renderX = getPixelLocation().x - toRender.getWidth() / 2;
+                int renderY = getPixelLocation().y - toRender.getHeight() / 2;
+                int shadowOffsetY = 3;
+                int shadowOffsetX = 1;
+                g.rotate(Math.toRadians(getRotation()), getPixelLocation().x + shadowOffsetX, getPixelLocation().y + shadowOffsetY);
+                g.drawImage(toRender, renderX, renderY + shadowOffsetY, null);
+                g.setTransform(old);
+            }
             super.render(g);
         }
 

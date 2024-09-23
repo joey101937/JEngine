@@ -13,8 +13,6 @@ import Framework.SpriteManager;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.image.VolatileImage;
 import java.io.File;
 
 /**
@@ -24,7 +22,7 @@ import java.io.File;
  * @author guydu
  */
 public class Hellicopter extends RTSUnit {
-    public static double VISUAL_SCALE = 1.1;
+    public static double VISUAL_SCALE = 1.05;
 
     public static Sprite baseSprite = new Sprite(SpriteManager.hellicopter);
     public static Sprite shadowSprite = new Sprite(SpriteManager.hellicopterShadow);
@@ -37,6 +35,10 @@ public class Hellicopter extends RTSUnit {
     public HellicopterTurret turret;
     public long lastFireTick = 0;
     public int attackInterval = Main.ticksPerSecond * 2;
+    
+    static {
+        shadowSprite.scaleTo(VISUAL_SCALE);
+    }
 
     public Hellicopter(int x, int y, int team) {
         super(x, y, team);
@@ -86,7 +88,7 @@ public class Hellicopter extends RTSUnit {
         currentTarget = nearestEnemyInRange();
         boolean offCooldown = (tickNumber - lastFireTick) > attackInterval;
         if (currentTarget != null && offCooldown) {
-            if (Math.abs(turret.angleFrom(currentTarget.getPixelLocation())) < 2) {
+            if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {
                 lastFireTick = tickNumber;
                 Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
                 turret.setGraphic(attackAnimation.copyMaintainSource());
@@ -97,14 +99,8 @@ public class Hellicopter extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
-        AffineTransform old = g.getTransform();
-        VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
-        int renderX = getPixelLocation().x - toRender.getWidth() / 2;
-        int renderY = getPixelLocation().y - toRender.getHeight() / 2;
-        int shadowOffset = 90;
-        g.rotate(Math.toRadians(turret.getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
-        g.drawImage(toRender, renderX, renderY + shadowOffset, null);
-        g.setTransform(old);
+        drawShadow(g, shadowSprite, 5, 99);
+       
         if(isSelected()) {
             drawHealthBar(g);
         }
@@ -158,7 +154,7 @@ public class Hellicopter extends RTSUnit {
             double maxRotation = 5;
 
             if (host.currentTarget != null) {
-                desiredRotationAmount = angleFrom(host.currentTarget.getPixelLocation());
+                desiredRotationAmount = rotationNeededToFace(host.currentTarget.getPixelLocation());
             }
 
             double rotationAmount = 0;

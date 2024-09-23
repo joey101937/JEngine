@@ -60,6 +60,7 @@ public class Rifleman extends RTSUnit {
         this.maxHealth = 20;
         this.currentHealth = 20;
         this.range = 500;
+        isInfantry = true;
     }
 
     @Override
@@ -86,7 +87,7 @@ public class Rifleman extends RTSUnit {
     }
 
     public void fire(RTSUnit target) {
-        if (attackCoolingDown || Math.abs(turret.angleFrom(target.getPixelLocation())) > 1) {
+        if (attackCoolingDown || Math.abs(turret.rotationNeededToFace(target.getPixelLocation())) > 1) {
             return;
         }
         attackCoolingDown = true;
@@ -157,7 +158,7 @@ public class Rifleman extends RTSUnit {
                     }
                 }
             } else {
-                double desiredRotation = angleFrom(enemy.getPixelLocation());
+                double desiredRotation = rotationNeededToFace(enemy.getPixelLocation());
                 double maxRotation = 5;
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);

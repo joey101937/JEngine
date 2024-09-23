@@ -28,8 +28,6 @@ public class RTSGame {
     public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
 
     public static void setup(Game g) {
-        Main.minSizeForScalingSteps = 0;
-        Main.numGraphicScalingSteps = 32;
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
         Main.ticksPerSecond = 60;
@@ -99,5 +97,7 @@ public class RTSGame {
         for (int i = 0; i < 40; i++) {
             game.addObject(new Hellicopter(100 + (i * spacer), 2000, 1));
         }
+
+
     }
 }

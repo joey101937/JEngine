@@ -40,8 +40,6 @@ public class Main {
     public static boolean debugMode = false;
     public static int tickThreadCount = 1;
     public static int renderThreadCount = -1; // positive number = that number fixed. <=0 means use cachedThreadPool
-    public static int minSizeForScalingSteps = 200;
-    public static int numGraphicScalingSteps = 4; // only applies to images larger than 200x200. higher number = more color smoothing (blur)
     public static boolean splitBackgroundRender = true;
     public static boolean ignoreSubobjectCollision = false;
     public static boolean ignoreCollisionsForStillObjects = false;

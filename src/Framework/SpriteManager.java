@@ -59,7 +59,7 @@ public abstract class SpriteManager {
     public static BufferedImage tankDeadTurret;
     public static BufferedImage[] tankHullDeathAni;
     public static BufferedImage[] tankTurretDeathAni;
-    public static BufferedImage lightTankHull, lightTankTurret;
+    public static BufferedImage lightTankHull, lightTankTurret, lightTankShadow;
     
     public static BufferedImage[] infantryLegsRun, infantryRifleIdle, infantryRifleFire, infantryRifleMoving, infantryBazookaIdle, infantryBazookaFire;
     public static BufferedImage infantryLegs, infantryShadow;
@@ -158,6 +158,8 @@ public abstract class SpriteManager {
             // light tank
             lightTankHull = load("DemoAssets/TankGame/lightTank/lightTankHull.png");
             lightTankTurret = load("DemoAssets/TankGame/lightTank/lightTankTurret.png");
+            lightTankShadow = load("DemoAssets/TankGame/lightTank/lightTankShadow.png");
+
             // Infantry
             infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run");
             infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle");

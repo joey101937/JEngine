@@ -417,6 +417,23 @@ public class Game extends Canvas implements Runnable {
         }
         return output;
     }
+    
+    /**
+     * gets all gameobjects whose hitbox intersects given line
+     * @param start start position of line
+     * @param end end position of line
+     * @return list of objects
+     */
+    public ArrayList<GameObject2> getObjectsIntersectingLine(DCoordinate start, DCoordinate end) {
+        ArrayList<GameObject2> output = new ArrayList<>();
+        double[] points = {start.x, start.y, end.x, end.y};
+        for(GameObject2 go : handler.getAllObjects()) {
+            if(go.getHitbox() != null && go.getHitbox().intersectsWithLine(points)) {
+                output.add(go);
+            }
+        }
+        return output;
+    }
 
     /**
      * native resolution of the game you are creating; used to scale graphics

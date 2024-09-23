@@ -495,7 +495,6 @@ Adding your own terrain type involves two steps
 * **Main.overviewMode = false;**
 * **Main.tickThreadCount = 1;**
 * **Main.renderThreadCount = -1;** // -1 means use cachedThreadPool. Otherwise its fixed number
-* **numGraphicScalingSteps = 4;** // only applies to images larger than 200x200. higher number = more color smoothing (blur)
 * **splitBackgreoundRender = true;** // when true, the background is rendered as 4 independent quadrants
 * **ignoreSubobjectCollision = false;** // set to true for improved performance. Subobjects will not be considered for collision
 * **ignoreCollosionsForStillObjects = false;** // set to true for improved performance. Objects with 0 velocity will not check for collisions (the things that run into them will still trigger for both tho)
@@ -513,8 +512,6 @@ When you create a project that uses visual image assets, those assets are render
 This determines how many threads to use to execute ticks. More threads means faster ticks up to a point however using more than one thread here may make your game non-deterministic in multiplayer. Set once before game start.
 ### **tickThreadCount**
 This determines how many threads to dedicate for use in rendering game objects in your scenes. Note this does not effect stickers, independent effects, or the background. values <=0 mean to use a cachedThreadPool instead (reccommended). Set once before game start.
-### **numGraphicScalingSteps**
-This setting changes how image assets are scaled. Only applies to images larger than 200x200. Larger number = softer/blurrier. Lower number = hard/sharp.
 ### **Window.setFullscreen(boolean)**
 This function allows you to toggle the application as fullscreen. Note that "real" fullscreen requires direct3d to be enabled. Direct3d should remain disabled unless you plan on running only in fullscreen mode due to performance issues.
 
