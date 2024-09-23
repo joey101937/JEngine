@@ -333,7 +333,6 @@ public class RTSUnit extends Creature {
         Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
         for(GameObject2 go : nearby) {
             if(go instanceof RTSUnit unit && unit.team != team) {
-                System.out.println("nearby is " + unit);
                 double distance = distanceFrom(unit);
                 if(unit.plane > 1) {
                     if(nearestAircraft == null || distance < aircraftDistance) {

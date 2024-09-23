@@ -85,16 +85,14 @@ public class Hitbox {
     /**
      * used to set farthestRange. used for optimizing
      */
-    protected void updateFarthestAndShortest(){
-        String thisVertsKey = generateVertsKey();
-        if(thisVertsKey.equals(vertsKey_shortest_farthest)) return; // already up to date
-        if(type == type.circle) {
+    protected final void updateFarthestAndShortest(){
+        if(type == Type.circle) {
             shortestRange = radius;
             farthestRange = radius;
-            vertsKey_shortest_farthest = thisVertsKey;
             return;
         }
-        
+        String thisVertsKey = generateVertsKey();
+        if(thisVertsKey.equals(vertsKey_shortest_farthest)) return; // already up to date
         if(vertices == null) return;
         for(Coordinate c : vertices){
             c = c.copy();
@@ -207,6 +205,7 @@ public class Hitbox {
         staticCenter = c;
         this.radius = radius;
         this.type = Type.circle;
+        updateFarthestAndShortest();
     }
     
         /**
@@ -219,6 +218,7 @@ public class Hitbox {
         staticCenter = c.toDCoordinate();
         this.radius = radius;
         this.type = Type.circle;
+        updateFarthestAndShortest();
     }
 
     /**

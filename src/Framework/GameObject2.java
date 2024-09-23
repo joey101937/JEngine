@@ -567,6 +567,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         }else if(getHitbox() != null && getHitbox().type == Hitbox.Type.circle){
             //maintain default circle hitbox
             getHitbox().radius = Math.max(getWidthAsOfLastTick(), getHeightAsOfLastTick())/2;
+            getHitbox().updateFarthestAndShortest();
         }
         
     }
@@ -612,7 +613,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         return isSolid && other.isSolid
                 && other != this
                 && this.getHitbox() != null && other.getHitbox() != null
-                && this.plane == other.plane;
+                && this.plane == other.plane
+                && distanceFrom(other.locationAsOfLastTick) <= (getHitbox().getFarthestRange() + other.getHitbox().getFarthestRange() + Math.abs(velocity.x * getSpeed()) + Math.abs(velocity.y * getSpeed()));
     }
     
     /**
