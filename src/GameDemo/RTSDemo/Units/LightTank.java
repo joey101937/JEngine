@@ -28,13 +28,19 @@ public class LightTank extends RTSUnit {
     public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
     public static final Sprite hullSprite = new Sprite(SpriteManager.lightTankHull);
     public static final Sprite turretSprite = new Sprite(SpriteManager.lightTankTurret);
+    public static final Sprite turretSpriteDamaged = new Sprite(SpriteManager.lightTankTurretDamaged);
     public static final Sprite redHullSprite = new Sprite(greenToRed(SpriteManager.lightTankHull));
     public static final Sprite redTurretSprite = new Sprite(greenToRed(SpriteManager.lightTankTurret));
+    public static final Sprite redTurretSpriteDamaged = new Sprite(greenToRed(SpriteManager.lightTankTurretDamaged));
     public static final Sprite hullShadow = new Sprite(SpriteManager.lightTankShadow);
     public static final Sprite turretShadow = Sprite.generateShadowSprite(SpriteManager.lightTankTurret, .8);
+    public static final Sprite hullSpriteDamaged = new Sprite(SpriteManager.lightTankHullDamaged);
+    public static final Sprite redHullSpriteDamaged =  new Sprite(greenToRed(SpriteManager.lightTankHullDamaged));
     public static final Sequence fireSequence = new Sequence(SpriteManager.lightTankFire);
+    public static final Sequence fireSequenceDamaged = new Sequence(SpriteManager.lightTankFireDamaged);
     public static final Sequence redFireSequence = new Sequence(greenToRed(SpriteManager.lightTankFire));
-
+    public static final Sequence redFireSequenceDamaged = new Sequence(greenToRed(SpriteManager.lightTankFireDamaged));
+    
 
     static {
         hullShadow.scaleTo(VISUAL_SCALE);
@@ -74,15 +80,12 @@ public class LightTank extends RTSUnit {
         if (currentTarget != null && turret.rotationNeededToFace(currentTarget.getPixelLocation()) < 1 && !barrelCoolingDown) {
             fire(currentTarget);
         }
-    }
-
-    public Sprite getHullSprite() {
-        return team == 0 ? hullSprite : redHullSprite;
+        setGraphic(getHullSprite());
     }
 
     public void fire(RTSUnit target) {
         barrelCoolingDown = true;
-         if (launchSoundSource.getNumCopiesPlaying() < 10) {
+        if (launchSoundSource.getNumCopiesPlaying() < 10) {
             if (isOnScreen()) {
                 launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.6, .65));
                 addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
@@ -91,18 +94,32 @@ public class LightTank extends RTSUnit {
                 addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
             }
         }
-        turret.setGraphic(team == 0 ? fireSequence.copyMaintainSource() : redFireSequence.copyMaintainSource());
+        turret.setGraphic(getFireSequence());
         Coordinate muzzelLocation = new Coordinate(0, 0);
         muzzelLocation.y -= turretSprite.getHeight() * 2 / 5;
         muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, turret.getRotation());
         muzzelLocation.add(turret.getPixelLocation());
-        Coordinate randomOffset = new Coordinate(Main.generateRandomInt(-target.getWidth()/4, target.getWidth()/4), Main.generateRandomInt(-target.getWidth()/4, target.getWidth()/4));
+        Coordinate randomOffset = new Coordinate(Main.generateRandomInt(-target.getWidth() / 4, target.getWidth() / 4), Main.generateRandomInt(-target.getWidth() / 4, target.getWidth() / 4));
         LightTankBullet bullet = new LightTankBullet(muzzelLocation.toDCoordinate(), target.getLocationAsOfLastTick().add(randomOffset));
         bullet.shooter = this;
         getHostGame().addObject(bullet);
-        addTickDelayedEffect((int)(Main.ticksPerSecond * 1.6), c -> {
+        addTickDelayedEffect((int) (Main.ticksPerSecond * 1.6), c -> {
             this.barrelCoolingDown = false;
         });
+    }
+
+    public Sequence getFireSequence() {
+        if (currentHealth > maxHealth * .33) {
+            return team == 0 ? fireSequence.copyMaintainSource() : redFireSequence.copyMaintainSource();
+        }
+        return team == 0 ? fireSequenceDamaged.copyMaintainSource() : redFireSequenceDamaged.copyMaintainSource();
+    }
+    
+    public Sprite getHullSprite() {
+        if (currentHealth > maxHealth * .33) {
+            return team == 0 ? hullSprite : redHullSprite;
+        }
+        return team == 0 ? hullSpriteDamaged : redHullSpriteDamaged;
     }
 
     @Override
@@ -147,6 +164,9 @@ public class LightTank extends RTSUnit {
             }
             double toRotate = Math.clamp(desiredRotationAmount, -maxRotationPerTick, maxRotationPerTick);
             this.rotate(toRotate);
+            if (!this.getGraphic().isAnimated()) {
+                setGraphic(getTurretSprite());
+            }
         }
 
         @Override
@@ -165,9 +185,12 @@ public class LightTank extends RTSUnit {
         }
 
         public Sprite getTurretSprite() {
-            return team == 0 ? turretSprite : redTurretSprite;
+            if (hull != null && hull.currentHealth > hull.maxHealth * .33) {
+                return team == 0 ? turretSprite : redTurretSprite;
+            }
+            return team == 0 ? turretSpriteDamaged : redTurretSpriteDamaged;
         }
-        
+
         @Override
         public void onAnimationCycle() {
             this.setGraphic(getTurretSprite());

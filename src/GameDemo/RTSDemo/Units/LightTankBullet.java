@@ -32,7 +32,7 @@ public class LightTankBullet extends Projectile {
     public LightTankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
         explosionTiny.scaleTo(.8);
-        explosionTiny.setFrameDelay(16);
+        explosionTiny.setFrameDelay(20);
         bulletGraphic.setSignature("bullet graphic");
         bulletGraphic.scaleTo(.16); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
         shadow.scaleTo(.16);
@@ -64,7 +64,7 @@ public class LightTankBullet extends Projectile {
                 }
             }
             otherUnit.takeDamage(20);
-            Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .25);
+            Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .6);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionTiny.copyMaintainSource(), impactLoc);
             impactExplosion.rotation = DCoordinate.angleFrom(shooter.getPixelLocation(), other.getPixelLocation());
             destroy();
