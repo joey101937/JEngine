@@ -60,7 +60,8 @@ public abstract class SpriteManager {
     public static BufferedImage tankDeadTurret;
     public static BufferedImage[] tankHullDeathAni;
     public static BufferedImage[] tankTurretDeathAni;
-    public static BufferedImage lightTankHull, lightTankTurret, lightTankShadow, lightTankHullDamaged, lightTankTurretDamaged;
+    public static BufferedImage lightTankHull, lightTankTurret, lightTankShadow, lightTankHullDamaged, lightTankTurretDamaged, 
+                lightTankHullDestroyed, lightTankTurretDestroyed, lightTankDeathShadow;
     public static BufferedImage[] lightTankFire, lightTankFireDamaged;
     
     public static BufferedImage[] infantryLegsRun, infantryRifleIdle, infantryRifleFire, infantryRifleMoving, infantryBazookaIdle, infantryBazookaFire;
@@ -167,6 +168,9 @@ public abstract class SpriteManager {
             lightTankFireDamaged = loadSequence("DemoAssets/TankGame/lightTank/fireDamaged");
             lightTankTurretDamaged = load("DemoAssets/TankGame/lightTank/lightTankTurretDamaged.png");
             lightTankHullDamaged = load("DemoAssets/TankGame/lightTank/lightTankHullDamaged.png");  
+            lightTankTurretDestroyed= load("DemoAssets/TankGame/lightTank/lightTankTurretDestroyed.png");
+            lightTankHullDestroyed= load("DemoAssets/TankGame/lightTank/lightTankHullDestroyed.png");  
+            lightTankDeathShadow= load("DemoAssets/TankGame/lightTank/lightTankDeathShadow.png");  
             // Infantry
             infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run");
             infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle");

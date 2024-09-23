@@ -6,11 +6,13 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
+import Framework.GraphicalAssets.Graphic;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Hitbox;
 import Framework.Main;
 import Framework.SpriteManager;
+import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -36,10 +38,13 @@ public class LightTank extends RTSUnit {
     public static final Sprite turretShadow = Sprite.generateShadowSprite(SpriteManager.lightTankTurret, .8);
     public static final Sprite hullSpriteDamaged = new Sprite(SpriteManager.lightTankHullDamaged);
     public static final Sprite redHullSpriteDamaged =  new Sprite(greenToRed(SpriteManager.lightTankHullDamaged));
+    public static final Sprite hullSpriteDestroyed = new Sprite(SpriteManager.lightTankHullDestroyed);
+    public static final Sprite turretSpriteDestroyed = new Sprite(SpriteManager.lightTankTurretDestroyed);
     public static final Sequence fireSequence = new Sequence(SpriteManager.lightTankFire);
     public static final Sequence fireSequenceDamaged = new Sequence(SpriteManager.lightTankFireDamaged);
     public static final Sequence redFireSequence = new Sequence(greenToRed(SpriteManager.lightTankFire));
     public static final Sequence redFireSequenceDamaged = new Sequence(greenToRed(SpriteManager.lightTankFireDamaged));
+    public static final Sequence deathFadeout = Sequence.createFadeout(SpriteManager.lightTankDeathShadow, 40);
     
 
     static {
@@ -75,6 +80,7 @@ public class LightTank extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+        if(isRubble) return;
         populateNearbyEnemies();
         currentTarget = nearestEnemyGroundUnit;
         if (currentTarget != null && turret.rotationNeededToFace(currentTarget.getPixelLocation()) < 1 && !barrelCoolingDown) {
@@ -116,6 +122,7 @@ public class LightTank extends RTSUnit {
     }
     
     public Sprite getHullSprite() {
+        if(isRubble) return hullSpriteDestroyed;
         if (currentHealth > maxHealth * .33) {
             return team == 0 ? hullSprite : redHullSprite;
         }
@@ -131,6 +138,30 @@ public class LightTank extends RTSUnit {
     public int getHeight() {
         return (int) (hullSprite.getHeight() * .9);
     }
+    
+    @Override
+    public void die() {
+        if (this.isRubble) {
+            return;
+        }
+        OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+        this.isRubble = true;
+        this.team = -1;
+        this.setBaseSpeed(0);
+        this.setDesiredLocation(this.getPixelLocation());
+        this.setGraphic(hullSpriteDestroyed);
+        turret.setGraphic(turretSpriteDestroyed);
+        addTickDelayedEffect(Main.ticksPerSecond * 10, c -> {
+            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+            this.setGraphic(deathFadeout.copyMaintainSource());
+            this.isSolid = false;
+            this.setZLayer(-1);
+            this.turret.isInvisible = true;
+            addTickDelayedEffect(Main.ticksPerSecond * 3, c2 -> {
+                this.destroy();
+            });
+        });
+    }
 
     public class LightTankTurret extends SubObject {
 
@@ -145,6 +176,10 @@ public class LightTank extends RTSUnit {
         }
 
         public void updateDesiredRotation() {
+            if(hull.isRubble) {
+                desiredRotationAngle = getRotation();
+                return;
+            }
             if (currentTarget == null) {
                 desiredRotationAngle = hull.getRotation();
             } else {
@@ -164,14 +199,14 @@ public class LightTank extends RTSUnit {
             }
             double toRotate = Math.clamp(desiredRotationAmount, -maxRotationPerTick, maxRotationPerTick);
             this.rotate(toRotate);
-            if (!this.getGraphic().isAnimated()) {
+            if(!isAnimated() || isRubble) {
                 setGraphic(getTurretSprite());
             }
         }
 
         @Override
         public void render(Graphics2D g) {
-            if (getHost().isSolid) {
+            if (getHost().isSolid && !isRubble) {
                 AffineTransform old = g.getTransform();
                 VolatileImage toRender = turretShadow.getCurrentVolatileImage();
                 Coordinate pixelLocation = getPixelLocation().add(new Coordinate(2, 3));
@@ -184,7 +219,8 @@ public class LightTank extends RTSUnit {
             super.render(g);
         }
 
-        public Sprite getTurretSprite() {
+        public Graphic getTurretSprite() {
+            if(isRubble) return turretSpriteDestroyed;
             if (hull != null && hull.currentHealth > hull.maxHealth * .33) {
                 return team == 0 ? turretSprite : redTurretSprite;
             }
