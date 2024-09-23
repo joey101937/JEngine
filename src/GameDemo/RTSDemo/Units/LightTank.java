@@ -55,6 +55,7 @@ public class LightTank extends RTSUnit {
         this.isSolid = true;
         this.setHitbox(new Hitbox(this, getWidth() / 2));
         this.range = 500;
+        this.baseSpeed = 2.8;
     }
 
     @Override
@@ -95,7 +96,8 @@ public class LightTank extends RTSUnit {
         muzzelLocation.y -= turretSprite.getHeight() * 2 / 5;
         muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, turret.getRotation());
         muzzelLocation.add(turret.getPixelLocation());
-        LightTankBullet bullet = new LightTankBullet(muzzelLocation.toDCoordinate(), target.getLocationAsOfLastTick());
+        Coordinate randomOffset = new Coordinate(Main.generateRandomInt(-target.getWidth()/4, target.getWidth()/4), Main.generateRandomInt(-target.getWidth()/4, target.getWidth()/4));
+        LightTankBullet bullet = new LightTankBullet(muzzelLocation.toDCoordinate(), target.getLocationAsOfLastTick().add(randomOffset));
         bullet.shooter = this;
         getHostGame().addObject(bullet);
         addTickDelayedEffect((int)(Main.ticksPerSecond * 1.6), c -> {

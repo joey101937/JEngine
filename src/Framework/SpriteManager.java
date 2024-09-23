@@ -29,6 +29,7 @@ public abstract class SpriteManager {
     public static BufferedImage pathingLayer;
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] explosionSequenceSmall;
+     public static BufferedImage[] impactCone;
     public static BufferedImage[] birdySequence;
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
     public static BufferedImage localizedLight;
@@ -116,6 +117,7 @@ public abstract class SpriteManager {
             terrainBG = load("DemoAssets/terrainBG.png");
             explosionSequence = loadSequence("DemoAssets/explosionSequence");
             explosionSequenceSmall = loadSequence("DemoAssets/explosionSequence_small");
+            impactCone = loadSequence("DemoAssets/TankGame/impact");
             birdySequence = loadSequence("DemoAssets/birdySequence");
             up = load("DemoAssets/upSprite.png");
             sampleChar_idle = loadSequence("DemoAssets/SampleCharacter/Idle");

@@ -21,7 +21,7 @@ import java.awt.image.BufferedImage;
  * @author guydu
  */
 public class LightTankBullet extends Projectile {
-     public static final Sequence explosionTiny = new Sequence(SpriteManager.explosionSequenceSmall);
+     public static final Sequence explosionTiny = new Sequence(SpriteManager.impactCone);
 
     public GameObject2 shooter; //the object that launched this projectile
 
@@ -31,7 +31,8 @@ public class LightTankBullet extends Projectile {
 
     public LightTankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
-        explosionTiny.scaleTo(.7);
+        explosionTiny.scaleTo(.8);
+        explosionTiny.setFrameDelay(16);
         bulletGraphic.setSignature("bullet graphic");
         bulletGraphic.scaleTo(.16); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
         shadow.scaleTo(.16);
@@ -65,6 +66,7 @@ public class LightTankBullet extends Projectile {
             otherUnit.takeDamage(20);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .25);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionTiny.copyMaintainSource(), impactLoc);
+            impactExplosion.rotation = DCoordinate.angleFrom(shooter.getPixelLocation(), other.getPixelLocation());
             destroy();
         }
     }
