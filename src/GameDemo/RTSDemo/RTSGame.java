@@ -51,7 +51,13 @@ public class RTSGame {
         setup(game);
 
         int spacer = 160;
-
+        
+        
+//        game.addObject(new LightTank(500, 500, 0));
+//        game.addObject(new LightTank(1050, 500, 1));
+//        
+//        game.addObject(new TankUnit(500, 660, 0));
+//        game.addObject(new LightTank(1050, 660, 1));
         for (int i = 0; i < 40; i++) {
             Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
             heli.setRotation(180);

@@ -379,7 +379,6 @@ public class Sequence implements Graphic{
      * @param ms number of ms to advance
      */
     public void advanceMs(int ms) {
-        System.out.println("setting " + ms);
         this.startTimeOffset += ms;
     }
 

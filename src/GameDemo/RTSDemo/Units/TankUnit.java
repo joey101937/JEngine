@@ -29,8 +29,9 @@ import java.util.List;
  */
 public class TankUnit extends RTSUnit {
 
-    // public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/blast4.62.wav"));
-    public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
+    public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/blast4.62.wav"));
+    public static SoundEffect launchSoundSource2 = new SoundEffect(new File(Main.assets + "Sounds/blast4.6.wav"));
+    // public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
     public Turret turret;
     public final static double VISUAL_SCALE = 1.10;
     public boolean weaponOnCooldown = false;
@@ -208,7 +209,7 @@ public class TankUnit extends RTSUnit {
         }
         weaponOnCooldown = true;
         turret.onFire(target);
-        this.addTickDelayedEffect((int) (Main.ticksPerSecond * 2), x -> {
+        this.addTickDelayedEffect((int) (Main.ticksPerSecond * 2.5), x -> {
             weaponOnCooldown = false;
         });
     }
@@ -244,13 +245,14 @@ public class TankUnit extends RTSUnit {
         public void onFire(Coordinate target) {
             setGraphic(getFireSequence().copyMaintainSource());
             try {
-                if (launchSoundSource.getNumCopiesPlaying() < 10) {
+                SoundEffect sound = tickNumber%2==0 ? launchSoundSource : launchSoundSource2;
+                if (sound.getNumCopiesPlaying() < 6) {
                     if (isOnScreen()) {
-                        launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.6, .65));
-                        addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
+                        sound.playCopy(Main.generateRandomDoubleLocally(.6, .65));
+                        addTickDelayedEffect(Main.ticksPerSecond / 2, c -> sound.changeNumCopiesPlaying(-1));
                     } else {
-                        launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.5, .55));
-                        addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
+                        sound.playCopy(Main.generateRandomDoubleLocally(.5, .55));
+                        addTickDelayedEffect(Main.ticksPerSecond / 2, c -> sound.changeNumCopiesPlaying(-1));
                     }
                 }
             } catch (Exception e) {
