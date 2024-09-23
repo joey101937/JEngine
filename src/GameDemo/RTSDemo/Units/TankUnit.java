@@ -197,8 +197,9 @@ public class TankUnit extends RTSUnit {
         this.addSubObject(turret);
         isSolid = true;
         preventOverlap = true;
-        this.maxHealth = 200;//tanks can take 4 shots
+        this.maxHealth = 210;//tanks can take 4 shots
         this.currentHealth = maxHealth;
+        this.baseSpeed = 2.15;
     }
 
     //when a tank tries to fire, it first checks if its turret is still firing. 
