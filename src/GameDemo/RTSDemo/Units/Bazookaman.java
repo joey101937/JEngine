@@ -39,8 +39,8 @@ public class Bazookaman extends RTSUnit {
         runningSequence.setFrameDelay(35);
         attackSequence.setSignature("attackSequence");
         attackSequenceRed.setSignature("attackSequence");
-        attackSequence.setFrameDelay(25);
-        attackSequenceRed.setFrameDelay(25);
+        attackSequence.setFrameDelay(30);
+        attackSequenceRed.setFrameDelay(30);
     }
 
     // fields
@@ -101,7 +101,7 @@ public class Bazookaman extends RTSUnit {
             }
         }
         turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
-        addTickDelayedEffect(20, c -> {
+        addTickDelayedEffect(25, c -> {
             Coordinate offset = new Coordinate(5, -30);
             offset.adjustForRotation(turret.getRotation());
             getHostGame().addObject(new BazookaBullet(this, getPixelLocation().copy().add(offset), target));
