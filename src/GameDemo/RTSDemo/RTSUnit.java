@@ -275,6 +275,12 @@ public class RTSUnit extends Creature {
     public void onDestroy() {
         ExternalCommunicator.sendMessage("unitRemoval:" + this.ID);
     }
+    
+    /**
+     * shows up on info panel when selected
+     * @return bufferedImage
+     */
+    public BufferedImage getSelectImage() {return null;};
 
     public String toTransportString() {
         StringBuilder builder = new StringBuilder();

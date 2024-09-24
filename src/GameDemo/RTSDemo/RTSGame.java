@@ -26,6 +26,7 @@ public class RTSGame {
 
     public static Game game = new Game(SpriteManager.grassBG);
     public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
+    public static InfoPanel infoPanel;
 
     public static void setup(Game g) {
         Main.tickType = Handler.TickType.modular;
@@ -38,10 +39,12 @@ public class RTSGame {
         Window.addUIElement(minimap);
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
         minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
-        Window.addUIElement(new MinimapButton(game, new Coordinate(0,0)));
         Main.splitBackgroundRender = true;
         // minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38);
         minimap.setLocation(g.getWindowWidth() - minimap.getWidth(), 0);
+        infoPanel = new InfoPanel(g, g.getWindowWidth() - minimap.getWidth(), minimap.getHeight(), minimap.getWidth());
+        infoPanel.setBounds(g.getWindowWidth() - minimap.getWidth(), minimap.getHeight(), minimap.getWidth(), 250);
+        Window.addUIElement(infoPanel);
         Main.ignoreSubobjectCollision = true; // better performance
         Main.ignoreCollisionsForStillObjects = true; // better performance
     }

@@ -213,6 +213,7 @@ public final class Minimap extends UIElement {
 
         private BufferedImage background;
         private double xScale = 1, yScale = 1;
+        
         public MinimapInterior(Dimension d) {
             try{
                 background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(),
