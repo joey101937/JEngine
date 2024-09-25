@@ -280,7 +280,7 @@ public class RTSUnit extends Creature {
      * shows up on info panel when selected
      * @return bufferedImage
      */
-    public BufferedImage getSelectImage() {return null;};
+    public BufferedImage getSelectionImage() {return null;};
 
     public String toTransportString() {
         StringBuilder builder = new StringBuilder();

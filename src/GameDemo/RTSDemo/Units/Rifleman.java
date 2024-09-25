@@ -10,6 +10,7 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
 
@@ -78,7 +79,7 @@ public class Rifleman extends RTSUnit {
         super.tick();
         if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
             Sequence runInstance = runningSequence.copyMaintainSource();
-            runInstance.advanceMs((int)(Math.random() * 1000));
+            runInstance.advanceMs((int) (Math.random() * 1000));
             this.setGraphic(runInstance);
         }
         if (this.velocity.y == 0 && getGraphic().isAnimated()) {
@@ -91,8 +92,8 @@ public class Rifleman extends RTSUnit {
             return;
         }
         attackCoolingDown = true;
-        if(attackSound.getNumCopiesPlaying() < 7) {
-            if(isOnScreen()) {
+        if (attackSound.getNumCopiesPlaying() < 7) {
+            if (isOnScreen()) {
                 attackSound.playCopy(Main.generateRandomDoubleLocally(.55f, .63f));
                 addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
             } else {
@@ -184,6 +185,11 @@ public class Rifleman extends RTSUnit {
                 setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
             }
         }
+    }
+
+    @Override
+    public BufferedImage getSelectionImage() {
+        return SpriteManager.riflemanSelectionImage;
     }
 
 }

@@ -381,5 +381,10 @@ public class TankUnit extends RTSUnit {
             // this.destroy();
         });
     }
+    
+    @Override
+    public BufferedImage getSelectionImage() {
+        return SpriteManager.tankSelectionImage;
+    }
 
 }

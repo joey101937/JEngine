@@ -40,10 +40,10 @@ public class RTSGame {
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
         minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
         Main.splitBackgroundRender = true;
-        // minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight() - 38);
-        minimap.setLocation(g.getWindowWidth() - minimap.getWidth(), 0);
-        infoPanel = new InfoPanel(g, g.getWindowWidth() - minimap.getWidth(), minimap.getHeight(), minimap.getWidth());
-        infoPanel.setBounds(g.getWindowWidth() - minimap.getWidth(), minimap.getHeight(), minimap.getWidth(), 250);
+        minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight());
+        // minimap.setLocation(g.getWindowWidth() - minimap.getWidth(), 0);
+        // infoPanel = new InfoPanel(g, g.getWindowWidth() - minimap.getWidth(), minimap.getHeight(), minimap.getWidth());
+        infoPanel = new InfoPanel(g, minimap.getWidth(), g.getWindowHeight() -200, 700);
         Window.addUIElement(infoPanel);
         Main.ignoreSubobjectCollision = true; // better performance
         Main.ignoreCollisionsForStillObjects = true; // better performance

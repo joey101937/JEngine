@@ -11,6 +11,7 @@ import GameDemo.RTSDemo.RTSUnit;
 import static GameDemo.RTSDemo.RTSUnit.darkToRed;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
 
@@ -78,7 +79,7 @@ public class Bazookaman extends RTSUnit {
         super.tick();
         if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
             Sequence runInstance = runningSequence.copyMaintainSource();
-            runInstance.advanceMs((int)(Math.random() * 1000));
+            runInstance.advanceMs((int) (Math.random() * 1000));
             this.setGraphic(runInstance);
         }
         if (this.velocity.y == 0 && getGraphic().isAnimated()) {
@@ -91,13 +92,13 @@ public class Bazookaman extends RTSUnit {
             return;
         }
         attackCoolingDown = true;
-        if(attackSound.getNumCopiesPlaying() < 10) {
-            if(isOnScreen()) {
+        if (attackSound.getNumCopiesPlaying() < 10) {
+            if (isOnScreen()) {
                 attackSound.playCopy(Main.generateRandomDoubleLocally(.64f, .68f));
-                addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+                addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
             } else {
                 attackSound.playCopy(Main.generateRandomDoubleLocally(.6f, .64f));
-                addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+                addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
             }
         }
         turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
@@ -106,7 +107,7 @@ public class Bazookaman extends RTSUnit {
             offset.adjustForRotation(turret.getRotation());
             getHostGame().addObject(new BazookaBullet(this, getPixelLocation().copy().add(offset), target));
         });
-        addTickDelayedEffect((int)(Main.ticksPerSecond * 3), c -> {
+        addTickDelayedEffect((int) (Main.ticksPerSecond * 3), c -> {
             this.attackCoolingDown = false;
         });
     }
@@ -114,7 +115,7 @@ public class Bazookaman extends RTSUnit {
     @Override
     public void render(Graphics2D g) {
         super.render(g);
-        if(shadowSprite == null) {
+        if (shadowSprite == null) {
             System.out.println("shadow null for bazooka");
             return;
         }
@@ -193,6 +194,11 @@ public class Bazookaman extends RTSUnit {
                 setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
             }
         }
+    }
+
+    @Override
+    public BufferedImage getSelectionImage() {
+        return SpriteManager.bazookamanSelectionImage;
     }
 
 }

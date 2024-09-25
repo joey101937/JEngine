@@ -17,6 +17,7 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
 
@@ -37,7 +38,7 @@ public class LightTank extends RTSUnit {
     public static final Sprite hullShadow = new Sprite(SpriteManager.lightTankShadow);
     public static final Sprite turretShadow = Sprite.generateShadowSprite(SpriteManager.lightTankTurret, .8);
     public static final Sprite hullSpriteDamaged = new Sprite(SpriteManager.lightTankHullDamaged);
-    public static final Sprite redHullSpriteDamaged =  new Sprite(greenToRed(SpriteManager.lightTankHullDamaged));
+    public static final Sprite redHullSpriteDamaged = new Sprite(greenToRed(SpriteManager.lightTankHullDamaged));
     public static final Sprite hullSpriteDestroyed = new Sprite(SpriteManager.lightTankHullDestroyed);
     public static final Sprite turretSpriteDestroyed = new Sprite(SpriteManager.lightTankTurretDestroyed);
     public static final Sequence fireSequence = new Sequence(SpriteManager.lightTankFire);
@@ -45,7 +46,6 @@ public class LightTank extends RTSUnit {
     public static final Sequence redFireSequence = new Sequence(greenToRed(SpriteManager.lightTankFire));
     public static final Sequence redFireSequenceDamaged = new Sequence(greenToRed(SpriteManager.lightTankFireDamaged));
     public static final Sequence deathFadeout = Sequence.createFadeout(SpriteManager.lightTankDeathShadow, 40);
-    
 
     static {
         hullShadow.scaleTo(VISUAL_SCALE);
@@ -80,7 +80,9 @@ public class LightTank extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
-        if(isRubble) return;
+        if (isRubble) {
+            return;
+        }
         populateNearbyEnemies();
         currentTarget = nearestEnemyGroundUnit;
         if (currentTarget != null && turret.rotationNeededToFace(currentTarget.getPixelLocation()) < 1 && !barrelCoolingDown) {
@@ -120,9 +122,11 @@ public class LightTank extends RTSUnit {
         }
         return team == 0 ? fireSequenceDamaged.copyMaintainSource() : redFireSequenceDamaged.copyMaintainSource();
     }
-    
+
     public Sprite getHullSprite() {
-        if(isRubble) return hullSpriteDestroyed;
+        if (isRubble) {
+            return hullSpriteDestroyed;
+        }
         if (currentHealth > maxHealth * .33) {
             return team == 0 ? hullSprite : redHullSprite;
         }
@@ -138,7 +142,7 @@ public class LightTank extends RTSUnit {
     public int getHeight() {
         return (int) (hullSprite.getHeight() * .9);
     }
-    
+
     @Override
     public void die() {
         if (this.isRubble) {
@@ -176,7 +180,7 @@ public class LightTank extends RTSUnit {
         }
 
         public void updateDesiredRotation() {
-            if(hull.isRubble) {
+            if (hull.isRubble) {
                 desiredRotationAngle = getRotation();
                 return;
             }
@@ -199,7 +203,7 @@ public class LightTank extends RTSUnit {
             }
             double toRotate = Math.clamp(desiredRotationAmount, -maxRotationPerTick, maxRotationPerTick);
             this.rotate(toRotate);
-            if(!isAnimated() || isRubble) {
+            if (!isAnimated() || isRubble) {
                 setGraphic(getTurretSprite());
             }
         }
@@ -220,7 +224,9 @@ public class LightTank extends RTSUnit {
         }
 
         public Graphic getTurretSprite() {
-            if(isRubble) return turretSpriteDestroyed;
+            if (isRubble) {
+                return turretSpriteDestroyed;
+            }
             if (hull != null && hull.currentHealth > hull.maxHealth * .33) {
                 return team == 0 ? turretSprite : redTurretSprite;
             }
@@ -232,5 +238,10 @@ public class LightTank extends RTSUnit {
             this.setGraphic(getTurretSprite());
         }
 
+    }
+
+    @Override
+    public BufferedImage getSelectionImage() {
+        return SpriteManager.lightTankSelectionImage;
     }
 }

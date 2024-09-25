@@ -13,6 +13,7 @@ import Framework.SpriteManager;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 /**
@@ -22,6 +23,7 @@ import java.io.File;
  * @author guydu
  */
 public class Hellicopter extends RTSUnit {
+
     public static double VISUAL_SCALE = 1.05;
 
     public static Sprite baseSprite = new Sprite(SpriteManager.hellicopter);
@@ -35,7 +37,7 @@ public class Hellicopter extends RTSUnit {
     public HellicopterTurret turret;
     public long lastFireTick = 0;
     public int attackInterval = Main.ticksPerSecond * 2;
-    
+
     static {
         shadowSprite.scaleTo(VISUAL_SCALE);
     }
@@ -60,7 +62,9 @@ public class Hellicopter extends RTSUnit {
 
     public void fireDelayed(RTSUnit targetUnit, int delay) {
         addTickDelayedEffect(delay, game -> {
-            if(!this.isAlive() || !targetUnit.isAlive()) return;
+            if (!this.isAlive() || !targetUnit.isAlive()) {
+                return;
+            }
             Coordinate center = getPixelLocation();
             Coordinate leftOffset = new Coordinate(-30, -30);
             Coordinate rightOffset = new Coordinate(30, -30);
@@ -70,13 +74,13 @@ public class Hellicopter extends RTSUnit {
 
             getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), targetUnit));
             getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), targetUnit));
-            if(attackSound.getNumCopiesPlaying() < 10) {
+            if (attackSound.getNumCopiesPlaying() < 10) {
                 if (isOnScreen()) {
                     attackSound.playCopy(Main.generateRandomDoubleLocally(.65, .75));
-                    addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+                    addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
                 } else {
                     attackSound.playCopy(Main.generateRandomDoubleLocally(.55, .6));
-                    addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
+                    addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
                 }
             }
         });
@@ -100,8 +104,8 @@ public class Hellicopter extends RTSUnit {
     @Override
     public void render(Graphics2D g) {
         drawShadow(g, shadowSprite, 5, 99);
-       
-        if(isSelected()) {
+
+        if (isSelected()) {
             drawHealthBar(g);
         }
     }
@@ -168,6 +172,11 @@ public class Hellicopter extends RTSUnit {
             this.rotate(rotationAmount);
         }
 
+    }
+
+    @Override
+    public BufferedImage getSelectionImage() {
+        return SpriteManager.hellicopterSelectionImage;
     }
 
 }

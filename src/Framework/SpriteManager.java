@@ -66,6 +66,7 @@ public abstract class SpriteManager {
     
     public static BufferedImage[] infantryLegsRun, infantryRifleIdle, infantryRifleFire, infantryRifleMoving, infantryBazookaIdle, infantryBazookaFire;
     public static BufferedImage infantryLegs, infantryShadow;
+    public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage;
 
     //SPACE ASSETS
     public static BufferedImage spaceBG;
@@ -181,7 +182,13 @@ public abstract class SpriteManager {
             infantryBazookaFire = loadSequence("DemoAssets/TankGame/Infantry/bazooka/shoot");
             infantryShadow = load("DemoAssets/TankGame/Infantry/infantryShadow.png");
 
-
+            // selection images
+            tankSelectionImage = load("DemoAssets/TankGame/tankSelectionImage.png");
+            lightTankSelectionImage = load("DemoAssets/TankGame/lightTank/lightTankSelectionImage.png");
+            hellicopterSelectionImage = load("DemoAssets/TankGame/copter/hellicopterSelectionImage.png");
+            riflemanSelectionImage = load("DemoAssets/TankGame/infantry/rifleSelectionImage.png");
+            bazookamanSelectionImage = load("DemoAssets/TankGame/infantry/bazookaSelectionImage.png");
+            
             spaceBG = load("DemoAssets/spacebg.png");
             spaceBG2 = load("DemoAssets/spacebg2.png");
             spaceship = load("DemoAssets/spaceship.png");
