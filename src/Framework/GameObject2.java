@@ -1119,7 +1119,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public void addTickDelayedEffect(int tickDelay, Consumer c) {
         if(hostGame == null) {
             System.out.println("error trying to add tickDelayedEffect with null game");
-            Window.currentGame.addTickDelayedEffect(new TickDelayedEffect(hostGame.handler.globalTickNumber + tickDelay, c));
+            Window.currentGame.addTickDelayedEffect(new TickDelayedEffect(Window.currentGame.handler.globalTickNumber + tickDelay, c));
             return;
         }
         hostGame.addTickDelayedEffect(new TickDelayedEffect(hostGame.handler.globalTickNumber + tickDelay, c));

@@ -9,8 +9,6 @@ import Framework.UI_Elements.UIElement;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JFrame;
@@ -26,7 +24,7 @@ public class Window {
     public static JFrame frame;
     public static String title = "JEngine Window";
     public static Window mainWindow;
-    public static Game currentGame;
+    public volatile static Game currentGame;
     private static CopyOnWriteArrayList<UIElement> UIElements = new CopyOnWriteArrayList<>();
     public static final Coordinate screenSize = new Coordinate(Toolkit.getDefaultToolkit().getScreenSize().width,Toolkit.getDefaultToolkit().getScreenSize().height);
 
@@ -73,6 +71,8 @@ public class Window {
     }
     
     private Window(Game g, boolean fullscreen) {
+        currentGame = g;
+        g.window=this;
         panel.setLayout(null);
         frame = new JFrame(title);
         if(fullscreen) setFullscreenWindowed(true);
@@ -88,9 +88,7 @@ public class Window {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         frame.requestFocus();
-        g.window=this;
         mainWindow = this;
-        currentGame = g;
         frame.setResizable(false);
         updateTitlePerGame(g);
     }

@@ -131,15 +131,17 @@ public class Hellicopter extends RTSUnit {
             this.turret.rotate(4);
             return;
         }
-        super.tick();
-        currentTarget = nearestEnemyInRange();
-        boolean offCooldown = (tickNumber - lastFireTick) > attackInterval;
-        if (currentTarget != null && offCooldown) {
-            if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {
-                lastFireTick = tickNumber;
-                Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
-                turret.setGraphic(attackAnimation.copyMaintainSource());
-                fireDelayed(currentTarget, 10);
+        if(!isRubble) {
+            super.tick();
+            currentTarget = nearestEnemyInRange();
+            boolean offCooldown = (tickNumber - lastFireTick) > attackInterval;
+            if (currentTarget != null && offCooldown) {
+                if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {
+                    lastFireTick = tickNumber;
+                    Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
+                    turret.setGraphic(attackAnimation.copyMaintainSource());
+                    fireDelayed(currentTarget, 10);
+                }
             }
         }
     }

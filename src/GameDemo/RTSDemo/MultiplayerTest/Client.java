@@ -21,6 +21,7 @@ public class Client {
     public static void main(String[] args) {
         Client c = new Client();
         Game g = RTSGame.game;
+        Window.currentGame = g;
         ExternalCommunicator.initialize(false);
         g.setHandleSyncTick(ExternalCommunicator.handleSyncTick);
         createStartingUnits(g);

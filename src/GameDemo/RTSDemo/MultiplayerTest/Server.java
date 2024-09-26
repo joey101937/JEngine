@@ -15,6 +15,7 @@ public class Server {
 
     public static void main(String[] args) {
         Game g = RTSGame.game;
+        Window.currentGame = g;
         System.out.println("adding");
         createStartingUnits(g);
         ExternalCommunicator.initialize(true);

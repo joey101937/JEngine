@@ -18,6 +18,7 @@ public class DeterminismTest3 {
     public static void main(String[] args) {
         Game game = new Game(SpriteManager.grassBG);
         Main.setRandomSeed(10);
+        Window.currentGame = game;
         
         int spacer = 160;
 
