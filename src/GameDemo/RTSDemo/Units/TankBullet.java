@@ -28,14 +28,13 @@ public class TankBullet extends Projectile {
 
     public GameObject2 shooter; //the object that launched this projectile
 
-    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet});
-    public static final Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall);
+    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet}, "tankBulletGraphic");
+    public static final Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall, "explosionSmallTank");
     public static final Sprite shadow = Sprite.generateShadowSprite(SpriteManager.bullet, .3);
     private DCoordinate startPosition;
 
     public TankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
-        bulletGraphic.setSignature("bullet graphic");
         bulletGraphic.scaleTo(.2); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
         shadow.scaleTo(.2);
         setScale(.2);

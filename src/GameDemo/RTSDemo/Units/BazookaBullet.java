@@ -23,7 +23,7 @@ public class BazookaBullet extends Projectile {
 
     public static Sprite missileSprite = new Sprite(SpriteManager.yellowMissile);
     public static Sprite shadowSprite = new Sprite(SpriteManager.yellowMissileShadow);
-    public static Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall);
+    public static Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall, "bazookaExplosion");
 
     public RTSUnit shooter; //the object that launched this projectile
     public RTSUnit target;

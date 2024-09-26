@@ -24,9 +24,9 @@ import java.awt.image.VolatileImage;
  */
 public class HellicopterBullet extends Projectile {
 
-    public static Sprite missileSprite = new Sprite(SpriteManager.yellowMissile);
-    public static Sprite shadowSprite = new Sprite(SpriteManager.yellowMissileShadow);
-    public static Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall);
+    public static final Sprite missileSprite = new Sprite(SpriteManager.yellowMissile);
+    public static final Sprite shadowSprite = new Sprite(SpriteManager.yellowMissileShadow);
+    public static final Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall, "explosionSmallHeli");
 
     public RTSUnit shooter; //the object that launched this projectile
     public RTSUnit target;
@@ -41,6 +41,11 @@ public class HellicopterBullet extends Projectile {
     public double minSpeed = 4.4;
     public double accellerationTime = Main.ticksPerSecond * .7;
     public double accellerationStage;
+    
+    static{
+         shadowSprite.scaleTo(.12);
+         missileSprite.scaleTo(.12);
+    }
 
     public HellicopterBullet(RTSUnit shooter, Coordinate startingLocation, RTSUnit other) {
         super(startingLocation);

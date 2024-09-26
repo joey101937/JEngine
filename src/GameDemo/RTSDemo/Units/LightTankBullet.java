@@ -21,11 +21,11 @@ import java.awt.image.BufferedImage;
  * @author guydu
  */
 public class LightTankBullet extends Projectile {
-     public static final Sequence explosionTiny = new Sequence(SpriteManager.impactCone);
+     public static final Sequence explosionTiny = new Sequence(SpriteManager.impactCone, "lightTankImpact");
 
     public GameObject2 shooter; //the object that launched this projectile
 
-    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet2});
+    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet2}, "lightTankBullet");
     public static final Sprite shadow = Sprite.generateShadowSprite(SpriteManager.bullet2, .3);
     private DCoordinate startPosition;
 

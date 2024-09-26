@@ -24,17 +24,15 @@ public class Rifleman extends RTSUnit {
     public static final Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
     public static final Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
     public static final Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
-    public static final Sequence attackSequence = new Sequence(SpriteManager.infantryRifleFire);
-    public static final Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryRifleFire));
-    public static final Sequence idleAnimation = new Sequence(SpriteManager.infantryRifleIdle);
-    public static final Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryRifleIdle));
+    public static final Sequence attackSequence = new Sequence(SpriteManager.infantryRifleFire, "riflemanAttackSequence");
+    public static final Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryRifleFire), "redRiflemanAttackSequence");
+    public static final Sequence idleAnimation = new Sequence(SpriteManager.infantryRifleIdle, "riflemanIdle");
+    public static final Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryRifleIdle), "redRiflemanIdle");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
     public boolean attackCoolingDown = false;
 
     static {
         runningSequence.setFrameDelay(35);
-        attackSequence.setSignature("attackSequence");
-        attackSequenceRed.setSignature("attackSequence");
         shadowSprite.scaleTo(VISUAL_SCALE * 2);
         idleAnimation.scaleTo(VISUAL_SCALE);
         idleAnimationRed.scaleTo(VISUAL_SCALE);

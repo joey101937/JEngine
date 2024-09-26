@@ -41,14 +41,15 @@ public class LightTank extends RTSUnit {
     public static final Sprite redHullSpriteDamaged = new Sprite(greenToRed(SpriteManager.lightTankHullDamaged));
     public static final Sprite hullSpriteDestroyed = new Sprite(SpriteManager.lightTankHullDestroyed);
     public static final Sprite turretSpriteDestroyed = new Sprite(SpriteManager.lightTankTurretDestroyed);
-    public static final Sequence fireSequence = new Sequence(SpriteManager.lightTankFire);
-    public static final Sequence fireSequenceDamaged = new Sequence(SpriteManager.lightTankFireDamaged);
-    public static final Sequence redFireSequence = new Sequence(greenToRed(SpriteManager.lightTankFire));
-    public static final Sequence redFireSequenceDamaged = new Sequence(greenToRed(SpriteManager.lightTankFireDamaged));
+    public static final Sequence fireSequence = new Sequence(SpriteManager.lightTankFire, "lightTankFire");
+    public static final Sequence fireSequenceDamaged = new Sequence(SpriteManager.lightTankFireDamaged, "lightTankFireDamaged");
+    public static final Sequence redFireSequence = new Sequence(greenToRed(SpriteManager.lightTankFire), "lightTankFireRed");
+    public static final Sequence redFireSequenceDamaged = new Sequence(greenToRed(SpriteManager.lightTankFireDamaged), "lightTankDamagedFireRed");
     public static final Sequence deathFadeout = Sequence.createFadeout(SpriteManager.lightTankDeathShadow, 40);
 
     static {
         hullShadow.scaleTo(VISUAL_SCALE);
+        deathFadeout.setSignature("deathFadeoutLightTank");
     }
 
     // instance fields
@@ -148,7 +149,7 @@ public class LightTank extends RTSUnit {
         if (this.isRubble) {
             return;
         }
-        OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+        OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence, "lightTankDeathExplosion"), getPixelLocation());
         this.isRubble = true;
         this.team = -1;
         this.setBaseSpeed(0);
@@ -156,7 +157,7 @@ public class LightTank extends RTSUnit {
         this.setGraphic(hullSpriteDestroyed);
         turret.setGraphic(turretSpriteDestroyed);
         addTickDelayedEffect(Main.ticksPerSecond * 10, c -> {
-            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence, "lightTankDespawnExplosion"), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());
             this.isSolid = false;
             this.setZLayer(-1);

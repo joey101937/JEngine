@@ -130,12 +130,26 @@ public class Sequence implements Graphic{
         this.scale = inputScale;
     }
 
+    /**
+     * creates a sequence that is considered as being at the given scale
+     * for example if you do this at .2 with a normal sized input, then scaling this sequence to 1.0 would actually 5x it
+     * @param input image
+     * @param inputScale scale that the image is considered at
+     */
     public Sequence(Sprite[] input, double inputScale) {
         frames = new Sprite[input.length];
         for (int i = 0; i < input.length; i++) {
             frames[i] = input[i].copy();
         }
         this.scale = inputScale;
+    }
+    
+    public Sequence(BufferedImage[] input, String signature) {
+        frames = new Sprite[input.length];
+        for(int i = 0; i < input.length; i++){
+            frames[i]=new Sprite(input[i]);
+        }
+        this.signuature = signature;
     }
     
     public Sequence(BufferedImage[] input){

@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
@@ -24,22 +21,27 @@ import java.io.File;
  */
 public class Hellicopter extends RTSUnit {
 
-    public static double VISUAL_SCALE = 1.05;
+    public static final double VISUAL_SCALE = 1.05;
 
-    public static Sprite baseSprite = new Sprite(SpriteManager.hellicopter);
-    public static Sprite shadowSprite = new Sprite(SpriteManager.hellicopterShadow);
-    public static Sequence attackSequence = new Sequence(SpriteManager.hellicopterAttack);
-    public static SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
+    public static final Sprite baseSprite = new Sprite(SpriteManager.hellicopter);
+    public static final Sprite shadowSprite = new Sprite(SpriteManager.hellicopterShadow);
+    public static final Sequence attackSequence = new Sequence(SpriteManager.hellicopterAttack, "heliAttack");
+    public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
 
-    public static Sprite baseSpriteRed = new Sprite(blueToRed(SpriteManager.hellicopter));
-    public static Sequence attackSequenceRed = new Sequence(blueToRed(SpriteManager.hellicopterAttack));
+    public static final Sprite baseSpriteRed = new Sprite(blueToRed(SpriteManager.hellicopter));
+    public static final Sequence attackSequenceRed = new Sequence(blueToRed(SpriteManager.hellicopterAttack), "helliAttackRed");
 
     public HellicopterTurret turret;
     public long lastFireTick = 0;
     public int attackInterval = Main.ticksPerSecond * 2;
 
     static {
+        baseSprite.scale(VISUAL_SCALE);
         shadowSprite.scaleTo(VISUAL_SCALE);
+        attackSequence.scale(VISUAL_SCALE);
+        attackSequenceRed.scale(VISUAL_SCALE);
+        baseSpriteRed.scaleTo(VISUAL_SCALE);
+        baseSpriteRed.scaleTo(VISUAL_SCALE);
     }
 
     public Hellicopter(int x, int y, int team) {
