@@ -13,8 +13,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * draws the green rectangular selection box
@@ -24,7 +25,7 @@ import java.util.List;
 public class SelectionBoxEffect extends IndependentEffect {
 
     private static volatile Rectangle selectionZone = null;
-    public static ArrayList<RTSUnit> selectedUnits = new ArrayList<>();
+    public static Set<RTSUnit> selectedUnits = new HashSet<>();
     public static final Color uncontrollableColor = new Color(.5f, .5f, .5f, .8f);
 
     @Override

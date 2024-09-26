@@ -17,6 +17,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,7 @@ public class RTSInput extends InputHandler {
         cam.yVel = yVelocity;
     }
 
-    private Coordinate averageLocation(ArrayList<RTSUnit> input) {
+    private Coordinate averageLocation(Collection<RTSUnit> input) {
         List<RTSUnit> livingMembers = input.stream().filter(
                 x -> x.isAlive()
                 && !x.isRubble

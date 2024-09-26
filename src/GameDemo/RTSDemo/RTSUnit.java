@@ -46,7 +46,7 @@ public class RTSUnit extends Creature {
             case 1 ->
                 Color.RED;
             case 2 ->
-                Color.ORANGE;
+                Color.BLUE;
             default ->
                 Color.BLACK;
         };
@@ -282,6 +282,12 @@ public class RTSUnit extends Creature {
      */
     public BufferedImage getSelectionImage() {return null;};
 
+    @Override
+    public String getName(){
+        String[] s = getClass().getName().split("\\.");
+        return s[s.length-1];
+    }
+    
     public String toTransportString() {
         StringBuilder builder = new StringBuilder();
         builder.append(this.ID);

@@ -1,13 +1,16 @@
 package GameDemo.RTSDemo;
 
 import Framework.Game;
+import Framework.SpriteManager;
 import Framework.UI_Elements.UIElement;
-import static GameDemo.RTSDemo.SelectionBoxEffect.selectedUnits;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javax.swing.JPanel;
 
 /**
@@ -16,8 +19,26 @@ import javax.swing.JPanel;
  */
 public class InfoPanel extends UIElement {
 
+    private static final Font titleFont = new Font("TimesRoman", Font.BOLD, 18);
+    private static final Font healthFont = new Font("TimesRoman", Font.BOLD, 16);
+    private static final Font otherCountFont = new Font("TimesRoman", Font.BOLD, 14);
+
+    private static final Color healthColor = Color.BLACK;
+    private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
+
+    private static void populateUnitNameImageMap() {
+        if (unitNameImageMap.isEmpty()) {
+            unitNameImageMap.put("TankUnit", SpriteManager.tankSelectionImage);
+            unitNameImageMap.put("LightTank", SpriteManager.lightTankSelectionImage);
+            unitNameImageMap.put("Bazookaman", SpriteManager.bazookamanSelectionImage);
+            unitNameImageMap.put("Rifleman", SpriteManager.riflemanSelectionImage);
+            unitNameImageMap.put("Hellicopter", SpriteManager.hellicopterSelectionImage);
+        }
+    }
+
     Game hostGame;
     InfoPanelInterior interior;
+    RTSUnit mainUnit;
 
     public InfoPanel(Game game, int x, int y, int width) {
         super();
@@ -27,6 +48,7 @@ public class InfoPanel extends UIElement {
         this.setVisible(true);
         interior = new InfoPanelInterior(width, 200);
         this.add(interior);
+        populateUnitNameImageMap();
     }
 
     @Override
@@ -43,8 +65,8 @@ public class InfoPanel extends UIElement {
     }
 
     private class InfoPanelInterior extends JPanel {
-        
-        public Color lightGray = new Color(150,150,150);
+
+        public Color lightGray = new Color(150, 150, 150);
 
         public InfoPanelInterior(int width, int height) {
             this.setLocation(0, 0);
@@ -65,13 +87,36 @@ public class InfoPanel extends UIElement {
             g2d.setColor(Color.black);
             g2d.setStroke(new BasicStroke(5));
             g2d.drawRect(0, 0, (int) (getWidth()), (int) (getHeight()));
+            ArrayList<RTSUnit> selectedUnits = new ArrayList(SelectionBoxEffect.selectedUnits.stream().filter(x -> !x.isRubble && x.isAlive()).toList());
+            HashMap<String, Integer> unitCountMap = new HashMap<>();
+            selectedUnits.forEach(unit -> unitCountMap.put(unit.getName(), unitCountMap.getOrDefault(unit.getName(), 0) + 1));
+            //todo account for team of local player
+            RTSUnit mainUnit = null;
             if (!selectedUnits.isEmpty()) {
-                ArrayList<RTSUnit> selectedUnits = SelectionBoxEffect.selectedUnits;
-                g2d.drawImage(selectedUnits.get(0).getSelectionImage(), 5, 15, null);
-                int imageWidth = selectedUnits.get(0).getSelectionImage().getWidth();
-                g2d.drawString(selectedUnits.get(0).getClass().getName(), imageWidth + 5, 40);
+                mainUnit = selectedUnits.get(0);
+                g2d.drawImage(mainUnit.getSelectionImage(), 5, 15, null);
+                int imageWidth = mainUnit.getSelectionImage().getWidth();
+                g2d.setFont(titleFont);
+                g2d.drawString(mainUnit.getName(), imageWidth + 15, 40);
+                g2d.setColor(healthColor);
+                g2d.setFont(healthFont);
+                g2d.drawString("" + mainUnit.currentHealth + " / " + mainUnit.maxHealth, imageWidth + 15, 65);
+                drawOtherSelected(g2d, unitCountMap);
             }
             g2d.dispose();
+        }
+
+        private void drawOtherSelected(Graphics2D g, HashMap<String, Integer> nameCountMap) {
+            int gradualWidth = 0;
+            g.setFont(otherCountFont);
+            for (String unitName : nameCountMap.keySet()) {
+                var image = unitNameImageMap.get(unitName);
+                int imageWidth = 60;
+                int imageHeight = 60;
+                g.drawImage(image, gradualWidth, getHeight() - imageHeight, imageWidth, imageHeight, null);
+                gradualWidth += imageWidth + 10;
+                g.drawString("x" + nameCountMap.get(unitName), gradualWidth - imageWidth/2, getHeight() - 10);
+            }
         }
     }
 }
