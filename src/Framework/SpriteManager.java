@@ -51,6 +51,7 @@ public abstract class SpriteManager {
     public static BufferedImage grassBGMega;
     public static BufferedImage hellicopter;
     public static BufferedImage hellicopterShadow;
+    public static BufferedImage hellicopterDestroyed;
     public static BufferedImage[] hellicopterAttack;
     public static BufferedImage missile, yellowMissile;
     public static BufferedImage missileShadow, yellowMissileShadow;
@@ -146,6 +147,7 @@ public abstract class SpriteManager {
             // grassBGMega = load("DemoAssets/TankGame/grassTerrain_mega.png");
             grassBG = load("DemoAssets/TankGame/grassTerrain_mega3.png");
             hellicopter = load("DemoAssets/TankGame/copter/base.png");
+            hellicopterDestroyed = load("DemoAssets/TankGame/copter/hellicopterDestroyed.png");
             hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
             hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");
             missile = load("DemoAssets/TankGame/missile.png");

@@ -1,4 +1,3 @@
-
 package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
@@ -7,9 +6,9 @@ import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.SpriteManager;
+import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
-import static GameDemo.RTSDemo.Units.Bazookaman.attackInterval;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -28,6 +27,8 @@ public class Hellicopter extends RTSUnit {
     public static final double VISUAL_SCALE = 1.05;
 
     public static final Sprite baseSprite = new Sprite(SpriteManager.hellicopter);
+    public static final Sprite destroyedSprite = new Sprite(SpriteManager.hellicopterDestroyed);
+    public static final Sprite destroyedSpriteRed = new Sprite(blueToRed(SpriteManager.hellicopterDestroyed));
     public static final Sprite shadowSprite = new Sprite(SpriteManager.hellicopterShadow);
     public static final Sequence attackSequence = new Sequence(SpriteManager.hellicopterAttack, "heliAttack");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
@@ -38,6 +39,7 @@ public class Hellicopter extends RTSUnit {
     public HellicopterTurret turret;
     public long lastFireTick = 0;
     public int attackInterval = Main.ticksPerSecond * 2;
+    public int elevation = 99;
 
     static {
         baseSprite.scale(VISUAL_SCALE);
@@ -46,6 +48,8 @@ public class Hellicopter extends RTSUnit {
         attackSequenceRed.scale(VISUAL_SCALE);
         baseSpriteRed.scaleTo(VISUAL_SCALE);
         baseSpriteRed.scaleTo(VISUAL_SCALE);
+        destroyedSprite.scaleTo(VISUAL_SCALE);
+        destroyedSpriteRed.scaleTo(VISUAL_SCALE);
     }
 
     public Hellicopter(int x, int y, int team) {
@@ -62,8 +66,21 @@ public class Hellicopter extends RTSUnit {
     }
 
     @Override
-    public void setRotation(double d) {
-        super.setRotation(d);
+    public int getWidth() {
+        if (isRubble) {
+            return super.getWidth() / 2;
+        } else {
+            return super.getWidth();
+        }
+    }
+
+    @Override
+    public int getHeight() {
+        if (isRubble) {
+            return super.getHeight() / 2;
+        } else {
+            return super.getHeight();
+        }
     }
 
     public void fireDelayed(RTSUnit targetUnit, int delay) {
@@ -94,6 +111,26 @@ public class Hellicopter extends RTSUnit {
 
     @Override
     public void tick() {
+        if (isRubble && elevation > 1) {
+            elevation -= 4.8;
+            if (elevation < 1) {
+                new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+                this.baseSpeed = 0;
+                this.plane = 0;
+                this.setZLayer(1);
+                this.isSolid = true;
+                addTickDelayedEffect(Main.ticksPerSecond * 8, c -> {
+                    new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+                    this.destroy();
+                });
+                return;
+            }
+            this.team = -1;
+            this.velocity.y = -1;
+            this.velocity.x = .1;
+            this.turret.rotate(4);
+            return;
+        }
         super.tick();
         currentTarget = nearestEnemyInRange();
         boolean offCooldown = (tickNumber - lastFireTick) > attackInterval;
@@ -108,9 +145,9 @@ public class Hellicopter extends RTSUnit {
     }
 
     @Override
-    public void render(Graphics2D g) {        
+    public void render(Graphics2D g) {
         int shadowOffsetX = 5;
-        int shadowOffsetY = 99;
+        int shadowOffsetY = Math.max(elevation, 9);
         Coordinate pixelLocation = getPixelLocation();
         pixelLocation.x += shadowOffsetX;
         pixelLocation.y += shadowOffsetY;
@@ -122,9 +159,20 @@ public class Hellicopter extends RTSUnit {
         g.drawImage(toRender, renderX, renderY, null);
         g.setTransform(old);
 
-        if (isSelected()) {
+        if (isSelected() && !isRubble) {
             drawHealthBar(g);
         }
+    }
+
+    @Override
+    public void die() {
+        if (isRubble) {
+            return;
+        }
+        this.turret.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
+        this.isRubble = true;
+        this.isSolid = false;
+        this.setSelected(false);
     }
 
     public class HellicopterTurret extends SubObject {
@@ -142,8 +190,10 @@ public class Hellicopter extends RTSUnit {
 
         @Override
         public void tick() {
-            updateLocationForBob();
-            updateRotation();
+            if (!isRubble) {
+                updateLocationForBob();
+                updateRotation();
+            }
         }
 
         @Override
@@ -195,11 +245,11 @@ public class Hellicopter extends RTSUnit {
     public BufferedImage getSelectionImage() {
         return SpriteManager.hellicopterSelectionImage;
     }
-    
+
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + HellicopterBullet.damage + " (x2)   Interval: " + 2+"s    Range: "+ range);
+        out.add("Dmg: " + HellicopterBullet.damage + " (x2)   Interval: " + 2 + "s    Range: " + range);
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
         return out;
     }
