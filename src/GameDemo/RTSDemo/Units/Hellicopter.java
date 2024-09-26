@@ -9,9 +9,13 @@ import Framework.Main;
 import Framework.SpriteManager;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSUnit;
+import static GameDemo.RTSDemo.Units.Bazookaman.attackInterval;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * the hellicopter itself is invisible, instead we render the subobject to
@@ -104,8 +108,19 @@ public class Hellicopter extends RTSUnit {
     }
 
     @Override
-    public void render(Graphics2D g) {
-        drawShadow(g, shadowSprite, 5, 99);
+    public void render(Graphics2D g) {        
+        int shadowOffsetX = 5;
+        int shadowOffsetY = 99;
+        Coordinate pixelLocation = getPixelLocation();
+        pixelLocation.x += shadowOffsetX;
+        pixelLocation.y += shadowOffsetY;
+        AffineTransform old = g.getTransform();
+        VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
+        int renderX = pixelLocation.x - toRender.getWidth() / 2;
+        int renderY = pixelLocation.y - toRender.getHeight() / 2;
+        g.rotate(Math.toRadians(turret.getRotation()), pixelLocation.x, pixelLocation.y);
+        g.drawImage(toRender, renderX, renderY, null);
+        g.setTransform(old);
 
         if (isSelected()) {
             drawHealthBar(g);
@@ -179,6 +194,14 @@ public class Hellicopter extends RTSUnit {
     @Override
     public BufferedImage getSelectionImage() {
         return SpriteManager.hellicopterSelectionImage;
+    }
+    
+    @Override
+    public ArrayList<String> getInfoLines() {
+        var out = new ArrayList<String>();
+        out.add("Dmg: " + HellicopterBullet.damage + " (x2)   Interval: " + 2+"s    Range: "+ range);
+        out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
+        return out;
     }
 
 }

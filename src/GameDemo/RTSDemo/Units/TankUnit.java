@@ -20,6 +20,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +29,9 @@ import java.util.List;
  * @author Joseph
  */
 public class TankUnit extends RTSUnit {
+    
+    public static final double attackFrequency = 2.5;
+    public static double speed = 2.15;
 
     public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/blast4.62.wav"));
     public static SoundEffect launchSoundSource2 = new SoundEffect(new File(Main.assets + "Sounds/blast4.6.wav"));
@@ -149,6 +153,9 @@ public class TankUnit extends RTSUnit {
         if (isSolid) {
             drawShadow(g, shadow, 5, 9);
         }
+        if(isSelected()) {
+            drawRubbleProximityIndicators(g);
+        }
         super.render(g);
     }
 
@@ -202,7 +209,7 @@ public class TankUnit extends RTSUnit {
         preventOverlap = true;
         this.maxHealth = 210;//tanks can take 4 shots
         this.currentHealth = maxHealth;
-        this.baseSpeed = 2.15;
+        this.baseSpeed = speed;
     }
 
     //when a tank tries to fire, it first checks if its turret is still firing. 
@@ -213,7 +220,7 @@ public class TankUnit extends RTSUnit {
         }
         weaponOnCooldown = true;
         turret.onFire(target);
-        this.addTickDelayedEffect((int) (Main.ticksPerSecond * 2.5), x -> {
+        this.addTickDelayedEffect((int) (Main.ticksPerSecond * attackFrequency), x -> {
             weaponOnCooldown = false;
         });
     }
@@ -388,6 +395,14 @@ public class TankUnit extends RTSUnit {
     @Override
     public BufferedImage getSelectionImage() {
         return SpriteManager.tankSelectionImage;
+    }
+    
+    @Override
+    public ArrayList<String> getInfoLines() {
+        var out = new ArrayList<String>();
+        out.add("Dmg: " + TankBullet.DAMAGE + "    Interval: " + attackFrequency+"s    Range: "+ range);
+        out.add("Speed: " + baseSpeed + "    Targets: Ground");
+        return out;
     }
 
 }

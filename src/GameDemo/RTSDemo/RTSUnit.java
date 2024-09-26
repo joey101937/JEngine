@@ -27,6 +27,8 @@ import java.util.Collection;
  * @author Joseph
  */
 public class RTSUnit extends Creature {
+    
+    public static final int RUBBLE_PROXIMITY = 90;
 
     private boolean selected = false;
     private Coordinate desiredLocation;
@@ -288,6 +290,12 @@ public class RTSUnit extends Creature {
         return s[s.length-1];
     }
     
+    
+    // placeholder
+    public ArrayList<String> getInfoLines() {
+        return new ArrayList<>();
+    };
+    
     public String toTransportString() {
         StringBuilder builder = new StringBuilder();
         builder.append(this.ID);
@@ -337,6 +345,18 @@ public class RTSUnit extends Creature {
         g.rotate(Math.toRadians(getRotation()), pixelLocation.x, pixelLocation.y);
         g.drawImage(toRender, renderX, renderY, null);
         g.setTransform(old);
+    }
+    
+    public void drawRubbleProximityIndicators (Graphics2D g) {
+        if(this.isRubble) return;
+        int circleRadius = 5;
+        int sideLength = Math.max(getWidth(), getHeight());
+        getHostGame().getObjectsNearPoint(getPixelLocation(), RUBBLE_PROXIMITY + sideLength/2).forEach(go -> {
+            if(go instanceof RTSUnit unit && unit.isRubble && unit.isSolid) {
+                Coordinate coord  = Coordinate.nearestPointOnCircle(getPixelLocation(), unit.getPixelLocation(), sideLength/2);
+                g.fillOval(coord.x - circleRadius, coord.y - circleRadius, circleRadius*2, circleRadius*2);
+            }
+        });
     }
 
     public void populateNearbyEnemies() {

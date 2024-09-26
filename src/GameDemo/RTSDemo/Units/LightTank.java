@@ -20,12 +20,16 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  *
  * @author guydu
  */
 public class LightTank extends RTSUnit {
+    
+    public static final double speed = 2.8;
+    public static final double attackInterval = 1.6;
 
     public static double VISUAL_SCALE = 1.00;
     public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
@@ -67,13 +71,16 @@ public class LightTank extends RTSUnit {
         this.isSolid = true;
         this.setHitbox(new Hitbox(this, getWidth() / 2));
         this.range = 500;
-        this.baseSpeed = 2.8;
+        this.baseSpeed = speed;
     }
 
     @Override
     public void render(Graphics2D g) {
         if (isSolid) {
             drawShadow(g, hullShadow, 5, 9);
+        }
+        if(isSelected()){
+            drawRubbleProximityIndicators(g);
         }
         super.render(g);
     }
@@ -112,7 +119,7 @@ public class LightTank extends RTSUnit {
         LightTankBullet bullet = new LightTankBullet(muzzelLocation.toDCoordinate(), target.getLocationAsOfLastTick().add(randomOffset));
         bullet.shooter = this;
         getHostGame().addObject(bullet);
-        addTickDelayedEffect((int) (Main.ticksPerSecond * 1.6), c -> {
+        addTickDelayedEffect((int) (Main.ticksPerSecond * attackInterval), c -> {
             this.barrelCoolingDown = false;
         });
     }
@@ -244,5 +251,13 @@ public class LightTank extends RTSUnit {
     @Override
     public BufferedImage getSelectionImage() {
         return SpriteManager.lightTankSelectionImage;
+    }
+    
+    @Override
+    public ArrayList<String> getInfoLines() {
+        var out = new ArrayList<String>();
+        out.add("Dmg: " + LightTankBullet.DAMAGE + "    Interval: " + attackInterval+"s    Range: "+ range);
+        out.add("Speed: " + speed + "    Targets: Ground");
+        return out;
     }
 }

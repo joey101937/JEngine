@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
  */
 public class LightTankBullet extends Projectile {
      public static final Sequence explosionTiny = new Sequence(SpriteManager.impactCone, "lightTankImpact");
+     public static final int DAMAGE = 20;
 
     public GameObject2 shooter; //the object that launched this projectile
 
@@ -58,12 +59,12 @@ public class LightTankBullet extends Projectile {
                 }
             }
             if (otherUnit.isRubble) {
-                if (startPosition.distanceFrom(otherUnit.getPixelLocation()) < 90) {
+                if (startPosition.distanceFrom(otherUnit.getPixelLocation()) < RTSUnit.RUBBLE_PROXIMITY) {
                     // if shooting unit is next to the rubble, it can shoot over it
                     return;
                 }
             }
-            otherUnit.takeDamage(20);
+            otherUnit.takeDamage(DAMAGE);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .6);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionTiny.copyMaintainSource(), impactLoc);
             impactExplosion.rotation = DCoordinate.angleFrom(shooter.getPixelLocation(), other.getPixelLocation());

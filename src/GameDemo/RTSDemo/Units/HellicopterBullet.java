@@ -27,7 +27,8 @@ public class HellicopterBullet extends Projectile {
     public static final Sprite missileSprite = new Sprite(SpriteManager.yellowMissile);
     public static final Sprite shadowSprite = new Sprite(SpriteManager.yellowMissileShadow);
     public static final Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall, "explosionSmallHeli");
-
+    public static final int damage = 10;
+    
     public RTSUnit shooter; //the object that launched this projectile
     public RTSUnit target;
     public RTSUnit collidedUnit;
@@ -76,7 +77,7 @@ public class HellicopterBullet extends Projectile {
     public void onCollide(GameObject2 other, boolean myTick) {
         if (other != shooter && other instanceof RTSUnit unit) {
              if(unit.isRubble) {
-                if(startPosition.distanceFrom(unit.getPixelLocation()) < 100) {
+                if(startPosition.distanceFrom(unit.getPixelLocation()) < RTSUnit.RUBBLE_PROXIMITY + 30) {
                     // if shooting unit is next to the rubble, it can shoot over it
                     return;
                 }
@@ -108,7 +109,7 @@ public class HellicopterBullet extends Projectile {
     public void onDestroy() {
         OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), getPixelLocation(true));
         if (collidedUnit != null) {
-            collidedUnit.takeDamage(10);
+            collidedUnit.takeDamage(damage);
         }
     }
 

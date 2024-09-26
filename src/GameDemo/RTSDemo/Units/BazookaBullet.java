@@ -20,6 +20,8 @@ import java.awt.image.VolatileImage;
  * @author guydu
  */
 public class BazookaBullet extends Projectile {
+    
+    public static final int damage = 23;
 
     public static Sprite missileSprite = new Sprite(SpriteManager.yellowMissile);
     public static Sprite shadowSprite = new Sprite(SpriteManager.yellowMissileShadow);
@@ -88,7 +90,7 @@ public class BazookaBullet extends Projectile {
             Coordinate updatedTarget = target.getPixelLocation();
             double desiredRotation = rotationNeededToFace(updatedTarget);
             
-            if(Math.abs(desiredRotation) < 90) {
+            if(Math.abs(desiredRotation) < RTSUnit.RUBBLE_PROXIMITY) {
                 if(Math.abs(desiredRotation) < maxRotationPerTick) {
                     this.rotate(desiredRotation);
                 } else {
@@ -102,7 +104,7 @@ public class BazookaBullet extends Projectile {
     public void onDestroy() {
         OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), getPixelLocation(true));
         if (collidedUnit != null) {
-            collidedUnit.takeDamage(23);
+            collidedUnit.takeDamage(damage);
         }
     }
 

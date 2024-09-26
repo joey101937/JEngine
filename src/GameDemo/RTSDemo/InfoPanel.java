@@ -22,6 +22,7 @@ public class InfoPanel extends UIElement {
     private static final Font titleFont = new Font("TimesRoman", Font.BOLD, 18);
     private static final Font healthFont = new Font("TimesRoman", Font.BOLD, 16);
     private static final Font otherCountFont = new Font("TimesRoman", Font.BOLD, 14);
+    private static final Font infoLinesFont = new Font("TimesRoman", Font.BOLD, 12);
 
     private static final Color healthColor = Color.BLACK;
     private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
@@ -38,7 +39,6 @@ public class InfoPanel extends UIElement {
 
     Game hostGame;
     InfoPanelInterior interior;
-    RTSUnit mainUnit;
 
     public InfoPanel(Game game, int x, int y, int width) {
         super();
@@ -102,8 +102,19 @@ public class InfoPanel extends UIElement {
                 g2d.setFont(healthFont);
                 g2d.drawString("" + mainUnit.currentHealth + " / " + mainUnit.maxHealth, imageWidth + 15, 65);
                 drawOtherSelected(g2d, unitCountMap);
+                drawInfoLines(g2d, mainUnit);
             }
             g2d.dispose();
+        }
+        
+        private void drawInfoLines(Graphics2D g, RTSUnit unit) {
+            if(unit == null) return;
+            g.setFont(infoLinesFont);
+            int gradualHeight = 0;
+            for(String s : unit.getInfoLines()) {
+                g.drawString(s, unit.getSelectionImage().getWidth() + 15, 90 + gradualHeight);
+                gradualHeight += 20;
+            }
         }
 
         private void drawOtherSelected(Graphics2D g, HashMap<String, Integer> nameCountMap) {

@@ -13,6 +13,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  *
@@ -30,6 +31,8 @@ public class Rifleman extends RTSUnit {
     public static final Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryRifleIdle), "redRiflemanIdle");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
     public boolean attackCoolingDown = false;
+    public static final int damage = 6;
+    public static final int attackFrequency = 1;
 
     static {
         runningSequence.setFrameDelay(35);
@@ -100,8 +103,8 @@ public class Rifleman extends RTSUnit {
             }
         }
         turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
-        target.takeDamage(6);
-        addTickDelayedEffect(Main.ticksPerSecond, c -> {
+        target.takeDamage(damage);
+        addTickDelayedEffect(Main.ticksPerSecond * attackFrequency, c -> {
             this.attackCoolingDown = false;
         });
     }
@@ -188,6 +191,14 @@ public class Rifleman extends RTSUnit {
     @Override
     public BufferedImage getSelectionImage() {
         return SpriteManager.riflemanSelectionImage;
+    }
+    
+    @Override
+    public ArrayList<String> getInfoLines() {
+        var out = new ArrayList<String>();
+        out.add("Dmg: " + damage + "    Interval: " + attackFrequency+"s    Range: "+ range);
+        out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
+        return out;
     }
 
 }

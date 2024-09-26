@@ -26,6 +26,7 @@ import java.awt.image.VolatileImage;
  */
 public class TankBullet extends Projectile {
 
+    public static final int DAMAGE = 46;
     public GameObject2 shooter; //the object that launched this projectile
 
     public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet}, "tankBulletGraphic");
@@ -59,12 +60,12 @@ public class TankBullet extends Projectile {
                 }
             }
             if (otherUnit.isRubble) {
-                if (startPosition.distanceFrom(otherUnit.getPixelLocation()) < 90) {
+                if (startPosition.distanceFrom(otherUnit.getPixelLocation()) < RTSUnit.RUBBLE_PROXIMITY) {
                     // if shooting unit is next to the rubble, it can shoot over it
                     return;
                 }
             }
-            otherUnit.takeDamage(46);
+            otherUnit.takeDamage(DAMAGE);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .25);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
             destroy();

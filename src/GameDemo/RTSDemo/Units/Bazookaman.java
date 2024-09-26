@@ -14,6 +14,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  *
@@ -31,6 +32,7 @@ public class Bazookaman extends RTSUnit {
     public static final Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryBazookaIdle), "bazookaIdleRed");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
     public boolean attackCoolingDown = false;
+    public static final double attackInterval = 3;
 
     static {
         baseSprite.scaleTo(VISUAL_SCALE);
@@ -107,7 +109,7 @@ public class Bazookaman extends RTSUnit {
             offset.adjustForRotation(turret.getRotation());
             getHostGame().addObject(new BazookaBullet(this, getPixelLocation().copy().add(offset), target));
         });
-        addTickDelayedEffect((int) (Main.ticksPerSecond * 3), c -> {
+        addTickDelayedEffect((int) (Main.ticksPerSecond * attackInterval), c -> {
             this.attackCoolingDown = false;
         });
     }
@@ -199,6 +201,14 @@ public class Bazookaman extends RTSUnit {
     @Override
     public BufferedImage getSelectionImage() {
         return SpriteManager.bazookamanSelectionImage;
+    }
+    
+    @Override
+    public ArrayList<String> getInfoLines() {
+        var out = new ArrayList<String>();
+        out.add("Dmg: " + BazookaBullet.damage + "    Interval: " + attackInterval+"s    Range: "+ range);
+        out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
+        return out;
     }
 
 }
