@@ -25,7 +25,7 @@ public class Rifleman extends RTSUnit {
     public static final Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
     public static final Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
     public static final Sequence attackSequence = new Sequence(SpriteManager.infantryRifleFire, "riflemanAttackSequence");
-    public static final Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryRifleFire), "redRiflemanAttackSequence");
+    public static final Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryRifleFire), "riflemanAttackSequence");
     public static final Sequence idleAnimation = new Sequence(SpriteManager.infantryRifleIdle, "riflemanIdle");
     public static final Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryRifleIdle), "redRiflemanIdle");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
@@ -179,7 +179,7 @@ public class Rifleman extends RTSUnit {
          */
         @Override
         public void onAnimationCycle() {
-            if (getGraphic().getSignature().equals("attackSequence")) {
+            if (getGraphic().getSignature().equals("riflemanAttackSequence")) {
                 setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
             }
         }
