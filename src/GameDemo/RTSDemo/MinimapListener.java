@@ -1,11 +1,14 @@
 
 package GameDemo.RTSDemo;
 
+import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Game;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.UI_Elements.Examples.Minimap.MinimapMouseListener;
+import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.event.MouseEvent;
+import java.util.Collection;
 
 /**
  *
@@ -22,14 +25,30 @@ public class MinimapListener extends MinimapMouseListener {
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == 3) {
-            SelectionBoxEffect.selectedUnits.forEach(unit -> {
-                DCoordinate relativePoint = new DCoordinate(0, 0);
-                relativePoint.x = (double) e.getX() / (double) map.getWidth();
-                relativePoint.x *= hostGame.getWorldWidth();
-                relativePoint.y = (double) e.getY() / (double) map.getHeight();
-                relativePoint.y *= hostGame.getWorldHeight();
-                unit.setDesiredLocation(relativePoint.toCoordinate());
-            });
+            Collection<RTSUnit> selectedUnits = SelectionBoxEffect.selectedUnits;
+            if(ExternalCommunicator.isMultiplayer) {
+                selectedUnits = selectedUnits.stream().filter(x -> x.team == ExternalCommunicator.localTeam).toList();
+            }
+            if(e.isControlDown()) {
+                selectedUnits.forEach(unit -> {
+                    DCoordinate relativePoint = new DCoordinate(0, 0);
+                    relativePoint.x = (double) e.getX() / (double) map.getWidth();
+                    relativePoint.x *= hostGame.getWorldWidth();
+                    relativePoint.y = (double) e.getY() / (double) map.getHeight();
+                    relativePoint.y *= hostGame.getWorldHeight();
+                    unit.setDesiredLocation(relativePoint.toCoordinate());
+                });
+            } else {
+                Coordinate avgLocation = RTSInput.averageLocation(selectedUnits);
+                 selectedUnits.forEach(unit -> {
+                    DCoordinate relativePoint = new DCoordinate(0, 0);
+                    relativePoint.x = (double) e.getX() / (double) map.getWidth();
+                    relativePoint.x *= hostGame.getWorldWidth();
+                    relativePoint.y = (double) e.getY() / (double) map.getHeight();
+                    relativePoint.y *= hostGame.getWorldHeight();
+                    unit.setDesiredLocation((unit.getPixelLocation().subtract(avgLocation)).add(relativePoint));
+                });
+            }
         } else if (e.getButton() == 1) {
             panTo(e);
             dragging = true;

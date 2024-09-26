@@ -54,7 +54,7 @@ public class RTSInput extends InputHandler {
         cam.yVel = yVelocity;
     }
 
-    private Coordinate averageLocation(Collection<RTSUnit> input) {
+    public static Coordinate averageLocation(Collection<RTSUnit> input) {
         List<RTSUnit> livingMembers = input.stream().filter(
                 x -> x.isAlive()
                 && !x.isRubble

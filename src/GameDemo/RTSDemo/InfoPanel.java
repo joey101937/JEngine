@@ -3,6 +3,7 @@ package GameDemo.RTSDemo;
 import Framework.Game;
 import Framework.SpriteManager;
 import Framework.UI_Elements.UIElement;
+import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -87,7 +88,9 @@ public class InfoPanel extends UIElement {
             g2d.setColor(Color.black);
             g2d.setStroke(new BasicStroke(5));
             g2d.drawRect(0, 0, (int) (getWidth()), (int) (getHeight()));
-            ArrayList<RTSUnit> selectedUnits = new ArrayList(SelectionBoxEffect.selectedUnits.stream().filter(x -> !x.isRubble && x.isAlive()).toList());
+            ArrayList<RTSUnit> selectedUnits = new ArrayList(SelectionBoxEffect.selectedUnits.stream().filter(
+                    x -> !x.isRubble && x.isAlive() && (!ExternalCommunicator.isMultiplayer || x.team == ExternalCommunicator.localTeam)).toList()
+            );
             HashMap<String, Integer> unitCountMap = new HashMap<>();
             selectedUnits.forEach(unit -> unitCountMap.put(unit.getName(), unitCountMap.getOrDefault(unit.getName(), 0) + 1));
             //todo account for team of local player
@@ -106,12 +109,14 @@ public class InfoPanel extends UIElement {
             }
             g2d.dispose();
         }
-        
+
         private void drawInfoLines(Graphics2D g, RTSUnit unit) {
-            if(unit == null) return;
+            if (unit == null) {
+                return;
+            }
             g.setFont(infoLinesFont);
             int gradualHeight = 0;
-            for(String s : unit.getInfoLines()) {
+            for (String s : unit.getInfoLines()) {
                 g.drawString(s, unit.getSelectionImage().getWidth() + 15, 90 + gradualHeight);
                 gradualHeight += 20;
             }
@@ -126,7 +131,7 @@ public class InfoPanel extends UIElement {
                 int imageHeight = 60;
                 g.drawImage(image, gradualWidth, getHeight() - imageHeight, imageWidth, imageHeight, null);
                 gradualWidth += imageWidth + 10;
-                g.drawString("x" + nameCountMap.get(unitName), gradualWidth - imageWidth/2, getHeight() - 10);
+                g.drawString("x" + nameCountMap.get(unitName), gradualWidth - imageWidth / 2, getHeight() - 10);
             }
         }
     }
