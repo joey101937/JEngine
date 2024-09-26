@@ -24,7 +24,6 @@ public class SideScrollDemo {
         Main.ticksPerSecond = 120;
         Game g = new Game(SpriteManager.platformBG);
         g.setPathingLayer(SpriteManager.platformPathing);
-        g.start();
         Window.initialize(g);
         g.addObject(playerCharacter);
         g.setInputHandler(new SideScollInput());
