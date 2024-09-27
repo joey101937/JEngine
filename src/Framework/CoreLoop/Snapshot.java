@@ -14,7 +14,7 @@ import java.util.HashMap;
  */
 public class Snapshot {
     public final ArrayList<GameObject2> gameObjects;
-    public final HashMap<Integer, GameObject2> objectMap = new HashMap<>();
+    public final HashMap<String, GameObject2> objectMap = new HashMap<>();
     public final long tickNumber;
     
     public Snapshot(ArrayList<GameObject2> gos, long tick){

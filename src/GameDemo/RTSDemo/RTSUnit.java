@@ -209,6 +209,8 @@ public class RTSUnit extends Creature {
         this.movementType = MovementType.RotationBased;
         this.hitbox = new Hitbox(this, 0); //sets to a circle with radius 0. radius will be auto set based on width becauase of updateHitbox method
         this.team = team;
+        ID = RTSUnitIdHelper.generateId(this);
+        System.out.println("generated id " + ID);
     }
 
     public RTSUnit(Coordinate c, int team) {

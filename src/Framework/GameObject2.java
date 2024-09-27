@@ -67,7 +67,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public int plane = 0; //which 'layer' a unit is on. Units only collide with others in the same plane
     protected Hitbox hitbox ;
     protected ArrayList<Sticker> attachedStickers = new ArrayList<>();
-    public final int ID;
+    public String ID;
     private static int IDLog = 0; //used to assign IDs
     public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
     private CopyOnWriteArrayList<SubObject> subObjects = new CopyOnWriteArrayList<>(); //stores all subobjects on this object
@@ -172,7 +172,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         double myNum = getLocationAsOfLastTick().x + getLocationAsOfLastTick().y;
         double theirNum = o.getLocationAsOfLastTick().x + o.getLocationAsOfLastTick().y;
         if (myNum != theirNum) return myNum < theirNum ? -1 : 1;
-        else return ID < o.ID ? -1 : 1;
+        else return ID.compareTo(o.ID);
     }
     
     
@@ -868,7 +868,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public GameObject2(Coordinate c){
       init(new DCoordinate(c));
-      ID = IDLog++;
+      ID = String.valueOf(IDLog++);
     }
      /**
      * Creates new GameObject2 at exact location
@@ -876,7 +876,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public GameObject2(DCoordinate dc){
         init(dc);
-        ID = IDLog++;
+        ID = String.valueOf(IDLog++);
     }
      /**
      * Creates new GameObject2 at location
@@ -885,7 +885,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public GameObject2(int x, int y){
       init(new DCoordinate(x,y));
-      ID = IDLog++; 
+      ID = String.valueOf(IDLog++); 
     }
     /**
      * sets initial values common for all gameObjects

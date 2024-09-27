@@ -339,11 +339,11 @@ public class Game extends Canvas implements Runnable {
         return out;
     }
     
-    public GameObject2 getObjectById(int id) {
+    public GameObject2 getObjectById(String id) {
         return this.handler.currentSnapshot.objectMap.get(id);
     }
     
-    public ArrayList<GameObject2> getObjectById(Collection<Integer> ids) {
+    public ArrayList<GameObject2> getObjectById(Collection<String> ids) {
         ArrayList<GameObject2> out = new ArrayList<>();
         ids.forEach(x -> {
             out.add(this.handler.currentSnapshot.objectMap.get(x));

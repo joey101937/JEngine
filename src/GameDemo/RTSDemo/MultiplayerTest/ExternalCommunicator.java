@@ -143,7 +143,7 @@ public class ExternalCommunicator implements Runnable {
         // moves unit with id 1 to coordinate 100,200
         if (s.startsWith("m:")) {
             var components = s.substring(2).split(",");
-            int id = Integer.parseInt(components[0]);
+            String id = components[0];
             int x = Integer.parseInt(components[1]);
             int y = Integer.parseInt(components[2]);
             long intendedTick = Long.parseLong(components[3]); // this is when the input was actually done
@@ -176,7 +176,7 @@ public class ExternalCommunicator implements Runnable {
                 if(line.equals("")) continue;
                 var components = line.split(",");
                 try {
-                    GameObject2 go = Window.currentGame.getObjectById(Integer.parseInt(components[0]));
+                    GameObject2 go = Window.currentGame.getObjectById(components[0]);
                     if (go != null && go instanceof RTSUnit unit) {
                         unit.setFieldsPerString(line);
                     } else if (go == null) {
@@ -190,7 +190,7 @@ public class ExternalCommunicator implements Runnable {
         }
 
         if (s.startsWith("unitRemoval:")) {
-            int id = Integer.parseInt(s.split(":")[1]);
+            String id = s.split(":")[1];
             GameObject2 go = Window.currentGame.getObjectById(id);
             if (go != null) {
                 Window.currentGame.removeObject(go);
