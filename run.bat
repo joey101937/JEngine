@@ -1,1 +1,0 @@
-java -Dsun.java2d.d3d=false -Xmx1024m -Dsun.java2d.opengl=false -jar JEngine.jar
