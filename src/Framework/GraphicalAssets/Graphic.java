@@ -108,25 +108,14 @@ public interface Graphic {
 
     /**
      * returns a scaled copy of the image
-     * scales over 16 steps
      * @param before
      * @param scaleAmount
      * @return
      */
     public static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
         if(scaleAmount == 1) return before;
-        
-        boolean isSmallImage = before.getWidth() < 200 || before.getHeight() < 200;
-        
-        int numScales = isSmallImage ? 1 : 1;
-        double stepAmount = Math.pow(scaleAmount, 1.0/numScales);
-        
         BufferedImage output = before;
-        
-        for(int i = 0; i < numScales; i++) {
-            output = scaleImageDirect(output, stepAmount);
-        }
-        
+        output = scaleImageDirect(output, scaleAmount);
         return output;
     }
     
