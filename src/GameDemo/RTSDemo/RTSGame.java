@@ -29,6 +29,10 @@ public class RTSGame {
     public static InfoPanel infoPanel;
 
     public static void setup(Game g) {
+        // preload static asset
+        var x = Bazookaman.baseSprite;
+        var y = Rifleman.baseSprite;
+        
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
         Main.ticksPerSecond = 60;

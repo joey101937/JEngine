@@ -123,7 +123,7 @@ public class Minotaur extends SSActor{
     
     @Override
     public void onCollide(GameObject2 other, boolean myTick) {
-        System.out.println("minotaur colliding with " + other);
+       if(Main.debugMode) System.out.println("minotaur colliding with " + other);
     }
     
     private void doAction(){
