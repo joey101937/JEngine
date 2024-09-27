@@ -64,9 +64,16 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      * velocity in unblocked direction
      */
     public boolean collisionSliding = true;
-    public int plane = 0; //which 'layer' a unit is on. Units only collide with others in the same plane
+    /**
+     * Which 'layer' a unit is on. Units only collide with others in the same plane
+     */
+    public int plane = 0; 
     protected Hitbox hitbox ;
     protected ArrayList<Sticker> attachedStickers = new ArrayList<>();
+    /**
+     * Identifier for this gameObject. This is by default a unique stringified integer.
+     * If you update the logic for generating the ID, make sure that it is unique to avoid intermittent bugs
+     */
     public String ID;
     private static int IDLog = 0; //used to assign IDs
     public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
