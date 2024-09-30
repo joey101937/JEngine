@@ -38,36 +38,7 @@ public abstract class SpriteManager {
     public static BufferedImage car;
 
     //TANK ASSETS
-    public static BufferedImage tankChasis;
-    public static BufferedImage tankTurret, tankTurretShadow;
-    public static BufferedImage tankHullDamaged;
-    public static BufferedImage tankTurretDamaged;
-    public static BufferedImage[] tankFireAnimation;
-    public static BufferedImage[] tankFireAnimationDamaged;
-    public static BufferedImage bullet, bullet2;
-    public static BufferedImage dirtBG;
-    public static BufferedImage dirtBGNight;
-    public static BufferedImage grassBG;
-    public static BufferedImage grassBGMega;
-    public static BufferedImage hellicopter;
-    public static BufferedImage hellicopterShadow;
-    public static BufferedImage hellicopterDestroyed;
-    public static BufferedImage[] hellicopterAttack;
-    public static BufferedImage missile, yellowMissile;
-    public static BufferedImage missileShadow, yellowMissileShadow;
-    public static BufferedImage tankDeadHull;
-    public static BufferedImage tankDeadHullShadow;
-    public static BufferedImage tankShadow;
-    public static BufferedImage tankDeadTurret;
-    public static BufferedImage[] tankHullDeathAni;
-    public static BufferedImage[] tankTurretDeathAni;
-    public static BufferedImage lightTankHull, lightTankTurret, lightTankShadow, lightTankHullDamaged, lightTankTurretDamaged, 
-                lightTankHullDestroyed, lightTankTurretDestroyed, lightTankDeathShadow;
-    public static BufferedImage[] lightTankFire, lightTankFireDamaged;
-    
-    public static BufferedImage[] infantryLegsRun, infantryRifleIdle, infantryRifleFire, infantryRifleMoving, infantryBazookaIdle, infantryBazookaFire;
-    public static BufferedImage infantryLegs, infantryShadow;
-    public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage;
+    // RTS assets have been moved to RTSAssetManager
 
     //SPACE ASSETS
     public static BufferedImage spaceBG;
