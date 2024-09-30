@@ -105,62 +105,7 @@ public abstract class SpriteManager {
             fogSequence = loadSequenceBouncing("DemoAssets/fogSequence");
             car = load("DemoAssets/topDownCarShadowDarkGrit.png");
 
-            tankChasis = load("DemoAssets/TankGame/tank1-hull.png");
-            tankTurret = load("DemoAssets/TankGame/tank1-turret.png");
-            tankTurretShadow = load("DemoAssets/TankGame/tank1-turret-shadow.png");
-            tankFireAnimation = loadSequence("DemoAssets/TankGame/tank1Fire");
-            bullet = load("DemoAssets/TankGame/bullet.png");
-            bullet2 = load("DemoAssets/TankGame/bullet2.png");
-            dirtBG = load("DemoAssets/TankGame/dirtBG.png");
-            dirtBGNight = load("DemoAssets/TankGame/dirtBGNight.png");
-            // grassBG = load("DemoAssets/TankGame/grassTerrain.png");
-            // uncomment to load this large bg file 
-            // grassBGMega = load("DemoAssets/TankGame/grassTerrain_mega.png");
-            grassBG = load("DemoAssets/TankGame/grassTerrain_mega3.png");
-            hellicopter = load("DemoAssets/TankGame/copter/base.png");
-            hellicopterDestroyed = load("DemoAssets/TankGame/copter/hellicopterDestroyed.png");
-            hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
-            hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");
-            missile = load("DemoAssets/TankGame/missile.png");
-            missileShadow = load("DemoAssets/TankGame/missileShadow.png");
-            yellowMissile = load("DemoAssets/TankGame/yellowMissile.png");
-            yellowMissileShadow = load("DemoAssets/TankGame/yellowMissileShadow.png");
-            tankDeadHull = load("DemoAssets/TankGame/destroyedHull.png");
-            tankDeadHullShadow = load("DemoAssets/TankGame/destroyedHullShadow.png");
-            tankShadow = load("DemoAssets/TankGame/tankShadow.png");
-            tankHullDamaged = load("DemoAssets/TankGame/tankHullDamaged.png");
-            tankTurretDamaged = load("DemoAssets/TankGame/tankTurretDamaged.png");
-            tankFireAnimationDamaged = loadSequence("DemoAssets/TankGame/tank1FireDamaged");
-            tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
-            tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
-            tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
-            // light tank
-            lightTankHull = load("DemoAssets/TankGame/lightTank/lightTankHull.png");
-            lightTankTurret = load("DemoAssets/TankGame/lightTank/lightTankTurret.png");
-            lightTankShadow = load("DemoAssets/TankGame/lightTank/lightTankShadow.png");
-            lightTankFire = loadSequence("DemoAssets/TankGame/lightTank/fire");
-            lightTankFireDamaged = loadSequence("DemoAssets/TankGame/lightTank/fireDamaged");
-            lightTankTurretDamaged = load("DemoAssets/TankGame/lightTank/lightTankTurretDamaged.png");
-            lightTankHullDamaged = load("DemoAssets/TankGame/lightTank/lightTankHullDamaged.png");  
-            lightTankTurretDestroyed= load("DemoAssets/TankGame/lightTank/lightTankTurretDestroyed.png");
-            lightTankHullDestroyed= load("DemoAssets/TankGame/lightTank/lightTankHullDestroyed.png");  
-            lightTankDeathShadow= load("DemoAssets/TankGame/lightTank/lightTankDeathShadow.png");  
-            // Infantry
-            infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run");
-            infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle");
-            infantryBazookaIdle = loadSequence("DemoAssets/TankGame/Infantry/bazooka/idle");
-            infantryRifleMoving = loadSequence("DemoAssets/TankGame/Infantry/rifle/move"); //todo
-            infantryLegs = load("DemoAssets/TankGame/Infantry/feet/idle/survivor-idle_0.png");
-            infantryRifleFire = loadSequence("DemoAssets/TankGame/Infantry/rifle/shoot");
-            infantryBazookaFire = loadSequence("DemoAssets/TankGame/Infantry/bazooka/shoot");
-            infantryShadow = load("DemoAssets/TankGame/Infantry/infantryShadow.png");
-
-            // selection images
-            tankSelectionImage = load("DemoAssets/TankGame/tankSelectionImage.png");
-            lightTankSelectionImage = load("DemoAssets/TankGame/lightTank/lightTankSelectionImage.png");
-            hellicopterSelectionImage = load("DemoAssets/TankGame/copter/hellicopterSelectionImage.png");
-            riflemanSelectionImage = load("DemoAssets/TankGame/infantry/rifleSelectionImage.png");
-            bazookamanSelectionImage = load("DemoAssets/TankGame/infantry/bazookaSelectionImage.png");
+            // RTS assets loading has been moved to RTSAssetManager
             
             spaceBG = load("DemoAssets/spacebg.png");
             spaceBG2 = load("DemoAssets/spacebg2.png");
