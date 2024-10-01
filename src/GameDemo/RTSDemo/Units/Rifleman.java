@@ -95,10 +95,10 @@ public class Rifleman extends RTSUnit {
         attackCoolingDown = true;
         if (attackSound.getNumCopiesPlaying() < 7) {
             if (isOnScreen()) {
-                attackSound.playCopy(Main.generateRandomDoubleLocally(.55f, .63f));
+                attackSound.playCopy(Main.generateRandomDoubleLocally(.55f, .63f), Main.generateRandomIntLocally(0, 10));
                 addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
             } else {
-                attackSound.playCopy(Main.generateRandomDoubleLocally(.4f, .48f));
+                attackSound.playCopy(Main.generateRandomDoubleLocally(.4f, .48f), Main.generateRandomIntLocally(0, 10));
                 addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
             }
         }

@@ -104,47 +104,6 @@ public class RTSUnit extends Creature {
         return bi;
     }
 
-    public static BufferedImage[] blueToRed(BufferedImage[] input) {
-        BufferedImage[] out = new BufferedImage[input.length];
-        for (int i = 0; i < out.length; i++) {
-            out[i] = blueToRed(input[i]);
-        }
-        return out;
-    }
-
-    public static BufferedImage darkToRed(BufferedImage input) {
-        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        for (int y = 0; y < bi.getHeight(); y++) {
-            for (int x = 0; x < bi.getWidth(); x++) {
-                int rgba = input.getRGB(x, y);
-                Color prevColor = new Color(rgba, true);
-                if (prevColor.getBlue() + prevColor.getRed() + prevColor.getGreen() < 300) {
-
-                    int newRed = 0;
-                    if (prevColor.getRed() > 0) {
-                        newRed = Math.min(255, (int) (prevColor.getRed() + 50 * 1.5));
-                    }
-                    int newGreen = (int) (prevColor.getRed());
-                    int newBlue = (int) (prevColor.getGreen());
-                    Color newColor = new Color(newRed, newGreen, newBlue, prevColor.getAlpha());
-                    bi.setRGB(x, y, newColor.getRGB());
-                } else {
-                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
-                    bi.setRGB(x, y, newColor.getRGB());
-                }
-            }
-        }
-        return bi;
-    }
-
-    public static BufferedImage[] darkToRed(BufferedImage[] input) {
-        BufferedImage[] out = new BufferedImage[input.length];
-        for (int i = 0; i < out.length; i++) {
-            out[i] = darkToRed(input[i]);
-        }
-        return out;
-    }
-
     public void drawHealthBar(Graphics2D g) {
         Color originalColor = g.getColor();
         Stroke originalStroke = g.getStroke();

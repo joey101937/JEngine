@@ -8,7 +8,6 @@ import Framework.Main;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
-import static GameDemo.RTSDemo.RTSUnit.darkToRed;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -96,10 +95,10 @@ public class Bazookaman extends RTSUnit {
         attackCoolingDown = true;
         if (attackSound.getNumCopiesPlaying() < 10) {
             if (isOnScreen()) {
-                attackSound.playCopy(Main.generateRandomDoubleLocally(.64f, .68f));
+                attackSound.playCopy(Main.generateRandomDoubleLocally(.64f, .68f), Main.generateRandomIntLocally(0, 10));
                 addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
             } else {
-                attackSound.playCopy(Main.generateRandomDoubleLocally(.6f, .64f));
+                attackSound.playCopy(Main.generateRandomDoubleLocally(.6f, .64f), Main.generateRandomIntLocally(0, 10));
                 addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
             }
         }

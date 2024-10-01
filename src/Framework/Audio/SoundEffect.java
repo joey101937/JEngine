@@ -428,6 +428,10 @@ public class SoundEffect implements Runnable{
         playCopy((float)volume, 0);
     }
     
+    public void playCopy(double volume, int msDelay) {
+        playCopy((float)volume, msDelay);
+    }
+    
     public void playCopy(float volume, int msDelay) {
         changeNumCopiesPlaying(1);
         SoundEffect copy = this.createCopy();
