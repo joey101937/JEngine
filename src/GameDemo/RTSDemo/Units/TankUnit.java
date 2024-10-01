@@ -41,12 +41,12 @@ public class TankUnit extends RTSUnit {
     public boolean weaponOnCooldown = false;
 
     // Modified buffered images for team color
-    public static BufferedImage enemyTankChasisImage = greenToRed(RTSAssetManager.tankChasis);
-    public static BufferedImage enemyTankTurretImage = greenToRed(RTSAssetManager.tankTurret);
-    public static BufferedImage[] enemyTankFireAnimation = greenToRed(RTSAssetManager.tankFireAnimation);
+    public static BufferedImage enemyTankChasisImage = RTSAssetManager.tankChasisRed;
+    public static BufferedImage enemyTankTurretImage = RTSAssetManager.tankTurretRed;
+    public static BufferedImage[] enemyTankFireAnimation = RTSAssetManager.tankFireAnimationRed;
 
     // sprites for reuse
-    public static volatile Sprite chasisSpriteGreen = null; // new Sprite(RTSAssetManager.tankChasis2);
+    public static volatile Sprite chasisSpriteGreen = null; // new Sprite(RTSAssetManager.tankChasis);
     public static volatile Sprite chasisSpriteRed = null; // new Sprite(enemyTankChasisImage);
     public static volatile Sprite turretSpriteGreen = null; // new Sprite(RTSAssetManager.tankTurret);
     public static volatile Sprite turretSpriteRed = null; // new Sprite(enemyTankTurretImage);
@@ -92,10 +92,10 @@ public class TankUnit extends RTSUnit {
 
         tankHullDamagedGreen = new Sprite(RTSAssetManager.tankHullDamaged);
         tankTurretDamagedGreen = new Sprite(RTSAssetManager.tankTurretDamaged);
-        tankHullDamagedRed = new Sprite(greenToRed(RTSAssetManager.tankHullDamaged));
-        tankTurretDamagedRed = new Sprite(greenToRed(RTSAssetManager.tankTurretDamaged));
+        tankHullDamagedRed = new Sprite(RTSAssetManager.tankHullDamagedRed);
+        tankTurretDamagedRed = new Sprite(RTSAssetManager.tankTurretDamagedRed);
         tankFireAnimationDamagedGreen = new Sequence(RTSAssetManager.tankFireAnimationDamaged);
-        tankFireAnimationDamagedRed = new Sequence(greenToRed(RTSAssetManager.tankFireAnimationDamaged));
+        tankFireAnimationDamagedRed = new Sequence(RTSAssetManager.tankFireAnimationDamagedRed);
 
         tankHullDamagedGreen.setSignature("damagedHull");
         tankTurretDamagedGreen.setSignature("damagedTurret");

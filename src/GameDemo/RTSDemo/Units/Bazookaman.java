@@ -27,9 +27,9 @@ public class Bazookaman extends RTSUnit {
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.infantryShadow);
     public static final Sequence runningSequence = new Sequence(RTSAssetManager.infantryLegsRun, "bazookaRun");
     public static final Sequence attackSequence = new Sequence(RTSAssetManager.infantryBazookaFire, "bazookaFire");
-    public static final Sequence attackSequenceRed = new Sequence(darkToRed(RTSAssetManager.infantryBazookaFire), "bazookaFireRed");
+    public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.infantryBazookaFireRed, "bazookaFireRed");
     public static final Sequence idleAnimation = new Sequence(RTSAssetManager.infantryBazookaIdle, "bazookaIdle");
-    public static final Sequence idleAnimationRed = new Sequence(darkToRed(RTSAssetManager.infantryBazookaIdle), "bazookaIdleRed");
+    public static final Sequence idleAnimationRed = new Sequence(RTSAssetManager.infantryBazookaIdleRed, "bazookaIdleRed");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
     public boolean attackCoolingDown = false;
     public static final double attackInterval = 3;

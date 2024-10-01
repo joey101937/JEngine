@@ -28,13 +28,13 @@ public class Hellicopter extends RTSUnit {
 
     public static final Sprite baseSprite = new Sprite(RTSAssetManager.hellicopter);
     public static final Sprite destroyedSprite = new Sprite(RTSAssetManager.hellicopterDestroyed);
-    public static final Sprite destroyedSpriteRed = new Sprite(blueToRed(RTSAssetManager.hellicopterDestroyed));
+    public static final Sprite destroyedSpriteRed = new Sprite(RTSAssetManager.hellicopterDestroyedRed);
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.hellicopterShadow);
     public static final Sequence attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
 
-    public static final Sprite baseSpriteRed = new Sprite(blueToRed(RTSAssetManager.hellicopter));
-    public static final Sequence attackSequenceRed = new Sequence(blueToRed(RTSAssetManager.hellicopterAttack), "helliAttackRed");
+    public static final Sprite baseSpriteRed = new Sprite(RTSAssetManager.hellicopterRed);
+    public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.hellicopterAttackRed, "helliAttackRed");
 
     public HellicopterTurret turret;
     public long lastFireTick = 0;

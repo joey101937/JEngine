@@ -26,9 +26,9 @@ public class Rifleman extends RTSUnit {
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.infantryShadow);
     public static final Sequence runningSequence = new Sequence(RTSAssetManager.infantryLegsRun);
     public static final Sequence attackSequence = new Sequence(RTSAssetManager.infantryRifleFire, "riflemanAttackSequence");
-    public static final Sequence attackSequenceRed = new Sequence(darkToRed(RTSAssetManager.infantryRifleFire), "riflemanAttackSequence");
+    public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.infantryRifleFireRed, "riflemanAttackSequence");
     public static final Sequence idleAnimation = new Sequence(RTSAssetManager.infantryRifleIdle, "riflemanIdle");
-    public static final Sequence idleAnimationRed = new Sequence(darkToRed(RTSAssetManager.infantryRifleIdle), "redRiflemanIdle");
+    public static final Sequence idleAnimationRed = new Sequence(RTSAssetManager.infantryRifleIdleRed, "redRiflemanIdle");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
     public boolean attackCoolingDown = false;
     public static final int damage = 6;

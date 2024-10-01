@@ -36,19 +36,19 @@ public class LightTank extends RTSUnit {
     public static final Sprite hullSprite = new Sprite(RTSAssetManager.lightTankHull);
     public static final Sprite turretSprite = new Sprite(RTSAssetManager.lightTankTurret);
     public static final Sprite turretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamaged);
-    public static final Sprite redHullSprite = new Sprite(greenToRed(RTSAssetManager.lightTankHull));
-    public static final Sprite redTurretSprite = new Sprite(greenToRed(RTSAssetManager.lightTankTurret));
-    public static final Sprite redTurretSpriteDamaged = new Sprite(greenToRed(RTSAssetManager.lightTankTurretDamaged));
+    public static final Sprite redHullSprite = new Sprite(RTSAssetManager.lightTankHullRed);
+    public static final Sprite redTurretSprite = new Sprite(RTSAssetManager.lightTankTurretRed);
+    public static final Sprite redTurretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamagedRed);
     public static final Sprite hullShadow = new Sprite(RTSAssetManager.lightTankShadow);
     public static final Sprite turretShadow = Sprite.generateShadowSprite(RTSAssetManager.lightTankTurret, .8);
     public static final Sprite hullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamaged);
-    public static final Sprite redHullSpriteDamaged = new Sprite(greenToRed(RTSAssetManager.lightTankHullDamaged));
+    public static final Sprite redHullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamagedRed);
     public static final Sprite hullSpriteDestroyed = new Sprite(RTSAssetManager.lightTankHullDestroyed);
     public static final Sprite turretSpriteDestroyed = new Sprite(RTSAssetManager.lightTankTurretDestroyed);
     public static final Sequence fireSequence = new Sequence(RTSAssetManager.lightTankFire, "lightTankFire");
     public static final Sequence fireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamaged, "lightTankFireDamaged");
-    public static final Sequence redFireSequence = new Sequence(greenToRed(RTSAssetManager.lightTankFire), "lightTankFireRed");
-    public static final Sequence redFireSequenceDamaged = new Sequence(greenToRed(RTSAssetManager.lightTankFireDamaged), "lightTankDamagedFireRed");
+    public static final Sequence redFireSequence = new Sequence(RTSAssetManager.lightTankFireRed, "lightTankFireRed");
+    public static final Sequence redFireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamagedRed, "lightTankDamagedFireRed");
     public static final Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.lightTankDeathShadow, 40);
 
     static {
