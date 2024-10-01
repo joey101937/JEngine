@@ -259,10 +259,10 @@ public class TankUnit extends RTSUnit {
                 SoundEffect sound = tickNumber%2==0 ? launchSoundSource : launchSoundSource2;
                 if (sound.getNumCopiesPlaying() < 6) {
                     if (isOnScreen()) {
-                        sound.playCopy(Main.generateRandomDoubleLocally(.6, .65));
+                        sound.playCopy(Main.generateRandomDoubleLocally(.6, .65), Main.generateRandomIntLocally(0, 20));
                         addTickDelayedEffect(Main.ticksPerSecond / 2, c -> sound.changeNumCopiesPlaying(-1));
                     } else {
-                        sound.playCopy(Main.generateRandomDoubleLocally(.5, .55));
+                        sound.playCopy(Main.generateRandomDoubleLocally(.5, .55), Main.generateRandomIntLocally(0, 20));
                         addTickDelayedEffect(Main.ticksPerSecond / 2, c -> sound.changeNumCopiesPlaying(-1));
                     }
                 }

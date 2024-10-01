@@ -101,12 +101,12 @@ public class LightTank extends RTSUnit {
 
     public void fire(RTSUnit target) {
         barrelCoolingDown = true;
-        if (launchSoundSource.getNumCopiesPlaying() < 10) {
+        if (launchSoundSource.getNumCopiesPlaying() < 5) {
             if (isOnScreen()) {
-                launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.6, .65));
+                launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.6, .65), Main.generateRandomIntLocally(0, 20));
                 addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
             } else {
-                launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.5, .55));
+                launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.5, .55), Main.generateRandomIntLocally(0, 20));
                 addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
             }
         }
