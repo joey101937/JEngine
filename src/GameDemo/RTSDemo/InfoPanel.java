@@ -1,7 +1,6 @@
 package GameDemo.RTSDemo;
 
 import Framework.Game;
-import Framework.SpriteManager;
 import Framework.UI_Elements.UIElement;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.BasicStroke;
@@ -30,11 +29,11 @@ public class InfoPanel extends UIElement {
 
     private static void populateUnitNameImageMap() {
         if (unitNameImageMap.isEmpty()) {
-            unitNameImageMap.put("TankUnit", SpriteManager.tankSelectionImage);
-            unitNameImageMap.put("LightTank", SpriteManager.lightTankSelectionImage);
-            unitNameImageMap.put("Bazookaman", SpriteManager.bazookamanSelectionImage);
-            unitNameImageMap.put("Rifleman", SpriteManager.riflemanSelectionImage);
-            unitNameImageMap.put("Hellicopter", SpriteManager.hellicopterSelectionImage);
+            unitNameImageMap.put("TankUnit", RTSAssetManager.tankSelectionImage);
+            unitNameImageMap.put("LightTank", RTSAssetManager.lightTankSelectionImage);
+            unitNameImageMap.put("Bazookaman", RTSAssetManager.bazookamanSelectionImage);
+            unitNameImageMap.put("Rifleman", RTSAssetManager.riflemanSelectionImage);
+            unitNameImageMap.put("Hellicopter", RTSAssetManager.hellicopterSelectionImage);
         }
     }
 

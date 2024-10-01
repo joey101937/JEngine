@@ -14,6 +14,7 @@ import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -29,9 +30,9 @@ public class TankBullet extends Projectile {
     public static final int DAMAGE = 46;
     public GameObject2 shooter; //the object that launched this projectile
 
-    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet}, "tankBulletGraphic");
-    public static final Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall, "explosionSmallTank");
-    public static final Sprite shadow = Sprite.generateShadowSprite(SpriteManager.bullet, .3);
+    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet}, "tankBulletGraphic");
+    public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallTank");
+    public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.bullet, .3);
     private DCoordinate startPosition;
 
     public TankBullet(DCoordinate start, DCoordinate end) {

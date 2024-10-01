@@ -22,8 +22,6 @@ import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static GameDemo.RTSDemo.RTSAssetManager.*;
-
 /**
  *
  * @author Joseph

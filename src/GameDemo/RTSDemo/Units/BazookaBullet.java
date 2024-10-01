@@ -7,9 +7,9 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -23,9 +23,9 @@ public class BazookaBullet extends Projectile {
     
     public static final int damage = 23;
 
-    public static Sprite missileSprite = new Sprite(SpriteManager.yellowMissile);
-    public static Sprite shadowSprite = new Sprite(SpriteManager.yellowMissileShadow);
-    public static Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall, "bazookaExplosion");
+    public static Sprite missileSprite = new Sprite(RTSAssetManager.yellowMissile);
+    public static Sprite shadowSprite = new Sprite(RTSAssetManager.yellowMissileShadow);
+    public static Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "bazookaExplosion");
 
     public RTSUnit shooter; //the object that launched this projectile
     public RTSUnit target;

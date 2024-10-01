@@ -9,7 +9,6 @@ import Framework.Coordinate;
 import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import GameDemo.RTSDemo.Units.Bazookaman;
@@ -24,7 +23,7 @@ import GameDemo.RTSDemo.Units.TankUnit;
  */
 public class RTSGame {
 
-    public static Game game = new Game(SpriteManager.grassBG);
+    public static Game game = new Game(RTSAssetManager.grassBG);
     public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
     public static InfoPanel infoPanel;
 

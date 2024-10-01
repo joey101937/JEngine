@@ -11,9 +11,9 @@ import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Hitbox;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -33,23 +33,23 @@ public class LightTank extends RTSUnit {
 
     public static double VISUAL_SCALE = 1.00;
     public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
-    public static final Sprite hullSprite = new Sprite(SpriteManager.lightTankHull);
-    public static final Sprite turretSprite = new Sprite(SpriteManager.lightTankTurret);
-    public static final Sprite turretSpriteDamaged = new Sprite(SpriteManager.lightTankTurretDamaged);
-    public static final Sprite redHullSprite = new Sprite(greenToRed(SpriteManager.lightTankHull));
-    public static final Sprite redTurretSprite = new Sprite(greenToRed(SpriteManager.lightTankTurret));
-    public static final Sprite redTurretSpriteDamaged = new Sprite(greenToRed(SpriteManager.lightTankTurretDamaged));
-    public static final Sprite hullShadow = new Sprite(SpriteManager.lightTankShadow);
-    public static final Sprite turretShadow = Sprite.generateShadowSprite(SpriteManager.lightTankTurret, .8);
-    public static final Sprite hullSpriteDamaged = new Sprite(SpriteManager.lightTankHullDamaged);
-    public static final Sprite redHullSpriteDamaged = new Sprite(greenToRed(SpriteManager.lightTankHullDamaged));
-    public static final Sprite hullSpriteDestroyed = new Sprite(SpriteManager.lightTankHullDestroyed);
-    public static final Sprite turretSpriteDestroyed = new Sprite(SpriteManager.lightTankTurretDestroyed);
-    public static final Sequence fireSequence = new Sequence(SpriteManager.lightTankFire, "lightTankFire");
-    public static final Sequence fireSequenceDamaged = new Sequence(SpriteManager.lightTankFireDamaged, "lightTankFireDamaged");
-    public static final Sequence redFireSequence = new Sequence(greenToRed(SpriteManager.lightTankFire), "lightTankFireRed");
-    public static final Sequence redFireSequenceDamaged = new Sequence(greenToRed(SpriteManager.lightTankFireDamaged), "lightTankDamagedFireRed");
-    public static final Sequence deathFadeout = Sequence.createFadeout(SpriteManager.lightTankDeathShadow, 40);
+    public static final Sprite hullSprite = new Sprite(RTSAssetManager.lightTankHull);
+    public static final Sprite turretSprite = new Sprite(RTSAssetManager.lightTankTurret);
+    public static final Sprite turretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamaged);
+    public static final Sprite redHullSprite = new Sprite(greenToRed(RTSAssetManager.lightTankHull));
+    public static final Sprite redTurretSprite = new Sprite(greenToRed(RTSAssetManager.lightTankTurret));
+    public static final Sprite redTurretSpriteDamaged = new Sprite(greenToRed(RTSAssetManager.lightTankTurretDamaged));
+    public static final Sprite hullShadow = new Sprite(RTSAssetManager.lightTankShadow);
+    public static final Sprite turretShadow = Sprite.generateShadowSprite(RTSAssetManager.lightTankTurret, .8);
+    public static final Sprite hullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamaged);
+    public static final Sprite redHullSpriteDamaged = new Sprite(greenToRed(RTSAssetManager.lightTankHullDamaged));
+    public static final Sprite hullSpriteDestroyed = new Sprite(RTSAssetManager.lightTankHullDestroyed);
+    public static final Sprite turretSpriteDestroyed = new Sprite(RTSAssetManager.lightTankTurretDestroyed);
+    public static final Sequence fireSequence = new Sequence(RTSAssetManager.lightTankFire, "lightTankFire");
+    public static final Sequence fireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamaged, "lightTankFireDamaged");
+    public static final Sequence redFireSequence = new Sequence(greenToRed(RTSAssetManager.lightTankFire), "lightTankFireRed");
+    public static final Sequence redFireSequenceDamaged = new Sequence(greenToRed(RTSAssetManager.lightTankFireDamaged), "lightTankDamagedFireRed");
+    public static final Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.lightTankDeathShadow, 40);
 
     static {
         hullShadow.scaleTo(VISUAL_SCALE);
@@ -156,7 +156,7 @@ public class LightTank extends RTSUnit {
         if (this.isRubble) {
             return;
         }
-        OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence, "lightTankDeathExplosion"), getPixelLocation());
+        OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "lightTankDeathExplosion"), getPixelLocation());
         this.isRubble = true;
         this.team = -1;
         this.setBaseSpeed(0);
@@ -164,7 +164,7 @@ public class LightTank extends RTSUnit {
         this.setGraphic(hullSpriteDestroyed);
         turret.setGraphic(turretSpriteDestroyed);
         addTickDelayedEffect(Main.ticksPerSecond * 10, c -> {
-            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence, "lightTankDespawnExplosion"), getPixelLocation());
+            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "lightTankDespawnExplosion"), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());
             this.isSolid = false;
             this.setZLayer(-1);
@@ -250,7 +250,7 @@ public class LightTank extends RTSUnit {
 
     @Override
     public BufferedImage getSelectionImage() {
-        return SpriteManager.lightTankSelectionImage;
+        return RTSAssetManager.lightTankSelectionImage;
     }
     
     @Override

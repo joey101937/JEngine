@@ -5,8 +5,8 @@ import Framework.Coordinate;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.SubObject;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -22,13 +22,13 @@ import java.util.ArrayList;
 public class Rifleman extends RTSUnit {
 
     public static final double VISUAL_SCALE = .2;
-    public static final Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
-    public static final Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
-    public static final Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun);
-    public static final Sequence attackSequence = new Sequence(SpriteManager.infantryRifleFire, "riflemanAttackSequence");
-    public static final Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryRifleFire), "riflemanAttackSequence");
-    public static final Sequence idleAnimation = new Sequence(SpriteManager.infantryRifleIdle, "riflemanIdle");
-    public static final Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryRifleIdle), "redRiflemanIdle");
+    public static final Sprite baseSprite = new Sprite(RTSAssetManager.infantryLegs);
+    public static final Sprite shadowSprite = new Sprite(RTSAssetManager.infantryShadow);
+    public static final Sequence runningSequence = new Sequence(RTSAssetManager.infantryLegsRun);
+    public static final Sequence attackSequence = new Sequence(RTSAssetManager.infantryRifleFire, "riflemanAttackSequence");
+    public static final Sequence attackSequenceRed = new Sequence(darkToRed(RTSAssetManager.infantryRifleFire), "riflemanAttackSequence");
+    public static final Sequence idleAnimation = new Sequence(RTSAssetManager.infantryRifleIdle, "riflemanIdle");
+    public static final Sequence idleAnimationRed = new Sequence(darkToRed(RTSAssetManager.infantryRifleIdle), "redRiflemanIdle");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
     public boolean attackCoolingDown = false;
     public static final int damage = 6;
@@ -190,7 +190,7 @@ public class Rifleman extends RTSUnit {
 
     @Override
     public BufferedImage getSelectionImage() {
-        return SpriteManager.riflemanSelectionImage;
+        return RTSAssetManager.riflemanSelectionImage;
     }
     
     @Override

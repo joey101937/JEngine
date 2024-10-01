@@ -7,7 +7,7 @@ package GameDemo.RTSDemo.DeterminismTests;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.Main;
-import Framework.SpriteManager;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
@@ -16,7 +16,7 @@ import GameDemo.RTSDemo.Units.TankUnit;
  */
 public class DeterminismTest2 {
     public static void main(String[] args) {
-        Game game = new Game(SpriteManager.grassBG);
+        Game game = new Game(RTSAssetManager.grassBG);
         Main.setRandomSeed(10);
         TankUnit green = new TankUnit(100, 100, 0);
         TankUnit red = new TankUnit(500, 100, 1);

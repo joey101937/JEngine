@@ -5,8 +5,8 @@ import Framework.Coordinate;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.SubObject;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import static GameDemo.RTSDemo.RTSUnit.darkToRed;
 import java.awt.Graphics2D;
@@ -23,13 +23,13 @@ import java.util.ArrayList;
 public class Bazookaman extends RTSUnit {
 
     public static final double VISUAL_SCALE = .18;
-    public static final Sprite baseSprite = new Sprite(SpriteManager.infantryLegs);
-    public static final Sprite shadowSprite = new Sprite(SpriteManager.infantryShadow);
-    public static final Sequence runningSequence = new Sequence(SpriteManager.infantryLegsRun, "bazookaRun");
-    public static final Sequence attackSequence = new Sequence(SpriteManager.infantryBazookaFire, "bazookaFire");
-    public static final Sequence attackSequenceRed = new Sequence(darkToRed(SpriteManager.infantryBazookaFire), "bazookaFireRed");
-    public static final Sequence idleAnimation = new Sequence(SpriteManager.infantryBazookaIdle, "bazookaIdle");
-    public static final Sequence idleAnimationRed = new Sequence(darkToRed(SpriteManager.infantryBazookaIdle), "bazookaIdleRed");
+    public static final Sprite baseSprite = new Sprite(RTSAssetManager.infantryLegs);
+    public static final Sprite shadowSprite = new Sprite(RTSAssetManager.infantryShadow);
+    public static final Sequence runningSequence = new Sequence(RTSAssetManager.infantryLegsRun, "bazookaRun");
+    public static final Sequence attackSequence = new Sequence(RTSAssetManager.infantryBazookaFire, "bazookaFire");
+    public static final Sequence attackSequenceRed = new Sequence(darkToRed(RTSAssetManager.infantryBazookaFire), "bazookaFireRed");
+    public static final Sequence idleAnimation = new Sequence(RTSAssetManager.infantryBazookaIdle, "bazookaIdle");
+    public static final Sequence idleAnimationRed = new Sequence(darkToRed(RTSAssetManager.infantryBazookaIdle), "bazookaIdleRed");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
     public boolean attackCoolingDown = false;
     public static final double attackInterval = 3;
@@ -200,7 +200,7 @@ public class Bazookaman extends RTSUnit {
 
     @Override
     public BufferedImage getSelectionImage() {
-        return SpriteManager.bazookamanSelectionImage;
+        return RTSAssetManager.bazookamanSelectionImage;
     }
     
     @Override

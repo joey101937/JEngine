@@ -5,8 +5,8 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.Window;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.SelectionBoxEffect;
@@ -18,7 +18,7 @@ import GameDemo.RTSDemo.Units.TankUnit;
  */
 public class DeterminismTest {
 
-    public static Game game = new Game(SpriteManager.grassBG);
+    public static Game game = new Game(RTSAssetManager.grassBG);
 
     public static void main(String[] args) {
         Main.tickThreadCount = 1;

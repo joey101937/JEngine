@@ -10,9 +10,9 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -24,9 +24,9 @@ import java.awt.image.VolatileImage;
  */
 public class HellicopterBullet extends Projectile {
 
-    public static final Sprite missileSprite = new Sprite(SpriteManager.yellowMissile);
-    public static final Sprite shadowSprite = new Sprite(SpriteManager.yellowMissileShadow);
-    public static final Sequence explosionSmall = new Sequence(SpriteManager.explosionSequenceSmall, "explosionSmallHeli");
+    public static final Sprite missileSprite = new Sprite(RTSAssetManager.yellowMissile);
+    public static final Sprite shadowSprite = new Sprite(RTSAssetManager.yellowMissileShadow);
+    public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallHeli");
     public static final int damage = 10;
     
     public RTSUnit shooter; //the object that launched this projectile

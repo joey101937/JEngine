@@ -11,9 +11,9 @@ import Framework.GameObject2.MovementType;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -41,14 +41,14 @@ public class TankUnit extends RTSUnit {
     public boolean weaponOnCooldown = false;
 
     // Modified buffered images for team color
-    public static BufferedImage enemyTankChasisImage = greenToRed(SpriteManager.tankChasis);
-    public static BufferedImage enemyTankTurretImage = greenToRed(SpriteManager.tankTurret);
-    public static BufferedImage[] enemyTankFireAnimation = greenToRed(SpriteManager.tankFireAnimation);
+    public static BufferedImage enemyTankChasisImage = greenToRed(RTSAssetManager.tankChasis);
+    public static BufferedImage enemyTankTurretImage = greenToRed(RTSAssetManager.tankTurret);
+    public static BufferedImage[] enemyTankFireAnimation = greenToRed(RTSAssetManager.tankFireAnimation);
 
     // sprites for reuse
-    public static volatile Sprite chasisSpriteGreen = null; // new Sprite(SpriteManager.tankChasis2);
+    public static volatile Sprite chasisSpriteGreen = null; // new Sprite(RTSAssetManager.tankChasis2);
     public static volatile Sprite chasisSpriteRed = null; // new Sprite(enemyTankChasisImage);
-    public static volatile Sprite turretSpriteGreen = null; // new Sprite(SpriteManager.tankTurret);
+    public static volatile Sprite turretSpriteGreen = null; // new Sprite(RTSAssetManager.tankTurret);
     public static volatile Sprite turretSpriteRed = null; // new Sprite(enemyTankTurretImage);
     public static volatile Sprite rubbleHullSprite = null;
     public static volatile Sprite rubbleTurretSprite = null;
@@ -67,35 +67,35 @@ public class TankUnit extends RTSUnit {
 
     public static volatile Sequence deathFadeout;
 
-    public static volatile Sequence turretFireAnimationGreen = null; // new Sequence(SpriteManager.tankFireAnimation);
+    public static volatile Sequence turretFireAnimationGreen = null; // new Sequence(RTSAssetManager.tankFireAnimation);
     public static volatile Sequence turretFireAnimationRed = null; // new Sequence(enemyTankFireAnimation);
 
     public static void initGraphics() {
         if (chasisSpriteGreen != null) {
             return;
         }
-        chasisSpriteGreen = new Sprite(SpriteManager.tankChasis);
+        chasisSpriteGreen = new Sprite(RTSAssetManager.tankChasis);
         chasisSpriteRed = new Sprite(enemyTankChasisImage);
-        turretSpriteGreen = new Sprite(SpriteManager.tankTurret);
+        turretSpriteGreen = new Sprite(RTSAssetManager.tankTurret);
         turretSpriteRed = new Sprite(enemyTankTurretImage);
-        turretFireAnimationGreen = new Sequence(SpriteManager.tankFireAnimation, "tankFireRed");
+        turretFireAnimationGreen = new Sequence(RTSAssetManager.tankFireAnimation, "tankFireRed");
         turretFireAnimationRed = new Sequence(enemyTankFireAnimation, "redTankFire");
-        rubbleHullSprite = new Sprite(SpriteManager.tankDeadHull);
-        rubbleTurretSprite = new Sprite(SpriteManager.tankDeadTurret);
-        deathAnimationHull = new Sequence(SpriteManager.tankHullDeathAni, "tankDeathAniHull");
-        deathAnimationTurret = new Sequence(SpriteManager.tankTurretDeathAni);
-        deathShadow = new Sprite(SpriteManager.tankDeadHullShadow);
-        deathFadeout = Sequence.createFadeout(SpriteManager.tankDeadHullShadow, 40);
+        rubbleHullSprite = new Sprite(RTSAssetManager.tankDeadHull);
+        rubbleTurretSprite = new Sprite(RTSAssetManager.tankDeadTurret);
+        deathAnimationHull = new Sequence(RTSAssetManager.tankHullDeathAni, "tankDeathAniHull");
+        deathAnimationTurret = new Sequence(RTSAssetManager.tankTurretDeathAni);
+        deathShadow = new Sprite(RTSAssetManager.tankDeadHullShadow);
+        deathFadeout = Sequence.createFadeout(RTSAssetManager.tankDeadHullShadow, 40);
         deathFadeout.setSignature("fadeout");
-        shadow = new Sprite(SpriteManager.tankShadow);
-        turretShadow = new Sprite(SpriteManager.tankTurretShadow);
+        shadow = new Sprite(RTSAssetManager.tankShadow);
+        turretShadow = new Sprite(RTSAssetManager.tankTurretShadow);
 
-        tankHullDamagedGreen = new Sprite(SpriteManager.tankHullDamaged);
-        tankTurretDamagedGreen = new Sprite(SpriteManager.tankTurretDamaged);
-        tankHullDamagedRed = new Sprite(greenToRed(SpriteManager.tankHullDamaged));
-        tankTurretDamagedRed = new Sprite(greenToRed(SpriteManager.tankTurretDamaged));
-        tankFireAnimationDamagedGreen = new Sequence(SpriteManager.tankFireAnimationDamaged);
-        tankFireAnimationDamagedRed = new Sequence(greenToRed(SpriteManager.tankFireAnimationDamaged));
+        tankHullDamagedGreen = new Sprite(RTSAssetManager.tankHullDamaged);
+        tankTurretDamagedGreen = new Sprite(RTSAssetManager.tankTurretDamaged);
+        tankHullDamagedRed = new Sprite(greenToRed(RTSAssetManager.tankHullDamaged));
+        tankTurretDamagedRed = new Sprite(greenToRed(RTSAssetManager.tankTurretDamaged));
+        tankFireAnimationDamagedGreen = new Sequence(RTSAssetManager.tankFireAnimationDamaged);
+        tankFireAnimationDamagedRed = new Sequence(greenToRed(RTSAssetManager.tankFireAnimationDamaged));
 
         tankHullDamagedGreen.setSignature("damagedHull");
         tankTurretDamagedGreen.setSignature("damagedTurret");
@@ -372,7 +372,7 @@ public class TankUnit extends RTSUnit {
         if (this.isRubble) {
             return;
         }
-        OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence, "transientExplosion"), getPixelLocation());
+        OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "transientExplosion"), getPixelLocation());
         this.isRubble = true;
         this.team = -1;
         this.setBaseSpeed(0);
@@ -380,7 +380,7 @@ public class TankUnit extends RTSUnit {
         this.setGraphic(deathAnimationHull.copyMaintainSource());
         turret.setGraphic(deathAnimationTurret.copyMaintainSource());
         addTickDelayedEffect(Main.ticksPerSecond * 10, c -> {
-            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence, "transientExplosion"), getPixelLocation());
+            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "transientExplosion"), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());
             this.isSolid = false;
             this.setZLayer(-1);
@@ -394,7 +394,7 @@ public class TankUnit extends RTSUnit {
     
     @Override
     public BufferedImage getSelectionImage() {
-        return SpriteManager.tankSelectionImage;
+        return RTSAssetManager.tankSelectionImage;
     }
     
     @Override

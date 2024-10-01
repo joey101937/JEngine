@@ -5,9 +5,9 @@ import Framework.Coordinate;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -26,15 +26,15 @@ public class Hellicopter extends RTSUnit {
 
     public static final double VISUAL_SCALE = 1.05;
 
-    public static final Sprite baseSprite = new Sprite(SpriteManager.hellicopter);
-    public static final Sprite destroyedSprite = new Sprite(SpriteManager.hellicopterDestroyed);
-    public static final Sprite destroyedSpriteRed = new Sprite(blueToRed(SpriteManager.hellicopterDestroyed));
-    public static final Sprite shadowSprite = new Sprite(SpriteManager.hellicopterShadow);
-    public static final Sequence attackSequence = new Sequence(SpriteManager.hellicopterAttack, "heliAttack");
+    public static final Sprite baseSprite = new Sprite(RTSAssetManager.hellicopter);
+    public static final Sprite destroyedSprite = new Sprite(RTSAssetManager.hellicopterDestroyed);
+    public static final Sprite destroyedSpriteRed = new Sprite(blueToRed(RTSAssetManager.hellicopterDestroyed));
+    public static final Sprite shadowSprite = new Sprite(RTSAssetManager.hellicopterShadow);
+    public static final Sequence attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
 
-    public static final Sprite baseSpriteRed = new Sprite(blueToRed(SpriteManager.hellicopter));
-    public static final Sequence attackSequenceRed = new Sequence(blueToRed(SpriteManager.hellicopterAttack), "helliAttackRed");
+    public static final Sprite baseSpriteRed = new Sprite(blueToRed(RTSAssetManager.hellicopter));
+    public static final Sequence attackSequenceRed = new Sequence(blueToRed(RTSAssetManager.hellicopterAttack), "helliAttackRed");
 
     public HellicopterTurret turret;
     public long lastFireTick = 0;
@@ -114,13 +114,13 @@ public class Hellicopter extends RTSUnit {
         if (isRubble && elevation > 1) {
             elevation -= 4.8;
             if (elevation < 1) {
-                new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+                new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
                 this.baseSpeed = 0;
                 this.plane = 0;
                 this.setZLayer(1);
                 this.isSolid = true;
                 addTickDelayedEffect(Main.ticksPerSecond * 8, c -> {
-                    new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+                    new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
                     this.destroy();
                 });
                 return;
@@ -245,7 +245,7 @@ public class Hellicopter extends RTSUnit {
 
     @Override
     public BufferedImage getSelectionImage() {
-        return SpriteManager.hellicopterSelectionImage;
+        return RTSAssetManager.hellicopterSelectionImage;
     }
 
     @Override

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
@@ -10,9 +6,9 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Hitbox;
-import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.image.BufferedImage;
 
@@ -21,13 +17,13 @@ import java.awt.image.BufferedImage;
  * @author guydu
  */
 public class LightTankBullet extends Projectile {
-     public static final Sequence explosionTiny = new Sequence(SpriteManager.impactCone, "lightTankImpact");
+     public static final Sequence explosionTiny = new Sequence(RTSAssetManager.impactCone, "lightTankImpact");
      public static final int DAMAGE = 20;
 
     public GameObject2 shooter; //the object that launched this projectile
 
-    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{SpriteManager.bullet2}, "lightTankBullet");
-    public static final Sprite shadow = Sprite.generateShadowSprite(SpriteManager.bullet2, .3);
+    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet2}, "lightTankBullet");
+    public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.bullet2, .3);
     private DCoordinate startPosition;
 
     public LightTankBullet(DCoordinate start, DCoordinate end) {

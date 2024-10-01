@@ -4,8 +4,8 @@ package GameDemo.FogDemo;
 import Framework.Audio.SoundEffect;
 import Framework.Game;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.Window;
+import GameDemo.RTSDemo.RTSAssetManager;
 import java.io.File;
 
 /**
@@ -16,7 +16,7 @@ public class FogDemo {
     public static SoundEffect engineSound = new SoundEffect(new File("Assets/Sounds/engineIdle.au"));
     
     public static void main(String[] args) {
-        Game game = new Game(SpriteManager.dirtBGNight);
+        Game game = new Game(RTSAssetManager.dirtBGNight);
         if(Game.runningOnSmallerScreen()) {
             Game.scaleForResolutionAspectRatio();
         }

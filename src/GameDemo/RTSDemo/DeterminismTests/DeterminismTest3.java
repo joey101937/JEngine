@@ -5,8 +5,8 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
-import Framework.SpriteManager;
 import Framework.Window;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Units.TankUnit;
 
@@ -16,7 +16,7 @@ import GameDemo.RTSDemo.Units.TankUnit;
  */
 public class DeterminismTest3 {
     public static void main(String[] args) {
-        Game game = new Game(SpriteManager.grassBG);
+        Game game = new Game(RTSAssetManager.grassBG);
         Main.setRandomSeed(10);
         Window.currentGame = game;
         
