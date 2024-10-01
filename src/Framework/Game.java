@@ -61,7 +61,7 @@ public class Game extends Canvas implements Runnable {
      */
     public static Dimension NATIVE_RESOLUTION = new Dimension((int) (1920 * 1), (int) (1080 * 1));
 
-    public static ExecutorService backgroundRenderService = Executors.newCachedThreadPool();
+    public static ExecutorService backgroundRenderService = Handler.newMinSizeCachedThreadPool(4);
 
     public static int birdCount = 20; //how many birds to spawn in the demo
     public static final double OVERVIEW_MODE_ZOOM = .25;

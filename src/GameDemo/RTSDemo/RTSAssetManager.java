@@ -2,6 +2,11 @@ package GameDemo.RTSDemo;
 
 import static Framework.GraphicalAssets.Graphic.load;
 import static Framework.GraphicalAssets.Graphic.loadSequence;
+import GameDemo.RTSDemo.Units.Bazookaman;
+import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.LightTank;
+import GameDemo.RTSDemo.Units.Rifleman;
+import GameDemo.RTSDemo.Units.TankUnit;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 
@@ -135,12 +140,25 @@ public abstract class RTSAssetManager {
             riflemanSelectionImage = load("DemoAssets/TankGame/infantry/rifleSelectionImage.png");
             bazookamanSelectionImage = load("DemoAssets/TankGame/infantry/bazookaSelectionImage.png");
 
+            preloadUnits();
             initialized = true;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error loading RTS assets. Please verify Assets folder.");
             System.exit(1);
         }
+    }
+    
+    /**
+     * instantiates a unit of each type to load static variables and set static scale
+     */
+    private static void preloadUnits() {
+        System.out.println("preloading units");
+        new TankUnit(0, 0);
+        new LightTank(0, 0, 0);
+        new Rifleman(0, 0, 0);
+        new Bazookaman(0, 0, 0);
+        new Hellicopter(0, 0, 0);
     }
 
     public static BufferedImage[] greenToRed(BufferedImage[] input) {

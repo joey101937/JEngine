@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -21,12 +24,17 @@ import java.util.stream.Collectors;
  * @author guydu
  */
 public class Handler {
+    
+    public static ExecutorService newMinSizeCachedThreadPool(int minSize) {
+        return new ThreadPoolExecutor(minSize, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, 
+        new SynchronousQueue<Runnable>());
+    }
 
     protected ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
     protected ExecutorService renderService = Main.renderThreadCount > 0
             ? Executors.newFixedThreadPool(Main.renderThreadCount)
             : Executors.newFixedThreadPool(1);
-    protected ExecutorService renderServiceCached = Executors.newCachedThreadPool();
+    protected ExecutorService renderServiceCached = this.newMinSizeCachedThreadPool(6);
     protected ExecutorService syncService = Executors.newVirtualThreadPerTaskExecutor();
 
     public Game hostGame;

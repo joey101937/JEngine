@@ -5,13 +5,13 @@
  */
 package Framework;
 
+import Framework.CoreLoop.Handler;
 import Framework.Stickers.Sticker;
 import java.awt.Graphics2D;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -22,7 +22,7 @@ public class VisualEffectHandler {
     public CopyOnWriteArrayList<Sticker> stickers = new CopyOnWriteArrayList<>();
     public LinkedList<Coordinate[]> lines = new LinkedList<>();
     
-    public ExecutorService stickerService = Executors.newCachedThreadPool();
+    public ExecutorService stickerService = Handler.newMinSizeCachedThreadPool(6);
     /**
      * renders all visual effects to canvas
      * @param g Graphics2D object to use
