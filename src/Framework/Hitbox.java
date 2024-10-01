@@ -597,6 +597,9 @@ public class Hitbox {
 
     public void render(Graphics2D g){
         Color col = g.getColor();
+        if(host!=null && !host.isSolid){
+                g.setColor(Color.blue);
+        }
         if(this.type == Type.box){ 
             //render all sides
             g.drawLine((int) leftSide()[0], (int) leftSide()[1], (int) leftSide()[2], (int) leftSide()[3]);
@@ -604,9 +607,6 @@ public class Hitbox {
             g.drawLine((int) topSide()[0], (int) topSide()[1], (int) topSide()[2], (int) topSide()[3]);
             g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);
         } else if (type == Type.circle) {
-            if(host!=null && !host.isSolid){
-                g.setColor(Color.blue);
-            }
             g.drawOval((int) (getCenter().x-radius), (int) (getCenter().y-radius), (int) radius*2, (int) radius*2);
         }
         g.setColor(col);
