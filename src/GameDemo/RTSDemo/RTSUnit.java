@@ -27,6 +27,7 @@ import java.util.Collection;
  * @author Joseph
  */
 public class RTSUnit extends Creature {
+
     public static final int RUBBLE_PROXIMITY = 90;
 
     private boolean selected = false;
@@ -42,6 +43,7 @@ public class RTSUnit extends Creature {
     public boolean isCloaked = false;
     public boolean isImmobilized = false;
     public double originalSpeed = 1.8;
+    private ArrayList<CommandButton> buttons = new ArrayList<>();
 
     public static Color getColorFromTeam(int team) {
         return switch (team) {
@@ -122,8 +124,24 @@ public class RTSUnit extends Creature {
         if (isRubble) {
             return;
         }
+       // drawStatusIcons(g);
         if (selected) {
             drawHealthBar(g);
+        }
+    }
+
+    public void drawStatusIcons(Graphics2D g) {
+        int statusIconWidth = 20;
+        int statusIconHeight = 20;
+        if (isImmobilized || true) {
+            g.drawImage(
+                    RTSAssetManager.immobilizationIcon,
+                    getPixelLocation().x - (getWidth() / 2),
+                    getPixelLocation().y - (getHeight() / 2) - 20,
+                    statusIconWidth,
+                    statusIconHeight,
+                    null
+            );
         }
     }
 
@@ -227,7 +245,7 @@ public class RTSUnit extends Creature {
                 if (((RTSUnit) go).isRubble == true) {
                     continue;
                 }
-                 if (((RTSUnit) go).isCloaked == true) {
+                if (((RTSUnit) go).isCloaked == true) {
                     continue;
                 }
                 if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
@@ -243,24 +261,19 @@ public class RTSUnit extends Creature {
     public void onDestroy() {
         ExternalCommunicator.sendMessage("unitRemoval:" + this.ID);
     }
-    
-    /**
-     * shows up on info panel when selected
-     * @return bufferedImage
-     */
-    public BufferedImage getSelectionImage() {return null;};
 
     @Override
-    public String getName(){
+    public String getName() {
         String[] s = getClass().getName().split("\\.");
-        return s[s.length-1];
+        return s[s.length - 1];
     }
-    
-    
+
     // placeholder
     public ArrayList<String> getInfoLines() {
         return new ArrayList<>();
-    };
+    }
+
+    ;
     
     public String toTransportString() {
         StringBuilder builder = new StringBuilder();
@@ -312,15 +325,17 @@ public class RTSUnit extends Creature {
         g.drawImage(toRender, renderX, renderY, null);
         g.setTransform(old);
     }
-    
-    public void drawRubbleProximityIndicators (Graphics2D g) {
-        if(this.isRubble) return;
+
+    public void drawRubbleProximityIndicators(Graphics2D g) {
+        if (this.isRubble) {
+            return;
+        }
         int circleRadius = 5;
         int sideLength = Math.max(getWidth(), getHeight());
-        getHostGame().getObjectsNearPoint(getPixelLocation(), RUBBLE_PROXIMITY + sideLength/2).forEach(go -> {
-            if(go instanceof RTSUnit unit && unit.isRubble && unit.isSolid) {
-                Coordinate coord  = Coordinate.nearestPointOnCircle(getPixelLocation(), unit.getPixelLocation(), sideLength/2);
-                g.fillOval(coord.x - circleRadius, coord.y - circleRadius, circleRadius*2, circleRadius*2);
+        getHostGame().getObjectsNearPoint(getPixelLocation(), RUBBLE_PROXIMITY + sideLength / 2).forEach(go -> {
+            if (go instanceof RTSUnit unit && unit.isRubble && unit.isSolid) {
+                Coordinate coord = Coordinate.nearestPointOnCircle(getPixelLocation(), unit.getPixelLocation(), sideLength / 2);
+                g.fillOval(coord.x - circleRadius, coord.y - circleRadius, circleRadius * 2, circleRadius * 2);
             }
         });
     }
@@ -329,28 +344,26 @@ public class RTSUnit extends Creature {
         RTSUnit nearestInfantry = null, nearestVehicle = null, nearestAircraft = null, nearestUnit = null;
         double infantryDistance = 999999999, vehicleDistance = 999999999, aircraftDistance = 999999999, closestDistance = 999999999;
         Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
-        for(GameObject2 go : nearby) {
-            if(go instanceof RTSUnit unit && unit.team != team && !unit.isRubble && !unit.isCloaked) {
+        for (GameObject2 go : nearby) {
+            if (go instanceof RTSUnit unit && unit.team != team && !unit.isRubble && !unit.isCloaked) {
                 double distance = distanceFrom(unit);
-                if(unit.plane > 1) {
-                    if(nearestAircraft == null || distance < aircraftDistance) {
+                if (unit.plane > 1) {
+                    if (nearestAircraft == null || distance < aircraftDistance) {
                         nearestAircraft = unit;
                         aircraftDistance = distance;
                     }
-                }
-                else if(unit.isInfantry) {
-                    if(nearestInfantry == null || distance < infantryDistance) {
+                } else if (unit.isInfantry) {
+                    if (nearestInfantry == null || distance < infantryDistance) {
                         nearestInfantry = unit;
                         infantryDistance = distance;
                     }
-                }
-                else {
-                    if(nearestVehicle == null || distance < vehicleDistance) {
+                } else {
+                    if (nearestVehicle == null || distance < vehicleDistance) {
                         nearestVehicle = unit;
                         vehicleDistance = distance;
                     }
                 }
-                if(distance < closestDistance) {
+                if (distance < closestDistance) {
                     nearestUnit = unit;
                 }
             }
@@ -361,15 +374,33 @@ public class RTSUnit extends Creature {
         this.nearestEnemyGroundUnit = vehicleDistance < infantryDistance ? nearestVehicle : nearestInfantry;
         this.nearestEnemyUnit = nearestUnit;
     }
-    
+
     public void setImmobilized(boolean set) {
-        if(isImmobilized == set) return;
+        if (isImmobilized == set) {
+            return;
+        }
         this.isImmobilized = set;
-        if(set){
+        if (set) {
             originalSpeed = baseSpeed;
             setBaseSpeed(0);
-        } else{
+        } else {
             setBaseSpeed(originalSpeed);
         }
+    }
+
+    public void triggerAbility(int abilityNumber, Coordinate target) {
+    }
+
+    /**
+     * get button images
+     *
+     * @return
+     */
+    public ArrayList<CommandButton> getButtons() {
+        return buttons;
+    }
+
+    public void addButton(CommandButton b) {
+        buttons.add(b);
     }
 }

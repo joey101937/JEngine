@@ -38,6 +38,7 @@ public class RTSGame {
         g.getCamera().camSpeed = 20;
         g.addIndependentEffect(new SelectionBoxEffect());
         g.addIndependentEffect(new SelectionBoxEffectAir());
+        g.addIndependentEffect(new UnitStatusEffectHelper());
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
         minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
         Main.splitBackgroundRender = true;

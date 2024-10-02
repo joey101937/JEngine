@@ -187,11 +187,6 @@ public class Rifleman extends RTSUnit {
             }
         }
     }
-
-    @Override
-    public BufferedImage getSelectionImage() {
-        return RTSAssetManager.riflemanSelectionImage;
-    }
     
     @Override
     public ArrayList<String> getInfoLines() {

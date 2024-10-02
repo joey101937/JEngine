@@ -34,6 +34,7 @@ public class InfoPanel extends UIElement {
             unitNameImageMap.put("Bazookaman", RTSAssetManager.bazookamanSelectionImage);
             unitNameImageMap.put("Rifleman", RTSAssetManager.riflemanSelectionImage);
             unitNameImageMap.put("Hellicopter", RTSAssetManager.hellicopterSelectionImage);
+            unitNameImageMap.put("Landmine", RTSAssetManager.landmineSelectionImage);
         }
     }
 
@@ -67,6 +68,7 @@ public class InfoPanel extends UIElement {
     private class InfoPanelInterior extends JPanel {
 
         public Color lightGray = new Color(150, 150, 150);
+        public RTSUnit mainUnit = null;
 
         public InfoPanelInterior(int width, int height) {
             this.setLocation(0, 0);
@@ -93,11 +95,11 @@ public class InfoPanel extends UIElement {
             HashMap<String, Integer> unitCountMap = new HashMap<>();
             selectedUnits.forEach(unit -> unitCountMap.put(unit.getName(), unitCountMap.getOrDefault(unit.getName(), 0) + 1));
             //todo account for team of local player
-            RTSUnit mainUnit = null;
+            mainUnit = null;
             if (!selectedUnits.isEmpty()) {
                 mainUnit = selectedUnits.get(0);
-                g2d.drawImage(mainUnit.getSelectionImage(), 5, 15, null);
-                int imageWidth = mainUnit.getSelectionImage().getWidth();
+                g2d.drawImage(unitNameImageMap.get(mainUnit.getName()), 5, 15, null);
+                int imageWidth = unitNameImageMap.get(mainUnit.getName()).getWidth();
                 g2d.setFont(titleFont);
                 g2d.drawString(mainUnit.getName(), imageWidth + 15, 40);
                 g2d.setColor(healthColor);
@@ -105,6 +107,7 @@ public class InfoPanel extends UIElement {
                 g2d.drawString("" + mainUnit.currentHealth + " / " + mainUnit.maxHealth, imageWidth + 15, 65);
                 drawOtherSelected(g2d, unitCountMap);
                 drawInfoLines(g2d, mainUnit);
+                drawCommandButtons(g2d, mainUnit);
             }
             g2d.dispose();
         }
@@ -116,7 +119,7 @@ public class InfoPanel extends UIElement {
             g.setFont(infoLinesFont);
             int gradualHeight = 0;
             for (String s : unit.getInfoLines()) {
-                g.drawString(s, unit.getSelectionImage().getWidth() + 15, 90 + gradualHeight);
+                g.drawString(s,unitNameImageMap.get(unit.getName()).getWidth() + 15, 90 + gradualHeight);
                 gradualHeight += 20;
             }
         }
@@ -132,6 +135,40 @@ public class InfoPanel extends UIElement {
                 gradualWidth += imageWidth + 10;
                 g.drawString("x" + nameCountMap.get(unitName), gradualWidth - imageWidth / 2, getHeight() - 10);
             }
+        }
+        
+        
+        private void drawCommandButtons(Graphics2D g, RTSUnit unit) {
+            // start at top right and progress down and over
+            int currentX = this.getWidth();
+            int currentY = 10;
+            int buttonRenderWidth = (this.getHeight()-10)/2;
+            int buttonRenderHeight = (this.getHeight()-10)/2;
+            for( int i = 0; i < unit.getButtons().size(); i++) {
+                CommandButton cb = unit.getButtons().get(i);
+                g.drawImage(cb.iconImage, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
+                if(!cb.isPassive && cb.numUsesRemaining >= 0) {
+                    g.setColor(Color.WHITE);
+                    g.drawString("x"+cb.numUsesRemaining, currentX - buttonRenderWidth + 10, currentY + 10);
+                }
+                currentY += buttonRenderHeight;
+                if((i+1) % 2 == 0) {
+                    // columns of two
+                    currentX -= buttonRenderWidth;
+                    currentY = 10;
+                }
+            }
+        }
+        
+        private CommandButton getButtonAtLocation(int x, int y) {
+            if(mainUnit == null) return null;
+            int currentX = this.getWidth();
+            int currentY = 10;
+            for(int i = 0; i < mainUnit.getButtons().size(); i++) {
+                CommandButton cb = mainUnit.getButtons().get(i);
+                int topLeftX = 0;
+            }
+            return null;
         }
     }
 }

@@ -13,11 +13,11 @@ import Framework.Hitbox;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.Buttons.LayMineButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * @author guydu
  */
 public class LightTank extends RTSUnit {
-    
+
     public static final double speed = 2.8;
     public static final double attackInterval = 1.6;
 
@@ -72,6 +72,10 @@ public class LightTank extends RTSUnit {
         this.setHitbox(new Hitbox(this, getWidth() / 2));
         this.range = 500;
         this.baseSpeed = speed;
+        addButton(new LayMineButton(this));
+        addButton(new LayMineButton(this));
+        addButton(new LayMineButton(this));
+        addButton(new LayMineButton(this));
     }
 
     @Override
@@ -79,7 +83,7 @@ public class LightTank extends RTSUnit {
         if (isSolid) {
             drawShadow(g, hullShadow, 5, 9);
         }
-        if(isSelected()){
+        if (isSelected()) {
             drawRubbleProximityIndicators(g);
         }
         super.render(g);
@@ -249,15 +253,17 @@ public class LightTank extends RTSUnit {
     }
 
     @Override
-    public BufferedImage getSelectionImage() {
-        return RTSAssetManager.lightTankSelectionImage;
-    }
-    
-    @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + LightTankBullet.DAMAGE + "    Interval: " + attackInterval+"s    Range: "+ range);
+        out.add("Dmg: " + LightTankBullet.DAMAGE + "    Interval: " + attackInterval + "s    Range: " + range);
         out.add("Speed: " + speed + "    Targets: Ground");
         return out;
+    }
+
+    @Override
+    public void triggerAbility(int index, Coordinate target) {
+        if (index == 0) {
+            getHostGame().addObject(new Landmine(target.x, target.y, team));
+        }
     }
 }

@@ -102,15 +102,10 @@ public class Landmine extends RTSUnit {
     }
 
     @Override
-    public BufferedImage getSelectionImage() {
-        return RTSAssetManager.landmineSelectionImage;
-    }
-
-    @Override
     public ArrayList<String> getInfoLines() {
         ArrayList<String> out = new ArrayList<>();
         out.add("Blows up when enemy units walk over it, dealing 30 dmg");
-        out.add("If the enemy unit is already damaged, it is also immobilized for 10s");
+        out.add("Triggering unit is also immobilized for 10s");
         out.add("Usually invisible, but becomes reavealed when near two or more enemy infantry");
 
         return out;

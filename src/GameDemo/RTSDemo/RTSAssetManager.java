@@ -57,6 +57,8 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] impactCone;
     
     public static BufferedImage landmine, landmineSelectionImage, landmineBlast;
+    
+    public static BufferedImage immobilizationIcon;
 
     static {
         initialize();
@@ -151,6 +153,9 @@ public abstract class RTSAssetManager {
             hellicopterSelectionImage = load("DemoAssets/TankGame/copter/hellicopterSelectionImage.png");
             riflemanSelectionImage = load("DemoAssets/TankGame/infantry/rifleSelectionImage.png");
             bazookamanSelectionImage = load("DemoAssets/TankGame/infantry/bazookaSelectionImage.png");
+            
+            // utility
+            immobilizationIcon = load("DemoAssets/TankGame/immobilizationIcon.png");
 
             preloadUnits();
             initialized = true;
@@ -172,6 +177,7 @@ public abstract class RTSAssetManager {
         new Bazookaman(0, 0, 0);
         new Hellicopter(0, 0, 0);
         new Landmine(0,0,0);
+        System.out.println("done preloading");
     }
 
     public static BufferedImage[] greenToRed(BufferedImage[] input) {

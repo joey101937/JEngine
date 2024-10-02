@@ -393,11 +393,6 @@ public class TankUnit extends RTSUnit {
     }
     
     @Override
-    public BufferedImage getSelectionImage() {
-        return RTSAssetManager.tankSelectionImage;
-    }
-    
-    @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
         out.add("Dmg: " + TankBullet.DAMAGE + "    Interval: " + attackFrequency+"s    Range: "+ range);

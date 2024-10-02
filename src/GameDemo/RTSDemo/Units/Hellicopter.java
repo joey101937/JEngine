@@ -244,11 +244,6 @@ public class Hellicopter extends RTSUnit {
     }
 
     @Override
-    public BufferedImage getSelectionImage() {
-        return RTSAssetManager.hellicopterSelectionImage;
-    }
-
-    @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
         out.add("Dmg: " + HellicopterBullet.damage + " (x2)   Interval: " + 2 + "s    Range: " + range);

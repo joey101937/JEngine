@@ -196,11 +196,6 @@ public class Bazookaman extends RTSUnit {
             }
         }
     }
-
-    @Override
-    public BufferedImage getSelectionImage() {
-        return RTSAssetManager.bazookamanSelectionImage;
-    }
     
     @Override
     public ArrayList<String> getInfoLines() {
