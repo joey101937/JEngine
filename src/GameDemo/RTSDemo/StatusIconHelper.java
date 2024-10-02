@@ -12,7 +12,7 @@ import java.awt.Graphics2D;
  *
  * @author guydu
  */
-public class UnitStatusEffectHelper extends IndependentEffect{
+public class StatusIconHelper extends IndependentEffect{
     private static final int statusIconWidth = 20;
     private static final int statusIconHeight = 20;
     

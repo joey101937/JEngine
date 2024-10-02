@@ -30,7 +30,7 @@ public class Camera {
      * @return 
      */
     public Coordinate getPixelLocation(){
-        return location.toCoordinate().copy();
+        return location.toCoordinate();
     }
 
     /**

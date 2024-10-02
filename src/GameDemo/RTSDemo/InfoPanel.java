@@ -21,6 +21,7 @@ import javax.swing.JPanel;
  * @author guydu
  */
 public class InfoPanel extends UIElement {
+    public CommandButton hoveredButton = null;
 
     private static final Font titleFont = new Font("TimesRoman", Font.BOLD, 18);
     private static final Font healthFont = new Font("TimesRoman", Font.BOLD, 16);
@@ -72,7 +73,6 @@ public class InfoPanel extends UIElement {
 
         public Color lightGray = new Color(150, 150, 150);
         public RTSUnit mainUnit = null;
-        public CommandButton hoveredButton = null;
 
         public InfoPanelInterior(int width, int height) {
             this.setLocation(0, 0);
@@ -150,8 +150,8 @@ public class InfoPanel extends UIElement {
             // start at top right and progress down and over
             int currentX = this.getWidth() - 10;
             int currentY = 10;
-            int buttonRenderWidth = (this.getHeight()-10)/2;
-            int buttonRenderHeight = (this.getHeight()-10)/2;
+            int buttonRenderWidth = (this.getHeight()-20)/2;
+            int buttonRenderHeight = (this.getHeight()-20)/2;
             for( int i = 0; i < unit.getButtons().size(); i++) {
                 CommandButton cb = unit.getButtons().get(i);
                 g.drawImage(cb == hoveredButton ? cb.hoveredImage : cb.iconImage, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
@@ -171,8 +171,8 @@ public class InfoPanel extends UIElement {
         private CommandButton getButtonAtLocation(int x, int y) {
             if (mainUnit == null) return null;
             
-            int buttonRenderWidth = (this.getHeight() - 10) / 2;
-            int buttonRenderHeight = (this.getHeight() - 10) / 2;
+            int buttonRenderWidth = (this.getHeight() - 20) / 2;
+            int buttonRenderHeight = (this.getHeight() - 20) / 2;
             int currentX = this.getWidth()-10;
             int currentY = 10;
             
@@ -210,7 +210,6 @@ public class InfoPanel extends UIElement {
             public void mouseClicked(MouseEvent e) {
                 CommandButton button = interior.getButtonAtLocation(e.getX(), e.getY());
                 if (button != null) {
-                    System.out.println("Button clicked: " + button.name);
                     int buttonIndex = mainUnit.getButtons().indexOf(button);
                     for(RTSUnit u : SelectionBoxEffect.selectedUnits) {
                         if(u.getClass() == mainUnit.getClass()) {

@@ -38,7 +38,7 @@ public class RTSGame {
         g.getCamera().camSpeed = 20;
         g.addIndependentEffect(new SelectionBoxEffect());
         g.addIndependentEffect(new SelectionBoxEffectAir());
-        g.addIndependentEffect(new UnitStatusEffectHelper());
+        g.addIndependentEffect(new StatusIconHelper());
         minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
         minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
         Main.splitBackgroundRender = true;
@@ -46,6 +46,7 @@ public class RTSGame {
         infoPanel = new InfoPanel(g, minimap.getWidth(), g.getWindowHeight() -200, 700);
         Window.addUIElement(minimap);
         Window.addUIElement(infoPanel);
+        g.addIndependentEffect(new TooltipHelper());
     }
 
     public static void main(String[] args) {
