@@ -105,6 +105,11 @@ public interface Graphic {
      * flips the graphic vertically
      */
     public void mirrorVertical();
+    
+    /**
+     * sets opacity based on input
+     */
+    public void setOpacity(double input);
 
     /**
      * returns a scaled copy of the image

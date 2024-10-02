@@ -5,6 +5,8 @@
  */
 package Framework.GraphicalAssets;
 
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 
@@ -156,6 +158,32 @@ public class Sprite implements Graphic {
     @Override
     public void setSignature(String s) {
         signuature = s;
+    }
+    
+    @Override
+    public void setOpacity(double amount) {
+        // Ensure opacity amount is within the range [0, 1]
+        if (amount < 0) amount = 0;
+        if (amount > 1) amount = 1;
+
+        // Create a new image with the same width, height, and type as the input image
+        BufferedImage outputImage = new BufferedImage(image.getWidth(), 
+                                                     image.getHeight(), 
+                                                     BufferedImage.TYPE_INT_ARGB);
+        
+        // Get a Graphics2D object to modify the new image
+        Graphics2D g2d = outputImage.createGraphics();
+        
+        // Set the opacity using AlphaComposite
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) amount));
+        
+        // Draw the original image onto the new image with the adjusted opacity
+        g2d.drawImage(image, 0, 0, null);
+        
+        // Dispose the Graphics2D object to release system resources
+        g2d.dispose();
+        image = outputImage;
+        volatileImage = Graphic.getVolatileFromBuffered(image);
     }
 
     /**

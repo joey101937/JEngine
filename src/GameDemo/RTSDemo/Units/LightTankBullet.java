@@ -54,6 +54,9 @@ public class LightTankBullet extends Projectile {
                     return; // no friendly fire
                 }
             }
+            if(otherUnit.isCloaked) {
+                return;
+            }
             if (otherUnit.isRubble) {
                 if (startPosition.distanceFrom(otherUnit.getPixelLocation()) < RTSUnit.RUBBLE_PROXIMITY) {
                     // if shooting unit is next to the rubble, it can shoot over it

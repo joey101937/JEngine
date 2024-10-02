@@ -167,7 +167,7 @@ public class LightTank extends RTSUnit {
             OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "lightTankDespawnExplosion"), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());
             this.isSolid = false;
-            this.setZLayer(-1);
+            this.setZLayer(-10);
             this.turret.isInvisible = true;
             addTickDelayedEffect(Main.ticksPerSecond * 3, c2 -> {
                 this.destroy();

@@ -28,7 +28,7 @@ public class HellicopterBullet extends Projectile {
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.yellowMissileShadow);
     public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallHeli");
     public static final int damage = 10;
-    
+
     public RTSUnit shooter; //the object that launched this projectile
     public RTSUnit target;
     public RTSUnit collidedUnit;
@@ -42,10 +42,10 @@ public class HellicopterBullet extends Projectile {
     public double minSpeed = 4.4;
     public double accellerationTime = Main.ticksPerSecond * .7;
     public double accellerationStage;
-    
-    static{
-         shadowSprite.scaleTo(.12);
-         missileSprite.scaleTo(.12);
+
+    static {
+        shadowSprite.scaleTo(.12);
+        missileSprite.scaleTo(.12);
     }
 
     public HellicopterBullet(RTSUnit shooter, Coordinate startingLocation, RTSUnit other) {
@@ -68,19 +68,25 @@ public class HellicopterBullet extends Projectile {
         explosionSmall.scaleTo(.85);
         minSpeed = Main.generateRandomInt(3, 5);
         maxSpeed = Main.generateRandomInt(14, 18);
-        if(plane == 1) maxRange = 750;
-        else maxRange = 1400;
+        if (plane == 1) {
+            maxRange = 750;
+        } else {
+            maxRange = 1400;
+        }
         startPosition = startingLocation;
     }
 
     @Override
     public void onCollide(GameObject2 other, boolean myTick) {
         if (other != shooter && other instanceof RTSUnit unit) {
-             if(unit.isRubble) {
-                if(startPosition.distanceFrom(unit.getPixelLocation()) < RTSUnit.RUBBLE_PROXIMITY + 30) {
+            if (unit.isRubble) {
+                if (startPosition.distanceFrom(unit.getPixelLocation()) < RTSUnit.RUBBLE_PROXIMITY + 30) {
                     // if shooting unit is next to the rubble, it can shoot over it
                     return;
                 }
+            }
+            if (unit.isCloaked) {
+                return;
             }
             if (unit.team == shooter.team) {
                 return;

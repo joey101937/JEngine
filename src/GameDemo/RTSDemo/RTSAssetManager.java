@@ -54,6 +54,8 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] explosionSequenceSmall;
     public static BufferedImage[] impactCone;
+    
+    public static BufferedImage landmine, landmineSelectionImage, landmineBlast;
 
     static {
         initialize();
@@ -104,6 +106,7 @@ public abstract class RTSAssetManager {
             tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
             tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
             
+            // light tank
             lightTankHull = load("DemoAssets/TankGame/lightTank/lightTankHull.png");
             lightTankHullRed = greenToRed(lightTankHull);
             lightTankTurret = load("DemoAssets/TankGame/lightTank/lightTankTurret.png");
@@ -121,6 +124,8 @@ public abstract class RTSAssetManager {
             lightTankHullDestroyed = load("DemoAssets/TankGame/lightTank/lightTankHullDestroyed.png");
             lightTankDeathShadow = load("DemoAssets/TankGame/lightTank/lightTankDeathShadow.png");
             
+            
+            // infantry
             infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run");
             infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle");
             infantryRifleIdleRed = darkToRed(infantryRifleIdle);
@@ -133,7 +138,13 @@ public abstract class RTSAssetManager {
             infantryBazookaFire = loadSequence("DemoAssets/TankGame/Infantry/bazooka/shoot");
             infantryBazookaFireRed = darkToRed(infantryBazookaFire);
             infantryShadow = load("DemoAssets/TankGame/Infantry/infantryShadow.png");
-
+            
+            // landmine
+            landmine = load("DemoAssets/TankGame/landmine.png");
+            landmineSelectionImage = load("DemoAssets/TankGame/landmineSelectionImage.png");
+            landmineBlast = load("DemoAssets/TankGame/landmineBlast.png");
+            
+            // selection images
             tankSelectionImage = load("DemoAssets/TankGame/tankSelectionImage.png");
             lightTankSelectionImage = load("DemoAssets/TankGame/lightTank/lightTankSelectionImage.png");
             hellicopterSelectionImage = load("DemoAssets/TankGame/copter/hellicopterSelectionImage.png");

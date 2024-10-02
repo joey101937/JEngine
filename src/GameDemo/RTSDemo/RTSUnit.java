@@ -40,8 +40,9 @@ public class RTSUnit extends Creature {
     public double rotationSpeed = 5;
     public boolean isInfantry = false;
     public RTSUnit nearestEnemyInfantry, nearestEnemeyGroundVehicle, nearestEnemyAircraft, nearestEnemyGroundUnit, nearestEnemyUnit;
+    public boolean isCloaked = false;
 
-    private Color getColorFromTeam(int team) {
+    public static Color getColorFromTeam(int team) {
         return switch (team) {
             case 0 ->
                 Color.GREEN;
@@ -225,6 +226,9 @@ public class RTSUnit extends Creature {
                 if (((RTSUnit) go).isRubble == true) {
                     continue;
                 }
+                 if (((RTSUnit) go).isCloaked == true) {
+                    continue;
+                }
                 if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
                     closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
                     closest = go;
@@ -325,7 +329,7 @@ public class RTSUnit extends Creature {
         double infantryDistance = 999999999, vehicleDistance = 999999999, aircraftDistance = 999999999, closestDistance = 999999999;
         Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
         for(GameObject2 go : nearby) {
-            if(go instanceof RTSUnit unit && unit.team != team && !unit.isRubble) {
+            if(go instanceof RTSUnit unit && unit.team != team && !unit.isRubble && !unit.isCloaked) {
                 double distance = distanceFrom(unit);
                 if(unit.plane > 1) {
                     if(nearestAircraft == null || distance < aircraftDistance) {

@@ -13,6 +13,7 @@ import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -102,6 +103,9 @@ public class RTSGame {
         for (int i = 0; i < lineLength; i++) {
             game.addObject(new Hellicopter(100 + (i * spacer), 2300, 1));
         }
+        
+        
+        game.addObject(new Landmine(3000,3000, 0));
 
 
     }

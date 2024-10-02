@@ -1,4 +1,3 @@
-
 package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
@@ -20,7 +19,7 @@ import java.awt.image.VolatileImage;
  * @author guydu
  */
 public class BazookaBullet extends Projectile {
-    
+
     public static final int damage = 23;
 
     public static Sprite missileSprite = new Sprite(RTSAssetManager.yellowMissile);
@@ -36,7 +35,7 @@ public class BazookaBullet extends Projectile {
 
     public long tickToDestroy = -1;
     public boolean hasCollided = false;
-    
+
     private int ticksToReachStillTarget = 0;
 
     public BazookaBullet(RTSUnit shooter, Coordinate startingLocation, RTSUnit other) {
@@ -56,7 +55,7 @@ public class BazookaBullet extends Projectile {
         explosionSmall.scaleTo(.85);
         maxRange = 700;
         startPosition = startingLocation;
-        ticksToReachStillTarget = (int)(distanceFrom(other.getPixelLocation()) / baseSpeed);
+        ticksToReachStillTarget = (int) (distanceFrom(other.getPixelLocation()) / baseSpeed);
     }
 
     @Override
@@ -67,6 +66,9 @@ public class BazookaBullet extends Projectile {
                     // if shooting unit is next to the rubble, it can shoot over it
                     return;
                 }
+            }
+            if (unit.isCloaked) {
+                return;
             }
             if (unit.team == shooter.team) {
                 return;
@@ -86,12 +88,12 @@ public class BazookaBullet extends Projectile {
             this.destroy();
         }
         // lockon
-        if(target.maxHealth > 50) {
+        if (target.maxHealth > 50) {
             Coordinate updatedTarget = target.getPixelLocation();
             double desiredRotation = rotationNeededToFace(updatedTarget);
-            
-            if(Math.abs(desiredRotation) < RTSUnit.RUBBLE_PROXIMITY) {
-                if(Math.abs(desiredRotation) < maxRotationPerTick) {
+
+            if (Math.abs(desiredRotation) < RTSUnit.RUBBLE_PROXIMITY) {
+                if (Math.abs(desiredRotation) < maxRotationPerTick) {
                     this.rotate(desiredRotation);
                 } else {
                     this.rotate(Math.clamp(desiredRotation, -maxRotationPerTick, maxRotationPerTick));
@@ -116,9 +118,9 @@ public class BazookaBullet extends Projectile {
         int renderY = getPixelLocation().y - toRender.getHeight() / 2;
         int shadowOffset = 30;
         if (target.plane == 1) {
-            shadowOffset = (int)((distanceFrom(target) / initialDistance) * 100);
-        } else if (target.plane > 1 ) {
-            shadowOffset = Math.min((int)( ((double)tickNumber / (double)ticksToReachStillTarget) * 65) + 30, 95);
+            shadowOffset = (int) ((distanceFrom(target) / initialDistance) * 100);
+        } else if (target.plane > 1) {
+            shadowOffset = Math.min((int) (((double) tickNumber / (double) ticksToReachStillTarget) * 65) + 30, 95);
         }
         g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
         g.drawImage(toRender, renderX, renderY + shadowOffset, null);

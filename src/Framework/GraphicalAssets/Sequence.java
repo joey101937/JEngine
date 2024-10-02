@@ -441,5 +441,13 @@ public class Sequence implements Graphic{
 
         return new Sequence(frames);
     }
+
+    @Override
+    public void setOpacity(double input) {
+        this.resetReferences();
+        for(Sprite s : frames){
+            s.setOpacity(input);
+        }
+    }
     
 }
