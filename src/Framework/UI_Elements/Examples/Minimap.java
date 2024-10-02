@@ -264,7 +264,7 @@ public final class Minimap extends UIElement {
             g2d.draw(hostGame.getCamera().getFieldOfView());
             g2d.setStroke(new BasicStroke(5));
             g2d.scale(1/xScale, 1/yScale); // scale back to normal
-            g2d.drawRect(0, 0, (int)(widthOfFrame), (int) (heightOfFrame));
+            drawGradientBorder(g2d, 0, 0, (int)(widthOfFrame), (int) (heightOfFrame));
             g2d.dispose();
         }
 
