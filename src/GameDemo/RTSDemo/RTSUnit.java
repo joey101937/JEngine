@@ -27,7 +27,6 @@ import java.util.Collection;
  * @author Joseph
  */
 public class RTSUnit extends Creature {
-    
     public static final int RUBBLE_PROXIMITY = 90;
 
     private boolean selected = false;
@@ -41,6 +40,8 @@ public class RTSUnit extends Creature {
     public boolean isInfantry = false;
     public RTSUnit nearestEnemyInfantry, nearestEnemeyGroundVehicle, nearestEnemyAircraft, nearestEnemyGroundUnit, nearestEnemyUnit;
     public boolean isCloaked = false;
+    public boolean isImmobilized = false;
+    public double originalSpeed = 1.8;
 
     public static Color getColorFromTeam(int team) {
         return switch (team) {
@@ -133,7 +134,7 @@ public class RTSUnit extends Creature {
         if (isRubble) {
             return;
         }
-        if (desiredLocation.distanceFrom(location) > getWidth() / 2) {
+        if (!isImmobilized && desiredLocation.distanceFrom(location) > getWidth() / 2) {
             double desiredRotation = this.rotationNeededToFace(desiredLocation);
             double maxRotation = rotationSpeed;
             if (Math.abs(desiredRotation) < 20) {
@@ -359,5 +360,16 @@ public class RTSUnit extends Creature {
         this.nearestEnemyAircraft = nearestAircraft;
         this.nearestEnemyGroundUnit = vehicleDistance < infantryDistance ? nearestVehicle : nearestInfantry;
         this.nearestEnemyUnit = nearestUnit;
+    }
+    
+    public void setImmobilized(boolean set) {
+        if(isImmobilized == set) return;
+        this.isImmobilized = set;
+        if(set){
+            originalSpeed = baseSpeed;
+            setBaseSpeed(0);
+        } else{
+            setBaseSpeed(originalSpeed);
+        }
     }
 }

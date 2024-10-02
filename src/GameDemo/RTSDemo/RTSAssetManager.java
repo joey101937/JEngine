@@ -4,6 +4,7 @@ import static Framework.GraphicalAssets.Graphic.load;
 import static Framework.GraphicalAssets.Graphic.loadSequence;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -170,6 +171,7 @@ public abstract class RTSAssetManager {
         new Rifleman(0, 0, 0);
         new Bazookaman(0, 0, 0);
         new Hellicopter(0, 0, 0);
+        new Landmine(0,0,0);
     }
 
     public static BufferedImage[] greenToRed(BufferedImage[] input) {
