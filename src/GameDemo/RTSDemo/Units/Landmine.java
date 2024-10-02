@@ -24,7 +24,7 @@ public class Landmine extends RTSUnit {
     public static SoundEffect blastSound = new SoundEffect(new File(Main.assets + "Sounds/explosion.au"));
     public static Sprite landmineVisible = new Sprite(RTSAssetManager.landmine);
     public static Sprite landmineHidden = new Sprite(RTSAssetManager.landmine);
-    public static Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.landmineBlast, 40);
+    public static Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.landmineBlast, 60);
 
     static {
         landmineHidden.setOpacity(.5);
@@ -51,7 +51,7 @@ public class Landmine extends RTSUnit {
     public void tick() {
         super.tick();
         // think about optimizing this
-        if (getHostGame().getAllObjects().stream().filter(x -> x instanceof RTSUnit u && u.isInfantry && u.distanceFrom(location) < 400).toList().size() >= 2) {
+        if (getHostGame().getAllObjects().stream().filter(x -> x instanceof RTSUnit u && u.isInfantry && u.distanceFrom(location) < 400 && u.team != team).toList().size() >= 2) {
             this.isCloaked = false;
         }
     }

@@ -1,5 +1,6 @@
 package GameDemo.RTSDemo.Buttons;
 
+import Framework.Coordinate;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
@@ -22,9 +23,11 @@ public class LayMineButton extends CommandButton {
         this.tooltipLines.add("Mine is invisible to enemy unless nearby two or more enemy infantry.");
 
         this.onTrigger = c -> {
-            numUsesRemaining--;
             if(numUsesRemaining>0) {
-                o.triggerAbility(0, o.getPixelLocation());
+                Coordinate offset = new Coordinate(0, o.getHeight()/2);
+                offset.adjustForRotation(o.getRotation());
+                o.triggerAbility(0, o.getPixelLocation().add(offset));
+                numUsesRemaining--;
             }                
         };
 

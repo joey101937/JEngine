@@ -13,6 +13,7 @@ import Framework.InputHandler;
 import Framework.Main;
 import Framework.Window;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Units.Landmine;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -58,6 +59,7 @@ public class RTSInput extends InputHandler {
         List<RTSUnit> livingMembers = input.stream().filter(
                 x -> x.isAlive()
                 && !x.isRubble
+                && !(x instanceof Landmine)
                 && (!ExternalCommunicator.isMultiplayer || x.team == ExternalCommunicator.localTeam)
         ).collect(Collectors.toList());
         Coordinate output = new Coordinate(0, 0);

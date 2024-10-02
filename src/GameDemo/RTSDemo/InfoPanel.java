@@ -148,7 +148,7 @@ public class InfoPanel extends UIElement {
         
         private void drawCommandButtons(Graphics2D g, RTSUnit unit) {
             // start at top right and progress down and over
-            int currentX = this.getWidth();
+            int currentX = this.getWidth() - 10;
             int currentY = 10;
             int buttonRenderWidth = (this.getHeight()-10)/2;
             int buttonRenderHeight = (this.getHeight()-10)/2;
@@ -173,7 +173,7 @@ public class InfoPanel extends UIElement {
             
             int buttonRenderWidth = (this.getHeight() - 10) / 2;
             int buttonRenderHeight = (this.getHeight() - 10) / 2;
-            int currentX = this.getWidth();
+            int currentX = this.getWidth()-10;
             int currentY = 10;
             
             for (int i = 0; i < mainUnit.getButtons().size(); i++) {
@@ -211,7 +211,12 @@ public class InfoPanel extends UIElement {
                 CommandButton button = interior.getButtonAtLocation(e.getX(), e.getY());
                 if (button != null) {
                     System.out.println("Button clicked: " + button.name);
-                    button.onTrigger.accept(null);
+                    int buttonIndex = mainUnit.getButtons().indexOf(button);
+                    for(RTSUnit u : SelectionBoxEffect.selectedUnits) {
+                        if(u.getClass() == mainUnit.getClass()) {
+                            u.getButtons().get(buttonIndex).onTrigger.accept(null);
+                        }
+                    }
                 }
             }
             
