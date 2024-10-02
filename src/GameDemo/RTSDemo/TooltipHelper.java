@@ -17,6 +17,8 @@ import java.awt.Graphics2D;
 public class TooltipHelper extends IndependentEffect{
     public Font headerFont = new Font("timesRoman", Font.BOLD, 16);
     public Font bodyFont = new Font("timesRoman", Font.PLAIN, 14);
+    
+    public Color transparentGray = new Color(.5f,.5f,.5f, .8f);
 
     public int width = 450;
     public int height = 100;
@@ -34,7 +36,7 @@ public class TooltipHelper extends IndependentEffect{
         CommandButton cb = infopanel.hoveredButton;
         if(cb != null) {
             Coordinate toRender = new Coordinate(location).add(RTSGame.game.getCamera().getWorldLocation());
-            g.setColor(Color.GRAY);
+            g.setColor(transparentGray);
             g.fillRect(toRender.x, toRender.y, width, height);
             g.setColor(Color.WHITE);
             g.setFont(headerFont);
