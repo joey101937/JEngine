@@ -16,11 +16,7 @@ import Framework.UI_Elements.UIElement;
 import Framework.Window;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.SandboxDemo.SampleCharacter;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -284,6 +280,29 @@ public final class Minimap extends UIElement {
             return after;
         }
 
+        private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
+            int borderWidth = 5;
+            
+            // Top gradient
+            GradientPaint topGradient = new GradientPaint(x, y, borderLight, x, y + borderWidth, borderDark);
+            g.setPaint(topGradient);
+            g.fillRect(x, y, width, borderWidth);
+
+            // Bottom gradient
+            GradientPaint bottomGradient = new GradientPaint(x, y + height - borderWidth, borderDark, x, y + height, borderLight);
+            g.setPaint(bottomGradient);
+            g.fillRect(x, y + height - borderWidth, width, borderWidth);
+
+            // Left gradient
+            GradientPaint leftGradient = new GradientPaint(x, y, borderLight, x + borderWidth, y, borderDark);
+            g.setPaint(leftGradient);
+            g.fillRect(x, y, borderWidth, height);
+
+            // Right gradient
+            GradientPaint rightGradient = new GradientPaint(x + width - borderWidth, y, borderDark, x + width, y, borderLight);
+            g.setPaint(rightGradient);
+            g.fillRect(x + width - borderWidth, y, borderWidth, height);
+        }
     }
 
 }
