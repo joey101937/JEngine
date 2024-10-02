@@ -75,6 +75,10 @@ public class InfoPanel extends UIElement {
             this.setBounds(0, 0, width, height);
             this.setBackground(lightGray);
             this.setVisible(true);
+        
+            ButtonMouseListener buttonListener = new ButtonMouseListener();
+            this.addMouseListener(buttonListener);
+            this.addMouseMotionListener(buttonListener);
         }
 
         @Override
@@ -186,5 +190,38 @@ public class InfoPanel extends UIElement {
             
             return null;
         }
+    }
+
+    private class ButtonMouseListener implements MouseMotionListener, MouseListener {
+        private CommandButton hoveredButton = null;
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            CommandButton button = interior.getButtonAtLocation(e.getX(), e.getY());
+            if (button != hoveredButton) {
+                hoveredButton = button;
+                // You can add hover effects here if needed
+            }
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            CommandButton button = interior.getButtonAtLocation(e.getX(), e.getY());
+            if (button != null) {
+                System.out.println("Button clicked: " + button.name);
+            }
+        }
+
+        // Implement other required methods
+        @Override
+        public void mouseDragged(MouseEvent e) {}
+        @Override
+        public void mousePressed(MouseEvent e) {}
+        @Override
+        public void mouseReleased(MouseEvent e) {}
+        @Override
+        public void mouseEntered(MouseEvent e) {}
+        @Override
+        public void mouseExited(MouseEvent e) {}
     }
 }
