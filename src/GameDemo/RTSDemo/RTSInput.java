@@ -86,7 +86,7 @@ public class RTSInput extends InputHandler {
             CommandButton clickedButton = infoPanelEffect.getButtonAtLocation(locationOfMouseEvent.x, locationOfMouseEvent.y);
             if (clickedButton != null) {
                 // Handle button click
-                clickedButton.onTrigger.accept(null);
+                infoPanelEffect.triggerButtonAt(locationOfMouseEvent.x, locationOfMouseEvent.y);
                 return;
             }
 

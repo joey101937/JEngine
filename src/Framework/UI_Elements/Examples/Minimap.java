@@ -32,6 +32,10 @@ import javax.swing.JPanel;
  */
 public final class Minimap extends UIElement {
 
+    private static final Color lightGray = new Color(150, 150, 150);
+    private static final Color borderDark = new Color(100, 100, 100);
+    private static final Color borderLight = new Color(200, 200, 200);
+
     public final MinimapInterior interior;
     private double screenPortion = .12; //how much of the screen to take up
     public Game hostGame;
@@ -52,9 +56,9 @@ public final class Minimap extends UIElement {
         //location determines where it is on screen reletive to top left
         setLocation(loc);
         //create a minimap interior and add it to this panel
-        widthOfFrame = (hostGame.getWindowWidth() * Game.getResolutionScaleX() * screenPortion * ((double)hostGame.getWorldWidth()/hostGame.getWorldHeight()));
-        heightOfFrame = (widthOfFrame * ((double)hostGame.getWorldHeight()/hostGame.getWorldWidth()));
-        Dimension size = new Dimension((int)widthOfFrame, (int) heightOfFrame);
+        widthOfFrame = (hostGame.getWindowWidth() * Game.getResolutionScaleX() * screenPortion * ((double) hostGame.getWorldWidth() / hostGame.getWorldHeight()));
+        heightOfFrame = (widthOfFrame * ((double) hostGame.getWorldHeight() / hostGame.getWorldWidth()));
+        Dimension size = new Dimension((int) widthOfFrame, (int) heightOfFrame);
         interior = new MinimapInterior(size);
         listener = new MinimapMouseListener(hostGame, this);
         interior.addMouseListener(listener);
@@ -66,11 +70,11 @@ public final class Minimap extends UIElement {
         this.setBackground(Color.black);
         this.add(interior);
     }
-    
-    public void setSimpleRenderHelper (SimpleRenderHelper srh) {
+
+    public void setSimpleRenderHelper(SimpleRenderHelper srh) {
         this.simpleRenderHelper = srh;
     }
-    
+
     public void setMinimapMouseListener(MinimapMouseListener listener) {
         interior.removeMouseListener(this.listener);
         interior.removeMouseMotionListener(this.listener);
@@ -127,18 +131,18 @@ public final class Minimap extends UIElement {
         }
 
         //interior.paint(interior.getGraphics());
-         interior.repaint();
+        interior.repaint();
     }
 
     @Override
     public void tick() {
     }
-    
+
     public static class MinimapMouseListener implements MouseListener, MouseMotionListener {
 
         public Game hostGame;
         public Minimap map;
-            
+
         public MinimapMouseListener(Game hostGame, Minimap m) {
             this.hostGame = hostGame;
             this.map = m;
@@ -159,13 +163,16 @@ public final class Minimap extends UIElement {
         }
 
         @Override
-        public void mouseReleased(MouseEvent e) {}
+        public void mouseReleased(MouseEvent e) {
+        }
 
         @Override
-        public void mouseEntered(MouseEvent e) {}
+        public void mouseEntered(MouseEvent e) {
+        }
 
         @Override
-        public void mouseExited(MouseEvent e) {}
+        public void mouseExited(MouseEvent e) {
+        }
 
         @Override
         public void mouseDragged(MouseEvent e) {
@@ -174,8 +181,9 @@ public final class Minimap extends UIElement {
         }
 
         @Override
-        public void mouseMoved(MouseEvent e) {}
-        
+        public void mouseMoved(MouseEvent e) {
+        }
+
         public void panTo(MouseEvent e) {
             DCoordinate relativePoint = new DCoordinate(0, 0);
             relativePoint.x = (double) e.getX() / (double) map.getWidth();
@@ -183,11 +191,11 @@ public final class Minimap extends UIElement {
             relativePoint.y = (double) e.getY() / (double) map.getHeight();
             relativePoint.y *= hostGame.getWorldHeight();
             hostGame.addTickDelayedEffect(1, x -> {
-                 hostGame.getCamera().centerOn(relativePoint.toCoordinate());
+                hostGame.getCamera().centerOn(relativePoint.toCoordinate());
             });
-           
+
         }
-        
+
     }
 
     public double getScreenPortion() {
@@ -196,16 +204,13 @@ public final class Minimap extends UIElement {
 
     public void setScreenPortion(double screenPortion) {
         this.screenPortion = screenPortion;
-        widthOfFrame = (Game.getNATIVE_RESOLUTION().width * Game.getResolutionScaleX() * screenPortion * ((double)hostGame.getWorldWidth()/hostGame.getWorldHeight()));
-        heightOfFrame = (widthOfFrame * ((double)hostGame.getWorldHeight()/hostGame.getWorldWidth()));
-        Dimension size = new Dimension((int)widthOfFrame, (int) heightOfFrame);
+        widthOfFrame = (Game.getNATIVE_RESOLUTION().width * Game.getResolutionScaleX() * screenPortion * ((double) hostGame.getWorldWidth() / hostGame.getWorldHeight()));
+        heightOfFrame = (widthOfFrame * ((double) hostGame.getWorldHeight() / hostGame.getWorldWidth()));
+        Dimension size = new Dimension((int) widthOfFrame, (int) heightOfFrame);
         interior.setSize(size);
         this.setSize(size);
     }
-    
 
-    
-    
     /**
      * This class actully does the drawing
      */
@@ -213,24 +218,24 @@ public final class Minimap extends UIElement {
 
         private BufferedImage background;
         private double xScale = 1, yScale = 1;
-        
+
         public MinimapInterior(Dimension d) {
-            try{
+            try {
                 background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(),
-                    (xScale=(double)d.width / hostGame.getWorldWidth()),
-                    (yScale=(double)d.height / hostGame.getWorldHeight()));
-            }catch(Exception e){
+                        (xScale = (double) d.width / hostGame.getWorldWidth()),
+                        (yScale = (double) d.height / hostGame.getWorldHeight()));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            
+
         }
-        
+
         @Override
         public void setSize(Dimension d) {
             try {
                 background = scaleImage(hostGame.getBackgroundImage().getCurrentImage(),
-                        (xScale=(double)d.width / hostGame.getWorldWidth()),
-                        (yScale=(double)d.height / hostGame.getWorldHeight()));
+                        (xScale = (double) d.width / hostGame.getWorldWidth()),
+                        (yScale = (double) d.height / hostGame.getWorldHeight()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -248,10 +253,10 @@ public final class Minimap extends UIElement {
             g2d.scale(xScale, yScale);
             for (GameObject2 go : hostGame.getAllObjects()) {
                 if (useSimpleRender) {
-                    if(simpleRenderHelper != null) {
+                    if (simpleRenderHelper != null) {
                         simpleRenderHelper.simpleRender(go, g2d);
                     } else {
-                        g.fillOval(go.getPixelLocation().x - go.getWidth()/2, go.getPixelLocation().y - go.getHeight()/2, go.getWidth(), go.getHeight());
+                        g.fillOval(go.getPixelLocation().x - go.getWidth() / 2, go.getPixelLocation().y - go.getHeight() / 2, go.getWidth(), go.getHeight());
                     }
                 } else {
                     go.render(g2d, true);
@@ -263,8 +268,8 @@ public final class Minimap extends UIElement {
             g2d.setColor(Color.black);
             g2d.draw(hostGame.getCamera().getFieldOfView());
             g2d.setStroke(new BasicStroke(5));
-            g2d.scale(1/xScale, 1/yScale); // scale back to normal
-            drawGradientBorder(g2d, 0, 0, (int)(widthOfFrame), (int) (heightOfFrame));
+            g2d.scale(1 / xScale, 1 / yScale); // scale back to normal
+            drawGradientBorder(g2d, 0, 0, (int) (widthOfFrame), (int) (heightOfFrame));
             g2d.dispose();
         }
 
@@ -282,7 +287,7 @@ public final class Minimap extends UIElement {
 
         private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
             int borderWidth = 5;
-            
+
             // Top gradient
             GradientPaint topGradient = new GradientPaint(x, y, borderLight, x, y + borderWidth, borderDark);
             g.setPaint(topGradient);

@@ -86,7 +86,7 @@ public class Landmine extends RTSUnit {
     public void onCollide(GameObject2 go, boolean myTick) {
         if(isRubble) return;
         if (go instanceof RTSUnit unit) {
-            if (unit.team == team) {
+            if (unit.team == team || unit.isRubble) {
                 return;
             } else {
                 this.isRubble = true;

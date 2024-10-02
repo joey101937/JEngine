@@ -71,6 +71,7 @@ public class InfoPanelEffect extends IndependentEffect {
             g.drawImage(unitNameImageMap.get(mainUnit.getName()), x + 5, y + 15, null);
             int imageWidth = unitNameImageMap.get(mainUnit.getName()).getWidth();
             g.setFont(titleFont);
+            g.setColor(Color.BLACK);
             g.drawString(mainUnit.getName(), x + imageWidth + 15, y + 40);
             g.setColor(healthColor);
             g.setFont(healthFont);
@@ -174,6 +175,17 @@ public class InfoPanelEffect extends IndependentEffect {
         }
 
         return null;
+    }
+    
+    public void triggerButtonAt(int mouseX, int mouseY) {
+        CommandButton cb = getButtonAtLocation(mouseX, mouseY);
+        if(cb == null) return;
+        int buttonIndex = mainUnit.getButtons().indexOf(cb);
+        for(RTSUnit unit: SelectionBoxEffect.selectedUnits) {
+            if(!unit.isRubble && unit.team == mainUnit.team && unit.getClass() == mainUnit.getClass()) {
+                unit.getButtons().get(buttonIndex).onTrigger.accept(null);
+            }
+        }
     }
 
     @Override
