@@ -4,10 +4,7 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +19,8 @@ public class InfoPanelEffect extends IndependentEffect {
 
     private static final Color healthColor = Color.BLACK;
     private static final Color lightGray = new Color(150, 150, 150);
+    private static final Color borderDark = new Color(100, 100, 100);
+    private static final Color borderLight = new Color(200, 200, 200);
     private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
 
     private Game hostGame;
@@ -58,9 +57,7 @@ public class InfoPanelEffect extends IndependentEffect {
 
         g.fillRect(x, y, width, height);
 
-        g.setColor(Color.black);
-        g.setStroke(new BasicStroke(5));
-        g.drawRect(x, y, width, height);
+        drawGradientBorder(g, x, y, width, height);
 
         ArrayList<RTSUnit> selectedUnits = new ArrayList<>(SelectionBoxEffect.selectedUnits.stream().filter(
                 u -> !u.isRubble && u.isAlive() && (!ExternalCommunicator.isMultiplayer || u.team == ExternalCommunicator.localTeam)).toList()
@@ -82,6 +79,30 @@ public class InfoPanelEffect extends IndependentEffect {
             drawInfoLines(g, mainUnit);
             drawCommandButtons(g, mainUnit);
         }
+    }
+
+    private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
+        int borderWidth = 5;
+        
+        // Top gradient
+        GradientPaint topGradient = new GradientPaint(x, y, borderLight, x, y + borderWidth, borderDark);
+        g.setPaint(topGradient);
+        g.fillRect(x, y, width, borderWidth);
+
+        // Bottom gradient
+        GradientPaint bottomGradient = new GradientPaint(x, y + height - borderWidth, borderDark, x, y + height, borderLight);
+        g.setPaint(bottomGradient);
+        g.fillRect(x, y + height - borderWidth, width, borderWidth);
+
+        // Left gradient
+        GradientPaint leftGradient = new GradientPaint(x, y, borderLight, x + borderWidth, y, borderDark);
+        g.setPaint(leftGradient);
+        g.fillRect(x, y, borderWidth, height);
+
+        // Right gradient
+        GradientPaint rightGradient = new GradientPaint(x + width - borderWidth, y, borderDark, x + width, y, borderLight);
+        g.setPaint(rightGradient);
+        g.fillRect(x + width - borderWidth, y, borderWidth, height);
     }
 
     private void drawInfoLines(Graphics2D g, RTSUnit unit) {
