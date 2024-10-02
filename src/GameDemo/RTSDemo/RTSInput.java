@@ -33,6 +33,12 @@ public class RTSInput extends InputHandler {
 
     public static boolean wDown = false, aDown = false, sDown = false, dDown = false;
 
+    private InfoPanelEffect infoPanelEffect;
+
+    public RTSInput(InfoPanelEffect infoPanelEffect) {
+        this.infoPanelEffect = infoPanelEffect;
+    }
+
     @Override
     public void tick() {
         Camera cam = getHostGame().getCamera();
@@ -53,6 +59,11 @@ public class RTSInput extends InputHandler {
 
         cam.xVel = xVelocity;
         cam.yVel = yVelocity;
+
+        // Check for hovering over InfoPanelEffect buttons
+        Coordinate mousePos = getMousePosition();
+        CommandButton hoveredButton = infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
+        infoPanelEffect.hoveredButton = hoveredButton;
     }
 
     public static Coordinate averageLocation(Collection<RTSUnit> input) {
@@ -77,6 +88,13 @@ public class RTSInput extends InputHandler {
     public void mousePressed(MouseEvent e) {
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
         if (e.getButton() == 1) { //1 means left click
+            CommandButton clickedButton = infoPanelEffect.getButtonAtLocation(locationOfMouseEvent.x, locationOfMouseEvent.y);
+            if (clickedButton != null) {
+                // Handle button click
+                clickedButton.onTrigger.accept(null);
+                return;
+            }
+
             for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                 u.setSelected(false);
             }
@@ -93,7 +111,6 @@ public class RTSInput extends InputHandler {
                     // delay 1 tick for multiplayer sync
                     long originalTick = hostGame.handler.globalTickNumber;
                     hostGame.addTickDelayedEffect(1, x -> {
-//                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
                         u.setDesiredLocation(locationOfMouseEvent);
                         ExternalCommunicator.communicateState(u);
                     });
@@ -111,7 +128,6 @@ public class RTSInput extends InputHandler {
                     Coordinate targetOffset = target.offsetBy(offset);
                     long originalTick = hostGame.handler.globalTickNumber;
                     hostGame.addTickDelayedEffect(1, x -> {
-//                        System.out.println("delayedEffect issuing order on tick " + hostGame.handler.globalTickNumber + " " + locationOfMouseEvent + " it was originally given on tick " + originalTick);
                         u.setDesiredLocation(targetOffset);
                         ExternalCommunicator.communicateState(u);
                     });
@@ -119,7 +135,6 @@ public class RTSInput extends InputHandler {
                 }
             }
         }
-
     }
 
     @Override
@@ -169,6 +184,9 @@ public class RTSInput extends InputHandler {
     @Override
     public void mouseMoved(MouseEvent e) {
         // panCamera(e);
+        Coordinate mousePos = locationOfMouseEvent(e);
+        CommandButton hoveredButton = infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
+        infoPanelEffect.hoveredButton = hoveredButton;
     }
 
     private void panCamera(MouseEvent e) {

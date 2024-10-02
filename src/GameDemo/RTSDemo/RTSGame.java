@@ -34,7 +34,7 @@ public class RTSGame {
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
         Main.ticksPerSecond = 60;
-        g.setInputHandler(new RTSInput());
+        g.setInputHandler(new RTSInput(infoPanelEffect));
         g.getCamera().camSpeed = 20;
         g.addIndependentEffect(new SelectionBoxEffect());
         g.addIndependentEffect(new SelectionBoxEffectAir());
