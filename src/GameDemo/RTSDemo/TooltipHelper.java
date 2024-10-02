@@ -24,7 +24,7 @@ public class TooltipHelper extends IndependentEffect{
     public int height = 100;
     public InfoPanelEffect infoPanelEffect = RTSGame.infoPanelEffect;
 
-    public Coordinate location = new Coordinate(infoPanelEffect.x + infoPanelEffect.width - width, infoPanelEffect.y - height - 10);
+    public Coordinate location = new Coordinate(infoPanelEffect.baseX + infoPanelEffect.width - width, infoPanelEffect.baseY - height - 10);
     
     public TooltipHelper () {
         super();

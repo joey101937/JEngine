@@ -34,7 +34,6 @@ public class RTSGame {
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
         Main.ticksPerSecond = 60;
-        g.setInputHandler(new RTSInput(infoPanelEffect));
         g.getCamera().camSpeed = 20;
         g.addIndependentEffect(new SelectionBoxEffect());
         g.addIndependentEffect(new SelectionBoxEffectAir());
@@ -44,6 +43,7 @@ public class RTSGame {
         Main.splitBackgroundRender = true;
         minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight());
         infoPanelEffect = new InfoPanelEffect(g, minimap.getWidth(), g.getWindowHeight() - 200, 700, 200);
+        g.setInputHandler(new RTSInput(infoPanelEffect));
         Window.addUIElement(minimap);
         g.addIndependentEffect(infoPanelEffect);
         g.addIndependentEffect(new TooltipHelper());

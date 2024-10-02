@@ -25,13 +25,14 @@ public class InfoPanelEffect extends IndependentEffect {
     private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
 
     private Game hostGame;
-    private int x, y, width, height;
+    public int baseX, baseY, width, height;
+    public int x, y;
     private RTSUnit mainUnit = null;
 
     public InfoPanelEffect(Game game, int x, int y, int width, int height) {
         this.hostGame = game;
-        this.x = x;
-        this.y = y;
+        this.baseX = x;
+        this.baseY = y;
         this.width = width;
         this.height = height;
         populateUnitNameImageMap();
@@ -51,6 +52,10 @@ public class InfoPanelEffect extends IndependentEffect {
     @Override
     public void render(Graphics2D g) {
         g.setColor(lightGray);
+        Coordinate cameraOffset = RTSGame.game.getCamera().getWorldLocation().toCoordinate();
+        x = this.baseX + cameraOffset.x;
+        y = this.baseY + cameraOffset.y;
+
         g.fillRect(x, y, width, height);
 
         g.setColor(Color.black);
@@ -58,7 +63,7 @@ public class InfoPanelEffect extends IndependentEffect {
         g.drawRect(x, y, width, height);
 
         ArrayList<RTSUnit> selectedUnits = new ArrayList<>(SelectionBoxEffect.selectedUnits.stream().filter(
-                x -> !x.isRubble && x.isAlive() && (!ExternalCommunicator.isMultiplayer || x.team == ExternalCommunicator.localTeam)).toList()
+                u -> !u.isRubble && u.isAlive() && (!ExternalCommunicator.isMultiplayer || u.team == ExternalCommunicator.localTeam)).toList()
         );
         HashMap<String, Integer> unitCountMap = new HashMap<>();
         selectedUnits.forEach(unit -> unitCountMap.put(unit.getName(), unitCountMap.getOrDefault(unit.getName(), 0) + 1));
@@ -152,21 +157,11 @@ public class InfoPanelEffect extends IndependentEffect {
 
     @Override
     public void tick() {
-        // Update hover state
-        Coordinate mousePos = hostGame.getInputHandler().getMousePosition();
-        hoveredButton = getButtonAtLocation(mousePos.x, mousePos.y);
-
-        // Handle click
-        if (hostGame.getInputHandler().isMousePressed()) {
-            CommandButton clickedButton = getButtonAtLocation(mousePos.x, mousePos.y);
-            if (clickedButton != null) {
-                int buttonIndex = mainUnit.getButtons().indexOf(clickedButton);
-                for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
-                    if (u.getClass() == mainUnit.getClass()) {
-                        u.getButtons().get(buttonIndex).onTrigger.accept(null);
-                    }
-                }
-            }
-        }
+        
+    }
+    
+    @Override
+    public int getZLayer() {
+        return Integer.MAX_VALUE;
     }
 }

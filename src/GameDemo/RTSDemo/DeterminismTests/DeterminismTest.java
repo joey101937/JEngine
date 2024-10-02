@@ -24,7 +24,7 @@ public class DeterminismTest {
         Main.tickThreadCount = 1;
         Main.setRandomSeed(10);
         Window.initialize(game);
-        game.setInputHandler(new RTSInput());
+        game.setInputHandler(new RTSInput(null));
         game.getCamera().camSpeed = 20;
         game.addIndependentEffect(new SelectionBoxEffect());
 //        Window.addUIElement(minimap);

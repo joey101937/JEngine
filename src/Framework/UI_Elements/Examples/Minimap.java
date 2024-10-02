@@ -186,7 +186,10 @@ public final class Minimap extends UIElement {
             relativePoint.x *= hostGame.getWorldWidth();
             relativePoint.y = (double) e.getY() / (double) map.getHeight();
             relativePoint.y *= hostGame.getWorldHeight();
-            hostGame.getCamera().centerOn(relativePoint.toCoordinate());
+            hostGame.addTickDelayedEffect(1, x -> {
+                 hostGame.getCamera().centerOn(relativePoint.toCoordinate());
+            });
+           
         }
         
     }

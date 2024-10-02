@@ -59,11 +59,6 @@ public class RTSInput extends InputHandler {
 
         cam.xVel = xVelocity;
         cam.yVel = yVelocity;
-
-        // Check for hovering over InfoPanelEffect buttons
-        Coordinate mousePos = getMousePosition();
-        CommandButton hoveredButton = infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
-        infoPanelEffect.hoveredButton = hoveredButton;
     }
 
     public static Coordinate averageLocation(Collection<RTSUnit> input) {
