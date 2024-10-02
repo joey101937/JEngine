@@ -26,7 +26,7 @@ public class RTSGame {
 
     public static Game game = new Game(RTSAssetManager.grassBG);
     public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
-    public static InfoPanel infoPanel;
+    public static InfoPanelEffect infoPanelEffect;
 
     public static void setup(Game g) {
         Main.ignoreSubobjectCollision = true; // better performance
@@ -43,9 +43,9 @@ public class RTSGame {
         minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
         Main.splitBackgroundRender = true;
         minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight());
-        infoPanel = new InfoPanel(g, minimap.getWidth(), g.getWindowHeight() -200, 700);
+        infoPanelEffect = new InfoPanelEffect(g, minimap.getWidth(), g.getWindowHeight() - 200, 700, 200);
         Window.addUIElement(minimap);
-        Window.addUIElement(infoPanel);
+        g.addIndependentEffect(infoPanelEffect);
         g.addIndependentEffect(new TooltipHelper());
     }
 

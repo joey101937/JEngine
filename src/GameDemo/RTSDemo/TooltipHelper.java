@@ -22,9 +22,9 @@ public class TooltipHelper extends IndependentEffect{
 
     public int width = 450;
     public int height = 100;
-    public InfoPanel infopanel = RTSGame.infoPanel;
+    public InfoPanelEffect infoPanelEffect = RTSGame.infoPanelEffect;
 
-    public Coordinate location = new Coordinate(infopanel.getX() + infopanel.getWidth() - width , infopanel.getY() - height - 10);
+    public Coordinate location = new Coordinate(infoPanelEffect.x + infoPanelEffect.width - width, infoPanelEffect.y - height - 10);
     
     public TooltipHelper () {
         super();
@@ -33,7 +33,7 @@ public class TooltipHelper extends IndependentEffect{
     
     @Override
     public void render(Graphics2D g) {
-        CommandButton cb = infopanel.hoveredButton;
+        CommandButton cb = infoPanelEffect.hoveredButton;
         if(cb != null) {
             Coordinate toRender = new Coordinate(location).add(RTSGame.game.getCamera().getWorldLocation());
             g.setColor(transparentGray);
