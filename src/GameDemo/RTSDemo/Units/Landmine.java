@@ -21,13 +21,16 @@ import java.util.ArrayList;
  */
 public class Landmine extends RTSUnit {
 
-    public static SoundEffect blastSound = new SoundEffect(new File(Main.assets + "Sounds/explosion.au"));
-    public static Sprite landmineVisible = new Sprite(RTSAssetManager.landmine);
-    public static Sprite landmineHidden = new Sprite(RTSAssetManager.landmine);
-    public static Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.landmineBlast, 60);
+    public static final SoundEffect blastSound = new SoundEffect(new File(Main.assets + "Sounds/explosion.au"));
+    public static final Sprite landmineVisible = new Sprite(RTSAssetManager.landmine);
+    public static final Sprite landmineVisibleRed = new Sprite(RTSAssetManager.landmineRed);
+    public static final Sprite landmineHidden = new Sprite(RTSAssetManager.landmine);
+    public static final Sprite landmineHiddenRed = new Sprite(RTSAssetManager.landmineRed);
+    public static final Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.landmineBlast, 60);
 
     static {
         landmineHidden.setOpacity(.5);
+        landmineHiddenRed.setOpacity(.5);
     }
 
     // instance fields
@@ -54,6 +57,29 @@ public class Landmine extends RTSUnit {
         if (getHostGame().getAllObjects().stream().filter(x -> x instanceof RTSUnit u && u.isInfantry && u.distanceFrom(location) < 400 && u.team != team).toList().size() >= 2) {
             this.isCloaked = false;
         }
+        if(!isRubble) {
+            if(this.isCloaked) {
+                this.setGraphic(getHiddenSprite());
+            } else {
+                this.setGraphic(getVisibleSprite());
+            }
+        }
+    }
+    
+    public Sprite getVisibleSprite() {
+        return switch(team) {
+            case 0 -> landmineVisible;
+            case 1 -> landmineVisibleRed;
+            default -> null;
+        };
+    }
+    
+    public Sprite getHiddenSprite() {
+        return switch(team) {
+            case 0 -> landmineHidden;
+            case 1 -> landmineHiddenRed;
+            default -> null;
+        };
     }
 
     @Override

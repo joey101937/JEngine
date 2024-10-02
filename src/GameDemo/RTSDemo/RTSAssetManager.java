@@ -56,7 +56,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] explosionSequenceSmall;
     public static BufferedImage[] impactCone;
     
-    public static BufferedImage landmine, landmineSelectionImage, landmineBlast;
+    public static BufferedImage landmine, landmineRed, landmineSelectionImage, landmineBlast;
     
     public static BufferedImage layMineButton, layMineButtonHover;
     
@@ -146,6 +146,7 @@ public abstract class RTSAssetManager {
             
             // landmine
             landmine = load("DemoAssets/TankGame/landmine.png");
+            landmineRed = greenToRed(landmine);
             landmineSelectionImage = load("DemoAssets/TankGame/landmineSelectionImage.png");
             landmineBlast = load("DemoAssets/TankGame/landmineBlast.png");
             
