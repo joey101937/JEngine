@@ -13,6 +13,7 @@ public class CommandButton {
     public int numUsesRemaining = -1;
     public boolean isPassive = true;
     public BufferedImage iconImage;
+    public BufferedImage hoveredImage;
     public String name;
     public ArrayList<String> tooltipLines = new ArrayList<>();
     public Consumer onTrigger;

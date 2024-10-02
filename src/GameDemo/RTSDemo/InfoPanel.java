@@ -8,6 +8,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +72,7 @@ public class InfoPanel extends UIElement {
 
         public Color lightGray = new Color(150, 150, 150);
         public RTSUnit mainUnit = null;
+        public CommandButton hoveredButton = null;
 
         public InfoPanelInterior(int width, int height) {
             this.setLocation(0, 0);
@@ -150,7 +154,7 @@ public class InfoPanel extends UIElement {
             int buttonRenderHeight = (this.getHeight()-10)/2;
             for( int i = 0; i < unit.getButtons().size(); i++) {
                 CommandButton cb = unit.getButtons().get(i);
-                g.drawImage(cb.iconImage, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
+                g.drawImage(cb == hoveredButton ? cb.hoveredImage : cb.iconImage, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
                 if(!cb.isPassive && cb.numUsesRemaining >= 0) {
                     g.setColor(Color.WHITE);
                     g.drawString("x"+cb.numUsesRemaining, currentX - buttonRenderWidth + 10, currentY + 10);
@@ -190,38 +194,39 @@ public class InfoPanel extends UIElement {
             
             return null;
         }
+        
+        private class ButtonMouseListener implements MouseMotionListener, MouseListener {
+            
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                CommandButton button = interior.getButtonAtLocation(e.getX(), e.getY());
+                if (button != hoveredButton) {
+                    hoveredButton = button;
+                    // You can add hover effects here if needed
+                }
+            }
+            
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                CommandButton button = interior.getButtonAtLocation(e.getX(), e.getY());
+                if (button != null) {
+                    System.out.println("Button clicked: " + button.name);
+                    button.onTrigger.accept(null);
+                }
+            }
+            
+            // Implement other required methods
+            @Override
+            public void mouseDragged(MouseEvent e) {}
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            @Override
+            public void mouseReleased(MouseEvent e) {}
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+        }
     }
 
-    private class ButtonMouseListener implements MouseMotionListener, MouseListener {
-        private CommandButton hoveredButton = null;
-
-        @Override
-        public void mouseMoved(MouseEvent e) {
-            CommandButton button = interior.getButtonAtLocation(e.getX(), e.getY());
-            if (button != hoveredButton) {
-                hoveredButton = button;
-                // You can add hover effects here if needed
-            }
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            CommandButton button = interior.getButtonAtLocation(e.getX(), e.getY());
-            if (button != null) {
-                System.out.println("Button clicked: " + button.name);
-            }
-        }
-
-        // Implement other required methods
-        @Override
-        public void mouseDragged(MouseEvent e) {}
-        @Override
-        public void mousePressed(MouseEvent e) {}
-        @Override
-        public void mouseReleased(MouseEvent e) {}
-        @Override
-        public void mouseEntered(MouseEvent e) {}
-        @Override
-        public void mouseExited(MouseEvent e) {}
-    }
 }

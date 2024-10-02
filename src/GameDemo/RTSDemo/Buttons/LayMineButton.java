@@ -12,7 +12,8 @@ public class LayMineButton extends CommandButton {
 
     public LayMineButton(RTSUnit o) {
         super(o);
-        this.iconImage = RTSAssetManager.landmineSelectionImage;
+        this.iconImage = RTSAssetManager.layMineButton;
+        this.hoveredImage = RTSAssetManager.layMineButtonHover;
         this.name = "Deploy Landmine";
         this.numUsesRemaining = 1;
         this.isPassive = false;
@@ -22,7 +23,9 @@ public class LayMineButton extends CommandButton {
 
         this.onTrigger = c -> {
             numUsesRemaining--;
-            o.triggerAbility(0, o.getPixelLocation());
+            if(numUsesRemaining>0) {
+                o.triggerAbility(0, o.getPixelLocation());
+            }                
         };
 
     }

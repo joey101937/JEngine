@@ -58,6 +58,8 @@ public abstract class RTSAssetManager {
     
     public static BufferedImage landmine, landmineSelectionImage, landmineBlast;
     
+    public static BufferedImage layMineButton, layMineButtonHover;
+    
     public static BufferedImage immobilizationIcon;
 
     static {
@@ -156,6 +158,10 @@ public abstract class RTSAssetManager {
             
             // utility
             immobilizationIcon = load("DemoAssets/TankGame/immobilizationIcon.png");
+            
+            // buttons
+            layMineButton = load("DemoAssets/TankGame/Buttons/layMineButton.png");
+            layMineButtonHover = load("DemoAssets/TankGame/Buttons/layMineButtonHover.png");
 
             preloadUnits();
             initialized = true;
