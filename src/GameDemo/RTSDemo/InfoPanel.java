@@ -162,12 +162,7 @@ public class InfoPanel extends UIElement {
         
         private CommandButton getButtonAtLocation(int x, int y) {
             if(mainUnit == null) return null;
-            int currentX = this.getWidth();
-            int currentY = 10;
-            for(int i = 0; i < mainUnit.getButtons().size(); i++) {
-                CommandButton cb = mainUnit.getButtons().get(i);
-                int topLeftX = 0;
-            }
+            // todo
             return null;
         }
     }
