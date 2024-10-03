@@ -9,7 +9,7 @@ public class AssetExporter {
     public static void main(String[] args) {
         // Main method can be used to test the exportImages function
         System.out.println("Asset Exporter initialized.");
-        exportImages(RTSAssetManager.infantryBazookaDie, "BazookaDeathpUpdated");
+        exportImages(RTSAssetManager.infantryRifleDie, "export");
     }
 
     /**

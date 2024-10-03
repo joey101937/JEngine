@@ -78,8 +78,8 @@ public class Rifleman extends RTSUnit {
         this.setBaseSpeed(1.88);
         this.canAttackAir = true;
         this.rotationSpeed = 15;
-        this.maxHealth = 200;
-        this.currentHealth = 200;
+        this.maxHealth = 20;
+        this.currentHealth = 20;
         this.range = 500;
         isInfantry = true;
     }
@@ -133,15 +133,17 @@ public class Rifleman extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
-        super.render(g);
-        AffineTransform old = g.getTransform();
-        VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
-        int renderX = getPixelLocation().x - toRender.getWidth() / 2;
-        int renderY = getPixelLocation().y - toRender.getHeight() / 2;
-        int shadowOffset = 4;
-        g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
-        g.drawImage(toRender, renderX, renderY + shadowOffset, null);
-        g.setTransform(old);
+        if(!isRubble) {
+            super.render(g);
+            AffineTransform old = g.getTransform();
+            VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
+            int renderX = getPixelLocation().x - toRender.getWidth() / 2;
+            int renderY = getPixelLocation().y - toRender.getHeight() / 2;
+            int shadowOffset = 4;
+            g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
+            g.drawImage(toRender, renderX, renderY + shadowOffset, null);
+            g.setTransform(old);
+        }
     }
 
     public class RiflemanTurret extends SubObject {

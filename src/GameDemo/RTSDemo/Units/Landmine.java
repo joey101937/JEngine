@@ -11,7 +11,6 @@ import Framework.Stickers.OnceThroughSticker;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
