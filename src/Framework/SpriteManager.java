@@ -42,7 +42,6 @@ public abstract class SpriteManager {
 
     //SPACE ASSETS
     public static BufferedImage spaceBG;
-    public static BufferedImage spaceBG2;
     public static BufferedImage spaceship;
     public static BufferedImage evilShip;
     public static BufferedImage bolt;
@@ -108,7 +107,6 @@ public abstract class SpriteManager {
             // RTS assets loading has been moved to RTSAssetManager
             
             spaceBG = load("DemoAssets/spacebg.png");
-            spaceBG2 = load("DemoAssets/spacebg2.png");
             spaceship = load("DemoAssets/spaceship.png");
             evilShip = load("DemoAssets/evilSpaceShip.png");
             bolt = load("DemoAssets/bolt.png");

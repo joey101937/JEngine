@@ -25,7 +25,6 @@ public abstract class RTSAssetManager {
     public static BufferedImage dirtBG;
     public static BufferedImage dirtBGNight;
     public static BufferedImage grassBG;
-    public static BufferedImage grassBGMega;
     public static BufferedImage hellicopter, hellicopterRed;
     public static BufferedImage hellicopterShadow;
     public static BufferedImage hellicopterDestroyed, hellicopterDestroyedRed;
