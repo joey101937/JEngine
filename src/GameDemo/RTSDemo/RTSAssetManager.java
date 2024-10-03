@@ -49,6 +49,10 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] infantryRifleMoving;
     public static BufferedImage[] infantryBazookaIdle, infantryBazookaIdleRed;
     public static BufferedImage[] infantryBazookaFire, infantryBazookaFireRed;
+    public static BufferedImage[] infantryBazookaDie, infantryBazookaDieRed;
+    public static BufferedImage[] infantryRifleDie, infantryRifleDieRed;
+    public static BufferedImage infantryRifleDead, infantryRifleDeadRed;
+    public static BufferedImage infantryBazookaDead, infantryBazookaDeadRed;
     public static BufferedImage infantryLegs, infantryShadow;
     public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage;
 
@@ -131,18 +135,26 @@ public abstract class RTSAssetManager {
             
             
             // infantry
+            infantryLegs = load("DemoAssets/TankGame/Infantry/feet/idle/survivor-idle_0.png");
             infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run");
             infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle");
             infantryRifleIdleRed = darkToRed(infantryRifleIdle);
             infantryBazookaIdle = loadSequence("DemoAssets/TankGame/Infantry/bazooka/idle");
             infantryBazookaIdleRed = darkToRed(infantryBazookaIdle);
             infantryRifleMoving = loadSequence("DemoAssets/TankGame/Infantry/rifle/move");
-            infantryLegs = load("DemoAssets/TankGame/Infantry/feet/idle/survivor-idle_0.png");
             infantryRifleFire = loadSequence("DemoAssets/TankGame/Infantry/rifle/shoot");
             infantryRifleFireRed = darkToRed(infantryRifleFire);
+            infantryRifleDie = loadSequence("DemoAssets/TankGame/Infantry/rifle/die");
+            infantryRifleDieRed = darkToRed(infantryRifleDie);
+            infantryRifleDead = load("DemoAssets/TankGame/Infantry/rifle/dead.png");
+            infantryRifleDeadRed = darkToRed(infantryRifleDead);
             infantryBazookaFire = loadSequence("DemoAssets/TankGame/Infantry/bazooka/shoot");
             infantryBazookaFireRed = darkToRed(infantryBazookaFire);
             infantryShadow = load("DemoAssets/TankGame/Infantry/infantryShadow.png");
+            infantryBazookaDie = loadSequence("DemoAssets/TankGame/Infantry/bazooka/die");
+            infantryBazookaDieRed = darkToRed(infantryBazookaDie);
+            infantryBazookaDead = load("DemoAssets/TankGame/Infantry/bazooka/dead.png");
+            infantryBazookaDeadRed = darkToRed(infantryBazookaDead);
             
             // landmine
             landmine = load("DemoAssets/TankGame/landmine.png");

@@ -28,6 +28,7 @@ public class Sequence implements Graphic{
     private int startTimeOffset = 0;
     private int pausedOnFrame = 0;
     private String signuature = "";
+    public boolean hasCycled = false;
     
     
     // joey note to self for determinism
@@ -106,6 +107,9 @@ public class Sequence implements Graphic{
     
     public int getCurrentFrameIndex(){
         try{
+            if(((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) > frames.length) {
+                hasCycled = true;
+            }
            return (int) (((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) % frames.length);   
         }catch (NullPointerException e){
             System.out.println("null pointer trying to get Sequence Frame Index");

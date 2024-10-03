@@ -2,6 +2,7 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
+import Framework.GraphicalAssets.Graphic;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
@@ -10,7 +11,6 @@ import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -52,15 +52,14 @@ public class Rifleman extends RTSUnit {
         super(x, y, team);
         this.setScale(VISUAL_SCALE * .8);
         this.setGraphic(baseSprite);
-        this.maxHealth = 20;
         this.addSubObject(this.turret);
         this.setZLayer(1);
         this.isSolid = true;
         this.setBaseSpeed(1.88);
         this.canAttackAir = true;
         this.rotationSpeed = 15;
-        this.maxHealth = 20;
-        this.currentHealth = 20;
+        this.maxHealth = 200;
+        this.currentHealth = 200;
         this.range = 500;
         isInfantry = true;
     }
@@ -86,6 +85,9 @@ public class Rifleman extends RTSUnit {
         if (this.velocity.y == 0 && getGraphic().isAnimated()) {
             this.setGraphic(baseSprite);
         }
+        if("riflemanAttackSequence".equals(turret.getGraphic().getSignature()) && currentTarget == null && !isRubble) {
+            turret.setGraphic(turret.getIdleAnimation());
+        }
     }
 
     public void fire(RTSUnit target) {
@@ -102,7 +104,7 @@ public class Rifleman extends RTSUnit {
                 addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
             }
         }
-        turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
+        turret.setGraphic(turret.getFireAnimation());
         target.takeDamage(damage);
         addTickDelayedEffect(Main.ticksPerSecond * attackFrequency, c -> {
             this.attackCoolingDown = false;
@@ -125,12 +127,28 @@ public class Rifleman extends RTSUnit {
     public class RiflemanTurret extends SubObject {
 
         public Rifleman hull;
+        
+        public Graphic getIdleAnimation () {
+            return switch(hull.team) {
+                case 0 -> idleAnimation;
+                case 1 -> idleAnimationRed;
+                default -> idleAnimation;
+            };
+        }
+        
+        public Graphic getFireAnimation() {
+            return switch(hull.team) {
+                case 0 -> attackSequence.copyMaintainSource();
+                case 1 -> attackSequenceRed.copyMaintainSource();
+                default -> attackSequence.copyMaintainSource();
+            };
+        }
 
         public RiflemanTurret(Rifleman r) {
             super(new Coordinate(0, 0));
             this.setScale(VISUAL_SCALE);
             this.hull = r;
-            this.setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
+            this.setGraphic(getIdleAnimation());
         }
 
         @Override
@@ -183,7 +201,7 @@ public class Rifleman extends RTSUnit {
         @Override
         public void onAnimationCycle() {
             if (getGraphic().getSignature().equals("riflemanAttackSequence")) {
-                setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
+                setGraphic(getIdleAnimation());
             }
         }
     }

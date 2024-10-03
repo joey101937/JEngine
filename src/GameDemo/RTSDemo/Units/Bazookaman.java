@@ -2,6 +2,7 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
+import Framework.GraphicalAssets.Graphic;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
@@ -10,7 +11,6 @@ import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -29,20 +29,36 @@ public class Bazookaman extends RTSUnit {
     public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.infantryBazookaFireRed, "bazookaFireRed");
     public static final Sequence idleAnimation = new Sequence(RTSAssetManager.infantryBazookaIdle, "bazookaIdle");
     public static final Sequence idleAnimationRed = new Sequence(RTSAssetManager.infantryBazookaIdleRed, "bazookaIdleRed");
-    public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
+    public static final Sequence deathAnimation = new Sequence(RTSAssetManager.infantryBazookaDie, "BazookaDie");
+    public static final Sequence deathAnimationRed = new Sequence(RTSAssetManager.infantryBazookaDieRed, "BazookaDieRed");
+    public static final Sprite corpseSprite = new Sprite(RTSAssetManager.infantryBazookaDead);
+    public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryBazookaDeadRed);
+    public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryBazookaDead, .8);
+    public static final Sequence fadeout = Sequence.createFadeout(RTSAssetManager.infantryBazookaDead, 40);
+    public static final Sequence fadeoutRed = Sequence.createFadeout(RTSAssetManager.infantryBazookaDeadRed, 40);
+
+
     public boolean attackCoolingDown = false;
+    public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
     public static final double attackInterval = 3;
 
     static {
         baseSprite.scaleTo(VISUAL_SCALE);
         runningSequence.scaleTo(VISUAL_SCALE);
         attackSequence.scaleTo(VISUAL_SCALE);
-        attackSequenceRed.scale(VISUAL_SCALE);
+        attackSequenceRed.scaleTo(VISUAL_SCALE);
+        deathAnimation.scaleTo(VISUAL_SCALE);
+        deathAnimationRed.scaleTo(VISUAL_SCALE);
+        deadShadowSprite.scale(VISUAL_SCALE);
         runningSequence.setFrameDelay(35);
         attackSequence.setSignature("attackSequence");
         attackSequenceRed.setSignature("attackSequence");
         attackSequence.setFrameDelay(30);
         attackSequenceRed.setFrameDelay(30);
+        deathAnimation.setFrameDelay(30);
+        deathAnimationRed.setFrameDelay(30);
+        fadeout.setSignature("fadeout");
+        fadeoutRed.setSignature("fadeout");
     }
 
     // fields
@@ -78,6 +94,7 @@ public class Bazookaman extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+        if(this.isRubble) return;
         if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
             Sequence runInstance = runningSequence.copyMaintainSource();
             runInstance.advanceMs((int) (Math.random() * 1000));
@@ -115,6 +132,7 @@ public class Bazookaman extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
+        if(isRubble) return;
         super.render(g);
         if (shadowSprite == null) {
             System.out.println("shadow null for bazooka");
@@ -130,6 +148,33 @@ public class Bazookaman extends RTSUnit {
         g.drawImage(toRender, renderX, renderY + shadowOffset, null);
         g.setTransform(old);
     }
+    
+    private Sequence getDeathAnimation() {
+        return switch(team){
+            case 0 -> deathAnimation.copyMaintainSource();
+            case 1 -> deathAnimationRed.copyMaintainSource();
+            default -> deathAnimation.copyMaintainSource();
+        };
+    }
+    
+    private Graphic getCorpseGraphic() {
+        return switch(team) {
+            case 0 -> fadeout.copyMaintainSource();
+            case 1 -> fadeoutRed.copyMaintainSource();                
+            default -> fadeout.copyMaintainSource();
+        };
+    }
+    
+    
+    @Override
+    public void die() {
+        this.setBaseSpeed(0);
+        this.isRubble = true;
+        this.isSolid = false;
+        this.turret.setGraphic(getDeathAnimation());
+        this.addTickDelayedEffect(Main.ticksPerSecond * 10, x-> {this.destroy();});
+        this.setZLayer((int)(Math.random() * -50));
+    }
 
     public class BazookamanTurret extends SubObject {
 
@@ -141,10 +186,28 @@ public class Bazookaman extends RTSUnit {
             this.hull = r;
             this.setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
         }
+        
+        @Override
+        public void render(Graphics2D g) {
+//            if(isRubble) {
+//                int shadowOffsetX = 1;
+//                int shadowOffsetY = 2;
+//                Coordinate pixelLocation = getPixelLocation();
+//                pixelLocation.x += shadowOffsetX;
+//                pixelLocation.y += shadowOffsetY;
+//                AffineTransform old = g.getTransform();
+//                VolatileImage toRender = deadShadowSprite.getCurrentVolatileImage();
+//                int renderX = pixelLocation.x - toRender.getWidth() / 2;
+//                int renderY = pixelLocation.y - toRender.getHeight() / 2;
+//                g.rotate(Math.toRadians(turret.getRotation()), pixelLocation.x, pixelLocation.y);
+//                g.drawImage(toRender, renderX, renderY, null);
+//                g.setTransform(old);
+//            }
+            super.render(g);
+        }
 
         @Override
         public void tick() {
-            // System.out.println(this + " " + this.ID);
             super.tick();
             if (isRubble) {
                 return;
@@ -194,13 +257,19 @@ public class Bazookaman extends RTSUnit {
             if (getGraphic().getSignature().equals("attackSequence")) {
                 setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
             }
+            if("fadeout".equals(getGraphic().getSignature())) {
+                this.isInvisible = true;
+            }
+            if(getGraphic().getSignature().contains("Die")) {
+                this.setGraphic(getCorpseGraphic());
+            }
         }
     }
-    
+
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + BazookaBullet.damage + "    Interval: " + attackInterval+"s    Range: "+ range);
+        out.add("Dmg: " + BazookaBullet.damage + "    Interval: " + attackInterval + "s    Range: " + range);
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
         return out;
     }

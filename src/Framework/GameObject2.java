@@ -49,6 +49,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     private final HashMap<String, Object> futureSyncedState = new HashMap<>();
     private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
     public Coordinate lastRenderLocation = null;
+    private boolean cachedHasCycled = false;
     
     /**
      * this list is a list of point offsets from the center of the game object. When determining if a location is valid to move to
@@ -249,6 +250,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      * @return current visual representation object
      */
     public Graphic getGraphic(){
+        cachedHasCycled = false;
         return graphic;
     }
     
@@ -410,6 +412,19 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         render(g, false);
     }
     
+    private boolean shouldTriggerOnAnimationCycle () {
+        if(getGraphic() instanceof Sequence mySequ) {
+            boolean cacheCheck = !cachedHasCycled && mySequ.hasCycled;
+            boolean onLastFrame = mySequ.getCurrentFrame() != null && mySequ.currentFrameIndex == mySequ.frames.length - 1;
+            cachedHasCycled = mySequ.hasCycled;
+            return cacheCheck || onLastFrame;
+        } else {
+            cachedHasCycled = false;
+            return false;
+        }
+    }
+    
+    
     /**
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
@@ -420,17 +435,15 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         renderNumber++;
         Coordinate pixelLocation = getPixelLocation();
         
+        boolean triggerAnimationCycle = shouldTriggerOnAnimationCycle();
         
         lastRenderLocation = pixelLocation;
         
         AffineTransform old = graphics.getTransform();
         if (!isOnScreen() && !Main.overviewMode() && !ignoreRestrictions) {
             //offscreen without overview mode? dont bother rendering anything.
-            if (isAnimated()) {
-                Sequence sequence = (Sequence) getGraphic();
-                if (sequence.getCurrentFrame() != null && sequence.currentFrameIndex == sequence.frames.length - 1) {
-                    this.onAnimationCycle();
-                }
+            if (triggerAnimationCycle) {
+                this.onAnimationCycle();
             }
             return;
         }
@@ -460,7 +473,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 sequence.startAnimating();
                 VolatileImage toRender = sequence.getCurrentVolatileFrame();
                 graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
-                if(sequence.currentFrameIndex == sequence.frames.length-1) this.onAnimationCycle();
+                if(triggerAnimationCycle) this.onAnimationCycle();
             }else{
                 if(renderNumber>10 && tickNumber>2)System.out.println("Warning: null frame in sequence of " + getName());
             }
