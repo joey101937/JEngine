@@ -1,3 +1,4 @@
+import GameDemo.RTSDemo.RTSAssetManager;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -8,6 +9,7 @@ public class AssetExporter {
     public static void main(String[] args) {
         // Main method can be used to test the exportImages function
         System.out.println("Asset Exporter initialized.");
+        exportImages(RTSAssetManager.infantryBazookaDie, "BazookaDeathpUpdated");
     }
 
     /**

@@ -286,4 +286,33 @@ public abstract class RTSAssetManager {
         }
         return out;
     }
+    
+    public static BufferedImage[] removeBlue(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = removeBlue(input[i]);
+        }
+        return out;
+    }
+    
+     public static BufferedImage removeBlue(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getBlue() > prevColor.getRed() && prevColor.getBlue() > prevColor.getGreen()) {
+                    int newRed = prevColor.getRed();
+                    int newGreen = prevColor.getGreen();
+                    int newBlue = Math.min(prevColor.getRed(), prevColor.getGreen());
+                    Color newColor = new Color(newRed, newGreen, newBlue, prevColor.getAlpha());
+                    bi.setRGB(x, y, newColor.getRGB());
+                } else {
+                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
+                    bi.setRGB(x, y, newColor.getRGB());
+                }
+            }
+        }
+        return bi;
+    }
 }
