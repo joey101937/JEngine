@@ -33,6 +33,8 @@ public class TooltipHelper extends IndependentEffect{
     
     @Override
     public void render(Graphics2D g) {
+        double scaleAmount = 1/RTSGame.game.getZoom();
+        g.scale(scaleAmount, scaleAmount);
         CommandButton cb = infoPanelEffect.hoveredButton;
         if(cb != null) {
             Coordinate toRender = new Coordinate(location).add(RTSGame.game.getCamera().getWorldLocation());
@@ -48,6 +50,7 @@ public class TooltipHelper extends IndependentEffect{
                 runningY += 16;
             }
         }
+        g.scale(1/scaleAmount, 1/scaleAmount);
     }
 
     @Override

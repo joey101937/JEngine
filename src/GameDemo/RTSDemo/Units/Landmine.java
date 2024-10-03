@@ -40,7 +40,7 @@ public class Landmine extends RTSUnit {
         super(x, y, team);
         this.setScale(.25);
         this.setGraphic(landmineHidden);
-        this.setZLayer(-5);
+        this.setZLayer((int)(Math.random() * -50));
         this.setHitbox(new Hitbox(this, 1));
         this.isSolid = true;
         this.preventOverlap = false;
@@ -109,7 +109,7 @@ public class Landmine extends RTSUnit {
         this.isRubble = true;
         this.isCloaked = false;
         this.isSolid = false;
-        this.setZLayer(-10);
+        this.setZLayer((int)(Math.random() * -100) - 10);
         this.setGraphic(deathFadeout.copyMaintainSource());
         addTickDelayedEffect(Main.ticksPerSecond * 10, g -> {
             this.destroy();

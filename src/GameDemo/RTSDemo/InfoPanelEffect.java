@@ -50,11 +50,15 @@ public class InfoPanelEffect extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
+        double scaleAmount = 1/RTSGame.game.getZoom();
+        g.scale(scaleAmount, scaleAmount);
         g.setColor(lightGray);
         Coordinate cameraOffset = RTSGame.game.getCamera().getWorldLocation().toCoordinate();
-        x = this.baseX + cameraOffset.x;
-        y = this.baseY + cameraOffset.y;
-
+        
+        cameraOffset.scale(1/scaleAmount);
+        x = baseX + cameraOffset.x;
+        y = baseY + cameraOffset.y;
+        
         g.fillRect(x, y, width, height);
 
         drawGradientBorder(g, x, y, width, height);
@@ -80,6 +84,7 @@ public class InfoPanelEffect extends IndependentEffect {
             drawInfoLines(g, mainUnit);
             drawCommandButtons(g, mainUnit);
         }
+        g.scale(1/scaleAmount, 1/scaleAmount);
     }
 
     private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
@@ -153,7 +158,10 @@ public class InfoPanelEffect extends IndependentEffect {
 
     public CommandButton getButtonAtLocation(int mouseX, int mouseY) {
         if (mainUnit == null) return null;
-
+        
+        double scaleAmount = RTSGame.game.getZoom();
+        mouseX*=scaleAmount;
+        mouseY*=scaleAmount;
         int buttonRenderWidth = (height - 20) / 2;
         int buttonRenderHeight = (height - 20) / 2;
         int currentX = x + width - 10;

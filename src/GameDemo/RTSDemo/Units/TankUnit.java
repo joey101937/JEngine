@@ -383,7 +383,7 @@ public class TankUnit extends RTSUnit {
             OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "transientExplosion"), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());
             this.isSolid = false;
-            this.setZLayer(-10);
+            this.setZLayer(-100);
             this.turret.isInvisible = true;
             addTickDelayedEffect(Main.ticksPerSecond * 3, c2 -> {
                 this.destroy();

@@ -244,21 +244,23 @@ public class RTSInput extends InputHandler {
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent mwe) {
-        double newZoom = hostGame.getZoom();
-        for (int i = 0; i < mwe.getScrollAmount(); i++) {
-            if (mwe.getWheelRotation() > 0) {
-                newZoom *= .97;
-            } else {
-                newZoom /= .97;
+        hostGame.addTickDelayedEffect(1, c -> {
+            double newZoom = hostGame.getZoom();
+            for (int i = 0; i < mwe.getScrollAmount(); i++) {
+                if (mwe.getWheelRotation() > 0) {
+                    newZoom *= .97;
+                } else {
+                    newZoom /= .97;
+                }
             }
-        }
-        if (newZoom < .8) {
-            newZoom = .8; //how zoomed out the cam can get
-        }
-        if (newZoom > 1) {
-            newZoom = 1; //how zoomed in the cam can get
-        }
-        hostGame.setZoom(newZoom);
+            if (newZoom < .8) {
+                newZoom = .8; //how zoomed out the cam can get
+            }
+            if (newZoom > 1) {
+                newZoom = 1; //how zoomed in the cam can get
+            }
+            hostGame.setZoom(newZoom);
+        });
     }
 
     /**
@@ -314,7 +316,7 @@ public class RTSInput extends InputHandler {
             // Z
             case 90 ->
                 Main.debugMode = !Main.debugMode;
-           // backspace
+            // backspace
             case 8 -> {
                 // System.out.println(Window.getUIElements().get(0).isVisible());
                 Window.setFullscreenWindowed(true);
