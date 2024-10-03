@@ -50,6 +50,8 @@ public class Bazookaman extends RTSUnit {
         deathAnimation.scaleTo(VISUAL_SCALE);
         deathAnimationRed.scaleTo(VISUAL_SCALE);
         deadShadowSprite.scale(VISUAL_SCALE);
+        fadeout.scaleTo(VISUAL_SCALE);
+        fadeoutRed.scaleTo(VISUAL_SCALE);
         runningSequence.setFrameDelay(35);
         attackSequence.setSignature("attackSequence");
         attackSequenceRed.setSignature("attackSequence");
@@ -59,6 +61,10 @@ public class Bazookaman extends RTSUnit {
         deathAnimationRed.setFrameDelay(30);
         fadeout.setSignature("fadeout");
         fadeoutRed.setSignature("fadeout");
+        deathAnimation.setLooping(false);
+        deathAnimationRed.setLooping(false);
+        fadeout.setLooping(false);
+        fadeoutRed.setLooping(false);
     }
 
     // fields
@@ -177,6 +183,14 @@ public class Bazookaman extends RTSUnit {
     }
 
     public class BazookamanTurret extends SubObject {
+        
+        public Graphic getIdleAnimation() {
+            return switch(team) {
+                case 0 -> idleAnimation;
+                case 1 -> idleAnimationRed;
+                default -> idleAnimation;
+            };
+        }
 
         public Bazookaman hull;
 
@@ -184,25 +198,11 @@ public class Bazookaman extends RTSUnit {
             super(new Coordinate(0, 0));
             this.setScale(VISUAL_SCALE);
             this.hull = r;
-            this.setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
+            this.setGraphic(getIdleAnimation());
         }
         
         @Override
         public void render(Graphics2D g) {
-//            if(isRubble) {
-//                int shadowOffsetX = 1;
-//                int shadowOffsetY = 2;
-//                Coordinate pixelLocation = getPixelLocation();
-//                pixelLocation.x += shadowOffsetX;
-//                pixelLocation.y += shadowOffsetY;
-//                AffineTransform old = g.getTransform();
-//                VolatileImage toRender = deadShadowSprite.getCurrentVolatileImage();
-//                int renderX = pixelLocation.x - toRender.getWidth() / 2;
-//                int renderY = pixelLocation.y - toRender.getHeight() / 2;
-//                g.rotate(Math.toRadians(turret.getRotation()), pixelLocation.x, pixelLocation.y);
-//                g.drawImage(toRender, renderX, renderY, null);
-//                g.setTransform(old);
-//            }
             super.render(g);
         }
 
@@ -255,7 +255,7 @@ public class Bazookaman extends RTSUnit {
         @Override
         public void onAnimationCycle() {
             if (getGraphic().getSignature().equals("attackSequence")) {
-                setGraphic(team == 0 ? idleAnimation : idleAnimationRed);
+                setGraphic(getIdleAnimation());
             }
             if("fadeout".equals(getGraphic().getSignature())) {
                 this.isInvisible = true;

@@ -46,7 +46,6 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] infantryLegsRun;
     public static BufferedImage[] infantryRifleIdle, infantryRifleIdleRed;
     public static BufferedImage[] infantryRifleFire, infantryRifleFireRed;
-    public static BufferedImage[] infantryRifleMoving;
     public static BufferedImage[] infantryBazookaIdle, infantryBazookaIdleRed;
     public static BufferedImage[] infantryBazookaFire, infantryBazookaFireRed;
     public static BufferedImage[] infantryBazookaDie, infantryBazookaDieRed;
@@ -141,7 +140,6 @@ public abstract class RTSAssetManager {
             infantryRifleIdleRed = darkToRed(infantryRifleIdle);
             infantryBazookaIdle = loadSequence("DemoAssets/TankGame/Infantry/bazooka/idle");
             infantryBazookaIdleRed = darkToRed(infantryBazookaIdle);
-            infantryRifleMoving = loadSequence("DemoAssets/TankGame/Infantry/rifle/move");
             infantryRifleFire = loadSequence("DemoAssets/TankGame/Infantry/rifle/shoot");
             infantryRifleFireRed = darkToRed(infantryRifleFire);
             infantryRifleDie = loadSequence("DemoAssets/TankGame/Infantry/rifle/die");

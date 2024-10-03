@@ -29,6 +29,7 @@ public class Sequence implements Graphic{
     private int pausedOnFrame = 0;
     private String signuature = "";
     public boolean hasCycled = false;
+    private boolean isLooping = true;
     
     
     // joey note to self for determinism
@@ -108,7 +109,10 @@ public class Sequence implements Graphic{
     public int getCurrentFrameIndex(){
         try{
             if(((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) > frames.length) {
-                hasCycled = true;
+                if(!isLooping) {
+                    // not looping and past last frame. only render end of animation
+                    return frames.length-1;
+                }
             }
            return (int) (((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) % frames.length);   
         }catch (NullPointerException e){
@@ -287,6 +291,7 @@ public class Sequence implements Graphic{
         output.scale=scale;
         output.frameDelay = this.frameDelay;
         output.signuature = signuature;
+        output.isLooping = isLooping;
         return output;
     }
     
@@ -304,6 +309,7 @@ public class Sequence implements Graphic{
         this.sharingReferences = true;
         output.sharingReferences = true;
         output.signuature = this.signuature;
+        output.isLooping = isLooping;
         return output;
     }
 
@@ -408,6 +414,28 @@ public class Sequence implements Graphic{
     @Override
     public void setSignature(String s) {
         this.signuature = s;
+    }
+    
+    /**
+     * This is false by default.
+     * determines behavior on what happens when the animation is done.
+     * Looping: after last frame, continue from first frame
+     * Not-Looping: after last frame, continue with last frame only
+     * @param setting 
+     */
+    public void setLooping(boolean setting) {
+        this.isLooping = setting;
+    }
+    
+     /**
+     * This is false by default.
+     * determines behavior on what happens when the animation is done.
+     * Looping: after last frame, continue from first frame
+     * Not-Looping: after last frame, continue with last frame only
+     * @param setting 
+     */
+    public boolean isLooping() {
+        return this.isLooping;
     }
     
     public static Sequence createFadeout(BufferedImage image, int numFrames) {
