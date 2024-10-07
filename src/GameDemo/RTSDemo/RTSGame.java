@@ -56,6 +56,7 @@ public class RTSGame {
         int spacer = 160;
         int lineLength = 40;
         
+        game.addObject(new KeyBuilding(3000, 3000));
         
         // greens 
         for (int i = 0; i < lineLength; i++) {
@@ -107,8 +108,5 @@ public class RTSGame {
         }
         
         
-        game.addObject(new Landmine(3000,3000, 0));
-
-
     }
 }

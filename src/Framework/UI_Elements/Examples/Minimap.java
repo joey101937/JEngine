@@ -10,7 +10,6 @@ import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
-import Framework.SpriteManager;
 import Framework.SubObject;
 import Framework.UI_Elements.UIElement;
 import Framework.Window;

@@ -53,6 +53,8 @@ public abstract class RTSAssetManager {
     public static BufferedImage infantryBazookaDead, infantryBazookaDeadRed;
     public static BufferedImage infantryLegs, infantryShadow;
     public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage;
+    
+    public static BufferedImage building, buildingShadow;
 
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] explosionSequenceSmall;
@@ -112,6 +114,10 @@ public abstract class RTSAssetManager {
             tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
             tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
             tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
+            
+            building = load("DemoAssets/TankGame/building.png");
+            buildingShadow = load("DemoAssets/TankGame/buildingShadow.png");
+
             
             // light tank
             lightTankHull = load("DemoAssets/TankGame/lightTank/lightTankHull.png");
