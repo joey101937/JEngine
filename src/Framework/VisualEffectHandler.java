@@ -6,6 +6,7 @@
 package Framework;
 
 import Framework.CoreLoop.Handler;
+import Framework.CoreLoop.Renderable;
 import Framework.Stickers.Sticker;
 import java.awt.Graphics2D;
 import java.util.Collection;
@@ -18,7 +19,7 @@ import java.util.concurrent.Future;
  * Handler to control all stickers and non-GameObject visual effects in a game
  * @author Joseph
  */
-public class VisualEffectHandler {
+public class VisualEffectHandler implements Renderable{
     public CopyOnWriteArrayList<Sticker> stickers = new CopyOnWriteArrayList<>();
     public LinkedList<Coordinate[]> lines = new LinkedList<>();
     

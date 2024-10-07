@@ -510,7 +510,6 @@ public class Game extends Canvas implements Runnable {
         camera.render(g2d);
         this.renderBackGround(g2d);
         handler.render(g2d);
-        visHandler.render(g2d);
         if (Main.debugMode) {
             renderBounds(g2d);
         }
