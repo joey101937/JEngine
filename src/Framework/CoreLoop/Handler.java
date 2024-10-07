@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
  * @author guydu
  */
 public class Handler {
-    
+
     public static ExecutorService newMinSizeCachedThreadPool(int minSize) {
-        return new ThreadPoolExecutor(minSize, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, 
-        new SynchronousQueue<Runnable>());
+        return new ThreadPoolExecutor(minSize, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>());
     }
 
     protected ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
@@ -78,6 +78,14 @@ public class Handler {
             } else {
                 renderMap.get(ie.getZLayer()).add(ie);
             }
+        }
+        // stickers here. todo make stickers have their own zlayer
+        if (renderMap.get(Main.stickerZLayer) == null) {
+            LinkedList<Renderable> list = new LinkedList<>();
+            list.add(hostGame.visHandler);
+            renderMap.put(Main.stickerZLayer, list);
+        } else {
+            renderMap.get(Main.stickerZLayer).add(hostGame.visHandler);
         }
 
         List<Integer> zLayers = renderMap.keySet().stream().sorted().collect(Collectors.toList());
@@ -219,16 +227,15 @@ public class Handler {
         unified, // tick threads in paralell execute in preTick - tick - postTick as a single instance. onCollide is triggered immediately. more performant but has thread randomness
         modular, // tick threads execute preTick synchronously- tick (async) - postTick(async) as separate events that happen separately in order. less performant but deterministic with high level of control
     }
-    
+
     private synchronized void updateTickDelayedEffects(Collection<TickDelayedEffect> tdes, boolean forRemoval) {
-        if(!forRemoval) {
+        if (!forRemoval) {
             this.tickDelayedEffects.addAll(tdes);
-        }
-        else {
+        } else {
             this.tickDelayedEffects.removeAll(tdes);
         }
     }
-    
+
     public synchronized void addTickDelayedEffect(TickDelayedEffect tde) {
         var list = new LinkedList<TickDelayedEffect>();
         list.add(tde);
