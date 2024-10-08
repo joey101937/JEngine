@@ -7,8 +7,6 @@ import Framework.GraphicalAssets.Sprite;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
-import java.awt.Color;
-import java.awt.AlphaComposite;
 import java.util.ArrayList;
 
 /**
@@ -20,7 +18,7 @@ public class KeyBuilding extends GameObject2 {
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.buildingShadow);
     
     public int owningTeam = -1;
-    public int captureRadius = 200;
+    public int captureRadius = 500;
     public double captureProgress = 0;
     private static final double CAPTURE_RATE = 0.01;
     private static final double CAPTURE_THRESHOLD = 1.0;

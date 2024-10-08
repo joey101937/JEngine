@@ -31,6 +31,19 @@ public class SimpleRenderHelperRTS extends SimpleRenderHelper {
             }
             g.fillOval(go.getPixelLocation().x - longerSide/2, go.getPixelLocation().y - longerSide/2, longerSide, longerSide);
         }
+        if(go instanceof KeyBuilding keyBuilding) {
+            Color originalColor = g.getColor();
+            int longerSide = Math.max(go.getWidth(), go.getHeight());
+            int borderDiameter = longerSide + 64;
+            g.setColor(Color.BLACK);
+            g.fillRect(go.getPixelLocation().x - borderDiameter/2, go.getPixelLocation().y - borderDiameter/2, borderDiameter, borderDiameter);
+            if(keyBuilding.owningTeam >= 0) {
+                g.setColor(RTSUnit.getColorFromTeam(keyBuilding.owningTeam));
+            } else {
+                g.setColor(Color.GRAY);
+            }
+            g.fillRect(go.getPixelLocation().x - longerSide/2, go.getPixelLocation().y - longerSide/2, longerSide, longerSide);
+        }
     }
     
 }

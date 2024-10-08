@@ -24,7 +24,7 @@ public class StatusIconHelper extends IndependentEffect{
     @Override
     public void render(Graphics2D g) {
         for(GameObject2 go : RTSGame.game.getAllObjects()) {
-            if(go.isOnScreen() && go instanceof RTSUnit u) {
+            if(go.isOnScreen() && go instanceof RTSUnit u && !u.isRubble) {
                 if(u.isImmobilized) {  
                     g.drawImage(
                             RTSAssetManager.immobilizationIcon,

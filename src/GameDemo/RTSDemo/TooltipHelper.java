@@ -37,7 +37,7 @@ public class TooltipHelper extends IndependentEffect{
         g.scale(scaleAmount, scaleAmount);
         CommandButton cb = infoPanelEffect.hoveredButton;
         if(cb != null) {
-            Coordinate toRender = new Coordinate(location).add(RTSGame.game.getCamera().getWorldLocation());
+            Coordinate toRender = new Coordinate(location).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount));
             g.setColor(transparentGray);
             g.fillRect(toRender.x, toRender.y, width, height);
             g.setColor(Color.WHITE);
