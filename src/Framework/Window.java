@@ -202,12 +202,12 @@ public class Window {
     
     public static void setFullscreenWindowed(boolean x) {
         if(x) {
-            frame.setLocationRelativeTo(null);
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setVisible(false);
             frame.dispose();
             frame.setUndecorated(true);
             frame.pack();
+            frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         } else {
             frame.setLocationRelativeTo(null);
