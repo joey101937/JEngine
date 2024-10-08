@@ -20,8 +20,8 @@ public class KeyBuilding extends GameObject2 {
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.buildingShadow);
     
     public int owningTeam = -1;
-    private int captureRadius = 200;
-    private double captureProgress = 0;
+    public int captureRadius = 200;
+    public double captureProgress = 0;
     private static final double CAPTURE_RATE = 0.01;
     private static final double CAPTURE_THRESHOLD = 1.0;
     
@@ -104,23 +104,5 @@ public class KeyBuilding extends GameObject2 {
         g.drawImage(toRender, renderX, renderY, null);
         g.setTransform(old);
         super.render(g);
-        
-        // Render capture ring
-        renderCaptureRing(g);
-    }
-    
-    private void renderCaptureRing(Graphics2D g) {
-        Coordinate pixelLocation = getPixelLocation();
-        Color ringColor = owningTeam == -1 ? Color.GRAY : RTSUnit.getColorFromTeam(owningTeam);
-        
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
-        g.setColor(ringColor);
-        g.fillOval(pixelLocation.x - captureRadius, pixelLocation.y - captureRadius, captureRadius * 2, captureRadius * 2);
-        
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-        g.drawOval(pixelLocation.x - captureRadius, pixelLocation.y - captureRadius, captureRadius * 2, captureRadius * 2);
-        
-        // Reset composite
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
 }

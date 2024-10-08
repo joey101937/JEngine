@@ -46,6 +46,7 @@ public class RTSGame {
         Window.addUIElement(minimap);
         g.addIndependentEffect(infoPanelEffect);
         g.addIndependentEffect(new TooltipHelper());
+        g.addIndependentEffect(new KeyBuildingRingEffect());
     }
 
     public static void main(String[] args) {
