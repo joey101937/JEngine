@@ -22,7 +22,7 @@ public class KeyBuilding extends GameObject2 {
     public int owningTeam = -1;
     private int captureRadius = 200;
     private double captureProgress = 0;
-    private static final double CAPTURE_RATE = 0.001;
+    private static final double CAPTURE_RATE = 0.01;
     private static final double CAPTURE_THRESHOLD = 1.0;
     
     public KeyBuilding(int x, int y) {
