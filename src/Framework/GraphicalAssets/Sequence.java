@@ -473,7 +473,7 @@ public class Sequence implements Graphic{
 
         return new Sequence(frames);
     }
-
+    
     @Override
     public void setOpacity(double input) {
         this.resetReferences();
@@ -481,5 +481,21 @@ public class Sequence implements Graphic{
             s.setOpacity(input);
         }
     }
+    
+    /**
+     * generates a topdown shadow sprite based on given input
+     * @param frames images to make shadow of
+     * @param opacity opacity of shadow
+     * @return new sequence from generated images
+     */
+    public static Sequence generateShadowSequence(BufferedImage[] frames, double opacity){
+        Sprite[] sprites = new Sprite[frames.length];
+        for(int i = 0; i < frames.length; i ++) {
+            sprites[i] = Sprite.generateShadowSprite(frames[i], opacity);
+        }
+        
+        return new Sequence(sprites);
+    }
+
     
 }
