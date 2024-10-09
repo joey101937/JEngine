@@ -5,11 +5,9 @@
  */
 package GameDemo.SideScollerDemo_PathingLayer;
 
-import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
-import Framework.PathingLayer;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 
@@ -52,6 +50,7 @@ public class SidescrollerBird extends GameObject2{
     @Override
     public void onCollide(GameObject2 other, boolean myTick) {
         if(other == SideScrollDemo.playerCharacter) {
+            // constructor adds this to game
             new OnceThroughSticker(this.getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
             this.destroy();
         }

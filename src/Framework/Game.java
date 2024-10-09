@@ -62,7 +62,6 @@ public class Game extends Canvas implements Runnable {
 
     public static ExecutorService backgroundRenderService = Handler.newMinSizeCachedThreadPool(4);
 
-    public static int birdCount = 20; //how many birds to spawn in the demo
     public static final double OVERVIEW_MODE_ZOOM = .25;
     public static double resolutionScaleX = 1, resolutionScaleY = 1;
     /*  FIELDS   */

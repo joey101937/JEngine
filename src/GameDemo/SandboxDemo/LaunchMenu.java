@@ -8,7 +8,6 @@ package GameDemo.SandboxDemo;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Game;
-import static Framework.Game.birdCount;
 import Framework.Main;
 import Framework.Window;
 import Framework.GameObject2;
@@ -20,6 +19,7 @@ import Framework.SpriteManager;
  */
 public class LaunchMenu extends javax.swing.JFrame {
 
+    public static int birdCount = 20;
     /**
      * Creates new form OptionsMenu
      */
@@ -157,7 +157,7 @@ public class LaunchMenu extends javax.swing.JFrame {
         birdSpinner.setToolTipText("How many birds to spawn in the world for performance testing");
         birdSpinner.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         birdSpinner.setName(""); // NOI18N
-        birdSpinner.setValue(Game.birdCount);
+        birdSpinner.setValue(birdCount);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -309,7 +309,7 @@ public class LaunchMenu extends javax.swing.JFrame {
         Main.setOverviewMode(this.overviewCheckbox.isSelected());      
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
-        Game.birdCount = (int) birdSpinner.getValue();
+        birdCount = (int) birdSpinner.getValue();
         
         /////////////////////////////////////////////////
         g = new Game(SpriteManager.terrainBG);
