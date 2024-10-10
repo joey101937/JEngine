@@ -22,9 +22,6 @@ public class ReinforcementHandler extends IndependentEffect {
     public long lastUsedTick = 0;
     public boolean available = false;
 
-    public void callReinforcement() {
-    }
-
     public ReinforcementHandler() {
         reserveCount = 10;
     }
@@ -40,7 +37,7 @@ public class ReinforcementHandler extends IndependentEffect {
 
     @Override
     public void tick() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -59,8 +56,6 @@ public class ReinforcementHandler extends IndependentEffect {
      * @return
      */
     public static Coordinate getClosestOpenLocation(Coordinate desiredLocation, GameObject2 object) {
-        System.out.println("Checking nearst location to " + desiredLocation + " for object " + object);
-        System.out.println("object" + object.getHitbox().getCenter() + " " + object.getHitbox().radius);
         Game currentGame = RTSGame.game;
         if (currentGame == null) {
             System.out.println("Error: Current game is null");
