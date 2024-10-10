@@ -12,6 +12,7 @@ import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GradientPaint;
 
 /**
  *
@@ -19,8 +20,10 @@ import java.awt.Graphics2D;
  */
 public class ReinforcementHandler extends IndependentEffect {
     public Font headerFont = new Font("timesRoman", Font.BOLD, 16);
-    public Color backgroundColor = Color.LIGHT_GRAY;
+    public Color backgroundColor = new Color(150, 150, 150);
     public Color barColor = Color.GREEN;
+    private static final Color borderDark = new Color(100, 100, 100);
+    private static final Color borderLight = new Color(200, 200, 200);
     public int reserveCount = 0;
     public double rechargeInterval = Main.ticksPerSecond * 10; // num ticks between reinforcement charges
     public long lastUsedTick = 0;
@@ -43,10 +46,19 @@ public class ReinforcementHandler extends IndependentEffect {
         g.scale(scaleAmount, scaleAmount);
         Coordinate toRender = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount));
         double percentReady = Math.min((double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval, 1);
+        
+        // Draw background
         g.setColor(backgroundColor);
         g.fillRect(toRender.x, toRender.y, width, height);
+        
+        // Draw progress bar
         g.setColor(barColor);
         g.fillRect(toRender.x, toRender.y, (int)(width * percentReady), height);
+        
+        // Draw border
+        drawGradientBorder(g, toRender.x, toRender.y, width, height);
+        
+        // Draw text
         g.setColor(Color.BLACK);
         g.setFont(headerFont);
         g.drawString("Reinforcements ("+ reserveCount +")", toRender.x + 30, toRender.y + 20);
@@ -60,6 +72,30 @@ public class ReinforcementHandler extends IndependentEffect {
     @Override
     public int getZLayer() {
         return 99999999;
+    }
+
+    private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
+        int borderWidth = 2;
+        
+        // Top gradient
+        GradientPaint topGradient = new GradientPaint(x, y, borderLight, x, y + borderWidth, borderDark);
+        g.setPaint(topGradient);
+        g.fillRect(x, y, width, borderWidth);
+
+        // Bottom gradient
+        GradientPaint bottomGradient = new GradientPaint(x, y + height - borderWidth, borderDark, x, y + height, borderLight);
+        g.setPaint(bottomGradient);
+        g.fillRect(x, y + height - borderWidth, width, borderWidth);
+
+        // Left gradient
+        GradientPaint leftGradient = new GradientPaint(x, y, borderLight, x + borderWidth, y, borderDark);
+        g.setPaint(leftGradient);
+        g.fillRect(x, y, borderWidth, height);
+
+        // Right gradient
+        GradientPaint rightGradient = new GradientPaint(x + width - borderWidth, y, borderDark, x + width, y, borderLight);
+        g.setPaint(rightGradient);
+        g.fillRect(x + width - borderWidth, y, borderWidth, height);
     }
 
     /**
