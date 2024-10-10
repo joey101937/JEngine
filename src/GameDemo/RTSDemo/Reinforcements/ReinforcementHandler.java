@@ -79,6 +79,11 @@ public class ReinforcementHandler extends IndependentEffect {
     public int getZLayer() {
         return 99999999;
     }
+    
+    public boolean intersectsMainBar(Coordinate mouseLocation) {
+        // returns if the coordinate where the mouse clicked is intersecting this bar
+        return false;
+    }
 
     private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
         int borderWidth = 2;
