@@ -81,8 +81,12 @@ public class ReinforcementHandler extends IndependentEffect {
     }
     
     public boolean intersectsMainBar(Coordinate mouseLocation) {
-        // returns if the coordinate where the mouse clicked is intersecting this bar
-        return false;
+        double scaleAmount = RTSGame.game.getZoom();
+        int scaledMouseX = (int)(mouseLocation.x * scaleAmount);
+        int scaledMouseY = (int)(mouseLocation.y * scaleAmount);
+        
+        return scaledMouseX >= locationOnScreen.x && scaledMouseX < locationOnScreen.x + width &&
+               scaledMouseY >= locationOnScreen.y && scaledMouseY < locationOnScreen.y + height;
     }
 
     private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
