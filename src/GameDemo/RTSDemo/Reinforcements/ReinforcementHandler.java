@@ -53,7 +53,7 @@ public class ReinforcementHandler extends IndependentEffect {
      * @return 
      */
     public static Coordinate getClosestOpenLocation(Coordinate desiredLocation, GameObject2 object) {
-      Game game = RTSGame.game;
+      Game currentGame = RTSGame.game;
       // todo
       return desiredLocation;
     };
