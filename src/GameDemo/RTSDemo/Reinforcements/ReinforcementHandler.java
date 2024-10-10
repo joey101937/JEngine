@@ -139,10 +139,33 @@ public class ReinforcementHandler extends IndependentEffect {
     }
     
     public ReinforcementType getReinforcementAtLocation(Coordinate mouseLocation) {
-        if(!isMenuOpen) {
+        if (!isMenuOpen) {
             return null;
         }
-        // todo
+        
+        double scaleAmount = RTSGame.game.getZoom();
+        int scaledMouseX = (int)(mouseLocation.x * scaleAmount);
+        int scaledMouseY = (int)(mouseLocation.y * scaleAmount);
+        
+        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount));
+        menuRenderLoc.y -= menuHeight;
+        
+        int buttonWidth = width / 3;
+        int buttonHeight = menuHeight / 2;
+        
+        for (int i = 0; i < reinforcementTypes.size(); i++) {
+            int row = i / 3;
+            int col = i % 3;
+            
+            int buttonX = menuRenderLoc.x + col * buttonWidth;
+            int buttonY = menuRenderLoc.y + row * buttonHeight;
+            
+            if (scaledMouseX >= buttonX && scaledMouseX < buttonX + buttonWidth &&
+                scaledMouseY >= buttonY && scaledMouseY < buttonY + buttonHeight) {
+                return reinforcementTypes.get(i);
+            }
+        }
+        
         return null;
     }
 
