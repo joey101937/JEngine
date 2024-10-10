@@ -11,6 +11,7 @@ import Framework.Game;
 import Framework.Main;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
+import GameDemo.RTSDemo.Reinforcements.ReinforcementHandler;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.LightTank;
@@ -26,6 +27,7 @@ public class RTSGame {
     public static Game game = new Game(RTSAssetManager.grassBG);
     public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
     public static InfoPanelEffect infoPanelEffect;
+    public static ReinforcementHandler reinforcementHandler;
 
     public static void setup(Game g) {
         Main.ignoreSubobjectCollision = true; // better performance
@@ -47,6 +49,8 @@ public class RTSGame {
         g.addIndependentEffect(infoPanelEffect);
         g.addIndependentEffect(new TooltipHelper());
         g.addIndependentEffect(new KeyBuildingRingEffect());
+        reinforcementHandler = new ReinforcementHandler(new Coordinate(0, game.getWindowHeight() - minimap.getHeight() - 30), 10);
+        g.addIndependentEffect(reinforcementHandler);
     }
 
     public static void main(String[] args) {

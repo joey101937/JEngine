@@ -85,6 +85,7 @@ public class RTSInput extends InputHandler {
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
         if (e.getButton() == 1) { //1 means left click
             if(wDown) {
+                RTSGame.reinforcementHandler.lastUsedTick = RTSGame.game.getGameTickNumber();
                 ReinforcementType.mediumTanks.onTrigger(locationOfMouseEvent, 1);
             }
             CommandButton clickedButton = infoPanelEffect.getButtonAtLocation(locationOfMouseEvent.x, locationOfMouseEvent.y);

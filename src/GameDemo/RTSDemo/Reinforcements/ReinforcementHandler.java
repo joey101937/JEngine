@@ -9,6 +9,8 @@ import Framework.Hitbox;
 import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 
 /**
@@ -16,28 +18,43 @@ import java.awt.Graphics2D;
  * @author guydu
  */
 public class ReinforcementHandler extends IndependentEffect {
-
+    public Font headerFont = new Font("timesRoman", Font.BOLD, 16);
+    public Color backgroundColor = Color.LIGHT_GRAY;
+    public Color barColor = Color.GREEN;
     public int reserveCount = 0;
     public double rechargeInterval = Main.ticksPerSecond * 10; // num ticks between reinforcement charges
     public long lastUsedTick = 0;
     public boolean available = false;
+    public boolean isMenuOpen = false; // when this is true, make a gray
+    public Coordinate locationOnScreen;
+    public int width = 250;
+    public int height = 30;
+    
+    
 
-    public ReinforcementHandler() {
-        reserveCount = 10;
-    }
-
-    public ReinforcementHandler(int startingNumber) {
+    public ReinforcementHandler(Coordinate location, int startingNumber) {
         reserveCount = startingNumber;
+        locationOnScreen = location;
     }
 
     @Override
     public void render(Graphics2D g) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        double scaleAmount = 1/RTSGame.game.getZoom();
+        g.scale(scaleAmount, scaleAmount);
+        Coordinate toRender = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount));
+        double percentReady = Math.min((double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval, 1);
+        g.setColor(backgroundColor);
+        g.fillRect(toRender.x, toRender.y, width, height);
+        g.setColor(barColor);
+        g.fillRect(toRender.x, toRender.y, (int)(width * percentReady), height);
+        g.setColor(Color.BLACK);
+        g.setFont(headerFont);
+        g.drawString("Reinforcements ("+ reserveCount +")", toRender.x + 30, toRender.y + 20);
     }
 
     @Override
     public void tick() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
     }
 
     @Override
