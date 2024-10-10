@@ -85,8 +85,9 @@ public class ReinforcementHandler extends IndependentEffect {
         int scaledMouseX = (int)(mouseLocation.x * scaleAmount);
         int scaledMouseY = (int)(mouseLocation.y * scaleAmount);
         
-        return scaledMouseX >= locationOnScreen.x && scaledMouseX < locationOnScreen.x + width &&
-               scaledMouseY >= locationOnScreen.y && scaledMouseY < locationOnScreen.y + height;
+        Coordinate renderLocation = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount)); 
+        return scaledMouseX >= renderLocation.x && scaledMouseX < renderLocation.x + width &&
+               scaledMouseY >= renderLocation.y && scaledMouseY < renderLocation.y + height;
     }
 
     private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
