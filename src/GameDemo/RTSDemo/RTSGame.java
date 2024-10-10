@@ -109,8 +109,6 @@ public class RTSGame {
         }
         for (int i = 0; i < lineLength; i++) {
             game.addObject(new Hellicopter(100 + (i * spacer), 2300, 1));
-        }
-        
-        
+        } 
     }
 }

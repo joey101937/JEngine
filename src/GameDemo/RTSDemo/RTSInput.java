@@ -85,11 +85,15 @@ public class RTSInput extends InputHandler {
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
         if (e.getButton() == 1) { //1 means left click
             if(RTSGame.reinforcementHandler.intersectsMainBar(locationOfMouseEvent)) {
-                System.out.println("clicked bar");
+                RTSGame.reinforcementHandler.toggleMenuOpen();
             }
-            if(wDown) {
-                RTSGame.reinforcementHandler.lastUsedTick = RTSGame.game.getGameTickNumber();
-                ReinforcementType.mediumTanks.onTrigger(locationOfMouseEvent, 1);
+            ReinforcementType clicked = RTSGame.reinforcementHandler.getReinforcementAtLocation(locationOfMouseEvent);
+            if(clicked != null) {
+                RTSGame.reinforcementHandler.setSelectedReinforcementType(clicked);
+                return;
+            }
+            if(RTSGame.reinforcementHandler.selectedReinforcementType != null) {
+                RTSGame.reinforcementHandler.callReinforcement(RTSGame.reinforcementHandler.selectedReinforcementType, locationOfMouseEvent);
             }
             CommandButton clickedButton = infoPanelEffect.getButtonAtLocation(locationOfMouseEvent.x, locationOfMouseEvent.y);
             if (clickedButton != null) {
@@ -190,6 +194,7 @@ public class RTSInput extends InputHandler {
         Coordinate mousePos = locationOfMouseEvent(e);
         CommandButton hoveredButton = infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
         infoPanelEffect.hoveredButton = hoveredButton;
+        RTSGame.reinforcementHandler.hoveredReinforcementType = RTSGame.reinforcementHandler.getReinforcementAtLocation(mousePos);
     }
 
     private void panCamera(MouseEvent e) {

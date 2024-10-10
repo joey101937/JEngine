@@ -7,6 +7,7 @@ import Framework.IndependentEffect;
 import Framework.Main;
 import Framework.Hitbox;
 import GameDemo.RTSDemo.KeyBuilding;
+import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
@@ -14,32 +15,44 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GradientPaint;
 import java.awt.LinearGradientPaint;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /**
  *
  * @author guydu
  */
 public class ReinforcementHandler extends IndependentEffect {
-    public Font headerFont = new Font("timesRoman", Font.BOLD, 16);
-    public Color backgroundColor = new Color(150, 150, 150);
-    public Color barColor = new Color(0, 255, 0);
-    private Color lightGreen = new Color(100, 255, 100);
+    private final Font headerFont = new Font("timesRoman", Font.BOLD, 16);
+    private final Color backgroundColor = new Color(150, 150, 150);
+    private final Color barColor = new Color(0, 255, 0);
+    private final Color lightGreen = new Color(100, 255, 100);
     private static final Color borderDark = new Color(100, 100, 100);
     private static final Color borderLight = new Color(200, 200, 200);
     public int reserveCount = 0;
     public double rechargeInterval = Main.ticksPerSecond * 10; // num ticks between reinforcement charges
     public long lastUsedTick = 0;
-    public boolean available = false;
     public boolean isMenuOpen = false; // when this is true, make a gray
     public Coordinate locationOnScreen;
     public int width = 250;
     public int height = 30;
-    
+    public int menuHeight = 180;
+    public ArrayList<ReinforcementType> reinforcementTypes = new ArrayList<>();
+    public ReinforcementType hoveredReinforcementType = null;
+    public ReinforcementType selectedReinforcementType = null;
     
 
     public ReinforcementHandler(Coordinate location, int startingNumber) {
         reserveCount = startingNumber;
         locationOnScreen = location;
+        reinforcementTypes.add(ReinforcementType.mediumTanks);
+        reinforcementTypes.add(ReinforcementType.lightTanks);
+        reinforcementTypes.add(ReinforcementType.hellicopters);
+        // todo
+        reinforcementTypes.add(ReinforcementType.mediumTanks);
+        reinforcementTypes.add(ReinforcementType.lightTanks);
+        reinforcementTypes.add(ReinforcementType.hellicopters);
+
     }
 
     @Override
@@ -68,6 +81,41 @@ public class ReinforcementHandler extends IndependentEffect {
         g.setColor(Color.BLACK);
         g.setFont(headerFont);
         g.drawString("Reinforcements ("+ reserveCount +")", toRender.x + 30, toRender.y + 20);
+        g.scale(1/scaleAmount, 1/scaleAmount);
+        if(isMenuOpen) {
+            renderMenu(g);
+        }
+    }
+    
+    public void renderMenu(Graphics2D g) {
+        double scaleAmount = 1/RTSGame.game.getZoom();
+        g.scale(scaleAmount, scaleAmount);
+        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount));
+        menuRenderLoc.y -= menuHeight;
+        g.setColor(backgroundColor);
+        g.fillRect(menuRenderLoc.x, menuRenderLoc.y, width, menuHeight);
+        
+        int ongoingX = menuRenderLoc.x;
+        int ongoingY = menuRenderLoc.y;
+        int index = 0;
+        // render in two rows of three
+        for(ReinforcementType type : reinforcementTypes) {
+            index++;
+            BufferedImage image = type.icon;
+            if(type == selectedReinforcementType || type == hoveredReinforcementType) {
+                image = type.hoverIcon;
+            }
+            g.drawImage(image, ongoingX, ongoingY, width/3, menuHeight/2, null);
+            if(index % 3 != 0) {
+                ongoingX += width/3;
+            } else {
+                ongoingX = menuRenderLoc.x;
+                ongoingY += menuHeight/2;
+            }
+        }
+                
+        drawGradientBorder(g, menuRenderLoc.x, menuRenderLoc.y, width, menuHeight);
+        g.scale(1/scaleAmount, 1/scaleAmount);
     }
 
     @Override
@@ -88,6 +136,14 @@ public class ReinforcementHandler extends IndependentEffect {
         Coordinate renderLocation = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount)); 
         return scaledMouseX >= renderLocation.x && scaledMouseX < renderLocation.x + width &&
                scaledMouseY >= renderLocation.y && scaledMouseY < renderLocation.y + height;
+    }
+    
+    public ReinforcementType getReinforcementAtLocation(Coordinate mouseLocation) {
+        if(!isMenuOpen) {
+            return null;
+        }
+        // todo
+        return null;
     }
 
     private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
@@ -159,9 +215,10 @@ public class ReinforcementHandler extends IndependentEffect {
 
         // If not, search for the closest open location
         int maxSearchRadius = 600; // Adjust this value as needed
+        int searchGranularity = 20;
         for (int radius = 1; radius <= maxSearchRadius; radius++) {
-            for (int x = -radius; x <= radius; x += 10) {
-                for (int y = -radius; y <= radius; y += 10) {
+            for (int x = -radius; x <= radius; x += searchGranularity) {
+                for (int y = -radius; y <= radius; y += searchGranularity) {
                     if (Math.abs(x) == radius || Math.abs(y) == radius) {
                         Coordinate testLocation = new Coordinate(desiredLocation.x + x, desiredLocation.y + y);
                         if (isLocationOpen(testLocation, object)) {
@@ -217,5 +274,31 @@ public class ReinforcementHandler extends IndependentEffect {
         }
 
         return true;
+    }
+    
+    public synchronized void toggleMenuOpen() {
+        if(!isMenuOpen && !isAvailable()) return;
+        isMenuOpen = !isMenuOpen;
+        if(!isMenuOpen) {
+            selectedReinforcementType = null;
+            hoveredReinforcementType = null;
+        }
+    }
+    
+    public boolean isAvailable() {
+        return 1 > (double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval;
+    }
+    
+    public void setSelectedReinforcementType(ReinforcementType type) {
+        selectedReinforcementType = type;
+    }
+    
+    public void callReinforcement(ReinforcementType type, Coordinate targetLocation) {
+        if(!isAvailable()) return;
+        type.onTrigger(targetLocation, ExternalCommunicator.localTeam);
+        lastUsedTick = RTSGame.game.getGameTickNumber();
+        isMenuOpen = false;
+        selectedReinforcementType = null;
+        hoveredReinforcementType = null;
     }
 }
