@@ -1,7 +1,11 @@
-package GameDemo.RTSDemo;
+package GameDemo.RTSDemo.Reinforcements;
 
+import Framework.Coordinate;
+import Framework.Game;
+import Framework.GameObject2;
 import Framework.IndependentEffect;
 import Framework.Main;
+import GameDemo.RTSDemo.RTSGame;
 import java.awt.Graphics2D;
 
 /**
@@ -40,4 +44,17 @@ public class ReinforcementHandler extends IndependentEffect {
     public int getZLayer() {
         return 99999999;
     }
+    
+    /**
+     * returns the location closest to desiredLocation that the given object can exist at without colliding with another RTSUnit
+     * returns the desiredLocation if the object can exist at that location without colliding. Only considers GameObject2s that extends the RTSUnit class
+     * @param desiredLocation
+     * @param object
+     * @return 
+     */
+    public static Coordinate getClosestOpenLocation(Coordinate desiredLocation, GameObject2 object) {
+      Game game = RTSGame.game;
+      // todo
+      return desiredLocation;
+    };
 }

@@ -13,6 +13,7 @@ import Framework.InputHandler;
 import Framework.Main;
 import Framework.Window;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Reinforcements.ReinforcementType;
 import GameDemo.RTSDemo.Units.Landmine;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -83,6 +84,9 @@ public class RTSInput extends InputHandler {
     public void mousePressed(MouseEvent e) {
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
         if (e.getButton() == 1) { //1 means left click
+            if(wDown) {
+                ReinforcementType.mediumTanks.onTrigger(locationOfMouseEvent, 1);
+            }
             CommandButton clickedButton = infoPanelEffect.getButtonAtLocation(locationOfMouseEvent.x, locationOfMouseEvent.y);
             if (clickedButton != null) {
                 // Handle button click

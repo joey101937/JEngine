@@ -87,27 +87,6 @@ public class RTSUnit extends Creature {
         return bi;
     }
 
-    public static BufferedImage blueToRed(BufferedImage input) {
-        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        for (int y = 0; y < bi.getHeight(); y++) {
-            for (int x = 0; x < bi.getWidth(); x++) {
-                int rgba = input.getRGB(x, y);
-                Color prevColor = new Color(rgba, true);
-                if (prevColor.getBlue() > (prevColor.getRed() + prevColor.getGreen()) * .5) {
-                    int newRed = Math.min(255, (int) (prevColor.getBlue() * 1.5));
-                    int newGreen = (int) (prevColor.getRed() * .75);
-                    int newBlue = (int) (prevColor.getGreen() * .75);
-                    Color newColor = new Color(newRed, newGreen, newBlue);
-                    bi.setRGB(x, y, newColor.getRGB());
-                } else {
-                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
-                    bi.setRGB(x, y, newColor.getRGB());
-                }
-            }
-        }
-        return bi;
-    }
-
     public void drawHealthBar(Graphics2D g) {
         Color originalColor = g.getColor();
         Stroke originalStroke = g.getStroke();

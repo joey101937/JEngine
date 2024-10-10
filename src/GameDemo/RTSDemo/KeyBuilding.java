@@ -16,17 +16,19 @@ import java.util.ArrayList;
 public class KeyBuilding extends GameObject2 {
     public static final Sprite mainSprite = new Sprite(RTSAssetManager.building);
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.buildingShadow);
-    
-    public int owningTeam = -1;
-    public int captureRadius = 500;
-    public double captureProgress = 0;
     private static final double CAPTURE_RATE = 0.01;
     private static final double CAPTURE_THRESHOLD = 1.0;
+    
+    public int owningTeam = -1;
+    public int captureRadius = 550;
+    public double captureProgress = 0;
+    public SpawnLocation spawnLocation;
     
     public KeyBuilding(int x, int y) {
         super(x, y);
         this.setGraphic(mainSprite);
         this.isSolid = true;
+        this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, -400), 90 );
     }
     
     @Override
@@ -102,5 +104,29 @@ public class KeyBuilding extends GameObject2 {
         g.drawImage(toRender, renderX, renderY, null);
         g.setTransform(old);
         super.render(g);
+    }
+    
+    
+    public static KeyBuilding getClosest(Coordinate target, int team) {
+        KeyBuilding closest = null;
+        for (GameObject2 go : RTSGame.game.getAllObjects()) {
+            if (go instanceof KeyBuilding kb && kb.owningTeam == team) {
+                if (closest == null || kb.distanceFrom(target) < closest.distanceFrom(target)) {
+                    closest = kb;
+                }
+            }
+        }
+        return closest;
+    }
+    
+    
+    public static class SpawnLocation {
+        public Coordinate topLeft;
+        public double rotation;
+        
+        public SpawnLocation(Coordinate t, double r) {
+            topLeft = t;
+            rotation = r;
+        }
     }
 }
