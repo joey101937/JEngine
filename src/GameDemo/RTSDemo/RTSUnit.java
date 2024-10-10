@@ -103,7 +103,7 @@ public class RTSUnit extends Creature {
         if (isRubble) {
             return;
         }
-       // drawStatusIcons(g);
+        // drawStatusIcons(g);
         if (selected) {
             drawHealthBar(g);
         }
@@ -165,10 +165,14 @@ public class RTSUnit extends Creature {
     private void init(int team) {
         desiredLocation = getPixelLocation();
         this.movementType = MovementType.RotationBased;
-        this.hitbox = new Hitbox(this, 0); //sets to a circle with radius 0. radius will be auto set based on width becauase of updateHitbox method
+        updateConstructorHitbox();
         this.team = team;
         ID = RTSUnitIdHelper.generateId(this);
         System.out.println("generated id " + ID);
+    }
+
+    public void updateConstructorHitbox() {
+        this.hitbox = new Hitbox(this, Math.max(getWidth(), getHeight()) / 2);
     }
 
     public RTSUnit(Coordinate c, int team) {

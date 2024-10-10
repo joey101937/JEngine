@@ -6,7 +6,7 @@ import Framework.GameObject2;
 import Framework.IndependentEffect;
 import Framework.Main;
 import Framework.Hitbox;
-import Framework.DCoordinate;
+import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -16,15 +16,15 @@ import java.awt.Graphics2D;
  * @author guydu
  */
 public class ReinforcementHandler extends IndependentEffect {
+
     public int reserveCount = 0;
     public double rechargeInterval = Main.ticksPerSecond * 10; // num ticks between reinforcement charges
     public long lastUsedTick = 0;
     public boolean available = false;
-    
-    
+
     public void callReinforcement() {
     }
-    
+
     public ReinforcementHandler() {
         reserveCount = 10;
     }
@@ -32,7 +32,7 @@ public class ReinforcementHandler extends IndependentEffect {
     public ReinforcementHandler(int startingNumber) {
         reserveCount = startingNumber;
     }
-    
+
     @Override
     public void render(Graphics2D g) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -42,20 +42,25 @@ public class ReinforcementHandler extends IndependentEffect {
     public void tick() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
-    
+
     @Override
     public int getZLayer() {
         return 99999999;
     }
-    
+
     /**
-     * returns the location closest to desiredLocation that the given object can exist at without colliding with another RTSUnit
-     * returns the desiredLocation if the object can exist at that location without colliding. Only considers GameObject2s that extends the RTSUnit class
+     * returns the location closest to desiredLocation that the given object can
+     * exist at without colliding with another RTSUnit returns the
+     * desiredLocation if the object can exist at that location without
+     * colliding. Only considers GameObject2s that extends the RTSUnit class
+     *
      * @param desiredLocation
      * @param object
-     * @return 
+     * @return
      */
     public static Coordinate getClosestOpenLocation(Coordinate desiredLocation, GameObject2 object) {
+        System.out.println("Checking nearst location to " + desiredLocation + " for object " + object);
+        System.out.println("object" + object.getHitbox().getCenter() + " " + object.getHitbox().radius);
         Game currentGame = RTSGame.game;
         if (currentGame == null) {
             System.out.println("Error: Current game is null");
@@ -68,10 +73,10 @@ public class ReinforcementHandler extends IndependentEffect {
         }
 
         // If not, search for the closest open location
-        int maxSearchRadius = 100; // Adjust this value as needed
+        int maxSearchRadius = 600; // Adjust this value as needed
         for (int radius = 1; radius <= maxSearchRadius; radius++) {
-            for (int x = -radius; x <= radius; x++) {
-                for (int y = -radius; y <= radius; y++) {
+            for (int x = -radius; x <= radius; x += 10) {
+                for (int y = -radius; y <= radius; y += 10) {
                     if (Math.abs(x) == radius || Math.abs(y) == radius) {
                         Coordinate testLocation = new Coordinate(desiredLocation.x + x, desiredLocation.y + y);
                         if (isLocationOpen(testLocation, object)) {
@@ -94,9 +99,9 @@ public class ReinforcementHandler extends IndependentEffect {
         }
 
         // Check if the location is within the game world bounds
-        if (location.x < currentGame.worldBorder || location.y < currentGame.worldBorder ||
-            location.x > currentGame.getWorldWidth() - currentGame.worldBorder ||
-            location.y > currentGame.getWorldHeight() - currentGame.worldBorder) {
+        if (location.x < currentGame.worldBorder || location.y < currentGame.worldBorder
+                || location.x > currentGame.getWorldWidth() - currentGame.worldBorder
+                || location.y > currentGame.getWorldHeight() - currentGame.worldBorder) {
             return false;
         }
 
@@ -119,7 +124,7 @@ public class ReinforcementHandler extends IndependentEffect {
 
         // Check for collisions with other RTSUnits
         for (GameObject2 go : currentGame.getAllObjects()) {
-            if (go instanceof RTSUnit && go != object && go.getHitbox() != null) {
+            if ((go instanceof RTSUnit || go instanceof KeyBuilding) && go != object && go.getHitbox() != null && go.isSolid) {
                 if (tempHitbox.intersects(go.getHitbox())) {
                     return false;
                 }

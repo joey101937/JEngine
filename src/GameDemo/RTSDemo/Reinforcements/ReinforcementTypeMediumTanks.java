@@ -24,6 +24,7 @@ public class ReinforcementTypeMediumTanks extends ReinforcementType{
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
             TankUnit tank = new TankUnit(spawnLocation.x, spawnLocation.y, team);
+            tank.location = ReinforcementHandler.getClosestOpenLocation(spawnLocation, tank).toDCoordinate();
             tank.setRotation(kb.spawnLocation.rotation);
             tank.setDesiredLocation(targetLocation.copy().add(spawnOffset));
             RTSGame.game.addObject(tank);

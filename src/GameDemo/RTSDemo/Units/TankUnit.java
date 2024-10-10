@@ -46,10 +46,10 @@ public class TankUnit extends RTSUnit {
     public static BufferedImage[] enemyTankFireAnimation = RTSAssetManager.tankFireAnimationRed;
 
     // sprites for reuse
-    public static volatile Sprite chasisSpriteGreen = null; // new Sprite(RTSAssetManager.tankChasis);
-    public static volatile Sprite chasisSpriteRed = null; // new Sprite(enemyTankChasisImage);
-    public static volatile Sprite turretSpriteGreen = null; // new Sprite(RTSAssetManager.tankTurret);
-    public static volatile Sprite turretSpriteRed = null; // new Sprite(enemyTankTurretImage);
+    public static volatile Sprite chasisSpriteGreen = null;
+    public static volatile Sprite chasisSpriteRed = null;
+    public static volatile Sprite turretSpriteGreen = null;
+    public static volatile Sprite turretSpriteRed = null;
     public static volatile Sprite rubbleHullSprite = null;
     public static volatile Sprite rubbleTurretSprite = null;
     public static volatile Sequence deathAnimationHull = null;
@@ -69,6 +69,10 @@ public class TankUnit extends RTSUnit {
 
     public static volatile Sequence turretFireAnimationGreen = null; // new Sequence(RTSAssetManager.tankFireAnimation);
     public static volatile Sequence turretFireAnimationRed = null; // new Sequence(enemyTankFireAnimation);
+    
+    static {
+        initGraphics();
+    }
 
     public static void initGraphics() {
         if (chasisSpriteGreen != null) {
@@ -198,15 +202,14 @@ public class TankUnit extends RTSUnit {
     }
 
     private void init() {
-        initGraphics();
+        isSolid = true;
+        preventOverlap = true;
         setScale(VISUAL_SCALE); 
         Sprite chassSprite = getHullSprite();
         this.setGraphic(chassSprite);
         this.movementType = MovementType.RotationBased;
         turret = new Turret(new Coordinate(0, 0));
         this.addSubObject(turret);
-        isSolid = true;
-        preventOverlap = true;
         this.maxHealth = 210;//tanks can take 4 shots
         this.currentHealth = maxHealth;
         this.baseSpeed = speed;
