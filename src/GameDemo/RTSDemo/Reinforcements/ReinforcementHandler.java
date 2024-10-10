@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GradientPaint;
+import java.awt.LinearGradientPaint;
 
 /**
  *
@@ -21,7 +22,8 @@ import java.awt.GradientPaint;
 public class ReinforcementHandler extends IndependentEffect {
     public Font headerFont = new Font("timesRoman", Font.BOLD, 16);
     public Color backgroundColor = new Color(150, 150, 150);
-    public Color barColor = Color.GREEN;
+    public Color barColor = new Color(0, 255, 0);
+    private Color lightGreen = new Color(100, 255, 100);
     private static final Color borderDark = new Color(100, 100, 100);
     private static final Color borderLight = new Color(200, 200, 200);
     public int reserveCount = 0;
@@ -45,15 +47,19 @@ public class ReinforcementHandler extends IndependentEffect {
         double scaleAmount = 1/RTSGame.game.getZoom();
         g.scale(scaleAmount, scaleAmount);
         Coordinate toRender = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount));
-        double percentReady = Math.min((double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval, 1);
+        double percentReady = (double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval;
         
         // Draw background
         g.setColor(backgroundColor);
         g.fillRect(toRender.x, toRender.y, width, height);
         
         // Draw progress bar
-        g.setColor(barColor);
-        g.fillRect(toRender.x, toRender.y, (int)(width * percentReady), height);
+        if (percentReady <= 1) {
+            g.setColor(barColor);
+            g.fillRect(toRender.x, toRender.y, (int)(width * percentReady), height);
+        } else {
+            drawBreathingBar(g, toRender.x, toRender.y, width, height, percentReady);
+        }
         
         // Draw border
         drawGradientBorder(g, toRender.x, toRender.y, width, height);
@@ -96,6 +102,27 @@ public class ReinforcementHandler extends IndependentEffect {
         GradientPaint rightGradient = new GradientPaint(x + width - borderWidth, y, borderDark, x + width, y, borderLight);
         g.setPaint(rightGradient);
         g.fillRect(x + width - borderWidth, y, borderWidth, height);
+    }
+
+    private void drawBreathingBar(Graphics2D g, int x, int y, int width, int height, double percentReady) {
+        double breathingCycle = (Math.sin(RTSGame.game.getGameTickNumber() * 0.1) + 1) / 2; // 0 to 1
+        Color startColor = barColor;
+        Color endColor = lightGreen;
+        
+        Color currentColor = new Color(
+            (int) (startColor.getRed() + (endColor.getRed() - startColor.getRed()) * breathingCycle),
+            (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * breathingCycle),
+            (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * breathingCycle)
+        );
+        
+        LinearGradientPaint gradient = new LinearGradientPaint(
+            x, y, x + width, y,
+            new float[]{0f, 1f},
+            new Color[]{currentColor, startColor}
+        );
+        
+        g.setPaint(gradient);
+        g.fillRect(x, y, width, height);
     }
 
     /**
