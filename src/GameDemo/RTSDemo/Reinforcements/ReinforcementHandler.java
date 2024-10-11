@@ -29,6 +29,7 @@ public class ReinforcementHandler extends IndependentEffect {
     private final Color lightGreen = new Color(100, 255, 100);
     private static final Color borderDark = new Color(100, 100, 100);
     private static final Color borderLight = new Color(200, 200, 200);
+    private boolean wasAvailableLastTick = false;
     public int reserveCount = 0;
     public double rechargeInterval = Main.ticksPerSecond * 10; // num ticks between reinforcement charges
     public long lastUsedTick = 0;
@@ -49,9 +50,9 @@ public class ReinforcementHandler extends IndependentEffect {
         reinforcementTypes.add(ReinforcementType.lightTanks);
         reinforcementTypes.add(ReinforcementType.hellicopters);
         // todo
-        reinforcementTypes.add(ReinforcementType.mediumTanks);
-        reinforcementTypes.add(ReinforcementType.lightTanks);
-        reinforcementTypes.add(ReinforcementType.hellicopters);
+        reinforcementTypes.add(new ReinforcementTypeMediumTanks());
+        reinforcementTypes.add(new ReinforcementTypeMediumTanks());
+        reinforcementTypes.add(new ReinforcementTypeMediumTanks());
 
     }
 
@@ -120,7 +121,11 @@ public class ReinforcementHandler extends IndependentEffect {
 
     @Override
     public void tick() {
+        if(!wasAvailableLastTick && isAvailable()) {
+            toggleMenuOpen();
+        }
         
+        wasAvailableLastTick = isAvailable();
     }
 
     @Override
@@ -309,7 +314,9 @@ public class ReinforcementHandler extends IndependentEffect {
     }
     
     public boolean isAvailable() {
-        return 1 > (double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval;
+        if(reserveCount < 1) return false;
+        if(KeyBuilding.getClosest(new Coordinate(0,0), ExternalCommunicator.localTeam) == null) return false;
+        return 1 < (double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval;
     }
     
     public void setSelectedReinforcementType(ReinforcementType type) {
@@ -319,6 +326,7 @@ public class ReinforcementHandler extends IndependentEffect {
     public void callReinforcement(ReinforcementType type, Coordinate targetLocation) {
         if(!isAvailable()) return;
         type.onTrigger(targetLocation, ExternalCommunicator.localTeam);
+        reserveCount--;
         lastUsedTick = RTSGame.game.getGameTickNumber();
         isMenuOpen = false;
         selectedReinforcementType = null;

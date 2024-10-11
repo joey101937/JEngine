@@ -10,7 +10,7 @@ import GameDemo.RTSDemo.Units.TankUnit;
 public class ReinforcementTypeMediumTanks extends ReinforcementType{
     
     public ReinforcementTypeMediumTanks(){
-        this.name = "Medium tanks";
+        this.name = "Medium Tanks";
         this.icon = RTSAssetManager.layMineButton;
         this.hoverIcon = RTSAssetManager.layMineButtonHover;
         infoLines.add("Strong open-field combatants");
@@ -23,7 +23,7 @@ public class ReinforcementTypeMediumTanks extends ReinforcementType{
         KeyBuilding kb = KeyBuilding.getClosest(targetLocation, team);
         Coordinate base = kb.spawnLocation.topLeft;
         for(int i = 0; i < 5; i ++) {
-            Coordinate spawnOffset = new Coordinate(i * 110, 50);
+            Coordinate spawnOffset = new Coordinate(i * 120, 50);
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
             TankUnit tank = new TankUnit(spawnLocation.x, spawnLocation.y, team);

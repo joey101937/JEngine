@@ -9,7 +9,7 @@ import GameDemo.RTSDemo.Units.LightTank;
 public class ReinforcementTypeLightTanks extends ReinforcementType {
 
     public ReinforcementTypeLightTanks() {
-        this.name = "Light tanks";
+        this.name = "Light Tanks";
         this.icon = RTSAssetManager.layMineButton;
         this.hoverIcon = RTSAssetManager.layMineButtonHover;
         infoLines.add("Maneuverable tanks");
