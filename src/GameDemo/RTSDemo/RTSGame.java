@@ -60,7 +60,9 @@ public class RTSGame {
         int spacer = 160;
         int lineLength = 40;
         
-        game.addObject(new KeyBuilding(3000, 3000));
+        
+        game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
+        game.addObject(new KeyBuilding(3000, 3000, 1));
         
         // greens 
         for (int i = 0; i < lineLength; i++) {

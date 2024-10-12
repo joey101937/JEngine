@@ -22,8 +22,9 @@ public class ReinforcementTypeMediumTanks extends ReinforcementType{
     public void onTrigger(Coordinate targetLocation, int team) {
         KeyBuilding kb = KeyBuilding.getClosest(targetLocation, team);
         Coordinate base = kb.spawnLocation.topLeft;
+        int initialOffset = -325;
         for(int i = 0; i < 5; i ++) {
-            Coordinate spawnOffset = new Coordinate(i * 120, 50);
+            Coordinate spawnOffset = new Coordinate(initialOffset + (i * 130), 50);
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
             TankUnit tank = new TankUnit(spawnLocation.x, spawnLocation.y, team);

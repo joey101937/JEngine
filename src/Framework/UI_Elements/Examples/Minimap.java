@@ -285,7 +285,7 @@ public final class Minimap extends UIElement {
         }
 
         private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
-            int borderWidth = 5;
+            int borderWidth = 2;
 
             // Top gradient
             GradientPaint topGradient = new GradientPaint(x, y, borderLight, x, y + borderWidth, borderDark);

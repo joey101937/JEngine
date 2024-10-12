@@ -22,8 +22,9 @@ public class ReinforcementTypeHellicopters extends ReinforcementType{
     public void onTrigger(Coordinate targetLocation, int team) {
         KeyBuilding kb = KeyBuilding.getClosest(targetLocation, team);
         Coordinate base = kb.spawnLocation.topLeft;
+        int initialOffset = -240;
         for(int i = 0; i < 3; i ++) {
-            Coordinate spawnOffset = new Coordinate(i * 110, 50);
+            Coordinate spawnOffset = new Coordinate(initialOffset + (i * 160), 50);
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
             Hellicopter heli = new Hellicopter(spawnLocation.x, spawnLocation.y, team);

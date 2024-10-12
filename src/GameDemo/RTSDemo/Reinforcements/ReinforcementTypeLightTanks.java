@@ -21,8 +21,9 @@ public class ReinforcementTypeLightTanks extends ReinforcementType {
     public void onTrigger(Coordinate targetLocation, int team) {
         KeyBuilding kb = KeyBuilding.getClosest(targetLocation, team);
         Coordinate base = kb.spawnLocation.topLeft;
+        int initialOffset = -360;
         for (int i = 0; i < 6; i++) {
-            Coordinate spawnOffset = new Coordinate(i * 110, 50);
+            Coordinate spawnOffset = new Coordinate(initialOffset + (i * 120), 50);
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
             LightTank tank = new LightTank(spawnLocation.x, spawnLocation.y, team);

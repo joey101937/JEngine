@@ -368,6 +368,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public double angleFrom(Coordinate point){
         double result = DCoordinate.angleFrom(getPixelLocation(), point);
         if(result>180)result-=360;
+        if(result < -181) result +=360;
         return result;
     }
     

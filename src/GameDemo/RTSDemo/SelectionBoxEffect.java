@@ -24,9 +24,10 @@ import java.util.Set;
  */
 public class SelectionBoxEffect extends IndependentEffect {
 
-    private static volatile Rectangle selectionZone = null;
     public static Set<RTSUnit> selectedUnits = new HashSet<>();
     public static final Color uncontrollableColor = new Color(.5f, .5f, .5f, .8f);
+    public static final Color selectionColor = new Color(0f, 1f, 0f, .8f);
+    private static volatile Rectangle selectionZone = null;
 
     @Override
     public int getZLayer() {
@@ -111,8 +112,10 @@ public class SelectionBoxEffect extends IndependentEffect {
         List<GameObject2> gos = RTSGame.game.getAllObjects();
         for (GameObject2 go : gos) {
             if (go instanceof RTSUnit unit) {
-                if(unit.plane > 1) continue;
-                g.setColor(Color.green);
+                if (unit.plane > 1) {
+                    continue;
+                }
+                g.setColor(selectionColor);
                 if (ExternalCommunicator.isMultiplayer && ExternalCommunicator.localTeam != unit.team) {
                     g.setColor(uncontrollableColor);
                 }

@@ -42,7 +42,7 @@ public class SelectionBoxEffectAir extends IndependentEffect {
         for (GameObject2 go : gos) {
             if (go instanceof RTSUnit unit) {
                 if(unit.plane < 2) continue;
-                g.setColor(Color.green);
+                g.setColor(SelectionBoxEffect.selectionColor);
                 if (ExternalCommunicator.isMultiplayer && ExternalCommunicator.localTeam != unit.team) {
                     g.setColor(uncontrollableColor);
                 }

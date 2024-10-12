@@ -1,5 +1,6 @@
 package GameDemo.RTSDemo.Reinforcements;
 
+import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
@@ -16,6 +17,7 @@ import java.awt.Graphics2D;
 import java.awt.GradientPaint;
 import java.awt.LinearGradientPaint;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -23,6 +25,7 @@ import java.util.ArrayList;
  * @author guydu
  */
 public class ReinforcementHandler extends IndependentEffect {
+    private static SoundEffect successSound = new SoundEffect(new File("Assets/Sounds/reinforcement-success.au"));
     private final Font headerFont = new Font("timesRoman", Font.BOLD, 16);
     private final Color backgroundColor = new Color(150, 150, 150);
     private final Color barColor = new Color(0, 255, 0);
@@ -325,6 +328,7 @@ public class ReinforcementHandler extends IndependentEffect {
     
     public void callReinforcement(ReinforcementType type, Coordinate targetLocation) {
         if(!isAvailable()) return;
+        successSound.playCopy(.7);
         type.onTrigger(targetLocation, ExternalCommunicator.localTeam);
         reserveCount--;
         lastUsedTick = RTSGame.game.getGameTickNumber();
