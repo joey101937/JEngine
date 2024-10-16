@@ -277,6 +277,9 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public void setRotation(double degree){
         rotation = degree;
+        for(SubObject sub : this.getAllSubObjects()) {
+            sub.onHostRotate(degree - rotation);
+        }
     }
     
     /**

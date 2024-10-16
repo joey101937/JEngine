@@ -128,6 +128,13 @@ public class SubObject extends GameObject2{
     }
     
     @Override
+    public void postTick() {
+        updateLocation();
+        updateAdjustedOffset();
+        super.postTick();
+    }
+    
+    @Override
     public void onCollide(GameObject2 other, boolean fromMyTick){
         host.onCollide(other, fromMyTick);
     }
@@ -144,7 +151,7 @@ public class SubObject extends GameObject2{
     private void updateAdjustedOffset() {
         if(host==null)return;
         adjustedOffset = offset.copy();
-        adjustedOffset.adjustForRotation(host.getRotation());
+        adjustedOffset.adjustForRotation(host.getRotationRealTime());
     }
     
     /**
