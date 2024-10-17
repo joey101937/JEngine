@@ -11,7 +11,6 @@ import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -24,14 +23,15 @@ import java.util.ArrayList;
  */
 public class Hellicopter extends RTSUnit {
 
-    public static final double VISUAL_SCALE = 1.05;
+    public static final double VISUAL_SCALE = .2;
 
     public static final Sprite baseSprite = new Sprite(RTSAssetManager.hellicopter);
     public static final Sprite destroyedSprite = new Sprite(RTSAssetManager.hellicopterDestroyed);
     public static final Sprite destroyedSpriteRed = new Sprite(RTSAssetManager.hellicopterDestroyedRed);
-    public static final Sprite shadowSprite = new Sprite(RTSAssetManager.hellicopterShadow);
+    public static final Sprite shadowSprite = Sprite.generateShadowSprite(baseSprite.getImage(), .5); // new Sprite(RTSAssetManager.hellicopterShadow);
     public static final Sequence attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
+    public static Sprite bladeSprite = new Sprite(RTSAssetManager.helicopterBlades);
 
     public static final Sprite baseSpriteRed = new Sprite(RTSAssetManager.hellicopterRed);
     public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.hellicopterAttackRed, "helliAttackRed");
@@ -39,7 +39,9 @@ public class Hellicopter extends RTSUnit {
     public HellicopterTurret turret;
     public long lastFireTick = 0;
     public int attackInterval = Main.ticksPerSecond * 2;
-    public int elevation = 99;
+    public int elevation = 150;
+    
+    private double bladeRotation;
 
     static {
         baseSprite.scale(VISUAL_SCALE);
@@ -50,6 +52,8 @@ public class Hellicopter extends RTSUnit {
         baseSpriteRed.scaleTo(VISUAL_SCALE);
         destroyedSprite.scaleTo(VISUAL_SCALE);
         destroyedSpriteRed.scaleTo(VISUAL_SCALE);
+        bladeSprite.scale(VISUAL_SCALE);
+        bladeSprite.setOpacity(.4);
     }
 
     public Hellicopter(int x, int y, int team) {
@@ -195,6 +199,28 @@ public class Hellicopter extends RTSUnit {
             if (!isRubble) {
                 updateLocationForBob();
                 updateRotation();
+            }
+        }
+        
+        @Override
+        public void render(Graphics2D g) {
+            super.render(g);
+            if(isOnScreen()) {
+                if(!isRubble) {
+                    bladeRotation += 23;
+                    if(bladeRotation > 360) bladeRotation -= 360;
+                }
+                Coordinate pixelLocation = getPixelLocation();
+                Coordinate offset = new Coordinate(0, -15);
+                offset.adjustForRotation(turret.getRotationRealTime());
+                pixelLocation.add(offset);
+                AffineTransform old = g.getTransform();
+                VolatileImage toRender = bladeSprite.getCurrentVolatileImage();
+                int renderX = pixelLocation.x - toRender.getWidth() / 2;
+                int renderY = pixelLocation.y - toRender.getHeight() / 2;
+                g.rotate(Math.toRadians(bladeRotation), pixelLocation.x, pixelLocation.y);
+                g.drawImage(toRender, renderX, renderY, null);
+                g.setTransform(old);
             }
         }
 
