@@ -25,11 +25,13 @@ public class Landmine extends RTSUnit {
     public static final Sprite landmineVisibleRed = new Sprite(RTSAssetManager.landmineRed);
     public static final Sprite landmineHidden = new Sprite(RTSAssetManager.landmine);
     public static final Sprite landmineHiddenRed = new Sprite(RTSAssetManager.landmineRed);
+    public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.landmine, .4);
     public static final Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.landmineBlast, 60);
 
     static {
         landmineHidden.setOpacity(.5);
         landmineHiddenRed.setOpacity(.5);
+        shadow.scaleTo(.25);
     }
 
     // instance fields
@@ -138,6 +140,9 @@ public class Landmine extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
+        if(!isRubble) {
+            drawShadow(g, shadow, -1, 2);
+        }
         super.render(g);
     }
 
