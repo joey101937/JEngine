@@ -93,8 +93,8 @@ public abstract class RTSAssetManager {
             dirtBG = load("DemoAssets/TankGame/dirtBG.png");
             dirtBGNight = load("DemoAssets/TankGame/dirtBGNight.png");
             grassBG = load("DemoAssets/TankGame/grassTerrain_mega3.png");
-            hellicopter = load("DemoAssets/TankGame/copter/flashHeliSmall2.png");
-            helicopterBlades = load("DemoAssets/TankGame/copter/flashHeliBladesSmall2.png");
+            hellicopter = load("DemoAssets/TankGame/copter/flashHeli2.png");
+            helicopterBlades = load("DemoAssets/TankGame/copter/flashHeliBlades.png");
             hellicopterRed = blueToRed(hellicopter);
             hellicopterDestroyed = load("DemoAssets/TankGame/copter/hellicopterDestroyed.png");
             hellicopterDestroyedRed = blueToRed(hellicopterDestroyed);
