@@ -32,6 +32,7 @@ public class Hellicopter extends RTSUnit {
     public static final Sequence attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
     public static Sprite bladeSprite = new Sprite(RTSAssetManager.helicopterBlades);
+    public static Sprite bladeShadowSprite = Sprite.generateShadowSprite(bladeSprite.getImage(), 0.3);
 
     public static final Sprite baseSpriteRed = new Sprite(RTSAssetManager.hellicopterRed);
     public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.hellicopterAttackRed, "helliAttackRed");
@@ -54,6 +55,8 @@ public class Hellicopter extends RTSUnit {
         destroyedSpriteRed.scaleTo(VISUAL_SCALE);
         bladeSprite.scale(VISUAL_SCALE);
         bladeSprite.setOpacity(.4);
+        bladeShadowSprite.scale(VISUAL_SCALE);
+        bladeShadowSprite.setOpacity(0.2);
     }
 
     public Hellicopter(int x, int y, int team) {
@@ -158,11 +161,23 @@ public class Hellicopter extends RTSUnit {
         pixelLocation.x += shadowOffsetX;
         pixelLocation.y += shadowOffsetY;
         AffineTransform old = g.getTransform();
+        
+        // Render main shadow
         VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
         int renderX = pixelLocation.x - toRender.getWidth() / 2;
         int renderY = pixelLocation.y - toRender.getHeight() / 2;
         g.rotate(Math.toRadians(turret.getRotation()), pixelLocation.x, pixelLocation.y);
         g.drawImage(toRender, renderX, renderY, null);
+        
+        // Render blade shadow
+        if (!isRubble) {
+            VolatileImage bladeShadow = bladeShadowSprite.getCurrentVolatileImage();
+            int bladeRenderX = pixelLocation.x - bladeShadow.getWidth() / 2;
+            int bladeRenderY = pixelLocation.y - bladeShadow.getHeight() / 2 - 15; // Adjust Y position as needed
+            g.rotate(Math.toRadians(bladeRotation), pixelLocation.x, pixelLocation.y);
+            g.drawImage(bladeShadow, bladeRenderX, bladeRenderY, null);
+        }
+        
         g.setTransform(old);
 
         if (isSelected() && !isRubble) {
