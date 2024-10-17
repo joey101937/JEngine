@@ -82,18 +82,21 @@ public class RTSInput extends InputHandler {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        System.out.println("pressed");
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
         if (e.getButton() == 1) { //1 means left click
-            if(RTSGame.reinforcementHandler.intersectsMainBar(locationOfMouseEvent)) {
+            if (RTSGame.reinforcementHandler.intersectsMainBar(locationOfMouseEvent)) {
                 RTSGame.reinforcementHandler.toggleMenuOpen();
+                return;
             }
             ReinforcementType clicked = RTSGame.reinforcementHandler.getReinforcementAtLocation(locationOfMouseEvent);
-            if(clicked != null) {
+            if (clicked != null) {
                 RTSGame.reinforcementHandler.setSelectedReinforcementType(clicked);
                 return;
             }
-            if(RTSGame.reinforcementHandler.selectedReinforcementType != null) {
+            if (RTSGame.reinforcementHandler.selectedReinforcementType != null) {
                 RTSGame.reinforcementHandler.callReinforcement(RTSGame.reinforcementHandler.selectedReinforcementType, locationOfMouseEvent);
+                return;
             }
             CommandButton clickedButton = infoPanelEffect.getButtonAtLocation(locationOfMouseEvent.x, locationOfMouseEvent.y);
             if (clickedButton != null) {
@@ -101,13 +104,14 @@ public class RTSInput extends InputHandler {
                 infoPanelEffect.triggerButtonAt(locationOfMouseEvent.x, locationOfMouseEvent.y);
                 return;
             }
-
             for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
+                System.out.println("setting false");
                 u.setSelected(false);
             }
             SelectionBoxEffect.selectedUnits.clear();
             mouseDownLocation = locationOfMouseEvent;
             mouseDraggedLocation = locationOfMouseEvent;
+            handleSelectPoint(e);
         } else if (e.getButton() == 3) { //3 means right click
             if (e.isControlDown()) {
                 // all move to exact position of mouse click
@@ -150,9 +154,8 @@ public class RTSInput extends InputHandler {
         getHostGame().getCamera().yVel = 0;
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        //selects one nidevidual unit at a clicked point
+    private void handleSelectPoint(MouseEvent e) {
+        System.out.println("handling");
         ArrayList<GameObject2> grabbed = RTSGame.game.getObjectsIntersecting(new Hitbox(locationOfMouseEvent(e).toDCoordinate(), 5));
         for (GameObject2 go : grabbed) {
             if (go instanceof RTSUnit unit) {
@@ -194,7 +197,7 @@ public class RTSInput extends InputHandler {
         Coordinate mousePos = locationOfMouseEvent(e);
         CommandButton hoveredButton = infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
         infoPanelEffect.hoveredButton = hoveredButton;
-        if( RTSGame.reinforcementHandler != null) {
+        if (RTSGame.reinforcementHandler != null) {
             RTSGame.reinforcementHandler.hoveredReinforcementType = RTSGame.reinforcementHandler.getReinforcementAtLocation(mousePos);
         } else {
             System.out.println("Error null reinforcement handler");

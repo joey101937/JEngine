@@ -45,7 +45,7 @@ public class SelectionBoxEffect extends IndependentEffect {
     public void tick() {
         Coordinate downLoc = RTSInput.getMouseDownLocation();
         Coordinate dragLoc = RTSInput.getMouseDraggedLocation();
-        if (downLoc != null && dragLoc != null) {
+        if (downLoc != null && dragLoc != null && selectionZone != null) {
             selectedUnits.forEach(x -> x.setSelected(false));
             selectedUnits.clear();
         }
