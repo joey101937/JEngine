@@ -194,7 +194,11 @@ public class RTSInput extends InputHandler {
         Coordinate mousePos = locationOfMouseEvent(e);
         CommandButton hoveredButton = infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
         infoPanelEffect.hoveredButton = hoveredButton;
-        RTSGame.reinforcementHandler.hoveredReinforcementType = RTSGame.reinforcementHandler.getReinforcementAtLocation(mousePos);
+        if( RTSGame.reinforcementHandler != null) {
+            RTSGame.reinforcementHandler.hoveredReinforcementType = RTSGame.reinforcementHandler.getReinforcementAtLocation(mousePos);
+        } else {
+            System.out.println("Error null reinforcement handler");
+        }
     }
 
     private void panCamera(MouseEvent e) {

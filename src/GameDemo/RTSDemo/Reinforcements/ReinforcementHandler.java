@@ -34,7 +34,7 @@ public class ReinforcementHandler extends IndependentEffect {
     private static final Color borderLight = new Color(200, 200, 200);
     private boolean wasAvailableLastTick = false;
     public int reserveCount = 0;
-    public double rechargeInterval = Main.ticksPerSecond * 10; // num ticks between reinforcement charges
+    public double rechargeInterval = Main.ticksPerSecond * 1; // num ticks between reinforcement charges
     public long lastUsedTick = 0;
     public boolean isMenuOpen = false; // when this is true, make a gray
     public Coordinate locationOnScreen;
@@ -141,7 +141,7 @@ public class ReinforcementHandler extends IndependentEffect {
         int scaledMouseX = (int)(mouseLocation.x * scaleAmount);
         int scaledMouseY = (int)(mouseLocation.y * scaleAmount);
         
-        Coordinate renderLocation = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount)); 
+        Coordinate renderLocation = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(scaleAmount)); 
         return scaledMouseX >= renderLocation.x && scaledMouseX < renderLocation.x + width &&
                scaledMouseY >= renderLocation.y && scaledMouseY < renderLocation.y + height;
     }
@@ -155,7 +155,7 @@ public class ReinforcementHandler extends IndependentEffect {
         int scaledMouseX = (int)(mouseLocation.x * scaleAmount);
         int scaledMouseY = (int)(mouseLocation.y * scaleAmount);
         
-        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount));
+        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(scaleAmount));
         menuRenderLoc.y -= menuHeight;
         
         int buttonWidth = width / 3;
