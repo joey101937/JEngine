@@ -44,6 +44,7 @@ public class Main {
     public static boolean ignoreSubobjectCollision = false;
     public static boolean ignoreCollisionsForStillObjects = false;
     public static int stickerZLayer = 1000;
+    public static boolean performanceMode = false;
 
     public static Handler.TickType tickType = Handler.TickType.modular;
     public static long seed = (long)(Math.random()*9999999999999L);

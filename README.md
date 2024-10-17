@@ -517,9 +517,10 @@ Adding your own terrain type involves two steps
 * **Main.tickThreadCount = 1;**
 * **Main.stickerZLayer = 1000;**
 * **Main.renderThreadCount = -1;** // -1 means use cachedThreadPool. Otherwise its fixed number
-* **splitBackgreoundRender = true;** // when true, the background is rendered as 4 independent quadrants
-* **ignoreSubobjectCollision = false;** // set to true for improved performance. Subobjects will not be considered for collision
-* **ignoreCollosionsForStillObjects = false;** // set to true for improved performance. Objects with 0 velocity will not check for collisions (the things that run into them will still trigger for both tho)
+* **Main.splitBackgreoundRender = true;** // when true, the background is rendered as 4 independent quadrants
+* **Main.ignoreSubobjectCollision = false;** // set to true for improved performance. Subobjects will not be considered for collision
+* **Main.ignoreCollosionsForStillObjects = false;** // set to true for improved performance. Objects with 0 velocity will not check for collisions (the things that run into them will still trigger for both tho)
+* **Main.performanceMode = false** // setting this to true may improve render time at the expense of antialiasing
 
 ### Fullscreen
 You can use Window.initializeFullscreen(Game) instead of initialize() to go straight to fullscreen mode with best results.
