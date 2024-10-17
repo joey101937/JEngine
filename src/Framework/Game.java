@@ -24,14 +24,7 @@ import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
 import java.awt.BasicStroke;
 import java.awt.GraphicsEnvironment;
-import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
-import static java.awt.RenderingHints.KEY_ANTIALIASING;
-import static java.awt.RenderingHints.KEY_COLOR_RENDERING;
-import static java.awt.RenderingHints.KEY_RENDERING;
-import static java.awt.RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;
-import static java.awt.RenderingHints.VALUE_ANTIALIAS_OFF;
-import static java.awt.RenderingHints.VALUE_COLOR_RENDER_SPEED;
-import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
+import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.image.VolatileImage;
 import java.util.Collection;
@@ -493,10 +486,22 @@ public class Game extends Canvas implements Runnable {
         }
         Graphics g = bs.getDrawGraphics();
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(KEY_COLOR_RENDERING, VALUE_COLOR_RENDER_SPEED);
-        g2d.setRenderingHint(KEY_RENDERING, VALUE_RENDER_SPEED);
-        g2d.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_SPEED);
-        g2d.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_OFF);
+        
+        if(Main.performanceMode) {
+            g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+            g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        } else {
+            g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+            g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        }
 
         g2d.scale(resolutionScaleX, resolutionScaleY);
         g2d.scale(zoom, zoom);
