@@ -274,7 +274,7 @@ public class TankUnit extends RTSUnit {
             }
             Coordinate muzzelLocation = new Coordinate(0, 0);
             muzzelLocation.y -= getFireSequence().frames[0].getHeight() * 2 / 5;
-            muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotation());
+            muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotationRealTime());
             muzzelLocation.add(getPixelLocation());
             RTSUnit targetUnit = ((RTSUnit) this.getHost()).currentTarget;
             int longestSide = Math.max(targetUnit.getWidth(), targetUnit.getHeight());
@@ -318,7 +318,7 @@ public class TankUnit extends RTSUnit {
             RTSUnit enemy = nearestEnemyInRange();
             ((RTSUnit) getHost()).currentTarget = enemy;
             if (enemy == null) {
-                double desiredRotation = getHost().getRotation() - getRotation();
+                double desiredRotation = getHost().getRotationRealTime()- getRotationRealTime();
                 if (desiredRotation > 180) {
                     desiredRotation -= 360;
                 } else if (desiredRotation < -180) {
@@ -361,7 +361,7 @@ public class TankUnit extends RTSUnit {
                 int renderY = getPixelLocation().y - toRender.getHeight() / 2;
                 int shadowOffsetY = 3;
                 int shadowOffsetX = 1;
-                g.rotate(Math.toRadians(getRotation()), getPixelLocation().x + shadowOffsetX, getPixelLocation().y + shadowOffsetY);
+                g.rotate(Math.toRadians(getRotationRealTime()), getPixelLocation().x + shadowOffsetX, getPixelLocation().y + shadowOffsetY);
                 g.drawImage(toRender, renderX, renderY + shadowOffsetY, null);
                 g.setTransform(old);
             }

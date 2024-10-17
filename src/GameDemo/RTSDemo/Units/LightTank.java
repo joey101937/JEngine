@@ -117,7 +117,7 @@ public class LightTank extends RTSUnit {
         turret.setGraphic(getFireSequence());
         Coordinate muzzelLocation = new Coordinate(0, 0);
         muzzelLocation.y -= turretSprite.getHeight() * 2 / 5;
-        muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, turret.getRotation());
+        muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, turret.getRotationRealTime());
         muzzelLocation.add(turret.getPixelLocation());
         Coordinate randomOffset = new Coordinate(Main.generateRandomInt(-target.getWidth() / 4, target.getWidth() / 4), Main.generateRandomInt(-target.getWidth() / 4, target.getWidth() / 4));
         LightTankBullet bullet = new LightTankBullet(muzzelLocation.toDCoordinate(), target.getLocationAsOfLastTick().add(randomOffset));
@@ -197,7 +197,7 @@ public class LightTank extends RTSUnit {
                 return;
             }
             if (currentTarget == null) {
-                desiredRotationAngle = hull.getRotation();
+                desiredRotationAngle = hull.getRotationRealTime();
             } else {
                 desiredRotationAngle = angleFrom(hull.currentTarget.getPixelLocation());
             }
