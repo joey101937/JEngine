@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.awt.Color;
 
 public abstract class RTSAssetManager {
+
     public static boolean initialized = false;
 
     // RTS ASSETS
@@ -37,11 +38,11 @@ public abstract class RTSAssetManager {
     public static BufferedImage tankDeadTurret;
     public static BufferedImage[] tankHullDeathAni;
     public static BufferedImage[] tankTurretDeathAni;
-    public static BufferedImage lightTankHull, lightTankHullRed, lightTankTurret, lightTankTurretRed, lightTankShadow, 
-                lightTankHullDamaged, lightTankHullDamagedRed, lightTankTurretDamaged, lightTankTurretDamagedRed, 
-                lightTankHullDestroyed, lightTankTurretDestroyed, lightTankDeathShadow;
+    public static BufferedImage lightTankHull, lightTankHullRed, lightTankTurret, lightTankTurretRed, lightTankShadow,
+            lightTankHullDamaged, lightTankHullDamagedRed, lightTankTurretDamaged, lightTankTurretDamagedRed,
+            lightTankHullDestroyed, lightTankTurretDestroyed, lightTankDeathShadow;
     public static BufferedImage[] lightTankFire, lightTankFireRed, lightTankFireDamaged, lightTankFireDamagedRed;
-    
+
     public static BufferedImage[] infantryLegsRun;
     public static BufferedImage[] infantryRifleIdle, infantryRifleIdleRed;
     public static BufferedImage[] infantryRifleFire, infantryRifleFireRed;
@@ -53,17 +54,17 @@ public abstract class RTSAssetManager {
     public static BufferedImage infantryBazookaDead, infantryBazookaDeadRed;
     public static BufferedImage infantryLegs, infantryShadow;
     public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage;
-    
+
     public static BufferedImage building, buildingShadow;
 
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] explosionSequenceSmall;
     public static BufferedImage[] impactCone;
-    
+
     public static BufferedImage landmine, landmineRed, landmineSelectionImage, landmineBlast;
-    
+
     public static BufferedImage layMineButton, layMineButtonHover;
-    
+
     public static BufferedImage immobilizationIcon;
 
     static {
@@ -114,11 +115,10 @@ public abstract class RTSAssetManager {
             tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
             tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
             tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
-            
+
             building = load("DemoAssets/TankGame/building.png");
             buildingShadow = load("DemoAssets/TankGame/buildingShadow.png");
 
-            
             // light tank
             lightTankHull = load("DemoAssets/TankGame/lightTank/lightTankHull.png");
             lightTankHullRed = greenToRed(lightTankHull);
@@ -136,8 +136,7 @@ public abstract class RTSAssetManager {
             lightTankTurretDestroyed = load("DemoAssets/TankGame/lightTank/lightTankTurretDestroyed.png");
             lightTankHullDestroyed = load("DemoAssets/TankGame/lightTank/lightTankHullDestroyed.png");
             lightTankDeathShadow = load("DemoAssets/TankGame/lightTank/lightTankDeathShadow.png");
-            
-            
+
             // infantry
             infantryLegs = load("DemoAssets/TankGame/Infantry/feet/idle/survivor-idle_0.png");
             infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run");
@@ -158,23 +157,23 @@ public abstract class RTSAssetManager {
             infantryBazookaDieRed = darkToRed(infantryBazookaDie);
             infantryBazookaDead = load("DemoAssets/TankGame/Infantry/bazooka/dead.png");
             infantryBazookaDeadRed = darkToRed(infantryBazookaDead);
-            
+
             // landmine
             landmine = load("DemoAssets/TankGame/landmine.png");
             landmineRed = greenToRed(landmine);
             landmineSelectionImage = load("DemoAssets/TankGame/landmineSelectionImage.png");
             landmineBlast = load("DemoAssets/TankGame/landmineBlast.png");
-            
+
             // selection images
             tankSelectionImage = load("DemoAssets/TankGame/tankSelectionImage.png");
             lightTankSelectionImage = load("DemoAssets/TankGame/lightTank/lightTankSelectionImage.png");
             hellicopterSelectionImage = load("DemoAssets/TankGame/copter/hellicopterSelectionImage.png");
             riflemanSelectionImage = load("DemoAssets/TankGame/infantry/rifleSelectionImage.png");
             bazookamanSelectionImage = load("DemoAssets/TankGame/infantry/bazookaSelectionImage.png");
-            
+
             // utility
             immobilizationIcon = load("DemoAssets/TankGame/immobilizationIcon.png");
-            
+
             // buttons
             layMineButton = load("DemoAssets/TankGame/Buttons/layMineButton.png");
             layMineButtonHover = load("DemoAssets/TankGame/Buttons/layMineButtonHover.png");
@@ -187,9 +186,10 @@ public abstract class RTSAssetManager {
             System.exit(1);
         }
     }
-    
+
     /**
-     * instantiates a unit of each type to load static variables and set static scale
+     * instantiates a unit of each type to load static variables and set static
+     * scale
      */
     private static void preloadUnits() {
         System.out.println("preloading units");
@@ -198,7 +198,7 @@ public abstract class RTSAssetManager {
         new Rifleman(0, 0, 0);
         new Bazookaman(0, 0, 0);
         new Hellicopter(0, 0, 0);
-        new Landmine(0,0,0);
+        new Landmine(0, 0, 0);
         System.out.println("done preloading");
     }
 
@@ -291,7 +291,7 @@ public abstract class RTSAssetManager {
         }
         return out;
     }
-    
+
     public static BufferedImage[] removeBlue(BufferedImage[] input) {
         BufferedImage[] out = new BufferedImage[input.length];
         for (int i = 0; i < out.length; i++) {
@@ -299,8 +299,8 @@ public abstract class RTSAssetManager {
         }
         return out;
     }
-    
-     public static BufferedImage removeBlue(BufferedImage input) {
+
+    public static BufferedImage removeBlue(BufferedImage input) {
         BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < bi.getHeight(); y++) {
             for (int x = 0; x < bi.getWidth(); x++) {
@@ -311,6 +311,27 @@ public abstract class RTSAssetManager {
                     int newGreen = prevColor.getGreen();
                     int newBlue = Math.min(prevColor.getRed(), prevColor.getGreen());
                     Color newColor = new Color(newRed, newGreen, newBlue, prevColor.getAlpha());
+                    bi.setRGB(x, y, newColor.getRGB());
+                } else {
+                    Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());
+                    bi.setRGB(x, y, newColor.getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage removeGreenOutright(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getGreen()> prevColor.getRed() && prevColor.getGreen()> prevColor.getBlue() && prevColor.getGreen() > 50) {
+                    int newRed = 0;
+                    int newGreen = 0;
+                    int newBlue = 0;
+                    Color newColor = new Color(newRed, newGreen, newBlue, 0);
                     bi.setRGB(x, y, newColor.getRGB());
                 } else {
                     Color newColor = new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha());

@@ -1,3 +1,4 @@
+import static Framework.GraphicalAssets.Graphic.load;
 import GameDemo.RTSDemo.RTSAssetManager;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -6,10 +7,12 @@ import java.io.IOException;
 
 public class AssetExporter {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Main method can be used to test the exportImages function
         System.out.println("Asset Exporter initialized.");
-        exportImages(RTSAssetManager.infantryRifleDie, "export");
+        BufferedImage[] arr = new BufferedImage[1];
+        arr[0] = RTSAssetManager.removeGreenOutright(load("heli.png"));
+        exportImages(arr, "export");
     }
 
     /**
