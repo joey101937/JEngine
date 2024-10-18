@@ -28,23 +28,29 @@ import java.util.function.Consumer;
 public class GameObject2 implements Comparable<GameObject2>, Renderable{    
     private Game hostGame;
     private String name= this.getClass().getSimpleName(); 
-    public long tickNumber = 0; //used for debugging, counts number of times this has ticked
-    public long renderNumber = 0; //used for debugging, counts number of times this has rendered
-    public DCoordinate location = new DCoordinate(0,0); //location relative to the world
+    /** counts number of times this has ticked. incremented in default preTick method */
+    public long tickNumber = 0;
+    /** counts number of times this has rendered. incremented in default render */
+    public long renderNumber = 0;
+    /** location relative to the world. Changing this move the object! */
+    public DCoordinate location = new DCoordinate(0,0);
     protected DCoordinate locationAsOfLastTick = new DCoordinate(0,0);
-    public DCoordinate velocity = new DCoordinate(0,0); //added to location as a ratio of speed each tick
-    protected double baseSpeed = 2; //total distance the object can move per tick
+    /** Used to move the object. Applied to location in default preTick method via the updateLocation method */
+    public DCoordinate velocity = new DCoordinate(0,0);
+    /** total distance the object can move per tick before pathing modifiers. RawVelocity movement type ignores this*/
+    protected double baseSpeed = 2;
     private Graphic graphic; //visual representation of the object
     private double rotation = 0; //rotatoin in degrees (not radians)
     private double rotationAsOfLastTick = 0; // rotation in degrees as of last tick
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
-    public boolean isSolid = false; //weather or not this object collides with other objects
-    public boolean isInvisible = false; //invisible gameobjects are not rendered
-    private double scale = 1; //size multiplier
+    public boolean isSolid = false;
+    /** invisible objects are not rendered by default however will render debug visuals and continue incrementing renderCount */
+    public boolean isInvisible = false;
+    private double scale = 1;
     protected double scaleAsOfLastTick = 1;
+    /** Determines how velocity is applied to this objects location each preTick */
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
-    public boolean shouldFlushGraphicOnDestroy = false;
     private final HashMap<String, Object> syncedState = new HashMap<>();
     private final HashMap<String, Object> futureSyncedState = new HashMap<>();
     private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
@@ -942,7 +948,6 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
             
         }
         this.detatchAllStickers();
-        if(graphic!=null && this.shouldFlushGraphicOnDestroy)graphic.destroy();
     }
 
     /**
@@ -953,12 +958,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         
     }
     /**
-     * runs whenvever the current animation sequence renders the last frame in animation
+     * runs whenever the current animation sequence renders the last frame in animation
+     * if the animation is looping particularly fast, this may not trigger right away as the last frame could be too fast.
      */
     public void onAnimationCycle(){}
     
     /**
-     * @return weather or not this object is considered alive 
+     * This is considered alive if it has a hostGame and that hostGame contians this object
+     * @return weather or not this object is considered alive. 
      */
     public boolean isAlive(){
         return hostGame != null ? hostGame.getAllObjects().contains(this) : false;

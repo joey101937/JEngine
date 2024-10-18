@@ -323,8 +323,8 @@ public class LaunchMenu extends javax.swing.JFrame {
         alt.getCamera().disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
         Window.initialize(g);
         g.start();
-        g.name="main";
-        alt.name = "alt";
+        g.setName("main");
+        alt.setName("alt");
         for(GameObject2 go : alt.handler.getAllObjects()){
             if(go instanceof SampleBird){
                 //removes all birds from one of the games

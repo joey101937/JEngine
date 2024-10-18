@@ -35,16 +35,16 @@ public class TownDemo {
         outside = new Game(SpriteManager.townOutside);
         outside.setPathingLayer(SpriteManager.townOutsidePathing);
         outside.setZoom(2);
-        outside.name = "outside";
+        outside.setName("outside");
         
         inside1 = new Game(SpriteManager.buildingInterior);
         inside1.setPathingLayer(SpriteManager.buildingInteriorPathing);
-        inside1.name = "inside 1";
+        inside1.setName("inside 1");
         inside1.setZoom(2);
         
         inside2 = new Game(SpriteManager.buildingInterior);
         inside2.setPathingLayer(SpriteManager.buildingInteriorPathing);
-        inside2.name = "inside 2";
+        inside2.setName("inside 2");
         inside2.setZoom(2);
         
         setupPortals();
