@@ -64,7 +64,8 @@ public class Game extends Canvas implements Runnable {
     protected int windowWidth = Toolkit.getDefaultToolkit().getScreenSize().width;     //width of window holding this world canvas object 
     protected int windowHeight = Toolkit.getDefaultToolkit().getScreenSize().height; //height of window holding this world canvas object
     private int worldWidth, worldHeight;  //dimensions of the gameworld
-    public int worldBorder = 85; //how far objects must stay from the world's edge in pixels
+    /**how far objects must stay from the world's edge in pixels */
+    public int worldBorder = 85;
     public final Handler handler = new Handler(this);
     public VisualEffectHandler visHandler = new VisualEffectHandler();
     public final AudioManager audioManager = new AudioManager(this);
@@ -75,8 +76,8 @@ public class Game extends Canvas implements Runnable {
     protected Window window;
     public boolean hasStarted = false;
     private volatile boolean paused = false;
-    public volatile boolean pausedSafely = false;  //used to track when its safe to remove canvas component from frame
-    public String name = "Untitled Game";
+    protected volatile boolean pausedSafely = false;  //used to track when its safe to remove canvas component from frame
+    private String name = "Untitled Game";
     protected InputHandler inputHandler;
     protected volatile boolean inputHandlerApplied = false;
     public GameObject2 testObject = null; //object to be controlled by input
@@ -741,7 +742,10 @@ public class Game extends Canvas implements Runnable {
     }
     
     
-    
+    /**
+     * returns true if the detected screen size is smaller than the NATIVE_RESOLUTION in either width or height
+     * @return answer
+     */
     public static final boolean runningOnSmallerScreen () {
         var device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
         return device.getWidth() < NATIVE_RESOLUTION.getWidth()
@@ -1017,4 +1021,10 @@ public class Game extends Canvas implements Runnable {
     public synchronized void addTickDelayedEffect(int delay, Consumer c) {
          this.addTickDelayedEffect(new TickDelayedEffect(handler.globalTickNumber + delay, c));
     }
+    
+    @Override
+    public String getName() {
+        return name;
+    }
+    
 }

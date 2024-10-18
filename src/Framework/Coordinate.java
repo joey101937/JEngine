@@ -116,17 +116,19 @@ public class Coordinate {
         return this;
     }
 
-    public void rotateAboutPoint(Coordinate point, double degrees) {
+    public Coordinate rotateAboutPoint(Coordinate point, double degrees) {
         rotateAboutPoint(point.toDCoordinate(), degrees);
+        return this;
     }
 
-    public void rotateAboutPoint(DCoordinate point, double degrees) {
+    public Coordinate rotateAboutPoint(DCoordinate point, double degrees) {
         DCoordinate offset = this.copy().toDCoordinate();
         offset.subtract(point.copy());
         offset.adjustForRotation(degrees);
         offset.add(point);
         x = (int) offset.x;
         y = (int) offset.y;
+        return this;
     }
     
     
@@ -144,13 +146,15 @@ public class Coordinate {
      * to be rotated about the origin by a given degree
      *
      * @param degree degree of rotation about the origin
+     * @return this.
      */
-    public void adjustForRotation(double degree) {
+    public Coordinate adjustForRotation(double degree) {
         int oldX = x;
         int oldY = y;
         double rotation = Math.toRadians(degree);
         x = (int) (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
         y = (int) (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        return this;
     }
     
     public static Coordinate nearestPointOnCircle(Coordinate origin, Coordinate target, double radius) {

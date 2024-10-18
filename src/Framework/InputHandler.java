@@ -40,7 +40,7 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
             hostGame = g;
             return;
        }else{
-           if(Main.debugMode)System.out.println("NOTICE YOU ARE REMOVING AN INPUT HANDLER FROM GAME " + hostGame.name + " TO ADD TO GAME " + g.name);
+           if(Main.debugMode)System.out.println("NOTICE YOU ARE REMOVING AN INPUT HANDLER FROM GAME " + hostGame.getName() + " TO ADD TO GAME " + g.getName());
            hostGame = g;
        }
     }

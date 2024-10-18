@@ -179,26 +179,30 @@ public class DCoordinate {
      * to be rotated about the origin by a given degree
      *
      * @param degree degree of rotation about the origin
+     * @return this
      */
-    public void adjustForRotation(double degree) {
+    public DCoordinate adjustForRotation(double degree) {
         double oldX = x;
         double oldY = y;
         double rotation = Math.toRadians(degree);
         x = (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
         y = (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        return this;
     }
 
-    public void rotateAboutPoint(Coordinate point, double degrees) {
+    public DCoordinate rotateAboutPoint(Coordinate point, double degrees) {
         rotateAboutPoint(point.toDCoordinate(), degrees);
+        return this;
     }
 
-    public void rotateAboutPoint(DCoordinate point, double degrees) {
+    public DCoordinate rotateAboutPoint(DCoordinate point, double degrees) {
         DCoordinate offset = this.copy();
         offset.subtract(point.copy());
         offset.adjustForRotation(degrees);
         offset.add(point);
         x = offset.x;
         y = offset.y;
+        return this;
     }
     
     

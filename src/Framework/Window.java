@@ -65,8 +65,8 @@ public class Window {
     }
     
     public static void updateTitlePerGame(Game g) {
-        if(g.name != null && !g.name.equals("Untitled Game")) {
-            title = g.name;
+        if(g.getName() != null && !g.getName().equals("Untitled Game")) {
+            title = g.getName();
         }
     }
     

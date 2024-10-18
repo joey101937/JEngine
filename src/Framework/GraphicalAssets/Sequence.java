@@ -432,7 +432,6 @@ public class Sequence implements Graphic{
      * determines behavior on what happens when the animation is done.
      * Looping: after last frame, continue from first frame
      * Not-Looping: after last frame, continue with last frame only
-     * @param setting 
      */
     public boolean isLooping() {
         return this.isLooping;
