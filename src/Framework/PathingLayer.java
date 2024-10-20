@@ -15,11 +15,13 @@ import java.util.HashMap;
  */
 public class PathingLayer {
     
+    private volatile boolean internalizingSource = false;
+    
     /**
      * constructor, creates pathing layer based on given image
      * @param image image to create based on
      */
-    protected PathingLayer(BufferedImage image) {
+    public PathingLayer(BufferedImage image) {
         source = image;
         initLegend();
     }
@@ -82,17 +84,29 @@ public class PathingLayer {
         
     /**
      * converts pixels in source to cooresponding colors to make it easier to see
-     * in debug view. 
+     * in debug view.
      */
     public void internalizeSource(){
-        if(sourceInternalized) return;
+        if(sourceInternalized || internalizingSource) return;
+        internalizingSource = true;
         for(int i = 0; i < source.getWidth(); i++){
             for(int j = 0; j < source.getHeight(); j++){
                 source.setRGB(i, j, getTypeAt(new Coordinate(i,j)).color.getRGB());
             }
         }
         sourceInternalized = true;
-        System.out.println("done");
+        System.out.println("source internalized");
+    }
+    
+     /**
+     * converts pixels in source to cooresponding colors to make it easier to see
+     * in debug view.
+     * 
+     * Runs asynchronously
+     */
+    public void internalizeSourceAsync() {
+        if(sourceInternalized || internalizingSource) return;
+        Thread.ofPlatform().start(() -> {internalizeSource();});
     }
     
     /**
@@ -120,6 +134,11 @@ public class PathingLayer {
         return this.getTypeAt(new Coordinate(x,y));
     }
 
+    /**
+     * gets the buffered image source. this will be the direct bufferedImgae data unless internalizeSource has been run. If that happens, it will return
+     * the internalized version of the source image
+     * @return source image or internalized source image
+     */
     public BufferedImage getSource() {
         return source;
     }

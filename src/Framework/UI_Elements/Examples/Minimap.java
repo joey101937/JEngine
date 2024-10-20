@@ -10,10 +10,10 @@ import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
+import Framework.SpriteManager;
 import Framework.SubObject;
 import Framework.UI_Elements.UIElement;
 import Framework.Window;
-import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.SandboxDemo.SampleCharacter;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -105,7 +105,7 @@ public final class Minimap extends UIElement {
      */
     public static void main(String[] args) {
         Game.scaleForResolution();
-        Game g = new Game(new Sprite(RTSAssetManager.dirtBG));
+        Game g = new Game(new Sprite(SpriteManager.dirtBG));
         Window.initialize(g);
         g.start();
         Minimap m = new Minimap(g, new Coordinate(10, 10));
