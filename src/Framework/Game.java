@@ -663,8 +663,20 @@ public class Game extends Canvas implements Runnable {
                     g.drawImage(volatileImage, 0, 0, null);
                 }
             } else if (pathingLayer != null && pathingLayer.getSource() != null) {
-                pathingLayer.internalizeSource();
-                g.drawImage(pathingLayer.getSource(), 0, 0, null); //if in debug view, display pathing map
+                pathingLayer.internalizeSourceAsync();
+                //if in debug view, display pathing map
+                g.drawImage(
+                            pathingLayer.getSource(),
+                            -getCamera().getPixelLocation().x ,
+                            -getCamera().getPixelLocation().y,
+                            -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
+                            -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
+                            -getCamera().getPixelLocation().x,
+                            -getCamera().getPixelLocation().y,
+                            -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
+                            -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
+                            null
+                    );
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -729,9 +741,6 @@ public class Game extends Canvas implements Runnable {
                 //if frames = 1 then it likeley is an error from swapping scenes
                 if (frames != 1 && shouldShowFPS) {
                     System.out.println(name + " FPS: " + frames + "   TPS: " + ticks);
-                    if (Main.debugMode) {
-                        System.out.println(" Ticks Per Second: " + ticks);
-                    }
                 }
                 frames = 0;
                 ticks = 0;

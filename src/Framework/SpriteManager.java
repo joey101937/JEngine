@@ -36,9 +36,8 @@ public abstract class SpriteManager {
     public static BufferedImage fog;
     public static BufferedImage[] fogSequence;
     public static BufferedImage car;
+    public static BufferedImage dirtBG, dirtBGNight;
 
-    //TANK ASSETS
-    // RTS assets have been moved to RTSAssetManager
 
     //SPACE ASSETS
     public static BufferedImage spaceBG;
@@ -103,6 +102,9 @@ public abstract class SpriteManager {
             fog = load("DemoAssets/fog.png");
             fogSequence = loadSequenceBouncing("DemoAssets/fogSequence");
             car = load("DemoAssets/topDownCarShadowDarkGrit.png");
+            
+            dirtBG = load("DemoAssets/TankGame/dirtBG.png");
+            dirtBGNight = load("DemoAssets/TankGame/dirtBGNight.png");
 
             // RTS assets loading has been moved to RTSAssetManager
             
