@@ -55,12 +55,28 @@ public class Tile extends GameObject2{
      * @return new object of my class
      */
     public Tile createCopy(int x, int y) {
-      //todo   
-      return null;
+        try {
+            // Get the exact class of this instance
+            Class<?> clazz = this.getClass();
+            
+            // Create a new instance using the constructor that takes two int parameters
+            Tile copy = (Tile) clazz.getDeclaredConstructor(int.class, int.class).newInstance(x, y);
+            
+            // Copy the properties
+            copy.setMainSprite(this.mainSprite);
+            copy.setSelectedSprite(this.selectedSprite);
+            copy.setIsSelected(this.isSelected);
+            copy.setOpacity(this.mainSprite.getOpacity());
+            
+            return copy;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     
     public Tile createCopy() {
-        return createCopy((int)location.x, (int)location.y);
+        return createCopy((int)getX(), (int)getY());
     }
     
     
