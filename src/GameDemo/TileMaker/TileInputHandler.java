@@ -3,7 +3,6 @@ package GameDemo.TileMaker;
 import Framework.AsyncInputHandler;
 import Framework.Camera;
 import Framework.Coordinate;
-import GameDemo.TileMaker.Tiles.BlueTile;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -27,9 +26,9 @@ public class TileInputHandler extends AsyncInputHandler {
     @Override
     public void onMousePressed(MouseEvent e) {
         if(hoveredTile == null)  return;
-        Tile t = new BlueTile(hoveredTile.location.x, hoveredTile.location.y);
+        Tile t = Tileset.library.get(1).createCopy(hoveredTile.location.x, hoveredTile.location.y);
         t.gridLocation = hoveredTile.gridLocation.copy();
-        t.setTranslucent(hoveredTile.isTanslucent());
+        t.setTranslucent(hoveredTile.isTranslucent());
         TileMaker.tileGrid[t.gridLocation.x][t.gridLocation.y] = t;
     }
     

@@ -4,6 +4,8 @@ import Framework.Coordinate;
 import Framework.IndependentEffect;
 import static GameDemo.TileMaker.TileMaker.tileGrid;
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -25,7 +27,7 @@ public class TileRenderer extends IndependentEffect {
             for(int x = 0; x <  tileGrid.length; x++) {
                currentCoordinate =  tileGrid[x][y].location;
                 if(!TileMaker.game.getCamera().getFieldOfView().contains(currentCoordinate.x, currentCoordinate.y)) continue;
-                if(tileGrid[x][y].isTanslucent()) {
+                if(tileGrid[x][y].isTranslucent()) {
                     g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
                     renderTile(g, tileGrid[x][y]);
                      g.setComposite(originalComposite);

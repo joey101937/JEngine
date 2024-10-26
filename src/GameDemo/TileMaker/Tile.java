@@ -43,7 +43,7 @@ public class Tile {
     public Tile(int x, int y) {
         location = new Coordinate(x, y);
     }
-    
+
     /**
      * uses reflection to create a new instance of this exact class at the given coordinates
      * @param x copy's x

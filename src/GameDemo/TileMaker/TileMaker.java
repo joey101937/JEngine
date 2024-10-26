@@ -2,9 +2,9 @@ package GameDemo.TileMaker;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.Main;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
-import GameDemo.TileMaker.Tiles.GreenTile;
 
 /**
  *
@@ -15,9 +15,12 @@ public class TileMaker {
     public static int TILE_SIZE = 120;
     public static Tile[][] tileGrid;
     public static Game game;
-    public static Tile baseTile = new GreenTile(0, 0);
+    public static Tile baseTile;
+    public static String tileDirectory = Main.assets+"DemoAssets/Tiles";
     
     public static void main(String[] args) {
+        Tileset.initialize(tileDirectory);
+        baseTile = Tileset.library.get(0);
         game = new Game(TileAssetManager.tileBackground);
         game.getCamera().camSpeed = 10;
         Minimap minimap = new Minimap(game, new Coordinate(0,0));
