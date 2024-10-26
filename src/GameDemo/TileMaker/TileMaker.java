@@ -56,18 +56,22 @@ public class TileMaker {
         Window.addUIElement(tilePicker);
         Window.addUIElement(taskBar);
         game.setInputHandler(new TileInputHandler());
+        taskBar.updateNameLabel();
     }
     
     public static void saveTileMap() {
         Tileset.saveTileMap(tilemap, tilemap.name);
     }
     
-    public static void setActiveTileMap(TileMap tm) {
-        if(!tilemap.backgroundName.equals(tm.backgroundName)) {
-            background = Graphic.load(tm.backgroundName);
+    public static void setActiveTileMap(TileMap loadedMap) {
+        if(!tilemap.backgroundName.equals(loadedMap.backgroundName)) {
+            background = Graphic.load(loadedMap.backgroundName);
             game.setBackground(new Sprite(background));
+            Window.removeUIElement(minimap);
+            minimap = new Minimap(game, new Coordinate(0,0));
+            Window.addUIElement(minimap);
         }
         
-        tilemap = tm;
+        tilemap = loadedMap;
     }
 }

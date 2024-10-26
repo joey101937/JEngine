@@ -93,7 +93,7 @@ public class TileRenderer extends IndependentEffect {
             exportFolder.mkdir();
         }
         
-        File outputFile = new File(exportFolder, "TileExport.png");
+        File outputFile = new File(exportFolder, TileMaker.tilemap.name + ".png");
         try {
             ImageIO.write(exportImage, "png", outputFile);
             System.out.println("Tile grid exported successfully to: " + outputFile.getAbsolutePath());

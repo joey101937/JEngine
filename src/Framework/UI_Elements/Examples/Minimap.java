@@ -49,6 +49,7 @@ public final class Minimap extends UIElement {
      * itself to the main window, which must not be null
      *
      * @param g Game to create a minimap of
+     * @param loc location on the window
      */
     public Minimap(Game g, Coordinate loc) {
         hostGame = g;
@@ -82,12 +83,6 @@ public final class Minimap extends UIElement {
         interior.addMouseMotionListener(listener);
     }
 
-    /*
-    TODO
-    flickering
-    size of the thing
-    input handler
-     */
     /**
      * sets the minimap to be at a certain location relative to the top left of
      * the screen. This is the topleft point of the minimap

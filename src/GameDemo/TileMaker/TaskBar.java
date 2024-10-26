@@ -42,7 +42,7 @@ public class TaskBar extends UIElement {
         saveButton = createButton("Save", e -> {handleSaveClick();});
         saveAsButton = createButton("Save As...", e -> {handleSaveAsClick();});
         loadButton = createButton("Load", e -> {handleLoadClick();});
-        exportImageButton = createButton("Export Image", e -> {});
+        exportImageButton = createButton("Export Image", e -> {handleExportClick();});
 
         translucencySlider = new JSlider(JSlider.HORIZONTAL, 0, 2, 1);
         translucencySlider.setMajorTickSpacing(1);
@@ -96,21 +96,25 @@ public class TaskBar extends UIElement {
         titleLabel.setText(TileMaker.tilemap.name + dimensionString);
     }
     
+    public void handleExportClick() {
+        TileRenderer.exportAsImage();
+        TileMaker.game.requestFocus();
+    }
+    
     public void handleSaveClick() {
-        // Tileset.exportTileGridToCSV(TileMaker.tilemap.tileGrid, TileMaker.tilemap.name);
         Tileset.saveTileMap(TileMaker.tilemap, TileMaker.tilemap.name);
         TileMaker.game.requestFocus();
     }
     
     public void handleSaveAsClick() {
-        TileMaker.tilemap.name = Main.prompt("Enter Filename");
+        String newName = Main.prompt("Enter Filename");
+        if(newName == null) return;
+        TileMaker.tilemap.name = newName;
         updateNameLabel();
-        // Tileset.exportTileGridToCSV(TileMaker.tilemap.tileGrid, TileMaker.tilemap.name);
         Tileset.saveTileMap(TileMaker.tilemap, TileMaker.tilemap.name);
     }
     
     public void handleLoadClick() {
-//        var loaded = Tileset.importTileGridFromCSV();
         var loaded = Tileset.loadTileMap();
         if(loaded == null) return;
         TileMaker.setActiveTileMap(loaded);

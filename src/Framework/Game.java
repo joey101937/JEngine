@@ -194,9 +194,9 @@ public class Game extends Canvas implements Runnable {
      * @param bi new background image
      */
     public final void setBackground(Graphic bi) {
+        backgroundImage = bi;
         worldHeight = backgroundImage.getCurrentImage().getHeight();
         worldWidth = backgroundImage.getCurrentImage().getWidth();
-        backgroundImage = bi;
         if (resolutionScaleX >= 1) {
             if (worldWidth < Window.screenSize.x) {
                 windowWidth = worldWidth;
