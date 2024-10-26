@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -90,10 +92,18 @@ public class Tileset {
         }
     }
 
-    public static Tile[][] importTileGridFromCSV(String mapName) {
-        File importDir = new File("export");
-        File csvFile = new File(importDir, mapName + ".csv");
+    public static Tile[][] importTileGridFromCSV() {
+        JFileChooser fileChooser = new JFileChooser("export");
+        fileChooser.setDialogTitle("Select CSV file to import");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files", "csv"));
 
+        int result = fileChooser.showOpenDialog(null);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            System.out.println("No file selected");
+            return null;
+        }
+
+        File csvFile = fileChooser.getSelectedFile();
         ArrayList<ArrayList<Tile>> tileGrid = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
