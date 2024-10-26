@@ -69,17 +69,16 @@ public class TilePicker extends UIElement {
 
     @Override
     public void render() {
-        if (Window.currentGame != hostGame) {
-            setVisible(false);
-        } else {
-            setVisible(true);
-        }
     }
 
     @Override
     public void tick() {
-        // No specific tick logic needed for this component
         if(hostGame.getGameTickNumber() % Main.ticksPerSecond == 0) {
+            if (Window.currentGame != hostGame) {
+            setVisible(false);
+            } else {
+                setVisible(true);
+            }
             revalidate();
         }
     }
@@ -111,6 +110,7 @@ public class TilePicker extends UIElement {
                 }
                 setBackground(Color.WHITE);
                 selectedButton = this;
+                TileMaker.game.requestFocus();
             });
         }
     }    

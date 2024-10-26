@@ -2,7 +2,6 @@ package GameDemo.TileMaker;
 
 import Framework.Coordinate;
 import Framework.IndependentEffect;
-import static GameDemo.TileMaker.TileMaker.tileGrid;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -20,11 +19,15 @@ import javax.imageio.ImageIO;
 public class TileRenderer extends IndependentEffect {
     
     public static boolean enableTranslucency = true;
+    public static boolean showTiles = true;
     
 
     @Override
     public void render(Graphics2D g) {
+        if(!showTiles) return;
         Coordinate currentCoordinate = null;
+        var tileGrid = TileMaker.tilemap.tileGrid;
+        
         Composite originalComposite = g.getComposite();
         for(int y = 0; y <  tileGrid[0].length; y++) {
             for(int x = 0; x <  tileGrid.length; x++) {
@@ -67,15 +70,16 @@ public class TileRenderer extends IndependentEffect {
      * it is saved as TileExport.png in the export folder
      */
     public static void exportAsImage() {
-        int width = TileMaker.tileGrid.length * TileMaker.TILE_SIZE;
-        int height = TileMaker.tileGrid[0].length * TileMaker.TILE_SIZE;
+        TileMap tileMap = TileMaker.tilemap;
+        int width = tileMap.tileGrid.length * TileMaker.TILE_SIZE;
+        int height = tileMap.tileGrid[0].length * TileMaker.TILE_SIZE;
         
         BufferedImage exportImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = exportImage.createGraphics();
         
-        for (int y = 0; y < TileMaker.tileGrid[0].length; y++) {
-            for (int x = 0; x < TileMaker.tileGrid.length; x++) {
-                Tile tile = TileMaker.tileGrid[x][y];
+        for (int y = 0; y < tileMap.tileGrid[0].length; y++) {
+            for (int x = 0; x < tileMap.tileGrid.length; x++) {
+                Tile tile = tileMap.tileGrid[x][y];
                 int drawX = x * TileMaker.TILE_SIZE;
                 int drawY = y * TileMaker.TILE_SIZE;
                 g.drawImage(tile.getSprite().getCurrentVolatileImage(), drawX, drawY, null);

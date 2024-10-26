@@ -13,13 +13,15 @@ import Framework.Window;
 public class TileMaker {
     
     public static int TILE_SIZE = 120;
-    public static Tile[][] tileGrid;
+    public static TileMap tilemap = new TileMap();
+    // public static Tile[][] tileGrid;
     public static Game game;
     public static Minimap minimap;
     public static TilePicker tilePicker;
     public static TaskBar taskBar;
     public static Tile baseTile;
     public static String tileDirectory = Main.assets+"DemoAssets/Tiles";
+    // public static String MapTitle = "Untitled";
     
     public static void main(String[] args) {
         Tileset.initialize(tileDirectory);
@@ -28,17 +30,17 @@ public class TileMaker {
         game.getCamera().camSpeed = 10;
         minimap = new Minimap(game, new Coordinate(0,0));
         tilePicker = new TilePicker(game, new Coordinate(game.getWindowWidth()-300, 0));
-        taskBar = new TaskBar(game, new Coordinate(0, game.getWindowHeight() - 40));
+        taskBar = new TaskBar(game, new Coordinate(0, game.getWindowHeight() - 46));
         int gridWidth = TileAssetManager.tileBackground.getWidth() / TILE_SIZE;
         int gridHeight = TileAssetManager.tileBackground.getHeight() / TILE_SIZE;
         System.out.println("grid width is " + gridWidth);
         System.out.println("grid height is " + gridHeight);
-        tileGrid = new Tile[gridWidth][gridHeight];
+        tilemap.tileGrid = new Tile[gridWidth][gridHeight];
         
         for(int y = 0; y < gridHeight; y++) {
             for(int x = 0; x < gridWidth; x++) {
-                tileGrid[x][y] = baseTile.createCopy(x * TILE_SIZE, y * TILE_SIZE);
-                tileGrid[x][y].gridLocation = new Coordinate(x,y);
+                tilemap.tileGrid[x][y] = baseTile.createCopy(x * TILE_SIZE, y * TILE_SIZE);
+                tilemap.tileGrid[x][y].gridLocation = new Coordinate(x,y);
             }
         }
         game.addIndependentEffect(new TileRenderer());

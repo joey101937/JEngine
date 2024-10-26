@@ -4,7 +4,6 @@ import Framework.AsyncInputHandler;
 import Framework.Camera;
 import Framework.Coordinate;
 import Framework.Window;
-import static GameDemo.TileMaker.TileMaker.tileGrid;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -30,15 +29,15 @@ public class TileInputHandler extends AsyncInputHandler {
         if(hoveredTile == null)  return;
         Tile t = TileMaker.tilePicker.getSelectedTile().createCopy(hoveredTile.location.x, hoveredTile.location.y);
         t.gridLocation = hoveredTile.gridLocation.copy();
-        TileMaker.tileGrid[t.gridLocation.x][t.gridLocation.y] = t;
+        TileMaker.tilemap.tileGrid[t.gridLocation.x][t.gridLocation.y] = t;
     }
     
     public static Tile getTileAtLocation(Coordinate location) {
         int x = (int) (location.x / TileMaker.TILE_SIZE);
         int y = (int) (location.y / TileMaker.TILE_SIZE);
         
-        if (x >= 0 && x < TileMaker.tileGrid.length && y >= 0 && y < TileMaker.tileGrid[0].length) {
-            return TileMaker.tileGrid[x][y];
+        if (x >= 0 && x < TileMaker.tilemap.tileGrid.length && y >= 0 && y < TileMaker.tilemap.tileGrid[0].length) {
+            return TileMaker.tilemap.tileGrid[x][y];
         }
         
         return null;
@@ -107,13 +106,13 @@ public class TileInputHandler extends AsyncInputHandler {
             case KeyEvent.VK_R -> {
                 // Export the tile grid to CSV
                 String fileName = "myMap";
-                Tileset.exportTileGridToCSV(tileGrid, fileName);
+                Tileset.exportTileGridToCSV(TileMaker.tilemap.tileGrid, fileName);
             }
             case KeyEvent.VK_I -> {
                 // Export the tile grid to CSV
                 var imported = Tileset.importTileGridFromCSV();
                 if(imported != null) {
-                    TileMaker.tileGrid = imported;
+                    TileMaker.tilemap.tileGrid = imported;
                 }
             }
         }
