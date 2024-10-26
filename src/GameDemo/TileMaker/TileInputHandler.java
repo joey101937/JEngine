@@ -30,7 +30,6 @@ public class TileInputHandler extends AsyncInputHandler {
         if(hoveredTile == null)  return;
         Tile t = Tileset.library.get(1).createCopy(hoveredTile.location.x, hoveredTile.location.y);
         t.gridLocation = hoveredTile.gridLocation.copy();
-        t.setTranslucent(hoveredTile.isTranslucent());
         TileMaker.tileGrid[t.gridLocation.x][t.gridLocation.y] = t;
     }
     

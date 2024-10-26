@@ -19,7 +19,7 @@ import javax.imageio.ImageIO;
  */
 public class TileRenderer extends IndependentEffect {
     
-    public static boolean enableTranslucency = false;
+    public static boolean enableTranslucency = true;
 
     @Override
     public void render(Graphics2D g) {

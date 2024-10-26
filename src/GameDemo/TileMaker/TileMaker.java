@@ -33,7 +33,6 @@ public class TileMaker {
         for(int y = 0; y < gridHeight; y++) {
             for(int x = 0; x < gridWidth; x++) {
                 tileGrid[x][y] = baseTile.createCopy(x * TILE_SIZE, y * TILE_SIZE);
-                tileGrid[x][y].setTranslucent(true);
                 tileGrid[x][y].gridLocation = new Coordinate(x,y);
             }
         }
