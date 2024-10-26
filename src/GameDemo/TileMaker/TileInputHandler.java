@@ -28,7 +28,7 @@ public class TileInputHandler extends AsyncInputHandler {
     @Override
     public void onMousePressed(MouseEvent e) {
         if(hoveredTile == null)  return;
-        Tile t = Tileset.library.get(1).createCopy(hoveredTile.location.x, hoveredTile.location.y);
+        Tile t = TileMaker.tilePicker.getSelectedTile().createCopy(hoveredTile.location.x, hoveredTile.location.y);
         t.gridLocation = hoveredTile.gridLocation.copy();
         TileMaker.tileGrid[t.gridLocation.x][t.gridLocation.y] = t;
     }
@@ -84,6 +84,9 @@ public class TileInputHandler extends AsyncInputHandler {
             case KeyEvent.VK_D -> {
                 dDown = true;
                 aDown = false;
+            }
+            case KeyEvent.VK_ESCAPE -> {
+                Window.setFullscreenWindowed(false);
             }
             case KeyEvent.VK_M -> {
                if(Window.getUIElements().contains(TileMaker.minimap)) {

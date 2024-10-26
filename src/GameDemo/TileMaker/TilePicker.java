@@ -54,6 +54,7 @@ public class TilePicker extends UIElement {
             contentPanel.add(button);
         }
         setVisible(true);
+        repaint();
     }
 
     private void filterTiles(String searchText) {

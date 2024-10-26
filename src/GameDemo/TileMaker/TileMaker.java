@@ -26,7 +26,7 @@ public class TileMaker {
         game = new Game(TileAssetManager.tileBackground);
         game.getCamera().camSpeed = 10;
         minimap = new Minimap(game, new Coordinate(0,0));
-        tilePicker = new TilePicker(game, new Coordinate(game.getWidth() - 300, 0));
+        tilePicker = new TilePicker(game, new Coordinate(game.getWindowWidth()-300, 0));
         int gridWidth = TileAssetManager.tileBackground.getWidth() / TILE_SIZE;
         int gridHeight = TileAssetManager.tileBackground.getHeight() / TILE_SIZE;
         System.out.println("grid width is " + gridWidth);
@@ -40,7 +40,7 @@ public class TileMaker {
             }
         }
         game.addIndependentEffect(new TileRenderer());
-        Window.initialize(game);
+        Window.initializeFullScreen(game);
         Window.addUIElement(minimap);
         Window.addUIElement(tilePicker);
         game.setInputHandler(new TileInputHandler());
