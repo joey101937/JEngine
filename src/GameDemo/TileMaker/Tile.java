@@ -2,6 +2,7 @@ package GameDemo.TileMaker;
 
 import Framework.Coordinate;
 import Framework.GraphicalAssets.Sprite;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**

@@ -3,6 +3,7 @@ package GameDemo.TileMaker;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GraphicalAssets.Graphic;
+import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
@@ -35,25 +36,19 @@ public class TileMaker {
         tilePicker = new TilePicker(game, new Coordinate(game.getWindowWidth()-300, 0));
         taskBar = new TaskBar(game, new Coordinate(0, game.getWindowHeight() - 46));
         
-        // Try to load an existing TileMap
-        TileMap loadedTileMap = Tileset.loadTileMap();
-        if (loadedTileMap != null) {
-            tilemap = loadedTileMap;
-        } else {
-            // If no TileMap is loaded, create a new one
-            int gridWidth = background.getWidth() / TILE_SIZE;
-            int gridHeight = background.getHeight() / TILE_SIZE;
-            System.out.println("grid width is " + gridWidth);
-            System.out.println("grid height is " + gridHeight);
-            tilemap.tileGrid = new Tile[gridWidth][gridHeight];
-            
-            for(int y = 0; y < gridHeight; y++) {
-                for(int x = 0; x < gridWidth; x++) {
-                    tilemap.tileGrid[x][y] = baseTile.createCopy(x * TILE_SIZE, y * TILE_SIZE);
-                    tilemap.tileGrid[x][y].gridLocation = new Coordinate(x,y);
-                }
+        int gridWidth = background.getWidth() / TILE_SIZE;
+        int gridHeight = background.getHeight() / TILE_SIZE;
+        System.out.println("grid width is " + gridWidth);
+        System.out.println("grid height is " + gridHeight);
+        tilemap.tileGrid = new Tile[gridWidth][gridHeight];
+
+        for(int y = 0; y < gridHeight; y++) {
+            for(int x = 0; x < gridWidth; x++) {
+                tilemap.tileGrid[x][y] = baseTile.createCopy(x * TILE_SIZE, y * TILE_SIZE);
+                tilemap.tileGrid[x][y].gridLocation = new Coordinate(x,y);
             }
         }
+        
         
         game.addIndependentEffect(new TileRenderer());
         Window.initializeFullScreen(game);
@@ -65,5 +60,14 @@ public class TileMaker {
     
     public static void saveTileMap() {
         Tileset.saveTileMap(tilemap, tilemap.name);
+    }
+    
+    public static void setActiveTileMap(TileMap tm) {
+        if(!tilemap.backgroundName.equals(tm.backgroundName)) {
+            background = Graphic.load(tm.backgroundName);
+            game.setBackground(new Sprite(background));
+        }
+        
+        tilemap = tm;
     }
 }

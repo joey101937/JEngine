@@ -37,6 +37,7 @@ public class TaskBar extends UIElement {
         titleLabel = new JLabel(TileMaker.tilemap.name);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         panel.add(titleLabel);
+        updateNameLabel();
 
         saveButton = createButton("Save", e -> {handleSaveClick();});
         saveAsButton = createButton("Save As...", e -> {handleSaveAsClick();});
@@ -84,25 +85,36 @@ public class TaskBar extends UIElement {
             } else {
                 setVisible(true);
             }
-            revalidate();
         }
     }
     
+    public final void updateNameLabel() {
+        String dimensionString = "";
+        if(TileMaker.tilemap != null && TileMaker.tilemap.tileGrid != null) {
+            dimensionString = " (" + TileMaker.tilemap.tileGrid.length + "x" + TileMaker.tilemap.tileGrid[0].length + ")";
+        }
+        titleLabel.setText(TileMaker.tilemap.name + dimensionString);
+    }
     
     public void handleSaveClick() {
-        Tileset.exportTileGridToCSV(TileMaker.tilemap.tileGrid, TileMaker.tilemap.name);
+        // Tileset.exportTileGridToCSV(TileMaker.tilemap.tileGrid, TileMaker.tilemap.name);
+        Tileset.saveTileMap(TileMaker.tilemap, TileMaker.tilemap.name);
         TileMaker.game.requestFocus();
     }
     
     public void handleSaveAsClick() {
         TileMaker.tilemap.name = Main.prompt("Enter Filename");
-        titleLabel.setText(TileMaker.tilemap.name);
-        Tileset.exportTileGridToCSV(TileMaker.tilemap.tileGrid, TileMaker.tilemap.name);
+        updateNameLabel();
+        // Tileset.exportTileGridToCSV(TileMaker.tilemap.tileGrid, TileMaker.tilemap.name);
+        Tileset.saveTileMap(TileMaker.tilemap, TileMaker.tilemap.name);
     }
     
     public void handleLoadClick() {
-        var loaded = Tileset.importTileGridFromCSV();
+//        var loaded = Tileset.importTileGridFromCSV();
+        var loaded = Tileset.loadTileMap();
         if(loaded == null) return;
+        TileMaker.setActiveTileMap(loaded);
+        updateNameLabel();
         TileMaker.game.requestFocus();
     }
 }

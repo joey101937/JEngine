@@ -79,7 +79,6 @@ public class TilePicker extends UIElement {
             } else {
                 setVisible(true);
             }
-            revalidate();
         }
     }
 
