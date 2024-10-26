@@ -1,6 +1,7 @@
 package GameDemo.TileMaker;
 
 import Framework.GraphicalAssets.Sprite;
+import Framework.Main;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
@@ -61,13 +62,13 @@ public class Tileset {
         }
     }
 
-    public static void exportTileGridToCSV(Tile[][] tileGrid, String exportPath) {
-        File exportDir = new File(exportPath);
+    public static void exportTileGridToCSV(Tile[][] tileGrid, String mapName) {
+        File exportDir = new File("export");
         if (!exportDir.exists()) {
             exportDir.mkdirs();
         }
 
-        File csvFile = new File(exportDir, "myMap.csv");
+        File csvFile = new File(exportDir, mapName + ".csv");
 
         try (FileWriter writer = new FileWriter(csvFile)) {
             for (int y = 0; y < tileGrid.length; y++) {

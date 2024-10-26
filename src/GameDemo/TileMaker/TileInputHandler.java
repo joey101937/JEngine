@@ -3,6 +3,8 @@ package GameDemo.TileMaker;
 import Framework.AsyncInputHandler;
 import Framework.Camera;
 import Framework.Coordinate;
+import Framework.Main;
+import static GameDemo.TileMaker.TileMaker.tileGrid;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -86,6 +88,11 @@ public class TileInputHandler extends AsyncInputHandler {
             }
             case KeyEvent.VK_E -> {
                 TileRenderer.exportAsImage();
+            }
+            case KeyEvent.VK_R -> {
+                // Export the tile grid to CSV
+                String fileName = "myMap";
+                Tileset.exportTileGridToCSV(tileGrid, fileName);
             }
         }
     }
