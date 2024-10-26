@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
@@ -224,14 +225,16 @@ public interface Graphic {
      * folder.
      * @param filename name of file including extension
      * @return buffered image render
-     * @throws IOException if file cannot be found or loaded
      */
-    public static BufferedImage load(String filename) throws IOException {
+    public static BufferedImage load(String filename) {
         try {
             return ImageIO.read(new File(Main.assets + filename));
+        } catch (IOException e) {
+           System.out.println("Exception while trying to load " + filename);
+           throw new UncheckedIOException(e);
         } catch (Exception e) {
             System.out.println("Exception while trying to load " + filename);
-           throw e;
+            throw e;
         }
     }
     
@@ -239,9 +242,8 @@ public interface Graphic {
      *  loads a sprite sequence from given directory
      * @param filename name of folder to load
      * @return list of files in directory
-     * @throws IOException if there is a problem
      */ 
-    public static BufferedImage[] loadSequence(String filename) throws IOException{
+    public static BufferedImage[] loadSequence(String filename){
         filename = Main.assets + filename;
         ArrayList<BufferedImage> a = new ArrayList<>();
         ArrayList<File> children = new ArrayList<>();
