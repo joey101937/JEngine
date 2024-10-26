@@ -86,6 +86,9 @@ public class TileInputHandler extends AsyncInputHandler {
                 dDown = true;
                 aDown = false;
             }
+            case KeyEvent.VK_E -> {
+                TileRenderer.exportAsImage();
+            }
         }
     }
 

@@ -6,6 +6,10 @@ import static GameDemo.TileMaker.TileMaker.tileGrid;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -50,7 +54,36 @@ public class TileRenderer extends IndependentEffect {
      * it is saved as TileExport.png in the export folder
      */
     public static void exportAsImage() {
+        int width = TileMaker.tileGrid.length * TileMaker.TILE_SIZE;
+        int height = TileMaker.tileGrid[0].length * TileMaker.TILE_SIZE;
         
+        BufferedImage exportImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = exportImage.createGraphics();
+        
+        for (int y = 0; y < TileMaker.tileGrid[0].length; y++) {
+            for (int x = 0; x < TileMaker.tileGrid.length; x++) {
+                Tile tile = TileMaker.tileGrid[x][y];
+                int drawX = x * TileMaker.TILE_SIZE;
+                int drawY = y * TileMaker.TILE_SIZE;
+                g.drawImage(tile.getMainSprite().getCurrentVolatileImage(), drawX, drawY, null);
+            }
+        }
+        
+        g.dispose();
+        
+        File exportFolder = new File("export");
+        if (!exportFolder.exists()) {
+            exportFolder.mkdir();
+        }
+        
+        File outputFile = new File(exportFolder, "TileExport.png");
+        try {
+            ImageIO.write(exportImage, "png", outputFile);
+            System.out.println("Tile grid exported successfully to: " + outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Error exporting tile grid: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
 }
