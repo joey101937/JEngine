@@ -41,10 +41,10 @@ public class TileInputHandler extends AsyncInputHandler {
                     newZoom /= .97;
                 }
             }
-            if (newZoom < .8) {
-                newZoom = .8; // how zoomed out the cam can get
+            if (newZoom < .4) {
+                newZoom = .4; // how zoomed out the cam can get
             }
-            if (newZoom > 1) {
+            if (newZoom > 4) {
                 newZoom = 1; // how zoomed in the cam can get
             }
             getHostGame().setZoom(newZoom);
@@ -53,8 +53,14 @@ public class TileInputHandler extends AsyncInputHandler {
     
     @Override
     public void onMousePressed(MouseEvent e) {
-        isDragging = true;
-        changeTile(e);
+        if(e.getButton() == 3) {
+            //right click gets hovered tile
+             Tile t = getTileAtLocation(locationOfMouseEvent(e));
+             TileMaker.tilePicker.setSelectedTile(t.getSprite().getSignature());
+        } else {
+            isDragging = true;
+            changeTile(e);
+        }
     }
 
     @Override

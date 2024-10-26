@@ -11,5 +11,5 @@ public class TileMap implements Serializable {
     
     public Tile[][] tileGrid;
     public String name = "Untitled";
-    public String backgroundName = "DemoAssets/TankGame/grassTerrain_mega3.png";
+    public String backgroundName = "DemoAssets/whitebg.png"; // "DemoAssets/TankGame/grassTerrain_mega3.png";
 }

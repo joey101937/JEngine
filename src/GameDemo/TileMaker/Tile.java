@@ -23,6 +23,10 @@ public class Tile implements Serializable {
         spriteName = s.getSignature();
     }
     
+    public String getSpriteSignature() {
+        return getSprite().getSignature();
+    }
+    
     public Sprite getSprite() {
         return sprite;
     }

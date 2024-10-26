@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class TilePicker extends UIElement {
     private Game hostGame;
@@ -85,9 +86,25 @@ public class TilePicker extends UIElement {
     public Tile getSelectedTile() {
         return selectedButton != null ? selectedButton.tile : null;
     }
+    
+    
+    public void setSelectedTile(String signature) {
+        var button = tileButtons.stream().filter(tb -> tb.tile.getSprite().getSignature().equals(signature)).toList().getFirst();
+        if(button != null) {
+            button.onClick.accept(null);
+        }
+    }
 
     private class TileButton extends JButton {
         private Tile tile;
+        public Consumer onClick = e -> {
+            if (selectedButton != null) {
+                selectedButton.setBackground(null);
+            }
+            setBackground(Color.WHITE);
+            selectedButton = this;
+            TileMaker.game.requestFocus();
+        };
 
         public TileButton(Tile tile) {
             this.tile = tile;
@@ -104,12 +121,7 @@ public class TilePicker extends UIElement {
             add(nameLabel, BorderLayout.SOUTH);
 
             addActionListener(e -> {
-                if (selectedButton != null) {
-                    selectedButton.setBackground(null);
-                }
-                setBackground(Color.WHITE);
-                selectedButton = this;
-                TileMaker.game.requestFocus();
+              onClick.accept(e);
             });
         }
     }    

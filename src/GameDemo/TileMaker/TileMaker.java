@@ -23,7 +23,7 @@ public class TileMaker {
     public static TilePicker tilePicker;
     public static TaskBar taskBar;
     public static Tile baseTile;
-    public static String tileDirectory = Main.assets+"DemoAssets/Tiles";
+    public static String tileDirectory = Main.assets + "DemoAssets/tileset16"; //  Main.assets+"DemoAssets/Tiles";
     private static BufferedImage background;
     
     public static void main(String[] args) throws IOException {
