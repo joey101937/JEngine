@@ -41,9 +41,10 @@ public class TilePicker extends UIElement {
         this.add(searchPanel, BorderLayout.NORTH);
 
         contentPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         scrollPane = new JScrollPane(contentPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setSize(this.getSize());
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         this.add(scrollPane, BorderLayout.CENTER);
 
         tileButtons = new ArrayList<>();
@@ -90,10 +91,14 @@ public class TilePicker extends UIElement {
             this.tile = tile;
             setLayout(new BorderLayout());
             
-            JLabel imageLabel = new JLabel(new ImageIcon(tile.getSprite().getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
+            int buttonSize = 120;
+            setPreferredSize(new Dimension(buttonSize, buttonSize));
+            
+            JLabel imageLabel = new JLabel(new ImageIcon(tile.getSprite().getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH)));
             add(imageLabel, BorderLayout.CENTER);
             
-            JLabel nameLabel = new JLabel(tile.getSprite().getSignature(), SwingConstants.CENTER);
+            JLabel nameLabel = new JLabel("<html><center>" + tile.getSprite().getSignature() + "</center></html>", SwingConstants.CENTER);
+            nameLabel.setPreferredSize(new Dimension(buttonSize, 30));
             add(nameLabel, BorderLayout.SOUTH);
 
             addActionListener(e -> {
