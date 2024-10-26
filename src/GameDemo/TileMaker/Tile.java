@@ -2,21 +2,26 @@ package GameDemo.TileMaker;
 
 import Framework.Coordinate;
 import Framework.GraphicalAssets.Sprite;
+import java.io.Serializable;
 
 /**
  *
  * @author guydu
  */
-public class Tile {
+public class Tile implements Serializable {
+    private static final long serialVersionUID = 1L;
     
-    private Sprite sprite;
+    private transient Sprite sprite;
     private boolean isSelected = false;
     public Coordinate gridLocation = new Coordinate(0,0); // location relative to other tiles
     
     public Coordinate location = new Coordinate(0,0); // location where the topleft corner of this tile is rendered in the game world
     
+    private String spriteName; // Store the sprite name for serialization
+    
     public void setSprite(Sprite s) {
         sprite = s;
+        spriteName = s.getSignature();
     }
     
     public Sprite getSprite() {
@@ -67,5 +72,15 @@ public class Tile {
     public void updateLocationPerGridLocation() {
         this.location.x = gridLocation.x * TileMaker.TILE_SIZE;
         this.location.y = gridLocation.y * TileMaker.TILE_SIZE;
+    }
+    
+    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        // Restore the sprite from the spriteName
+        this.sprite = Tileset.getByName(spriteName).getSprite();
     }
 }

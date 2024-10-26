@@ -3,13 +3,9 @@ package GameDemo.TileMaker;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -49,7 +45,6 @@ public class Tileset {
         return null;
     }
     
-    
     /**
      * loads tile library from directory
      * @param directory 
@@ -66,36 +61,26 @@ public class Tileset {
         }
     }
 
-    public static void exportTileGridToCSV(Tile[][] tileGrid, String mapName) {
+    public static void saveTileMap(TileMap tileMap, String mapName) {
         File exportDir = new File("export");
         if (!exportDir.exists()) {
             exportDir.mkdirs();
         }
 
-        File csvFile = new File(exportDir, mapName + ".csv");
+        File saveFile = new File(exportDir, mapName + ".tilemap");
 
-        try (FileWriter writer = new FileWriter(csvFile)) {
-            for (int y = 0; y < tileGrid.length; y++) {
-                for (int x = 0; x < tileGrid[y].length; x++) {
-                    Tile tile = tileGrid[y][x];
-                    String tileFileName = tile.getSprite().getSignature();
-                    writer.append(tileFileName);
-                    if (x < tileGrid[y].length - 1) {
-                        writer.append(",");
-                    }
-                }
-                writer.append("\n");
-            }
-            System.out.println("CSV file exported successfully to: " + csvFile.getAbsolutePath());
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(saveFile))) {
+            oos.writeObject(tileMap);
+            System.out.println("TileMap saved successfully to: " + saveFile.getAbsolutePath());
         } catch (IOException e) {
-            System.err.println("Error exporting CSV file: " + e.getMessage());
+            System.err.println("Error saving TileMap: " + e.getMessage());
         }
     }
 
-    public static Tile[][] importTileGridFromCSV() {
+    public static TileMap loadTileMap() {
         JFileChooser fileChooser = new JFileChooser("export");
-        fileChooser.setDialogTitle("Select CSV file to import");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files", "csv"));
+        fileChooser.setDialogTitle("Select TileMap file to import");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("TileMap files", "tilemap"));
 
         int filepickerResult = fileChooser.showOpenDialog(null);
         if (filepickerResult != JFileChooser.APPROVE_OPTION) {
@@ -103,42 +88,15 @@ public class Tileset {
             return null;
         }
 
-        File csvFile = fileChooser.getSelectedFile();
-        ArrayList<ArrayList<Tile>> tileGrid = new ArrayList<>();
+        File saveFile = fileChooser.getSelectedFile();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] tileNames = line.split(",");
-                ArrayList<Tile> row = new ArrayList<>();
-                for (int x = 0; x < tileNames.length; x++) {
-                    String tileName = tileNames[x];
-                    Tile tile = getByName(tileName);
-                    if (tile == null) {
-                        System.err.println("Warning: Tile not found for name: " + tileName);
-                        tile = library.get(0); // Use the first tile as a default
-                    }
-                    Tile newTile = tile.createCopy();
-                    newTile.gridLocation.y = row.size();
-                    newTile.gridLocation.x = tileGrid.size();
-                    newTile.updateLocationPerGridLocation();
-                    row.add(newTile);
-                }
-                tileGrid.add(row);
-            }
-            System.out.println("CSV file imported successfully from: " + csvFile.getAbsolutePath());
-        } catch (IOException e) {
-            System.err.println("Error importing CSV file: " + e.getMessage());
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
+            TileMap tileMap = (TileMap) ois.readObject();
+            System.out.println("TileMap loaded successfully from: " + saveFile.getAbsolutePath());
+            return tileMap;
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading TileMap: " + e.getMessage());
             return null;
         }
-
-        // Convert ArrayList<ArrayList<Tile>> to Tile[][]
-        Tile[][] result = new Tile[tileGrid.size()][];
-        for (int i = 0; i < tileGrid.size(); i++) {
-            result[i] = tileGrid.get(i).toArray(new Tile[0]);
-        }
-
-        return result;
     }
-
 }
