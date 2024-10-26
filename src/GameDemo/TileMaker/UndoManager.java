@@ -4,34 +4,36 @@ import Framework.Coordinate;
 import java.util.LinkedList;
 
 public class UndoManager {
-    private LinkedList<UndoAction> undoStack = new LinkedList<>();
+    private final LinkedList<UndoAction> undoStack = new LinkedList<>();
     private static final int MAX_UNDO_ACTIONS = 50;
 
-    public void addUndoableAction(Coordinate coord, Tile oldTile) {
-        undoStack.addFirst(new UndoAction(coord, oldTile));
+    public synchronized void addUndoableAction(Coordinate gridCoord, Tile oldTile) {
+        undoStack.addFirst(new UndoAction(gridCoord, oldTile));
         if (undoStack.size() > MAX_UNDO_ACTIONS) {
             undoStack.removeLast();
         }
     }
 
-    public void undo() {
+    public synchronized void undo() {
         if (!undoStack.isEmpty()) {
+            System.out.println("size" + undoStack.size());
             UndoAction action = undoStack.removeFirst();
             action.undo();
         }
     }
 
     private static class UndoAction {
-        private Coordinate coordinate;
-        private Tile oldTile;
+        private final Coordinate gridCoordinate;
+        private final Tile oldTile;
 
-        public UndoAction(Coordinate coord, Tile oldTile) {
-            this.coordinate = coord;
+        public UndoAction(Coordinate gridCoord, Tile oldTile) {
+            this.gridCoordinate = gridCoord;
             this.oldTile = oldTile;
         }
 
         public void undo() {
-            TileMaker.tilemap.tileGrid[coordinate.x][coordinate.y] = oldTile;
+            System.out.println("undo running");
+            TileMaker.tilemap.tileGrid[gridCoordinate.x][gridCoordinate.y] = oldTile;
         }
     }
 }

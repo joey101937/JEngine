@@ -56,11 +56,15 @@ public class TileInputHandler extends AsyncInputHandler {
         if(selectedTile == null) return;
         
         Coordinate gridLocation = tileAtLocation.gridLocation;
-        Tile oldTile = TileMaker.tilemap.tileGrid[gridLocation.x][gridLocation.y];
+        Tile oldTile = TileMaker.tilemap.tileGrid[gridLocation.x][gridLocation.y].createCopy();
         Tile newTile = selectedTile.createCopy(tileAtLocation.location.x, tileAtLocation.location.y);
+        if(oldTile.getSprite().getSignature().equals(newTile.getSprite().getSignature())) {
+            System.out.println("matching signnatures " + oldTile.getSprite().getSignature());
+            return;
+        }
         newTile.gridLocation = gridLocation.copy();
         TileMaker.tilemap.tileGrid[gridLocation.x][gridLocation.y] = newTile;
-        
+        System.out.println("adding undoable action");
         undoManager.addUndoableAction(gridLocation, oldTile);
     }
     
@@ -132,6 +136,7 @@ public class TileInputHandler extends AsyncInputHandler {
             }
             case KeyEvent.VK_Z -> {
                 if(e.isControlDown()) {
+                    System.out.println("undoing");
                     undoManager.undo();
                 }
             }
