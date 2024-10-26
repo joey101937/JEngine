@@ -16,6 +16,7 @@ public class TileMaker {
     public static Tile[][] tileGrid;
     public static Game game;
     public static Minimap minimap;
+    public static TilePicker tilePicker;
     public static Tile baseTile;
     public static String tileDirectory = Main.assets+"DemoAssets/Tiles";
     
@@ -25,9 +26,10 @@ public class TileMaker {
         game = new Game(TileAssetManager.tileBackground);
         game.getCamera().camSpeed = 10;
         minimap = new Minimap(game, new Coordinate(0,0));
+        tilePicker = new TilePicker(game, new Coordinate(game.getWidth() - 300, 0));
         int gridWidth = TileAssetManager.tileBackground.getWidth() / TILE_SIZE;
         int gridHeight = TileAssetManager.tileBackground.getHeight() / TILE_SIZE;
-        System.out.println("grid width is" + gridWidth);
+        System.out.println("grid width is " + gridWidth);
         System.out.println("grid height is " + gridHeight);
         tileGrid = new Tile[gridWidth][gridHeight];
         
@@ -40,7 +42,7 @@ public class TileMaker {
         game.addIndependentEffect(new TileRenderer());
         Window.initialize(game);
         Window.addUIElement(minimap);
+        Window.addUIElement(tilePicker);
         game.setInputHandler(new TileInputHandler());
-
     }
 }
