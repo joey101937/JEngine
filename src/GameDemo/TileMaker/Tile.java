@@ -12,9 +12,9 @@ public class Tile {
     private Sprite sprite;
     private boolean isSelected = false;
     private boolean isTranslucent = false;
-    public Coordinate gridLocation = new Coordinate(0,0);
+    public Coordinate gridLocation = new Coordinate(0,0); // location relative to other tiles
     
-    public Coordinate location = new Coordinate(0,0);
+    public Coordinate location = new Coordinate(0,0); // location where the topleft corner of this tile is rendered in the game world
     
     public void setTranslucent(boolean b) {
         isTranslucent = b;
