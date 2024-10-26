@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 /**
  *
@@ -86,6 +88,42 @@ public class Tileset {
         } catch (IOException e) {
             System.err.println("Error exporting CSV file: " + e.getMessage());
         }
+    }
+
+    public static Tile[][] importTileGridFromCSV(String mapName) {
+        File importDir = new File("export");
+        File csvFile = new File(importDir, mapName + ".csv");
+
+        ArrayList<ArrayList<Tile>> tileGrid = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] tileNames = line.split(",");
+                ArrayList<Tile> row = new ArrayList<>();
+                for (String tileName : tileNames) {
+                    Tile tile = getByName(tileName);
+                    if (tile == null) {
+                        System.err.println("Warning: Tile not found for name: " + tileName);
+                        tile = library.get(0); // Use the first tile as a default
+                    }
+                    row.add(tile.createCopy());
+                }
+                tileGrid.add(row);
+            }
+            System.out.println("CSV file imported successfully from: " + csvFile.getAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Error importing CSV file: " + e.getMessage());
+            return null;
+        }
+
+        // Convert ArrayList<ArrayList<Tile>> to Tile[][]
+        Tile[][] result = new Tile[tileGrid.size()][];
+        for (int i = 0; i < tileGrid.size(); i++) {
+            result[i] = tileGrid.get(i).toArray(new Tile[0]);
+        }
+
+        return result;
     }
 
 }
