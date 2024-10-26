@@ -52,7 +52,7 @@ public class TaskBar extends UIElement {
         translucencySlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                System.out.println("Translucency Slider: " + translucencySlider.getValue());
+                handleTranslucencyChange(translucencySlider.getValue());
             }
         });
 
@@ -60,7 +60,7 @@ public class TaskBar extends UIElement {
         panel.add(sliderLabel);
         panel.add(translucencySlider);
 
-        hideUIButton = createButton("Hide UI", e -> {});
+        hideUIButton = createButton("Hide UI", e -> {handleHideUiClick();});
 
         this.add(panel, BorderLayout.CENTER);
         setVisible(true);
@@ -94,6 +94,38 @@ public class TaskBar extends UIElement {
             dimensionString = " (" + TileMaker.tilemap.tileGrid.length + "x" + TileMaker.tilemap.tileGrid[0].length + ")";
         }
         titleLabel.setText(TileMaker.tilemap.name + dimensionString);
+    }
+    
+    public void handleTranslucencyChange (int value) {
+        switch (value) {
+            case 2 -> {
+                TileRenderer.showTiles = true;
+                TileRenderer.enableTranslucency = false;
+            }
+            case 1 -> {
+                TileRenderer.showTiles = true;
+                TileRenderer.enableTranslucency = true;
+            }
+            case 0 -> {
+                TileRenderer.showTiles = false;
+            }
+        }
+        TileMaker.game.requestFocus();
+    }
+    
+    public void handleHideUiClick() {
+        if (Window.getUIElements().contains(TileMaker.minimap)) {
+            Window.removeUIElement(TileMaker.minimap);
+        } else {
+            Window.addUIElement(TileMaker.minimap);
+        }
+
+        if (Window.getUIElements().contains(TileMaker.tilePicker)) {
+            Window.removeUIElement(TileMaker.tilePicker);
+        } else {
+            Window.addUIElement(TileMaker.tilePicker);
+        }
+        TileMaker.game.requestFocus();
     }
     
     public void handleExportClick() {

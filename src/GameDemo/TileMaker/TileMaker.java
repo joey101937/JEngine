@@ -69,7 +69,9 @@ public class TileMaker {
             game.setBackground(new Sprite(background));
             Window.removeUIElement(minimap);
             minimap = new Minimap(game, new Coordinate(0,0));
-            Window.addUIElement(minimap);
+            if(Window.getUIElements().contains(tilePicker)) {
+                Window.addUIElement(minimap);
+            }
         }
         
         tilemap = loadedMap;
