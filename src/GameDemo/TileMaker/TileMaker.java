@@ -1,5 +1,6 @@
 package GameDemo.TileMaker;
 
+import Framework.Coordinate;
 import Framework.Game;
 import Framework.Window;
 import GameDemo.TileMaker.Tiles.GreenTile;
@@ -10,7 +11,7 @@ import GameDemo.TileMaker.Tiles.GreenTile;
  */
 public class TileMaker {
     
-    public static int TILE_SIZE = 100;
+    public static int TILE_SIZE = 120;
     public static Tile[][] tileGrid;
     public static Game game;
     public static Tile baseTile = new GreenTile(0, 0);
@@ -24,11 +25,12 @@ public class TileMaker {
         for(int y = 0; y < gridHeight; y++) {
             for(int x = 0; x < gridWidth; x++) {
                 tileGrid[x][y] = baseTile.createCopy(x * TILE_SIZE, y * TILE_SIZE);
-                tileGrid[x][y].setOpacity(.5);
-                game.addObject(tileGrid[x][y]);
+                tileGrid[x][y].setTranslucent(true);
+                tileGrid[x][y].gridLocation = new Coordinate(x,y);
             }
         }
-        
+        game.addIndependentEffect(new TileRenderer());
         Window.initialize(game);
+        game.setInputHandler(new TileInputHandler());
     }
 }

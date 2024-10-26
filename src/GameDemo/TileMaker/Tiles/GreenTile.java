@@ -14,7 +14,6 @@ public class GreenTile extends Tile {
         super(x, y);
         this.setMainSprite(new Sprite(TileAssetManager.tileGreen));
         this.setSelectedSprite(new Sprite(TileAssetManager.tileGreenSelected));
-        this.setGraphic(getMainSprite());
     }
     
 }

@@ -1,21 +1,28 @@
 package GameDemo.TileMaker;
 
-import Framework.GameObject2;
+import Framework.Coordinate;
 import Framework.GraphicalAssets.Sprite;
 
 /**
  *
  * @author guydu
  */
-public class Tile extends GameObject2{
+public class Tile {
     
     private Sprite mainSprite;
     private Sprite selectedSprite;
     private boolean isSelected = false;
+    private boolean isTranslucent = false;
+    public Coordinate gridLocation = new Coordinate(0,0);
     
-    public void setOpacity(double d) {
-        mainSprite.setOpacity(d);
-        selectedSprite.setOpacity(d);
+    public Coordinate location = new Coordinate(0,0);
+    
+    public void setTranslucent(boolean b) {
+        isTranslucent = b;
+    }
+   
+    public boolean isTanslucent () {
+        return isTranslucent;
     }
     
     public void setMainSprite(Sprite s) {
@@ -35,7 +42,7 @@ public class Tile extends GameObject2{
         return selectedSprite;
     }
 
-    public boolean isIsSelected() {
+    public boolean isSelected() {
         return isSelected;
     }
 
@@ -44,7 +51,7 @@ public class Tile extends GameObject2{
     }
     
     public Tile(int x, int y) {
-        super(x, y);
+        location = new Coordinate(x, y);
     }
     
     /**
@@ -65,7 +72,7 @@ public class Tile extends GameObject2{
             copy.setMainSprite(this.mainSprite);
             copy.setSelectedSprite(this.selectedSprite);
             copy.setIsSelected(this.isSelected);
-            copy.setOpacity(this.mainSprite.getOpacity());
+            copy.setTranslucent(this.isTanslucent());
             
             return copy;
         } catch (Exception e) {
@@ -77,13 +84,4 @@ public class Tile extends GameObject2{
     public Tile createCopy() {
         return createCopy((int)location.x, (int)location.y);
     }
-    
-    
-    @Override
-    public void tick() {
-        super.tick();
-        if(isSelected) this.setGraphic(selectedSprite);
-        else this.setGraphic(mainSprite);
-    }
-    
 }

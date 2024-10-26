@@ -2,6 +2,7 @@ package GameDemo.TileMaker;
 
 import Framework.AsyncInputHandler;
 import Framework.Coordinate;
+import GameDemo.TileMaker.Tiles.BlueTile;
 import java.awt.event.MouseEvent;
 
 /**
@@ -9,23 +10,26 @@ import java.awt.event.MouseEvent;
  * @author guydu
  */
 public class TileInputHandler extends AsyncInputHandler {
+    Tile hoveredTile = null;
 
     @Override
     public void onMouseMoved(MouseEvent e) {
         Coordinate mouseLocationInWorld = getLocationOfMouseEvent(e);
-        Tile hoveredTile = getTileAtLocation(mouseLocationInWorld);
-        
-        // Reset all tiles to not selected
-        for (Tile[] row : TileMaker.tileGrid) {
-            for (Tile tile : row) {
-                tile.setIsSelected(false);
-            }
-        }
-        
-        // Set the hovered tile to selected
-        if (hoveredTile != null) {
-            hoveredTile.setIsSelected(true);
-        }
+        Tile newHoveredTile = getTileAtLocation(mouseLocationInWorld);
+        System.out.println("new HoveredTile " + newHoveredTile);
+        if(hoveredTile != null) hoveredTile.setIsSelected(false);
+        newHoveredTile.setIsSelected(true);
+        hoveredTile = newHoveredTile;
+    }
+    
+
+    @Override
+    public void onMousePressed(MouseEvent e) {
+        if(hoveredTile == null)  return;
+        Tile t = new BlueTile(hoveredTile.location.x, hoveredTile.location.y);
+        t.gridLocation = hoveredTile.gridLocation.copy();
+        t.setTranslucent(hoveredTile.isTanslucent());
+        TileMaker.tileGrid[t.gridLocation.x][t.gridLocation.y] = t;
     }
     
     
