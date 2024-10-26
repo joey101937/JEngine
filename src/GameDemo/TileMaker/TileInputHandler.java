@@ -88,6 +88,9 @@ public class TileInputHandler extends AsyncInputHandler {
             case KeyEvent.VK_ESCAPE -> {
                 Window.setFullscreenWindowed(false);
             }
+            case KeyEvent.VK_EQUALS -> {
+                Window.setFullscreenWindowed(true);
+            }
             case KeyEvent.VK_M -> {
                if(Window.getUIElements().contains(TileMaker.minimap)) {
                    Window.removeUIElement(TileMaker.minimap);
@@ -108,7 +111,10 @@ public class TileInputHandler extends AsyncInputHandler {
             }
             case KeyEvent.VK_I -> {
                 // Export the tile grid to CSV
-                TileMaker.tileGrid = Tileset.importTileGridFromCSV();
+                var imported = Tileset.importTileGridFromCSV();
+                if(imported != null) {
+                    TileMaker.tileGrid = imported;
+                }
             }
         }
     }

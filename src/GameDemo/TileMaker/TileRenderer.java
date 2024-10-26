@@ -34,7 +34,7 @@ public class TileRenderer extends IndependentEffect {
                         && !TileMaker.game.getCamera().getFieldOfView().contains(currentCoordinate.x , currentCoordinate.y + TileMaker.TILE_SIZE)
                         && !TileMaker.game.getCamera().getFieldOfView().contains(currentCoordinate.x + TileMaker.TILE_SIZE, currentCoordinate.y)) continue;
                 if(enableTranslucency) {
-                    g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+                    g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f));
                     renderTile(g, tileGrid[x][y]);
                     g.setComposite(originalComposite);
                 } else {

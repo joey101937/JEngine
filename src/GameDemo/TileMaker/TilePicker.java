@@ -2,6 +2,7 @@ package GameDemo.TileMaker;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.Main;
 import Framework.UI_Elements.UIElement;
 import Framework.Window;
 
@@ -54,7 +55,6 @@ public class TilePicker extends UIElement {
             contentPanel.add(button);
         }
         setVisible(true);
-        repaint();
     }
 
     private void filterTiles(String searchText) {
@@ -79,6 +79,9 @@ public class TilePicker extends UIElement {
     @Override
     public void tick() {
         // No specific tick logic needed for this component
+        if(hostGame.getGameTickNumber() % Main.ticksPerSecond == 0) {
+            revalidate();
+        }
     }
 
     public Tile getSelectedTile() {
@@ -110,5 +113,5 @@ public class TilePicker extends UIElement {
                 selectedButton = this;
             });
         }
-    }
+    }    
 }
