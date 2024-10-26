@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Framework.UI_Elements.Examples;
 
 import Framework.Coordinate;
@@ -18,7 +13,7 @@ import javax.swing.JButton;
  * extend this class and override onPress method to make a quick button that does what you want
  * @author Joseph
  */
-public class UiButton extends UIElement{
+public class UiButton extends UIElement{ // ui element extends awt panel and adds tick and render methods to interact with Game objects
     private Game hostGame = null;
     public JButton buttonInterior = null;
 
@@ -41,10 +36,10 @@ public class UiButton extends UIElement{
      */
     public void onPress(){
         System.out.println("button pressed");         
-        hostGame.requestFocus();                      //returns focus to game
+        hostGame.requestFocus();  //returns focus to game
     }
     
-    @Override
+    @Override // runs when the hostGame renders
     public void render() {
         if (Window.currentGame != hostGame) {
             this.setVisible(false);
@@ -70,7 +65,7 @@ public class UiButton extends UIElement{
         super.setSize((int)(x * Game.getResolutionScaleX()), (int)(y*Game.getResolutionScaleY()));
         buttonInterior.setSize(getSize());
     }
-    @Override
+    @Override // runs when hostgame ticks
     public void tick(){
     };
 }
