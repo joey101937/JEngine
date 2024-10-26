@@ -31,7 +31,14 @@ public class TilePicker extends UIElement {
                 filterTiles(searchField.getText());
             }
         });
-        this.add(searchField, BorderLayout.NORTH);
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+            searchField.getBorder(), 
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        searchPanel.add(searchField, BorderLayout.CENTER);
+        this.add(searchPanel, BorderLayout.NORTH);
 
         contentPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         scrollPane = new JScrollPane(contentPanel);
