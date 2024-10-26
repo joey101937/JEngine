@@ -6,6 +6,7 @@ import Framework.Coordinate;
 import Framework.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,27 @@ public class TileInputHandler extends AsyncInputHandler {
         if(hoveredTile != null) hoveredTile.setIsSelected(false);
         if(newHoveredTile != null) newHoveredTile.setIsSelected(true);
         hoveredTile = newHoveredTile;
+    }
+
+    @Override
+    public void onMouseWheelMoved(MouseWheelEvent mwe) {
+        getHostGame().addTickDelayedEffect(1, c -> {
+            double newZoom = getHostGame().getZoom();
+            for (int i = 0; i < mwe.getScrollAmount(); i++) {
+                if (mwe.getWheelRotation() > 0) {
+                    newZoom *= .97;
+                } else {
+                    newZoom /= .97;
+                }
+            }
+            if (newZoom < .8) {
+                newZoom = .8; // how zoomed out the cam can get
+            }
+            if (newZoom > 1) {
+                newZoom = 1; // how zoomed in the cam can get
+            }
+            getHostGame().setZoom(newZoom);
+        });
     }
     
     @Override
