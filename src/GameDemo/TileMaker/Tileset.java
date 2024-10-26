@@ -18,6 +18,7 @@ public class Tileset {
         try {
             loadLibrary(path);
             int detectedTileSize = library.get(0).getSprite().getWidth();
+            TileMaker.TILE_SIZE = detectedTileSize;
             for(Tile tile : library) {
                 Sprite s = tile.getSprite();
                 if(s.getWidth() != detectedTileSize) {
