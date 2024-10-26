@@ -31,6 +31,11 @@ public class TileInputHandler extends AsyncInputHandler {
         t.gridLocation = hoveredTile.gridLocation.copy();
         TileMaker.tilemap.tileGrid[t.gridLocation.x][t.gridLocation.y] = t;
     }
+
+    @Override
+    public void onMouseDragged(MouseEvent e) {
+        // todo
+    }
     
     public static Tile getTileAtLocation(Coordinate location) {
         int x = (int) (location.x / TileMaker.TILE_SIZE);
@@ -79,6 +84,9 @@ public class TileInputHandler extends AsyncInputHandler {
             case KeyEvent.VK_S -> {
                 sDown = true;
                 wDown = false;
+                if(e.isControlDown()) {
+                    TileMaker.taskBar.handleSaveClick();
+                }
             }
             case KeyEvent.VK_D -> {
                 dDown = true;
@@ -90,18 +98,10 @@ public class TileInputHandler extends AsyncInputHandler {
             case KeyEvent.VK_EQUALS -> {
                 Window.setFullscreenWindowed(true);
             }
-            case KeyEvent.VK_M -> {
-               if(Window.getUIElements().contains(TileMaker.minimap)) {
-                   Window.removeUIElement(TileMaker.minimap);
-               } else {
-                   Window.addUIElement(TileMaker.minimap);
-               }
-            }
-            case KeyEvent.VK_T -> {
-                TileRenderer.enableTranslucency = !TileRenderer.enableTranslucency;
-            }
             case KeyEvent.VK_E -> {
-                TileRenderer.exportAsImage();
+                if(e.isControlDown()) {
+                    TileRenderer.exportAsImage();
+                }
             }
         }
     }
