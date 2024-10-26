@@ -46,18 +46,26 @@ public class Tileset {
     }
     
     /**
-     * loads tile library from directory
+     * loads tile library from directory and its subdirectories
      * @param directory 
      */
-    private static void loadLibrary(String directory) throws IOException{
+    private static void loadLibrary(String directory) throws IOException {
         File dir = new File(directory);
-        for(File f : dir.listFiles()) {
-            BufferedImage img = ImageIO.read(f);
-            Sprite s = new Sprite(img);
-            s.setSignature(f.getName());
-            Tile t = new Tile();
-            t.setSprite(s);
-            library.add(t);
+        loadLibraryRecursive(dir, "");
+    }
+
+    private static void loadLibraryRecursive(File dir, String prefix) throws IOException {
+        for (File f : dir.listFiles()) {
+            if (f.isDirectory()) {
+                loadLibraryRecursive(f, prefix + f.getName() + " - ");
+            } else if (f.getName().toLowerCase().endsWith(".png")) {
+                BufferedImage img = ImageIO.read(f);
+                Sprite s = new Sprite(img);
+                s.setSignature(prefix + f.getName());
+                Tile t = new Tile();
+                t.setSprite(s);
+                library.add(t);
+            }
         }
     }
 
