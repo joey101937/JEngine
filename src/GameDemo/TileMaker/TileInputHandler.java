@@ -19,7 +19,6 @@ public class TileInputHandler extends AsyncInputHandler {
     public void onMouseMoved(MouseEvent e) {
         Coordinate mouseLocationInWorld = getLocationOfMouseEvent(e);
         Tile newHoveredTile = getTileAtLocation(mouseLocationInWorld);
-        System.out.println("new HoveredTile " + newHoveredTile);
         if(hoveredTile != null) hoveredTile.setIsSelected(false);
         newHoveredTile.setIsSelected(true);
         hoveredTile = newHoveredTile;
