@@ -3,7 +3,7 @@ package GameDemo.TileMaker;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.UI_Elements.UIElement;
-import Framework.GraphicalAssets.Sprite;
+import Framework.Window;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +22,7 @@ public class TilePicker extends UIElement {
         hostGame = g;
         setLayout(new BorderLayout());
         setLocation(location.x, location.y);
-        setSize(300, hostGame.getHeight());
+        setSize(300, hostGame.getWindowHeight());
 
         searchField = new JTextField();
         searchField.addKeyListener(new KeyAdapter() {
@@ -31,12 +31,13 @@ public class TilePicker extends UIElement {
                 filterTiles(searchField.getText());
             }
         });
-        add(searchField, BorderLayout.NORTH);
+        this.add(searchField, BorderLayout.NORTH);
 
         contentPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         scrollPane = new JScrollPane(contentPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setSize(this.getSize());
+        this.add(scrollPane, BorderLayout.CENTER);
 
         tileButtons = new ArrayList<>();
         for (Tile tile : Tileset.library) {
@@ -44,6 +45,7 @@ public class TilePicker extends UIElement {
             tileButtons.add(button);
             contentPanel.add(button);
         }
+        setVisible(true);
     }
 
     private void filterTiles(String searchText) {
@@ -54,7 +56,6 @@ public class TilePicker extends UIElement {
             }
         }
         contentPanel.revalidate();
-        contentPanel.repaint();
     }
 
     @Override
