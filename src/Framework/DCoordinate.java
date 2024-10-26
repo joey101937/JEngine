@@ -5,12 +5,14 @@
  */
 package Framework;
 
+import java.io.Serializable;
+
 /**
  * Coordinate that uses doubles rather than integers
  *
  * @author Joseph
  */
-public class DCoordinate {
+public class DCoordinate implements Serializable {
 
     public double x, y;
 

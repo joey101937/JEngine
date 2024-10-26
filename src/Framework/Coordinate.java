@@ -1,5 +1,7 @@
 package Framework;
 
+import java.io.Serializable;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -11,7 +13,7 @@ package Framework;
  *
  * @author Joseph
  */
-public class Coordinate {
+public class Coordinate implements Serializable{
 
     public int x, y;
 

@@ -155,6 +155,7 @@ public class Window {
         getUIElements().add(uie);
         Window.panel.add(uie);
         setZOrders();
+        uie.revalidate();
     }
     public synchronized static boolean removeUIElement(UIElement uie){
         if(getUIElements().remove(uie)){
