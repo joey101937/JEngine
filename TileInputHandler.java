@@ -5,6 +5,7 @@ import Framework.InputHandler;
 import Framework.Main;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,27 @@ public class TileInputHandler extends InputHandler {
     @Override
     public void mouseClicked(MouseEvent e) {
         changeTile(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent mwe) {
+        TileMaker.game.addTickDelayedEffect(1, c -> {
+            double newZoom = TileMaker.game.getZoom();
+            for (int i = 0; i < mwe.getScrollAmount(); i++) {
+                if (mwe.getWheelRotation() > 0) {
+                    newZoom *= .97;
+                } else {
+                    newZoom /= .97;
+                }
+            }
+            if (newZoom < .8) {
+                newZoom = .8; // how zoomed out the cam can get
+            }
+            if (newZoom > 1) {
+                newZoom = 1; // how zoomed in the cam can get
+            }
+            TileMaker.game.setZoom(newZoom);
+        });
     }
 
     @Override
