@@ -2,7 +2,6 @@ package GameDemo.TileMaker;
 
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
-import java.awt.Graphics2D;
 
 /**
  *
@@ -76,7 +75,7 @@ public class Tile extends GameObject2{
     }
     
     public Tile createCopy() {
-        return createCopy((int)getX(), (int)getY());
+        return createCopy((int)location.x, (int)location.y);
     }
     
     
