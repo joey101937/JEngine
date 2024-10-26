@@ -57,7 +57,8 @@ public class TileInputHandler extends AsyncInputHandler {
         
         Coordinate gridLocation = tileAtLocation.gridLocation;
         Tile oldTile = TileMaker.tilemap.tileGrid[gridLocation.x][gridLocation.y].createCopy();
-        Tile newTile = selectedTile.createCopy(tileAtLocation.location.x, tileAtLocation.location.y);
+        oldTile.gridLocation = gridLocation;
+        Tile newTile = selectedTile.createCopy();
         if(oldTile.getSprite().getSignature().equals(newTile.getSprite().getSignature())) {
             System.out.println("matching signnatures " + oldTile.getSprite().getSignature());
             return;

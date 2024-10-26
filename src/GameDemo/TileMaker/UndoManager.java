@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 public class UndoManager {
     private final LinkedList<UndoAction> undoStack = new LinkedList<>();
-    private static final int MAX_UNDO_ACTIONS = 50;
+    private static final int MAX_UNDO_ACTIONS = 100;
 
     public synchronized void addUndoableAction(Coordinate gridCoord, Tile oldTile) {
         undoStack.addFirst(new UndoAction(gridCoord, oldTile));
@@ -32,7 +32,7 @@ public class UndoManager {
         }
 
         public void undo() {
-            System.out.println("undo running");
+            System.out.println("undo running adding " + oldTile);
             TileMaker.tilemap.tileGrid[gridCoordinate.x][gridCoordinate.y] = oldTile;
         }
     }

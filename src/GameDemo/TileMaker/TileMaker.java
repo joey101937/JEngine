@@ -44,7 +44,7 @@ public class TileMaker {
 
         for(int y = 0; y < gridHeight; y++) {
             for(int x = 0; x < gridWidth; x++) {
-                tilemap.tileGrid[x][y] = baseTile.createCopy(x * TILE_SIZE, y * TILE_SIZE);
+                tilemap.tileGrid[x][y] = baseTile.createCopy();
                 tilemap.tileGrid[x][y].gridLocation = new Coordinate(x,y);
             }
         }

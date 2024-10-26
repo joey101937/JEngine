@@ -16,8 +16,6 @@ public class Tile implements Serializable {
     private boolean isSelected = false;
     public Coordinate gridLocation = new Coordinate(0,0); // location relative to other tiles
     
-    public Coordinate location = new Coordinate(0,0); // location where the topleft corner of this tile is rendered in the game world
-    
     private String spriteName; // Store the sprite name for serialization
     
     public void setSprite(Sprite s) {
@@ -37,23 +35,17 @@ public class Tile implements Serializable {
         this.isSelected = isSelected;
     }
     
-    public Tile(int x, int y) {
-        location = new Coordinate(x, y);
+    public Tile() {
+      
     }
-
-    /**
-     * uses reflection to create a new instance of this exact class at the given coordinates
-     * @param x copy's x
-     * @param y copy's y
-     * @return new object of my class
-     */
-    public Tile createCopy(int x, int y) {
-        try {
+    
+    public Tile createCopy() {
+       try {
             // Get the exact class of this instance
             Class<?> clazz = this.getClass();
             
             // Create a new instance using the constructor that takes two int parameters
-            Tile copy = (Tile) clazz.getDeclaredConstructor(int.class, int.class).newInstance(x, y);
+            Tile copy = (Tile) clazz.getDeclaredConstructor().newInstance();
             
             // Copy the properties
             copy.setSprite(this.sprite);
@@ -63,16 +55,11 @@ public class Tile implements Serializable {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
-        }
+        }        
     }
     
-    public Tile createCopy() {
-        return createCopy((int)location.x, (int)location.y);
-    }
-    
-    public void updateLocationPerGridLocation() {
-        this.location.x = gridLocation.x * TileMaker.TILE_SIZE;
-        this.location.y = gridLocation.y * TileMaker.TILE_SIZE;
+    public Coordinate getMapLocation() {
+        return gridLocation.copy().scale(TileMaker.TILE_SIZE);
     }
     
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {

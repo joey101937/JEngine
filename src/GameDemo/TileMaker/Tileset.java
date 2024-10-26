@@ -55,7 +55,7 @@ public class Tileset {
             BufferedImage img = ImageIO.read(f);
             Sprite s = new Sprite(img);
             s.setSignature(f.getName());
-            Tile t = new Tile(0, 0);
+            Tile t = new Tile();
             t.setSprite(s);
             library.add(t);
         }
