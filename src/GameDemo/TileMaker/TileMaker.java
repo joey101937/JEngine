@@ -6,6 +6,7 @@ import Framework.GraphicalAssets.Graphic;
 import Framework.Main;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 /**
@@ -23,9 +24,11 @@ public class TileMaker {
     public static TaskBar taskBar;
     public static Tile baseTile;
     public static String tileDirectory = Main.assets+"DemoAssets/Tiles";
+    private static BufferedImage background;
     // public static String MapTitle = "Untitled";
     
     public static void main(String[] args) throws IOException {
+        background = Graphic.load(tilemap.backgroundName);
         Tileset.initialize(tileDirectory);
         baseTile = Tileset.library.get(0);
         game = new Game(Graphic.load(tilemap.backgroundName));
@@ -33,8 +36,8 @@ public class TileMaker {
         minimap = new Minimap(game, new Coordinate(0,0));
         tilePicker = new TilePicker(game, new Coordinate(game.getWindowWidth()-300, 0));
         taskBar = new TaskBar(game, new Coordinate(0, game.getWindowHeight() - 46));
-        int gridWidth = TileAssetManager.tileBackground.getWidth() / TILE_SIZE;
-        int gridHeight = TileAssetManager.tileBackground.getHeight() / TILE_SIZE;
+        int gridWidth = background.getWidth() / TILE_SIZE;
+        int gridHeight = background.getHeight() / TILE_SIZE;
         System.out.println("grid width is " + gridWidth);
         System.out.println("grid height is " + gridHeight);
         tilemap.tileGrid = new Tile[gridWidth][gridHeight];
