@@ -2,9 +2,11 @@ package GameDemo.TileMaker;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.GraphicalAssets.Graphic;
 import Framework.Main;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
+import java.io.IOException;
 
 /**
  *
@@ -23,10 +25,10 @@ public class TileMaker {
     public static String tileDirectory = Main.assets+"DemoAssets/Tiles";
     // public static String MapTitle = "Untitled";
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Tileset.initialize(tileDirectory);
         baseTile = Tileset.library.get(0);
-        game = new Game(TileAssetManager.tileBackground);
+        game = new Game(Graphic.load(tilemap.backgroundName));
         game.getCamera().camSpeed = 10;
         minimap = new Minimap(game, new Coordinate(0,0));
         tilePicker = new TilePicker(game, new Coordinate(game.getWindowWidth()-300, 0));
