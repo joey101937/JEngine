@@ -6,6 +6,8 @@ import Framework.Coordinate;
 import Framework.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -14,27 +16,59 @@ import java.awt.event.MouseEvent;
 public class TileInputHandler extends AsyncInputHandler {
     Tile hoveredTile = null;
     public static boolean wDown = false, aDown = false, sDown = false, dDown = false;
+    private UndoManager undoManager = new UndoManager();
+    private boolean isDragging = false;
+    private List<Coordinate> modifiedTiles = new ArrayList<>();
 
     @Override
     public void onMouseMoved(MouseEvent e) {
         Coordinate mouseLocationInWorld = getLocationOfMouseEvent(e);
         Tile newHoveredTile = getTileAtLocation(mouseLocationInWorld);
         if(hoveredTile != null) hoveredTile.setIsSelected(false);
-        newHoveredTile.setIsSelected(true);
+        if(newHoveredTile != null) newHoveredTile.setIsSelected(true);
         hoveredTile = newHoveredTile;
     }
     
     @Override
     public void onMousePressed(MouseEvent e) {
-        if(hoveredTile == null)  return;
-        Tile t = TileMaker.tilePicker.getSelectedTile().createCopy(hoveredTile.location.x, hoveredTile.location.y);
-        t.gridLocation = hoveredTile.gridLocation.copy();
-        TileMaker.tilemap.tileGrid[t.gridLocation.x][t.gridLocation.y] = t;
+        isDragging = true;
+        modifiedTiles.clear();
+        changeTile(e);
     }
 
     @Override
     public void onMouseDragged(MouseEvent e) {
-        // todo
+        if (isDragging) {
+            changeTile(e);
+        }
+    }
+
+    @Override
+    public void onMouseReleased(MouseEvent e) {
+        isDragging = false;
+        if (!modifiedTiles.isEmpty()) {
+            undoManager.addUndoAction(modifiedTiles);
+        }
+    }
+    
+    private void changeTile(MouseEvent e) {
+        Coordinate mouseLocationInWorld = getLocationOfMouseEvent(e);
+        Tile tileAtLocation = getTileAtLocation(mouseLocationInWorld);
+        if(tileAtLocation == null) return;
+        
+        Tile selectedTile = TileMaker.tilePicker.getSelectedTile();
+        if(selectedTile == null) return;
+        
+        Coordinate gridLocation = tileAtLocation.gridLocation;
+        Tile oldTile = TileMaker.tilemap.tileGrid[gridLocation.x][gridLocation.y];
+        Tile newTile = selectedTile.createCopy(tileAtLocation.location.x, tileAtLocation.location.y);
+        newTile.gridLocation = gridLocation.copy();
+        TileMaker.tilemap.tileGrid[gridLocation.x][gridLocation.y] = newTile;
+        
+        if (!modifiedTiles.contains(gridLocation)) {
+            modifiedTiles.add(gridLocation);
+            undoManager.addUndoableAction(gridLocation, oldTile);
+        }
     }
     
     public static Tile getTileAtLocation(Coordinate location) {
@@ -101,6 +135,11 @@ public class TileInputHandler extends AsyncInputHandler {
             case KeyEvent.VK_E -> {
                 if(e.isControlDown()) {
                     TileRenderer.exportAsImage();
+                }
+            }
+            case KeyEvent.VK_Z -> {
+                if(e.isControlDown()) {
+                    undoManager.undo();
                 }
             }
         }
