@@ -41,5 +41,9 @@ public class TileMaker {
         Window.initialize(game);
         Window.addUIElement(minimap);
         game.setInputHandler(new TileInputHandler());
+
+        // Export the tile grid to CSV
+        String exportPath = Main.assets + "export";
+        Tileset.exportTileGridToCSV(tileGrid, exportPath);
     }
 }

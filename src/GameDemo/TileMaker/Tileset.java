@@ -3,6 +3,7 @@ package GameDemo.TileMaker;
 import Framework.GraphicalAssets.Sprite;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
@@ -57,6 +58,32 @@ public class Tileset {
             Tile t = new Tile(0, 0);
             t.setSprite(s);
             library.add(t);
+        }
+    }
+
+    public static void exportTileGridToCSV(Tile[][] tileGrid, String exportPath) {
+        File exportDir = new File(exportPath);
+        if (!exportDir.exists()) {
+            exportDir.mkdirs();
+        }
+
+        File csvFile = new File(exportDir, "myMap.csv");
+
+        try (FileWriter writer = new FileWriter(csvFile)) {
+            for (int y = 0; y < tileGrid.length; y++) {
+                for (int x = 0; x < tileGrid[y].length; x++) {
+                    Tile tile = tileGrid[y][x];
+                    String tileFileName = tile.getSprite().getSignature();
+                    writer.append(tileFileName);
+                    if (x < tileGrid[y].length - 1) {
+                        writer.append(",");
+                    }
+                }
+                writer.append("\n");
+            }
+            System.out.println("CSV file exported successfully to: " + csvFile.getAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Error exporting CSV file: " + e.getMessage());
         }
     }
 
