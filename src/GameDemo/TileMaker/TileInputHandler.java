@@ -94,6 +94,10 @@ public class TileInputHandler extends AsyncInputHandler {
                 String fileName = "myMap";
                 Tileset.exportTileGridToCSV(tileGrid, fileName);
             }
+             case KeyEvent.VK_I -> {
+                // Export the tile grid to CSV
+                TileMaker.tileGrid = Tileset.importTileGridFromCSV();
+            }
         }
     }
 

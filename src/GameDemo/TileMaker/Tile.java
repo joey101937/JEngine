@@ -73,4 +73,9 @@ public class Tile {
     public Tile createCopy() {
         return createCopy((int)location.x, (int)location.y);
     }
+    
+    public void updateLocationPerGridLocation() {
+        this.location.x = gridLocation.x * TileMaker.TILE_SIZE;
+        this.location.y = gridLocation.y * TileMaker.TILE_SIZE;
+    }
 }

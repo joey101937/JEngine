@@ -41,7 +41,7 @@ public class Tileset {
     
     public static Tile getByName(String name) {
         for(Tile t : library) {
-            if(t.getSprite().getSignature() == name) {
+            if(t.getSprite().getSignature().equals(name)) {
                 return t;
             }
         }
@@ -97,8 +97,8 @@ public class Tileset {
         fileChooser.setDialogTitle("Select CSV file to import");
         fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files", "csv"));
 
-        int result = fileChooser.showOpenDialog(null);
-        if (result != JFileChooser.APPROVE_OPTION) {
+        int filepickerResult = fileChooser.showOpenDialog(null);
+        if (filepickerResult != JFileChooser.APPROVE_OPTION) {
             System.out.println("No file selected");
             return null;
         }
@@ -111,13 +111,18 @@ public class Tileset {
             while ((line = reader.readLine()) != null) {
                 String[] tileNames = line.split(",");
                 ArrayList<Tile> row = new ArrayList<>();
-                for (String tileName : tileNames) {
+                for (int x = 0; x < tileNames.length; x++) {
+                    String tileName = tileNames[x];
                     Tile tile = getByName(tileName);
                     if (tile == null) {
                         System.err.println("Warning: Tile not found for name: " + tileName);
                         tile = library.get(0); // Use the first tile as a default
                     }
-                    row.add(tile.createCopy());
+                    Tile newTile = tile.createCopy();
+                    newTile.gridLocation.y = row.size();
+                    newTile.gridLocation.x = tileGrid.size();
+                    newTile.updateLocationPerGridLocation();
+                    row.add(newTile);
                 }
                 tileGrid.add(row);
             }
