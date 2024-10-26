@@ -36,11 +36,16 @@ public class TileRenderer extends IndependentEffect {
         }
     }
     
+    private static final int BORDER_WIDTH = 2;
+    private static final Color BORDER_COLOR = Color.WHITE;
+
     private void renderTile(Graphics2D g, Tile t) {
-        if(t.isSelected()) {
-             g.drawImage(t.getSelectedSprite().getCurrentVolatileImage(), t.location.x, t.location.y, null);
-        } else {
-            g.drawImage(t.getMainSprite().getCurrentVolatileImage(), t.location.x, t.location.y, null);
+        g.drawImage(t.getSprite().getCurrentVolatileImage(), t.location.x, t.location.y, null);
+        
+        if (t.isSelected()) {
+            g.setColor(BORDER_COLOR);
+            g.setStroke(new BasicStroke(BORDER_WIDTH));
+            g.drawRect(t.location.x, t.location.y, TileMaker.TILE_SIZE, TileMaker.TILE_SIZE);
         }
     }
 
@@ -65,7 +70,7 @@ public class TileRenderer extends IndependentEffect {
                 Tile tile = TileMaker.tileGrid[x][y];
                 int drawX = x * TileMaker.TILE_SIZE;
                 int drawY = y * TileMaker.TILE_SIZE;
-                g.drawImage(tile.getMainSprite().getCurrentVolatileImage(), drawX, drawY, null);
+                g.drawImage(tile.getSprite().getCurrentVolatileImage(), drawX, drawY, null);
             }
         }
         

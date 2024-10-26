@@ -9,8 +9,7 @@ import Framework.GraphicalAssets.Sprite;
  */
 public class Tile {
     
-    private Sprite mainSprite;
-    private Sprite selectedSprite;
+    private Sprite sprite;
     private boolean isSelected = false;
     private boolean isTranslucent = false;
     public Coordinate gridLocation = new Coordinate(0,0);
@@ -21,25 +20,16 @@ public class Tile {
         isTranslucent = b;
     }
    
-    public boolean isTanslucent () {
+    public boolean isTranslucent() {
         return isTranslucent;
     }
     
-    public void setMainSprite(Sprite s) {
-        mainSprite = s;
+    public void setSprite(Sprite s) {
+        sprite = s;
     }
     
-    public void setSelectedSprite(Sprite s) {
-        selectedSprite = s;
-    }
-    
-    
-    public Sprite getMainSprite() {
-        return mainSprite;
-    }
-    
-    public Sprite getSelectedSprite(){
-        return selectedSprite;
+    public Sprite getSprite() {
+        return sprite;
     }
 
     public boolean isSelected() {
@@ -69,10 +59,9 @@ public class Tile {
             Tile copy = (Tile) clazz.getDeclaredConstructor(int.class, int.class).newInstance(x, y);
             
             // Copy the properties
-            copy.setMainSprite(this.mainSprite);
-            copy.setSelectedSprite(this.selectedSprite);
+            copy.setSprite(this.sprite);
             copy.setIsSelected(this.isSelected);
-            copy.setTranslucent(this.isTanslucent());
+            copy.setTranslucent(this.isTranslucent());
             
             return copy;
         } catch (Exception e) {
