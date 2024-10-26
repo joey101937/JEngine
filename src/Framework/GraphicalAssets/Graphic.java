@@ -109,6 +109,8 @@ public interface Graphic {
      * sets opacity based on input
      */
     public void setOpacity(double input);
+    
+    public double getOpacity();
 
     /**
      * returns a scaled copy of the image

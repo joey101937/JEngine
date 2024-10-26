@@ -18,6 +18,7 @@ import java.awt.image.VolatileImage;
 public class Sequence implements Graphic{
     public Sprite[] frames;
     private double scale = 1;
+    private double opacity = 1;
     /**Duration to wait before switching frames in ms*/
     private int frameDelay = 100;
     /**Index of frame currently set to render*/
@@ -479,6 +480,7 @@ public class Sequence implements Graphic{
         for(Sprite s : frames){
             s.setOpacity(input);
         }
+        this.opacity = input;
     }
     
     /**
@@ -494,6 +496,11 @@ public class Sequence implements Graphic{
         }
         
         return new Sequence(sprites);
+    }
+
+    @Override
+    public double getOpacity() {
+        return opacity;
     }
 
     

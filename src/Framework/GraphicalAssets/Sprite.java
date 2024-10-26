@@ -22,6 +22,7 @@ public class Sprite implements Graphic {
     private String signuature;
 
     private double scale = 1;
+    private double opacity = 1;
 
     /**
      * gets raw underlying image
@@ -184,6 +185,7 @@ public class Sprite implements Graphic {
         g2d.dispose();
         image = outputImage;
         volatileImage = Graphic.getVolatileFromBuffered(image);
+        opacity = amount;
     }
 
     /**
@@ -218,5 +220,10 @@ public class Sprite implements Graphic {
         }
 
         return new Sprite(shadowImage);
+    }
+
+    @Override
+    public double getOpacity() {
+        return opacity;
     }
 }
