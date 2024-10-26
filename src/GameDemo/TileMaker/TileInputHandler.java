@@ -32,7 +32,6 @@ public class TileInputHandler extends AsyncInputHandler {
     @Override
     public void onMousePressed(MouseEvent e) {
         isDragging = true;
-        modifiedTiles.clear();
         changeTile(e);
     }
 
@@ -46,9 +45,6 @@ public class TileInputHandler extends AsyncInputHandler {
     @Override
     public void onMouseReleased(MouseEvent e) {
         isDragging = false;
-        if (!modifiedTiles.isEmpty()) {
-            undoManager.addUndoAction(modifiedTiles);
-        }
     }
     
     private void changeTile(MouseEvent e) {
@@ -65,10 +61,7 @@ public class TileInputHandler extends AsyncInputHandler {
         newTile.gridLocation = gridLocation.copy();
         TileMaker.tilemap.tileGrid[gridLocation.x][gridLocation.y] = newTile;
         
-        if (!modifiedTiles.contains(gridLocation)) {
-            modifiedTiles.add(gridLocation);
-            undoManager.addUndoableAction(gridLocation, oldTile);
-        }
+        undoManager.addUndoableAction(gridLocation, oldTile);
     }
     
     public static Tile getTileAtLocation(Coordinate location) {
