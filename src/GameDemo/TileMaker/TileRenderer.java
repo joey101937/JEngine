@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 public class TileRenderer extends IndependentEffect {
     
     public static boolean enableTranslucency = true;
+    
 
     @Override
     public void render(Graphics2D g) {
@@ -28,7 +29,10 @@ public class TileRenderer extends IndependentEffect {
         for(int y = 0; y <  tileGrid[0].length; y++) {
             for(int x = 0; x <  tileGrid.length; x++) {
                currentCoordinate =  tileGrid[x][y].location;
-                if(!TileMaker.game.getCamera().getFieldOfView().contains(currentCoordinate.x, currentCoordinate.y)) continue;
+                if(!TileMaker.game.getCamera().getFieldOfView().contains(currentCoordinate.x, currentCoordinate.y)
+                        && !TileMaker.game.getCamera().getFieldOfView().contains(currentCoordinate.x + TileMaker.TILE_SIZE, currentCoordinate.y + TileMaker.TILE_SIZE)
+                        && !TileMaker.game.getCamera().getFieldOfView().contains(currentCoordinate.x , currentCoordinate.y + TileMaker.TILE_SIZE)
+                        && !TileMaker.game.getCamera().getFieldOfView().contains(currentCoordinate.x + TileMaker.TILE_SIZE, currentCoordinate.y)) continue;
                 if(enableTranslucency) {
                     g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
                     renderTile(g, tileGrid[x][y]);

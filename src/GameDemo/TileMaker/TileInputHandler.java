@@ -3,7 +3,7 @@ package GameDemo.TileMaker;
 import Framework.AsyncInputHandler;
 import Framework.Camera;
 import Framework.Coordinate;
-import Framework.Main;
+import Framework.Window;
 import static GameDemo.TileMaker.TileMaker.tileGrid;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -85,6 +85,16 @@ public class TileInputHandler extends AsyncInputHandler {
                 dDown = true;
                 aDown = false;
             }
+            case KeyEvent.VK_M -> {
+               if(Window.getUIElements().contains(TileMaker.minimap)) {
+                   Window.removeUIElement(TileMaker.minimap);
+               } else {
+                   Window.addUIElement(TileMaker.minimap);
+               }
+            }
+            case KeyEvent.VK_T -> {
+                TileRenderer.enableTranslucency = !TileRenderer.enableTranslucency;
+            }
             case KeyEvent.VK_E -> {
                 TileRenderer.exportAsImage();
             }
@@ -93,7 +103,7 @@ public class TileInputHandler extends AsyncInputHandler {
                 String fileName = "myMap";
                 Tileset.exportTileGridToCSV(tileGrid, fileName);
             }
-             case KeyEvent.VK_I -> {
+            case KeyEvent.VK_I -> {
                 // Export the tile grid to CSV
                 TileMaker.tileGrid = Tileset.importTileGridFromCSV();
             }

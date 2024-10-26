@@ -15,6 +15,7 @@ public class TileMaker {
     public static int TILE_SIZE = 120;
     public static Tile[][] tileGrid;
     public static Game game;
+    public static Minimap minimap;
     public static Tile baseTile;
     public static String tileDirectory = Main.assets+"DemoAssets/Tiles";
     
@@ -23,7 +24,7 @@ public class TileMaker {
         baseTile = Tileset.library.get(0);
         game = new Game(TileAssetManager.tileBackground);
         game.getCamera().camSpeed = 10;
-        Minimap minimap = new Minimap(game, new Coordinate(0,0));
+        minimap = new Minimap(game, new Coordinate(0,0));
         int gridWidth = TileAssetManager.tileBackground.getWidth() / TILE_SIZE;
         int gridHeight = TileAssetManager.tileBackground.getHeight() / TILE_SIZE;
         System.out.println("grid width is" + gridWidth);
