@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package GameDemo.TileMaker;
 
 import Framework.Coordinate;
@@ -21,8 +17,8 @@ public class TileRenderer extends IndependentEffect {
     public void render(Graphics2D g) {
         Coordinate currentCoordinate = null;
         Composite originalComposite = g.getComposite();
-        for(int y = 0; y < tileGrid.length; y++) {
-            for(int x = 0; x < tileGrid[0].length; x++) {
+        for(int y = 0; y <  tileGrid[0].length; y++) {
+            for(int x = 0; x <  tileGrid.length; x++) {
                currentCoordinate =  tileGrid[x][y].location;
                 if(!TileMaker.game.getCamera().getFieldOfView().contains(currentCoordinate.x, currentCoordinate.y)) continue;
                 if(tileGrid[x][y].isTanslucent()) {
@@ -47,6 +43,14 @@ public class TileRenderer extends IndependentEffect {
     @Override
     public void tick() {
     
+    }
+    
+    /**
+     * exports the current tile grid as a .png image. Tile translucency is ignored.
+     * it is saved as TileExport.png in the export folder
+     */
+    public static void exportAsImage() {
+        
     }
     
 }
