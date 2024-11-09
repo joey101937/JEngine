@@ -105,7 +105,6 @@ public class RTSInput extends InputHandler {
                 return;
             }
             for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
-                System.out.println("setting false");
                 u.setSelected(false);
             }
             SelectionBoxEffect.selectedUnits.clear();

@@ -4,6 +4,7 @@ package GameDemo.RTSDemo;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.util.stream.Collectors;
@@ -63,12 +64,21 @@ public class FogOfWarEffect extends IndependentEffect {
             }
             area.add(subArea);
         }
+        RTSGame.game.setBackgroundClip(createInverseArea(area, RTSGame.game.getWorldWidth(), RTSGame.game.getWorldHeight()));
     }
     
     
     @Override
     public int getZLayer() {
         return Integer.MIN_VALUE;
+    }
+    
+    public static Area createInverseArea(Area visibilityArea, int canvasWidth, int canvasHeight) {
+        // Create an area covering the entire canvas
+        Area inverseArea = new Area(new Rectangle(0, 0, canvasWidth, canvasHeight));
+        // Subtract the visible area from the full area to get the inverse
+        inverseArea.subtract(visibilityArea);
+        return inverseArea;
     }
 
 }

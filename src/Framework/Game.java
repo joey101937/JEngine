@@ -26,6 +26,7 @@ import java.awt.BasicStroke;
 import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.geom.Area;
 import java.awt.image.VolatileImage;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -83,6 +84,8 @@ public class Game extends Canvas implements Runnable {
     public GameObject2 testObject = null; //object to be controlled by input
     private final Camera camera = new Camera(this);
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
+    // set this to only render background in this area
+    private Area backgroundClipArea;
     
     private Consumer handleSyncTick;
 
@@ -569,6 +572,7 @@ public class Game extends Canvas implements Runnable {
      */
     public void renderBackGround(Graphics g) {
         try {
+            g.setClip(backgroundClipArea);
             if (backgroundImage == null) {
                 System.out.println("NO BACKGROUND IMAGE TO RENDER IN GAME: " + name);
                 return;
@@ -678,6 +682,7 @@ public class Game extends Canvas implements Runnable {
                             null
                     );
             }
+        g.setClip(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1034,6 +1039,14 @@ public class Game extends Canvas implements Runnable {
     @Override
     public String getName() {
         return name;
+    }
+    
+    /**
+     * sets the background to only render in this area
+     * @param a  area to render
+     */
+    public void setBackgroundClip(Area a) {
+        this.backgroundClipArea = a;
     }
     
 }
