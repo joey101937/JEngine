@@ -37,13 +37,22 @@ public class FogOfWarEffect extends IndependentEffect {
         g.setClip(null);
     }
 
+    private static final int UNITS_PER_SUBAREA = 5;
+
     @Override
     public void tick() {
         if(RTSGame.game.getGameTickNumber() % 5 != 0) return;
         area = new Area();
         var gameObjects = RTSGame.game.getAllObjects();
-        for(GameObject2 go : gameObjects) {
-            if(go instanceof RTSUnit unit && unit.team == ExternalCommunicator.localTeam) {
+        var localUnits = gameObjects.stream()
+            .filter(go -> go instanceof RTSUnit && ((RTSUnit) go).team == ExternalCommunicator.localTeam)
+            .map(go -> (RTSUnit) go)
+            .collect(Collectors.toList());
+
+        for (int i = 0; i < localUnits.size(); i += UNITS_PER_SUBAREA) {
+            Area subArea = new Area();
+            for (int j = i; j < Math.min(i + UNITS_PER_SUBAREA, localUnits.size()); j++) {
+                RTSUnit unit = localUnits.get(j);
                 Ellipse2D.Double visibilityCircle = new Ellipse2D.Double(
                     unit.location.x - unit.sightRadius,
                     unit.location.y - unit.sightRadius,
@@ -51,14 +60,11 @@ public class FogOfWarEffect extends IndependentEffect {
                     2 * unit.sightRadius
                 );
                 
-                if(!visibilityCircle.intersects(RTSGame.game.getCamera().getFieldOfView())) {
-                    continue;
+                if (visibilityCircle.intersects(RTSGame.game.getCamera().getFieldOfView())) {
+                    subArea.add(new Area(visibilityCircle));
                 }
-                
-                var visArea = new Area(visibilityCircle);
-                
-                area.add(visArea);
             }
+            area.add(subArea);
         }
     }
     
