@@ -42,6 +42,7 @@ public class RTSUnit extends Creature {
     public boolean isCloaked = false;
     public boolean isImmobilized = false;
     public double originalSpeed = 1.8;
+    public int sightRadius = 600;
     private ArrayList<CommandButton> buttons = new ArrayList<>();
 
     public static Color getColorFromTeam(int team) {

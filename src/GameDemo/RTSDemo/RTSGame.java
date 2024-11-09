@@ -24,7 +24,7 @@ import GameDemo.RTSDemo.Units.TankUnit;
  */
 public class RTSGame {
 
-    public static Game game = new Game(RTSAssetManager.grassBG);
+    public static Game game = new Game(RTSAssetManager.grassBGDark);
     public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
     public static InfoPanelEffect infoPanelEffect;
     public static ReinforcementHandler reinforcementHandler;
@@ -49,6 +49,7 @@ public class RTSGame {
         g.addIndependentEffect(infoPanelEffect);
         g.addIndependentEffect(new TooltipHelper());
         g.addIndependentEffect(new KeyBuildingRingEffect());
+        g.addIndependentEffect(new FogOfWarEffect());
         reinforcementHandler = new ReinforcementHandler(new Coordinate(0, game.getWindowHeight() - minimap.getHeight() - 30), 10);
         g.addIndependentEffect(reinforcementHandler);
     }

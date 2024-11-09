@@ -23,7 +23,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] tankFireAnimation, tankFireAnimationRed;
     public static BufferedImage[] tankFireAnimationDamaged, tankFireAnimationDamagedRed;
     public static BufferedImage bullet, bullet2;
-    public static BufferedImage grassBG;
+    public static BufferedImage grassBG, grassBGDark;
     public static BufferedImage hellicopter, hellicopterRed;
     public static BufferedImage hellicopterShadow;
     public static BufferedImage hellicopterDestroyed, hellicopterDestroyedRed;
@@ -88,6 +88,7 @@ public abstract class RTSAssetManager {
             bullet = load("DemoAssets/TankGame/bullet.png");
             bullet2 = load("DemoAssets/TankGame/bullet2.png");
             grassBG = load("DemoAssets/TankGame/grassTerrain_mega3.png");
+            grassBGDark = load("DemoAssets/TankGame/grassTerrain_mega3_dark.png");
             hellicopter = load("DemoAssets/TankGame/copter/base.png");
             hellicopterRed = blueToRed(hellicopter);
             hellicopterDestroyed = load("DemoAssets/TankGame/copter/hellicopterDestroyed.png");
