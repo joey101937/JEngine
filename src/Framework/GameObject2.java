@@ -365,6 +365,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public double rotationNeededToFace(Coordinate point){
         double result = DCoordinate.angleFrom(getPixelLocation(), point);
         if(result-getRotation()>180)result-=360;
+        if(result-getRotation()<-180)result+=360;
         return result - getRotation();
     }
     
