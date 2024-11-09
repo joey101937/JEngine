@@ -7,6 +7,7 @@ import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.Graphics2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.util.stream.Collectors;
 
 /**
  *
