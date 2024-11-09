@@ -39,6 +39,7 @@ public class FogOfWarEffect extends IndependentEffect {
 
     @Override
     public void tick() {
+        if(1==1) return;
         if(RTSGame.game.getGameTickNumber() % 5 != 0) return;
         area = new Area();
         var gameObjects = RTSGame.game.getAllObjects();
