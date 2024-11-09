@@ -1,7 +1,6 @@
 
 package GameDemo.RTSDemo;
 
-import Framework.GameObject2;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.Graphics2D;
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
  * @author guydu
  */
 public class FogOfWarEffect extends IndependentEffect {
-    
+    private static final int UNITS_PER_SUBAREA = 7;
     private Area area = new Area();
 
     @Override
@@ -36,8 +35,6 @@ public class FogOfWarEffect extends IndependentEffect {
         );
         g.setClip(null);
     }
-
-    private static final int UNITS_PER_SUBAREA = 5;
 
     @Override
     public void tick() {
