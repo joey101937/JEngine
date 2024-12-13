@@ -1,12 +1,17 @@
 
 package GameDemo.RTSDemo;
 
+import Framework.CoreLoop.Handler;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -16,30 +21,95 @@ import java.util.stream.Collectors;
 public class FogOfWarEffect extends IndependentEffect {
     private static final int UNITS_PER_SUBAREA = 7;
     private Area area = new Area();
+    private boolean enabled = true;
+    public static ExecutorService fogRenderService = Handler.newMinSizeCachedThreadPool(4);
 
     @Override
     public void render(Graphics2D g) {
         if(area == null) return;
-        g.setClip(area);
-        var camera = RTSGame.game.getCamera();
-        g.drawImage(
-                RTSAssetManager.grassBG,
-                -camera.getPixelLocation().x ,
-                -camera.getPixelLocation().y,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                -camera.getPixelLocation().x,
-                -camera.getPixelLocation().y,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                null
-        );
+            g.setClip(area);
+            var camera = RTSGame.game.getCamera();
+            g.drawImage(
+                    RTSAssetManager.grassBG,
+                    -camera.getPixelLocation().x ,
+                    -camera.getPixelLocation().y,
+                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                    -camera.getPixelLocation().x,
+                    -camera.getPixelLocation().y,
+                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                    null
+            );
+
+                    LinkedList<Future<?>> results = new LinkedList<>();
+                        results.push(fogRenderService.submit(new BackgroundRenderTask(c -> {
+                            g.drawImage(
+                                    RTSAssetManager.grassBG,
+                                    -camera.getPixelLocation().x,
+                                    -camera.getPixelLocation().y,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                                    -camera.getPixelLocation().x,
+                                    -camera.getPixelLocation().y,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                                    null
+                            );
+                        })));
+                        // Top Right
+                        results.push(fogRenderService.submit(new BackgroundRenderTask(c -> {
+                            g.drawImage(
+                                    RTSAssetManager.grassBG,
+                                    (-camera.getPixelLocation().x) + camera.getFieldOfView().width / 2,
+                                    (-camera.getPixelLocation().y),
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                                    -camera.getPixelLocation().y,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                                    null
+                            );
+                        })));
+                        // bottom left
+                        results.push(fogRenderService.submit(new BackgroundRenderTask(c -> {
+                            g.drawImage(
+                                    RTSAssetManager.grassBG,
+                                    -camera.getPixelLocation().x,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                                    -camera.getPixelLocation().x,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                                    null
+                            );
+                        })));
+                        // bottom right
+                        results.push(fogRenderService.submit(new BackgroundRenderTask(c -> {
+                            g.drawImage(
+                                    RTSAssetManager.grassBG,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                                    null
+                            );
+                        })));
+
+                        Handler.waitForAllJobs(results);
         g.setClip(null);
     }
 
     @Override
     public void tick() {
-        if(1==1) return;
+        if(!enabled) return;
         if(RTSGame.game.getGameTickNumber() % 5 != 0) return;
         area = new Area();
         var gameObjects = RTSGame.game.getAllObjects();
@@ -82,4 +152,19 @@ public class FogOfWarEffect extends IndependentEffect {
         return inverseArea;
     }
 
+    
+        private static class BackgroundRenderTask implements Runnable {
+
+        Consumer c;
+
+        public BackgroundRenderTask(Consumer c) {
+            this.c = c;
+        }
+
+        @Override
+        public void run() {
+            c.accept(null);
+        }
+
+    }
 }
