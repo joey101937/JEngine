@@ -550,21 +550,6 @@ public class Game extends Canvas implements Runnable {
         g.setColor(originalColor);
     }
 
-    private static class BackgroundRenderTask implements Runnable {
-
-        Consumer c;
-
-        public BackgroundRenderTask(Consumer c) {
-            this.c = c;
-        }
-
-        @Override
-        public void run() {
-            c.accept(null);
-        }
-
-    }
-
     /**
      * renders the background onto the game
      *
@@ -584,7 +569,7 @@ public class Game extends Canvas implements Runnable {
                     g.drawRect(0, 0, volatileImage.getWidth(), volatileImage.getHeight());
                     // split into quadrants and render each on a separate thread
                     if (Main.splitBackgroundRender) {
-                        Graphic.renderLargeImageInParts((Graphics2D) g, volatileImage.getSnapshot(), getCamera(), backgroundRenderService);
+                        Graphic.renderLargeImageInParts((Graphics2D) g, volatileImage, getCamera(), backgroundRenderService);
                     } else {
                         g.drawImage(
                                 volatileImage,

@@ -13,6 +13,7 @@ import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 
 /**
@@ -294,11 +296,11 @@ public interface Graphic {
      * @param camera Camera object for positioning
      * @param executorService ExecutorService for parallel rendering
      */
-    public static void renderLargeImageInParts(Graphics2D g, BufferedImage image, Camera camera, ExecutorService executorService) {
+    public static void renderLargeImageInParts(Graphics2D g, Image image, Camera camera, ExecutorService executorService) {
         LinkedList<Future<?>> results = new LinkedList<>();
         
         // Top Left
-        results.push(executorService.submit(() -> {
+        results.push(executorService.submit(new BackgroundRenderTask(x -> {
             g.drawImage(
                 image,
                 -camera.getPixelLocation().x,
@@ -311,10 +313,10 @@ public interface Graphic {
                 -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
                 null
             );
-        }));
+        })));
 
         // Top Right
-        results.push(executorService.submit(() -> {
+        results.push(executorService.submit(new BackgroundRenderTask(x -> {
             g.drawImage(
                 image,
                 (-camera.getPixelLocation().x) + camera.getFieldOfView().width / 2,
@@ -327,10 +329,10 @@ public interface Graphic {
                 -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
                 null
             );
-        }));
+        })));
 
         // Bottom Left
-        results.push(executorService.submit(() -> {
+        results.push(executorService.submit(new BackgroundRenderTask(x -> {
             g.drawImage(
                 image,
                 -camera.getPixelLocation().x,
@@ -343,10 +345,10 @@ public interface Graphic {
                 -camera.getPixelLocation().y + camera.getFieldOfView().height,
                 null
             );
-        }));
+        })));
 
         // Bottom Right
-        results.push(executorService.submit(() -> {
+        results.push(executorService.submit(new BackgroundRenderTask(x -> {
             g.drawImage(
                 image,
                 -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
@@ -359,8 +361,24 @@ public interface Graphic {
                 -camera.getPixelLocation().y + camera.getFieldOfView().height,
                 null
             );
-        }));
-
+        })));
+        
         Handler.waitForAllJobs(results);
+    }
+    
+    
+    static class BackgroundRenderTask implements Runnable {
+
+        Consumer c;
+
+        public BackgroundRenderTask(Consumer c) {
+            this.c = c;
+        }
+
+        @Override
+        public void run() {
+            c.accept(null);
+        }
+
     }
 }
