@@ -2,15 +2,14 @@
 package GameDemo.RTSDemo;
 
 import Framework.CoreLoop.Handler;
+import Framework.GraphicalAssets.Graphic;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
-import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -42,7 +41,7 @@ public class FogOfWarEffect extends IndependentEffect {
                     null
             );
 
-                    Graphic.renderLargeImageInParts(g, RTSAssetManager.grassBG, RTSGame.game.getCamera(), fogRenderService);
+            Graphic.renderLargeImageInParts(g, RTSAssetManager.grassBG, RTSGame.game.getCamera(), fogRenderService);
         g.setClip(null);
     }
 

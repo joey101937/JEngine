@@ -34,7 +34,7 @@ public class RTSGame {
         Main.ignoreCollisionsForStillObjects = true; // better performance
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
-        Main.ticksPerSecond = 90;
+        Main.ticksPerSecond = 60;
         g.getCamera().camSpeed = 20;
         g.addIndependentEffect(new SelectionBoxEffect());
         g.addIndependentEffect(new SelectionBoxEffectAir());
