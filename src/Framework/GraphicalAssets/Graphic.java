@@ -290,7 +290,7 @@ public interface Graphic {
     }
 
     /**
-     * Renders a large image in four parts for better performance.
+     * Renders a large image in sixteen parts for better performance.
      * @param g Graphics2D object to render on
      * @param image Image to render
      * @param camera Camera object for positioning
@@ -299,69 +299,29 @@ public interface Graphic {
     public static void renderLargeImageInParts(Graphics2D g, Image image, Camera camera, ExecutorService executorService) {
         LinkedList<Future<?>> results = new LinkedList<>();
         
-        // Top Left
-        results.push(executorService.submit(new BackgroundRenderTask(x -> {
-            g.drawImage(
-                image,
-                -camera.getPixelLocation().x,
-                -camera.getPixelLocation().y,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                -camera.getPixelLocation().x,
-                -camera.getPixelLocation().y,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                null
-            );
-        })));
-
-        // Top Right
-        results.push(executorService.submit(new BackgroundRenderTask(x -> {
-            g.drawImage(
-                image,
-                (-camera.getPixelLocation().x) + camera.getFieldOfView().width / 2,
-                (-camera.getPixelLocation().y),
-                -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                -camera.getPixelLocation().y,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                null
-            );
-        })));
-
-        // Bottom Left
-        results.push(executorService.submit(new BackgroundRenderTask(x -> {
-            g.drawImage(
-                image,
-                -camera.getPixelLocation().x,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                -camera.getPixelLocation().x,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                null
-            );
-        })));
-
-        // Bottom Right
-        results.push(executorService.submit(new BackgroundRenderTask(x -> {
-            g.drawImage(
-                image,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                null
-            );
-        })));
+        int sliceWidth = camera.getFieldOfView().width / 4;
+        int sliceHeight = camera.getFieldOfView().height / 4;
+        
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                final int finalRow = row;
+                final int finalCol = col;
+                results.push(executorService.submit(new BackgroundRenderTask(x -> {
+                    g.drawImage(
+                        image,
+                        -camera.getPixelLocation().x + finalCol * sliceWidth,
+                        -camera.getPixelLocation().y + finalRow * sliceHeight,
+                        -camera.getPixelLocation().x + (finalCol + 1) * sliceWidth,
+                        -camera.getPixelLocation().y + (finalRow + 1) * sliceHeight,
+                        -camera.getPixelLocation().x + finalCol * sliceWidth,
+                        -camera.getPixelLocation().y + finalRow * sliceHeight,
+                        -camera.getPixelLocation().x + (finalCol + 1) * sliceWidth,
+                        -camera.getPixelLocation().y + (finalRow + 1) * sliceHeight,
+                        null
+                    );
+                })));
+            }
+        }
         
         Handler.waitForAllJobs(results);
     }
