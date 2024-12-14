@@ -281,4 +281,81 @@ public interface Graphic {
         
         return Main.arrayConcatenate(forwards, backwards);
     }
+
+    /**
+     * Renders a large image in four parts for better performance.
+     * @param g Graphics2D object to render on
+     * @param image Image to render
+     * @param camera Camera object for positioning
+     * @param executorService ExecutorService for parallel rendering
+     */
+    public static void renderLargeImageInParts(Graphics2D g, BufferedImage image, Camera camera, ExecutorService executorService) {
+        LinkedList<Future<?>> results = new LinkedList<>();
+        
+        // Top Left
+        results.push(executorService.submit(() -> {
+            g.drawImage(
+                image,
+                -camera.getPixelLocation().x,
+                -camera.getPixelLocation().y,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                -camera.getPixelLocation().x,
+                -camera.getPixelLocation().y,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                null
+            );
+        }));
+
+        // Top Right
+        results.push(executorService.submit(() -> {
+            g.drawImage(
+                image,
+                (-camera.getPixelLocation().x) + camera.getFieldOfView().width / 2,
+                (-camera.getPixelLocation().y),
+                -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                -camera.getPixelLocation().y,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                null
+            );
+        }));
+
+        // Bottom Left
+        results.push(executorService.submit(() -> {
+            g.drawImage(
+                image,
+                -camera.getPixelLocation().x,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                -camera.getPixelLocation().x,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                null
+            );
+        }));
+
+        // Bottom Right
+        results.push(executorService.submit(() -> {
+            g.drawImage(
+                image,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
+                -camera.getPixelLocation().x + camera.getFieldOfView().width,
+                -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                null
+            );
+        }));
+
+        Handler.waitForAllJobs(results);
+    }
 }

@@ -584,69 +584,7 @@ public class Game extends Canvas implements Runnable {
                     g.drawRect(0, 0, volatileImage.getWidth(), volatileImage.getHeight());
                     // split into quadrants and render each on a separate thread
                     if (Main.splitBackgroundRender) {
-                        // Top Left
-                        LinkedList<Future<?>> results = new LinkedList<>();
-                        results.push(backgroundRenderService.submit(new BackgroundRenderTask(c -> {
-                            g.drawImage(
-                                    volatileImage,
-                                    -getCamera().getPixelLocation().x,
-                                    -getCamera().getPixelLocation().y,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x,
-                                    -getCamera().getPixelLocation().y,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    null
-                            );
-                        })));
-                        // Top Right
-                        results.push(backgroundRenderService.submit(new BackgroundRenderTask(c -> {
-                            g.drawImage(
-                                    volatileImage,
-                                    (-getCamera().getPixelLocation().x) + getCamera().getFieldOfView().width / 2,
-                                    (-getCamera().getPixelLocation().y),
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    null
-                            );
-                        })));
-                        // bottom left
-                        results.push(backgroundRenderService.submit(new BackgroundRenderTask(c -> {
-                            g.drawImage(
-                                    volatileImage,
-                                    -getCamera().getPixelLocation().x,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
-                                    -getCamera().getPixelLocation().x,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
-                                    null
-                            );
-                        })));
-                        // bottom right
-                        results.push(backgroundRenderService.submit(new BackgroundRenderTask(c -> {
-                            g.drawImage(
-                                    volatileImage,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width / 2,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height / 2,
-                                    -getCamera().getPixelLocation().x + getCamera().getFieldOfView().width,
-                                    -getCamera().getPixelLocation().y + getCamera().getFieldOfView().height,
-                                    null
-                            );
-                        })));
-
-                        Handler.waitForAllJobs(results);
+                        Graphic.renderLargeImageInParts((Graphics2D) g, volatileImage.getSnapshot(), getCamera(), backgroundRenderService);
                     } else {
                         g.drawImage(
                                 volatileImage,

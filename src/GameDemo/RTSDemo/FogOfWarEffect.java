@@ -42,68 +42,7 @@ public class FogOfWarEffect extends IndependentEffect {
                     null
             );
 
-                    LinkedList<Future<?>> results = new LinkedList<>();
-                        results.push(fogRenderService.submit(new BackgroundRenderTask(c -> {
-                            g.drawImage(
-                                    RTSAssetManager.grassBG,
-                                    -camera.getPixelLocation().x,
-                                    -camera.getPixelLocation().y,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                                    -camera.getPixelLocation().x,
-                                    -camera.getPixelLocation().y,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                                    null
-                            );
-                        })));
-                        // Top Right
-                        results.push(fogRenderService.submit(new BackgroundRenderTask(c -> {
-                            g.drawImage(
-                                    RTSAssetManager.grassBG,
-                                    (-camera.getPixelLocation().x) + camera.getFieldOfView().width / 2,
-                                    (-camera.getPixelLocation().y),
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                                    -camera.getPixelLocation().y,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                                    null
-                            );
-                        })));
-                        // bottom left
-                        results.push(fogRenderService.submit(new BackgroundRenderTask(c -> {
-                            g.drawImage(
-                                    RTSAssetManager.grassBG,
-                                    -camera.getPixelLocation().x,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                                    -camera.getPixelLocation().x,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                                    null
-                            );
-                        })));
-                        // bottom right
-                        results.push(fogRenderService.submit(new BackgroundRenderTask(c -> {
-                            g.drawImage(
-                                    RTSAssetManager.grassBG,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width / 2,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height / 2,
-                                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
-                                    null
-                            );
-                        })));
-
-                        Handler.waitForAllJobs(results);
+                    Graphic.renderLargeImageInParts(g, RTSAssetManager.grassBG, RTSGame.game.getCamera(), fogRenderService);
         g.setClip(null);
     }
 
