@@ -74,24 +74,8 @@ public class RTSUnit extends Creature {
         if (isRubble) {
             return;
         }
-        // drawStatusIcons(g);
         if (selected) {
             drawHealthBar(g);
-        }
-    }
-
-    public void drawStatusIcons(Graphics2D g) {
-        int statusIconWidth = 20;
-        int statusIconHeight = 20;
-        if (isImmobilized || true) {
-            g.drawImage(
-                    RTSAssetManager.immobilizationIcon,
-                    getPixelLocation().x - (getWidth() / 2),
-                    getPixelLocation().y - (getHeight() / 2) - 20,
-                    statusIconWidth,
-                    statusIconHeight,
-                    null
-            );
         }
     }
 

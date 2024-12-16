@@ -72,6 +72,7 @@ public class Bazookaman extends RTSUnit {
 
     public Bazookaman(int x, int y, int team) {
         super(x, y, team);
+        shadowSprite.scaleTo(VISUAL_SCALE * 2); //shadow is small
         this.setScale(VISUAL_SCALE); // feet are small already
         this.setGraphic(baseSprite);
         this.maxHealth = 20;
@@ -144,7 +145,6 @@ public class Bazookaman extends RTSUnit {
             System.out.println("shadow null for bazooka");
             return;
         }
-        shadowSprite.scaleTo(VISUAL_SCALE * 2); //shadow is small
         AffineTransform old = g.getTransform();
         VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
         int renderX = getPixelLocation().x - toRender.getWidth() / 2;

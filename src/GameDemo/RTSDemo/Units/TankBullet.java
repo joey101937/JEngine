@@ -12,7 +12,6 @@ import Framework.Hitbox;
 import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
-import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
