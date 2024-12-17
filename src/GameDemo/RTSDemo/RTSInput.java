@@ -325,11 +325,13 @@ public class RTSInput extends InputHandler {
             }
             // P
             case 80 -> {
-                SelectionBoxEffect.selectedUnits.forEach(x -> {
-                    if (x instanceof RTSUnit unit) {
-                        unit.die();
-                    }
-                });
+//                SelectionBoxEffect.selectedUnits.forEach(x -> {
+//                    if (x instanceof RTSUnit unit) {
+//                        unit.die();
+//                    }
+//                });
+                Window.currentGame.setPaused(!Window.currentGame.isPaused());
+                return;
             }
             // Z
             case 90 ->

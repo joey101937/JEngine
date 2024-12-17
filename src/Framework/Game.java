@@ -634,11 +634,6 @@ public class Game extends Canvas implements Runnable {
                 //if we just paused, reset the last time to now else it will think its running behind
                 lastTime = System.nanoTime();
             }
-            if (pausedSafely) {
-                if (inputHandler != null) {
-                    applyInputHandler(true);
-                }
-            }
             pausedSafely = false;
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
@@ -657,8 +652,6 @@ public class Game extends Canvas implements Runnable {
                 } catch (IllegalStateException ise) {
                     System.out.println("Critical error: Illegal state");
                     ise.printStackTrace();
-                    Window.mainWindow.setCurrentGame(null);
-                    Window.mainWindow.setCurrentGame(this);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -795,10 +788,9 @@ public class Game extends Canvas implements Runnable {
     public synchronized void setPaused(boolean input) {
         System.out.println(name + " setting paused " + input);
         if (input) {
-            applyInputHandler(false);
-            if (this.getBufferStrategy() != null) {
-                // this.getBufferStrategy().dispose();
-            }
+//            if (this.getBufferStrategy() != null) {
+//                this.getBufferStrategy().dispose();
+//            }
         }
         for (GameObject2 go : handler.getAllObjects()) {
             go.onGamePause(input);
