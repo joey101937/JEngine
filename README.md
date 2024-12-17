@@ -25,7 +25,6 @@ Games have their own InputHandlers to take in user input via mouse and keyboard.
 -**Coordinate** and **DCoordinate** classes are used heavily when talking about location in the gameworld. Coordinate uses ints and often used to reflect the location of an object in pixels while DCoordinates use doubles and are typically used to store an object's true location and velocity. Both classes have considerable utility methods built in. Note these classes are not immutable, so use caution when modifying coordinates that may be referenced elsewhere. Use the .copy() method to generate an equivilent copy of a coordinate to avoid modifying the original coordinate. Add and Subtract methods modify the calling coordinate, they do not return a new coordinate based on the operation like you may find with strings.
 
 # Your First Project
-**Technical Note Before Starting** Once you have imported JEngine to your IDE, go into run properties of the project and set the VM options to include ***-Dsun.java2d.d3d=false -Xmx2048***. This disable direct3d which causes alot of bugs and then allows for 2gb of ram usage. This can be increased as necessary.
 
 **Check out the GameDemo package to see small example projects and their setup**
 JEngine is super easy to use and get started; You can either use this repositoy as a base or import it as a dependency.
@@ -622,11 +621,11 @@ Example steps of making a portable game:
 7. put those things in a .zip folder and send to another pc
 
 It is recommended you increase the ram allocation using -Xmx1024m or -Xmx2084m (1gb or 2gb) so that it has enough memory. more if needed.
-It is *Highly** recommended that you run your jar with direct3d **disabled**. This make your game run really poorly unless its fullscreen
+You may want to disable direct3D using **-Dsun.java2d.d3d=false**. Direct 3d allows the game to utilize the GPU when rendering (as opposed to CPU-rendering) however this may create unexpected behavior. If you run into strange bugs, try disabling d3d.
 
 Check out the launch4j config to see default used by your generated exe
 
-**java -Dsun.java2d.d3d=false -Xmx1024m -jar JEngine.jar**  
+**java -Dsun.java2d.d3d=true -Xmx1024m -jar JEngine.jar**  
 (note JEngine.jar is name of project jar)
 
 [**Old javadoc here**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)  
