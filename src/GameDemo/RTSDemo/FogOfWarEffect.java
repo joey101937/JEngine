@@ -52,7 +52,7 @@ public class FogOfWarEffect extends IndependentEffect {
         area = new Area();
         var gameObjects = RTSGame.game.getAllObjects();
         var localUnits = gameObjects.stream()
-            .filter(go -> go instanceof RTSUnit && ((RTSUnit) go).team == ExternalCommunicator.localTeam)
+            .filter(go -> go instanceof RTSUnit && ((RTSUnit) go).team == ExternalCommunicator.localTeam && go.isOnScreen())
             .map(go -> (RTSUnit) go)
             .collect(Collectors.toList());
 
