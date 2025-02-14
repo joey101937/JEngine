@@ -15,9 +15,15 @@ import java.util.ArrayList;
  */
 public class KeyBuilding extends GameObject2 {
     public static final Sprite mainSprite = new Sprite(RTSAssetManager.building);
-    public static final Sprite shadowSprite = new Sprite(RTSAssetManager.buildingShadow);
+    public static final Sprite shadowSprite = Sprite.generateShadowSprite(mainSprite.getImage(), .5); // new Sprite(RTSAssetManager.buildingShadow);
     private static final double CAPTURE_RATE = 0.01;
     private static final double CAPTURE_THRESHOLD = 1.0;
+    public static final double VISUAL_SCALE = .75;
+    
+    static {
+        mainSprite.scaleTo(VISUAL_SCALE);
+        shadowSprite.scaleTo(VISUAL_SCALE);
+    }
     
     public int owningTeam = -1;
     public int captureRadius = 550;
@@ -26,6 +32,7 @@ public class KeyBuilding extends GameObject2 {
     
     public KeyBuilding(int x, int y) {
         super(x, y);
+        this.setScale(VISUAL_SCALE);
         this.setGraphic(mainSprite);
         this.isSolid = true;
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, -400), 90 );
@@ -33,6 +40,7 @@ public class KeyBuilding extends GameObject2 {
     
     public KeyBuilding(int x, int y, int team) {
         super(x, y);
+        this.setScale(VISUAL_SCALE);
         this.setGraphic(mainSprite);
         this.isSolid = true;
         owningTeam = team;
@@ -41,6 +49,7 @@ public class KeyBuilding extends GameObject2 {
     
     public KeyBuilding(int x, int y, int team, int spawnX, int spawnY, double rotation) {
         super(x, y);
+        this.setScale(VISUAL_SCALE);
         this.setGraphic(mainSprite);
         this.isSolid = true;
         owningTeam = team;
@@ -107,8 +116,8 @@ public class KeyBuilding extends GameObject2 {
     @Override
     public void render(Graphics2D g) {
         // render shadow
-        int shadowOffsetX = 4;
-        int shadowOffsetY = 8;
+        int shadowOffsetX = -40;
+        int shadowOffsetY = 40;
         Coordinate pixelLocation = getPixelLocation();
         pixelLocation.x += shadowOffsetX;
         pixelLocation.y += shadowOffsetY;
