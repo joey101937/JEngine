@@ -34,8 +34,6 @@ public class Rifleman extends RTSUnit {
     public static final Sprite corpseSprite = new Sprite(RTSAssetManager.infantryRifleDead);
     public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryRifleDeadRed);
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryRifleDead, .8);
-    public static final Sequence fadeout = Sequence.createFadeout(RTSAssetManager.infantryRifleDead, 40);
-    public static final Sequence fadeoutRed = Sequence.createFadeout(RTSAssetManager.infantryRifleDeadRed, 40);
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
     public boolean attackCoolingDown = false;
     public static final int damage = 6;
@@ -51,18 +49,16 @@ public class Rifleman extends RTSUnit {
         deathAnimation.scaleTo(VISUAL_SCALE);
         deathAnimationRed.scaleTo(VISUAL_SCALE);
         deadShadowSprite.scale(VISUAL_SCALE);
-        fadeout.scaleTo(VISUAL_SCALE);
-        fadeoutRed.scaleTo(VISUAL_SCALE);
+        corpseSprite.scaleTo(VISUAL_SCALE);
+        corpseSpriteRed.scaleTo(VISUAL_SCALE);
         baseSprite.scaleTo(VISUAL_SCALE * .8);
         runningSequence.scaleTo(VISUAL_SCALE * .8);
         deathAnimation.setFrameDelay(30);
         deathAnimationRed.setFrameDelay(30);
-        fadeout.setSignature("fadeout");
-        fadeoutRed.setSignature("fadeout");
+        corpseSprite.setSignature("corpseSprite");
+        corpseSpriteRed.setSignature("corpseSprite");
         deathAnimation.setLooping(false);
         deathAnimationRed.setLooping(false);
-        fadeout.setLooping(false);
-        fadeoutRed.setLooping(false);
     }
 
     // fields
@@ -107,6 +103,9 @@ public class Rifleman extends RTSUnit {
         }
         if("riflemanAttackSequence".equals(turret.getGraphic().getSignature()) && currentTarget == null && !isRubble) {
             turret.setGraphic(turret.getIdleAnimation());
+        }
+        if(isRubble && this.turret.getRenderOpacity() > 0) {
+                this.turret.setRenderOpacity(turret.getRenderOpacity() - (1f/(Main.ticksPerSecond*5)));
         }
     }
 
@@ -225,9 +224,6 @@ public class Rifleman extends RTSUnit {
             if (getGraphic().getSignature().equals("riflemanAttackSequence")) {
                 setGraphic(getIdleAnimation());
             }
-            if("fadeout".equals(getGraphic().getSignature())) {
-                this.isInvisible = true;
-            }
             if(getGraphic().getSignature().contains("Die")) {
                 this.setGraphic(hull.getCorpseGraphic());
             }
@@ -252,9 +248,9 @@ public class Rifleman extends RTSUnit {
     
     private Graphic getCorpseGraphic() {
         return switch(team) {
-            case 0 -> fadeout.copyMaintainSource();
-            case 1 -> fadeoutRed.copyMaintainSource();                
-            default -> fadeout.copyMaintainSource();
+            case 0 -> corpseSprite;
+            case 1 -> corpseSpriteRed;                
+            default -> corpseSprite;
         };
     }
     
