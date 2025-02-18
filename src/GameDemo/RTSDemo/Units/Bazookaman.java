@@ -34,7 +34,6 @@ public class Bazookaman extends RTSUnit {
     public static final Sprite corpseSprite = new Sprite(RTSAssetManager.infantryBazookaDead);
     public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryBazookaDeadRed);
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryBazookaDead, .8);
-    public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryBazookaDead, .8);
     public boolean attackCoolingDown = false;
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
     public static final double attackInterval = 3;
@@ -47,6 +46,8 @@ public class Bazookaman extends RTSUnit {
         deathAnimation.scaleTo(VISUAL_SCALE);
         deathAnimationRed.scaleTo(VISUAL_SCALE);
         deadShadowSprite.scale(VISUAL_SCALE);
+        corpseSprite.scaleTo(VISUAL_SCALE);
+        corpseSpriteRed.scaleTo(VISUAL_SCALE);
         runningSequence.setFrameDelay(35);
         attackSequence.setSignature("attackSequence");
         attackSequenceRed.setSignature("attackSequence");
@@ -94,6 +95,9 @@ public class Bazookaman extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+        if(isRubble && this.turret.getRenderOpacity() > 0) {
+                this.turret.setRenderOpacity(turret.getRenderOpacity() - (1f/(Main.ticksPerSecond*5)));
+        }
         if(this.isRubble) return;
         if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
             Sequence runInstance = runningSequence.copyMaintainSource();
@@ -174,24 +178,6 @@ public class Bazookaman extends RTSUnit {
         this.setZLayer((int)(Math.random() * -50));
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
-            Sequence runInstance = runningSequence.copyMaintainSource();
-            runInstance.advanceMs((int) (Math.random() * 1000));
-            this.setGraphic(runInstance);
-        }
-        if (this.velocity.y == 0 && getGraphic().isAnimated()) {
-            this.setGraphic(baseSprite);
-        }
-        if("attackSequence".equals(turret.getGraphic().getSignature()) && currentTarget == null && !isRubble) {
-            turret.setGraphic(turret.getIdleAnimation());
-        }
-        if(isRubble && this.turret.getRenderOpacity() > 0) {
-            this.turret.setRenderOpacity(turret.getRenderOpacity() - (1f/(Main.ticksPerSecond*5)));
-        }
-    }
 
     public class BazookamanTurret extends SubObject {
         
