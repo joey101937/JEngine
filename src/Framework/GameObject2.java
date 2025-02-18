@@ -47,7 +47,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public boolean isSolid = false;
     /** invisible objects are not rendered by default however will render debug visuals and continue incrementing renderCount */
     public boolean isInvisible = false;
-    public float renderOpacity = 1f;
+    private float renderOpacity = 1f;
     private double scale = 1;
     protected double scaleAsOfLastTick = 1;
     /** Determines how velocity is applied to this objects location each preTick */
@@ -1161,4 +1161,18 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         hostGame.addTickDelayedEffect(new TickDelayedEffect(hostGame.handler.globalTickNumber + tickDelay, c));
     }
 
+    public float getRenderOpacity() {
+        return renderOpacity;
+    }
+
+    /**
+     * 0-1 value for percent opaque to render the graphic
+     * @param renderOpacity 0f-1f
+     */
+    public void setRenderOpacity(float renderOpacity) { 
+        if(renderOpacity < 0) this.renderOpacity = 0;
+        if(renderOpacity > 1) this.renderOpacity = 1;
+        this.renderOpacity = renderOpacity;
+    }
+    
 }
