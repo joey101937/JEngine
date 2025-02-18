@@ -1170,8 +1170,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      * @param renderOpacity 0f-1f
      */
     public void setRenderOpacity(float renderOpacity) { 
-        if(renderOpacity < 0) this.renderOpacity = 0;
-        if(renderOpacity > 1) this.renderOpacity = 1;
+        if(renderOpacity < 0) {
+            this.renderOpacity = 0;
+            return;
+        }
+        if(renderOpacity > 1) {
+            this.renderOpacity = 1;
+            return;
+        }
         this.renderOpacity = renderOpacity;
     }
     
