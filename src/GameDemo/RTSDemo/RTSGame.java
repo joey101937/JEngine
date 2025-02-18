@@ -24,8 +24,8 @@ import GameDemo.RTSDemo.Units.TankUnit;
  */
 public class RTSGame {
 
-    public static Game game = new Game(RTSAssetManager.grassBGDark);
-    public static Minimap minimap = new Minimap(game, new Coordinate(0, 0));
+    public static Game game = null;
+    public static Minimap minimap = null;
     public static InfoPanelEffect infoPanelEffect;
     public static ReinforcementHandler reinforcementHandler;
 
@@ -55,6 +55,10 @@ public class RTSGame {
     }
 
     public static void main(String[] args) {
+        RTSAssetManager.initialize();
+        game = new Game(RTSAssetManager.grassBGDark);
+        minimap = new Minimap(game, new Coordinate(0, 0));
+        
         Window.initializeFullScreen(game);
         setup(game);
 

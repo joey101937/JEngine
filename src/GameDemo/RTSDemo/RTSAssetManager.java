@@ -10,10 +10,14 @@ import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class RTSAssetManager {
 
-    public static boolean initialized = false;
+    private static boolean initialized = false;
+    private static ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     // RTS ASSETS
     public static BufferedImage tankChasis, tankChasisRed;
@@ -65,19 +69,66 @@ public abstract class RTSAssetManager {
 
     public static BufferedImage immobilizationIcon;
 
-    static {
-        initialize();
-    }
-
     public static void initialize() {
         if (initialized) {
             return;
         }
         try {
+            CompletableFuture<Void> future = CompletableFuture.allOf(
+                loadExplosionAssets(),
+                loadTankAssets(),
+                loadHelicopterAssets(),
+                loadLightTankAssets(),
+                loadInfantryAssets(),
+                loadLandmineAssets(),
+                loadSelectionImages(),
+                loadUtilityAssets(),
+                loadMapAssets1(),
+                loadMapAssets2(),
+                loadButtonAssets()
+            );
+
+            future.thenRun(() -> {
+                preloadUnits();
+                initialized = true;
+                System.out.println("All assets loaded successfully.");
+            }).exceptionally(ex -> {
+                System.out.println("Error loading RTS assets. Please verify Assets folder.");
+                ex.printStackTrace();
+                System.exit(1);
+                return null;
+            });
+
+            future.join(); // Wait for all assets to load
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error loading RTS assets. Please verify Assets folder.");
+            System.exit(1);
+        }
+    }
+
+    private static CompletableFuture<Void> loadExplosionAssets() {
+        return CompletableFuture.runAsync(() -> {
             explosionSequence = loadSequence("DemoAssets/explosionSequence");
             explosionSequenceSmall = loadSequence("DemoAssets/explosionSequence_small");
             impactCone = loadSequence("DemoAssets/TankGame/impact");
+        }, executor);
+    }
+    
+     private static CompletableFuture<Void> loadMapAssets1() {
+        return CompletableFuture.runAsync(() -> { 
+                grassBG = load("DemoAssets/TankGame/grassTerrain_mega3.png");
+            }, executor);
+        }
+     
+    private static CompletableFuture<Void> loadMapAssets2() {
+        return CompletableFuture.runAsync(() -> {
+            grassBGDark = load("DemoAssets/TankGame/grassTerrain_mega3_dark.png");
+        }, executor);
+    }
 
+    private static CompletableFuture<Void> loadTankAssets() {
+        return CompletableFuture.runAsync(() -> {
             tankChasis = load("DemoAssets/TankGame/tank1-hull.png");
             tankChasisRed = greenToRed(tankChasis);
             tankTurret = load("DemoAssets/TankGame/tank1-turret.png");
@@ -87,19 +138,6 @@ public abstract class RTSAssetManager {
             tankFireAnimationRed = greenToRed(tankFireAnimation);
             bullet = load("DemoAssets/TankGame/bullet.png");
             bullet2 = load("DemoAssets/TankGame/bullet2.png");
-            grassBG = load("DemoAssets/TankGame/grassTerrain_mega3.png");
-            grassBGDark = load("DemoAssets/TankGame/grassTerrain_mega3_dark.png");
-            hellicopter = load("DemoAssets/TankGame/copter/base.png");
-            hellicopterRed = blueToRed(hellicopter);
-            hellicopterDestroyed = load("DemoAssets/TankGame/copter/hellicopterDestroyed.png");
-            hellicopterDestroyedRed = blueToRed(hellicopterDestroyed);
-            hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
-            hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");
-            hellicopterAttackRed = blueToRed(hellicopterAttack);
-            missile = load("DemoAssets/TankGame/missile.png");
-            missileShadow = load("DemoAssets/TankGame/missileShadow.png");
-            yellowMissile = load("DemoAssets/TankGame/yellowMissile.png");
-            yellowMissileShadow = load("DemoAssets/TankGame/yellowMissileShadow.png");
             tankDeadHull = load("DemoAssets/TankGame/destroyedHull.png");
             tankDeadHullShadow = load("DemoAssets/TankGame/destroyedHullShadow.png");
             tankShadow = load("DemoAssets/TankGame/tankShadow.png");
@@ -112,11 +150,27 @@ public abstract class RTSAssetManager {
             tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
             tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
             tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
+        }, executor);
+    }
 
-            building = load("DemoAssets/TankGame/building.png");
-            buildingShadow = load("DemoAssets/TankGame/buildingShadow.png");
+    private static CompletableFuture<Void> loadHelicopterAssets() {
+        return CompletableFuture.runAsync(() -> {
+            hellicopter = load("DemoAssets/TankGame/copter/base.png");
+            hellicopterRed = blueToRed(hellicopter);
+            hellicopterDestroyed = load("DemoAssets/TankGame/copter/hellicopterDestroyed.png");
+            hellicopterDestroyedRed = blueToRed(hellicopterDestroyed);
+            hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
+            hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");
+            hellicopterAttackRed = blueToRed(hellicopterAttack);
+            missile = load("DemoAssets/TankGame/missile.png");
+            missileShadow = load("DemoAssets/TankGame/missileShadow.png");
+            yellowMissile = load("DemoAssets/TankGame/yellowMissile.png");
+            yellowMissileShadow = load("DemoAssets/TankGame/yellowMissileShadow.png");
+        }, executor);
+    }
 
-            // light tank
+    private static CompletableFuture<Void> loadLightTankAssets() {
+        return CompletableFuture.runAsync(() -> {
             lightTankHull = load("DemoAssets/TankGame/lightTank/lightTankHull.png");
             lightTankHullRed = greenToRed(lightTankHull);
             lightTankTurret = load("DemoAssets/TankGame/lightTank/lightTankTurret.png");
@@ -133,8 +187,11 @@ public abstract class RTSAssetManager {
             lightTankTurretDestroyed = load("DemoAssets/TankGame/lightTank/lightTankTurretDestroyed.png");
             lightTankHullDestroyed = load("DemoAssets/TankGame/lightTank/lightTankHullDestroyed.png");
             lightTankDeathShadow = load("DemoAssets/TankGame/lightTank/lightTankDeathShadow.png");
+        }, executor);
+    }
 
-            // infantry
+    private static CompletableFuture<Void> loadInfantryAssets() {
+        return CompletableFuture.runAsync(() -> {
             infantryLegs = load("DemoAssets/TankGame/Infantry/feet/idle/survivor-idle_0.png");
             infantryLegsRun = loadSequence("DemoAssets/TankGame/Infantry/feet/run");
             infantryRifleIdle = loadSequence("DemoAssets/TankGame/Infantry/rifle/idle");
@@ -154,34 +211,41 @@ public abstract class RTSAssetManager {
             infantryBazookaDieRed = darkToRed(infantryBazookaDie);
             infantryBazookaDead = load("DemoAssets/TankGame/Infantry/bazooka/dead.png");
             infantryBazookaDeadRed = darkToRed(infantryBazookaDead);
+        }, executor);
+    }
 
-            // landmine
+    private static CompletableFuture<Void> loadLandmineAssets() {
+        return CompletableFuture.runAsync(() -> {
             landmine = load("DemoAssets/TankGame/landmine.png");
             landmineRed = greenToRed(landmine);
             landmineSelectionImage = load("DemoAssets/TankGame/landmineSelectionImage.png");
             landmineBlast = load("DemoAssets/TankGame/landmineBlast.png");
+        }, executor);
+    }
 
-            // selection images
+    private static CompletableFuture<Void> loadSelectionImages() {
+        return CompletableFuture.runAsync(() -> {
             tankSelectionImage = load("DemoAssets/TankGame/tankSelectionImage.png");
             lightTankSelectionImage = load("DemoAssets/TankGame/lightTank/lightTankSelectionImage.png");
             hellicopterSelectionImage = load("DemoAssets/TankGame/copter/hellicopterSelectionImage.png");
             riflemanSelectionImage = load("DemoAssets/TankGame/infantry/rifleSelectionImage.png");
             bazookamanSelectionImage = load("DemoAssets/TankGame/infantry/bazookaSelectionImage.png");
+        }, executor);
+    }
 
-            // utility
+    private static CompletableFuture<Void> loadUtilityAssets() {
+        return CompletableFuture.runAsync(() -> {
+            building = load("DemoAssets/TankGame/building.png");
+            buildingShadow = load("DemoAssets/TankGame/buildingShadow.png");
             immobilizationIcon = load("DemoAssets/TankGame/immobilizationIcon.png");
+        }, executor);
+    }
 
-            // buttons
+    private static CompletableFuture<Void> loadButtonAssets() {
+        return CompletableFuture.runAsync(() -> {
             layMineButton = load("DemoAssets/TankGame/Buttons/layMineButton.png");
             layMineButtonHover = load("DemoAssets/TankGame/Buttons/layMineButtonHover.png");
-
-            preloadUnits();
-            initialized = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error loading RTS assets. Please verify Assets folder.");
-            System.exit(1);
-        }
+        }, executor);
     }
 
     /**

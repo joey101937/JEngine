@@ -504,11 +504,9 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         if (Main.debugMode) {
             renderDebugVisuals(graphics);
         }
-        /*
-        No need to reset transform or composite because the handler creates a new graphics object for each item
+        // reset graphics object in case the render method is overridden and then super.render() is called.
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // reset opacity
         graphics.setTransform(old); //reset rotation for next item to render
-        */
         if (getHitbox() != null && Main.debugMode) {
             getHitbox().render(graphics);
         }
