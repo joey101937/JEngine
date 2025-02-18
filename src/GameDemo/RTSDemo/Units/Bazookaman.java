@@ -34,10 +34,7 @@ public class Bazookaman extends RTSUnit {
     public static final Sprite corpseSprite = new Sprite(RTSAssetManager.infantryBazookaDead);
     public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryBazookaDeadRed);
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryBazookaDead, .8);
-    public static final Sequence fadeout = Sequence.createFadeout(RTSAssetManager.infantryBazookaDead, 40);
-    public static final Sequence fadeoutRed = Sequence.createFadeout(RTSAssetManager.infantryBazookaDeadRed, 40);
-
-
+    public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryBazookaDead, .8);
     public boolean attackCoolingDown = false;
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
     public static final double attackInterval = 3;
@@ -50,8 +47,6 @@ public class Bazookaman extends RTSUnit {
         deathAnimation.scaleTo(VISUAL_SCALE);
         deathAnimationRed.scaleTo(VISUAL_SCALE);
         deadShadowSprite.scale(VISUAL_SCALE);
-        fadeout.scaleTo(VISUAL_SCALE);
-        fadeoutRed.scaleTo(VISUAL_SCALE);
         runningSequence.setFrameDelay(35);
         attackSequence.setSignature("attackSequence");
         attackSequenceRed.setSignature("attackSequence");
@@ -59,12 +54,10 @@ public class Bazookaman extends RTSUnit {
         attackSequenceRed.setFrameDelay(30);
         deathAnimation.setFrameDelay(30);
         deathAnimationRed.setFrameDelay(30);
-        fadeout.setSignature("fadeout");
-        fadeoutRed.setSignature("fadeout");
+        corpseSprite.setSignature("corpseSprite");
+        corpseSpriteRed.setSignature("corpseSprite");
         deathAnimation.setLooping(false);
         deathAnimationRed.setLooping(false);
-        fadeout.setLooping(false);
-        fadeoutRed.setLooping(false);
     }
 
     // fields
@@ -165,12 +158,11 @@ public class Bazookaman extends RTSUnit {
     
     private Graphic getCorpseGraphic() {
         return switch(team) {
-            case 0 -> fadeout.copyMaintainSource();
-            case 1 -> fadeoutRed.copyMaintainSource();                
-            default -> fadeout.copyMaintainSource();
+            case 0 -> corpseSprite;
+            case 1 -> corpseSpriteRed;                
+            default -> corpseSprite;
         };
     }
-    
     
     @Override
     public void die() {
@@ -180,6 +172,25 @@ public class Bazookaman extends RTSUnit {
         this.turret.setGraphic(getDeathAnimation());
         this.addTickDelayedEffect(Main.ticksPerSecond * 10, x-> {this.destroy();});
         this.setZLayer((int)(Math.random() * -50));
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
+            Sequence runInstance = runningSequence.copyMaintainSource();
+            runInstance.advanceMs((int) (Math.random() * 1000));
+            this.setGraphic(runInstance);
+        }
+        if (this.velocity.y == 0 && getGraphic().isAnimated()) {
+            this.setGraphic(baseSprite);
+        }
+        if("attackSequence".equals(turret.getGraphic().getSignature()) && currentTarget == null && !isRubble) {
+            turret.setGraphic(turret.getIdleAnimation());
+        }
+        if(isRubble && this.turret.getRenderOpacity() > 0) {
+            this.turret.setRenderOpacity(turret.getRenderOpacity() - (1f/(Main.ticksPerSecond*5)));
+        }
     }
 
     public class BazookamanTurret extends SubObject {
@@ -257,11 +268,8 @@ public class Bazookaman extends RTSUnit {
             if (getGraphic().getSignature().equals("attackSequence")) {
                 setGraphic(getIdleAnimation());
             }
-            if("fadeout".equals(getGraphic().getSignature())) {
-                this.isInvisible = true;
-            }
             if(getGraphic().getSignature().contains("Die")) {
-                this.setGraphic(getCorpseGraphic());
+                this.setGraphic(hull.getCorpseGraphic());
             }
         }
     }
