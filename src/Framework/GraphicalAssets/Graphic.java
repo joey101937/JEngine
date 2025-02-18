@@ -115,23 +115,12 @@ public interface Graphic {
     
     /**
      * sets opacity based on input
+     * @param input percent opacity
      */
     public void setOpacity(double input);
     
     public double getOpacity();
 
-    /**
-     * returns a scaled copy of the image
-     * @param before
-     * @param scaleAmount
-     * @return
-     */
-    public static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
-        if(scaleAmount == 1) return before;
-        BufferedImage output = before;
-        output = scaleImageDirect(output, scaleAmount);
-        return output;
-    }
     
     /**
      * returns a scaled copy of the image
@@ -140,7 +129,7 @@ public interface Graphic {
      * @param scaleAmount
      * @return
      */
-    private static BufferedImage scaleImageDirect(BufferedImage before, double scaleAmount) {
+    public static BufferedImage scaleImage(BufferedImage before, double scaleAmount) {
          int w = before.getWidth();
         int h = before.getHeight();
         BufferedImage after = new BufferedImage((int) (w * scaleAmount), (int) (h * scaleAmount), BufferedImage.TYPE_INT_ARGB);

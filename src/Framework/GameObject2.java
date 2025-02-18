@@ -16,6 +16,7 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
+import java.awt.AlphaComposite;
 import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -46,6 +47,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public boolean isSolid = false;
     /** invisible objects are not rendered by default however will render debug visuals and continue incrementing renderCount */
     public boolean isInvisible = false;
+    public float renderOpacity = 1f;
     private double scale = 1;
     protected double scaleAsOfLastTick = 1;
     /** Determines how velocity is applied to this objects location each preTick */
@@ -469,6 +471,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
             return;
         }
         graphics.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
+        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, renderOpacity));
         if (getGraphic() == null) {
             //System.out.println("Warning null graphic for " + name);
         } else if (isAnimated()) {
@@ -501,6 +504,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         if (Main.debugMode) {
             renderDebugVisuals(graphics);
         }
+        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // reset opacity
         graphics.setTransform(old); //reset rotation for next item to render
         if (getHitbox() != null && Main.debugMode) {
             getHitbox().render(graphics);

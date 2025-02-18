@@ -274,6 +274,8 @@ GameObject2's are the core of all functional objects within a scene. GameObject2
 
 **isInvisible** weather or not the object should be rendered to the screen.
 
+**renderOpacity** modifier for opacity of render (0-1)
+
 **scale** percentage size of the object with 1.0 being 100% or default size.
 
 **isAlive** is the object considered alive? Objects must be alive to function and dead objects will be removed from game handlers.
