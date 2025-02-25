@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
  * @author guydu
  */
 public class TileMap implements Serializable{
-    public static ExecutorService occupationService = Executors.newFixedThreadPool(12);
+    public static ExecutorService occupationService = Executors.newFixedThreadPool(200);
     public Tile[][] tileGrid;
     public int worldWidth, worldHeight;
     public HashMap<Tile, Boolean> occupiedMap = new HashMap<>();
@@ -31,9 +31,9 @@ public class TileMap implements Serializable{
         Collection<Future<?>> occupationTasks = new LinkedList<>();
         
         for(GameObject2 go : game.getAllObjects()){
-            if(go instanceof RTSUnit unit) {
+            if(go instanceof RTSUnit unit && !unit.hasNonzeroVelocity()) {
                 occupationTasks.add(occupationService.submit(() -> {
-                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth()/2)) {
+                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + 0)) {
                         occupiedMap.put(tileGrid[coord.x][coord.y], true);
                     }
                     return true;
@@ -97,5 +97,43 @@ public class TileMap implements Serializable{
         }
         
         return affectedTiles;
+    }
+    
+    
+    
+    public ArrayList<Tile> getNeighbors(Coordinate sourceTilePos) {
+       ArrayList<Tile> out = new ArrayList<>();
+       try {
+           out.add(tileGrid[sourceTilePos.x+1][sourceTilePos.y]);
+       } catch (Exception e) {
+           // doesnt exist
+       }
+       try {
+           out.add(tileGrid[sourceTilePos.x-1][sourceTilePos.y]);
+       } catch (Exception e) {
+           // doesnt exist
+       }
+       try {
+           out.add(tileGrid[sourceTilePos.x][sourceTilePos.y + 1]);
+       } catch (Exception e) {
+           // doesnt exist
+       }
+       try {
+           out.add(tileGrid[sourceTilePos.x][sourceTilePos.y - 1]);
+       } catch (Exception e) {
+           // doesnt exist
+       }
+       return out;
+    };
+    
+    
+    /**
+     * gets the tile closest open to the target pixel. If there are mulitple of the same  distance, use the one that is closest to the tiebreaker pixel location
+     * @param target point we want to get closest to in pixels
+     * @param tiebreaker point to use as tiebreaker. CAN BE NULL. if this is null, pick one at random
+     * @return tile that meets criteria
+     */
+    public Tile getClosestOpenTile(Coordinate targetPixel, Coordinate tiebreakerPixel) {
+        
     }
 }
