@@ -140,46 +140,50 @@ public class TileMap implements Serializable{
     public Tile getClosestOpenTile(Coordinate targetPixel, Coordinate tiebreakerPixel) {
         Tile closestTile = null;
         double closestDistance = Double.MAX_VALUE;
-        List<Tile> tiesToBreak = new ArrayList<>();
+        double closestTiebreakerDistance = Double.MAX_VALUE;
 
-        for (int x = 0; x < tileGrid.length; x++) {
-            for (int y = 0; y < tileGrid[0].length; y++) {
-                Tile currentTile = tileGrid[x][y];
-                if (!occupiedMap.getOrDefault(currentTile, false)) {
-                    Coordinate tileCenter = new Coordinate(
-                        (x * Tile.tileSize) + (Tile.tileSize / 2),
-                        (y * Tile.tileSize) + (Tile.tileSize / 2)
-                    );
-                    double distance = tileCenter.distanceFrom(targetPixel);
+        int centerX = targetPixel.x / Tile.tileSize;
+        int centerY = targetPixel.y / Tile.tileSize;
+        int maxRadius = Math.max(tileGrid.length, tileGrid[0].length);
 
-                    if (distance < closestDistance) {
-                        closestTile = currentTile;
-                        closestDistance = distance;
-                        tiesToBreak.clear();
-                        tiesToBreak.add(currentTile);
-                    } else if (distance == closestDistance) {
-                        tiesToBreak.add(currentTile);
+        for (int radius = 0; radius < maxRadius; radius++) {
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dy = -radius; dy <= radius; dy++) {
+                    if (Math.abs(dx) == radius || Math.abs(dy) == radius) {
+                        int x = centerX + dx;
+                        int y = centerY + dy;
+
+                        if (x >= 0 && x < tileGrid.length && y >= 0 && y < tileGrid[0].length) {
+                            Tile currentTile = tileGrid[x][y];
+                            if (!occupiedMap.getOrDefault(currentTile, false)) {
+                                Coordinate tileCenter = new Coordinate(
+                                    (x * Tile.tileSize) + (Tile.tileSize / 2),
+                                    (y * Tile.tileSize) + (Tile.tileSize / 2)
+                                );
+                                double distance = tileCenter.distanceFrom(targetPixel);
+
+                                if (distance < closestDistance) {
+                                    closestTile = currentTile;
+                                    closestDistance = distance;
+                                    closestTiebreakerDistance = (tiebreakerPixel != null) ? tileCenter.distanceFrom(tiebreakerPixel) : 0;
+                                } else if (distance == closestDistance && tiebreakerPixel != null) {
+                                    double tiebreakerDistance = tileCenter.distanceFrom(tiebreakerPixel);
+                                    if (tiebreakerDistance < closestTiebreakerDistance) {
+                                        closestTile = currentTile;
+                                        closestTiebreakerDistance = tiebreakerDistance;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
+
+            if (closestTile != null) {
+                break;
+            }
         }
 
-        if (tiesToBreak.size() > 1 && tiebreakerPixel != null) {
-            return tiesToBreak.stream()
-                .min((t1, t2) -> {
-                    Coordinate c1 = new Coordinate(
-                        (t1.x * Tile.tileSize) + (Tile.tileSize / 2),
-                        (t1.y * Tile.tileSize) + (Tile.tileSize / 2)
-                    );
-                    Coordinate c2 = new Coordinate(
-                        (t2.x * Tile.tileSize) + (Tile.tileSize / 2),
-                        (t2.y * Tile.tileSize) + (Tile.tileSize / 2)
-                    );
-                    return Double.compare(c1.distanceFrom(tiebreakerPixel), c2.distanceFrom(tiebreakerPixel));
-                })
-                .orElse(closestTile);
-        } else {
-            return closestTile;
-        }
+        return closestTile;
     }
 }
