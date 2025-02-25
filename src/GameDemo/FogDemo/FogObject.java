@@ -2,7 +2,7 @@
 package GameDemo.FogDemo;
 
 import Framework.GameObject2;
-import Framework.GraphicalAssets.Sequence;
+import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.SpriteManager;
 
@@ -11,10 +11,11 @@ import Framework.SpriteManager;
  * @author guydu
  */
 public class FogObject extends GameObject2 {
-    public final static Sequence fogSequence;
+    public final static Sprite fogSprite;
+    private boolean goingUp = false;
     
     static {
-        fogSequence = new Sequence(SpriteManager.fogSequence);
+        fogSprite = new Sprite(SpriteManager.fog);
     }
     
     public FogObject(int x, int y) {
@@ -22,10 +23,22 @@ public class FogObject extends GameObject2 {
         init();
     }
     
+    @Override
+    public void tick() {
+        float curOpacity = getRenderOpacity();
+        if(goingUp) {
+            this.setRenderOpacity((float)(curOpacity + .001));
+            if(curOpacity >= 1) goingUp = false;
+        } else {
+            this.setRenderOpacity((float)(curOpacity - .001));
+            if(curOpacity <= .5) goingUp = true;
+        }
+    }
+    
     private void init() {
-        Sequence s = fogSequence.copy();
-        s.setFrameDelay(100 + (int)(Main.getRandomSource().nextDouble() * 80));
-        s.advanceMs( (int)(Math.random() * 6000));
+        Sprite s = fogSprite.copy();
+        this.setRenderOpacity((float)Math.random());
+        goingUp = Math.random() > .5;
         this.setGraphic(s);
         this.setRotation(Main.getRandomSource().nextDouble() * 360);
         this.setZLayer(2);

@@ -34,7 +34,6 @@ public abstract class SpriteManager {
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
     public static BufferedImage localizedLight;
     public static BufferedImage fog;
-    public static BufferedImage[] fogSequence;
     public static BufferedImage car;
     public static BufferedImage dirtBG, dirtBGNight;
 
@@ -100,7 +99,6 @@ public abstract class SpriteManager {
             pathingLayer = load("DemoAssets/terrainBG-PATHING.png");
             localizedLight = load("DemoAssets/localizedLight2.png");
             fog = load("DemoAssets/fog.png");
-            fogSequence = loadSequenceBouncing("DemoAssets/fogSequence");
             car = load("DemoAssets/topDownCarShadowDarkGrit.png");
             
             dirtBG = load("DemoAssets/TankGame/dirtBG.png");
