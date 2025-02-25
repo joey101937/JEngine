@@ -56,8 +56,17 @@ public class TileMap implements Serializable{
     }
      
      
-     public getTileAtLocation(Coordinate location) {
-         // gets the tile at given location
+     public Tile getTileAtLocation(Coordinate location) {
+         int tileX = location.x / Tile.tileSize;
+         int tileY = location.y / Tile.tileSize;
+         
+         // Check if the calculated tile coordinates are within the grid bounds
+         if (tileX >= 0 && tileX < tileGrid.length && tileY >= 0 && tileY < tileGrid[0].length) {
+             return tileGrid[tileX][tileY];
+         } else {
+             // Return null or throw an exception if the location is out of bounds
+             return null;
+         }
      }
      
     
