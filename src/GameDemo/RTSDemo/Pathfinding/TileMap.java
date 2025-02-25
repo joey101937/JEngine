@@ -128,12 +128,41 @@ public class TileMap implements Serializable{
     
     
     /**
-     * gets the tile closest open to the target pixel. If there are mulitple of the same  distance, use the one that is closest to the tiebreaker pixel location
-     * @param target point we want to get closest to in pixels
-     * @param tiebreaker point to use as tiebreaker. CAN BE NULL. if this is null, pick one at random
+     * gets the tile closest open to the target pixel. If there are multiple of the same distance, use the one that is closest to the tiebreaker pixel location
+     * @param targetPixel point we want to get closest to in pixels
+     * @param tiebreakerPixel point to use as tiebreaker. CAN BE NULL. if this is null, pick one at random
      * @return tile that meets criteria
      */
     public Tile getClosestOpenTile(Coordinate targetPixel, Coordinate tiebreakerPixel) {
-        
+        Tile closestTile = null;
+        double closestDistance = Double.MAX_VALUE;
+        double closestTiebreakerDistance = Double.MAX_VALUE;
+
+        for (int x = 0; x < tileGrid.length; x++) {
+            for (int y = 0; y < tileGrid[0].length; y++) {
+                Tile currentTile = tileGrid[x][y];
+                if (!occupiedMap.getOrDefault(currentTile, false)) {
+                    Coordinate tileCenter = new Coordinate(
+                        (x * Tile.tileSize) + (Tile.tileSize / 2),
+                        (y * Tile.tileSize) + (Tile.tileSize / 2)
+                    );
+                    double distance = tileCenter.distanceFrom(targetPixel);
+
+                    if (distance < closestDistance) {
+                        closestTile = currentTile;
+                        closestDistance = distance;
+                        closestTiebreakerDistance = (tiebreakerPixel != null) ? tileCenter.distanceFrom(tiebreakerPixel) : 0;
+                    } else if (distance == closestDistance && tiebreakerPixel != null) {
+                        double tiebreakerDistance = tileCenter.distanceFrom(tiebreakerPixel);
+                        if (tiebreakerDistance < closestTiebreakerDistance) {
+                            closestTile = currentTile;
+                            closestTiebreakerDistance = tiebreakerDistance;
+                        }
+                    }
+                }
+            }
+        }
+
+        return closestTile;
     }
 }
