@@ -140,7 +140,7 @@ public class TileMap implements Serializable{
     public Tile getClosestOpenTile(Coordinate targetPixel, Coordinate tiebreakerPixel) {
         Tile closestTile = null;
         double closestDistance = Double.MAX_VALUE;
-        double closestTiebreakerDistance = Double.MAX_VALUE;
+        List<Tile> tiesToBreak = new ArrayList<>();
 
         for (int x = 0; x < tileGrid.length; x++) {
             for (int y = 0; y < tileGrid[0].length; y++) {
@@ -155,17 +155,31 @@ public class TileMap implements Serializable{
                     if (distance < closestDistance) {
                         closestTile = currentTile;
                         closestDistance = distance;
-                        closestTiebreakerDistance = (tiebreakerPixel != null) ? tileCenter.distanceFrom(tiebreakerPixel) : 0;
-                    } else if (distance == closestDistance && tiebreakerPixel != null) {
-                        double tiebreakerDistance = tileCenter.distanceFrom(tiebreakerPixel);
-                        if (tiebreakerDistance < closestTiebreakerDistance) {
-                            closestTile = currentTile;
-                            closestTiebreakerDistance = tiebreakerDistance;
-                        }
+                        tiesToBreak.clear();
+                        tiesToBreak.add(currentTile);
+                    } else if (distance == closestDistance) {
+                        tiesToBreak.add(currentTile);
                     }
                 }
             }
         }
-        return closestTile;
+
+        if (tiesToBreak.size() > 1 && tiebreakerPixel != null) {
+            return tiesToBreak.stream()
+                .min((t1, t2) -> {
+                    Coordinate c1 = new Coordinate(
+                        (t1.x * Tile.tileSize) + (Tile.tileSize / 2),
+                        (t1.y * Tile.tileSize) + (Tile.tileSize / 2)
+                    );
+                    Coordinate c2 = new Coordinate(
+                        (t2.x * Tile.tileSize) + (Tile.tileSize / 2),
+                        (t2.y * Tile.tileSize) + (Tile.tileSize / 2)
+                    );
+                    return Double.compare(c1.distanceFrom(tiebreakerPixel), c2.distanceFrom(tiebreakerPixel));
+                })
+                .orElse(closestTile);
+        } else {
+            return closestTile;
+        }
     }
 }
