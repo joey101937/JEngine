@@ -39,6 +39,7 @@ public class SelectionBoxEffect extends IndependentEffect {
     public void render(Graphics2D g) {
         drawSelectionBox(g);
         drawSelectionCirclesGround(g);
+        g.fillRect(600, 600, 20, 20);
     }
 
     @Override
