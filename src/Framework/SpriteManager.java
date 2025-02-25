@@ -7,7 +7,6 @@ package Framework;
 
 import static Framework.GraphicalAssets.Graphic.load;
 import static Framework.GraphicalAssets.Graphic.loadSequence;
-import static Framework.GraphicalAssets.Graphic.loadSequenceBouncing;
 import java.awt.image.BufferedImage;
 
 /**

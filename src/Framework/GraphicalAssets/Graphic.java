@@ -267,6 +267,12 @@ public interface Graphic {
         return output;
     }
     
+    /**
+     * loads a sequence as the forward and revers of the given sequence folder
+     * @param filename folder of sequence frames
+     * @return sequence with the frames forward then backwards
+     * @throws IOException 
+     */
     public static BufferedImage[] loadSequenceBouncing(String filename) throws IOException {
         BufferedImage[] forwards = loadSequence(filename);
         BufferedImage[] backwards = new BufferedImage[forwards.length];
