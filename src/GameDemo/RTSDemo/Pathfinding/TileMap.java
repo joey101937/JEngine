@@ -1,33 +1,48 @@
 package GameDemo.RTSDemo.Pathfinding;
 
 import Framework.Coordinate;
+import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.GameObject2;
+import Framework.Main;
 import GameDemo.RTSDemo.RTSUnit;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  *
  * @author guydu
  */
 public class TileMap implements Serializable{
+    public static ExecutorService occupationService = Executors.newFixedThreadPool(12);
     public Tile[][] tileGrid;
     public int worldWidth, worldHeight;
-    
     public HashMap<Tile, Boolean> occupiedMap = new HashMap<>();
     
     public void updateOccupationMap(Game game) {
         occupiedMap.clear();
+        Collection<Future<?>> occupationTasks = new LinkedList<>();
+        
         for(GameObject2 go : game.getAllObjects()){
             if(go instanceof RTSUnit unit) {
-                for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth()/2)) {
-                    occupiedMap.put(tileGrid[coord.x][coord.y], true);
-                }
+                occupationTasks.add(occupationService.submit(() -> {
+                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth()/2)) {
+                        occupiedMap.put(tileGrid[coord.x][coord.y], true);
+                    }
+                    return true;
+                }));
+                
             }
         }
+        
+        Handler.waitForAllJobs(occupationTasks);
     }
     
     
@@ -40,6 +55,10 @@ public class TileMap implements Serializable{
         }
     }
      
+     
+     public getTileAtLocation(Coordinate location) {
+         // gets the tile at given location
+     }
      
     
     public List<Coordinate> getTilesNearPoint(Coordinate point, int radius) {
