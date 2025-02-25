@@ -1,5 +1,6 @@
 package GameDemo.RTSDemo.Pathfinding;
 
+import Framework.Coordinate;
 import java.io.Serializable;
 
 public class Tile implements Serializable{
@@ -9,10 +10,25 @@ public class Tile implements Serializable{
     public TileMap tileMap;
     
     public boolean isBlocked() {
-        return tileMap.occupiedMap.get(this);
+        return tileMap.occupiedMap.getOrDefault(this, false);
     }
     
     public Tile(TileMap tileMap, int x, int y) {
         this.tileMap = tileMap;
+        this.x = x;
+        this.y = y;
+    }
+    
+    public Coordinate getCenterPoint () {
+        return new Coordinate(x*tileSize + tileSize/2, y*tileSize + tileSize/2);
+    }
+    
+    public Coordinate getGridLocation () {
+        return new Coordinate(x,y);
+    }
+    
+    @Override
+    public String toString() {
+        return getGridLocation().toString();
     }
 }

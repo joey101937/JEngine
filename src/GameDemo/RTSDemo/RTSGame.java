@@ -11,7 +11,7 @@ import Framework.Game;
 import Framework.Main;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
-import GameDemo.RTSDemo.Pathfinding.TileManager;
+import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementHandler;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
@@ -29,7 +29,7 @@ public class RTSGame {
     public static Minimap minimap = null;
     public static InfoPanelEffect infoPanelEffect;
     public static ReinforcementHandler reinforcementHandler;
-    public static TileManager tileManager;
+    public static NavigationManager tileManager;
 
     public static void setup(Game g) {
         Main.ignoreSubobjectCollision = true; // better performance
@@ -54,7 +54,7 @@ public class RTSGame {
         g.addIndependentEffect(new FogOfWarEffect());
         reinforcementHandler = new ReinforcementHandler(new Coordinate(0, game.getWindowHeight() - minimap.getHeight() - 30), 10);
         g.addIndependentEffect(reinforcementHandler);
-        tileManager = new TileManager(g);
+        tileManager = new NavigationManager(g);
         g.addIndependentEffect(tileManager);
     }
 

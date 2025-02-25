@@ -1182,4 +1182,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         this.renderOpacity = renderOpacity;
     }
     
+    public boolean hasNonzeroVelocity() {
+        return velocity.x < 0 || velocity.x > 0 || velocity.y < 0 || velocity.y > 0;
+    }
+    
 }

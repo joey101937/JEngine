@@ -34,7 +34,11 @@ public class TileMap implements Serializable{
             if(go instanceof RTSUnit unit && !unit.hasNonzeroVelocity()) {
                 occupationTasks.add(occupationService.submit(() -> {
                     for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + 0)) {
-                        occupiedMap.put(tileGrid[coord.x][coord.y], true);
+                        try {
+                            occupiedMap.put(tileGrid[coord.x][coord.y], true);
+                        } catch (IndexOutOfBoundsException ib) {
+                            // ignore ib
+                        }
                     }
                     return true;
                 }));
@@ -162,7 +166,6 @@ public class TileMap implements Serializable{
                 }
             }
         }
-
         return closestTile;
     }
 }
