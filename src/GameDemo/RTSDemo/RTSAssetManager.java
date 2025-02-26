@@ -117,13 +117,13 @@ public abstract class RTSAssetManager {
     
      private static CompletableFuture<Void> loadMapAssets1() {
         return CompletableFuture.runAsync(() -> { 
-                grassBG = load("DemoAssets/TankGame/grassTerrain_mega3.png");
+                grassBG = load("DemoAssets/TankGame/terrainPlayground.png");  // load("DemoAssets/TankGame/grassTerrain_mega3.png");
             }, executor);
         }
      
     private static CompletableFuture<Void> loadMapAssets2() {
         return CompletableFuture.runAsync(() -> {
-            grassBGDark = load("DemoAssets/TankGame/grassTerrain_mega3_dark.png");
+            grassBGDark = load("DemoAssets/TankGame/terrainPlayground.png"); // load("DemoAssets/TankGame/grassTerrain_mega3_dark.png");
         }, executor);
     }
 
