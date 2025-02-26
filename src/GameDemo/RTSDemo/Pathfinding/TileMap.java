@@ -32,7 +32,7 @@ public class TileMap implements Serializable{
         Collection<Future<?>> occupationTasks = new LinkedList<>();
         
         for(GameObject2 go : game.getAllObjects()){
-            if(go instanceof RTSUnit unit && !unit.hasVelocity() && unit.isSolid) {
+            if(go instanceof RTSUnit unit && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid) {
                 occupationTasks.add(occupationService.submit(() -> {
                     for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + 22)) {
                         try {
