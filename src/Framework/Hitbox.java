@@ -441,6 +441,18 @@ public class Hitbox {
         }
     }
     
+    
+    /**
+     * if the hitbox intersects with a line that is of given thickness
+     * @param start start point
+     * @param end end point
+     * @param width thickness of line
+     * @return 
+     */
+    public boolean intersectsWithFatLine(Coordinate start, Coordinate end, double width) {
+        
+    }
+    
     private static boolean doCircleAndBoxInterset(Hitbox circle, Hitbox rect) {
         double distance = rect.getCenter().distanceFrom(circle.getCenter());
         if (distance - circle.radius > rect.farthestRange) {
