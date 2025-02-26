@@ -144,7 +144,7 @@ public class TileMap implements Serializable{
 
         int centerX = targetPixel.x / Tile.tileSize;
         int centerY = targetPixel.y / Tile.tileSize;
-        int maxRadius = Math.max(tileGrid.length/4, tileGrid[0].length/4);
+        int maxRadius = Math.max(20, 20); // 20x 20 tile search area
 
         for (int radius = 0; radius < maxRadius; radius++) {
             for (int dx = -radius; dx <= radius; dx++) {

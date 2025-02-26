@@ -20,6 +20,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  *
@@ -44,6 +45,7 @@ public class RTSUnit extends Creature {
     public double originalSpeed = 1.8;
     public int sightRadius = 600;
     private ArrayList<CommandButton> buttons = new ArrayList<>();
+    public ArrayList<Coordinate> waypoints = new ArrayList<>();
 
     public static Color getColorFromTeam(int team) {
         return switch (team) {
@@ -76,6 +78,17 @@ public class RTSUnit extends Creature {
         }
         if (selected) {
             drawHealthBar(g);
+            for(Coordinate coord : waypoints) {
+                g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                if(coord == waypoints.getLast()) {
+                    g.setColor(Color.red);
+                    g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                }
+                if(coord.equals(this.getNextWaypoint())) {
+                    g.setColor(Color.yellow);
+                    g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                }
+            }
         }
     }
 
@@ -86,8 +99,9 @@ public class RTSUnit extends Creature {
         if (isRubble) {
             return;
         }
-        if (!isImmobilized && desiredLocation.distanceFrom(location) > getWidth() / 2) {
-            double desiredRotation = this.rotationNeededToFace(desiredLocation);
+        Coordinate nextWaypoint = getNextWaypoint();
+        if (!isImmobilized && nextWaypoint.distanceFrom(location) > getWidth() / 2) {
+            double desiredRotation = this.rotationNeededToFace(nextWaypoint);
             double maxRotation = rotationSpeed;
             if (Math.abs(desiredRotation) < 20) {
                 maxRotation = 2; // slow down as we get closer
@@ -101,7 +115,6 @@ public class RTSUnit extends Creature {
                     rotate(-maxRotation);
                 }
             }
-            //this.lookAt(desiredLocation);
             this.velocity.y = -100; //remember negative means forward because reasons
         } else {
             this.velocity.y = 0;
@@ -159,6 +172,51 @@ public class RTSUnit extends Creature {
 
     public void setDesiredLocation(Coordinate c) {
         desiredLocation = c;
+        updateWaypoints();
+    }
+    
+    public boolean isCloseEnoughToDesired() {
+        int sideLength = Math.max(getWidth(), getHeight());
+        return desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= sideLength / 2;
+    }
+
+    public Coordinate getNextWaypoint() {
+//        if (waypoints == null || waypoints.isEmpty()) {
+//            return desiredLocation;
+//        }
+//
+//        Coordinate cur = desiredLocation;
+//
+//        for (int i = waypoints.size()-1; i > 0; i--) {
+//            cur = waypoints.get(i);
+//            if (cur.distanceFrom(getPixelLocation()) < getWidth()) {
+//                waypoints.removeLast();
+//            } else {
+//                break;
+//            }
+//        }
+//
+//        if (waypoints == null || waypoints.isEmpty()) {
+//            return desiredLocation;
+//        }
+//
+        if(waypoints == null || waypoints.size() == 0 || isCloseEnoughToDesired()) {
+            return desiredLocation;
+        }
+        
+        int sideLength = Math.max(getWidth(), getHeight());
+        
+        for (int i = 0; i < waypoints.size(); i++) {
+            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > sideLength) {
+                return waypoints.get(i);
+            }
+        }
+
+        return desiredLocation;
+    }
+
+    public void updateWaypoints() {
+        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation);
     }
 
     public RTSUnit nearestEnemyInRange() {

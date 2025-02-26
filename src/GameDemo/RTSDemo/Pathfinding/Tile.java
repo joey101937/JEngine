@@ -4,7 +4,7 @@ import Framework.Coordinate;
 import java.io.Serializable;
 
 public class Tile implements Serializable{
-    public static int tileSize = 10;
+    public static int tileSize = 26;
     
     public int x,y;
     public TileMap tileMap;

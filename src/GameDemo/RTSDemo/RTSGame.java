@@ -29,7 +29,7 @@ public class RTSGame {
     public static Minimap minimap = null;
     public static InfoPanelEffect infoPanelEffect;
     public static ReinforcementHandler reinforcementHandler;
-    public static NavigationManager tileManager;
+    public static NavigationManager navigationManager;
 
     public static void setup(Game g) {
         Main.ignoreSubobjectCollision = true; // better performance
@@ -54,8 +54,8 @@ public class RTSGame {
         g.addIndependentEffect(new FogOfWarEffect());
         reinforcementHandler = new ReinforcementHandler(new Coordinate(0, game.getWindowHeight() - minimap.getHeight() - 30), 10);
         g.addIndependentEffect(reinforcementHandler);
-        tileManager = new NavigationManager(g);
-        g.addIndependentEffect(tileManager);
+        navigationManager = new NavigationManager(g);
+        g.addIndependentEffect(navigationManager);
     }
 
     public static void main(String[] args) {

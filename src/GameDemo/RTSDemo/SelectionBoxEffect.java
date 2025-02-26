@@ -125,7 +125,7 @@ public class SelectionBoxEffect extends IndependentEffect {
                     int sideLength = Math.max(unit.getWidth(), unit.getHeight());
                     g.drawOval(coord.x - sideLength / 2, coord.y - sideLength / 2, sideLength, sideLength);
                     var desiredLoc = unit.getDesiredLocation();
-                    if (desiredLoc != null && Coordinate.distanceBetween(coord, desiredLoc) > sideLength / 2) {
+                    if (!unit.isCloseEnoughToDesired()) {
                         Coordinate lineStart = Coordinate.nearestPointOnCircle(coord, desiredLoc, sideLength / 2);
                         g.drawLine(lineStart.x, lineStart.y, desiredLoc.x, desiredLoc.y);
                     }
