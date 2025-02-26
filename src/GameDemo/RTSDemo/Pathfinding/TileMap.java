@@ -37,7 +37,7 @@ public class TileMap implements Serializable{
         for(GameObject2 go : game.getAllObjects()){
             if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid && unit.plane == plane) {
                 occupationTasks.add(occupationService.submit(() -> {
-                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + Tile.tileSize/2 + padding)) {
+                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + Tile.tileSize + padding)) {
                         try {
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {
@@ -250,7 +250,7 @@ public class TileMap implements Serializable{
     }
     
     
-    public boolean noneBlocked (List<Tile> input) {
+    public boolean allClear (List<Tile> input) {
         for(Tile t : input) {
             if(t.isBlocked()) return false;
         }

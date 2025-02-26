@@ -13,6 +13,7 @@ import Framework.Hitbox;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.Tile;
 import GameDemo.RTSDemo.Pathfinding.TileMap;
+import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.SandboxDemo.Creature;
 import java.awt.BasicStroke;
@@ -47,6 +48,8 @@ public class RTSUnit extends Creature {
     public boolean isImmobilized = false;
     public double originalSpeed = 1.8;
     public int sightRadius = 600;
+    public boolean isTouchingOtherUnit = false;
+    
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
 
@@ -75,6 +78,9 @@ public class RTSUnit extends Creature {
 
     @Override
     public void render(Graphics2D g) {
+        if(isTouchingOtherUnit) {
+            g.fillRect(getPixelLocation().x, getPixelLocation().y, 10, 10);
+        }
         super.render(g);
         if (isRubble) {
             return;
@@ -93,6 +99,12 @@ public class RTSUnit extends Creature {
                 }
             }
         }
+    }
+    
+    @Override
+    public void preTick() {
+        this.isTouchingOtherUnit = false;
+        super.preTick();
     }
 
     //every tick turn towards and move towards destination if not there already
@@ -206,7 +218,7 @@ public class RTSUnit extends Creature {
     }
 
     public void updateWaypoints() {
-        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, getTileMap());
+        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, getTileMap(), this);
     }
 
     public RTSUnit nearestEnemyInRange() {
@@ -394,5 +406,12 @@ public class RTSUnit extends Creature {
 
     public void addButton(CommandButton b) {
         buttons.add(b);
+    }
+    
+    @Override
+    public void onCollide(GameObject2 other, boolean myTick) {
+        super.onCollide(other, myTick);
+        if(other instanceof RTSUnit && !(other instanceof Landmine))
+        this.isTouchingOtherUnit = true;
     }
 }
