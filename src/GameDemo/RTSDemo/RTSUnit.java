@@ -20,7 +20,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 
 /**
  *
@@ -181,25 +180,6 @@ public class RTSUnit extends Creature {
     }
 
     public Coordinate getNextWaypoint() {
-//        if (waypoints == null || waypoints.isEmpty()) {
-//            return desiredLocation;
-//        }
-//
-//        Coordinate cur = desiredLocation;
-//
-//        for (int i = waypoints.size()-1; i > 0; i--) {
-//            cur = waypoints.get(i);
-//            if (cur.distanceFrom(getPixelLocation()) < getWidth()) {
-//                waypoints.removeLast();
-//            } else {
-//                break;
-//            }
-//        }
-//
-//        if (waypoints == null || waypoints.isEmpty()) {
-//            return desiredLocation;
-//        }
-//
         if(waypoints == null || waypoints.size() == 0 || isCloseEnoughToDesired()) {
             return desiredLocation;
         }
@@ -216,6 +196,23 @@ public class RTSUnit extends Creature {
     }
 
     public void updateWaypoints() {
+//        boolean canUseDirectPath = true;
+//        for(GameObject2 go : getHostGame().getAllObjects()) {
+//            if(go instanceof RTSUnit unit || go instanceof KeyBuilding building) {
+//                if(go.hasNonzeroVelocity()) continue;
+//                if(go.getHitbox().intersectsWithFatLine(getPixelLocation(), desiredLocation, getWidth())) {
+//                    canUseDirectPath = false;
+//                    break;
+//                }
+//            }
+//        }
+//        
+//        if(canUseDirectPath) {
+//            ArrayList<Coordinate> out = new ArrayList<>();
+//            out.add(desiredLocation);
+//            waypoints = out;
+//            return;
+//        }
         waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation);
     }
 
