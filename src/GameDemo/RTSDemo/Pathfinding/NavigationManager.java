@@ -140,37 +140,51 @@ public class NavigationManager extends IndependentEffect {
     private List<Coordinate> smoothenPath(ArrayList<Coordinate> path, TileMap tileMap) {
         int spacing = tileMap.padding + Tile.tileSize/2;
         Coordinate start = path.get(0);
-        Coordinate startLeft = new Coordinate(start.x - spacing, start.y - spacing);
-        Coordinate startRight = new Coordinate(start.x + spacing, start.y - spacing);
-        Coordinate startMiddle = new Coordinate(start.x, start.y + spacing);
+        // Define start corner points
+        Coordinate startTopLeft = new Coordinate(start.x - spacing, start.y - spacing);
+        Coordinate startTopRight = new Coordinate(start.x + spacing, start.y - spacing);
+        Coordinate startBottomLeft = new Coordinate(start.x - spacing, start.y + spacing);
+        Coordinate startBottomRight = new Coordinate(start.x + spacing, start.y + spacing);
 
         int farLimit = Math.min(60, path.size() - 1);
         Coordinate goalFar = path.get(farLimit);
+        Coordinate goalFarTopLeft = new Coordinate(goalFar.x - spacing, goalFar.y - spacing);
+        Coordinate goalFarTopRight = new Coordinate(goalFar.x + spacing, goalFar.y - spacing);
+        Coordinate goalFarBottomLeft = new Coordinate(goalFar.x - spacing, goalFar.y + spacing);
+        Coordinate goalFarBottomRight = new Coordinate(goalFar.x + spacing, goalFar.y + spacing);
 
         int medLimit = Math.min(30, path.size() - 1);
         Coordinate goalMed = path.get(medLimit);
+        Coordinate goalMedTopLeft = new Coordinate(goalMed.x - spacing, goalMed.y - spacing);
+        Coordinate goalMedTopRight = new Coordinate(goalMed.x + spacing, goalMed.y - spacing);
+        Coordinate goalMedBottomLeft = new Coordinate(goalMed.x - spacing, goalMed.y + spacing);
+        Coordinate goalMedBottomRight = new Coordinate(goalMed.x + spacing, goalMed.y + spacing);
 
         int nearLimit = Math.min(9, path.size() - 1);
         Coordinate goalNear = path.get(nearLimit);
-        Coordinate goalNearLeft = new Coordinate(goalNear.x - spacing, goalNear.y - spacing);
-        Coordinate goalNearRight = new Coordinate(goalNear.x + spacing, goalNear.y - spacing);
-        Coordinate goalNearMiddle = new Coordinate(goalNear.x, goalNear.y + spacing);
+        Coordinate goalNearTopLeft = new Coordinate(goalNear.x - spacing, goalNear.y - spacing);
+        Coordinate goalNearTopRight = new Coordinate(goalNear.x + spacing, goalNear.y - spacing);
+        Coordinate goalNearBottomLeft = new Coordinate(goalNear.x - spacing, goalNear.y + spacing);
+        Coordinate goalNearBottomRight = new Coordinate(goalNear.x + spacing, goalNear.y + spacing);
 
-        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startLeft, goalFar))
-                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startRight, goalFar))
-                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startMiddle, goalFar))) {
+        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startTopLeft, goalFarTopLeft))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startTopRight, goalFarTopRight))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startBottomLeft, goalFarBottomLeft))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startBottomRight, goalFarBottomRight))) {
             return path.subList(farLimit, path.size() - 1);
         }
 
-        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startLeft, goalMed))
-                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startRight, goalMed))
-                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startMiddle, goalMed))) {
+        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startTopLeft, goalMedTopLeft))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startTopRight, goalMedTopRight))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startBottomLeft, goalMedBottomLeft))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startBottomRight, goalMedBottomRight))) {
             return path.subList(medLimit, path.size() - 1);
         }
 
-        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startLeft, goalNearLeft))
-                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startRight, goalNearRight))
-                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startMiddle, goalNearMiddle))) {
+        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startTopLeft, goalNearTopLeft))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startTopRight, goalNearTopRight))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startBottomLeft, goalNearBottomLeft))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startBottomRight, goalNearBottomRight))) {
             return path.subList(nearLimit, path.size() - 1);
         }
 
