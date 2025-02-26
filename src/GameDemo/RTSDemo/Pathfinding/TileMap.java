@@ -4,6 +4,8 @@ import Framework.Coordinate;
 import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.GameObject2;
+import Framework.Main;
+import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.RTSUnit;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -42,6 +44,20 @@ public class TileMap implements Serializable{
                     return true;
                 }));
                 
+            }
+            if(go instanceof KeyBuilding building && building.getHitbox() != null) {
+               List<Coordinate> vertices = Main.jMap(List.of(building.getHitbox().vertices), x -> x.copy().add(building.getPixelLocation().x, building.getPixelLocation().y));
+               List<Tile> topBorder = getTilesIntersectingLine(vertices.get(0), vertices.get(1));
+               topBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
+               
+               List<Tile> bottomBorder = getTilesIntersectingLine(vertices.get(2), vertices.get(3));
+               bottomBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
+               
+               List<Tile> leftBorder = getTilesIntersectingLine(vertices.get(0), vertices.get(2));
+               leftBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
+               
+               List<Tile> rightBorder = getTilesIntersectingLine(vertices.get(1), vertices.get(3));
+               rightBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
             }
         }
         
