@@ -447,10 +447,40 @@ public class Hitbox {
      * @param start start point
      * @param end end point
      * @param width thickness of line
-     * @return 
+     * @return true if the hitbox intersects with the fat line, false otherwise
      */
     public boolean intersectsWithFatLine(Coordinate start, Coordinate end, double width) {
-        
+        // First, check if either end of the line is inside the hitbox
+        if (containsPoint(start) || containsPoint(end)) {
+            return true;
+        }
+
+        // Calculate the direction vector of the line
+        DCoordinate direction = new DCoordinate(end.x - start.x, end.y - start.y);
+        double length = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+        direction.x /= length;
+        direction.y /= length;
+
+        // Calculate the perpendicular vector
+        DCoordinate perpendicular = new DCoordinate(-direction.y, direction.x);
+
+        // Calculate the four corners of the fat line
+        DCoordinate[] corners = new DCoordinate[4];
+        corners[0] = new DCoordinate(start.x + perpendicular.x * width / 2, start.y + perpendicular.y * width / 2);
+        corners[1] = new DCoordinate(start.x - perpendicular.x * width / 2, start.y - perpendicular.y * width / 2);
+        corners[2] = new DCoordinate(end.x + perpendicular.x * width / 2, end.y + perpendicular.y * width / 2);
+        corners[3] = new DCoordinate(end.x - perpendicular.x * width / 2, end.y - perpendicular.y * width / 2);
+
+        // Create a temporary hitbox for the fat line
+        Hitbox fatLineHitbox = new Hitbox(new Coordinate[]{
+            new Coordinate((int)corners[0].x, (int)corners[0].y),
+            new Coordinate((int)corners[2].x, (int)corners[2].y),
+            new Coordinate((int)corners[1].x, (int)corners[1].y),
+            new Coordinate((int)corners[3].x, (int)corners[3].y)
+        });
+
+        // Check if this hitbox intersects with the fat line hitbox
+        return this.intersects(fatLineHitbox);
     }
     
     private static boolean doCircleAndBoxInterset(Hitbox circle, Hitbox rect) {
