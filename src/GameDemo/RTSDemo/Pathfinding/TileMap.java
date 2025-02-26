@@ -7,6 +7,7 @@ import Framework.GameObject2;
 import Framework.Main;
 import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.Units.Landmine;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,13 +28,14 @@ public class TileMap implements Serializable{
     public int worldWidth, worldHeight;
     public HashMap<Tile, Boolean> occupiedMap = new HashMap<>();
     public int padding = 0;
+    public int plane = 0; // 1=ground, 2=air
     
     public void updateOccupationMap(Game game) {
         occupiedMap.clear();
         Collection<Future<?>> occupationTasks = new LinkedList<>();
         
         for(GameObject2 go : game.getAllObjects()){
-            if(go instanceof RTSUnit unit && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid) {
+            if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid && unit.plane == plane) {
                 occupationTasks.add(occupationService.submit(() -> {
                     for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + Tile.tileSize/2 + padding)) {
                         try {
@@ -47,7 +49,7 @@ public class TileMap implements Serializable{
                 
             }
             // todo add padding to this calculation
-            if(go instanceof KeyBuilding building && building.getHitbox() != null) {
+            if(plane == 0 && go instanceof KeyBuilding building && building.getHitbox() != null) {
                List<Coordinate> vertices = Main.jMap(List.of(building.getHitbox().vertices), x -> x.copy().add(building.getPixelLocation().x, building.getPixelLocation().y));
                List<Tile> topBorder = getTilesIntersectingLine(vertices.get(0), vertices.get(1));
                topBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
@@ -66,9 +68,9 @@ public class TileMap implements Serializable{
         Handler.waitForAllJobs(occupationTasks);
     }
     
-    
-     public TileMap(int worldWidth, int worldHeight, int padding) {
+     public TileMap(int worldWidth, int worldHeight, int padding, int plane) {
         this.padding = padding;
+        this.plane = plane;
         tileGrid = new Tile[worldWidth/Tile.tileSize][worldHeight/Tile.tileSize];
         for(int x = 0; x < tileGrid.length; x++) {
             for(int y = 0; y <tileGrid[0].length; y++) {
@@ -204,7 +206,7 @@ public class TileMap implements Serializable{
 
         int centerX = targetPixel.x / Tile.tileSize;
         int centerY = targetPixel.y / Tile.tileSize;
-        int maxRadius = Math.max(20, 20); // 20x 20 tile search area
+        int maxRadius = 10; // 20 tile area 
 
         for (int radius = 0; radius < maxRadius; radius++) {
             for (int dx = -radius; dx <= radius; dx++) {

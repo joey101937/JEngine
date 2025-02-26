@@ -32,11 +32,15 @@ public class NavigationManager extends IndependentEffect {
     public Game game;
     public TileMap infantryMap;
     public TileMap lightTankMap;
+    public TileMap mediumTankMap;
+    public TileMap hellicopterMap;
 
     public NavigationManager(Game g) {
         game = g;
-        infantryMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 20);
-        lightTankMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 40);
+        infantryMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 20, 0);
+        lightTankMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 40, 0);
+        mediumTankMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 0);
+        hellicopterMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 2);
     }
 
     @Override
@@ -51,6 +55,8 @@ public class NavigationManager extends IndependentEffect {
         }
         infantryMap.updateOccupationMap(game);
         lightTankMap.updateOccupationMap(game);
+        mediumTankMap.updateOccupationMap(game);
+        hellicopterMap.updateOccupationMap(game);
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
             if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired()) {
@@ -132,7 +138,7 @@ public class NavigationManager extends IndependentEffect {
     }
 
     private List<Coordinate> smoothenPath(ArrayList<Coordinate> path, TileMap tileMap) {
-        int spacing = tileMap.padding / 2;
+        int spacing = tileMap.padding + Tile.tileSize/2;
         Coordinate start = path.get(0);
         Coordinate startLeft = new Coordinate(start.x - spacing, start.y - spacing);
         Coordinate startRight = new Coordinate(start.x + spacing, start.y - spacing);
@@ -144,8 +150,11 @@ public class NavigationManager extends IndependentEffect {
         int medLimit = Math.min(30, path.size() - 1);
         Coordinate goalMed = path.get(medLimit);
 
-        int nearLimit = Math.min(6, path.size() - 1);
-        Coordinate goalNear = path.get(farLimit);
+        int nearLimit = Math.min(9, path.size() - 1);
+        Coordinate goalNear = path.get(nearLimit);
+        Coordinate goalNearLeft = new Coordinate(goalNear.x - spacing, goalNear.y - spacing);
+        Coordinate goalNearRight = new Coordinate(goalNear.x + spacing, goalNear.y - spacing);
+        Coordinate goalNearMiddle = new Coordinate(goalNear.x, goalNear.y + spacing);
 
         if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startLeft, goalFar))
                 || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startRight, goalFar))
@@ -159,9 +168,9 @@ public class NavigationManager extends IndependentEffect {
             return path.subList(medLimit, path.size() - 1);
         }
 
-        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startLeft, goalNear))
-                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startRight, goalNear))
-                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startMiddle, goalNear))) {
+        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startLeft, goalNearLeft))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startRight, goalNearRight))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startMiddle, goalNearMiddle))) {
             return path.subList(nearLimit, path.size() - 1);
         }
 

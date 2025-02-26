@@ -10,7 +10,6 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.PathingLayer;
-import java.awt.Graphics2D;
 
 
 /**

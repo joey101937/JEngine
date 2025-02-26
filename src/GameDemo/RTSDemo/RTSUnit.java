@@ -13,6 +13,7 @@ import Framework.Hitbox;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.Tile;
 import GameDemo.RTSDemo.Pathfinding.TileMap;
+import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.SandboxDemo.Creature;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -199,7 +200,9 @@ public class RTSUnit extends Creature {
     
     public TileMap getTileMap() {
         if(isInfantry) return RTSGame.navigationManager.infantryMap;
-        return RTSGame.navigationManager.lightTankMap;
+        if(this instanceof LightTank) return RTSGame.navigationManager.lightTankMap; 
+        if(this.plane > 1) return RTSGame.navigationManager.hellicopterMap;
+        return RTSGame.navigationManager.mediumTankMap;
     }
 
     public void updateWaypoints() {
