@@ -102,7 +102,22 @@ public class NavigationManager extends IndependentEffect {
             return out;
         }
 
-        PriorityQueue<Node> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> n.f));
+        PriorityQueue<Node> openSet = new PriorityQueue<>((a, b) -> {
+            // First compare by f value
+            int fCompare = Double.compare(a.f, b.f);
+            if (fCompare != 0) return fCompare;
+            
+            // If f values are equal, compare by h value
+            int hCompare = Double.compare(a.h, b.h);
+            if (hCompare != 0) return hCompare;
+            
+            // If h values are equal, compare by tile x coordinate
+            int xCompare = Integer.compare(a.tile.x, b.tile.x);
+            if (xCompare != 0) return xCompare;
+            
+            // Finally compare by tile y coordinate
+            return Integer.compare(a.tile.y, b.tile.y);
+        });
         Map<Tile, Node> allNodes = new HashMap<>();
         int numTraversed = 0;
 
