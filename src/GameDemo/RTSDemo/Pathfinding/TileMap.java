@@ -11,9 +11,10 @@ import GameDemo.RTSDemo.Units.Landmine;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -26,7 +27,7 @@ public class TileMap implements Serializable{
     public static ExecutorService occupationService = Executors.newFixedThreadPool(200);
     public Tile[][] tileGrid;
     public int worldWidth, worldHeight;
-    public HashMap<Tile, Boolean> occupiedMap = new HashMap<>();
+    public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
     public int padding = 0;
     public int plane = 0; // 1=ground, 2=air
     
@@ -42,6 +43,13 @@ public class TileMap implements Serializable{
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {
                             // ignore ib
+                        } catch(ConcurrentModificationException cme) {
+                            int tries = 0;
+                            while (tries < 30 && occupiedMap.getOrDefault(tileGrid[coord.x][coord.y], false)) {
+                                tries ++;
+                                occupiedMap.put(tileGrid[coord.x][coord.y], true);
+                            }
+                            System.out.println("tries " + tries);
                         }
                     }
                     return true;
@@ -196,7 +204,7 @@ public class TileMap implements Serializable{
     /**
      * gets the tile closest open to the target pixel. If there are multiple of the same distance, use the one that is closest to the tiebreaker pixel location
      * @param targetPixel point we want to get closest to in pixels
-     * @param tiebreakerPixel point to use as tiebreaker. CAN BE NULL. if this is null, pick one at random
+     * @param tiebreakerPixel point to use as tiebreaker.
      * @return tile that meets criteria
      */
     public Tile getClosestOpenTile(Coordinate targetPixel, Coordinate tiebreakerPixel) {
