@@ -1,4 +1,4 @@
-package GameDemo.RTSDemo.MultiplayerTest;
+package GameDemo.RTSDemo.Pathfinding;
 
 import java.util.HashMap;
 
