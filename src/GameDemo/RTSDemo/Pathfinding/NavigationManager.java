@@ -33,16 +33,21 @@ public class NavigationManager extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
-         for(int x = 0; x < 100; x++) {
-             for(int y = 0 ; y < 100; y++) {
-                g.setColor(tileMap.tileGrid[x][y].isBlocked() ? Color.RED : Color.BLUE);
-                g.fillRect(x*Tile.tileSize, y*Tile.tileSize, Tile.tileSize, Tile.tileSize);
-             }
-         }
+//         for(int x = 0; x < 100; x++) {
+//             for(int y = 0 ; y < 100; y++) {
+//                g.setColor(tileMap.tileGrid[x][y].isBlocked() ? Color.RED : Color.BLUE);
+//                if(!tileMap.tileGrid[x][y].isBlocked()) continue;
+//                g.fillRect(x*Tile.tileSize, y*Tile.tileSize, Tile.tileSize, Tile.tileSize);
+//             }
+//         }
+//        g.setColor(Color.RED);
+//        for(Tile tile : tileMap.occupiedMap.keySet()) {
+//             g.fillRect(tile.x*Tile.tileSize, tile.y*Tile.tileSize, Tile.tileSize, Tile.tileSize);
+//        }
          g.setColor(Color.YELLOW);
          if(path != null && !path.isEmpty()) {
              path.forEach(coord -> {
-                 g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                 g.fillRect(coord.x-5, coord.y-5, 10, 10);
              });
          }
     }
@@ -56,7 +61,17 @@ public class NavigationManager extends IndependentEffect {
         var groupOne = ControlGroupHelper.groups.getOrDefault(1, null);
         var groupTwo = ControlGroupHelper.groups.getOrDefault(2, null);
         if(groupOne != null && !groupOne.isEmpty() && groupTwo != null && !groupTwo.isEmpty()) {
-            path = getPath(new Coordinate(40,40), new Coordinate(400, 60) );
+           // path = getPath(new Coordinate(40,40), new Coordinate(400, 60) );
+            System.out.println(groupOne.get(0).getWidth());
+           path = getPath(groupOne.get(0).getPixelLocation(), groupTwo.get(0).getPixelLocation() );
+           for(int i = path.size()-1; i > 0; i--) {
+               Coordinate cur = path.get(i);
+               if(cur.distanceFrom(groupTwo.get(0).getPixelLocation()) < groupTwo.get(0).getWidth()) {
+                   path.removeLast();
+               }
+               else break;
+           }
+           groupTwo.get(0).setDesiredLocation(path.getLast());
         }
     }
 

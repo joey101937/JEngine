@@ -33,7 +33,7 @@ public class TileMap implements Serializable{
         for(GameObject2 go : game.getAllObjects()){
             if(go instanceof RTSUnit unit && !unit.hasNonzeroVelocity()) {
                 occupationTasks.add(occupationService.submit(() -> {
-                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + 0)) {
+                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + 21)) {
                         try {
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {
@@ -144,7 +144,7 @@ public class TileMap implements Serializable{
 
         int centerX = targetPixel.x / Tile.tileSize;
         int centerY = targetPixel.y / Tile.tileSize;
-        int maxRadius = Math.max(tileGrid.length, tileGrid[0].length);
+        int maxRadius = Math.max(tileGrid.length/4, tileGrid[0].length/4);
 
         for (int radius = 0; radius < maxRadius; radius++) {
             for (int dx = -radius; dx <= radius; dx++) {
