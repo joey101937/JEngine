@@ -103,6 +103,16 @@ public class TileMap implements Serializable{
         return affectedTiles;
     }
     
+    /**
+     * returns a list of all tiles in the tile map which intersect with the given line
+     * line coords in pixels
+     * @return 
+     */
+    public ArrayList<Tile> getTilesIntersectingLine(Coordinate start, Coordinate end) {
+        // todo
+        return null;
+    }
+    
     
     
     public ArrayList<Tile> getNeighbors(Coordinate sourceTilePos) {
