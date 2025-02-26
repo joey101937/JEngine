@@ -70,7 +70,6 @@ public class NavigationManager extends IndependentEffect {
         }
         
         if(goal == null) {
-            System.out.println("null goal");
             goal = tileMap.getClosestOpenTile(endCoord, startCoord);
         }
         
