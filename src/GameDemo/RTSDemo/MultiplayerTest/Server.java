@@ -1,8 +1,12 @@
 package GameDemo.RTSDemo.MultiplayerTest;
 
+import Framework.Coordinate;
 import Framework.Game;
+import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
+import static GameDemo.RTSDemo.RTSGame.game;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -14,6 +18,9 @@ import GameDemo.RTSDemo.Units.TankUnit;
 public class Server {
 
     public static void main(String[] args) {
+        RTSAssetManager.initialize();
+        RTSGame.game = new Game(RTSAssetManager.grassBGDark);
+        RTSGame.minimap = new Minimap(game, new Coordinate(0, 0));
         Game g = RTSGame.game;
         Window.currentGame = g;
         System.out.println("adding");

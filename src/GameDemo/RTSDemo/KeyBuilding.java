@@ -18,7 +18,7 @@ public class KeyBuilding extends GameObject2 {
     public static final Sprite shadowSprite = Sprite.generateShadowSprite(mainSprite.getImage(), .5); // new Sprite(RTSAssetManager.buildingShadow);
     private static final double CAPTURE_RATE = 0.01;
     private static final double CAPTURE_THRESHOLD = 1.0;
-    public static final double VISUAL_SCALE = .75;
+    public static final double VISUAL_SCALE = .6;
     
     static {
         mainSprite.scaleTo(VISUAL_SCALE);

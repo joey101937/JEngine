@@ -1,13 +1,13 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package GameDemo.RTSDemo.MultiplayerTest;
 
+import Framework.Coordinate;
 import Framework.Game;
+import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import static GameDemo.RTSDemo.MultiplayerTest.Server.createStartingUnits;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
+import static GameDemo.RTSDemo.RTSGame.game;
 import java.io.PrintStream;
 
 /**
@@ -19,6 +19,9 @@ public class Client {
     public static PrintStream printStream;
 
     public static void main(String[] args) {
+        RTSAssetManager.initialize();
+        RTSGame.game = new Game(RTSAssetManager.grassBGDark);
+        RTSGame.minimap = new Minimap(game, new Coordinate(0, 0));
         Client c = new Client();
         Game g = RTSGame.game;
         Window.currentGame = g;

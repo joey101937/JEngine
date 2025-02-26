@@ -78,9 +78,6 @@ public class RTSUnit extends Creature {
 
     @Override
     public void render(Graphics2D g) {
-        if(isTouchingOtherUnit) {
-            g.fillRect(getPixelLocation().x, getPixelLocation().y, 10, 10);
-        }
         super.render(g);
         if (isRubble) {
             return;
@@ -197,6 +194,11 @@ public class RTSUnit extends Creature {
     public Coordinate getNextWaypoint() {
         if(waypoints == null || waypoints.size() == 0 || isCloseEnoughToDesired()) {
             return desiredLocation;
+        }
+        
+        if(this.isTouchingOtherUnit) {
+            // if touching other unit, follow waypoints exactly
+            return waypoints.get((Math.min(1, waypoints.size()-1)));
         }
         
         int sideLength = Math.max(getWidth(), getHeight());
