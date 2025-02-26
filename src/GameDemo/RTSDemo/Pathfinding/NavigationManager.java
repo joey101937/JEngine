@@ -32,12 +32,11 @@ public class NavigationManager extends IndependentEffect {
     public Game game;
     public TileMap infantryMap;
     public TileMap lightTankMap;
-    
 
     public NavigationManager(Game g) {
         game = g;
-        infantryMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 28);
-        lightTankMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 60);
+        infantryMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 20);
+        lightTankMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 40);
     }
 
     @Override
@@ -53,8 +52,8 @@ public class NavigationManager extends IndependentEffect {
         infantryMap.updateOccupationMap(game);
         lightTankMap.updateOccupationMap(game);
         Collection<Future<?>> pathingTasks = new ArrayList<>();
-        for(GameObject2 go : game.getAllObjects()) {
-            if(go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired()) {
+        for (GameObject2 go : game.getAllObjects()) {
+            if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired()) {
                 pathingTasks.add(unitPathingService.submit(() -> {
                     unit.updateWaypoints();
                     return true;
@@ -67,44 +66,43 @@ public class NavigationManager extends IndependentEffect {
     public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, TileMap tileMap) {
         Tile start = tileMap.getTileAtLocation(startCoord);
         Tile goal = tileMap.getTileAtLocation(endCoord);
-        
-        if(startCoord.distanceFrom(endCoord) > 1000) {
+
+        if (startCoord.distanceFrom(endCoord) > 1000) {
             endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, 1000);
-             goal = tileMap.getTileAtLocation(endCoord);
+            goal = tileMap.getTileAtLocation(endCoord);
         }
-        
-        if(goal == null) {
+
+        if (goal == null) {
             goal = tileMap.getClosestOpenTile(endCoord, startCoord);
         }
-        
-        
-        if(goal.isBlocked()) {
+
+        if (goal.isBlocked()) {
             goal = tileMap.getClosestOpenTile(endCoord, startCoord);
         }
-        
-        if(start.isBlocked()) {
+
+        if (start.isBlocked()) {
             start = tileMap.getClosestOpenTile(startCoord, endCoord);
         }
-        
-        if(start == null || goal == null) {
+
+        if (start == null || goal == null) {
             System.out.println("no path found (null start or end)");
             ArrayList<Coordinate> out = new ArrayList<>();
             out.add(endCoord);
             return out;
         }
-        
+
         PriorityQueue<Node> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> n.f));
         Map<Tile, Node> allNodes = new HashMap<>();
         int numTraversed = 0;
-        
+
         Node startNode = new Node(start, null, 0, heuristic(start, goal));
         openSet.add(startNode);
         allNodes.put(start, startNode);
-        
-         while (!openSet.isEmpty() && numTraversed < 8000) {
+
+        while (!openSet.isEmpty() && numTraversed < 8000) {
             Node current = openSet.poll();
             numTraversed++;
-            
+
             if (current.tile == goal) {
                 var path = reconstructPath(current);
                 path.add(endCoord);
@@ -112,7 +110,9 @@ public class NavigationManager extends IndependentEffect {
             }
 
             for (Tile neighbor : tileMap.getNeighbors(current.tile.getGridLocation())) {
-                if (neighbor.isBlocked()) continue;
+                if (neighbor.isBlocked()) {
+                    continue;
+                }
 
                 double gScore = current.g + 1;
                 Node neighborNode = allNodes.get(neighbor);
@@ -130,32 +130,43 @@ public class NavigationManager extends IndependentEffect {
         out.add(endCoord);
         return out;
     }
-    
-    
+
     private List<Coordinate> smoothenPath(ArrayList<Coordinate> path, TileMap tileMap) {
+        int spacing = tileMap.padding / 2;
+        Coordinate start = path.get(0);
+        Coordinate startLeft = new Coordinate(start.x - spacing, start.y - spacing);
+        Coordinate startRight = new Coordinate(start.x + spacing, start.y - spacing);
+        Coordinate startMiddle = new Coordinate(start.x, start.y + spacing);
+
         int farLimit = Math.min(60, path.size() - 1);
         Coordinate goalFar = path.get(farLimit);
-        
+
         int medLimit = Math.min(30, path.size() - 1);
         Coordinate goalMed = path.get(medLimit);
-        
+
         int nearLimit = Math.min(6, path.size() - 1);
         Coordinate goalNear = path.get(farLimit);
-        
-        if(tileMap.noneBlocked(tileMap.getTilesIntersectingLine(path.get(0), goalFar))) {
-            return path.subList(farLimit, path.size()-1);
+
+        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startLeft, goalFar))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startRight, goalFar))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startMiddle, goalFar))) {
+            return path.subList(farLimit, path.size() - 1);
         }
-        
-        if(tileMap.noneBlocked(tileMap.getTilesIntersectingLine(path.get(0), goalMed))) {
-            return path.subList(medLimit, path.size()-1);
+
+        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startLeft, goalMed))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startRight, goalMed))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startMiddle, goalMed))) {
+            return path.subList(medLimit, path.size() - 1);
         }
-        
-         if(tileMap.noneBlocked(tileMap.getTilesIntersectingLine(path.get(0), goalNear))) {
-            return path.subList(nearLimit, path.size()-1);
+
+        if (tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startLeft, goalNear))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startRight, goalNear))
+                || tileMap.noneBlocked(tileMap.getTilesIntersectingLine(startMiddle, goalNear))) {
+            return path.subList(nearLimit, path.size() - 1);
         }
-        
+
         return path;
-    };
+    }
     
     private ArrayList<Coordinate> reconstructPath(Node node) {
         ArrayList<Coordinate> path = new ArrayList<>();
@@ -166,7 +177,7 @@ public class NavigationManager extends IndependentEffect {
         Collections.reverse(path);
         return path;
     }
-    
+
     private double heuristic(Tile a, Tile b) {
         return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
     }
@@ -185,9 +196,9 @@ public class NavigationManager extends IndependentEffect {
             this.f = g + h;
         }
     }
-    
+
     @Override
-    public int getZLayer(){
+    public int getZLayer() {
         return -90;
     }
 

@@ -11,6 +11,7 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Pathfinding.Tile;
 import GameDemo.RTSDemo.Pathfinding.TileMap;
 import GameDemo.SandboxDemo.Creature;
 import java.awt.BasicStroke;
@@ -188,7 +189,7 @@ public class RTSUnit extends Creature {
         int sideLength = Math.max(getWidth(), getHeight());
         
         for (int i = 0; i < waypoints.size(); i++) {
-            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > sideLength) {
+            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + Tile.tileSize/2)) {
                 return waypoints.get(i);
             }
         }
@@ -255,7 +256,13 @@ public class RTSUnit extends Creature {
         return new ArrayList<>();
     }
 
-    ;
+    /**
+     * gets width or height- which ever is longer
+     * @return 
+     */
+    public int getSideLength() {
+        return Math.max(getWidth(), getHeight());
+    }
     
     public String toTransportString() {
         StringBuilder builder = new StringBuilder();

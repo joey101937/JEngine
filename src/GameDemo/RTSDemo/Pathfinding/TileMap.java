@@ -35,7 +35,7 @@ public class TileMap implements Serializable{
         for(GameObject2 go : game.getAllObjects()){
             if(go instanceof RTSUnit unit && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid) {
                 occupationTasks.add(occupationService.submit(() -> {
-                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + padding)) {
+                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + Tile.tileSize/2 + padding)) {
                         try {
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {
