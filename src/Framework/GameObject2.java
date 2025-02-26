@@ -811,6 +811,43 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public void updateLocation() {
         if(Main.ignoreCollisionsForStillObjects && velocity.x == 0 && velocity.y == 0) return;
+        DCoordinate proposedMovement = this.getMovementNextTick();
+        
+        //COLLISION
+        DCoordinate newLocation = location.copy();
+        newLocation.add(updateMovementBasedOnCollision(proposedMovement));
+
+        // pathing layer now
+        if (getHostGame().pathingLayer != null) {
+            if (!getHostGame().pathingLayer.getTypeAt(getPixelLocation()).name.equals(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
+                this.onPathingLayerCollision(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()));
+            }
+            if (!isNewLocationClearForPathing(newLocation.toCoordinate()) && collisionSliding) {
+                //pathing at new location is blocked. (speed multiplier < .01)
+                //check directions to see which are blocked so we can possibly slide
+                boolean xClear = isXClearForPathingAtNewLocation(newLocation.x - location.x);
+                boolean yClear = isYClearForPathingAtNewLocation(newLocation.y - location.y);
+                if (!xClear) {
+                    newLocation.x = location.x;
+                }
+                if (!yClear) {
+                    newLocation.y = location.y;
+                }
+            }
+        }
+        if (getHostGame().pathingLayer == null || isNewLocationClearForPathing(newLocation.toCoordinate())) {
+            location = newLocation;
+        }
+        constrainToWorld();
+    }
+
+    
+    /**
+     * returns the movement the object undergo next tick assuming that 
+     * it is moved only with its own velocity and it does not collide with anything
+     * @return DCoordiante representation of the movement 
+     */
+    public DCoordinate getMovementNextTick() {
         DCoordinate newLocation = location.copy();
         switch (movementType) {
             case SpeedRatio:
@@ -840,35 +877,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
             default:
                 throw new RuntimeException("Movement Type undefined for object: " + this);
         }
-        DCoordinate proposedMovement = new DCoordinate((newLocation.x - location.x), (newLocation.y - location.y));
-        //COLLISION
-        newLocation = location.copy();
-        newLocation.add(updateMovementBasedOnCollision(proposedMovement));
-
-        // pathing layer now
-        if (getHostGame().pathingLayer != null) {
-            if (!getHostGame().pathingLayer.getTypeAt(getPixelLocation()).name.equals(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
-                this.onPathingLayerCollision(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()));
-            }
-            if (!isNewLocationClearForPathing(newLocation.toCoordinate()) && collisionSliding) {
-                //pathing at new location is blocked. (speed multiplier < .01)
-                //check directions to see which are blocked so we can possibly slide
-                boolean xClear = isXClearForPathingAtNewLocation(newLocation.x - location.x);
-                boolean yClear = isYClearForPathingAtNewLocation(newLocation.y - location.y);
-                if (!xClear) {
-                    newLocation.x = location.x;
-                }
-                if (!yClear) {
-                    newLocation.y = location.y;
-                }
-            }
-        }
-        if (getHostGame().pathingLayer == null || isNewLocationClearForPathing(newLocation.toCoordinate())) {
-            location = newLocation;
-        }
-        constrainToWorld();
+        return new DCoordinate((newLocation.x - location.x), (newLocation.y - location.y));
     }
-
     /**
      * this method is triggered from the default constrainToWorld function when
      * it detects that it's x or y coordinates are outside playable bounds and needs to be brought back in

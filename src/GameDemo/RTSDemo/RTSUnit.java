@@ -78,6 +78,9 @@ public class RTSUnit extends Creature {
 
     @Override
     public void render(Graphics2D g) {
+        if(isTouchingOtherUnit) {
+            g.fillRect(getPixelLocation().x, getPixelLocation().y, 15, 15);
+        }
         super.render(g);
         if (isRubble) {
             return;
@@ -198,7 +201,7 @@ public class RTSUnit extends Creature {
         
         if(this.isTouchingOtherUnit) {
             // if touching other unit, follow waypoints exactly
-            return waypoints.get((Math.min(1, waypoints.size()-1)));
+            return waypoints.get((Math.min(0, waypoints.size()-1)));
         }
         
         int sideLength = Math.max(getWidth(), getHeight());
@@ -413,7 +416,16 @@ public class RTSUnit extends Creature {
     @Override
     public void onCollide(GameObject2 other, boolean myTick) {
         super.onCollide(other, myTick);
-        if(other instanceof RTSUnit && !(other instanceof Landmine))
-        this.isTouchingOtherUnit = true;
+        
+        if(other instanceof RTSUnit otherUnit) {
+            if(!other.getHitbox().intersectsIfMoved(this.getHitbox(), otherUnit.getMovementNextTick().toCoordinate().scale(2))) {
+                // other unit is moving with this one so we can ignore it
+                return;
+            }
+        }
+        
+        if(other instanceof RTSUnit && !(other instanceof Landmine)) {
+            this.isTouchingOtherUnit = true;
+        }
     }
 }
