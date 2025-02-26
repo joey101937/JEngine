@@ -30,17 +30,25 @@ public class NavigationManager extends IndependentEffect {
     public static ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
 
     public Game game;
-    public TileMap infantryMap;
-    public TileMap lightTankMap;
-    public TileMap mediumTankMap;
-    public TileMap hellicopterMap;
+    public TileMap infantryMapT1;
+    public TileMap lightTankMapT1;
+    public TileMap mediumTankMapT1;
+    public TileMap hellicopterMapT1;
+    public TileMap infantryMapT2;
+    public TileMap lightTankMapT2;
+    public TileMap mediumTankMapT2;
+    public TileMap hellicopterMapT2;
 
     public NavigationManager(Game g) {
         game = g;
-        infantryMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 20, 0);
-        lightTankMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 40, 0);
-        mediumTankMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 0);
-        hellicopterMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 2);
+        infantryMapT1 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 20, 0, 0);
+        lightTankMapT1 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 40, 0, 0);
+        mediumTankMapT1 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 0, 0);
+        hellicopterMapT1 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 2, 0);
+        infantryMapT2 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 20, 0, 1);
+        lightTankMapT2 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 40, 0, 1);
+        mediumTankMapT2 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 0, 1);
+        hellicopterMapT2 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 2, 1);
     }
 
     @Override
@@ -53,10 +61,15 @@ public class NavigationManager extends IndependentEffect {
         if (game.getGameTickNumber() % updateInterval != 0) {
             return;
         }
-        infantryMap.updateOccupationMap(game);
-        lightTankMap.updateOccupationMap(game);
-        mediumTankMap.updateOccupationMap(game);
-        hellicopterMap.updateOccupationMap(game);
+        infantryMapT1.updateOccupationMap(game);
+        lightTankMapT1.updateOccupationMap(game);
+        mediumTankMapT1.updateOccupationMap(game);
+        hellicopterMapT1.updateOccupationMap(game);
+        infantryMapT2.updateOccupationMap(game);
+        lightTankMapT2.updateOccupationMap(game);
+        mediumTankMapT2.updateOccupationMap(game);
+        hellicopterMapT2.updateOccupationMap(game);
+        
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
             if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired()) {
@@ -80,6 +93,12 @@ public class NavigationManager extends IndependentEffect {
 
         if (goal == null) {
             goal = tileMap.getClosestOpenTile(endCoord, startCoord);
+            if(goal == null) {
+                // no nearby open tiles, just return the end goal directly
+                ArrayList<Coordinate> out = new ArrayList<>();
+                out.add(endCoord);
+                return out;
+            }
         }
         
         if (start.isBlocked()) {

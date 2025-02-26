@@ -78,9 +78,6 @@ public class RTSUnit extends Creature {
 
     @Override
     public void render(Graphics2D g) {
-        if(isTouchingOtherUnit) {
-            g.fillRect(getPixelLocation().x, getPixelLocation().y, 15, 15);
-        }
         super.render(g);
         if (isRubble) {
             return;
@@ -98,6 +95,10 @@ public class RTSUnit extends Creature {
                     g.fillRect(coord.x-10, coord.y-10, 20, 20);
                 }
             }
+        }
+         if(isTouchingOtherUnit) {
+            g.setColor(Color.MAGENTA);
+            g.fillRect(getPixelLocation().x, getPixelLocation().y, 25, 25);
         }
     }
     
@@ -216,10 +217,11 @@ public class RTSUnit extends Creature {
     }
     
     public TileMap getTileMap() {
-        if(isInfantry) return RTSGame.navigationManager.infantryMap;
-        if(this instanceof LightTank) return RTSGame.navigationManager.lightTankMap; 
-        if(this.plane > 1) return RTSGame.navigationManager.hellicopterMap;
-        return RTSGame.navigationManager.mediumTankMap;
+        boolean isTeam1 = team == 0; // todo also can be team 2
+        if(isInfantry) return isTeam1 ? RTSGame.navigationManager.infantryMapT1 : RTSGame.navigationManager.infantryMapT2;
+        if(this instanceof LightTank) return isTeam1 ? RTSGame.navigationManager.lightTankMapT1 : RTSGame.navigationManager.lightTankMapT2; 
+        if(this.plane > 1) return isTeam1 ?  RTSGame.navigationManager.hellicopterMapT1 : RTSGame.navigationManager.hellicopterMapT2;
+        return isTeam1 ? RTSGame.navigationManager.mediumTankMapT1 : RTSGame.navigationManager.mediumTankMapT2;
     }
 
     public void updateWaypoints() {
@@ -418,13 +420,13 @@ public class RTSUnit extends Creature {
         super.onCollide(other, myTick);
         
         if(other instanceof RTSUnit otherUnit) {
-            if(!other.getHitbox().intersectsIfMoved(this.getHitbox(), otherUnit.getMovementNextTick().toCoordinate().scale(2))) {
+            if(other.hasVelocity() && !other.getHitbox().intersectsIfMoved(this.getHitbox(), otherUnit.getMovementNextTick().toCoordinate().scale(2))) {
                 // other unit is moving with this one so we can ignore it
                 return;
             }
         }
         
-        if(other instanceof RTSUnit && !(other instanceof Landmine)) {
+        if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team) {
             this.isTouchingOtherUnit = true;
         }
     }

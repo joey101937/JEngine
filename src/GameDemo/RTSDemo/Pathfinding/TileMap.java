@@ -30,13 +30,14 @@ public class TileMap implements Serializable{
     public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
     public int padding = 0;
     public int plane = 0; // 1=ground, 2=air
+    public int team = 0; // team ignores collisions with other team's units
     
     public void updateOccupationMap(Game game) {
         occupiedMap.clear();
         Collection<Future<?>> occupationTasks = new LinkedList<>();
         
         for(GameObject2 go : game.getAllObjects()){
-            if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid && unit.plane == plane) {
+            if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
                 occupationTasks.add(occupationService.submit(() -> {
                     for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + Tile.tileSize + padding)) {
                         try {
@@ -76,9 +77,10 @@ public class TileMap implements Serializable{
         Handler.waitForAllJobs(occupationTasks);
     }
     
-     public TileMap(int worldWidth, int worldHeight, int padding, int plane) {
+     public TileMap(int worldWidth, int worldHeight, int padding, int plane, int team) {
         this.padding = padding;
         this.plane = plane;
+        this.team = team;
         tileGrid = new Tile[worldWidth/Tile.tileSize][worldHeight/Tile.tileSize];
         for(int x = 0; x < tileGrid.length; x++) {
             for(int y = 0; y <tileGrid[0].length; y++) {
