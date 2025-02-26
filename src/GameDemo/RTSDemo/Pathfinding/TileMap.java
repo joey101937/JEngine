@@ -104,13 +104,45 @@ public class TileMap implements Serializable{
     }
     
     /**
-     * returns a list of all tiles in the tile map which intersect with the given line
-     * line coords in pixels
-     * @return 
+     * Returns a list of all tiles in the tile map which intersect with the given line
+     * Line coordinates are in pixels
+     * @param start The starting point of the line
+     * @param end The ending point of the line
+     * @return ArrayList of Tiles that the line passes through
      */
     public ArrayList<Tile> getTilesIntersectingLine(Coordinate start, Coordinate end) {
-        // todo
-        return null;
+        ArrayList<Tile> intersectingTiles = new ArrayList<>();
+        
+        int x0 = start.x / Tile.tileSize;
+        int y0 = start.y / Tile.tileSize;
+        int x1 = end.x / Tile.tileSize;
+        int y1 = end.y / Tile.tileSize;
+        
+        int dx = Math.abs(x1 - x0);
+        int dy = Math.abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+        int err = dx - dy;
+        
+        while (true) {
+            if (x0 >= 0 && x0 < tileGrid.length && y0 >= 0 && y0 < tileGrid[0].length) {
+                intersectingTiles.add(tileGrid[x0][y0]);
+            }
+            
+            if (x0 == x1 && y0 == y1) break;
+            
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x0 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y0 += sy;
+            }
+        }
+        
+        return intersectingTiles;
     }
     
     
