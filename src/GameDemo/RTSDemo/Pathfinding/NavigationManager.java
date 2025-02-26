@@ -88,7 +88,7 @@ public class NavigationManager extends IndependentEffect {
 
         if (goal.isBlocked()) {
             goal = tileMap.getClosestOpenTile(endCoord, startCoord);
-            if(self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (60 + self.getWidth()/2)) {
+            if(self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (200 + self.getWidth()/2)) {
                 ArrayList<Coordinate> out = new ArrayList<>();
                 out.add(endCoord);
                 return out;
