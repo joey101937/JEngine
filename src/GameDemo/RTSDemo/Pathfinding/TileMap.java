@@ -26,6 +26,7 @@ public class TileMap implements Serializable{
     public Tile[][] tileGrid;
     public int worldWidth, worldHeight;
     public HashMap<Tile, Boolean> occupiedMap = new HashMap<>();
+    public int padding = 0;
     
     public void updateOccupationMap(Game game) {
         occupiedMap.clear();
@@ -34,7 +35,7 @@ public class TileMap implements Serializable{
         for(GameObject2 go : game.getAllObjects()){
             if(go instanceof RTSUnit unit && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid) {
                 occupationTasks.add(occupationService.submit(() -> {
-                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + 22)) {
+                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + padding)) {
                         try {
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {
@@ -45,6 +46,7 @@ public class TileMap implements Serializable{
                 }));
                 
             }
+            // todo add padding to this calculation
             if(go instanceof KeyBuilding building && building.getHitbox() != null) {
                List<Coordinate> vertices = Main.jMap(List.of(building.getHitbox().vertices), x -> x.copy().add(building.getPixelLocation().x, building.getPixelLocation().y));
                List<Tile> topBorder = getTilesIntersectingLine(vertices.get(0), vertices.get(1));
@@ -65,7 +67,8 @@ public class TileMap implements Serializable{
     }
     
     
-     public TileMap(int worldWidth, int worldHeight) {
+     public TileMap(int worldWidth, int worldHeight, int padding) {
+        this.padding = padding;
         tileGrid = new Tile[worldWidth/Tile.tileSize][worldHeight/Tile.tileSize];
         for(int x = 0; x < tileGrid.length; x++) {
             for(int y = 0; y <tileGrid[0].length; y++) {

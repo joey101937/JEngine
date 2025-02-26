@@ -30,11 +30,14 @@ public class NavigationManager extends IndependentEffect {
     public static ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
 
     public Game game;
-    public TileMap tileMap;
+    public TileMap infantryMap;
+    public TileMap lightTankMap;
+    
 
     public NavigationManager(Game g) {
         game = g;
-        tileMap = new TileMap(g.getWorldWidth(), g.getWorldHeight());
+        infantryMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 28);
+        lightTankMap = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 60);
     }
 
     @Override
@@ -47,7 +50,8 @@ public class NavigationManager extends IndependentEffect {
         if (game.getGameTickNumber() % updateInterval != 0) {
             return;
         }
-        tileMap.updateOccupationMap(game);
+        infantryMap.updateOccupationMap(game);
+        lightTankMap.updateOccupationMap(game);
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for(GameObject2 go : game.getAllObjects()) {
             if(go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired()) {
@@ -60,7 +64,7 @@ public class NavigationManager extends IndependentEffect {
         Handler.waitForAllJobs(pathingTasks);
     }
 
-    public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord) {
+    public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, TileMap tileMap) {
         Tile start = tileMap.getTileAtLocation(startCoord);
         Tile goal = tileMap.getTileAtLocation(endCoord);
         
@@ -104,7 +108,7 @@ public class NavigationManager extends IndependentEffect {
             if (current.tile == goal) {
                 var path = reconstructPath(current);
                 path.add(endCoord);
-                return smoothenPath(path);
+                return smoothenPath(path, tileMap);
             }
 
             for (Tile neighbor : tileMap.getNeighbors(current.tile.getGridLocation())) {
@@ -128,7 +132,7 @@ public class NavigationManager extends IndependentEffect {
     }
     
     
-    private List<Coordinate> smoothenPath(ArrayList<Coordinate> path) {
+    private List<Coordinate> smoothenPath(ArrayList<Coordinate> path, TileMap tileMap) {
         int farLimit = Math.min(60, path.size() - 1);
         Coordinate goalFar = path.get(farLimit);
         

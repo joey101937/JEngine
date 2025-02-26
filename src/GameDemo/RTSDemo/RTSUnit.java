@@ -11,6 +11,7 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Pathfinding.TileMap;
 import GameDemo.SandboxDemo.Creature;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -194,9 +195,14 @@ public class RTSUnit extends Creature {
 
         return desiredLocation;
     }
+    
+    public TileMap getTileMap() {
+        if(isInfantry) return RTSGame.navigationManager.infantryMap;
+        return RTSGame.navigationManager.lightTankMap;
+    }
 
     public void updateWaypoints() {
-        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation);
+        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, getTileMap());
     }
 
     public RTSUnit nearestEnemyInRange() {
