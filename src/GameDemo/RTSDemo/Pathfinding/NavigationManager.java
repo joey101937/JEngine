@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.ExecutorService;
@@ -91,7 +92,7 @@ public class NavigationManager extends IndependentEffect {
 //        }
     }
 
-    public ArrayList<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord) {
+    public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord) {
         Tile start = tileMap.getTileAtLocation(startCoord);
         Tile goal = tileMap.getTileAtLocation(endCoord);
         
@@ -136,7 +137,7 @@ public class NavigationManager extends IndependentEffect {
             if (current.tile == goal) {
                 var path = reconstructPath(current);
                 path.add(endCoord);
-                return path;
+                return smoothenPath(path);
             }
 
             for (Tile neighbor : tileMap.getNeighbors(current.tile.getGridLocation())) {
@@ -159,6 +160,17 @@ public class NavigationManager extends IndependentEffect {
         return out;
     }
     
+    
+    private List<Coordinate> smoothenPath(ArrayList<Coordinate> path) {
+        int farLimit = Math.min(30, path.size() - 1);
+        Coordinate goalFar = path.get(farLimit);
+        
+        if(tileMap.noneBlocked(tileMap.getTilesIntersectingLine(path.get(0), goalFar))) {
+            return path.subList(farLimit, path.size()-1);
+        }
+        
+        return path;
+    };
     
     private ArrayList<Coordinate> reconstructPath(Node node) {
         ArrayList<Coordinate> path = new ArrayList<>();

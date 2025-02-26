@@ -20,6 +20,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -44,7 +45,7 @@ public class RTSUnit extends Creature {
     public double originalSpeed = 1.8;
     public int sightRadius = 600;
     private ArrayList<CommandButton> buttons = new ArrayList<>();
-    public ArrayList<Coordinate> waypoints = new ArrayList<>();
+    public List<Coordinate> waypoints = new ArrayList<>();
 
     public static Color getColorFromTeam(int team) {
         return switch (team) {
@@ -171,7 +172,6 @@ public class RTSUnit extends Creature {
 
     public void setDesiredLocation(Coordinate c) {
         desiredLocation = c;
-        updateWaypoints();
     }
     
     public boolean isCloseEnoughToDesired() {
@@ -196,23 +196,6 @@ public class RTSUnit extends Creature {
     }
 
     public void updateWaypoints() {
-//        boolean canUseDirectPath = true;
-//        for(GameObject2 go : getHostGame().getAllObjects()) {
-//            if(go instanceof RTSUnit unit || go instanceof KeyBuilding building) {
-//                if(go.hasNonzeroVelocity()) continue;
-//                if(go.getHitbox().intersectsWithFatLine(getPixelLocation(), desiredLocation, getWidth())) {
-//                    canUseDirectPath = false;
-//                    break;
-//                }
-//            }
-//        }
-//        
-//        if(canUseDirectPath) {
-//            ArrayList<Coordinate> out = new ArrayList<>();
-//            out.add(desiredLocation);
-//            waypoints = out;
-//            return;
-//        }
         waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation);
     }
 

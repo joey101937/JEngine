@@ -4,7 +4,6 @@ import Framework.Coordinate;
 import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.GameObject2;
-import Framework.Main;
 import GameDemo.RTSDemo.RTSUnit;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -227,5 +226,13 @@ public class TileMap implements Serializable{
         }
 
         return closestTile;
+    }
+    
+    
+    public boolean noneBlocked (List<Tile> input) {
+        for(Tile t : input) {
+            if(t.isBlocked()) return false;
+        }
+        return true;
     }
 }
