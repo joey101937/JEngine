@@ -1,23 +1,11 @@
 package GameDemo.RTSDemo.Pathfinding;
 
 import Framework.Coordinate;
-import Framework.CoreLoop.Handler;
-import Framework.Game;
-import Framework.GameObject2;
-import Framework.Main;
-import GameDemo.RTSDemo.KeyBuilding;
-import GameDemo.RTSDemo.RTSUnit;
-import GameDemo.RTSDemo.Units.Landmine;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.ConcurrentModificationException;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  *
@@ -27,55 +15,11 @@ public class TileMap implements Serializable{
     public static ExecutorService occupationService = Executors.newFixedThreadPool(200);
     public Tile[][] tileGrid;
     public int worldWidth, worldHeight;
-    public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
+   //  public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
     public int padding = 0;
     public int plane = 0; // 1=ground, 2=air
     public int team = 0; // team ignores collisions with other team's units
     
-    public void updateOccupationMap(Game game) {
-        occupiedMap.clear();
-        Collection<Future<?>> occupationTasks = new LinkedList<>();
-        
-        for(GameObject2 go : game.getAllObjects()){
-            if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
-                occupationTasks.add(occupationService.submit(() -> {
-                    for(Coordinate coord : getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + Tile.tileSize + padding)) {
-                        try {
-                            occupiedMap.put(tileGrid[coord.x][coord.y], true);
-                        } catch (IndexOutOfBoundsException ib) {
-                            // ignore ib
-                        } catch(ConcurrentModificationException cme) {
-                            int tries = 0;
-                            while (tries < 30 && occupiedMap.getOrDefault(tileGrid[coord.x][coord.y], false)) {
-                                tries ++;
-                                occupiedMap.put(tileGrid[coord.x][coord.y], true);
-                            }
-                            System.out.println("tries " + tries);
-                        }
-                    }
-                    return true;
-                }));
-                
-            }
-            // todo add padding to this calculation
-            if(plane == 0 && go instanceof KeyBuilding building && building.getHitbox() != null) {
-               List<Coordinate> vertices = Main.jMap(List.of(building.getHitbox().vertices), x -> x.copy().add(building.getPixelLocation().x, building.getPixelLocation().y));
-               List<Tile> topBorder = getTilesIntersectingLine(vertices.get(0), vertices.get(1));
-               topBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-               
-               List<Tile> bottomBorder = getTilesIntersectingLine(vertices.get(2), vertices.get(3));
-               bottomBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-               
-               List<Tile> leftBorder = getTilesIntersectingLine(vertices.get(0), vertices.get(2));
-               leftBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-               
-               List<Tile> rightBorder = getTilesIntersectingLine(vertices.get(1), vertices.get(3));
-               rightBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-            }
-        }
-        
-        Handler.waitForAllJobs(occupationTasks);
-    }
     
      public TileMap(int worldWidth, int worldHeight, int padding, int plane, int team) {
         this.padding = padding;

@@ -228,6 +228,13 @@ public class RTSUnit extends Creature {
         if(this.plane > 1) return isTeam1 ?  RTSGame.navigationManager.hellicopterMapT1 : RTSGame.navigationManager.hellicopterMapT2;
         return isTeam1 ? RTSGame.navigationManager.mediumTankMapT1 : RTSGame.navigationManager.mediumTankMapT2;
     }
+    
+    public int getPathingPadding() {
+        if(isInfantry) return 20;
+        if(this instanceof LightTank) return 40; 
+        if(this.plane > 1) return 55; // helicopter
+        return 55; // med tank
+    }
 
     public void updateWaypoints() {
         waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, getTileMap(), this);
@@ -329,6 +336,18 @@ public class RTSUnit extends Creature {
         }
         this.commandGroup = components[8];
     }
+    
+    public String getPathingSignature () {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getPathingPadding()); // 1
+        builder.append(',');
+        builder.append(team); // 2
+        builder.append(',');
+        builder.append(plane); // 3
+        builder.append(',');
+        builder.append(commandGroup); // 4
+        return builder.toString();
+    };
 
     public void drawShadow(Graphics2D g, Graphic image, int xOffset, int yOffset) {
         int shadowOffsetX = xOffset;
