@@ -86,7 +86,15 @@ public class OccupationMap {
     }
     
     public OccupationMap(String pathingSignature) {
-        // accepts rtsUnit string to set fields on this object
+        String[] parts = pathingSignature.split(",");
+        if (parts.length != 4) {
+            throw new IllegalArgumentException("Invalid pathing signature format");
+        }
+        this.padding = Integer.parseInt(parts[0]);
+        this.team = Integer.parseInt(parts[1]);
+        this.plane = Integer.parseInt(parts[2]);
+        this.commandGroup = parts[3];
+        this.tileMap = TileMap.getInstance(); // Assuming there's a way to get the TileMap instance
     }
     
     public Boolean isTileBlocked(Tile t) {
