@@ -147,6 +147,7 @@ public class ExternalCommunicator implements Runnable {
             int x = Integer.parseInt(components[1]);
             int y = Integer.parseInt(components[2]);
             long intendedTick = Long.parseLong(components[3]); // this is when the input was actually done
+            String commandGroup = components[4];
             Coordinate coord = new Coordinate(x, y);
             long currentTick = Window.currentGame.handler.globalTickNumber;
             long tickToIssueOn = intendedTick + 1; // the input handler adds one tick delay for this purpose
@@ -155,6 +156,7 @@ public class ExternalCommunicator implements Runnable {
                 GameObject2 go = Window.currentGame.getObjectById(id);
                 if (go instanceof RTSUnit unit) {
                     unit.setDesiredLocation(coord);
+                    unit.commandGroup = commandGroup;
 //                    System.out.println("done");
                 }
             } else {
@@ -163,6 +165,7 @@ public class ExternalCommunicator implements Runnable {
                     GameObject2 go = Window.currentGame.getObjectById(id);
                     if (go instanceof RTSUnit unit) {
                         unit.setDesiredLocation(coord);
+                        unit.commandGroup = commandGroup;
 //                        System.out.println("done");
                     }
                 });

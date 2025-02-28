@@ -49,6 +49,7 @@ public class RTSUnit extends Creature {
     public double originalSpeed = 1.8;
     public int sightRadius = 600;
     public boolean isTouchingOtherUnit = false;
+    public String commandGroup = ""; // assigned when given order. goes to 0 when no active order
     
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
@@ -79,6 +80,7 @@ public class RTSUnit extends Creature {
     @Override
     public void render(Graphics2D g) {
         super.render(g);
+        g.drawString(commandGroup, getPixelLocation().x, getPixelLocation().y);
         if (isRubble) {
             return;
         }
@@ -113,8 +115,10 @@ public class RTSUnit extends Creature {
     public void tick() {
         super.tick();
         if (isRubble) {
+            commandGroup = "";
             return;
         }
+        if(isCloseEnoughToDesired()) commandGroup = "";
         Coordinate nextWaypoint = getNextWaypoint();
         if (!isImmobilized && nextWaypoint.distanceFrom(location) > getWidth() / 2) {
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
@@ -134,6 +138,7 @@ public class RTSUnit extends Creature {
             this.velocity.y = -100; //remember negative means forward because reasons
         } else {
             this.velocity.y = 0;
+            commandGroup = "";
         }
 
     }
@@ -303,6 +308,8 @@ public class RTSUnit extends Creature {
         builder.append(this.getDesiredLocation().y); // 6
         builder.append(",");
         builder.append(this.isRubble); // 7
+        builder.append(",");
+        builder.append(this.commandGroup); // 8
         return builder.toString();
     }
 
@@ -320,6 +327,7 @@ public class RTSUnit extends Creature {
                 this.die();
             }
         }
+        this.commandGroup = components[8];
     }
 
     public void drawShadow(Graphics2D g, Graphic image, int xOffset, int yOffset) {

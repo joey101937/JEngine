@@ -79,10 +79,21 @@ public class RTSInput extends InputHandler {
         output.y /= denominator;
         return output;
     }
+    
+    public static String generateRandomCommandGroup() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVQWYZ1234567890";
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i< 9; i++) {
+            builder.append(chars.charAt((int)(Math.random() * chars.length())));
+        }
+        
+        return builder.toString();
+    }
 
     @Override
     public void mousePressed(MouseEvent e) {
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
+        String generatedCommandGroup = generateRandomCommandGroup();
         if (e.getButton() == 1) { //1 means left click
             if (RTSGame.reinforcementHandler.intersectsMainBar(locationOfMouseEvent)) {
                 RTSGame.reinforcementHandler.toggleMenuOpen();
@@ -121,9 +132,11 @@ public class RTSInput extends InputHandler {
                     long originalTick = hostGame.handler.globalTickNumber;
                     hostGame.addTickDelayedEffect(1, x -> {
                         u.setDesiredLocation(locationOfMouseEvent);
+                        u.commandGroup = generatedCommandGroup;
                         ExternalCommunicator.communicateState(u);
                     });
-                    ExternalCommunicator.sendMessage("m:" + u.ID + "," + locationOfMouseEvent.x + ',' + locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber);
+                    ExternalCommunicator.sendMessage("m:" + u.ID + "," + locationOfMouseEvent.x
+                            + ',' + locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber + "," + generatedCommandGroup);
                 }
             } else {
                 // formation move
@@ -138,9 +151,10 @@ public class RTSInput extends InputHandler {
                     long originalTick = hostGame.handler.globalTickNumber;
                     hostGame.addTickDelayedEffect(1, x -> {
                         u.setDesiredLocation(targetOffset);
+                        u.commandGroup = generatedCommandGroup;
                         ExternalCommunicator.communicateState(u);
                     });
-                    ExternalCommunicator.sendMessage("m:" + u.ID + "," + targetOffset.x + ',' + targetOffset.y + "," + hostGame.handler.globalTickNumber);
+                    ExternalCommunicator.sendMessage("m:" + u.ID + "," + targetOffset.x + ',' + targetOffset.y + "," + hostGame.handler.globalTickNumber + ","+generatedCommandGroup);
                 }
             }
         }
