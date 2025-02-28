@@ -9,8 +9,8 @@ public class Tile implements Serializable{
     public int x,y;
     public TileMap tileMap;
     
-    public boolean isBlocked() {
-        return tileMap.occupiedMap.getOrDefault(this, false);
+    public boolean isBlocked(String pathingSignature) {
+        return tileMap.occupationMaps.get(pathingSignature).isTileBlocked(this);
     }
     
     public Tile(TileMap tileMap, int x, int y) {

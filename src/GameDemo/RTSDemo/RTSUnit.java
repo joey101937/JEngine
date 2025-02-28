@@ -49,7 +49,7 @@ public class RTSUnit extends Creature {
     public double originalSpeed = 1.8;
     public int sightRadius = 600;
     public boolean isTouchingOtherUnit = false;
-    public String commandGroup = ""; // assigned when given order. goes to 0 when no active order
+    public String commandGroup = "0"; // assigned when given order. goes to 0 when no active order
     
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
@@ -98,10 +98,6 @@ public class RTSUnit extends Creature {
                 }
             }
         }
-         if(isTouchingOtherUnit) {
-            g.setColor(Color.MAGENTA);
-            g.fillRect(getPixelLocation().x, getPixelLocation().y, 25, 25);
-        }
     }
     
     @Override
@@ -115,10 +111,10 @@ public class RTSUnit extends Creature {
     public void tick() {
         super.tick();
         if (isRubble) {
-            commandGroup = "";
+            commandGroup = "0";
             return;
         }
-        if(isCloseEnoughToDesired()) commandGroup = "";
+        if(isCloseEnoughToDesired()) commandGroup = "0";
         Coordinate nextWaypoint = getNextWaypoint();
         if (!isImmobilized && nextWaypoint.distanceFrom(location) > getWidth() / 2) {
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
@@ -138,7 +134,7 @@ public class RTSUnit extends Creature {
             this.velocity.y = -100; //remember negative means forward because reasons
         } else {
             this.velocity.y = 0;
-            commandGroup = "";
+            commandGroup = "0";
         }
 
     }
@@ -221,14 +217,6 @@ public class RTSUnit extends Creature {
         return desiredLocation;
     }
     
-    public TileMap getTileMap() {
-        boolean isTeam1 = team == 0; // todo also can be team 2
-        if(isInfantry) return isTeam1 ? RTSGame.navigationManager.infantryMapT1 : RTSGame.navigationManager.infantryMapT2;
-        if(this instanceof LightTank) return isTeam1 ? RTSGame.navigationManager.lightTankMapT1 : RTSGame.navigationManager.lightTankMapT2; 
-        if(this.plane > 1) return isTeam1 ?  RTSGame.navigationManager.hellicopterMapT1 : RTSGame.navigationManager.hellicopterMapT2;
-        return isTeam1 ? RTSGame.navigationManager.mediumTankMapT1 : RTSGame.navigationManager.mediumTankMapT2;
-    }
-    
     public int getPathingPadding() {
         if(isInfantry) return 20;
         if(this instanceof LightTank) return 40; 
@@ -237,7 +225,7 @@ public class RTSUnit extends Creature {
     }
 
     public void updateWaypoints() {
-        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, getTileMap(), this);
+        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, RTSGame.navigationManager.tileMap, this);
     }
 
     public RTSUnit nearestEnemyInRange() {
@@ -453,7 +441,7 @@ public class RTSUnit extends Creature {
             }
         }
         
-        if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team) {
+        if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team && !unit.commandGroup.equals(commandGroup)) {
             this.isTouchingOtherUnit = true;
         }
     }

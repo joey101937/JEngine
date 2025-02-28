@@ -30,25 +30,11 @@ public class NavigationManager extends IndependentEffect {
     public static ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
 
     public Game game;
-    public TileMap infantryMapT1;
-    public TileMap lightTankMapT1;
-    public TileMap mediumTankMapT1;
-    public TileMap hellicopterMapT1;
-    public TileMap infantryMapT2;
-    public TileMap lightTankMapT2;
-    public TileMap mediumTankMapT2;
-    public TileMap hellicopterMapT2;
+    public TileMap tileMap;
 
     public NavigationManager(Game g) {
         game = g;
-        infantryMapT1 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 20, 0, 0);
-        lightTankMapT1 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 40, 0, 0);
-        mediumTankMapT1 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 0, 0);
-        hellicopterMapT1 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 2, 0);
-        infantryMapT2 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 20, 0, 1);
-        lightTankMapT2 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 40, 0, 1);
-        mediumTankMapT2 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 0, 1);
-        hellicopterMapT2 = new TileMap(g.getWorldWidth(), g.getWorldHeight(), 55, 2, 1);
+        tileMap = new TileMap(g.getWorldWidth(), g.getWorldHeight());
     }
 
     @Override
@@ -61,14 +47,7 @@ public class NavigationManager extends IndependentEffect {
         if (game.getGameTickNumber() % updateInterval != 0) {
             return;
         }
-        infantryMapT1.updateOccupationMap(game);
-        lightTankMapT1.updateOccupationMap(game);
-        mediumTankMapT1.updateOccupationMap(game);
-        hellicopterMapT1.updateOccupationMap(game);
-        infantryMapT2.updateOccupationMap(game);
-        lightTankMapT2.updateOccupationMap(game);
-        mediumTankMapT2.updateOccupationMap(game);
-        hellicopterMapT2.updateOccupationMap(game);
+        tileMap.refreshOccupationmaps(game);
         
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
@@ -85,6 +64,7 @@ public class NavigationManager extends IndependentEffect {
     public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, TileMap tileMap, RTSUnit self) {
         Tile start = tileMap.getTileAtLocation(startCoord);
         Tile goal = tileMap.getTileAtLocation(endCoord);
+        String pathingSignature = self.getPathingSignature();
 
         if (startCoord.distanceFrom(endCoord) > 1000) {
             endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, 1000);
@@ -92,7 +72,7 @@ public class NavigationManager extends IndependentEffect {
         }
 
         if (goal == null) {
-            goal = tileMap.getClosestOpenTile(endCoord, startCoord);
+            goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
             if(goal == null) {
                 // no nearby open tiles, just return the end goal directly
                 ArrayList<Coordinate> out = new ArrayList<>();
@@ -101,12 +81,12 @@ public class NavigationManager extends IndependentEffect {
             }
         }
         
-        if (start.isBlocked()) {
-            start = tileMap.getClosestOpenTile(startCoord, endCoord);
+        if (start.isBlocked(pathingSignature)) {
+            start = tileMap.getClosestOpenTile(startCoord, endCoord, pathingSignature);
         }
 
-        if (goal.isBlocked()) {
-            goal = tileMap.getClosestOpenTile(endCoord, startCoord);
+        if (goal.isBlocked(pathingSignature)) {
+            goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
             if(self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (200 + self.getWidth()/2)) {
                 ArrayList<Coordinate> out = new ArrayList<>();
                 out.add(endCoord);
@@ -155,7 +135,7 @@ public class NavigationManager extends IndependentEffect {
             }
 
             for (Tile neighbor : tileMap.getNeighbors(current.tile.getGridLocation())) {
-                if (neighbor.isBlocked()) {
+                if (neighbor.isBlocked(pathingSignature)) {
                     continue;
                 }
 
@@ -176,15 +156,16 @@ public class NavigationManager extends IndependentEffect {
         return out;
     }
 
-    private List<Coordinate> smoothenPath(ArrayList<Coordinate> path, TileMap tileMap, RTSUnit self) {
+    private List<Coordinate> smoothenPath(List<Coordinate> path, TileMap tileMap, RTSUnit self) {
+        String pathingSignature = self.getPathingSignature();
         
-        if(self != null && self.isTouchingOtherUnit) {
+        if(self.isTouchingOtherUnit) {
             return path;
         }
         
-        if(tileMap.getTileAtLocation(path.get(0)).isBlocked()) return path;
+        if(tileMap.getTileAtLocation(path.get(0)).isBlocked(pathingSignature)) return path;
         
-        int spacing = (tileMap.padding + Tile.tileSize)/2;
+        int spacing = (tileMap.occupationMaps.get(pathingSignature).getPadding() + Tile.tileSize)/2;
         Coordinate start = path.get(0);
         // Define start corner points
         Coordinate startTopLeft = new Coordinate(start.x - spacing, start.y - spacing);
@@ -213,24 +194,24 @@ public class NavigationManager extends IndependentEffect {
         Coordinate goalNearBottomLeft = new Coordinate(goalNear.x - spacing, goalNear.y + spacing);
         Coordinate goalNearBottomRight = new Coordinate(goalNear.x + spacing, goalNear.y + spacing);
 
-        if (tileMap.allClear(tileMap.getTilesIntersectingLine(startTopLeft, goalFarTopLeft))
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startTopRight, goalFarTopRight))
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomLeft, goalFarBottomLeft))
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomRight, goalFarBottomRight))) {
+        if (tileMap.allClear(tileMap.getTilesIntersectingLine(startTopLeft, goalFarTopLeft), pathingSignature)
+                || tileMap.allClear(tileMap.getTilesIntersectingLine(startTopRight, goalFarTopRight), pathingSignature)
+                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomLeft, goalFarBottomLeft), pathingSignature)
+                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomRight, goalFarBottomRight), pathingSignature)) {
             return path.subList(farLimit, path.size() - 1);
         }
 
-        if (tileMap.allClear(tileMap.getTilesIntersectingLine(startTopLeft, goalMedTopLeft))
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startTopRight, goalMedTopRight))
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomLeft, goalMedBottomLeft))
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomRight, goalMedBottomRight))) {
+        if (tileMap.allClear(tileMap.getTilesIntersectingLine(startTopLeft, goalMedTopLeft), pathingSignature)
+                || tileMap.allClear(tileMap.getTilesIntersectingLine(startTopRight, goalMedTopRight), pathingSignature)
+                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomLeft, goalMedBottomLeft), pathingSignature)
+                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomRight, goalMedBottomRight), pathingSignature)) {
             return path.subList(medLimit, path.size() - 1);
         }
 
-        if (tileMap.allClear(tileMap.getTilesIntersectingLine(startTopLeft, goalNearTopLeft))
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startTopRight, goalNearTopRight))
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomLeft, goalNearBottomLeft))
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomRight, goalNearBottomRight))) {
+        if (tileMap.allClear(tileMap.getTilesIntersectingLine(startTopLeft, goalNearTopLeft), pathingSignature)
+                || tileMap.allClear(tileMap.getTilesIntersectingLine(startTopRight, goalNearTopRight), pathingSignature)
+                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomLeft, goalNearBottomLeft), pathingSignature)
+                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomRight, goalNearBottomRight), pathingSignature)) {
             return path.subList(nearLimit, path.size() - 1);
         }
 

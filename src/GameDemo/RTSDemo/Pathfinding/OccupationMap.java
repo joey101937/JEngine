@@ -6,7 +6,6 @@ import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
 import GameDemo.RTSDemo.KeyBuilding;
-import static GameDemo.RTSDemo.Pathfinding.TileMap.occupationService;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Units.Landmine;
 import java.util.Collection;
@@ -14,6 +13,8 @@ import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -21,6 +22,7 @@ import java.util.concurrent.Future;
  * @author guydu
  */
 public class OccupationMap {
+    public static ExecutorService occupationService = Executors.newFixedThreadPool(200);
     
     private int padding;
     private String commandGroup;
@@ -28,7 +30,7 @@ public class OccupationMap {
     private int plane;
     private TileMap tileMap;
     
-    private ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
     
     public void updateOccupationMap(Game game) {
         occupiedMap.clear();
@@ -36,7 +38,7 @@ public class OccupationMap {
         Tile[][] tileGrid = tileMap.tileGrid;
         
         for(GameObject2 go : game.getAllObjects()){
-            if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.hasVelocity() || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
+            if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.commandGroup.equals(commandGroup) || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
                 occupationTasks.add(occupationService.submit(() -> {
                     for(Coordinate coord : tileMap.getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + Tile.tileSize + padding)) {
                         try {
@@ -85,19 +87,41 @@ public class OccupationMap {
         this.plane = plane;
     }
     
-    public OccupationMap(String pathingSignature) {
-        String[] parts = pathingSignature.split(",");
-        if (parts.length != 4) {
-            throw new IllegalArgumentException("Invalid pathing signature format");
-        }
-        this.padding = Integer.parseInt(parts[0]);
-        this.team = Integer.parseInt(parts[1]);
-        this.plane = Integer.parseInt(parts[2]);
-        this.commandGroup = parts[3];
-        this.tileMap = TileMap.getInstance(); // Assuming there's a way to get the TileMap instance
-    }
-    
     public Boolean isTileBlocked(Tile t) {
         return occupiedMap.getOrDefault(t, Boolean.FALSE);
     }
+
+    public int getPadding() {
+        return padding;
+    }
+
+    public void setPadding(int padding) {
+        this.padding = padding;
+    }
+
+    public String getCommandGroup() {
+        return commandGroup;
+    }
+
+    public void setCommandGroup(String commandGroup) {
+        this.commandGroup = commandGroup;
+    }
+
+    public int getTeam() {
+        return team;
+    }
+
+    public void setTeam(int team) {
+        this.team = team;
+    }
+
+    public int getPlane() {
+        return plane;
+    }
+
+    public void setPlane(int plane) {
+        this.plane = plane;
+    }
+    
+    
 }

@@ -1,30 +1,39 @@
 package GameDemo.RTSDemo.Pathfinding;
 
 import Framework.Coordinate;
+import Framework.Game;
+import Framework.GameObject2;
+import GameDemo.RTSDemo.RTSUnit;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  *
  * @author guydu
  */
 public class TileMap implements Serializable{
-    public static ExecutorService occupationService = Executors.newFixedThreadPool(200);
     public Tile[][] tileGrid;
     public int worldWidth, worldHeight;
-   //  public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
-    public int padding = 0;
-    public int plane = 0; // 1=ground, 2=air
-    public int team = 0; // team ignores collisions with other team's units
+    public HashMap<String, OccupationMap> occupationMaps = new HashMap<>();
     
     
-     public TileMap(int worldWidth, int worldHeight, int padding, int plane, int team) {
-        this.padding = padding;
-        this.plane = plane;
-        this.team = team;
+    public OccupationMap generateOccupationMapFromSignature(String signature) {
+        String[] parts = signature.split(",");
+        if (parts.length != 4) {
+            System.out.println("signature: " + signature);
+            throw new IllegalArgumentException("Invalid pathing signature format");
+        }
+        int padding = Integer.parseInt(parts[0]);
+        int team = Integer.parseInt(parts[1]);
+        int plane = Integer.parseInt(parts[2]);
+        String commandGroup = parts[3];
+        return new OccupationMap(padding, commandGroup, team, plane, this);
+    }
+    
+     public TileMap(int worldWidth, int worldHeight) {
         tileGrid = new Tile[worldWidth/Tile.tileSize][worldHeight/Tile.tileSize];
         for(int x = 0; x < tileGrid.length; x++) {
             for(int y = 0; y <tileGrid[0].length; y++) {
@@ -119,8 +128,6 @@ public class TileMap implements Serializable{
         return intersectingTiles;
     }
     
-    
-    
     public ArrayList<Tile> getNeighbors(Coordinate sourceTilePos) {
        ArrayList<Tile> out = new ArrayList<>();
        try {
@@ -153,7 +160,7 @@ public class TileMap implements Serializable{
      * @param tiebreakerPixel point to use as tiebreaker.
      * @return tile that meets criteria
      */
-    public Tile getClosestOpenTile(Coordinate targetPixel, Coordinate tiebreakerPixel) {
+    public Tile getClosestOpenTile(Coordinate targetPixel, Coordinate tiebreakerPixel, String pathingSignature) {
         Tile closestTile = null;
         double closestDistance = Double.MAX_VALUE;
         double closestTiebreakerDistance = Double.MAX_VALUE;
@@ -171,7 +178,7 @@ public class TileMap implements Serializable{
 
                         if (x >= 0 && x < tileGrid.length && y >= 0 && y < tileGrid[0].length) {
                             Tile currentTile = tileGrid[x][y];
-                            if (!occupiedMap.getOrDefault(currentTile, false)) {
+                            if (!occupationMaps.get(pathingSignature).isTileBlocked(currentTile)) {
                                 Coordinate tileCenter = new Coordinate(
                                     (x * Tile.tileSize) + (Tile.tileSize / 2),
                                     (y * Tile.tileSize) + (Tile.tileSize / 2)
@@ -204,10 +211,25 @@ public class TileMap implements Serializable{
     }
     
     
-    public boolean allClear (List<Tile> input) {
+    public boolean allClear (List<Tile> input, String pathingSignature) {
         for(Tile t : input) {
-            if(t.isBlocked()) return false;
+            if(t.isBlocked(pathingSignature)) return false;
         }
         return true;
+    }
+
+    void refreshOccupationmaps(Game game) {
+        HashSet<String> pathingSignatures = new HashSet<>();
+        for(GameObject2 go : game.getAllObjects()) {
+            if(go instanceof RTSUnit unit) {
+                pathingSignatures.add(unit.getPathingSignature());
+            }
+        }
+        
+        occupationMaps.clear();
+        for(String s : pathingSignatures) {
+            occupationMaps.put(s, generateOccupationMapFromSignature(s));
+            occupationMaps.get(s).updateOccupationMap(game);
+        }
     }
 }
