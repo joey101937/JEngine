@@ -39,6 +39,8 @@ public class Bazookaman extends RTSUnit {
     public static final double attackInterval = 3;
 
     static {
+        idleAnimation.scaleTo(VISUAL_SCALE);
+        idleAnimationRed.scaleTo(VISUAL_SCALE);
         baseSprite.scaleTo(VISUAL_SCALE);
         runningSequence.scaleTo(VISUAL_SCALE);
         attackSequence.scaleTo(VISUAL_SCALE);

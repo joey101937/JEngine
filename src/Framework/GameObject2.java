@@ -271,9 +271,6 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public void setGraphic(Graphic g){
         if(graphic == g) return;
-        if(g.getScale() != getScale()){
-            g.scaleTo(getScale());
-        }
         graphic = g;
         onSetGraphic(g);
     }
@@ -447,7 +444,6 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         Graphics2D graphics = (Graphics2D)g.create();
         renderNumber++;
         Coordinate pixelLocation = getPixelLocation();
-        
         boolean triggerAnimationCycle = shouldTriggerOnAnimationCycle();
         
         lastRenderLocation = pixelLocation;
@@ -616,9 +612,6 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public void preTick() {
         while(rotation > 360){rotation-=360;}  //constrain rotation size
         while(rotation < -360){rotation+=360;}
-        if (getGraphic() != null && getGraphic().getScale() != getScale()) {
-            getGraphic().scaleTo(getScale());
-        }
         if(waitingToGenerateDefaultPathingChecks && renderNumber > 1) {
             System.out.println("queue done");
             waitingToGenerateDefaultPathingChecks = false;
