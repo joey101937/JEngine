@@ -468,6 +468,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         }
         graphics.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, renderOpacity));
+        
+        // Apply scaling
+        AffineTransform scaleTransform = graphics.getTransform();
+        scaleTransform.translate(pixelLocation.x, pixelLocation.y);
+        scaleTransform.scale(scale, scale);
+        scaleTransform.translate(-pixelLocation.x, -pixelLocation.y);
+        graphics.setTransform(scaleTransform);
+        
         if (getGraphic() == null) {
             //System.out.println("Warning null graphic for " + name);
         } else if (isAnimated()) {
@@ -482,7 +490,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
             if(sequence.getCurrentVolatileFrame()!=null){
                 sequence.startAnimating();
                 VolatileImage toRender = sequence.getCurrentVolatileFrame();
-                graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
+                graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frame centered on pixelLocation
                 if(triggerAnimationCycle) this.onAnimationCycle();
             }else{
                 if(renderNumber>10 && tickNumber>2)System.out.println("Warning: null frame in sequence of " + getName());
@@ -497,12 +505,15 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 }
             }
         }
+        
+        // Reset scale
+        graphics.setTransform(old);
+        
         if (Main.debugMode) {
             renderDebugVisuals(graphics);
         }
         // reset graphics object in case the render method is overridden and then super.render() is called.
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // reset opacity
-        graphics.setTransform(old); //reset rotation for next item to render
         if (getHitbox() != null && Main.debugMode) {
             getHitbox().render(graphics);
         }
