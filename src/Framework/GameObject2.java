@@ -234,7 +234,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public int getWidth() {
         try{
-        return graphic.getCurrentImage().getWidth();
+        return (int)(graphic.getCurrentImage().getWidth() * scale);
         }catch(NullPointerException npe){
             System.out.println("Returnning 0 for width of GameObject2 with no graphic " + this);
             return 0;
@@ -246,7 +246,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public int getHeight() {
         try {
-            return graphic.getCurrentImage().getHeight();
+            return (int)(graphic.getCurrentImage().getHeight() * scale);
         } catch (NullPointerException npe) {
             return 0;
         }
@@ -434,7 +434,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         }
     }
     
-    public void scaleGraphicObj(Graphics2D graphics) {
+    public void scaleGraphicObj(Graphics2D graphics, double scale) {
         AffineTransform scaleTransform = graphics.getTransform();
         scaleTransform.translate(location.x, location.y);
         scaleTransform.scale(scale, scale);
@@ -478,7 +478,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, renderOpacity));
         
         // Apply scaling
-        scaleGraphicObj(graphics);
+        scaleGraphicObj(graphics, scale);
         
         if (getGraphic() == null) {
             //System.out.println("Warning null graphic for " + name);
@@ -511,15 +511,18 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         }
         
         
+        // Undo scaling
+        scaleGraphicObj(graphics, 1/scale);
+        
+         if (Main.debugMode) {
+            renderDebugVisuals(graphics);
+        }
       
         // reset graphics object in case the render method is overridden and then super.render() is called.
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // reset opacity
-        // Reset scale and rotation
-        graphics.setTransform(old);
+        graphics.setTransform(old); // reset transform
         
-          if (Main.debugMode) {
-            renderDebugVisuals(graphics);
-        }
+         
         
         
         if (getHitbox() != null && Main.debugMode) {
