@@ -434,6 +434,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         }
     }
     
+    public void scaleGraphicObj(Graphics2D graphics) {
+        AffineTransform scaleTransform = graphics.getTransform();
+        scaleTransform.translate(location.x, location.y);
+        scaleTransform.scale(scale, scale);
+        scaleTransform.translate(-location.x, -location.y);
+        graphics.setTransform(scaleTransform);
+    }
+    
     
     /**
      * Draws the object on screen in the game world
@@ -470,11 +478,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, renderOpacity));
         
         // Apply scaling
-        AffineTransform scaleTransform = graphics.getTransform();
-        scaleTransform.translate(pixelLocation.x, pixelLocation.y);
-        scaleTransform.scale(scale, scale);
-        scaleTransform.translate(-pixelLocation.x, -pixelLocation.y);
-        graphics.setTransform(scaleTransform);
+        scaleGraphicObj(graphics);
         
         if (getGraphic() == null) {
             //System.out.println("Warning null graphic for " + name);
@@ -506,14 +510,18 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
             }
         }
         
-        // Reset scale
-        graphics.setTransform(old);
         
-        if (Main.debugMode) {
-            renderDebugVisuals(graphics);
-        }
+      
         // reset graphics object in case the render method is overridden and then super.render() is called.
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // reset opacity
+        // Reset scale and rotation
+        graphics.setTransform(old);
+        
+          if (Main.debugMode) {
+            renderDebugVisuals(graphics);
+        }
+        
+        
         if (getHitbox() != null && Main.debugMode) {
             getHitbox().render(graphics);
         }
