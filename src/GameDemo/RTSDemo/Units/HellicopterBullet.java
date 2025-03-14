@@ -45,7 +45,6 @@ public class HellicopterBullet extends Projectile {
 
     static {
         shadowSprite.scaleTo(.12);
-        missileSprite.scaleTo(.12);
     }
 
     public HellicopterBullet(RTSUnit shooter, Coordinate startingLocation, RTSUnit other) {

@@ -21,7 +21,6 @@ public class KeyBuilding extends GameObject2 {
     public static final double VISUAL_SCALE = .6;
     
     static {
-        mainSprite.scaleTo(VISUAL_SCALE);
         shadowSprite.scaleTo(VISUAL_SCALE);
     }
     

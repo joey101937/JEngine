@@ -39,17 +39,6 @@ public class Bazookaman extends RTSUnit {
     public static final double attackInterval = 3;
 
     static {
-        idleAnimation.scaleTo(VISUAL_SCALE);
-        idleAnimationRed.scaleTo(VISUAL_SCALE);
-        baseSprite.scaleTo(VISUAL_SCALE);
-        runningSequence.scaleTo(VISUAL_SCALE);
-        attackSequence.scaleTo(VISUAL_SCALE);
-        attackSequenceRed.scaleTo(VISUAL_SCALE);
-        deathAnimation.scaleTo(VISUAL_SCALE);
-        deathAnimationRed.scaleTo(VISUAL_SCALE);
-        deadShadowSprite.scale(VISUAL_SCALE);
-        corpseSprite.scaleTo(VISUAL_SCALE);
-        corpseSpriteRed.scaleTo(VISUAL_SCALE);
         runningSequence.setFrameDelay(35);
         attackSequence.setSignature("attackSequence");
         attackSequenceRed.setSignature("attackSequence");
@@ -86,12 +75,12 @@ public class Bazookaman extends RTSUnit {
 
     @Override
     public int getWidth() {
-        return baseSprite.getWidth() + 30;
+        return (int)(baseSprite.getWidth() * getScale()) + 30;
     }
 
     @Override
     public int getHeight() {
-        return baseSprite.getHeight() + 40;
+        return (int)(baseSprite.getHeight() * getScale()) + 40;
     }
 
     @Override

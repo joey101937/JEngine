@@ -112,26 +112,10 @@ public class TankUnit extends RTSUnit {
 
         deathAnimationHull.setFrameDelay(60);
         deathAnimationTurret.setFrameDelay(60);
-        
-        List.of(chasisSpriteGreen,
-                chasisSpriteRed,
-                turretSpriteGreen,
-                turretSpriteRed,
-                turretFireAnimationGreen,
-                turretFireAnimationRed,
-                rubbleHullSprite,
-                rubbleTurretSprite,
+
+        List.of(
                 deathShadow,
-                shadow,
-                deathAnimationHull,
-                deathAnimationTurret,
-                tankHullDamagedRed,
-                tankHullDamagedGreen,
-                tankTurretDamagedRed,
-                tankFireAnimationDamagedRed,
-                tankFireAnimationDamagedGreen,
-                deathFadeout,
-                tankTurretDamagedGreen
+                shadow
         ).forEach(x -> x.scaleTo(VISUAL_SCALE));
     }
 

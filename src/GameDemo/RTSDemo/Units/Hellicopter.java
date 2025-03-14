@@ -40,17 +40,6 @@ public class Hellicopter extends RTSUnit {
     public int attackInterval = Main.ticksPerSecond * 2;
     public int elevation = 99;
 
-    static {
-        baseSprite.scale(VISUAL_SCALE);
-        shadowSprite.scaleTo(VISUAL_SCALE);
-        attackSequence.scale(VISUAL_SCALE);
-        attackSequenceRed.scale(VISUAL_SCALE);
-        baseSpriteRed.scaleTo(VISUAL_SCALE);
-        baseSpriteRed.scaleTo(VISUAL_SCALE);
-        destroyedSprite.scaleTo(VISUAL_SCALE);
-        destroyedSpriteRed.scaleTo(VISUAL_SCALE);
-    }
-
     public Hellicopter(int x, int y, int team) {
         super(x, y, team);
         this.setScale(VISUAL_SCALE);
