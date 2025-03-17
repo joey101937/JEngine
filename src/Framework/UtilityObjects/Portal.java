@@ -78,12 +78,13 @@ public class Portal extends BlockObject {
     public synchronized void trigger(GameObject2 go2) {
         if(helperThread != null && helperThread.isAlive()) return;
         if(currentInteractingObject != null) return;
-        helperThread = new Thread(new PortalHelper(go2));
-        helperThread.start();
+        helperThread = Thread.ofVirtual().start(new PortalHelper(go2));
     }
-    
+
     private class PortalHelper implements Runnable {
+
         public GameObject2 go;
+
         public PortalHelper(GameObject2 go) {
             this.go = go;
         }
@@ -99,19 +100,32 @@ public class Portal extends BlockObject {
             double originalSpeed = go.getBaseSpeed();
             go.setBaseSpeed(0);
             prevGame.removeObject(go);
-            go.isInvisible = true;
-            go.location = destinationPoint.toDCoordinate();
             destination.addObject(go);
-            if(shouldMakeDestinationActive) {
+            if (shouldMakeDestinationActive) {
+                destination.addTickDelayedEffect(1, x -> {
+                    go.isInvisible = true;
+                    go.location = destinationPoint.toDCoordinate();
+                    go.isInvisible = originalVisibility;
+                    go.setBaseSpeed(originalSpeed);
+                    currentInteractingObject = null;
+                    System.out.println("portal done");
+                });
                 prevGame.getCamera().setIsTackingTarget(false);
                 Window.setCurrentGame(destination);
                 prevGame.getCamera().setIsTackingTarget(originalIsTrackingTarget);
-                if(isOriginalTarget) destination.getCamera().setTarget(go); // if go was the camera target, set as target of destination's camera also
+                if (isOriginalTarget) {
+                    destination.getCamera().setTarget(go); // if go was the camera target, set as target of destination's camera also
+                }
+            } else {
+                addTickDelayedEffect(1, x -> {
+                    go.isInvisible = true;
+                    go.location = destinationPoint.toDCoordinate();
+                    go.isInvisible = originalVisibility;
+                    go.setBaseSpeed(originalSpeed);
+                    currentInteractingObject = null;
+                    System.out.println("portal done");
+                });
             }
-            go.isInvisible = originalVisibility;
-            go.setBaseSpeed(originalSpeed);
-            currentInteractingObject = null;
-            System.out.println("portal done");
         }
     }
     

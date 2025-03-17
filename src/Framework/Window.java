@@ -102,7 +102,7 @@ public class Window {
         while(!currentGame.pausedSafely){
             Main.wait(2);
         }
-        //panel.remove(currentGame);
+
         currentGame.setVisible(false);
         
         Dimension d = new Dimension(g.windowWidth, g.windowHeight);
