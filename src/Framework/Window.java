@@ -72,15 +72,15 @@ public class Window {
     
     private Window(Game g, boolean fullscreen) {
         currentGame = g;
-        g.window=this;
+        g.window = this;
         panel.setLayout(null);
         frame = new JFrame(title);
         if(fullscreen) setFullscreenWindowed(true);
         frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Window.class.getResource("/Resources/JEngineIcon.png")));
         Dimension d = new Dimension(g.windowWidth,g.windowHeight);
-        g.setBounds(0, 0, g.windowWidth, g.windowHeight);
+        g.getCanvas().setBounds(0, 0, g.windowWidth, g.windowHeight);
         panel.setSize(d);
-        panel.add(g);
+        panel.add(g.getCanvas());
         panel.setBackground(new Color(85, 85, 115)); //blue background
         frame.add(panel);
         frame.setMinimumSize(d);
@@ -103,22 +103,22 @@ public class Window {
             Main.wait(2);
         }
 
-        currentGame.setVisible(false);
+        currentGame.getCanvas().setVisible(false);
         
         Dimension d = new Dimension(g.windowWidth, g.windowHeight);
-        g.setBounds(0, 0, g.windowWidth, g.windowHeight);
+        g.getCanvas().setBounds(0, 0, g.windowWidth, g.windowHeight);
         frame.setSize(d);
         panel.setSize(d);
         boolean alreadyContained = false;
         for (Component c : panel.getComponents()) {
-            if (c == g) {
-                g.setVisible(true);
-                panel.setComponentZOrder(g, 0);
+            if (c == g.getCanvas()) {
+                g.getCanvas().setVisible(true);
+                panel.setComponentZOrder(g.getCanvas(), 0);
                 alreadyContained = true;
             }
         }
         if (!alreadyContained) {
-            panel.add(g);
+            panel.add(g.getCanvas());
         }
         //panel.setComponentZOrder(currentGame, panel.getComponentCount()-1);
         if (g.hasStarted) {
@@ -127,7 +127,7 @@ public class Window {
             g.start();
         }
         currentGame = g;
-        currentGame.requestFocus();
+        currentGame.getCanvas().requestFocus();
         setZOrders();
         updateTitlePerGame(g);
     }
@@ -170,7 +170,7 @@ public class Window {
         System.out.println(Window.UIElements.size() + " ui elements");
         for(UIElement ele : Window.UIElements){
             Window.panel.setComponentZOrder(ele, Window.UIElements.indexOf(ele));
-            Window.panel.setComponentZOrder(currentGame, Window.UIElements.size());
+            Window.panel.setComponentZOrder(currentGame.getCanvas(), Window.UIElements.size());
         }
     }
 

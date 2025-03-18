@@ -39,7 +39,7 @@ import java.util.function.Consumer;
  *
  * @author Joseph
  */
-public class Game extends Canvas implements Runnable {
+public class Game implements Runnable {
 
     /**
      * native resolution of the game you are creating; used to scale graphics
@@ -84,6 +84,7 @@ public class Game extends Canvas implements Runnable {
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
     // set this to only render background in this area
     private Area backgroundClipArea;
+    private Canvas canvas;
     
     private Consumer handleSyncTick;
 
@@ -152,10 +153,11 @@ public class Game extends Canvas implements Runnable {
      * @param image image to use as background
      */
     public Game(BufferedImage image) {
+        canvas = new Canvas();
         Sprite sprite = new Sprite(image);
         this.backgroundImage = sprite;
         setBackground(sprite);
-        this.setIgnoreRepaint(true);
+        canvas.setIgnoreRepaint(true);
     }
 
     /**
@@ -165,10 +167,11 @@ public class Game extends Canvas implements Runnable {
      * @param imageSet image to use as background
      */
     public Game(BufferedImage[] imageSet) {
+        canvas = new Canvas();
         Sequence sequ = new Sequence(imageSet);
         this.backgroundImage = sequ;
         setBackground(sequ);
-        this.setIgnoreRepaint(true);
+        canvas.setIgnoreRepaint(true);
     }
 
     /**
@@ -470,19 +473,19 @@ public class Game extends Canvas implements Runnable {
     //core render method, tells all game Objects to render
     private void render() {
         pausedSafely = false;
-        if (Window.mainWindow.currentGame != this) {
+        if (Window.currentGame != this) {
             System.out.println("Refusing to render without container " + name);
             Main.wait(3);
             return;
         }
         Window.UIElementsOnRender();
-        BufferStrategy bs = this.getBufferStrategy();
+        BufferStrategy bs = canvas.getBufferStrategy();
         if (bs == null) { ///run once at the start
             int numBuffer = 2;
             if (Main.tripleBuffer) {
                 numBuffer = 3;
             }
-            this.createBufferStrategy(numBuffer);
+            canvas.createBufferStrategy(numBuffer);
             System.out.println("generating buffer");
             return;
         }
@@ -618,7 +621,7 @@ public class Game extends Canvas implements Runnable {
     @Override
     public void run() {
         this.hasStarted = true;
-        this.requestFocus(); ///automatically selects window so you dont have to click on it
+        canvas.requestFocus(); ///automatically selects window so you dont have to click on it
         long lastTime = System.nanoTime();
         double amountOfTicks = Main.ticksPerSecond;  //ticks per second
         double ns = 1000000000 / amountOfTicks;
@@ -757,9 +760,8 @@ public class Game extends Canvas implements Runnable {
         running = true;
     }
     
-    @Override
     public void setName(String s) {
-        super.setName(s);
+        canvas.setName(s);
         this.name = s;
         Window.updateTitlePerGame(this);
     }
@@ -800,7 +802,7 @@ public class Game extends Canvas implements Runnable {
         }
         paused = input;
         if (!input) {
-            this.requestFocus();
+            canvas.requestFocus();
         }
         audioManager.updateGamePause();
     }
@@ -816,16 +818,16 @@ public class Game extends Canvas implements Runnable {
             return;
         }
         if (applying && !inputHandlerApplied) {
-            this.addMouseListener(inputHandler);
-            this.addMouseMotionListener(inputHandler);
-            this.addKeyListener(inputHandler);
-            this.addMouseWheelListener(inputHandler);
+            canvas.addMouseListener(inputHandler);
+            canvas.addMouseMotionListener(inputHandler);
+            canvas.addKeyListener(inputHandler);
+            canvas.addMouseWheelListener(inputHandler);
             inputHandlerApplied = true;
         } else {
-            this.removeMouseListener(inputHandler);
-            this.removeMouseMotionListener(inputHandler);
-            this.removeKeyListener(inputHandler);
-            this.removeMouseWheelListener(inputHandler);
+            canvas.removeMouseListener(inputHandler);
+            canvas.removeMouseMotionListener(inputHandler);
+            canvas.removeKeyListener(inputHandler);
+            canvas.removeMouseWheelListener(inputHandler);
             inputHandlerApplied = false;
         }
 
@@ -844,7 +846,7 @@ public class Game extends Canvas implements Runnable {
      * Creates a new PathingLayer object with the given image and then applies
      * that PathingLayer to this Game object.
      *
-     * @param bi source image for pathinglayer
+     * @param bi source image for pathingLayer
      */
     public void setPathingLayer(BufferedImage bi) {
         this.pathingLayer = new PathingLayer(bi);
@@ -954,7 +956,6 @@ public class Game extends Canvas implements Runnable {
          this.addTickDelayedEffect(new TickDelayedEffect(handler.globalTickNumber + delay, c));
     }
     
-    @Override
     public String getName() {
         return name;
     }
@@ -965,6 +966,14 @@ public class Game extends Canvas implements Runnable {
      */
     public void setBackgroundClip(Area a) {
         this.backgroundClipArea = a;
+    }
+    
+    public Canvas getCanvas() {
+        return canvas;
+    }
+    
+    public void requestFocus() {
+        getCanvas().requestFocus();
     }
     
 }

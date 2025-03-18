@@ -96,7 +96,7 @@ To aid in creating input methods, InputHandlers also have the method **locationO
 
 
 # Games
-To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the Game(s) and presents them to the user. Create using **Window.intitialize(Game)** Game class should be created *before* the Window. Technical note: Game objects are actually built off of AWT Canvases.
+To start a JEngine project, you must first have your base Game. Instances of the Game class are scenes and represent distinct gameworlds within. Created using **new Game(BufferedImage) background);**. To view it, you must also have a **Window** to put that game in. The window is the JFrame that holds the Game(s) and presents them to the user. Create using **Window.intitialize(Game)** Game class should be created *before* the Window.
 
 To make the Game start running, call the .start() method on your Game instance.
 
