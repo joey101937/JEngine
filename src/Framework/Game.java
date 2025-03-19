@@ -52,7 +52,7 @@ public class Game implements Runnable {
      */
     public static Dimension NATIVE_RESOLUTION = new Dimension((int) (1920 * 1), (int) (1080 * 1));
 
-    public static ExecutorService backgroundRenderService = Handler.newMinSizeCachedThreadPool(4);
+    private static ExecutorService backgroundRenderService = Handler.newMinSizeCachedThreadPool(4);
 
     public static final double OVERVIEW_MODE_ZOOM = .25;
     public static double resolutionScaleX = 1, resolutionScaleY = 1;

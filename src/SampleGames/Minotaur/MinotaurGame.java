@@ -6,9 +6,9 @@
 package SampleGames.Minotaur;
 
 import Framework.Coordinate;
-import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.Main;
+import Framework.SpriteManager;
 import Framework.UtilityObjects.BlockObject;
 import Framework.Window;
 import SampleGames.Minotaur.Actors.Minotaur;
@@ -19,13 +19,16 @@ import SampleGames.Minotaur.Levels.SSLevel1;
  * @author Joseph
  */
 public class MinotaurGame {
-    public static Game scene1 = new SSLevel1();
+    public static Game scene1;
     public static BlockObject floor;
-    public static Minotaur playerMinotaur = new Minotaur(new Coordinate(100, 0));
+    public static Minotaur playerMinotaur;
     
     
     
     public static void main(String[] args) {
+        SpriteManager.initialize();
+        scene1 = new SSLevel1();
+        playerMinotaur = new Minotaur(new Coordinate(100, 0));
         Main.ticksPerSecond = 240; // high ticks per second for more responsiveness
         scene1.worldBorder = 30;
         scene1.addObject(playerMinotaur);

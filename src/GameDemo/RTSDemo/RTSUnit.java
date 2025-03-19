@@ -12,7 +12,6 @@ import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.Tile;
-import GameDemo.RTSDemo.Pathfinding.TileMap;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.SandboxDemo.Creature;

@@ -46,7 +46,6 @@ public class TankBullet extends Projectile {
         startPosition = start;
     }
 
-    //when this runs into a creature, deal damage to it then destroy this projectile
     @Override
     public void onCollide(GameObject2 other, boolean fromMyTick) {
         if (other == shooter) {

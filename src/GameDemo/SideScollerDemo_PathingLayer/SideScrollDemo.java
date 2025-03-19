@@ -18,9 +18,11 @@ import Framework.Window;
  */
 public class SideScrollDemo {
     
-    protected static SideScrollCharacter playerCharacter = new SideScrollCharacter(new Coordinate(100,200));
+    protected static SideScrollCharacter playerCharacter;
  
     public static void main(String[] args) {
+        SpriteManager.initialize();
+        playerCharacter = new SideScrollCharacter(new Coordinate(100,200));
         Main.ticksPerSecond = 120;
         Game g = new Game(SpriteManager.platformBG);
         g.setPathingLayer(SpriteManager.platformPathing);

@@ -15,7 +15,7 @@ import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 
 /**
- * Simple implementation of projectile. Deals damage to creatures it collide with
+ * Simple implementation of projectile.
  * @author Joseph
  */
 public class Bullet extends Projectile{
@@ -31,7 +31,6 @@ public class Bullet extends Projectile{
     }
     
     
-    //when this runs into a creature, deal damage to it then destroy this projectile
     @Override
     public void onCollide(GameObject2 other, boolean fromMyTick){
         if(other instanceof Creature){

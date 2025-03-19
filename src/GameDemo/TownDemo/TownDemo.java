@@ -25,13 +25,16 @@ public class TownDemo {
     
     public static Portal portalToInside2;
     
-    public static TownCharacter playerCharacter = new TownCharacter(200, 200);
+    public static TownCharacter playerCharacter;
     
-    public static TownBird townBird = new TownBird(450, 500);
+    public static TownBird townBird;
     
     public static Font gameFont = new Font("TimesRoman", Font.BOLD, 12);
     
     public static void main(String[] args) {
+        SpriteManager.initialize();
+        playerCharacter = new TownCharacter(200, 200);
+        townBird = new TownBird(450, 500);
         outside = new Game(SpriteManager.townOutside);
         outside.setPathingLayer(SpriteManager.townOutsidePathing);
         outside.setZoom(2);

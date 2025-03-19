@@ -73,8 +73,10 @@ public class RTSGame {
         game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
         game.addObject(new KeyBuilding(3000, 3000, 1));
         
-        
-        
+//        RTSUnit infantryUnit = new Bazookaman(500, 750, 0);
+//        infantryUnit.setRotation(180);
+//        game.addObject(infantryUnit);
+
         // greens 
         for (int i = 0; i < lineLength; i++) {
             Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);

@@ -26,6 +26,7 @@ public class GaligaGame {
     public static GaligaUI UI = new GaligaUI();
     
     public static void main(String[] args) {
+        SpriteManager.initialize();
         mainGame = new Game(SpriteManager.spaceBG);
         mainGame.setName("Galiga Game");
         Window.initialize(mainGame);

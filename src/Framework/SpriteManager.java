@@ -66,10 +66,6 @@ public abstract class SpriteManager {
     public static BufferedImage buildingInterior;
     public static BufferedImage buildingInteriorPathing;
 
-    /*--------------------------------------------------------*/
-    static {
-        initialize();
-    }
 
     /*--------------------------------------------------------*/
 

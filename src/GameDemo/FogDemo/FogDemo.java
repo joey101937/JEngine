@@ -16,6 +16,7 @@ public class FogDemo {
     public static SoundEffect engineSound = new SoundEffect(new File("Assets/Sounds/engineIdle.au"));
     
     public static void main(String[] args) {
+        SpriteManager.initialize();
         Game game = new Game(SpriteManager.dirtBGNight);
         if(Game.runningOnSmallerScreen()) {
             Game.scaleForResolutionAspectRatio();
