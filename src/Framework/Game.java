@@ -652,7 +652,6 @@ public class Game implements Runnable {
             if (running) {
                 try {
                     this.render();
-                    Main.wait(Main.renderDelay);
                 } catch (ConcurrentModificationException cme) {
                     System.out.println("cme render");
                 } catch (IllegalStateException ise) {

@@ -37,9 +37,7 @@ public final class OptionsMenu extends javax.swing.JFrame {
     private void initComponents() {
 
         titleLabel = new javax.swing.JLabel();
-        renderDelayLabel = new javax.swing.JLabel();
         tickPerSecondLabel = new javax.swing.JLabel();
-        RenderDelaySpinner = new javax.swing.JSpinner();
         OverviewLabel = new javax.swing.JLabel();
         overviewCheckbox = new javax.swing.JCheckBox();
         okButton = new javax.swing.JButton();
@@ -62,18 +60,9 @@ public final class OptionsMenu extends javax.swing.JFrame {
         titleLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         titleLabel.setText("ENGINE OPTIONS");
 
-        renderDelayLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        renderDelayLabel.setText("Render Delay (ms)");
-        renderDelayLabel.setToolTipText("Increase to help performance");
-
         tickPerSecondLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tickPerSecondLabel.setText("Tick Rate");
         tickPerSecondLabel.setToolTipText("Ticks Per Second - Must be set prior to game running");
-
-        RenderDelaySpinner.setToolTipText("Increase to help performance");
-        RenderDelaySpinner.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        RenderDelaySpinner.setName(""); // NOI18N
-        RenderDelaySpinner.setValue(Main.renderDelay);
 
         OverviewLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         OverviewLabel.setText("Overview Mode");
@@ -158,21 +147,9 @@ public final class OptionsMenu extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(tripleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(tripleCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(renderDelayLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(tickPerSecondLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(36, 36, 36)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(RenderDelaySpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                                .addGap(18, 30, Short.MAX_VALUE)
-                                .addComponent(okButton))
+                                .addComponent(tripleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(tripleCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(OverviewLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -182,14 +159,22 @@ public final class OptionsMenu extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(debugCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(disableCamCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(overviewCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addGap(61, 61, 61))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(19, 19, 19)
-                        .addComponent(lowSpecButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(standardButton)
+                                    .addComponent(overviewCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(61, 113, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(tickPerSecondLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(36, 36, 36)
+                                .addComponent(jLabel1)
+                                .addGap(38, 38, 38)
+                                .addComponent(okButton)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(19, 19, 19)
+                                .addComponent(lowSpecButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(standardButton)))
                         .addGap(40, 40, 40))))
             .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(layout.createSequentialGroup()
@@ -203,22 +188,15 @@ public final class OptionsMenu extends javax.swing.JFrame {
                 .addComponent(titleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(24, 24, 24)
-                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(renderDelayLabel))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(16, 16, 16)
-                                .addComponent(RenderDelaySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(45, 45, 45)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(tickPerSecondLabel)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(1, 1, 1)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tripleLabel)
@@ -248,24 +226,19 @@ public final class OptionsMenu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     public static void setLowSpecOptions(){
-       Main.renderDelay=15;
        Main.ticksPerSecond=50;
        Main.tripleBuffer=false;
     }
 
     public static void setStandardSpecOptions() {
-        Main.renderDelay = 0;
         Main.ticksPerSecond = 60;
         Main.tripleBuffer = true;
     }
     private void lowSpecButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowSpecButtonActionPerformed
-        this.RenderDelaySpinner.setValue(15);
         this.tripleCheck.setSelected(false);
     }//GEN-LAST:event_lowSpecButtonActionPerformed
 
     private void standardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_standardButtonActionPerformed
-        this.RenderDelaySpinner.setValue(0);
-       
        this.tripleCheck.setSelected(true);
     }//GEN-LAST:event_standardButtonActionPerformed
 
@@ -296,8 +269,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
     @Override
     public void dispose(){
         super.dispose();
-        int renderDelay = (int) this.RenderDelaySpinner.getValue();
-        if(renderDelay>=0)Main.renderDelay=renderDelay;
         Main.setOverviewMode(this.overviewCheckbox.isSelected());
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
@@ -307,7 +278,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel OverviewLabel;
-    private javax.swing.JSpinner RenderDelaySpinner;
     private javax.swing.JCheckBox debugCheck;
     private javax.swing.JLabel debugLabel;
     private javax.swing.JCheckBox disableCamCheck;
@@ -317,7 +287,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
     private javax.swing.JButton lowSpecButton;
     private javax.swing.JButton okButton;
     private javax.swing.JCheckBox overviewCheckbox;
-    private javax.swing.JLabel renderDelayLabel;
     private javax.swing.JButton standardButton;
     private javax.swing.JLabel tickPerSecondLabel;
     private javax.swing.JLabel titleLabel;

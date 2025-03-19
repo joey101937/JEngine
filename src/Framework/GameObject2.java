@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
- * Parent class for all objects that appear in the gameworld
+ * Parent class for all objects that appear in the game world
  * @author Joseph
  */
 public class GameObject2 implements Comparable<GameObject2>, Renderable{    
