@@ -109,13 +109,13 @@ public class Sequence implements Graphic{
     
     public int getCurrentFrameIndex(){
         try{
-            if(((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) > frames.length) {
+            if(((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) > frames.length -1) {
                 if(!isLooping) {
                     // not looping and past last frame. only render end of animation
                     return frames.length-1;
                 }
             }
-           return (int) (((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) % frames.length);   
+            return (int) (((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) % frames.length);   
         }catch (NullPointerException e){
             System.out.println("null pointer trying to get Sequence Frame Index");
             return 0;
