@@ -14,12 +14,14 @@ import GameDemo.SideScollerDemo_PathingLayer.SideScrollDemo;
 import GameDemo.TownDemo.TownDemo;
 import SampleGames.Galiga.GaligaGame;
 import SampleGames.Minotaur.MinotaurGame;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 import java.util.function.Function;
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 /** 
@@ -310,5 +312,21 @@ public class Main {
         System.arraycopy(b, 0, c, aLen, bLen);
 
         return c;
+    }
+    
+/**
+ * loads the sprite related to the given filename from assets folder
+ * returns null if exception thrown
+ * @param fileName name of file to get include extension
+ * @return bufferedimage rendition of that sprite
+ */
+    public static BufferedImage loadSprite(String fileName) {
+        BufferedImage output = null;
+        try {
+            output = ImageIO.read(new File(Main.getAssets()+fileName));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output;
     }
 }
