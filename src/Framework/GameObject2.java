@@ -39,7 +39,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     /** Used to move the object. Applied to location in default preTick method via the updateLocation method */
     public DCoordinate velocity = new DCoordinate(0,0);
     /** total distance the object can move per tick before pathing modifiers. RawVelocity movement type ignores this*/
-    protected double baseSpeed = 2;
+    public double baseSpeed = 2;
     private Graphic graphic; //visual representation of the object
     private double rotation = 0; //rotatoin in degrees (not radians)
     private double rotationAsOfLastTick = 0; // rotation in degrees as of last tick
@@ -57,7 +57,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     private final HashMap<String, Object> futureSyncedState = new HashMap<>();
     private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
     public Coordinate lastRenderLocation = null;
-    private boolean cachedHasCycled = false;
+    private int lastRenderedFrame = -1; // last rendered frame index of sequence graphic. used to detect when to trigger on animation cycle
     
     /**
      * this list is a list of point offsets from the center of the game object. When determining if a location is valid to move to
@@ -258,7 +258,6 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      * @return current visual representation object
      */
     public Graphic getGraphic(){
-        cachedHasCycled = false;
         return graphic;
     }
     
@@ -271,6 +270,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public void setGraphic(Graphic g){
         if(graphic == g) return;
+        lastRenderedFrame = -1;
         graphic = g;
         onSetGraphic(g);
     }
@@ -418,18 +418,20 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
      */
+    @Override
     public void render(Graphics2D g) {
         render(g, false);
     }
     
     private boolean shouldTriggerOnAnimationCycle () {
         if(getGraphic() instanceof Sequence mySequ) {
-            boolean cacheCheck = !cachedHasCycled && mySequ.hasCycled;
             boolean onLastFrame = mySequ.getCurrentFrame() != null && mySequ.currentFrameIndex == mySequ.frames.length - 1;
-            cachedHasCycled = mySequ.hasCycled;
-            return cacheCheck || onLastFrame;
+            if(onLastFrame) lastRenderedFrame = -1; // this prevents cycle from triggering twice back to back. once on last frame and the next on first
+            boolean wrappedAround = lastRenderedFrame > mySequ.currentFrameIndex;
+            lastRenderedFrame = mySequ.currentFrameIndex;
+            return onLastFrame || wrappedAround;
         } else {
-            cachedHasCycled = false;
+            lastRenderedFrame = -1;
             return false;
         }
     }

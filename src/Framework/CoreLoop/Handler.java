@@ -25,23 +25,23 @@ import java.util.stream.Collectors;
  */
 public class Handler {
 
-    public static ExecutorService newMinSizeCachedThreadPool(int minSize) {
+    public final static ExecutorService newMinSizeCachedThreadPool(int minSize) {
         return new ThreadPoolExecutor(minSize, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>());
+                new SynchronousQueue<>());
     }
 
     protected ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
     protected ExecutorService renderService = Main.renderThreadCount > 0
             ? Executors.newFixedThreadPool(Main.renderThreadCount)
             : Executors.newFixedThreadPool(1);
-    protected ExecutorService renderServiceCached = this.newMinSizeCachedThreadPool(6);
+    protected ExecutorService renderServiceCached = Handler.newMinSizeCachedThreadPool(6);
     protected ExecutorService syncService = Executors.newVirtualThreadPerTaskExecutor();
 
-    public Game hostGame;
-    private LinkedList<GameObject2> toAdd = new LinkedList<>();
-    private LinkedList<GameObject2> toRemove = new LinkedList<>();
-    private ArrayList<GameObject2> activeObjects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
-    private ArrayList<TickDelayedEffect> tickDelayedEffects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
+    public final Game hostGame;
+    private final LinkedList<GameObject2> toAdd = new LinkedList<>();
+    private final LinkedList<GameObject2> toRemove = new LinkedList<>();
+    private final ArrayList<GameObject2> activeObjects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
+    private final ArrayList<TickDelayedEffect> tickDelayedEffects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
 
     public long globalTickNumber = 0L;
 

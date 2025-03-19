@@ -43,7 +43,7 @@ public class Projectile extends GameObject2{
     private void projectileInit(){
         isSolid = true;
         this.preventOverlap=false;  //by default projectiles do not stop when they hit something
-        baseSpeed = 10;
+        setBaseSpeed(10);
         this.movementType = MovementType.SpeedRatio;
         this.setHitbox(new Hitbox(this,0));//by default, projectiles use circle hitbox
         //projectiles not effected by pathing types

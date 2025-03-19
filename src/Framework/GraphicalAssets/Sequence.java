@@ -29,7 +29,6 @@ public class Sequence implements Graphic{
     private int startTimeOffset = 0;
     private int pausedOnFrame = 0;
     private String signuature = "";
-    public boolean hasCycled = false;
     private boolean isLooping = true;
     
     
