@@ -4,6 +4,7 @@ import Framework.Coordinate;
 import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.Units.Hellicopter;
 
 
@@ -23,6 +24,7 @@ public class ReinforcementTypeHellicopters extends ReinforcementType{
         KeyBuilding kb = KeyBuilding.getClosest(targetLocation, team);
         Coordinate base = kb.spawnLocation.topLeft;
         int initialOffset = -240;
+        String commandGroup = RTSInput.generateRandomCommandGroup();
         for(int i = 0; i < 3; i ++) {
             Coordinate spawnOffset = new Coordinate(initialOffset + (i * 160), 50);
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
@@ -30,6 +32,7 @@ public class ReinforcementTypeHellicopters extends ReinforcementType{
             Hellicopter heli = new Hellicopter(spawnLocation.x, spawnLocation.y, team);
             heli.location = ReinforcementHandler.getClosestOpenLocation(spawnLocation, heli).toDCoordinate();
             heli.setRotation(kb.spawnLocation.rotation);
+            heli.commandGroup = commandGroup;
             heli.setDesiredLocation(targetLocation.copy().add(spawnOffset));
             RTSGame.game.addObject(heli);
             

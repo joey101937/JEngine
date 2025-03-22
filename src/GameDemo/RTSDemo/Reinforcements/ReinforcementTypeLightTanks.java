@@ -4,6 +4,7 @@ import Framework.Coordinate;
 import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.Units.LightTank;
 
 public class ReinforcementTypeLightTanks extends ReinforcementType {
@@ -21,6 +22,7 @@ public class ReinforcementTypeLightTanks extends ReinforcementType {
     public void onTrigger(Coordinate targetLocation, int team) {
         KeyBuilding kb = KeyBuilding.getClosest(targetLocation, team);
         Coordinate base = kb.spawnLocation.topLeft;
+        String commandGroup = RTSInput.generateRandomCommandGroup();
         int initialOffset = -360;
         for (int i = 0; i < 6; i++) {
             Coordinate spawnOffset = new Coordinate(initialOffset + (i * 120), 50);
@@ -29,6 +31,7 @@ public class ReinforcementTypeLightTanks extends ReinforcementType {
             LightTank tank = new LightTank(spawnLocation.x, spawnLocation.y, team);
             tank.location = ReinforcementHandler.getClosestOpenLocation(spawnLocation, tank).toDCoordinate();
             tank.setRotation(kb.spawnLocation.rotation);
+            tank.commandGroup = commandGroup;
             tank.setDesiredLocation(targetLocation.copy().add(spawnOffset));
             RTSGame.game.addObject(tank);
 
