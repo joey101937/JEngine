@@ -313,7 +313,6 @@ public class RTSInput extends InputHandler {
                     ExternalCommunicator.sendMessage("m:" + u.ID + "," + u.getPixelLocation().x + ',' + u.getPixelLocation().y + "," + hostGame.handler.globalTickNumber);
                     hostGame.addTickDelayedEffect(1, x -> {
                         u.setDesiredLocation(u.getPixelLocation());
-                        System.out.println(u.getWidth());
                         ExternalCommunicator.communicateState(u);
                     });
                 }
