@@ -27,7 +27,7 @@ public class HellicopterBullet extends Projectile {
     public static final Sprite missileSprite = new Sprite(RTSAssetManager.yellowMissile);
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.yellowMissileShadow);
     public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallHeli");
-    public static final int damage = 10;
+    public Damage damage = new Damage(10);
 
     public RTSUnit shooter; //the object that launched this projectile
     public RTSUnit target;
@@ -51,6 +51,8 @@ public class HellicopterBullet extends Projectile {
         super(startingLocation);
         this.setBaseSpeed(minSpeed);
         this.shooter = shooter;
+        damage.source = shooter;
+        damage.launchLocation = startingLocation;
         this.target = other;
         this.setScale(.12);
         this.setGraphic(missileSprite);
@@ -114,6 +116,7 @@ public class HellicopterBullet extends Projectile {
     public void onDestroy() {
         OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), getPixelLocation(true));
         if (collidedUnit != null) {
+            damage.impactLoaction = getPixelLocation();
             collidedUnit.takeDamage(damage);
         }
     }

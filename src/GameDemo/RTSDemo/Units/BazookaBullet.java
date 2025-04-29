@@ -20,7 +20,7 @@ import java.awt.image.VolatileImage;
  */
 public class BazookaBullet extends Projectile {
 
-    public static final int damage = 23;
+    public Damage damage = new Damage(23);
 
     public static Sprite missileSprite = new Sprite(RTSAssetManager.yellowMissile);
     public static Sprite shadowSprite = new Sprite(RTSAssetManager.yellowMissileShadow);
@@ -42,6 +42,8 @@ public class BazookaBullet extends Projectile {
         super(startingLocation);
         this.setBaseSpeed(10);
         this.shooter = shooter;
+        damage.source = shooter;
+        damage.launchLocation = startingLocation;
         this.target = other;
         this.setScale(.12);
         this.setGraphic(missileSprite);
@@ -106,6 +108,7 @@ public class BazookaBullet extends Projectile {
     public void onDestroy() {
         OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), getPixelLocation(true));
         if (collidedUnit != null) {
+            damage.impactLoaction = getPixelLocation();
             collidedUnit.takeDamage(damage);
         }
     }

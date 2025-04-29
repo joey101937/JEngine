@@ -18,7 +18,7 @@ import java.awt.image.BufferedImage;
  */
 public class LightTankBullet extends Projectile {
      public static final Sequence explosionTiny = new Sequence(RTSAssetManager.impactCone, "lightTankImpact");
-     public static final int DAMAGE = 20;
+     public Damage damage = new Damage(20);
 
     public GameObject2 shooter; //the object that launched this projectile
 
@@ -39,6 +39,7 @@ public class LightTankBullet extends Projectile {
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 600;
         startPosition = start;
+        damage.launchLocation = startPosition.toCoordinate();
     }
 
     @Override
@@ -62,7 +63,8 @@ public class LightTankBullet extends Projectile {
                     return;
                 }
             }
-            otherUnit.takeDamage(DAMAGE);
+            damage.impactLoaction = getPixelLocation();
+            otherUnit.takeDamage(damage);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .6);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionTiny.copyMaintainSource(), impactLoc);
             impactExplosion.rotation = DCoordinate.angleFrom(shooter.getPixelLocation(), other.getPixelLocation());
