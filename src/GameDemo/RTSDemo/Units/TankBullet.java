@@ -27,8 +27,8 @@ import java.awt.image.VolatileImage;
  * @author Joseph
  */
 public class TankBullet extends Projectile {
-
-    public Damage damage = new Damage(46);
+    public static Damage staticDamage = new Damage(46);
+    public Damage damage = staticDamage.copy();
     public GameObject2 shooter; //the object that launched this projectile
 
     public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet}, "tankBulletGraphic");
@@ -73,7 +73,6 @@ public class TankBullet extends Projectile {
                 }
             }
             damage.impactLoaction = getPixelLocation();
-            new Sticker(getHostGame(), RTSAssetManager.landmine, damage.impactLoaction, 30);
             otherUnit.takeDamage(damage);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .25);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);

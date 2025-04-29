@@ -234,7 +234,7 @@ public class Hellicopter extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + HellicopterBullet.damage + " (x2)   Interval: " + 2 + "s    Range: " + range);
+        out.add("Dmg: " + HellicopterBullet.staticDamage + " (x2)   Interval: " + 2 + "s    Range: " + range);
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
         return out;
     }

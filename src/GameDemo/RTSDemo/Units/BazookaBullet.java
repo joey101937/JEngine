@@ -8,6 +8,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -19,8 +20,10 @@ import java.awt.image.VolatileImage;
  * @author guydu
  */
 public class BazookaBullet extends Projectile {
+    
+    public static Damage staticDamage = new Damage(23); // used for 
 
-    public Damage damage = new Damage(23);
+    public Damage damage = staticDamage.copy();
 
     public static Sprite missileSprite = new Sprite(RTSAssetManager.yellowMissile);
     public static Sprite shadowSprite = new Sprite(RTSAssetManager.yellowMissileShadow);

@@ -12,6 +12,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -23,12 +24,14 @@ import java.awt.image.VolatileImage;
  * @author guydu
  */
 public class HellicopterBullet extends Projectile {
+    
+    public static Damage staticDamage = new Damage(10);
 
     public static final Sprite missileSprite = new Sprite(RTSAssetManager.yellowMissile);
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.yellowMissileShadow);
     public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallHeli");
-    public Damage damage = new Damage(10);
-
+    
+    public Damage damage = staticDamage.copy();
     public RTSUnit shooter; //the object that launched this projectile
     public RTSUnit target;
     public RTSUnit collidedUnit;

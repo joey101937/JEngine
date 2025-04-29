@@ -8,6 +8,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Hitbox;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.image.BufferedImage;
@@ -17,13 +18,13 @@ import java.awt.image.BufferedImage;
  * @author guydu
  */
 public class LightTankBullet extends Projectile {
-     public static final Sequence explosionTiny = new Sequence(RTSAssetManager.impactCone, "lightTankImpact");
-     public Damage damage = new Damage(20);
-
-    public GameObject2 shooter; //the object that launched this projectile
-
+    public static Damage staticDamage = new Damage(20);
+    public static final Sequence explosionTiny = new Sequence(RTSAssetManager.impactCone, "lightTankImpact");
     public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet2}, "lightTankBullet");
     public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.bullet2, .3);
+
+    public Damage damage = staticDamage.copy();
+    public GameObject2 shooter; //the object that launched this projectile
     private DCoordinate startPosition;
 
     public LightTankBullet(DCoordinate start, DCoordinate end) {

@@ -13,6 +13,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -382,9 +383,20 @@ public class TankUnit extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + TankBullet.DAMAGE + "    Interval: " + attackFrequency+"s    Range: "+ range);
+        out.add("Dmg: " + TankBullet.staticDamage + "    Interval: " + attackFrequency+"s    Range: "+ range);
         out.add("Speed: " + baseSpeed + "    Targets: Ground");
         return out;
+    }
+    
+    
+    @Override
+    public void takeDamage(Damage d) {
+        Damage updatedDamage = d.copy();
+        if(updatedDamage.impactLoaction != null && Math.abs(rotationNeededToFace(updatedDamage.impactLoaction)) < 41) {
+            updatedDamage.baseAmount -= 5;
+            if(updatedDamage.baseAmount < 0) updatedDamage.baseAmount = 0;
+        }
+        super.takeDamage(updatedDamage);
     }
 
 }

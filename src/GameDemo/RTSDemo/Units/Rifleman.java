@@ -7,6 +7,7 @@ import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.SubObject;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -35,9 +36,11 @@ public class Rifleman extends RTSUnit {
     public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryRifleDeadRed);
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryRifleDead, .8);
     public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
-    public boolean attackCoolingDown = false;
-    public static final int damage = 6;
+    public static final Damage staticDamage = new Damage(6);
     public static final int attackFrequency = 1;
+    
+    public boolean attackCoolingDown = false;
+    public Damage damage = staticDamage.copy(this);
 
     static {
         runningSequence.setFrameDelay(35);
@@ -114,6 +117,8 @@ public class Rifleman extends RTSUnit {
             }
         }
         turret.setGraphic(turret.getFireAnimation());
+        damage.launchLocation = getPixelLocation();
+        damage.impactLoaction = getPixelLocation();
         target.takeDamage(damage);
         addTickDelayedEffect(Main.ticksPerSecond * attackFrequency, c -> {
             this.attackCoolingDown = false;

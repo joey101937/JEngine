@@ -254,7 +254,7 @@ public class Bazookaman extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + BazookaBullet.damage + "    Interval: " + attackInterval + "s    Range: " + range);
+        out.add("Dmg: " + BazookaBullet.staticDamage + "    Interval: " + attackInterval + "s    Range: " + range);
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
         return out;
     }

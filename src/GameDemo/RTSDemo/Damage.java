@@ -20,6 +20,11 @@ public class Damage {
         this.baseAmount = baseAmount;
     }
     
+    public Damage(int baseAmount, int apAmount) {
+        this.baseAmount = baseAmount;
+        this.apAmount = apAmount;
+    }
+    
     public Damage copy() {
         Damage d = new Damage();
         d.type = this.type;
@@ -41,4 +46,9 @@ public class Damage {
         d.impactLoaction = this.impactLoaction;
         return d;
     }
+     
+     @Override
+     public String toString() {
+         return "" + baseAmount + (apAmount > 0 ? "/"+apAmount : "");
+     }
 }

@@ -252,7 +252,7 @@ public class LightTank extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + LightTankBullet.DAMAGE + "    Interval: " + attackInterval + "s    Range: " + range);
+        out.add("Dmg: " + LightTankBullet.staticDamage + "    Interval: " + attackInterval + "s    Range: " + range);
         out.add("Speed: " + speed + "    Targets: Ground");
         return out;
     }

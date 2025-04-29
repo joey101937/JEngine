@@ -8,6 +8,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Hitbox;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -19,7 +20,8 @@ import java.util.ArrayList;
  * @author guydu
  */
 public class Landmine extends RTSUnit {
-
+    
+    public static final Damage staticDamage = new Damage(30);
     public static final SoundEffect blastSound = new SoundEffect(new File(Main.assets + "Sounds/explosion.au"));
     public static final Sprite landmineVisible = new Sprite(RTSAssetManager.landmine);
     public static final Sprite landmineVisibleRed = new Sprite(RTSAssetManager.landmineRed);
@@ -28,6 +30,8 @@ public class Landmine extends RTSUnit {
     public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.landmine, .4);
     public static final Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.landmineBlast, 60);
     public static final double VISUAL_SCALE = .18;
+    
+    public Damage damage = staticDamage.copy();
 
     static {
         landmineHidden.setOpacity(.5);
@@ -50,6 +54,9 @@ public class Landmine extends RTSUnit {
         this.currentHealth = 30;
         this.maxHealth = currentHealth;
         this.isCloaked = true;
+        damage.launchLocation = getPixelLocation();
+        damage.source = this;
+        damage.impactLoaction = getPixelLocation();
     }
 
     @Override
@@ -95,7 +102,7 @@ public class Landmine extends RTSUnit {
                 addTickDelayedEffect(Main.ticksPerSecond / 4, c -> {
                     this.die();
                     blastSound.playCopy(isOnScreen() ? .8 : .7);
-                    unit.takeDamage(30);
+                    unit.takeDamage(damage);
                     new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
                     unit.setImmobilized(true);
                 });
