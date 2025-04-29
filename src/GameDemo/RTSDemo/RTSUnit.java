@@ -14,7 +14,6 @@ import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.Tile;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
-import GameDemo.SandboxDemo.Creature;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -29,7 +28,7 @@ import java.util.List;
  *
  * @author Joseph
  */
-public class RTSUnit extends Creature {
+public class RTSUnit extends GameObject2 {
 
     public static final int RUBBLE_PROXIMITY = 90;
 
@@ -49,6 +48,8 @@ public class RTSUnit extends Creature {
     public int sightRadius = 600;
     public boolean isTouchingOtherUnit = false;
     public String commandGroup = "0"; // assigned when given order. goes to 0 when no active order
+    public int currentHealth = 100;
+    public int maxHealth = 100;
     
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
@@ -79,7 +80,7 @@ public class RTSUnit extends Creature {
     @Override
     public void render(Graphics2D g) {
         super.render(g);
-        g.drawString(commandGroup, getPixelLocation().x, getPixelLocation().y);
+        g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
         if (isRubble) {
             return;
         }
@@ -135,12 +136,10 @@ public class RTSUnit extends Creature {
             this.velocity.y = 0;
             commandGroup = "0";
         }
-
     }
 
-    @Override
     public void die() {
-        super.die();
+        this.destroy();
         if (ExternalCommunicator.isMultiplayer && ExternalCommunicator.isServer) {
             ExternalCommunicator.sendMessage("unitDeath:" + this.ID);
         }
@@ -442,6 +441,13 @@ public class RTSUnit extends Creature {
         
         if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team && !unit.commandGroup.equals(commandGroup)) {
             this.isTouchingOtherUnit = true;
+        }
+    }
+    
+    public void takeDamage(Damage damage) {
+        currentHealth -= (damage.baseAmount + damage.apAmount);
+        if(currentHealth<=0){
+            this.die();
         }
     }
 }

@@ -13,6 +13,8 @@ import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Stickers.OnceThroughSticker;
+import Framework.Stickers.Sticker;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -26,7 +28,7 @@ import java.awt.image.VolatileImage;
  */
 public class TankBullet extends Projectile {
 
-    public static final int DAMAGE = 46;
+    public Damage damage = new Damage(46);
     public GameObject2 shooter; //the object that launched this projectile
 
     public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet}, "tankBulletGraphic");
@@ -44,6 +46,8 @@ public class TankBullet extends Projectile {
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 750;
         startPosition = start;
+        damage.source = (RTSUnit)shooter;
+        damage.launchLocation = startPosition.toCoordinate();
     }
 
     @Override
@@ -68,7 +72,9 @@ public class TankBullet extends Projectile {
                     return;
                 }
             }
-            otherUnit.takeDamage(DAMAGE);
+            damage.impactLoaction = getPixelLocation();
+            new Sticker(getHostGame(), RTSAssetManager.landmine, damage.impactLoaction, 30);
+            otherUnit.takeDamage(damage);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .25);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
             destroy();
