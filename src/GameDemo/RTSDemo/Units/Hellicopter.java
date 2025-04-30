@@ -1,6 +1,5 @@
 package GameDemo.RTSDemo.Units;
 
-import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
@@ -8,11 +7,11 @@ import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
-import java.io.File;
 import java.util.ArrayList;
 
 /**
