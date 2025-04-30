@@ -34,9 +34,6 @@ public class TankUnit extends RTSUnit {
     public static final double attackFrequency = 2.5;
     public static double speed = 2.15;
 
-    public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/blast4.62.wav"));
-    public static SoundEffect launchSoundSource2 = new SoundEffect(new File(Main.assets + "Sounds/blast4.6.wav"));
-    // public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
     public Turret turret;
     public final static double VISUAL_SCALE = 1.10;
     public boolean weaponOnCooldown = false;
@@ -244,15 +241,17 @@ public class TankUnit extends RTSUnit {
         public void onFire(Coordinate target) {
             setGraphic(getFireSequence().copyMaintainSource());
             try {
-                SoundEffect sound = tickNumber%2==0 ? launchSoundSource : launchSoundSource2;
-                if (sound.getNumCopiesPlaying() < 6) {
-                    if (isOnScreen()) {
-                        sound.playCopy(Main.generateRandomDoubleLocally(.6, .65), Main.generateRandomIntLocally(0, 20));
-                        addTickDelayedEffect(Main.ticksPerSecond / 2, c -> sound.changeNumCopiesPlaying(-1));
-                    } else {
-                        sound.playCopy(Main.generateRandomDoubleLocally(.5, .55), Main.generateRandomIntLocally(0, 20));
-                        addTickDelayedEffect(Main.ticksPerSecond / 2, c -> sound.changeNumCopiesPlaying(-1));
-                    }
+                String soundEffect = tickNumber%2==0 ? RTSSoundManager.TANK_ATTACK : RTSSoundManager.TANK_ATTACK_2;
+                if (isOnScreen()) {
+                    RTSSoundManager.get().play(
+                        soundEffect,
+                        Main.generateRandomDoubleLocally(.6, .65),
+                        Main.generateRandomIntLocally(0, 20));
+                } else {
+                    RTSSoundManager.get().play(
+                        soundEffect,
+                        Main.generateRandomDoubleLocally(.5, .55),
+                        Main.generateRandomIntLocally(0, 20));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

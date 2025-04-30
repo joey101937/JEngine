@@ -35,7 +35,6 @@ public class Bazookaman extends RTSUnit {
     public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryBazookaDeadRed);
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryBazookaDead, .8);
     public boolean attackCoolingDown = false;
-    public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
     public static final double attackInterval = 3;
 
     static {
@@ -105,14 +104,16 @@ public class Bazookaman extends RTSUnit {
             return;
         }
         attackCoolingDown = true;
-        if (attackSound.getNumCopiesPlaying() < 10) {
-            if (isOnScreen()) {
-                attackSound.playCopy(Main.generateRandomDoubleLocally(.64f, .68f), Main.generateRandomIntLocally(0, 10));
-                addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
-            } else {
-                attackSound.playCopy(Main.generateRandomDoubleLocally(.6f, .64f), Main.generateRandomIntLocally(0, 10));
-                addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
-            }
+        if (isOnScreen()) {
+            RTSSoundManager.get().play(
+                RTSSoundManager.BAZOOKA_ATTACK,
+                Main.generateRandomDoubleLocally(.64f, .68f),
+                Main.generateRandomIntLocally(0, 10));
+        } else {
+            RTSSoundManager.get().play(
+                RTSSoundManager.BAZOOKA_ATTACK,
+                Main.generateRandomDoubleLocally(.6f, .64f),
+                Main.generateRandomIntLocally(0, 10));
         }
         turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
         addTickDelayedEffect(25, c -> {

@@ -30,7 +30,6 @@ public class Hellicopter extends RTSUnit {
     public static final Sprite destroyedSpriteRed = new Sprite(RTSAssetManager.hellicopterDestroyedRed);
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.hellicopterShadow);
     public static final Sequence attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
-    public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
 
     public static final Sprite baseSpriteRed = new Sprite(RTSAssetManager.hellicopterRed);
     public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.hellicopterAttackRed, "helliAttackRed");
@@ -85,14 +84,16 @@ public class Hellicopter extends RTSUnit {
 
             getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), targetUnit));
             getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), targetUnit));
-            if (attackSound.getNumCopiesPlaying() < 5) {
-                if (isOnScreen()) {
-                    attackSound.playCopy(Main.generateRandomDoubleLocally(.65, .75), Main.generateRandomIntLocally(0, 200));
-                    addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
-                } else {
-                    attackSound.playCopy(Main.generateRandomDoubleLocally(.55, .6), Main.generateRandomIntLocally(0, 200));
-                    addTickDelayedEffect(Main.ticksPerSecond / 2, c -> attackSound.changeNumCopiesPlaying(-1));
-                }
+            if (isOnScreen()) {
+                RTSSoundManager.get().play(
+                    RTSSoundManager.HELICOPTER_ATTACK,
+                    Main.generateRandomDoubleLocally(.65, .75),
+                    Main.generateRandomIntLocally(0, 200));
+            } else {
+                RTSSoundManager.get().play(
+                    RTSSoundManager.HELICOPTER_ATTACK,
+                    Main.generateRandomDoubleLocally(.55, .6),
+                    Main.generateRandomIntLocally(0, 200));
             }
         });
     }
