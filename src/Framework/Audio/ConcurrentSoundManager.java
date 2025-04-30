@@ -82,7 +82,7 @@ public class ConcurrentSoundManager extends IndependentEffect {
      * 
      * @param effectKey The identifier of the sound effect to play
      * @param volume The volume level to play at (0.0 to 1.0)
-     * @param startOffset The number of milliseconds to offset the start of the sound
+     * @param startOffset The number of milliseconds into the sound effect to start from
      */
     public void play(String effectKey, double volume, int startOffset) {
         SoundEffectProfile profile = effectMap.get(effectKey);

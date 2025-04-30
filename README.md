@@ -577,16 +577,16 @@ soundManager.registerSoundEffect(
 Then play sounds through the manager:
 
 ```java
-// Play with 70% volume and no delay
+// Play with 70% volume starting from the beginning of the sound
 soundManager.play("explosion", 0.7, 0);
 ```
 
 ### Best Practices
 - Register sound effects once at startup, not every time you need them
-- Use meaningful string keys to identify different sounds
 - Set appropriate concurrent play limits to prevent audio overload
 - Consider duration when setting tick counts for cleanup
 - Adjust volume and delay based on game context (e.g. distance from camera)
+- The offset allows you to start playing from further into the sound
 
 ### Individual Sound Effects
 The `SoundEffect` class provides direct control when needed:
@@ -599,11 +599,7 @@ sound.start();
 
 For best performance:
 - Load sound files once and reuse
-- Keep concurrent sounds under 20
 - Use ConcurrentSoundManager for multiple sound management
-- Clean up sounds when no longer needed
-
-**See [SoundEffect-JavaDoc](https://webpages.uncc.edu/jdemeis/javadoc/Framework/Audio/SoundEffect.html) for all utility methods**
 
 ### Linking SoundEffects To Games
 Linking a sound to a game will make that sound be part of that game rather than a simple global sound. Sounds that are linked to games will only play while that game is unpaused. SoundEffects linked in such a way only play if both they *and their linked game* are unpaused. Linked sounds are stored in the Game's **AudioManager**. Access all sounds linked to a game by using game.audioManager.getAllSounds();
