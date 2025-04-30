@@ -5,6 +5,7 @@
  */
 package GameDemo.RTSDemo;
 
+import Framework.Audio.ConcurrentSoundManager;
 import Framework.Coordinate;
 import Framework.CoreLoop.Handler;
 import Framework.Game;
@@ -30,6 +31,7 @@ public class RTSGame {
     public static InfoPanelEffect infoPanelEffect;
     public static ReinforcementHandler reinforcementHandler;
     public static NavigationManager navigationManager;
+    public static ConcurrentSoundManager soundManager = new ConcurrentSoundManager();
 
     public static void setup(Game g) {
         Main.ignoreSubobjectCollision = true; // better performance
@@ -56,6 +58,12 @@ public class RTSGame {
         g.addIndependentEffect(reinforcementHandler);
         navigationManager = new NavigationManager(g);
         g.addIndependentEffect(navigationManager);
+        registerSounds(soundManager);
+        g.addIndependentEffect(soundManager);
+    }
+    
+    private static void registerSounds(ConcurrentSoundManager csm) {
+        
     }
 
     public static void main(String[] args) {
