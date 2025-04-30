@@ -29,7 +29,6 @@ public class LightTank extends RTSUnit {
     public static final double attackInterval = 1.6;
 
     public static double VISUAL_SCALE = 1.00;
-    public static SoundEffect launchSoundSource = new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav"));
     public static final Sprite hullSprite = new Sprite(RTSAssetManager.lightTankHull);
     public static final Sprite turretSprite = new Sprite(RTSAssetManager.lightTankTurret);
     public static final Sprite turretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamaged);
@@ -102,14 +101,16 @@ public class LightTank extends RTSUnit {
 
     public void fire(RTSUnit target) {
         barrelCoolingDown = true;
-        if (launchSoundSource.getNumCopiesPlaying() < 5) {
-            if (isOnScreen()) {
-                launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.6, .65), Main.generateRandomIntLocally(0, 20));
-                addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
-            } else {
-                launchSoundSource.playCopy(Main.generateRandomDoubleLocally(.5, .55), Main.generateRandomIntLocally(0, 20));
-                addTickDelayedEffect(Main.ticksPerSecond / 2, c -> launchSoundSource.changeNumCopiesPlaying(-1));
-            }
+        if (isOnScreen()) {
+            RTSSoundManager.get().play(
+                RTSSoundManager.LIGHT_TANK_ATTACK,
+                Main.generateRandomDoubleLocally(.6, .65),
+                Main.generateRandomIntLocally(0, 20));
+        } else {
+            RTSSoundManager.get().play(
+                RTSSoundManager.LIGHT_TANK_ATTACK,
+                Main.generateRandomDoubleLocally(.5, .55),
+                Main.generateRandomIntLocally(0, 20));
         }
         turret.setGraphic(getFireSequence());
         Coordinate muzzelLocation = new Coordinate(0, 0);
