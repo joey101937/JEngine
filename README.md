@@ -550,60 +550,60 @@ Independent effects may be added to a game via the addIndependentEffect. This al
 Because the engine uses Java AWT to display itself to the user, you can add AWT components onto the JFrame. The Window class controls interactions that have to do with the AWT frame itself. Using Window.addUiElement(), you can add UiElement objects to the Game's window that overlay on top of the game. UiElements are JPanels that have render() and tick() links. This means you can create AWT componets such as buttons then add them to a UiElement, which is in turn laid over the game via adding it to the window class. View UiElement examples to increase your understanding.
 
 # Audio
-### Quick Start Guide
-In JEngine, audio is played using the SoundEffect class. To instantiate an object of this class, you must provide a File as the parameter. This file is the source for the audio and must be a java supported audio format. I recommend .au format.
+### Sound Management
+JEngine provides two main classes for audio: `SoundEffect` for individual sound effects and `ConcurrentSoundManager` for managing multiple sounds playing simultaneously.
 
-Once you have the SoundEffect instantiated, you can start it by calling its .start() method. Any prior experience with javax.sound.sampled libraries is very beneficial but not required. If you know the library, you can call getClip() to get the clip object and do what you want with it. Otherwise, the SoundEffect class has some built in utility methods that are easy to use via JEngine including pause/resume, restart, setLooping, setVolume, etc.
+The `ConcurrentSoundManager` handles:
+- Registering sound effects with configurable concurrent play limits
+- Managing how many instances of each sound can play at once
+- Automatic cleanup of completed sound effects
+- Volume and offset control for each play
+
+### Quick Start Guide
+First, create and register your sound effects with the ConcurrentSoundManager:
+
+```java
+ConcurrentSoundManager soundManager = new ConcurrentSoundManager();
+
+// Register a sound effect with max 5 concurrent plays and 1 second duration
+soundManager.registerSoundEffect(
+    "explosion",
+    new SoundEffect(new File("explosion.au")),
+    5,  // max concurrent plays
+    60  // duration in ticks
+);
+```
+
+Then play sounds through the manager:
+
+```java
+// Play with 70% volume and no delay
+soundManager.play("explosion", 0.7, 0);
+```
+
+### Best Practices
+- Register sound effects once at startup, not every time you need them
+- Use meaningful string keys to identify different sounds
+- Set appropriate concurrent play limits to prevent audio overload
+- Consider duration when setting tick counts for cleanup
+- Adjust volume and delay based on game context (e.g. distance from camera)
+
+### Individual Sound Effects
+The `SoundEffect` class provides direct control when needed:
+
+```java
+SoundEffect sound = new SoundEffect(new File("mySound.au"));
+sound.setVolume(0.7f);  // 70% volume
+sound.start();
+```
+
+For best performance:
+- Load sound files once and reuse
+- Keep concurrent sounds under 20
+- Use ConcurrentSoundManager for multiple sound management
+- Clean up sounds when no longer needed
 
 **See [SoundEffect-JavaDoc](https://webpages.uncc.edu/jdemeis/javadoc/Framework/Audio/SoundEffect.html) for all utility methods**
-
-### Playing Sounds and Best Practices
-Because creating a sound effect from a file is fairly expensive in terms of performance, as with any IO operation, you will want to do this only once per sound. To do this it is reccommended you have a static SoundEffect variable that will act as the 'source', and whenever you want to play that sound, create a copy of it (this does not require IO operations) and use that instead. 
-For best performance, avoid creating and running large amounts of sound effects at simultaneously as this can lead to stuttering. For best performance use <20 concurrent sound effects 
-
-It is recommended that you simply use the playCopy method to quickly and asynchronously create a copy of the sound, then play it. Doing it this way will have less of a performance hit to your game.
-
-### SoundEffect Example
-***BASIC EXAMPLE***<br>
-<pre>
-SoundEffect s = new SoundEffect(new File("mySound.au")); //create effect from source
-s.setVolume(.7f); //set volume to 70%
-s.start(); //plays sound
-</pre>
-***BEST PRACTICE EXAMPLE***
-<pre>
-public class Example{
-private static SoundEffect soundSource = new SoundEffect(new File("mySound.au"));
-//soundSource acts as the source, loaded once at start of app
-  public void playSound(){
-    SoundEffect s = soundSource.createCopy(); //create copy of mySound.au sound effect without having to read from filestructure
-    s.setVolume(.7f); //set volume of copy, not of source
-    s.start();// play the copy
-  }
-}
-</pre>
-
-***BEST PRACTICE EXAMPLE (INLINE)***
-<pre>
-public class Example{
-private static SoundEffect soundSource = new SoundEffect(new File("mySound.au"));
-  public void playSound(){
-   soundSource.playCopy();
-  }
-}
-</pre>
-
-## Limiting number of playing copies
-Sometimes you want to limit how many copies of the same sound can play at once. The playCopy method automatically adds 1 to the field numCopiesPlaying. This number needs to be manually decremented back down by your logic. If you do, you can reference the value to limit how many sounds are playing. The following example limits the number of sounds that can be played in any .5 second timeframe to 10
-<pre>
-private static SoundEffect soundSource = new SoundEffect(new File("mySound.au"));
-  public void playSound(){
-    if(soundSource.getNumCopiesPlaying() < 10) {
-       soundSource.playCopy();
-       addTickDelayedEffect(Main.ticksPerSecond/2, c -> attackSound.changeNumCopiesPlaying(-1));
-      }
-  }
-</pre>
 
 ### Linking SoundEffects To Games
 Linking a sound to a game will make that sound be part of that game rather than a simple global sound. Sounds that are linked to games will only play while that game is unpaused. SoundEffects linked in such a way only play if both they *and their linked game* are unpaused. Linked sounds are stored in the Game's **AudioManager**. Access all sounds linked to a game by using game.audioManager.getAllSounds();
