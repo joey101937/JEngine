@@ -1,6 +1,5 @@
 package GameDemo.RTSDemo.Units;
 
-import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.GraphicalAssets.Graphic;
 import Framework.GraphicalAssets.Sequence;
@@ -9,11 +8,11 @@ import Framework.Main;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -35,7 +34,6 @@ public class Rifleman extends RTSUnit {
     public static final Sprite corpseSprite = new Sprite(RTSAssetManager.infantryRifleDead);
     public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryRifleDeadRed);
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryRifleDead, .8);
-    public static final SoundEffect attackSound = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
     public static final Damage staticDamage = new Damage(6);
     public static final int attackFrequency = 1;
     
@@ -107,15 +105,22 @@ public class Rifleman extends RTSUnit {
             return;
         }
         attackCoolingDown = true;
-        if (attackSound.getNumCopiesPlaying() < 7) {
+       
             if (isOnScreen()) {
-                attackSound.playCopy(Main.generateRandomDoubleLocally(.55f, .63f), Main.generateRandomIntLocally(0, 10));
-                addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
+                 RTSSoundManager.get().play(
+                         RTSSoundManager.RIFLEMAN_ATTACK,
+                         Main.generateRandomDoubleLocally(.55f, .63f),
+                         Main.generateRandomIntLocally(0, 10));
+//                attackSound.playCopy(Main.generateRandomDoubleLocally(.55f, .63f), Main.generateRandomIntLocally(0, 10));
+//                addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
             } else {
-                attackSound.playCopy(Main.generateRandomDoubleLocally(.4f, .48f), Main.generateRandomIntLocally(0, 10));
-                addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
+                RTSSoundManager.get().play(
+                         RTSSoundManager.RIFLEMAN_ATTACK,
+                         Main.generateRandomDoubleLocally(.4f, .48f),
+                         Main.generateRandomIntLocally(0, 10));
+//                attackSound.playCopy(Main.generateRandomDoubleLocally(.4f, .48f), Main.generateRandomIntLocally(0, 10));
+//                addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
             }
-        }
         turret.setGraphic(turret.getFireAnimation());
         damage.launchLocation = getPixelLocation();
         damage.impactLoaction = getPixelLocation();

@@ -1,6 +1,7 @@
 package Framework.Audio;
 
 import Framework.IndependentEffect;
+import Framework.Main;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ public class ConcurrentSoundManager extends IndependentEffect {
         public SoundEffect soundEffect;
         public int numPlaying = 0;
         public int maxConcurrent = 100;
-        public int duration = 60;
+        public int duration = Main.ticksPerSecond;
         public ArrayList<Long> decrementTicks = new ArrayList<>();
         
         public SoundEffectProfile(SoundEffect se, int maxConcurrent, int duration) {
@@ -52,7 +53,7 @@ public class ConcurrentSoundManager extends IndependentEffect {
     
     
     
-    public void play(String effectKey, float volume, int startOffset) {
+    public void play(String effectKey, double volume, int startOffset) {
         SoundEffectProfile profile = effectMap.get(effectKey);
         if(profile == null) {
             System.out.println("error! Sound effect key not registered: " + effectKey);
