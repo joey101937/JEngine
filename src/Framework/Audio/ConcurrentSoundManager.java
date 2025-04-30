@@ -6,10 +6,23 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Manages concurrent sound effects in the game, handling multiple simultaneous sounds
+ * while preventing too many instances of the same sound from playing at once.
+ * <p>
+ * This manager tracks sound effects, their concurrent play limits, and their durations.
+ * It automatically cleans up completed sound effects and enforces maximum concurrent
+ * play limits per sound effect.
+ * 
+ * @author guydu
+ */
 public class ConcurrentSoundManager extends IndependentEffect {
 
     private long tickNumber = 0;
 
+    /**
+     * Internal class that maintains the state and configuration for a registered sound effect.
+     */
     private static class SoundEffectProfile {
 
         public SoundEffect soundEffect;
@@ -29,9 +42,13 @@ public class ConcurrentSoundManager extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
-        // no action   
+        // No rendering needed for audio management
     }
 
+    /**
+     * Updates the sound manager state each game tick.
+     * Handles cleanup of completed sound effects and updates play counts.
+     */
     @Override
     public void tick() {
         tickNumber++;
@@ -43,6 +60,14 @@ public class ConcurrentSoundManager extends IndependentEffect {
         });
     }
 
+    /**
+     * Registers a new sound effect with the manager.
+     * 
+     * @param name The unique identifier for this sound effect
+     * @param se The SoundEffect instance to register
+     * @param maxConcurrent Maximum number of concurrent plays allowed for this sound
+     * @param tickDuration How many game ticks the sound effect should last
+     */
     public void registerSoundEffect(String name, SoundEffect se, int maxConcurrent, int tickDuration) {
         effectMap.put(name, new SoundEffectProfile(
                 se,
@@ -51,6 +76,14 @@ public class ConcurrentSoundManager extends IndependentEffect {
         ));
     }
 
+    /**
+     * Plays a registered sound effect with the specified volume and start offset.
+     * Will not exceed the maximum concurrent plays limit for the sound effect.
+     * 
+     * @param effectKey The identifier of the sound effect to play
+     * @param volume The volume level to play at (0.0 to 1.0)
+     * @param startOffset The number of milliseconds to offset the start of the sound
+     */
     public void play(String effectKey, double volume, int startOffset) {
         SoundEffectProfile profile = effectMap.get(effectKey);
         if (profile == null) {
