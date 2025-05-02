@@ -34,6 +34,7 @@ public class RTSUnit extends GameObject2 {
 
     private boolean selected = false;
     private Coordinate desiredLocation;
+    private Coordinate comingFromLocation;
     public int team;
     public RTSUnit currentTarget;
     public int range = 500;
@@ -450,4 +451,13 @@ public class RTSUnit extends GameObject2 {
             this.die();
         }
     }
+    
+    @Override
+    public double getSpeed() {
+        double currentSpeed = super.getSpeed();
+        
+        
+        return currentSpeed;
+    }
+    
 }
