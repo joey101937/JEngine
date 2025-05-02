@@ -19,6 +19,9 @@ public class RTSSoundManager {
     public static String TANK_ATTACK_2 = "tankAttack2";
     public static String HELICOPTER_ATTACK = "helicopterAttack";
     public static String LIGHT_TANK_ATTACK = "lightTankAttack";
+    public static String LANDMINE_EXPLOSION = "landmineExplosion";
+
+
     
     private static void registerSounds(ConcurrentSoundManager csm) {
         csm.registerSoundEffect(
@@ -43,7 +46,15 @@ public class RTSSoundManager {
                 5, Main.ticksPerSecond);
         csm.registerSoundEffect(
                 LIGHT_TANK_ATTACK,
-                new SoundEffect(new File(Main.assets + "Sounds/gunshot.wav")),
+                new SoundEffect(new File(Main.assets + "Sounds/armoredCarShooting5.au")),
+                5, Main.ticksPerSecond);
+        csm.registerSoundEffect(
+                LIGHT_TANK_ATTACK,
+                new SoundEffect(new File(Main.assets + "Sounds/armoredCarShooting5.au")),
+                5, Main.ticksPerSecond);
+        csm.registerSoundEffect(
+                LANDMINE_EXPLOSION,
+                new SoundEffect(new File(Main.assets + "Sounds/explosion.au")),
                 5, Main.ticksPerSecond);
     }
     

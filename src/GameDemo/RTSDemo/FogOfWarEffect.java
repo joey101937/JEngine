@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class FogOfWarEffect extends IndependentEffect {
     private static final int UNITS_PER_SUBAREA = 7;
     private Area area = new Area();
-    private boolean enabled = false;
+    private boolean enabled = true;
     public static ExecutorService fogRenderService = Handler.newMinSizeCachedThreadPool(4);
 
     @Override

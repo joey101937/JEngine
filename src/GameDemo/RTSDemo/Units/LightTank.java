@@ -97,20 +97,26 @@ public class LightTank extends RTSUnit {
         }
         setGraphic(getHullSprite());
     }
+    
+    public void playAttackSound() {
+         String soundToPlay = RTSSoundManager.LIGHT_TANK_ATTACK;
+         int offset = Main.generateRandomIntLocally(0, 20);
+         
+        System.out.println(soundToPlay);
+         
+         double volumeOnScreen = Main.generateRandomDoubleLocally(.76, .81);
+         
+         double volumeOffScreen = Main.generateRandomDoubleLocally(.68, .73);
+         
+        RTSSoundManager.get().play(
+                soundToPlay,
+                isOnScreen() ? volumeOnScreen : volumeOffScreen,
+                offset);
+    }
 
     public void fire(RTSUnit target) {
         barrelCoolingDown = true;
-        if (isOnScreen()) {
-            RTSSoundManager.get().play(
-                RTSSoundManager.LIGHT_TANK_ATTACK,
-                Main.generateRandomDoubleLocally(.6, .65),
-                Main.generateRandomIntLocally(0, 20));
-        } else {
-            RTSSoundManager.get().play(
-                RTSSoundManager.LIGHT_TANK_ATTACK,
-                Main.generateRandomDoubleLocally(.5, .55),
-                Main.generateRandomIntLocally(0, 20));
-        }
+        playAttackSound();
         turret.setGraphic(getFireSequence());
         Coordinate muzzelLocation = new Coordinate(0, 0);
         muzzelLocation.y -= turretSprite.getHeight() * 2 / 5;
