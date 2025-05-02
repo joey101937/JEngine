@@ -187,6 +187,7 @@ public class RTSUnit extends GameObject2 {
     }
 
     public void setDesiredLocation(Coordinate c) {
+        comingFromLocation = getPixelLocation();
         desiredLocation = c;
     }
     
@@ -456,8 +457,33 @@ public class RTSUnit extends GameObject2 {
     public double getSpeed() {
         double currentSpeed = super.getSpeed();
         
+        if (comingFromLocation == null || desiredLocation == null) {
+            return currentSpeed;
+        }
+
+        Coordinate currentPos = getPixelLocation();
+        double distanceFromStart = currentPos.distanceFrom(comingFromLocation);
+        double distanceFromEnd = currentPos.distanceFrom(desiredLocation);
         
-        return currentSpeed;
+        // Calculate speed multipliers based on distances
+        double startMultiplier = calculateSpeedMultiplier(distanceFromStart);
+        double endMultiplier = calculateSpeedMultiplier(distanceFromEnd);
+        
+        // Use the lower multiplier when near both points
+        double finalMultiplier = Math.min(startMultiplier, endMultiplier);
+        
+        return currentSpeed * finalMultiplier;
+    }
+    
+    private double calculateSpeedMultiplier(double distance) {
+        if (distance <= 50) {
+            return 0.5; // 50% speed when within 50 units
+        } else if (distance >= 120) {
+            return 1.0; // 100% speed when 120+ units away
+        } else {
+            // Linear interpolation between 50% and 100% speed
+            return 0.5 + (distance - 50) * (0.5 / 70);
+        }
     }
     
 }
