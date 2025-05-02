@@ -482,7 +482,12 @@ public class RTSUnit extends GameObject2 {
             return 1.0; // 100% speed when 120+ units away
         } else {
             // Linear interpolation between 50% and 100% speed
-            return 0.5 + (distance - 50) * (0.5 / 70);
+            double progress = (distance - 50) / 70.0;
+            // Apply faster acceleration curve for start point
+            if (getPixelLocation().distanceFrom(comingFromLocation) < getPixelLocation().distanceFrom(desiredLocation)) {
+                progress = Math.pow(progress, 0.5); // Square root for faster acceleration
+            }
+            return 0.5 + (progress * 0.5);
         }
     }
     
