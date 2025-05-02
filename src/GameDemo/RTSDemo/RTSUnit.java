@@ -52,6 +52,11 @@ public class RTSUnit extends GameObject2 {
     public int currentHealth = 100;
     public int maxHealth = 100;
     
+    // Movement deceleration configuration
+    protected int minSpeedDistance = 50; // Distance at which speed reaches minimum
+    protected int maxSpeedDistance = 120; // Distance at which speed reaches maximum
+    protected double minSpeedMultiplier = 0.5; // Minimum speed multiplier (50%)
+    
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
 
@@ -482,14 +487,14 @@ public class RTSUnit extends GameObject2 {
         }
         
         // Deceleration when approaching destination
-        if (distance <= 50) {
-            return 0.5; // 50% speed when within 50 units
-        } else if (distance >= 120) {
-            return 1.0; // 100% speed when 120+ units away
+        if (distance <= minSpeedDistance) {
+            return minSpeedMultiplier;
+        } else if (distance >= maxSpeedDistance) {
+            return 1.0; // Full speed
         } else {
-            // Linear interpolation between 50% and 100% speed
-            double progress = (distance - 50) / 70.0;
-            return 0.5 + (progress * 0.5);
+            // Linear interpolation between min and max speed
+            double progress = (distance - minSpeedDistance) / (double)(maxSpeedDistance - minSpeedDistance);
+            return minSpeedMultiplier + (progress * (1.0 - minSpeedMultiplier));
         }
     }
     
