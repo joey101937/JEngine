@@ -557,7 +557,7 @@ The `ConcurrentSoundManager` handles:
 - Registering sound effects with configurable concurrent play limits
 - Managing how many instances of each sound can play at once
 - Automatic cleanup of completed sound effects
-- Volume and offset control for each play
+- Volume and delay control for each play
 
 ### Quick Start Guide
 First, create and register your sound effects with the ConcurrentSoundManager:
@@ -577,7 +577,7 @@ soundManager.registerSoundEffect(
 Then play sounds through the manager:
 
 ```java
-// Play with 70% volume starting from the beginning of the sound
+// Play with 70% volume without delay
 soundManager.play("explosion", 0.7, 0);
 ```
 
@@ -586,7 +586,7 @@ soundManager.play("explosion", 0.7, 0);
 - Set appropriate concurrent play limits to prevent audio overload
 - Consider duration when setting tick counts for cleanup
 - Adjust volume and delay based on game context (e.g. distance from camera)
-- The offset allows you to start playing from further into the sound
+- The offset allows you to delay the start of a sound by given number of ms
 
 ### Individual Sound Effects
 The `SoundEffect` class provides direct control when needed:
