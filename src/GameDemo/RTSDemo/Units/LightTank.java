@@ -104,7 +104,7 @@ public class LightTank extends RTSUnit {
          
         System.out.println(soundToPlay);
          
-         double volumeOnScreen = Main.generateRandomDoubleLocally(.72, .78);
+         double volumeOnScreen = Main.generateRandomDoubleLocally(.70, .76);
          
          double volumeOffScreen = Main.generateRandomDoubleLocally(.64, .71);
          
@@ -170,6 +170,9 @@ public class LightTank extends RTSUnit {
         this.setDesiredLocation(this.getPixelLocation());
         this.setGraphic(hullSpriteDestroyed);
         turret.setGraphic(turretSpriteDestroyed);
+        if(isOnScreen()) {
+            RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .64), 0);
+        }
         addTickDelayedEffect(Main.ticksPerSecond * 10, c -> {
             OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "lightTankDespawnExplosion"), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());

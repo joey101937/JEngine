@@ -103,6 +103,7 @@ public class Hellicopter extends RTSUnit {
             elevation -= 4.8;
             if (elevation < 1) {
                 new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
+                RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, .56, 0);
                 this.baseSpeed = 0;
                 this.plane = 0;
                 this.setZLayer(1);

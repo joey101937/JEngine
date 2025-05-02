@@ -170,6 +170,9 @@ public class Bazookaman extends RTSUnit {
         this.turret.setGraphic(getDeathAnimation());
         this.addTickDelayedEffect(Main.ticksPerSecond * 10, x-> {this.destroy();});
         this.setZLayer((int)(Math.random() * -50));
+        if((tickNumber % 4) == 0) {
+            RTSSoundManager.get().play(RTSSoundManager.INFANTRY_DEATH, .6, 0);
+        }
     }
 
 

@@ -19,6 +19,9 @@ public class RTSSoundManager {
     public static String HELICOPTER_ATTACK = "helicopterAttack";
     public static String LIGHT_TANK_ATTACK = "lightTankAttack";
     public static String LANDMINE_EXPLOSION = "landmineExplosion";
+    
+    public static String TANK_DEATH = "tankDeath";
+    public static String INFANTRY_DEATH = "infantryDeath";
 
 
     
@@ -47,6 +50,14 @@ public class RTSSoundManager {
                 LANDMINE_EXPLOSION,
                 new SoundEffect(new File(Main.assets + "Sounds/explosion.au")),
                 5, Main.ticksPerSecond);
+        csm.registerSoundEffect(
+                TANK_DEATH,
+                new SoundEffect(new File(Main.assets + "Sounds/landmine explosion.wav")),
+                2, Main.ticksPerSecond);
+        csm.registerSoundEffect(
+                INFANTRY_DEATH,
+                new SoundEffect(new File(Main.assets + "Sounds/scream4.wav")),
+                2, Main.ticksPerSecond);
     }
     
     

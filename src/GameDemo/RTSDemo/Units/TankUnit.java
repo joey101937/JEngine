@@ -365,6 +365,9 @@ public class TankUnit extends RTSUnit {
         this.setDesiredLocation(this.getPixelLocation());
         this.setGraphic(deathAnimationHull.copyMaintainSource());
         turret.setGraphic(deathAnimationTurret.copyMaintainSource());
+        if(isOnScreen()) {
+            RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .66), 0);
+        }
         addTickDelayedEffect(Main.ticksPerSecond * 10, c -> {
             OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "transientExplosion"), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());
