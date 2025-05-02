@@ -104,9 +104,9 @@ public class LightTank extends RTSUnit {
          
         System.out.println(soundToPlay);
          
-         double volumeOnScreen = Main.generateRandomDoubleLocally(.76, .81);
+         double volumeOnScreen = Main.generateRandomDoubleLocally(.72, .78);
          
-         double volumeOffScreen = Main.generateRandomDoubleLocally(.68, .73);
+         double volumeOffScreen = Main.generateRandomDoubleLocally(.64, .71);
          
         RTSSoundManager.get().play(
                 soundToPlay,

@@ -240,16 +240,16 @@ public class TankUnit extends RTSUnit {
         public void onFire(Coordinate target) {
             setGraphic(getFireSequence().copyMaintainSource());
             try {
-                String soundEffect = tickNumber%2==0 ? RTSSoundManager.TANK_ATTACK : RTSSoundManager.TANK_ATTACK_2;
+                String soundEffect = RTSSoundManager.TANK_ATTACK;
                 if (isOnScreen()) {
                     RTSSoundManager.get().play(
                         soundEffect,
-                        Main.generateRandomDoubleLocally(.6, .65),
+                        Main.generateRandomDoubleLocally(.69, .74),
                         Main.generateRandomIntLocally(0, 20));
                 } else {
                     RTSSoundManager.get().play(
                         soundEffect,
-                        Main.generateRandomDoubleLocally(.5, .55),
+                        Main.generateRandomDoubleLocally(.62, .67),
                         Main.generateRandomIntLocally(0, 20));
                 }
             } catch (Exception e) {

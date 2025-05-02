@@ -110,16 +110,12 @@ public class Rifleman extends RTSUnit {
                  RTSSoundManager.get().play(
                          RTSSoundManager.RIFLEMAN_ATTACK,
                          Main.generateRandomDoubleLocally(.55f, .63f),
-                         Main.generateRandomIntLocally(0, 10));
-//                attackSound.playCopy(Main.generateRandomDoubleLocally(.55f, .63f), Main.generateRandomIntLocally(0, 10));
-//                addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
+                         Main.generateRandomIntLocally(0, 20));
             } else {
                 RTSSoundManager.get().play(
                          RTSSoundManager.RIFLEMAN_ATTACK,
                          Main.generateRandomDoubleLocally(.4f, .48f),
-                         Main.generateRandomIntLocally(0, 10));
-//                attackSound.playCopy(Main.generateRandomDoubleLocally(.4f, .48f), Main.generateRandomIntLocally(0, 10));
-//                addTickDelayedEffect(Main.ticksPerSecond, c -> attackSound.changeNumCopiesPlaying(-1));
+                         Main.generateRandomIntLocally(0, 20));
             }
         turret.setGraphic(turret.getFireAnimation());
         damage.launchLocation = getPixelLocation();
