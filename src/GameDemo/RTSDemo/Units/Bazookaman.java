@@ -69,6 +69,9 @@ public class Bazookaman extends RTSUnit {
         this.currentHealth = 30;
         this.range = 600;
         isInfantry = true;
+        this.minSpeedMultiplier = .8;
+        this.minSpeedDistance = 25;
+        this.maxSpeedDistance = 50;
     }
 
     @Override

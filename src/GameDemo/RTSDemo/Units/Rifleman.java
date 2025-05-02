@@ -69,6 +69,9 @@ public class Rifleman extends RTSUnit {
         this.currentHealth = 20;
         this.range = 500;
         isInfantry = true;
+        this.minSpeedMultiplier = .8;
+        this.minSpeedDistance = 25;
+        this.maxSpeedDistance = 50;
     }
 
     @Override

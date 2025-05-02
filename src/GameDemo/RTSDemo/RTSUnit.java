@@ -53,9 +53,10 @@ public class RTSUnit extends GameObject2 {
     public int maxHealth = 100;
     
     // Movement deceleration configuration
-    protected int minSpeedDistance = 50; // Distance at which speed reaches minimum
-    protected int maxSpeedDistance = 120; // Distance at which speed reaches maximum
-    protected double minSpeedMultiplier = 0.5; // Minimum speed multiplier (50%)
+    public int minSpeedDistance = 50; // Distance at which speed reaches minimum
+    public int maxSpeedDistance = 120; // Distance at which speed reaches maximum
+    public double accellerationFloor = 1; // when accellerating away from start location, this is limit for how slow it can go
+    public double minSpeedMultiplier = 0.5; // Minimum speed multiplier (50%)
     
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
@@ -192,7 +193,9 @@ public class RTSUnit extends GameObject2 {
     }
 
     public void setDesiredLocation(Coordinate c) {
-        comingFromLocation = getPixelLocation();
+        if(!this.hasVelocity()) {
+            comingFromLocation = getPixelLocation();
+        }
         desiredLocation = c;
     }
     
@@ -471,7 +474,7 @@ public class RTSUnit extends GameObject2 {
         double distanceFromEnd = currentPos.distanceFrom(desiredLocation);
         
         // Calculate speed multipliers based on distances
-        double startMultiplier = calculateSpeedMultiplier(distanceFromStart);
+        double startMultiplier = Math.max(calculateSpeedMultiplier(distanceFromStart), accellerationFloor);
         double endMultiplier = calculateSpeedMultiplier(distanceFromEnd);
         
         // Use the lower multiplier when near both points
@@ -480,12 +483,7 @@ public class RTSUnit extends GameObject2 {
         return currentSpeed * finalMultiplier;
     }
     
-    private double calculateSpeedMultiplier(double distance) {
-        // Only apply speed multiplier for destination distance
-        if (getPixelLocation().distanceFrom(comingFromLocation) < getPixelLocation().distanceFrom(desiredLocation)) {
-            return 1.0; // Full speed when moving away from start
-        }
-        
+    private double calculateSpeedMultiplier(double distance) {        
         // Deceleration when approaching destination
         if (distance <= minSpeedDistance) {
             return minSpeedMultiplier;

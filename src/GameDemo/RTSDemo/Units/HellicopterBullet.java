@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
@@ -25,7 +21,7 @@ import java.awt.image.VolatileImage;
  */
 public class HellicopterBullet extends Projectile {
     
-    public static Damage staticDamage = new Damage(10);
+    public static Damage staticDamage = new Damage(0, 10);
 
     public static final Sprite missileSprite = new Sprite(RTSAssetManager.yellowMissile);
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.yellowMissileShadow);

@@ -49,6 +49,6 @@ public class Damage {
      
      @Override
      public String toString() {
-         return "" + baseAmount + (apAmount > 0 ? "/"+apAmount : "");
+         return "" + baseAmount + (apAmount > 0 ? "+"+apAmount : "");
      }
 }

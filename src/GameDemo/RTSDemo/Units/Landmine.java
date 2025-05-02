@@ -20,7 +20,7 @@ import java.util.ArrayList;
  */
 public class Landmine extends RTSUnit {
     
-    public static final Damage staticDamage = new Damage(0/30);
+    public static final Damage staticDamage = new Damage(0, 30);
     public static final Sprite landmineVisible = new Sprite(RTSAssetManager.landmine);
     public static final Sprite landmineVisibleRed = new Sprite(RTSAssetManager.landmineRed);
     public static final Sprite landmineHidden = new Sprite(RTSAssetManager.landmine);
