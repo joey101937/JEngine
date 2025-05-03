@@ -51,6 +51,7 @@ public class Window {
              if(g.hasStarted==false){
                  g.start();
              }
+             g.waitForTick(1);
         }else{
             System.out.println("WARNING, TRYING TO INITIALIZE WINDOW WHEN ALREADY INITIALIZED");
         }

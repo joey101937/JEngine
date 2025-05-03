@@ -1009,4 +1009,14 @@ public class Game implements Runnable {
         this.onGameStabilized = onGameStabilized;
     }
     
+    /**
+     * pauses thread until the given game object has gotten to the given tickNumber
+     * @param tickNumber tick number to wait for
+     */
+    public void waitForTick(long tickNumber) {
+        while(handler.globalTickNumber < tickNumber) {
+            Main.wait(1);
+        }
+    }
+    
 }

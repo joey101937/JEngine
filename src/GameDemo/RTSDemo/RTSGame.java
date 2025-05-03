@@ -86,70 +86,68 @@ public class RTSGame {
 
         Window.initializeFullScreen(game);
 
-        game.addTickDelayedEffect(10, x2 -> {
-            setup(game);
+        setup(game);
 
-            int spacer = 160;
-            int lineLength = 40;
+        int spacer = 160;
+        int lineLength = 40;
 
-            game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
-            game.addObject(new KeyBuilding(3000, 3000, 1));
+        game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
+        game.addObject(new KeyBuilding(3000, 3000, 1));
 
 //        RTSUnit infantryUnit = new Bazookaman(500, 750, 0);
 //        infantryUnit.setRotation(180);
 //        game.addObject(infantryUnit);
-            // greens 
-            for (int i = 0; i < lineLength; i++) {
-                Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
-                heli.setRotation(180);
-                game.addObject(heli);
-            }
-            for (int i = 0; i < lineLength; i++) {
-                TankUnit tank = new TankUnit(100 + (i * spacer), 300, 0);
-                tank.setRotation(180);
-                game.addObject(tank);
-            }
-            for (int i = 0; i < lineLength; i++) {
-                TankUnit tank = new TankUnit(100 + (i * spacer), 450, 0);
-                tank.setRotation(180);
-                game.addObject(tank);
-            }
-            for (int i = 0; i < lineLength; i++) {
-                LightTank tank = new LightTank(100 + (i * spacer), 600, 0);
-                tank.setRotation(180);
-                game.addObject(tank);
-            }
-            for (int i = 0; i < lineLength; i++) {
-                RTSUnit infantryUnit = i % 2 == 0 ? new Bazookaman(100 + (i * spacer), 750, 0) : new Rifleman(100 + (i * spacer), 750, 0);
-                infantryUnit.setRotation(180);
-                game.addObject(infantryUnit);
-            }
+        // greens 
+        for (int i = 0; i < lineLength; i++) {
+            Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
+            heli.setRotation(180);
+            game.addObject(heli);
+        }
+        for (int i = 0; i < lineLength; i++) {
+            TankUnit tank = new TankUnit(100 + (i * spacer), 300, 0);
+            tank.setRotation(180);
+            game.addObject(tank);
+        }
+        for (int i = 0; i < lineLength; i++) {
+            TankUnit tank = new TankUnit(100 + (i * spacer), 450, 0);
+            tank.setRotation(180);
+            game.addObject(tank);
+        }
+        for (int i = 0; i < lineLength; i++) {
+            LightTank tank = new LightTank(100 + (i * spacer), 600, 0);
+            tank.setRotation(180);
+            game.addObject(tank);
+        }
+        for (int i = 0; i < lineLength; i++) {
+            RTSUnit infantryUnit = i % 2 == 0 ? new Bazookaman(100 + (i * spacer), 750, 0) : new Rifleman(100 + (i * spacer), 750, 0);
+            infantryUnit.setRotation(180);
+            game.addObject(infantryUnit);
+        }
 
 //        // reds
-            for (int i = 0; i < lineLength; i++) {
-                if (i % 2 == 0) {
-                    game.addObject(new Bazookaman(100 + (i * spacer), 1750, 1));
-                } else {
-                    game.addObject(new Rifleman(100 + (i * spacer), 1750, 1));
-                }
+        for (int i = 0; i < lineLength; i++) {
+            if (i % 2 == 0) {
+                game.addObject(new Bazookaman(100 + (i * spacer), 1750, 1));
+            } else {
+                game.addObject(new Rifleman(100 + (i * spacer), 1750, 1));
             }
-            for (int i = 0; i < lineLength; i++) {
-                game.addObject(new TankUnit(100 + (i * spacer), 1850, 1));
-            }
-            for (int i = 0; i < lineLength; i++) {
-                game.addObject(new TankUnit(100 + (i * spacer), 2000, 1));
-            }
-            for (int i = 0; i < lineLength; i++) {
-                game.addObject(new LightTank(100 + (i * spacer), 2150, 1));
-            }
-            for (int i = 0; i < lineLength; i++) {
-                game.addObject(new Hellicopter(100 + (i * spacer), 2300, 1));
-            }
-            game.setOnGameStabilized(x3 -> {
-                setupUI(game);
-                game.setLoadingScreenActive(false);
-                System.out.println("Loading screen off");
-            });
+        }
+        for (int i = 0; i < lineLength; i++) {
+            game.addObject(new TankUnit(100 + (i * spacer), 1850, 1));
+        }
+        for (int i = 0; i < lineLength; i++) {
+            game.addObject(new TankUnit(100 + (i * spacer), 2000, 1));
+        }
+        for (int i = 0; i < lineLength; i++) {
+            game.addObject(new LightTank(100 + (i * spacer), 2150, 1));
+        }
+        for (int i = 0; i < lineLength; i++) {
+            game.addObject(new Hellicopter(100 + (i * spacer), 2300, 1));
+        }
+        game.setOnGameStabilized(x3 -> {
+            setupUI(game);
+            game.setLoadingScreenActive(false);
+            System.out.println("Loading screen off");
         });
     }
 }
