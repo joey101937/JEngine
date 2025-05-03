@@ -939,6 +939,22 @@ public class Game implements Runnable {
     public Camera getCamera() {
         return camera;
     }
+    
+    /**
+     * gets top right corner of camera in game world
+     * @return 
+     */
+    public Coordinate getCameraPosition () {
+        return getCamera().getWorldLocation().toCoordinate();
+    }
+    
+    /**
+     * gets game world coordinate where the camera is centered on
+     * @return 
+     */
+    public Coordinate getCameraCenterPosition () {
+        return getCamera().getCenterPoint();
+    }
 
     public int getWindowWidth() {
         return windowWidth;
@@ -989,22 +1005,37 @@ public class Game implements Runnable {
         getCanvas().requestFocus();
     }
     
+    /**
+     * Sets the function that controls what is rendered for the loading screen.
+     * this will render when the isLoadingScreenActive property is true
+     * @param cons function that accepts a Graphics2D object
+     */
     public void setLoadScreenRender(Consumer<Graphics2D> cons) {
         loadingScreenRender = cons;
     }
 
+    /**
+     * if loading screen is set to be active
+     * @return value
+     */
     public boolean isLoadingScreenActive() {
         return loadingScreenActive;
     }
 
+    /**
+     * turn on/off loading screen
+     * @param loadingScreenActive value 
+     */
     public void setLoadingScreenActive(boolean loadingScreenActive) {
         this.loadingScreenActive = loadingScreenActive;
     }
 
-    public Consumer getOnGameStabilized() {
-        return onGameStabilized;
-    }
-
+    /**
+     * This runs when the game has a TPS (ticks per second) within 10 of the target TPS.
+     * (!)This runs once then sets itself to null.
+     * this can be useful when determining when a game has finished its initial setup for removing loading screens
+     * @param onGameStabilized consumer containing logic to run
+     */
     public void setOnGameStabilized(Consumer onGameStabilized) {
         this.onGameStabilized = onGameStabilized;
     }
