@@ -353,7 +353,7 @@ public class RTSInput extends InputHandler {
             // backspace
             case 8 -> {
                 // System.out.println(Window.getUIElements().get(0).isVisible());
-                Window.setFullscreenWindowed(true);
+                // Window.setFullscreenWindowed(true);
             }
             // case 0-9
             case 48, 49, 50, 51, 52, 53, 54, 55, 56, 57 -> {

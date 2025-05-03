@@ -68,6 +68,8 @@ public abstract class RTSAssetManager {
     public static BufferedImage layMineButton, layMineButtonHover;
 
     public static BufferedImage immobilizationIcon;
+    
+    public static BufferedImage JEngineIconLoading;
 
     public static void initialize() {
         if (initialized) {
@@ -245,6 +247,7 @@ public abstract class RTSAssetManager {
         return CompletableFuture.runAsync(() -> {
             layMineButton = load("DemoAssets/TankGame/Buttons/layMineButton.png");
             layMineButtonHover = load("DemoAssets/TankGame/Buttons/layMineButtonHover.png");
+            JEngineIconLoading = load("DemoAssets/JEngineIconLoading.png");
         }, executor);
     }
 

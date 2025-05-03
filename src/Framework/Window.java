@@ -99,9 +99,9 @@ public class Window {
      */
     public synchronized static void setCurrentGame(Game g) {
         currentGame.setPaused(true);
-        while(!currentGame.pausedSafely){
-            Main.wait(2);
-        }
+//        while(!currentGame.pausedSafely){
+//            Main.wait(2);
+//        }
 
         currentGame.getCanvas().setVisible(false);
         
@@ -130,6 +130,7 @@ public class Window {
         currentGame.getCanvas().requestFocus();
         setZOrders();
         updateTitlePerGame(g);
+        g.getCanvas().validate();
     }
     
     protected static void UIElementsOnRender(){

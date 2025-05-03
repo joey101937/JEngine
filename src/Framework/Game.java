@@ -86,7 +86,11 @@ public class Game implements Runnable {
     private Area backgroundClipArea;
     private Canvas canvas;
     
+    private volatile boolean loadingScreenActive = false;
+    
     private Consumer handleSyncTick;
+    private Consumer<Graphics2D> loadingScreenRender;
+    private Consumer onGameStabilized;
 
     /**
      * ticks all applied effects
@@ -526,6 +530,9 @@ public class Game implements Runnable {
         if (Main.debugMode) {
             renderBounds(g2d);
         }
+        if(loadingScreenRender != null && isLoadingScreenActive()) {
+            loadingScreenRender.accept(g2d);
+        }
         g.dispose();
         g2d.dispose();
         if (Window.currentGame == this && !this.isPaused()) {
@@ -623,13 +630,15 @@ public class Game implements Runnable {
         this.hasStarted = true;
         canvas.requestFocus(); ///automatically selects window so you dont have to click on it
         long lastTime = System.nanoTime();
-        double amountOfTicks = Main.ticksPerSecond;  //ticks per second
-        double ns = 1000000000 / amountOfTicks;
+        //double amountOfTicks = Main.ticksPerSecond;  //ticks per second
+        // double ns = 1000000000 / amountOfTicks;
         double delta = 0;
         long timer = System.currentTimeMillis();
         int frames = 0;
         int ticks = 0;
         while (running) {
+            int desiredTPS = Main.ticksPerSecond;
+            double ns = 1000000000 / desiredTPS;
             if (isPaused()) {
                 //if paused, just wait
                 Main.wait(10);
@@ -667,6 +676,11 @@ public class Game implements Runnable {
                 //if frames = 1 then it likeley is an error from swapping scenes
                 if (frames != 1 && shouldShowFPS) {
                     System.out.println(name + " FPS: " + frames + "   TPS: " + ticks);
+                }
+                if(onGameStabilized != null && (ticks + 10 >= desiredTPS && ticks - 10 <= desiredTPS)) {
+                    Consumer<Game> consumer = onGameStabilized;
+                    onGameStabilized = null;
+                    consumer.accept(this);
                 }
                 frames = 0;
                 ticks = 0;
@@ -973,6 +987,26 @@ public class Game implements Runnable {
     
     public void requestFocus() {
         getCanvas().requestFocus();
+    }
+    
+    public void setLoadScreenRender(Consumer<Graphics2D> cons) {
+        loadingScreenRender = cons;
+    }
+
+    public boolean isLoadingScreenActive() {
+        return loadingScreenActive;
+    }
+
+    public void setLoadingScreenActive(boolean loadingScreenActive) {
+        this.loadingScreenActive = loadingScreenActive;
+    }
+
+    public Consumer getOnGameStabilized() {
+        return onGameStabilized;
+    }
+
+    public void setOnGameStabilized(Consumer onGameStabilized) {
+        this.onGameStabilized = onGameStabilized;
     }
     
 }
