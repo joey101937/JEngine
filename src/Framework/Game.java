@@ -24,6 +24,7 @@ import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
 import java.awt.BasicStroke;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.Area;
@@ -40,7 +41,7 @@ import java.util.function.Consumer;
  * @author Joseph
  */
 public class Game implements Runnable {
-
+    
     /**
      * native resolution of the game you are creating; used to scale graphics
      * for display you, the programmer, should set this based on what resolution
@@ -91,6 +92,7 @@ public class Game implements Runnable {
     private Consumer handleSyncTick;
     private Consumer<Graphics2D> loadingScreenRender;
     private Consumer onGameStabilized;
+    
 
     /**
      * ticks all applied effects
@@ -530,7 +532,10 @@ public class Game implements Runnable {
         if (Main.debugMode) {
             renderBounds(g2d);
         }
-        if(loadingScreenRender != null && isLoadingScreenActive()) {
+        if(isLoadingScreenActive()) {
+            if(loadingScreenRender == null) {
+                loadingScreenRender = getDefaultLoadingScreenRender();
+            }
             loadingScreenRender.accept(g2d);
         }
         g.dispose();
@@ -1028,6 +1033,22 @@ public class Game implements Runnable {
      */
     public void setLoadingScreenActive(boolean loadingScreenActive) {
         this.loadingScreenActive = loadingScreenActive;
+    }
+    
+    private Consumer<Graphics2D> getDefaultLoadingScreenRender () {
+        Image jengineIcon = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/Resources/JEngineIcon.png"));
+        return g -> {
+            g.setColor(new Color(100, 100, 100));
+            Coordinate camLocation = this.getCamera().getWorldLocation().toCoordinate();
+            Coordinate camCenter = this.getCamera().getCenterPoint();
+            var fov = this.getCamera().getFieldOfView();
+            g.fillRect(camLocation.x, camLocation.y, fov.width, fov.height);
+            Coordinate imageRenderLocation = new Coordinate(
+                    camCenter.x - jengineIcon.getWidth(null) / 2,
+                    camCenter.y - jengineIcon.getHeight(null) / 2
+            );
+            g.drawImage(jengineIcon, imageRenderLocation.x, imageRenderLocation.y, null);
+        };
     }
 
     /**

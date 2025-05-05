@@ -52,7 +52,7 @@ public class RTSGame {
 
     public static void setupUI(Game g) {
         minimap = new Minimap(game, new Coordinate(0, 0));
-        minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
+        minimap.setSimpleRenderHelper(new MinimapRenderHelperRTS());
         minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
         minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight());
         Window.addUIElement(minimap);

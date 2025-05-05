@@ -18,14 +18,14 @@ public class KeyBuilding extends GameObject2 {
     public static final Sprite shadowSprite = Sprite.generateShadowSprite(mainSprite.getImage(), .5); // new Sprite(RTSAssetManager.buildingShadow);
     private static final double CAPTURE_RATE = 0.01;
     private static final double CAPTURE_THRESHOLD = 1.0;
-    public static final double VISUAL_SCALE = .6;
+    public static final double VISUAL_SCALE = 1;
     
     static {
         shadowSprite.scaleTo(VISUAL_SCALE);
     }
     
     public int owningTeam = -1;
-    public int captureRadius = 550;
+    public int captureRadius = 1000;
     public double captureProgress = 0;
     public SpawnLocation spawnLocation;
     

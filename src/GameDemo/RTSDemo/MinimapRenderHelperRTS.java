@@ -14,7 +14,7 @@ import java.awt.Graphics2D;
  *
  * @author guydu
  */
-public class SimpleRenderHelperRTS extends SimpleRenderHelper {
+public class MinimapRenderHelperRTS extends SimpleRenderHelper {
 
     @Override
     public void simpleRender(GameObject2 go, Graphics2D g) {
@@ -33,7 +33,7 @@ public class SimpleRenderHelperRTS extends SimpleRenderHelper {
         }
         if(go instanceof KeyBuilding keyBuilding) {
             Color originalColor = g.getColor();
-            int longerSide = Math.max(go.getWidth(), go.getHeight());
+            int longerSide = Math.min(go.getWidth(), go.getHeight());
             int borderDiameter = longerSide + 64;
             g.setColor(Color.BLACK);
             g.fillRect(go.getPixelLocation().x - borderDiameter/2, go.getPixelLocation().y - borderDiameter/2, borderDiameter, borderDiameter);
