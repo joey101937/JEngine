@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package SampleGames.Minotaur.Actors;
+package GameDemo.Minotaur.Actors;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.PathingLayer.Type;
-import SampleGames.Minotaur.DamageNumber;
-import SampleGames.Minotaur.MinotaurGame;
-import SampleGames.Minotaur.Terrain.Terrain;
+import GameDemo.Minotaur.DamageNumber;
+import GameDemo.Minotaur.MinotaurGame;
+import GameDemo.Minotaur.Terrain.Terrain;
 
 /**
  *

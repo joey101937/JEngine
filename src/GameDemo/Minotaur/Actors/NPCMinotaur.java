@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package SampleGames.Minotaur.Actors;
+package GameDemo.Minotaur.Actors;
 
 import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.Main;
-import SampleGames.Minotaur.MinotaurGame;
+import GameDemo.Minotaur.MinotaurGame;
 import java.util.Collection;
 
 /**

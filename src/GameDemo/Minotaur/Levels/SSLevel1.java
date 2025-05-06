@@ -3,18 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package SampleGames.Minotaur.Levels;
+package GameDemo.Minotaur.Levels;
 
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.SpriteManager;
 import Framework.UtilityObjects.BlockObject;
 import Framework.UtilityObjects.TextObject;
-import SampleGames.Minotaur.Actors.Barrel;
-import SampleGames.Minotaur.Actors.NPCMinotaur;
-import SampleGames.Minotaur.MinotaurGame;
-import SampleGames.Minotaur.MinotaurHealthBarEffect;
-import SampleGames.Minotaur.Terrain.Terrain260x125;
+import GameDemo.Minotaur.Actors.Barrel;
+import GameDemo.Minotaur.Actors.NPCMinotaur;
+import GameDemo.Minotaur.MinotaurGame;
+import GameDemo.Minotaur.MinotaurHealthBarEffect;
+import GameDemo.Minotaur.Terrain.Terrain260x125;
 import java.awt.Color;
 
 /**

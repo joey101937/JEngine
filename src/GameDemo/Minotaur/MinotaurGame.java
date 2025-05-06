@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package SampleGames.Minotaur;
+package GameDemo.Minotaur;
 
 import Framework.Coordinate;
 import Framework.Game;
@@ -11,8 +11,8 @@ import Framework.Main;
 import Framework.SpriteManager;
 import Framework.UtilityObjects.BlockObject;
 import Framework.Window;
-import SampleGames.Minotaur.Actors.Minotaur;
-import SampleGames.Minotaur.Levels.SSLevel1;
+import GameDemo.Minotaur.Actors.Minotaur;
+import GameDemo.Minotaur.Levels.SSLevel1;
 
 /**
  * Sidescroll Game main class

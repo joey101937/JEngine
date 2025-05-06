@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package SampleGames.Minotaur;
+package GameDemo.Minotaur;
 
 import Framework.AsyncInputHandler;
 import Framework.UI_Elements.OptionsMenu;
-import SampleGames.Minotaur.Actors.Minotaur;
+import GameDemo.Minotaur.Actors.Minotaur;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
