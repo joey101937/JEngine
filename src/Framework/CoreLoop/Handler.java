@@ -61,6 +61,25 @@ public class Handler {
         return new ArrayList<>(currentSnapshot.gameObjects);
     }
 
+    /**
+     * Gets all objects within a specified radius of a point
+     * @param point The center point to search around
+     * @param radius The radius to search within
+     * @return List of objects within the specified radius
+     */
+    public List<GameObject2> getObjectsNearPoint(Coordinate point, int radius) {
+        return quadTree.retrieve(point, radius);
+    }
+
+    /**
+     * Gets all objects within a rectangular area
+     * @param area The rectangular area to search within
+     * @return List of objects within the specified area
+     */
+    public List<GameObject2> getObjectsInArea(Rectangle area) {
+        return quadTree.retrieve(area);
+    }
+
     public void render(Graphics2D g) {
         HashMap<Integer, LinkedList<Renderable>> renderMap = new HashMap<>();
         for (GameObject2 go : activeObjects) {
