@@ -160,42 +160,85 @@ public class QuadTreeTest {
             qt.insert(blocks[i]);
         }
         
-        // Test finding objects in different regions
+        // Test circular pattern selections
+        int[] testRadii = {250, 500, 1000, 2000};
+        Coordinate center = new Coordinate(5000, 5000);
         
-        // Test center region
-        List<GameObject2> centerGroup = qt.retrieve(new Coordinate(5000, 5000), 1000);
-        System.out.println("Found " + centerGroup.size() + " objects in center region");
-        assertTrue("Should find some objects in center", centerGroup.size() > 0);
-        
-        // Test corner regions
-        List<GameObject2> topLeft = qt.retrieve(new Rectangle(0, 0, 2000, 2000));
-        List<GameObject2> bottomRight = qt.retrieve(new Rectangle(8000, 8000, 2000, 2000));
-        System.out.println("Found " + topLeft.size() + " objects in top-left corner");
-        System.out.println("Found " + bottomRight.size() + " objects in bottom-right corner");
-        
-        // Test finding nearby objects for each block
-        int totalGroups = 0;
-        for(BlockObject block : blocks) {
-            List<GameObject2> nearby = qt.retrieve(block.getPixelLocation(), 500);
-            if(nearby.size() > 5) { // Found a group of at least 6 objects
-                totalGroups++;
-                System.out.println("Found group of " + nearby.size() + " objects at " + 
-                                 block.getPixelLocation().x + "," + block.getPixelLocation().y);
+        // Test concentric circles from center
+        for(int radius : testRadii) {
+            List<GameObject2> objectsInCircle = qt.retrieve(center, radius);
+            System.out.println("Found " + objectsInCircle.size() + " objects within " + radius + " radius of center");
+            
+            // Verify that all objects are actually within the radius
+            for(GameObject2 obj : objectsInCircle) {
+                double distance = center.distanceFrom(obj.getPixelLocation());
+                assertTrue("Object should be within radius", distance <= radius);
             }
         }
-        System.out.println("Found " + totalGroups + " groups with 6+ objects within 500 pixels");
         
-        // Test overlapping queries
-        List<GameObject2> area1 = qt.retrieve(new Rectangle(2000, 2000, 3000, 3000));
-        List<GameObject2> area2 = qt.retrieve(new Rectangle(3000, 3000, 3000, 3000));
-        List<GameObject2> combinedArea = qt.retrieve(new Rectangle(2000, 2000, 4000, 4000));
+        // Test overlapping circles
+        int radius = 1000;
+        Coordinate[] centers = {
+            new Coordinate(4000, 4000),
+            new Coordinate(4500, 4500),
+            new Coordinate(5000, 5000)
+        };
         
-        System.out.println("Area1: " + area1.size() + " objects");
-        System.out.println("Area2: " + area2.size() + " objects");
-        System.out.println("Combined overlapping area: " + combinedArea.size() + " objects");
+        List<GameObject2>[] circleResults = new List[centers.length];
+        for(int i = 0; i < centers.length; i++) {
+            circleResults[i] = qt.retrieve(centers[i], radius);
+            System.out.println("Circle " + (i+1) + " contains " + circleResults[i].size() + " objects");
+        }
         
-        assertTrue("Combined area should find more objects than individual areas",
-                  combinedArea.size() > area1.size() && combinedArea.size() > area2.size());
+        // Verify overlapping circles have some common objects
+        boolean hasCommonObjects = false;
+        for(GameObject2 obj : circleResults[0]) {
+            if(circleResults[1].contains(obj) || circleResults[2].contains(obj)) {
+                hasCommonObjects = true;
+                break;
+            }
+        }
+        assertTrue("Overlapping circles should have common objects", hasCommonObjects);
+        
+        // Test circular selection at corners
+        Coordinate[] corners = {
+            new Coordinate(0, 0),
+            new Coordinate(10000, 0),
+            new Coordinate(0, 10000),
+            new Coordinate(10000, 10000)
+        };
+        
+        for(int i = 0; i < corners.length; i++) {
+            List<GameObject2> cornerObjects = qt.retrieve(corners[i], 1500);
+            System.out.println("Corner " + (i+1) + " circle contains " + cornerObjects.size() + " objects");
+            
+            // Verify distances for corner objects
+            for(GameObject2 obj : cornerObjects) {
+                double distance = corners[i].distanceFrom(obj.getPixelLocation());
+                assertTrue("Corner object should be within radius", distance <= 1500);
+            }
+        }
+        
+        // Test dense vs sparse areas
+        int smallRadius = 300;
+        int samplingPoints = 20;
+        int maxObjects = 0;
+        int minObjects = Integer.MAX_VALUE;
+        
+        for(int i = 0; i < samplingPoints; i++) {
+            Coordinate randomPoint = new Coordinate(
+                (int)(Math.random() * 9900),
+                (int)(Math.random() * 9900)
+            );
+            List<GameObject2> localObjects = qt.retrieve(randomPoint, smallRadius);
+            maxObjects = Math.max(maxObjects, localObjects.size());
+            minObjects = Math.min(minObjects, localObjects.size());
+        }
+        
+        System.out.println("Density analysis in " + smallRadius + "px radius circles:");
+        System.out.println("Most dense area: " + maxObjects + " objects");
+        System.out.println("Least dense area: " + minObjects + " objects");
+        assertTrue("Should find varying densities", maxObjects > minObjects);
     }
     
     @Test
