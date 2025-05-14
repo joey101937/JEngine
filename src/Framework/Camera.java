@@ -138,7 +138,12 @@ public class Camera {
      * @return rectangle object that represents the field of view of this camera
      */
     public Rectangle getFieldOfView(){
-        return new Rectangle((int)-location.x,(int)-location.y,(int)(hostGame.windowWidth/Game.resolutionScaleX/hostGame.getZoom()),(int)(hostGame.windowHeight/Game.resolutionScaleY/hostGame.getZoom()));
+        return new Rectangle(
+                (int)-location.x,
+                (int)-location.y,
+                (int)(hostGame.windowWidth/Game.resolutionScaleX/hostGame.getZoom()),
+                (int)(hostGame.windowHeight/Game.resolutionScaleY/hostGame.getZoom())
+        );
     }
     
     /**

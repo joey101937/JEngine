@@ -30,6 +30,7 @@ import java.awt.Stroke;
 import java.awt.geom.Area;
 import java.awt.image.VolatileImage;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -411,6 +412,22 @@ public class Game implements Runnable {
             }
         }
         return output;
+    }
+    
+    public List<GameObject2> getObjectsOnScreen() {
+        if(handler.currentSnapshot == null || handler.currentSnapshot.quadTree == null) {
+            return new ArrayList<>();
+        }
+        
+        int padding = 600;
+        var out = handler.currentSnapshot.quadTree.retrieve(new Rectangle(
+                getCameraPosition().x - padding,
+                getCameraPosition().y - padding,
+                (int)(windowWidth/Game.resolutionScaleX/getZoom()) + (padding*2),
+                (int)(windowHeight/Game.resolutionScaleY/getZoom() + (padding * 2))
+        ));
+        
+        return out.stream().filter(x -> x.isOnScreen()).toList();
     }
 
     /**
@@ -922,7 +939,7 @@ public class Game implements Runnable {
     }
     
     /**
-     * gets top right corner of camera in game world
+     * gets top left corner of camera in game world
      * @return 
      */
     public Coordinate getCameraPosition () {

@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuadTree implements Serializable{
-    private static final int MAX_OBJECTS = 10;
-    private static final int MAX_LEVELS = 5;
+    private static final int MAX_OBJECTS = 50;
+    private static final int MAX_LEVELS = 6;
     
     private int level;
     private List<GameObject2> objects;
@@ -33,7 +33,6 @@ public class QuadTree implements Serializable{
         int subHeight = bounds.height / 2;
         int x = bounds.x;
         int y = bounds.y;
-        System.out.println("splitting with size" + subWidth);
 
         nodes[0] = new QuadTree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight));
         nodes[1] = new QuadTree(level + 1, new Rectangle(x, y, subWidth, subHeight));

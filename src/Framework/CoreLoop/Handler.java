@@ -52,7 +52,7 @@ public class Handler {
 
     public Handler(Game g) {
         hostGame = g;
-        quadTree = new QuadTree(0, new Rectangle(0,0, Integer.MAX_VALUE, Integer.MAX_VALUE));
+        quadTree = new QuadTree(0, new Rectangle(0,0, 20000, 20000));
     }
 
     public int size() {
@@ -84,7 +84,7 @@ public class Handler {
 
     public void render(Graphics2D g) {
         HashMap<Integer, LinkedList<Renderable>> renderMap = new HashMap<>();
-        for (GameObject2 go : activeObjects) {
+        for (GameObject2 go : hostGame.getObjectsOnScreen()) {
             if (renderMap.get(go.getZLayer()) == null) {
                 LinkedList<Renderable> list = new LinkedList<>();
                 list.add(go);
@@ -199,6 +199,8 @@ public class Handler {
 
     private void createSnapshot() {
         ArrayList<GameObject2> snapshotList = new ArrayList<GameObject2>(activeObjects);
+        quadTree = new QuadTree(0, new Rectangle(0,0, hostGame.getWorldWidth(), hostGame.getWorldHeight()));
+        activeObjects.forEach(o -> quadTree.insert(o));
         currentSnapshot = new Snapshot(snapshotList, quadTree.copy(), globalTickNumber);
 
         ArrayList<Future<?>> tasks = new ArrayList<>();
@@ -230,7 +232,6 @@ public class Handler {
         for (GameObject2 go : toRemove) {
             activeObjects.remove(go);
             go.setHostGame(null);
-            quadTree.remove(go);
         }
         toRemove.clear();
     }
@@ -238,7 +239,6 @@ public class Handler {
     private synchronized void condunctAdditions() {
         for (GameObject2 go : toAdd) {
             activeObjects.add(go);
-            quadTree.insert(go);
         }
         toAdd.clear();
     }

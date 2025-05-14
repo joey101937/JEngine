@@ -93,8 +93,6 @@ public class RTSInput extends InputHandler {
     @Override
     public void mousePressed(MouseEvent e) {
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
-        System.out.println("units nearby: " + hostGame.getObjectsNearPoint(locationOfMouseEvent, 700).size());
-        System.out.println("nodes" + hostGame.handler.currentSnapshot.quadTree.nodes[0].bounds);
         String generatedCommandGroup = generateRandomCommandGroup();
         if (e.getButton() == 1) { //1 means left click
             if (RTSGame.reinforcementHandler.intersectsMainBar(locationOfMouseEvent)) {
