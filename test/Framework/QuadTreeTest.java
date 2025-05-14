@@ -197,4 +197,60 @@ public class QuadTreeTest {
         assertTrue("Combined area should find more objects than individual areas",
                   combinedArea.size() > area1.size() && combinedArea.size() > area2.size());
     }
+    
+    @Test
+    public void testCopyFunction() {
+        QuadTree original = new QuadTree(0, new Rectangle(0, 0, 1000, 1000));
+        
+        // Create test blocks in different quadrants
+        BlockObject block1 = new BlockObject(new Coordinate(100, 100), 20, 20);
+        BlockObject block2 = new BlockObject(new Coordinate(900, 100), 20, 20);
+        BlockObject block3 = new BlockObject(new Coordinate(100, 900), 20, 20);
+        BlockObject block4 = new BlockObject(new Coordinate(900, 900), 20, 20);
+        
+        // Add enough blocks at each location to force splits
+        for(int i = 0; i < 12; i++) {
+            original.insert(new BlockObject(new Coordinate(100, 100), 20, 20));
+            original.insert(new BlockObject(new Coordinate(900, 100), 20, 20));
+            original.insert(new BlockObject(new Coordinate(100, 900), 20, 20));
+            original.insert(new BlockObject(new Coordinate(900, 900), 20, 20));
+        }
+        
+        // Create the copy
+        QuadTree copy = original.copy();
+        
+        // Test that both trees return the same results for various queries
+        
+        // Test corner regions
+        List<GameObject2> originalTopLeft = original.retrieve(new Rectangle(0, 0, 500, 500));
+        List<GameObject2> copyTopLeft = copy.retrieve(new Rectangle(0, 0, 500, 500));
+        assertEquals("Top-left quadrant should have same number of objects", 
+                    originalTopLeft.size(), copyTopLeft.size());
+        
+        List<GameObject2> originalBottomRight = original.retrieve(new Rectangle(500, 500, 500, 500));
+        List<GameObject2> copyBottomRight = copy.retrieve(new Rectangle(500, 500, 500, 500));
+        assertEquals("Bottom-right quadrant should have same number of objects", 
+                    originalBottomRight.size(), copyBottomRight.size());
+        
+        // Test radius searches
+        List<GameObject2> originalRadius = original.retrieve(new Coordinate(100, 100), 50);
+        List<GameObject2> copyRadius = copy.retrieve(new Coordinate(100, 100), 50);
+        assertEquals("Radius search should return same number of objects", 
+                    originalRadius.size(), copyRadius.size());
+        
+        // Test that modifications to copy don't affect original
+        BlockObject newBlock = new BlockObject(new Coordinate(500, 500), 20, 20);
+        copy.insert(newBlock);
+        
+        List<GameObject2> originalAll = original.retrieve(new Rectangle(0, 0, 1000, 1000));
+        List<GameObject2> copyAll = copy.retrieve(new Rectangle(0, 0, 1000, 1000));
+        assertEquals("Copy should have one more object after insertion", 
+                    originalAll.size() + 1, copyAll.size());
+        
+        // Test that removing from copy doesn't affect original
+        copy.remove(newBlock);
+        copyAll = copy.retrieve(new Rectangle(0, 0, 1000, 1000));
+        assertEquals("Trees should have same number of objects after removal", 
+                    originalAll.size(), copyAll.size());
+    }
 }
