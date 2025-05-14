@@ -6,6 +6,7 @@ import Framework.IndependentEffect;
 import Framework.Main;
 import Framework.TickDelayedEffect;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,11 +42,12 @@ public class Handler {
     private LinkedList<GameObject2> toAdd = new LinkedList<>();
     private LinkedList<GameObject2> toRemove = new LinkedList<>();
     private ArrayList<GameObject2> activeObjects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
+    private QuadTree quadTree = new QuadTree(0, new Rectangle(0,0, hostGame.getWorldWidth(), hostGame.getWorldHeight()));
     private ArrayList<TickDelayedEffect> tickDelayedEffects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
 
     public long globalTickNumber = 0L;
 
-    public Snapshot currentSnapshot = new Snapshot(new ArrayList<GameObject2>(), 0);
+    public Snapshot currentSnapshot = new Snapshot(new ArrayList<GameObject2>(), quadTree, 0);
 
     public Handler(Game g) {
         hostGame = g;
@@ -176,7 +178,7 @@ public class Handler {
 
     private void createSnapshot() {
         ArrayList<GameObject2> snapshotList = new ArrayList<GameObject2>(activeObjects);
-        currentSnapshot = new Snapshot(snapshotList, globalTickNumber);
+        currentSnapshot = new Snapshot(snapshotList, quadTree.copy(), globalTickNumber);
 
         ArrayList<Future<?>> tasks = new ArrayList<>();
         for (GameObject2 go : activeObjects) {
@@ -207,6 +209,7 @@ public class Handler {
         for (GameObject2 go : toRemove) {
             activeObjects.remove(go);
             go.setHostGame(null);
+            quadTree.remove(go);
         }
         toRemove.clear();
     }
@@ -214,6 +217,7 @@ public class Handler {
     private synchronized void condunctAdditions() {
         for (GameObject2 go : toAdd) {
             activeObjects.add(go);
+            quadTree.insert(go);
         }
         toAdd.clear();
     }
