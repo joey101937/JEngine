@@ -169,10 +169,29 @@ public class QuadTreeTest {
             List<GameObject2> objectsInCircle = qt.retrieve(center, radius);
             System.out.println("Found " + objectsInCircle.size() + " objects within " + radius + " radius of center");
             
-            // Verify that all objects are actually within the radius
+            // Find all objects that should be in the circle
+            List<GameObject2> expectedObjects = new ArrayList<>();
+            for(BlockObject block : blocks) {
+                double distance = center.distanceFrom(block.getPixelLocation());
+                if(distance <= radius) {
+                    expectedObjects.add(block);
+                }
+            }
+            
+            // Verify that all expected objects are found
+            assertEquals("Should find correct number of objects within radius " + radius,
+                    expectedObjects.size(), objectsInCircle.size());
+            
+            // Verify that all found objects are actually within radius
             for(GameObject2 obj : objectsInCircle) {
                 double distance = center.distanceFrom(obj.getPixelLocation());
                 assertTrue("Object should be within radius", distance <= radius);
+            }
+            
+            // Verify that no objects are missed
+            for(GameObject2 expected : expectedObjects) {
+                assertTrue("Query missed object that should be within radius " + radius,
+                        objectsInCircle.contains(expected));
             }
         }
         
@@ -185,9 +204,31 @@ public class QuadTreeTest {
         };
         
         List<GameObject2>[] circleResults = new List[centers.length];
+        List<GameObject2>[] expectedResults = new List[centers.length];
+        
         for(int i = 0; i < centers.length; i++) {
             circleResults[i] = qt.retrieve(centers[i], radius);
+            expectedResults[i] = new ArrayList<>();
+            
+            // Find all objects that should be in this circle
+            for(BlockObject block : blocks) {
+                double distance = centers[i].distanceFrom(block.getPixelLocation());
+                if(distance <= radius) {
+                    expectedResults[i].add(block);
+                }
+            }
+            
             System.out.println("Circle " + (i+1) + " contains " + circleResults[i].size() + " objects");
+            
+            // Verify correct number of objects found
+            assertEquals("Circle " + (i+1) + " should find correct number of objects",
+                    expectedResults[i].size(), circleResults[i].size());
+                    
+            // Verify no objects are missed
+            for(GameObject2 expected : expectedResults[i]) {
+                assertTrue("Circle " + (i+1) + " query missed an object that should be included",
+                        circleResults[i].contains(expected));
+            }
         }
         
         // Verify overlapping circles have some common objects
