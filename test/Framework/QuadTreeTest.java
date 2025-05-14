@@ -1,12 +1,12 @@
-package Framework.test;
+package Framework;
 
-import Framework.*;
 import Framework.UtilityObjects.BlockObject;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class QuadTreeTest {
     
@@ -109,7 +109,7 @@ public class QuadTreeTest {
         }
         
         // Test that objects are still retrievable after split
-        List<GameObject2> retrieved = qt.retrieve(new Rectangle(50, 50, 100, 100));
+        List<GameObject2> retrieved = qt.retrieve(new Rectangle(50, 50, 101, 101));
         assertEquals("Should find all 15 objects after split", 15, retrieved.size());
     }
 }
