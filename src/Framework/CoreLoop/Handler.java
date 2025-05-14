@@ -52,7 +52,7 @@ public class Handler {
 
     public Handler(Game g) {
         hostGame = g;
-        quadTree = new QuadTree(0, new Rectangle(0,0, hostGame.getWorldWidth(), hostGame.getWorldHeight()));
+        quadTree = new QuadTree(0, new Rectangle(0,0, Integer.MAX_VALUE, Integer.MAX_VALUE));
     }
 
     public int size() {
@@ -265,5 +265,9 @@ public class Handler {
         var list = new LinkedList<TickDelayedEffect>();
         list.add(tde);
         updateTickDelayedEffects(list, false);
+    }
+    
+    public void setQuadTreeBounds (int width, int height) {
+        //update quad tree root to have these bounds
     }
 }

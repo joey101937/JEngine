@@ -207,6 +207,7 @@ public class Game implements Runnable {
         backgroundImage = bi;
         worldHeight = backgroundImage.getCurrentImage().getHeight();
         worldWidth = backgroundImage.getCurrentImage().getWidth();
+        handler.setQuadTreeBounds(worldWidth, worldHeight);
         if (resolutionScaleX >= 1) {
             if (worldWidth < Window.screenSize.x) {
                 windowWidth = worldWidth;
@@ -388,11 +389,11 @@ public class Game implements Runnable {
      * value - center to center)
      *
      * @param c point to use
-     * @param distance how far away from c the object may be to get selected
+     * @param radius how far away from c the object may be to get selected
      * @return a list of objects near the given point
      */
-    public ArrayList<GameObject2> getObjectsNearPoint(Coordinate c, double distance) {
-       return handler.getObjectsNearPoint(c, (int)distance);
+    public ArrayList<GameObject2> getObjectsNearPoint(Coordinate c, double radius) {
+       return handler.getObjectsNearPoint(c, (int)radius);
     }
     
     /**

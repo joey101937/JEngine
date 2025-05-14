@@ -3,17 +3,18 @@ package Framework.CoreLoop;
 import Framework.Coordinate;
 import Framework.GameObject2;
 import java.awt.Rectangle;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuadTree {
+public class QuadTree implements Serializable{
     private static final int MAX_OBJECTS = 10;
     private static final int MAX_LEVELS = 5;
     
     private int level;
     private List<GameObject2> objects;
-    private Rectangle bounds;
-    private QuadTree[] nodes;
+    public Rectangle bounds;
+    public QuadTree[] nodes;
 
     public QuadTree(int level, Rectangle bounds) {
         this.level = level;
@@ -24,12 +25,7 @@ public class QuadTree {
 
     public void clear() {
         objects.clear();
-        for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] != null) {
-                nodes[i].clear();
-                nodes[i] = null;
-            }
-        }
+        nodes = new QuadTree[4];
     }
 
     private void split() {
@@ -37,6 +33,7 @@ public class QuadTree {
         int subHeight = bounds.height / 2;
         int x = bounds.x;
         int y = bounds.y;
+        System.out.println("splitting with size" + subWidth);
 
         nodes[0] = new QuadTree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight));
         nodes[1] = new QuadTree(level + 1, new Rectangle(x, y, subWidth, subHeight));
@@ -64,7 +61,6 @@ public class QuadTree {
     }
 
     public void insert(GameObject2 object) {
-        System.out.println("inserting " + object + size());
         if (nodes[0] != null) {
             int index = getIndex(object);
             if (index != -1) {
@@ -94,7 +90,6 @@ public class QuadTree {
 
     public ArrayList<GameObject2> retrieve(Rectangle area) {
         ArrayList<GameObject2> returnObjects = new ArrayList<>();
-        
         if (nodes[0] != null) {
             // Check each node that intersects with the search area
             for (int i = 0; i < nodes.length; i++) {
