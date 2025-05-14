@@ -152,4 +152,21 @@ public class QuadTree {
 
         return -1;
     }
+
+    /**
+     * Creates a deep copy of this QuadTree
+     * @return A new QuadTree with copied contents
+     */
+    public QuadTree copy() {
+        QuadTree copy = new QuadTree(this.level, new Rectangle(bounds.x, bounds.y, bounds.width, bounds.height));
+        copy.objects = new ArrayList<>(this.objects);
+        
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] != null) {
+                copy.nodes[i] = nodes[i].copy();
+            }
+        }
+        
+        return copy;
+    }
 }
