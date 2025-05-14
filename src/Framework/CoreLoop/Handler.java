@@ -1,5 +1,6 @@
 package Framework.CoreLoop;
 
+import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
@@ -42,7 +43,7 @@ public class Handler {
     private LinkedList<GameObject2> toAdd = new LinkedList<>();
     private LinkedList<GameObject2> toRemove = new LinkedList<>();
     private ArrayList<GameObject2> activeObjects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
-    private QuadTree quadTree = new QuadTree(0, new Rectangle(0,0, hostGame.getWorldWidth(), hostGame.getWorldHeight()));
+    private QuadTree quadTree;
     private ArrayList<TickDelayedEffect> tickDelayedEffects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
 
     public long globalTickNumber = 0L;
@@ -51,6 +52,7 @@ public class Handler {
 
     public Handler(Game g) {
         hostGame = g;
+        quadTree = new QuadTree(0, new Rectangle(0,0, hostGame.getWorldWidth(), hostGame.getWorldHeight()));
     }
 
     public int size() {
@@ -67,8 +69,8 @@ public class Handler {
      * @param radius The radius to search within
      * @return List of objects within the specified radius
      */
-    public List<GameObject2> getObjectsNearPoint(Coordinate point, int radius) {
-        return quadTree.retrieve(point, radius);
+    public ArrayList<GameObject2> getObjectsNearPoint(Coordinate point, int radius) {
+        return currentSnapshot.quadTree.retrieve(point, radius);
     }
 
     /**
@@ -76,8 +78,8 @@ public class Handler {
      * @param area The rectangular area to search within
      * @return List of objects within the specified area
      */
-    public List<GameObject2> getObjectsInArea(Rectangle area) {
-        return quadTree.retrieve(area);
+    public ArrayList<GameObject2> getObjectsInArea(Rectangle area) {
+        return currentSnapshot.quadTree.retrieve(area);
     }
 
     public void render(Graphics2D g) {

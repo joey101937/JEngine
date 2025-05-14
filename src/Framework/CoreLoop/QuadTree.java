@@ -91,8 +91,8 @@ public class QuadTree {
         }
     }
 
-    public List<GameObject2> retrieve(Rectangle area) {
-        List<GameObject2> returnObjects = new ArrayList<>();
+    public ArrayList<GameObject2> retrieve(Rectangle area) {
+        ArrayList<GameObject2> returnObjects = new ArrayList<>();
         
         if (nodes[0] != null) {
             // Check each node that intersects with the search area
@@ -114,10 +114,10 @@ public class QuadTree {
         return returnObjects;
     }
 
-    public List<GameObject2> retrieve(Coordinate point, int radius) {
+    public ArrayList<GameObject2> retrieve(Coordinate point, int radius) {
         Rectangle area = new Rectangle(point.x - radius, point.y - radius, radius * 2, radius * 2);
-        List<GameObject2> possibleObjects = retrieve(area);
-        List<GameObject2> withinRadius = new ArrayList<>();
+        ArrayList<GameObject2> possibleObjects = retrieve(area);
+        ArrayList<GameObject2> withinRadius = new ArrayList<>();
         
         for (GameObject2 obj : possibleObjects) {
             if (point.distanceFrom(obj.getPixelLocation()) <= radius) {
@@ -186,5 +186,9 @@ public class QuadTree {
 
         // If we reach here, check if the object is in the current node's list
         return objects.remove(object);
+    }
+    
+    public int size() {
+        return objects.size();
     }
 }

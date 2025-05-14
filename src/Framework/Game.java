@@ -257,26 +257,7 @@ public class Game implements Runnable {
      * @return a list of all gameobjects in the area
      */
     public ArrayList<GameObject2> getObjectsInArea(Rectangle r) {
-        Coordinate[] verts = new Coordinate[4];
-        verts[0] = new Coordinate(r.x, r.y);
-        verts[1] = new Coordinate(r.x + r.width, r.y);
-        verts[2] = new Coordinate(r.x, r.y + r.height);
-        verts[3] = new Coordinate(r.x + r.width, r.y + r.height);
-        Hitbox hitbox = new Hitbox(verts);
-        ArrayList<GameObject2> output = new ArrayList<>();
-        for (GameObject2 go : handler.getAllObjects()) {
-            if (go.getHitbox() != null && go.getHitbox().intersects(hitbox)) {
-                output.add(go);
-            } else {
-                for (SubObject sub : go.getAllSubObjects()) {
-                    if (sub.getHitbox() != null && sub.getHitbox().intersects(hitbox)) {
-                        output.add(go);
-                        break;
-                    }
-                }
-            }
-        }
-        return output;
+        return handler.getObjectsInArea(r);
     }
 
     /**
@@ -411,13 +392,7 @@ public class Game implements Runnable {
      * @return a list of objects near the given point
      */
     public ArrayList<GameObject2> getObjectsNearPoint(Coordinate c, double distance) {
-        ArrayList<GameObject2> output = new ArrayList<>();
-        for (GameObject2 go : handler.getAllObjects()) {
-            if (go.getPixelLocation().distanceFrom(c) <= distance) {
-                output.add(go);
-            }
-        }
-        return output;
+       return handler.getObjectsNearPoint(c, (int)distance);
     }
     
     /**

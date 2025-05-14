@@ -680,7 +680,9 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 proposedMovement.y >= 0 ? (int) Math.ceil(proposedMovement.y) : (int)Math.floor(proposedMovement.y)
         );
         DCoordinate newLocation;
-        ArrayList<GameObject2> otherObjects = hostGame.handler.getAllObjects();
+        ArrayList<GameObject2> otherObjects = hostGame.getObjectsNearPoint(getPixelLocation(), (getWidth() * 3) + 700); // hostGame.handler.getAllObjects();
+//        System.out.println("otherObjects" + otherObjects.size());
+        System.out.println(hostGame.handler.currentSnapshot.quadTree.size());
         otherObjects.remove(this);
         ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();
         if(!Main.ignoreSubobjectCollision) {
