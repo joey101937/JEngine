@@ -113,4 +113,35 @@ public class QuadTreeTest {
         List<GameObject2> retrieved = qt.retrieve(new Rectangle(50, 50, 101, 101));
         assertEquals("Should find all 15 objects after split", 15, retrieved.size());
     }
+
+    @Test
+    public void testRemove() {
+        QuadTree qt = new QuadTree(0, new Rectangle(0, 0, 1000, 1000));
+        
+        // Create and insert test objects
+        BlockObject block1 = new BlockObject(new Coordinate(100, 100), 20, 20);
+        BlockObject block2 = new BlockObject(new Coordinate(500, 500), 20, 20);
+        BlockObject block3 = new BlockObject(new Coordinate(900, 900), 20, 20);
+        
+        qt.insert(block1);
+        qt.insert(block2);
+        qt.insert(block3);
+        
+        // Test removing an existing object
+        assertTrue("Should successfully remove block2", qt.remove(block2));
+        
+        // Verify block2 was removed
+        List<GameObject2> retrieved = qt.retrieve(new Rectangle(400, 400, 200, 200));
+        assertEquals("Should find no objects after removal", 0, retrieved.size());
+        
+        // Test removing a non-existent object
+        BlockObject nonExistent = new BlockObject(new Coordinate(300, 300), 20, 20);
+        assertFalse("Should return false when removing non-existent object", qt.remove(nonExistent));
+        
+        // Verify other objects still exist
+        List<GameObject2> allRemaining = qt.retrieve(new Rectangle(0, 0, 1000, 1000));
+        assertEquals("Should still have 2 remaining objects", 2, allRemaining.size());
+        assertTrue("Should still contain block1", allRemaining.contains(block1));
+        assertTrue("Should still contain block3", allRemaining.contains(block3));
+    }
 }

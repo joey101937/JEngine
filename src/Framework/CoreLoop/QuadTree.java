@@ -169,4 +169,22 @@ public class QuadTree {
         
         return copy;
     }
+
+    /**
+     * Removes the specified object from the QuadTree
+     * @param object The object to remove
+     * @return true if the object was found and removed, false otherwise
+     */
+    public boolean remove(GameObject2 object) {
+        // First check if the object belongs in a subnode
+        if (nodes[0] != null) {
+            int index = getIndex(object);
+            if (index != -1) {
+                return nodes[index].remove(object);
+            }
+        }
+
+        // If we reach here, check if the object is in the current node's list
+        return objects.remove(object);
+    }
 }
