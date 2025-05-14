@@ -315,7 +315,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public void rotate(double degrees) {
         if(isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
-            for(GameObject2 other : getHostGame().getAllObjects()){
+            for(GameObject2 other : getHostGame().getObjectsNearPoint(getPixelLocation(true), Math.max(getWidth(), getHeight()) + Main.collisionCheckRadius)){
                 if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
                      getHostGame().handler.registerCollision(this, other);
                      return; 
@@ -680,7 +680,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 proposedMovement.y >= 0 ? (int) Math.ceil(proposedMovement.y) : (int)Math.floor(proposedMovement.y)
         );
         DCoordinate newLocation;
-        ArrayList<GameObject2> otherObjects = hostGame.handler.getAllObjects();
+        ArrayList<GameObject2> otherObjects = hostGame.getObjectsNearPoint(getPixelLocation(), Math.max(getWidth(), getHeight()) + Main.collisionCheckRadius);    
         otherObjects.remove(this);
         ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();
         if(!Main.ignoreSubobjectCollision) {

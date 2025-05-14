@@ -1,11 +1,13 @@
 package Framework.CoreLoop;
 
+import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
 import Framework.Main;
 import Framework.TickDelayedEffect;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,14 +43,16 @@ public class Handler {
     private LinkedList<GameObject2> toAdd = new LinkedList<>();
     private LinkedList<GameObject2> toRemove = new LinkedList<>();
     private ArrayList<GameObject2> activeObjects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
+    private QuadTree quadTree;
     private ArrayList<TickDelayedEffect> tickDelayedEffects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
 
     public long globalTickNumber = 0L;
 
-    public Snapshot currentSnapshot = new Snapshot(new ArrayList<GameObject2>(), 0);
+    public Snapshot currentSnapshot = new Snapshot(new ArrayList<GameObject2>(), quadTree, 0);
 
     public Handler(Game g) {
         hostGame = g;
+        quadTree = new QuadTree(0, new Rectangle(0,0, 20000, 20000));
     }
 
     public int size() {
@@ -59,9 +63,28 @@ public class Handler {
         return new ArrayList<>(currentSnapshot.gameObjects);
     }
 
+    /**
+     * Gets all objects within a specified radius of a point
+     * @param point The center point to search around
+     * @param radius The radius to search within
+     * @return List of objects within the specified radius
+     */
+    public ArrayList<GameObject2> getObjectsNearPoint(Coordinate point, int radius) {
+        return currentSnapshot.quadTree.retrieve(point, radius);
+    }
+
+    /**
+     * Gets all objects within a rectangular area
+     * @param area The rectangular area to search within
+     * @return List of objects within the specified area
+     */
+    public ArrayList<GameObject2> getObjectsInArea(Rectangle area) {
+        return currentSnapshot.quadTree.retrieve(area);
+    }
+
     public void render(Graphics2D g) {
         HashMap<Integer, LinkedList<Renderable>> renderMap = new HashMap<>();
-        for (GameObject2 go : activeObjects) {
+        for (GameObject2 go : hostGame.getObjectsOnScreen()) {
             if (renderMap.get(go.getZLayer()) == null) {
                 LinkedList<Renderable> list = new LinkedList<>();
                 list.add(go);
@@ -176,7 +199,9 @@ public class Handler {
 
     private void createSnapshot() {
         ArrayList<GameObject2> snapshotList = new ArrayList<GameObject2>(activeObjects);
-        currentSnapshot = new Snapshot(snapshotList, globalTickNumber);
+        quadTree = new QuadTree(0, new Rectangle(0,0, hostGame.getWorldWidth(), hostGame.getWorldHeight()));
+        activeObjects.forEach(o -> quadTree.insert(o));
+        currentSnapshot = new Snapshot(snapshotList, quadTree.copy(), globalTickNumber);
 
         ArrayList<Future<?>> tasks = new ArrayList<>();
         for (GameObject2 go : activeObjects) {
@@ -240,5 +265,9 @@ public class Handler {
         var list = new LinkedList<TickDelayedEffect>();
         list.add(tde);
         updateTickDelayedEffects(list, false);
+    }
+    
+    public void setQuadTreeBounds (int width, int height) {
+        //update quad tree root to have these bounds
     }
 }

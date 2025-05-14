@@ -10,11 +10,13 @@ import java.util.HashMap;
  */
 public class Snapshot {
     public final ArrayList<GameObject2> gameObjects;
+    public final QuadTree quadTree;
     public final HashMap<String, GameObject2> objectMap = new HashMap<>();
     public final long tickNumber;
     
-    public Snapshot(ArrayList<GameObject2> gos, long tick){
+    public Snapshot(ArrayList<GameObject2> gos, QuadTree tree, long tick){
         gameObjects = gos;
+        quadTree = tree;
         tickNumber = tick;
         for(GameObject2 go: gos) {
             objectMap.put(go.ID, go);

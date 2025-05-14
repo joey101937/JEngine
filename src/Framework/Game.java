@@ -30,6 +30,7 @@ import java.awt.Stroke;
 import java.awt.geom.Area;
 import java.awt.image.VolatileImage;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -207,6 +208,7 @@ public class Game implements Runnable {
         backgroundImage = bi;
         worldHeight = backgroundImage.getCurrentImage().getHeight();
         worldWidth = backgroundImage.getCurrentImage().getWidth();
+        handler.setQuadTreeBounds(worldWidth, worldHeight);
         if (resolutionScaleX >= 1) {
             if (worldWidth < Window.screenSize.x) {
                 windowWidth = worldWidth;
@@ -257,26 +259,7 @@ public class Game implements Runnable {
      * @return a list of all gameobjects in the area
      */
     public ArrayList<GameObject2> getObjectsInArea(Rectangle r) {
-        Coordinate[] verts = new Coordinate[4];
-        verts[0] = new Coordinate(r.x, r.y);
-        verts[1] = new Coordinate(r.x + r.width, r.y);
-        verts[2] = new Coordinate(r.x, r.y + r.height);
-        verts[3] = new Coordinate(r.x + r.width, r.y + r.height);
-        Hitbox hitbox = new Hitbox(verts);
-        ArrayList<GameObject2> output = new ArrayList<>();
-        for (GameObject2 go : handler.getAllObjects()) {
-            if (go.getHitbox() != null && go.getHitbox().intersects(hitbox)) {
-                output.add(go);
-            } else {
-                for (SubObject sub : go.getAllSubObjects()) {
-                    if (sub.getHitbox() != null && sub.getHitbox().intersects(hitbox)) {
-                        output.add(go);
-                        break;
-                    }
-                }
-            }
-        }
-        return output;
+        return handler.getObjectsInArea(r);
     }
 
     /**
@@ -407,17 +390,11 @@ public class Game implements Runnable {
      * value - center to center)
      *
      * @param c point to use
-     * @param distance how far away from c the object may be to get selected
+     * @param radius how far away from c the object may be to get selected
      * @return a list of objects near the given point
      */
-    public ArrayList<GameObject2> getObjectsNearPoint(Coordinate c, double distance) {
-        ArrayList<GameObject2> output = new ArrayList<>();
-        for (GameObject2 go : handler.getAllObjects()) {
-            if (go.getPixelLocation().distanceFrom(c) <= distance) {
-                output.add(go);
-            }
-        }
-        return output;
+    public ArrayList<GameObject2> getObjectsNearPoint(Coordinate c, double radius) {
+       return handler.getObjectsNearPoint(c, (int)radius);
     }
     
     /**
@@ -435,6 +412,22 @@ public class Game implements Runnable {
             }
         }
         return output;
+    }
+    
+    public List<GameObject2> getObjectsOnScreen() {
+        if(handler.currentSnapshot == null || handler.currentSnapshot.quadTree == null) {
+            return new ArrayList<>();
+        }
+        
+        int padding = 600;
+        var out = handler.currentSnapshot.quadTree.retrieve(new Rectangle(
+                getCameraPosition().x - padding,
+                getCameraPosition().y - padding,
+                (int)(windowWidth/Game.resolutionScaleX/getZoom()) + (padding*2),
+                (int)(windowHeight/Game.resolutionScaleY/getZoom() + (padding * 2))
+        ));
+        
+        return out.stream().filter(x -> x.isOnScreen()).toList();
     }
 
     /**
@@ -946,7 +939,7 @@ public class Game implements Runnable {
     }
     
     /**
-     * gets top right corner of camera in game world
+     * gets top left corner of camera in game world
      * @return 
      */
     public Coordinate getCameraPosition () {
