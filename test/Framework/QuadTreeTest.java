@@ -1,5 +1,6 @@
 package Framework;
 
+import Framework.CoreLoop.QuadTree;
 import Framework.UtilityObjects.BlockObject;
 import java.awt.Color;
 import java.awt.Rectangle;
