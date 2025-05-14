@@ -145,4 +145,56 @@ public class QuadTreeTest {
         assertTrue("Should still contain block1", allRemaining.contains(block1));
         assertTrue("Should still contain block3", allRemaining.contains(block3));
     }
+    
+    @Test
+    public void testLargeScaleSpatialQueries() {
+        QuadTree qt = new QuadTree(0, new Rectangle(0, 0, 10000, 10000));
+        BlockObject[] blocks = new BlockObject[400];
+        
+        // Create 400 blocks at random positions
+        for(int i = 0; i < blocks.length; i++) {
+            int x = (int)(Math.random() * 9900); // Leave room for block width
+            int y = (int)(Math.random() * 9900);
+            blocks[i] = new BlockObject(new Coordinate(x, y), 20, 20);
+            blocks[i].setColor(new Color((int)(Math.random() * 0xFFFFFF))); // Random color
+            qt.insert(blocks[i]);
+        }
+        
+        // Test finding objects in different regions
+        
+        // Test center region
+        List<GameObject2> centerGroup = qt.retrieve(new Coordinate(5000, 5000), 1000);
+        System.out.println("Found " + centerGroup.size() + " objects in center region");
+        assertTrue("Should find some objects in center", centerGroup.size() > 0);
+        
+        // Test corner regions
+        List<GameObject2> topLeft = qt.retrieve(new Rectangle(0, 0, 2000, 2000));
+        List<GameObject2> bottomRight = qt.retrieve(new Rectangle(8000, 8000, 2000, 2000));
+        System.out.println("Found " + topLeft.size() + " objects in top-left corner");
+        System.out.println("Found " + bottomRight.size() + " objects in bottom-right corner");
+        
+        // Test finding nearby objects for each block
+        int totalGroups = 0;
+        for(BlockObject block : blocks) {
+            List<GameObject2> nearby = qt.retrieve(block.getPixelLocation(), 500);
+            if(nearby.size() > 5) { // Found a group of at least 6 objects
+                totalGroups++;
+                System.out.println("Found group of " + nearby.size() + " objects at " + 
+                                 block.getPixelLocation().x + "," + block.getPixelLocation().y);
+            }
+        }
+        System.out.println("Found " + totalGroups + " groups with 6+ objects within 500 pixels");
+        
+        // Test overlapping queries
+        List<GameObject2> area1 = qt.retrieve(new Rectangle(2000, 2000, 3000, 3000));
+        List<GameObject2> area2 = qt.retrieve(new Rectangle(3000, 3000, 3000, 3000));
+        List<GameObject2> combinedArea = qt.retrieve(new Rectangle(2000, 2000, 4000, 4000));
+        
+        System.out.println("Area1: " + area1.size() + " objects");
+        System.out.println("Area2: " + area2.size() + " objects");
+        System.out.println("Combined overlapping area: " + combinedArea.size() + " objects");
+        
+        assertTrue("Combined area should find more objects than individual areas",
+                  combinedArea.size() > area1.size() && combinedArea.size() > area2.size());
+    }
 }
