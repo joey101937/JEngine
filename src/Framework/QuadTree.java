@@ -91,13 +91,24 @@ public class QuadTree {
 
     public List<GameObject2> retrieve(Rectangle area) {
         List<GameObject2> returnObjects = new ArrayList<>();
-        int index = getIndex(area);
         
-        if (index != -1 && nodes[0] != null) {
-            returnObjects.addAll(nodes[index].retrieve(area));
+        if (nodes[0] != null) {
+            // Check each node that intersects with the search area
+            for (int i = 0; i < nodes.length; i++) {
+                if (nodes[i] != null && nodes[i].bounds.intersects(area)) {
+                    returnObjects.addAll(nodes[i].retrieve(area));
+                }
+            }
         }
 
-        returnObjects.addAll(objects);
+        // Add objects from current node that intersect with search area
+        for (GameObject2 obj : objects) {
+            Coordinate loc = obj.getPixelLocation();
+            if (area.contains(loc.x, loc.y)) {
+                returnObjects.add(obj);
+            }
+        }
+        
         return returnObjects;
     }
 
@@ -119,17 +130,24 @@ public class QuadTree {
         int verticalMidpoint = bounds.x + (bounds.width / 2);
         int horizontalMidpoint = bounds.y + (bounds.height / 2);
 
-        boolean topQuadrant = (area.y < horizontalMidpoint && area.y + area.height < horizontalMidpoint);
+        // Object can completely fit within the top quadrants
+        boolean topQuadrant = (area.y + area.height < horizontalMidpoint);
+        // Object can completely fit within the bottom quadrants
         boolean bottomQuadrant = (area.y > horizontalMidpoint);
+        // Object can completely fit within the left quadrants
+        boolean leftQuadrant = (area.x + area.width < verticalMidpoint);
+        // Object can completely fit within the right quadrants
+        boolean rightQuadrant = (area.x > verticalMidpoint);
 
-        if (area.x < verticalMidpoint && area.x + area.width < verticalMidpoint) {
+        if (leftQuadrant) {
             if (topQuadrant) return 1;
             if (bottomQuadrant) return 2;
-        } else if (area.x > verticalMidpoint) {
+        }
+        else if (rightQuadrant) {
             if (topQuadrant) return 0;
             if (bottomQuadrant) return 3;
         }
-        
+
         return -1;
     }
 }
