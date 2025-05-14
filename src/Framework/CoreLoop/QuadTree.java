@@ -190,6 +190,15 @@ public class QuadTree {
     }
     
     public int size() {
-        return objects.size();
+        int total = objects.size();
+        
+        // Add sizes from all child nodes
+        for (QuadTree node : nodes) {
+            if (node != null) {
+                total += node.size();
+            }
+        }
+        
+        return total;
     }
 }

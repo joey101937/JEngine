@@ -253,4 +253,35 @@ public class QuadTreeTest {
         assertEquals("Trees should have same number of objects after removal", 
                     originalAll.size(), copyAll.size());
     }
+    
+    @Test
+    public void testSize() {
+        QuadTree qt = new QuadTree(0, new Rectangle(0, 0, 1000, 1000));
+        
+        // Test empty tree
+        assertEquals("Empty tree should have size 0", 0, qt.size());
+        
+        // Add objects to root node
+        BlockObject block1 = new BlockObject(new Coordinate(100, 100), 20, 20);
+        BlockObject block2 = new BlockObject(new Coordinate(150, 150), 20, 20);
+        qt.insert(block1);
+        qt.insert(block2);
+        assertEquals("Tree should have size 2", 2, qt.size());
+        
+        // Add enough objects at one point to force splits
+        for(int i = 0; i < 12; i++) {
+            qt.insert(new BlockObject(new Coordinate(900, 900), 20, 20));
+        }
+        
+        // Total should be: 2 (from earlier) + 12 (new blocks) = 14
+        assertEquals("Tree should have size 14 after splitting", 14, qt.size());
+        
+        // Remove an object and verify size decreases
+        qt.remove(block1);
+        assertEquals("Tree should have size 13 after removal", 13, qt.size());
+        
+        // Clear the tree
+        qt.clear();
+        assertEquals("Cleared tree should have size 0", 0, qt.size());
+    }
 }
