@@ -64,6 +64,7 @@ public class QuadTree {
     }
 
     public void insert(GameObject2 object) {
+        System.out.println("inserting " + object + size());
         if (nodes[0] != null) {
             int index = getIndex(object);
             if (index != -1) {
@@ -175,7 +176,7 @@ public class QuadTree {
      * @param object The object to remove
      * @return true if the object was found and removed, false otherwise
      */
-    public boolean remove(GameObject2 object) {
+    public boolean remove(GameObject2 object) {  
         // First check if the object belongs in a subnode
         if (nodes[0] != null) {
             int index = getIndex(object);
