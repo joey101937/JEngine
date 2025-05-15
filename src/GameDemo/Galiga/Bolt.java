@@ -45,6 +45,7 @@ public class Bolt extends Projectile{
         this.setGraphic(new Sprite(SpriteManager.bolt));
         this.isSolid=true;
         this.setScale(3);
+        baseSpeed = 7;
     }
     
     @Override

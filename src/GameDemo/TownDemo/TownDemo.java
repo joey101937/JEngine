@@ -7,6 +7,7 @@ package GameDemo.TownDemo;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.Main;
 import Framework.SpriteManager;
 import Framework.UtilityObjects.Portal;
 import Framework.UtilityObjects.TextObject;
@@ -32,6 +33,7 @@ public class TownDemo {
     public static Font gameFont = new Font("TimesRoman", Font.BOLD, 12);
     
     public static void main(String[] args) {
+        Main.ticksPerSecond = 60;
         SpriteManager.initialize();
         playerCharacter = new TownCharacter(200, 200);
         townBird = new TownBird(450, 500);

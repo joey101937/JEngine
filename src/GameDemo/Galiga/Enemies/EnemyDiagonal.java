@@ -38,7 +38,7 @@ public class EnemyDiagonal extends EnemyShip{
         preventOverlap=false;
         setName("Enemy " + ID);
         movementType = MovementType.RotationBased;
-        baseSpeed = 4;
+        baseSpeed = 2.66;
         velocity.y = 1;
         this.rotate(35 + (Math.random()*60));
         if(Math.random() > .5){

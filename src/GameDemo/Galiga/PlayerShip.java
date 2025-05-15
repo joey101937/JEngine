@@ -44,7 +44,7 @@ public class PlayerShip extends GameObject2{
         isSolid=true;
         setName("Player");
         movementType = MovementType.SpeedRatio;
-        baseSpeed = 5;  
+        baseSpeed = 3.33;  
     }
     
     @Override

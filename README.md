@@ -100,7 +100,7 @@ To start a JEngine project, you must first have your base Game. Instances of the
 
 To make the Game start running, call the .start() method on your Game instance.
 
-Games's core loop involves *ticking* and *rendering*. Ticking runs 60 times per second by default (change using Main.ticksPerSecond). Ticking updates all objects within the world logically. GameObject2s, which are objects that exist in the world, all have tick() methods that run whenever their parent game ticks. Render is the same system except render deals exclusively with visual effect rendering using the passed Graphics2D object from Java AWT.
+Games's core loop involves *ticking* and *rendering*. Ticking runs 90 times per second by default (change using Main.ticksPerSecond). Ticking updates all objects within the world logically. GameObject2s, which are objects that exist in the world, all have tick() methods that run whenever their parent game ticks. Render is the same system except render deals exclusively with visual effect rendering using the passed Graphics2D object from Java AWT.
 
 Games store GameObject2s. Create a GameObject2 instance and add it to your world using *addObject(GameObject2 o)* method in Game class.
 User input is done on a Game to Game basis, where each scene/game has its own InputHandler. In JEngine, create a class to handle input and have it extend Framework.InputHandler, This will give you access to all Keylistener, MouseListener, and MouseMotionListener methods as well as the **locationOfMouse(MouseEvent e)** method which provides the coordinate point of the mouse during the given mouse event *in terms of the game world*.
@@ -512,7 +512,7 @@ Adding your own terrain type involves two steps
 ### Quick Reference
 *The following are public static values that can be changed at any time along with their default value.*
 * **Main.debugMode = false;** // set to true to view debug visuals
-* **Main.ticksPerSecond = 60;**
+* **Main.ticksPerSecond = 90;**
 * **Main.trippleBuffer = true;**
 * **Main.overviewMode = false;**
 * **Main.tickThreadCount = 1;**
