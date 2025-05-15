@@ -150,9 +150,9 @@ public class InfoPanelEffect extends IndependentEffect {
                 g.setColor(Color.WHITE);
                 g.drawString("x" + cb.numUsesRemaining, currentX - buttonRenderWidth + 10, currentY + 10);
             }
-            currentY += buttonRenderHeight;
+            currentY += buttonRenderHeight + 4; // Add 4px vertical padding
             if ((i + 1) % 2 == 0) {
-                currentX -= buttonRenderWidth;
+                currentX -= (buttonRenderWidth + 4); // Add 4px horizontal padding
                 currentY = y + 10;
             }
         }
