@@ -22,6 +22,7 @@ public class InfoPanelEffect extends IndependentEffect {
     private static final Color borderDark = new Color(100, 100, 100);
     private static final Color borderLight = new Color(200, 200, 200);
     private static final Color cooldownColor = new Color(0, 0, 0, 128); // Semi-transparent black
+    private static final ColorSpace GRAYSCALE_COLORSPACE = ColorSpace.getInstance(ColorSpace.CS_GRAY);
     private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
 
     private Game hostGame;
@@ -144,8 +145,14 @@ public class InfoPanelEffect extends IndependentEffect {
         int buttonRenderHeight = (height - 20) / 2;
         for (int i = 0; i < unit.getButtons().size(); i++) {
             CommandButton cb = unit.getButtons().get(i);
-            BufferedImage toDraw = cb == hoveredButton ? cb.hoveredImage : cb.iconImage; 
-            if(cb.isDisabled && cb.disabledImage != null) toDraw = cb.disabledImage; 
+            BufferedImage toDraw = cb == hoveredButton ? cb.hoveredImage : cb.iconImage;
+            if (cb.isDisabled) {
+                if (cb.disabledImage != null) {
+                    toDraw = cb.disabledImage;
+                } else {
+                    toDraw = convertToGrayscale(toDraw);
+                }
+            }
             g.drawImage(toDraw, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
             if (!cb.isPassive && cb.numUsesRemaining >= 0) {
                 g.setColor(Color.WHITE);
@@ -218,6 +225,17 @@ public class InfoPanelEffect extends IndependentEffect {
         
         // Restore the original color
         g.setColor(originalColor);
+    }
+
+    private BufferedImage convertToGrayscale(BufferedImage source) {
+        ColorConvertOp op = new ColorConvertOp(GRAYSCALE_COLORSPACE, null);
+        BufferedImage grayImage = new BufferedImage(
+            source.getWidth(), 
+            source.getHeight(), 
+            BufferedImage.TYPE_INT_ARGB
+        );
+        op.filter(source, grayImage);
+        return grayImage;
     }
 
     @Override
