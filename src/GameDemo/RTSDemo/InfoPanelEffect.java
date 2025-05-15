@@ -264,11 +264,22 @@ public class InfoPanelEffect extends IndependentEffect {
                 button.iconImage.getHeight(),
                 BufferedImage.TYPE_INT_ARGB
             );
-            RescaleOp brightenOp = new RescaleOp(BRIGHTEN_SCALES, new float[4], null);
-            brightenOp.filter(button.iconImage, brightened);
+            
+            // Manual pixel-by-pixel brightening
+            for (int x = 0; x < button.iconImage.getWidth(); x++) {
+                for (int y = 0; y < button.iconImage.getHeight(); y++) {
+                    int rgb = button.iconImage.getRGB(x, y);
+                    int alpha = (rgb >> 24) & 0xff;
+                    int red = Math.min(255, (int)((rgb >> 16 & 0xff) * 1.2));
+                    int green = Math.min(255, (int)((rgb >> 8 & 0xff) * 1.2));
+                    int blue = Math.min(255, (int)((rgb & 0xff) * 1.2));
+                    
+                    rgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
+                    brightened.setRGB(x, y, rgb);
+                }
+            }
             return brightened;
         });
-        brightenedButtonCache.put(button.getClass(), out);
         return out;
     }
 
