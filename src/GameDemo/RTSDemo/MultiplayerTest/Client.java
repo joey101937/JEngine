@@ -8,6 +8,7 @@ import static GameDemo.RTSDemo.MultiplayerTest.Server.createStartingUnits;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import static GameDemo.RTSDemo.RTSGame.game;
+import static GameDemo.RTSDemo.RTSGame.setupUI;
 import java.io.PrintStream;
 
 /**
@@ -28,9 +29,15 @@ public class Client {
         ExternalCommunicator.initialize(false);
         g.setHandleSyncTick(ExternalCommunicator.handleSyncTick);
         createStartingUnits(g);
+        game.setLoadingScreenActive(true);
         Window.initialize(g);
         RTSGame.setup(g);
         RTSGame.game = g;
+        game.setOnGameStabilized(x3 -> {
+            setupUI(game);
+            game.setLoadingScreenActive(false);
+            System.out.println("Loading screen off");
+        });
     }
 
 }
