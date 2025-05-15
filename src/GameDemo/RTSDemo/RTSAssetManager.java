@@ -66,8 +66,8 @@ public abstract class RTSAssetManager {
     public static BufferedImage landmine, landmineRed, landmineSelectionImage, landmineBlast;
 
     public static BufferedImage layMineButton, layMineButtonHover;
-    public static BufferedImage digInButton, digInButtonHovered, digInButtonDisabled;
-    public static BufferedImage digOutButton, digOutButtonHovered, digOutButtonDisabled;
+    public static BufferedImage digInButton;
+    public static BufferedImage digOutButton;
 
 
     public static BufferedImage immobilizationIcon;
@@ -255,11 +255,7 @@ public abstract class RTSAssetManager {
             layMineButtonHover = load("DemoAssets/TankGame/Buttons/layMineButtonHover.png");
             JEngineIconLoading = load("DemoAssets/JEngineIconLoading.png");
             digInButton = load("DemoAssets/TankGame/Buttons/digInUnhovered.png");
-            digInButtonHovered = load("DemoAssets/TankGame/Buttons/digInHovered.png");
-            digInButtonDisabled = load("DemoAssets/TankGame/Buttons/digInDisabled.png");
             digOutButton = load("DemoAssets/TankGame/Buttons/digOutUnhovered.png");
-            digOutButtonHovered = load("DemoAssets/TankGame/Buttons/digOutHovered.png");
-            digOutButtonDisabled = load("DemoAssets/TankGame/Buttons/digOutDisabled.png");
         }, executor);
     }
 

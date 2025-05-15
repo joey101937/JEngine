@@ -30,6 +30,7 @@ public class LayMineButton extends CommandButton {
                 offset.adjustForRotation(o.getRotation());
                 o.triggerAbility(0, o.getPixelLocation().add(offset));
                 numUsesRemaining--;
+                if(numUsesRemaining == 0) isDisabled = true;
                 tickLastUsed = tickNumber;
             }                
         };

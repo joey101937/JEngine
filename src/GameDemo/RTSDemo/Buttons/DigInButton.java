@@ -15,8 +15,6 @@ public class DigInButton extends CommandButton {
     public DigInButton(RTSUnit o) {
         super(o);
         this.iconImage = RTSAssetManager.digInButton;
-        this.hoveredImage = RTSAssetManager.digInButtonHovered;
-        this.disabledImage = RTSAssetManager.digInButtonDisabled;
         this.cooldownSeconds = 5;
         
         this.name = "Dig In";

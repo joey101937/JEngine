@@ -15,8 +15,6 @@ public class DigOutButton extends CommandButton {
     public DigOutButton(RTSUnit o) {
         super(o);
         this.iconImage = RTSAssetManager.digOutButton;
-        this.hoveredImage = RTSAssetManager.digOutButtonHovered;
-        this.disabledImage = RTSAssetManager.digOutButtonDisabled;
         this.cooldownSeconds = 5;
         
         this.name = "Dig Out";
