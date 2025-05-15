@@ -21,6 +21,7 @@ public class InfoPanelEffect extends IndependentEffect {
     private static final Color lightGray = new Color(150, 150, 150);
     private static final Color borderDark = new Color(100, 100, 100);
     private static final Color borderLight = new Color(200, 200, 200);
+    private static final Color cooldownColor = new Color(0, 0, 0, 128); // Semi-transparent black
     private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
 
     private Game hostGame;
@@ -150,6 +151,7 @@ public class InfoPanelEffect extends IndependentEffect {
                 g.setColor(Color.WHITE);
                 g.drawString("x" + cb.numUsesRemaining, currentX - buttonRenderWidth + 10, currentY + 10);
             }
+            renderCooldownCircle(g, cb, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight);
             currentY += buttonRenderHeight + 4; // Add 4px vertical padding
             if ((i + 1) % 2 == 0) {
                 currentX -= (buttonRenderWidth + 4); // Add 4px horizontal padding
@@ -196,6 +198,25 @@ public class InfoPanelEffect extends IndependentEffect {
                 unit.getButtons().get(buttonIndex).onTrigger.accept(null);
             }
         }
+    }
+
+    private void renderCooldownCircle(Graphics2D g, CommandButton button, int x, int y, int width, int height) {
+        if (button.cooldownPercent <= 0) return;
+        
+        // Save the original color
+        Color originalColor = g.getColor();
+        
+        // Set the color for the cooldown overlay
+        g.setColor(cooldownColor);
+        
+        // Calculate the angle based on cooldown percentage (0-100)
+        double angle = (360.0 * button.cooldownPercent) / 100.0;
+        
+        // Draw the arc centered on the button
+        g.fillArc(x, y, width, height, 90, -(int)angle);
+        
+        // Restore the original color
+        g.setColor(originalColor);
     }
 
     @Override
