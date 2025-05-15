@@ -195,7 +195,8 @@ public class InfoPanelEffect extends IndependentEffect {
         int buttonIndex = mainUnit.getButtons().indexOf(cb);
         for(RTSUnit unit: SelectionBoxEffect.selectedUnits) {
             if(!unit.isRubble && unit.team == mainUnit.team && unit.getClass() == mainUnit.getClass()) {
-                unit.getButtons().get(buttonIndex).onTrigger.accept(null);
+                CommandButton button = unit.getButtons().get(buttonIndex);
+                button.onTrigger.accept(null);
             }
         }
     }

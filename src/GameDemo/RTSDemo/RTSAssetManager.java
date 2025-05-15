@@ -257,6 +257,9 @@ public abstract class RTSAssetManager {
             digInButton = load("DemoAssets/TankGame/Buttons/digInUnhovered.png");
             digInButtonHovered = load("DemoAssets/TankGame/Buttons/digInHovered.png");
             digInButtonDisabled = load("DemoAssets/TankGame/Buttons/digInDisabled.png");
+            digOutButton = load("DemoAssets/TankGame/Buttons/digOutUnhovered.png");
+            digOutButtonHovered = load("DemoAssets/TankGame/Buttons/digOutHovered.png");
+            digOutButtonDisabled = load("DemoAssets/TankGame/Buttons/digOutDisabled.png");
         }, executor);
     }
 

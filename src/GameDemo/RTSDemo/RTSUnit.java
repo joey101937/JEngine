@@ -144,6 +144,9 @@ public class RTSUnit extends GameObject2 {
             this.velocity.y = 0;
             commandGroup = "0";
         }
+        for(CommandButton button : getButtons()) {
+            button.tick();
+        }
     }
 
     public void die() {

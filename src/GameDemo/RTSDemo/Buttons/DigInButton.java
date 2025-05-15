@@ -1,6 +1,6 @@
 package GameDemo.RTSDemo.Buttons;
 
-import Framework.Coordinate;
+import Framework.Main;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
@@ -10,13 +10,14 @@ import GameDemo.RTSDemo.Units.TankUnit;
  *
  * @author guydu
  */
-public class DigInButton extends CommandButton {
+public class DigInButton extends CommandButton {    
     
     public DigInButton(RTSUnit o) {
         super(o);
         this.iconImage = RTSAssetManager.digInButton;
         this.hoveredImage = RTSAssetManager.digInButtonHovered;
         this.disabledImage = RTSAssetManager.digInButtonDisabled;
+        this.cooldownSeconds = 5;
         
         this.name = "Dig In";
         this.isPassive = false;
@@ -26,10 +27,20 @@ public class DigInButton extends CommandButton {
         this.tooltipLines.add("Uses will recharge over time");
 
         this.onTrigger = c -> {
-            this.setDisabled(true);
-            TankUnit host = (TankUnit) o;
-            host.startDeployingSandbags();             
+            if(!isDisabled) {
+                this.setDisabled(true);
+                tickLastUsed = tickNumber;
+                TankUnit host = (TankUnit) o;
+                host.startDeployingSandbags();             
+            }
         };
+    }
+    
+    @Override
+    public void tick() {
+        super.tick();
+        TankUnit tank = (TankUnit) owner;
+        isDisabled = isOnCooldown() || tank.sandbagActive;
     }
     
 }

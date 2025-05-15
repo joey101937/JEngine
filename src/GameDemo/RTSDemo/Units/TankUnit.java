@@ -13,6 +13,7 @@ import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.DigInButton;
+import GameDemo.RTSDemo.Buttons.DigOutButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -41,6 +42,7 @@ public class TankUnit extends RTSUnit {
     public int sandbagUsesRemaining = 2;
     public Sandbag sandbag = new Sandbag(this);
     public DigInButton digInButton = new DigInButton(this);
+    public DigOutButton digOutButton = new DigOutButton(this);
 
     // Modified buffered images for team color
     public static BufferedImage enemyTankChasisImage = RTSAssetManager.tankChasisRed;
@@ -206,6 +208,7 @@ public class TankUnit extends RTSUnit {
         this.currentHealth = maxHealth;
         this.baseSpeed = speed;
         addButton(digInButton);
+        addButton(digOutButton);
     }
 
     //when a tank tries to fire, it first checks if its turret is still firing. 
@@ -416,7 +419,6 @@ public class TankUnit extends RTSUnit {
             addTickDelayedEffect(Main.ticksPerSecond * 3, c2 -> {
                 this.destroy();
             });
-            // this.destroy();
         });
     }
     
@@ -456,6 +458,12 @@ public class TankUnit extends RTSUnit {
         setImmobilized(true);
         addTickDelayedEffect(Main.ticksPerSecond * 5, c -> {
             this.deploySandbagDirect();
+        });
+    }
+    
+    public void startPickingUpSandbags() {
+        addTickDelayedEffect(Main.ticksPerSecond * 5, c -> {
+           pickUpSandbag();
         });
     }
     
