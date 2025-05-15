@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -26,7 +25,6 @@ public class InfoPanelEffect extends IndependentEffect {
     private static final Color borderLight = new Color(200, 200, 200);
     private static final Color cooldownColor = new Color(0, 0, 0, 128); // Semi-transparent black
     private static final ColorSpace GRAYSCALE_COLORSPACE = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-    private static final float[] BRIGHTEN_SCALES = {1.2f, 1.2f, 1.2f, 1.0f}; // RGB scales (keep alpha unchanged)
     private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
     private static HashMap<Class<? extends CommandButton>, BufferedImage> brightenedButtonCache = new HashMap<>();
     private static HashMap<Class<? extends CommandButton>, BufferedImage> grayscaleButtonCache = new HashMap<>();

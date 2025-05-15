@@ -52,8 +52,8 @@ public class ReinforcementHandler extends IndependentEffect {
         reinforcementTypes.add(ReinforcementType.mediumTanks);
         reinforcementTypes.add(ReinforcementType.lightTanks);
         reinforcementTypes.add(ReinforcementType.hellicopters);
+        reinforcementTypes.add(ReinforcementType.infantry);
         // todo
-        reinforcementTypes.add(new ReinforcementTypeMediumTanks());
         reinforcementTypes.add(new ReinforcementTypeMediumTanks());
         reinforcementTypes.add(new ReinforcementTypeMediumTanks());
 

@@ -20,7 +20,7 @@ public abstract class ReinforcementType {
     
     public static ReinforcementType mediumTanks = new ReinforcementTypeMediumTanks();
     public static ReinforcementType lightTanks = new ReinforcementTypeLightTanks();
-    public static ReinforcementType infantry; // todo
+    public static ReinforcementType infantry = new ReinforcementTypeInfantry(); // todo
     public static ReinforcementType hellicopters = new ReinforcementTypeHellicopters();
     public static ReinforcementType transport; // todo
     public static ReinforcementType antiAir; // todo

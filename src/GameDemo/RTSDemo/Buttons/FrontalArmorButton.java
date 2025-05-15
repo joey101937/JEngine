@@ -15,7 +15,6 @@ public class FrontalArmorButton extends CommandButton{
         super(o);
         this.iconImage = RTSAssetManager.frontalArmorButton;
         this.hoveredImage = iconImage;
-        this.cooldownSeconds = 5;
         
         this.name = "Passive: Frontal Armor";
         this.isPassive = true;
