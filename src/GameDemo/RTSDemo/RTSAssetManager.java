@@ -68,9 +68,10 @@ public abstract class RTSAssetManager {
     public static BufferedImage layMineButton, layMineButtonHover;
     public static BufferedImage digInButton;
     public static BufferedImage digOutButton;
+    public static BufferedImage frontalArmorButton;
 
 
-    public static BufferedImage immobilizationIcon;
+    public static BufferedImage immobilizationIcon, shieldIcon;
     
     public static BufferedImage JEngineIconLoading;
     
@@ -246,6 +247,7 @@ public abstract class RTSAssetManager {
             building = load("DemoAssets/TankGame/building.png");
             buildingShadow = load("DemoAssets/TankGame/buildingShadow.png");
             immobilizationIcon = load("DemoAssets/TankGame/immobilizationIcon.png");
+            shieldIcon = load("DemoAssets/TankGame/shieldIcon.png");
         }, executor);
     }
 
@@ -256,6 +258,7 @@ public abstract class RTSAssetManager {
             JEngineIconLoading = load("DemoAssets/JEngineIconLoading.png");
             digInButton = load("DemoAssets/TankGame/Buttons/digInUnhovered.png");
             digOutButton = load("DemoAssets/TankGame/Buttons/digOutUnhovered.png");
+            frontalArmorButton = load("DemoAssets/TankGame/Buttons/frontalArmor.png");
         }, executor);
     }
 

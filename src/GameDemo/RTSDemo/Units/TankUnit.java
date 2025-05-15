@@ -14,6 +14,7 @@ import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.DigInButton;
 import GameDemo.RTSDemo.Buttons.DigOutButton;
+import GameDemo.RTSDemo.Buttons.FrontalArmorButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -209,6 +210,7 @@ public class TankUnit extends RTSUnit {
         this.baseSpeed = speed;
         addButton(digInButton);
         addButton(digOutButton);
+        addButton(new FrontalArmorButton(this));
     }
 
     //when a tank tries to fire, it first checks if its turret is still firing. 

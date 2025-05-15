@@ -68,9 +68,6 @@ public class LightTank extends RTSUnit {
         this.range = 500;
         this.baseSpeed = speed;
         addButton(new LayMineButton(this));
-        addButton(new LayMineButton(this));
-        addButton(new LayMineButton(this));
-        addButton(new LayMineButton(this));
     }
 
     @Override

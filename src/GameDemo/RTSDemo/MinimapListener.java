@@ -7,6 +7,7 @@ import Framework.Game;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.UI_Elements.Examples.Minimap.MinimapMouseListener;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import static GameDemo.RTSDemo.RTSInput.generateRandomCommandGroup;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
 
@@ -24,6 +25,7 @@ public class MinimapListener extends MinimapMouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        String generatedCommandGroup = generateRandomCommandGroup();
         if (e.getButton() == 3) {
             Collection<RTSUnit> selectedUnits = SelectionBoxEffect.selectedUnits;
             if(ExternalCommunicator.isMultiplayer) {
@@ -36,6 +38,7 @@ public class MinimapListener extends MinimapMouseListener {
                     relativePoint.x *= hostGame.getWorldWidth();
                     relativePoint.y = (double) e.getY() / (double) map.getHeight();
                     relativePoint.y *= hostGame.getWorldHeight();
+                    unit.commandGroup = generatedCommandGroup;
                     unit.setDesiredLocation(relativePoint.toCoordinate());
                 });
             } else {
@@ -46,6 +49,7 @@ public class MinimapListener extends MinimapMouseListener {
                     relativePoint.x *= hostGame.getWorldWidth();
                     relativePoint.y = (double) e.getY() / (double) map.getHeight();
                     relativePoint.y *= hostGame.getWorldHeight();
+                    unit.commandGroup = generatedCommandGroup;
                     unit.setDesiredLocation((unit.getPixelLocation().subtract(avgLocation)).add(relativePoint));
                 });
             }
