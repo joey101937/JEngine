@@ -37,6 +37,6 @@ public class MinotaurGame {
         scene1.getCamera().setTarget(playerMinotaur);
         scene1.setInputHandler(new MinotaurInput());
         Window.initialize(scene1);
-        Game.scaleForResolutionAspectRatio();
+        // Game.scaleForResolutionAspectRatio();
     }
 }

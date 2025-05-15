@@ -55,8 +55,8 @@ public class TankBullet extends Projectile {
         if (other == shooter) {
             return; //dont collde with the gameobject that launched this projectile
         }
-        if (other instanceof RTSUnit) {
-            RTSUnit otherUnit = (RTSUnit) other;
+        RTSUnit otherUnit = RTSUnit.getUnitFromUnknown(other);
+        if (otherUnit != null) {
             if (shooter instanceof RTSUnit) {
                 if (((RTSUnit) shooter).team == otherUnit.team) {
                     return; // no friendly fire

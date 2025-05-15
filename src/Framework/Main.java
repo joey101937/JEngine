@@ -40,8 +40,8 @@ public class Main {
     public static boolean splitBackgroundRender = true;
     public static boolean ignoreSubobjectCollision = false;
     public static boolean ignoreCollisionsForStillObjects = false;
-    public static int collisionCheckRadius = 700; // objects will only check collisions with objects whose center points are at least this distance from the cecking obj
-    public static int onScreenPadding = 10000; // objects whose center is more than this many pixels away from the screen will not be considered for rendering.
+    public static int collisionCheckRadius = -1; // objects will only check collisions with objects whose center points are at least this distance from the cecking obj. -1 means adaptive
+    public static int onScreenPadding = -1; // objects whose center is more than this many pixels away from the screen will not be considered for rendering. -1 means adaptive
     public static int stickerZLayer = 1000;
     public static boolean performanceMode = false;
 

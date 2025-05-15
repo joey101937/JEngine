@@ -25,10 +25,19 @@ public class RenderTask implements Runnable {
     @Override
     public void run() {
         try {
+            if(renderable instanceof GameObject2 go) {
+                for (SubObject so : go.getAllSubObjects()) {
+                    if(so.isRenderBelow()) {
+                        so.render((Graphics2D) graphics.create());
+                    }
+                }   
+            } 
             renderable.render((Graphics2D) graphics.create());
             if(renderable instanceof GameObject2 go) {
                 for (SubObject so : go.getAllSubObjects()) {
-                    so.render((Graphics2D) graphics.create());
+                    if(!so.isRenderBelow()) {
+                        so.render((Graphics2D) graphics.create());
+                    }
                 }   
             } 
         } catch (Exception e) {

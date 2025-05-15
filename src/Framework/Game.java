@@ -414,12 +414,12 @@ public class Game implements Runnable {
         return output;
     }
     
-    public List<GameObject2> getObjectsOnScreen() {
+    public List<GameObject2> getObjectsOnScreen(boolean strict) {
         if(handler.currentSnapshot == null || handler.currentSnapshot.quadTree == null) {
             return new ArrayList<>();
         }
         
-        int padding = 600;
+        int padding = Main.onScreenPadding > -1 ? Main.onScreenPadding : (int)(handler.currentSnapshot.largestSideLength * 1.5);
         var out = handler.currentSnapshot.quadTree.retrieve(new Rectangle(
                 getCameraPosition().x - padding,
                 getCameraPosition().y - padding,
@@ -427,7 +427,7 @@ public class Game implements Runnable {
                 (int)(windowHeight/Game.resolutionScaleY/getZoom() + (padding * 2))
         ));
         
-        return out.stream().filter(x -> x.isOnScreen()).toList();
+        return strict ? out.stream().filter(x -> x.isOnScreen()).toList() : out;
     }
 
     /**

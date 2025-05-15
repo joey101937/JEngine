@@ -70,6 +70,8 @@ public abstract class RTSAssetManager {
     public static BufferedImage immobilizationIcon;
     
     public static BufferedImage JEngineIconLoading;
+    
+    public static BufferedImage sandbagsForTank;
 
     public static void initialize() {
         if (initialized) {
@@ -152,6 +154,7 @@ public abstract class RTSAssetManager {
             tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
             tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
             tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
+            sandbagsForTank = load("DemoAssets/TankGame/sandbagsForTank.png");
         }, executor);
     }
 

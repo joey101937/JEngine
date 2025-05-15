@@ -51,4 +51,8 @@ public class Damage {
      public String toString() {
          return "" + baseAmount + (apAmount > 0 ? "+"+apAmount : "");
      }
+     
+     public int getTotal() {
+         return baseAmount + apAmount;
+     }
 }

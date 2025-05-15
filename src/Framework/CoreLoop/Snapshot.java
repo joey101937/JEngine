@@ -13,6 +13,7 @@ public class Snapshot {
     public final QuadTree quadTree;
     public final HashMap<String, GameObject2> objectMap = new HashMap<>();
     public final long tickNumber;
+    public int largestSideLength;
     
     public Snapshot(ArrayList<GameObject2> gos, QuadTree tree, long tick){
         gameObjects = gos;

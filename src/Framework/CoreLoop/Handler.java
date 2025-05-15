@@ -84,7 +84,7 @@ public class Handler {
 
     public void render(Graphics2D g) {
         HashMap<Integer, LinkedList<Renderable>> renderMap = new HashMap<>();
-        for (GameObject2 go : hostGame.getObjectsOnScreen()) {
+        for (GameObject2 go : hostGame.getObjectsOnScreen(false)) {
             if (renderMap.get(go.getZLayer()) == null) {
                 LinkedList<Renderable> list = new LinkedList<>();
                 list.add(go);
@@ -200,8 +200,13 @@ public class Handler {
     private void createSnapshot() {
         ArrayList<GameObject2> snapshotList = new ArrayList<GameObject2>(activeObjects);
         quadTree = new QuadTree(0, new Rectangle(0,0, hostGame.getWorldWidth(), hostGame.getWorldHeight()));
-        activeObjects.forEach(o -> quadTree.insert(o));
+        int longestSideLength = 0;
+        for(GameObject2 o : activeObjects) {
+            quadTree.insert(o);
+            if(o.longestSideLength() > longestSideLength) longestSideLength = o.longestSideLength();
+        }
         currentSnapshot = new Snapshot(snapshotList, quadTree.copy(), globalTickNumber);
+        currentSnapshot.largestSideLength = longestSideLength;
 
         ArrayList<Future<?>> tasks = new ArrayList<>();
         for (GameObject2 go : activeObjects) {

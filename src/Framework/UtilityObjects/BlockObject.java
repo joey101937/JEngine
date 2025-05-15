@@ -78,7 +78,7 @@ public class BlockObject extends GameObject2{
     @Override
     public void updateHitbox(){
          //if no hitbox, create the default box hitbox
-        if (getHitbox() == null && getWidth()>0 && renderNumber>0) {
+        if (getHitbox() == null && getWidth()>0 && tickNumber>0) {
             int width = getWidth();
             int height = getHeight();
             Coordinate[] verts = new Coordinate[4];

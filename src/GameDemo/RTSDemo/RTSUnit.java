@@ -14,6 +14,7 @@ import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.Tile;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
+import GameDemo.RTSDemo.Units.TankUnit;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -494,6 +495,13 @@ public class RTSUnit extends GameObject2 {
             double progress = (distance - minSpeedDistance) / (double)(maxSpeedDistance - minSpeedDistance);
             return minSpeedMultiplier + (progress * (1.0 - minSpeedMultiplier));
         }
+    }
+    
+    
+    public static RTSUnit getUnitFromUnknown(GameObject2 other) {
+        if(other instanceof RTSUnit u) return u;
+        if(other instanceof TankUnit.Sandbag s) return (RTSUnit) s.getHost();
+        return null;
     }
     
 }

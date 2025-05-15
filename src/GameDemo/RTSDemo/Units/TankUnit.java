@@ -36,6 +36,9 @@ public class TankUnit extends RTSUnit {
     public Turret turret;
     public final static double VISUAL_SCALE = 1.10;
     public boolean weaponOnCooldown = false;
+    public boolean sandbagActive = true;
+    public int sandbagUsesRemaining = 2;
+    public Sandbag sandbag = new Sandbag(this);
 
     // Modified buffered images for team color
     public static BufferedImage enemyTankChasisImage = RTSAssetManager.tankChasisRed;
@@ -54,6 +57,8 @@ public class TankUnit extends RTSUnit {
     public static volatile Sprite deathShadow = null;
     public static volatile Sprite shadow = null;
     public static volatile Sprite turretShadow = null;
+    public static volatile Sprite sandbagSprite = null;
+    public static volatile Sprite sandbagShadow = null;
 
     public static volatile Sprite tankHullDamagedGreen;
     public static volatile Sprite tankTurretDamagedGreen;
@@ -109,6 +114,9 @@ public class TankUnit extends RTSUnit {
 
         deathAnimationHull.setFrameDelay(60);
         deathAnimationTurret.setFrameDelay(60);
+        
+        sandbagSprite = new Sprite(RTSAssetManager.sandbagsForTank);
+        sandbagShadow = Sprite.generateShadowSprite(RTSAssetManager.sandbagsForTank, .7);
 
         List.of(
                 deathShadow,
@@ -190,6 +198,7 @@ public class TankUnit extends RTSUnit {
         this.setGraphic(chassSprite);
         this.movementType = MovementType.RotationBased;
         turret = new Turret(new Coordinate(0, 0));
+        this.addSubObject(sandbag);
         this.addSubObject(turret);
         this.maxHealth = 210;//tanks can take 4 shots
         this.currentHealth = maxHealth;
@@ -245,12 +254,12 @@ public class TankUnit extends RTSUnit {
                     RTSSoundManager.get().play(
                         soundEffect,
                         Main.generateRandomDoubleLocally(.69, .74),
-                        Main.generateRandomIntLocally(0, 20));
+                        Main.generateRandomIntLocally(0, 40));
                 } else {
                     RTSSoundManager.get().play(
                         soundEffect,
                         Main.generateRandomDoubleLocally(.62, .67),
-                        Main.generateRandomIntLocally(0, 20));
+                        Main.generateRandomIntLocally(0, 40));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -352,6 +361,33 @@ public class TankUnit extends RTSUnit {
         }
 
     }
+    
+    public class Sandbag extends SubObject {
+        public TankUnit hull;
+        
+        public Sandbag(TankUnit t) {
+            super(new Coordinate(0,0));
+            hull = t;
+            this.setGraphic(sandbagSprite);
+            this.setRenderBelow(false);
+            this.isSolid = true;
+            this.preventOverlap = true;
+        }
+        
+        @Override
+        public void tick() {
+            this.isSolid = hull.sandbagUsesRemaining > 0;
+            this.isInvisible = !hull.sandbagActive;
+            this.setRotation(getHost().getRotation());
+        }
+        
+        @Override
+        public void render(Graphics2D g) {
+            drawShadow(g, sandbagShadow, 2, 3);
+            super.render(g);
+        }
+        
+    }
 
     @Override
     public void die() {
@@ -389,15 +425,39 @@ public class TankUnit extends RTSUnit {
         return out;
     }
     
-    
     @Override
     public void takeDamage(Damage d) {
         Damage updatedDamage = d.copy();
-        if(updatedDamage.impactLoaction != null && Math.abs(rotationNeededToFace(updatedDamage.impactLoaction)) < 41) {
+        // sandbag reduces frontal damage over 20 from front 90 degrees
+        if (sandbagActive
+                && updatedDamage.getTotal() >= 20
+                && updatedDamage.impactLoaction != null
+                && Math.abs(rotationNeededToFace(updatedDamage.impactLoaction)) < 90
+                && sandbagUsesRemaining > 0) {
+            sandbagUsesRemaining--;
+            updatedDamage.apAmount *= .25;
+            updatedDamage.baseAmount *= .25;
+            super.takeDamage(updatedDamage);
+            return;
+        }
+        if (updatedDamage.impactLoaction != null && Math.abs(rotationNeededToFace(updatedDamage.impactLoaction)) < 41) {
             updatedDamage.baseAmount -= 5;
-            if(updatedDamage.baseAmount < 0) updatedDamage.baseAmount = 0;
+            if (updatedDamage.baseAmount < 0) {
+                updatedDamage.baseAmount = 0;
+            }
         }
         super.takeDamage(updatedDamage);
+    }
+    
+    
+    public void deploySandbag() {
+        this.sandbagActive = true;
+        setImmobilized(true);
+    }
+    
+    public void pickUpSandbag() {
+        this.sandbagActive = false;
+        setImmobilized(false);
     }
 
 }

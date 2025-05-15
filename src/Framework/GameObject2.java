@@ -315,7 +315,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public void rotate(double degrees) {
         if(isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
-            for(GameObject2 other : getHostGame().getObjectsNearPoint(getPixelLocation(true), Math.max(getWidth(), getHeight()) + Main.collisionCheckRadius)){
+            double padding = hostGame.handler.currentSnapshot.largestSideLength * 1.5;
+            for(GameObject2 other : getHostGame().getObjectsNearPoint(getPixelLocation(true), longestSideLength() + padding)){
                 if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
                      getHostGame().handler.registerCollision(this, other);
                      return; 
@@ -449,14 +450,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      * @param ignoreRestrictions if this is true, it will render even if it usually wouldnt due to being off screen
      */
     public void render(Graphics2D g, boolean ignoreRestrictions){
-        Graphics2D graphics = (Graphics2D)g.create();
         renderNumber++;
         Coordinate pixelLocation = getPixelLocation();
+        lastRenderLocation = pixelLocation;
         boolean triggerAnimationCycle = shouldTriggerOnAnimationCycle();
         
-        lastRenderLocation = pixelLocation;
-        
-        AffineTransform old = graphics.getTransform();
         if (!isOnScreen() && !Main.overviewMode() && !ignoreRestrictions) {
             //offscreen without overview mode? dont bother rendering anything.
             if (triggerAnimationCycle) {
@@ -464,6 +462,10 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
             }
             return;
         }
+        
+        Graphics2D graphics = (Graphics2D)g.create();
+        AffineTransform old = graphics.getTransform();
+        
         if (isInvisible) { //if invisible, you can still see debug mode visuals
             if (Main.debugMode) {
                 renderDebugVisuals(graphics);
@@ -680,7 +682,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 proposedMovement.y >= 0 ? (int) Math.ceil(proposedMovement.y) : (int)Math.floor(proposedMovement.y)
         );
         DCoordinate newLocation;
-        ArrayList<GameObject2> otherObjects = hostGame.getObjectsNearPoint(getPixelLocation(), Math.max(getWidth(), getHeight()) + Main.collisionCheckRadius);    
+        double padding = hostGame.handler.currentSnapshot.largestSideLength * 1.5;
+        ArrayList<GameObject2> otherObjects = hostGame.getObjectsNearPoint(getPixelLocation(), longestSideLength() + padding);
         otherObjects.remove(this);
         ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();
         if(!Main.ignoreSubobjectCollision) {
@@ -1209,6 +1212,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     
     public boolean hasVelocity() {
         return velocity.x < 0 || velocity.x > 0 || velocity.y < 0 || velocity.y > 0;
+    }
+    
+    /**
+     * returns getWidth or getHeight depending on which is larger
+     * @return 
+     */
+    public int longestSideLength () {
+        return Math.max(getWidth(), getHeight());
     }
     
 }

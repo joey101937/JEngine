@@ -15,7 +15,7 @@ public class SubObject extends GameObject2{
     private GameObject2 host = null;
     private  Coordinate offset = new Coordinate(0,0);
     private  Coordinate adjustedOffset = new Coordinate(0,0);
-    
+    private boolean renderBelow = false;
     
     
     /**
@@ -160,6 +160,22 @@ public class SubObject extends GameObject2{
      */
     public void onHostDestroy(GameObject2 host) {
         
+    }
+
+    /**
+     * if it renders below parent
+     * @return 
+     */
+    public boolean isRenderBelow() {
+        return renderBelow;
+    }
+
+    /**
+     * if it renders below parent
+     * @return 
+     */
+    public void setRenderBelow(boolean renderBelow) {
+        this.renderBelow = renderBelow;
     }
     
 }

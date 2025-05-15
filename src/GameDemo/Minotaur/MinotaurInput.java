@@ -33,6 +33,12 @@ public class MinotaurInput extends AsyncInputHandler{
             case 'x':
                 OptionsMenu.display();
                 break;
+            case 'p':
+                hostGame.getAllObjects().forEach(o -> {
+                    if(o instanceof Minotaur) {
+                    o.location.y = 100;
+                    }
+                });
             default:
                 break;
         }
