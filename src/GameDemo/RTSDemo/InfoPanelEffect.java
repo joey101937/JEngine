@@ -171,7 +171,7 @@ public class InfoPanelEffect extends IndependentEffect {
             g.drawImage(toDraw, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
             if (!cb.isPassive && cb.numUsesRemaining >= 0) {
                 g.setColor(Color.WHITE);
-                g.drawString("x" + cb.numUsesRemaining, currentX - buttonRenderWidth + 10, currentY + 10);
+                g.drawString("x" + cb.numUsesRemaining, currentX - buttonRenderWidth + 10, currentY + 25);
             }
             renderCooldownCircle(g, cb, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight);
             currentY += buttonRenderHeight + 4; // Add 4px vertical padding
@@ -243,7 +243,7 @@ public class InfoPanelEffect extends IndependentEffect {
     }
 
     private BufferedImage getGrayscaleImage(CommandButton button) {
-        return grayscaleButtonCache.computeIfAbsent(button.getClass(), k -> {
+        BufferedImage out = grayscaleButtonCache.computeIfAbsent(button.getClass(), k -> {
             ColorConvertOp op = new ColorConvertOp(GRAYSCALE_COLORSPACE, null);
             BufferedImage grayImage = new BufferedImage(
                 button.iconImage.getWidth(), 
@@ -253,10 +253,12 @@ public class InfoPanelEffect extends IndependentEffect {
             op.filter(button.iconImage, grayImage);
             return grayImage;
         });
+        grayscaleButtonCache.put(button.getClass(), out);
+        return out;
     }
 
     private BufferedImage getBrightenedImage(CommandButton button) {
-        return brightenedButtonCache.computeIfAbsent(button.getClass(), k -> {
+        BufferedImage out = brightenedButtonCache.computeIfAbsent(button.getClass(), k -> {
             BufferedImage brightened = new BufferedImage(
                 button.iconImage.getWidth(),
                 button.iconImage.getHeight(),
@@ -266,6 +268,8 @@ public class InfoPanelEffect extends IndependentEffect {
             brightenOp.filter(button.iconImage, brightened);
             return brightened;
         });
+        brightenedButtonCache.put(button.getClass(), out);
+        return out;
     }
 
     @Override
