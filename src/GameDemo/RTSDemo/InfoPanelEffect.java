@@ -5,7 +5,9 @@ import Framework.Game;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
