@@ -25,6 +25,7 @@ public class InfoPanelEffect extends IndependentEffect {
     private static final Color borderLight = new Color(200, 200, 200);
     private static final Color cooldownColor = new Color(0, 0, 0, 128); // Semi-transparent black
     private static final ColorSpace GRAYSCALE_COLORSPACE = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+    private static final float[] BRIGHTEN_SCALES = {1.2f, 1.2f, 1.2f, 1.0f}; // RGB scales (keep alpha unchanged)
     private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
 
     private Game hostGame;
@@ -147,7 +148,16 @@ public class InfoPanelEffect extends IndependentEffect {
         int buttonRenderHeight = (height - 20) / 2;
         for (int i = 0; i < unit.getButtons().size(); i++) {
             CommandButton cb = unit.getButtons().get(i);
-            BufferedImage toDraw = cb == hoveredButton ? cb.hoveredImage : cb.iconImage;
+            BufferedImage toDraw = cb.iconImage;
+            
+            if (cb == hoveredButton) {
+                if (cb.hoveredImage != null) {
+                    toDraw = cb.hoveredImage;
+                } else {
+                    toDraw = brightenImage(toDraw);
+                }
+            }
+            
             if (cb.isDisabled) {
                 if (cb.disabledImage != null) {
                     toDraw = cb.disabledImage;
@@ -238,6 +248,20 @@ public class InfoPanelEffect extends IndependentEffect {
         );
         op.filter(source, grayImage);
         return grayImage;
+    }
+
+    private BufferedImage brightenImage(BufferedImage source) {
+        BufferedImage brightened = new BufferedImage(
+            source.getWidth(),
+            source.getHeight(),
+            BufferedImage.TYPE_INT_ARGB
+        );
+        
+        // Create rescale filter
+        RescaleOp brightenOp = new RescaleOp(BRIGHTEN_SCALES, new float[4], null);
+        brightenOp.filter(source, brightened);
+        
+        return brightened;
     }
 
     @Override
