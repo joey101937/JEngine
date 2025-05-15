@@ -93,8 +93,8 @@ public class RTSGame {
         int spacer = 160;
         int lineLength = 40; // units = this x 10
 
-//        game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
-//        game.addObject(new KeyBuilding(3000, 3000, 1));
+        game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
+        game.addObject(new KeyBuilding(3000, 3000, 1));
 
 //        RTSUnit infantryUnit = new Bazookaman(500, 750, 0);
 //        infantryUnit.setRotation(180);

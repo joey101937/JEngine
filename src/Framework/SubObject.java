@@ -172,7 +172,6 @@ public class SubObject extends GameObject2{
 
     /**
      * if it renders below parent
-     * @return 
      */
     public void setRenderBelow(boolean renderBelow) {
         this.renderBelow = renderBelow;

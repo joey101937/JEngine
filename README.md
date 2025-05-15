@@ -522,6 +522,8 @@ Adding your own terrain type involves two steps
 * **Main.ignoreSubobjectCollision = false;** // set to true for improved performance. Subobjects will not be considered for collision
 * **Main.ignoreCollosionsForStillObjects = false;** // set to true for improved performance. Objects with 0 velocity will not check for collisions (the things that run into them will still trigger for both tho)
 * **Main.performanceMode = false** // setting this to true may improve render time at the expense of antialiasing
+* **Main.collisionCheckRadius = -1;** // objects will only check forn collisions with objects whose center point is at max this distance from the checking object's edge. -1 means it updates dynamically based on the size of the largest GameObejct2 in world.
+* **Main.onScreenPadding = -1** // objects whose center is more than this many pixels away from the screen will not be considered for rendering. -1 means adaptive.
 
 ### Fullscreen
 You can use Window.initializeFullscreen(Game) instead of initialize() to go straight to fullscreen mode with best results.
