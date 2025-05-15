@@ -38,7 +38,7 @@ public class DigInButton extends CommandButton {
     public void tick() {
         super.tick();
         TankUnit tank = (TankUnit) owner;
-        isDisabled = isOnCooldown() || tank.sandbagActive;
+        isDisabled = isOnCooldown() || tank.sandbagActive || tank.isImmobilized;
     }
     
 }
