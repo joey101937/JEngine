@@ -28,6 +28,8 @@ public class InfoPanelEffect extends IndependentEffect {
     private static final ColorSpace GRAYSCALE_COLORSPACE = ColorSpace.getInstance(ColorSpace.CS_GRAY);
     private static final float[] BRIGHTEN_SCALES = {1.2f, 1.2f, 1.2f, 1.0f}; // RGB scales (keep alpha unchanged)
     private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
+    private static HashMap<Class<? extends CommandButton>, BufferedImage> brightenedButtonCache = new HashMap<>();
+    private static HashMap<Class<? extends CommandButton>, BufferedImage> grayscaleButtonCache = new HashMap<>();
 
     private Game hostGame;
     public int baseX, baseY, width, height;
@@ -155,7 +157,7 @@ public class InfoPanelEffect extends IndependentEffect {
                 if (cb.hoveredImage != null) {
                     toDraw = cb.hoveredImage;
                 } else {
-                    toDraw = brightenImage(toDraw);
+                    toDraw = getBrightenedImage(cb);
                 }
             }
             
@@ -163,7 +165,7 @@ public class InfoPanelEffect extends IndependentEffect {
                 if (cb.disabledImage != null) {
                     toDraw = cb.disabledImage;
                 } else {
-                    toDraw = convertToGrayscale(toDraw);
+                    toDraw = getGrayscaleImage(cb);
                 }
             }
             g.drawImage(toDraw, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
@@ -240,29 +242,30 @@ public class InfoPanelEffect extends IndependentEffect {
         g.setColor(originalColor);
     }
 
-    private BufferedImage convertToGrayscale(BufferedImage source) {
-        ColorConvertOp op = new ColorConvertOp(GRAYSCALE_COLORSPACE, null);
-        BufferedImage grayImage = new BufferedImage(
-            source.getWidth(), 
-            source.getHeight(), 
-            BufferedImage.TYPE_INT_ARGB
-        );
-        op.filter(source, grayImage);
-        return grayImage;
+    private BufferedImage getGrayscaleImage(CommandButton button) {
+        return grayscaleButtonCache.computeIfAbsent(button.getClass(), k -> {
+            ColorConvertOp op = new ColorConvertOp(GRAYSCALE_COLORSPACE, null);
+            BufferedImage grayImage = new BufferedImage(
+                button.iconImage.getWidth(), 
+                button.iconImage.getHeight(), 
+                BufferedImage.TYPE_INT_ARGB
+            );
+            op.filter(button.iconImage, grayImage);
+            return grayImage;
+        });
     }
 
-    private BufferedImage brightenImage(BufferedImage source) {
-        BufferedImage brightened = new BufferedImage(
-            source.getWidth(),
-            source.getHeight(),
-            BufferedImage.TYPE_INT_ARGB
-        );
-        
-        // Create rescale filter
-        RescaleOp brightenOp = new RescaleOp(BRIGHTEN_SCALES, new float[4], null);
-        brightenOp.filter(source, brightened);
-        
-        return brightened;
+    private BufferedImage getBrightenedImage(CommandButton button) {
+        return brightenedButtonCache.computeIfAbsent(button.getClass(), k -> {
+            BufferedImage brightened = new BufferedImage(
+                button.iconImage.getWidth(),
+                button.iconImage.getHeight(),
+                BufferedImage.TYPE_INT_ARGB
+            );
+            RescaleOp brightenOp = new RescaleOp(BRIGHTEN_SCALES, new float[4], null);
+            brightenOp.filter(button.iconImage, brightened);
+            return brightened;
+        });
     }
 
     @Override
