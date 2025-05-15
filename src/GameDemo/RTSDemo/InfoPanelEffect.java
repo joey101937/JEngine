@@ -143,7 +143,9 @@ public class InfoPanelEffect extends IndependentEffect {
         int buttonRenderHeight = (height - 20) / 2;
         for (int i = 0; i < unit.getButtons().size(); i++) {
             CommandButton cb = unit.getButtons().get(i);
-            g.drawImage(cb == hoveredButton ? cb.hoveredImage : cb.iconImage, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
+            BufferedImage toDraw = cb == hoveredButton ? cb.hoveredImage : cb.iconImage; 
+            if(cb.isDisabled && cb.disabledImage != null) toDraw = cb.disabledImage; 
+            g.drawImage(toDraw, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
             if (!cb.isPassive && cb.numUsesRemaining >= 0) {
                 g.setColor(Color.WHITE);
                 g.drawString("x" + cb.numUsesRemaining, currentX - buttonRenderWidth + 10, currentY + 10);

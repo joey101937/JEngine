@@ -12,6 +12,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.Buttons.DigInButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -36,9 +37,10 @@ public class TankUnit extends RTSUnit {
     public Turret turret;
     public final static double VISUAL_SCALE = 1.10;
     public boolean weaponOnCooldown = false;
-    public boolean sandbagActive = true;
+    public boolean sandbagActive = false;
     public int sandbagUsesRemaining = 2;
     public Sandbag sandbag = new Sandbag(this);
+    public DigInButton digInButton = new DigInButton(this);
 
     // Modified buffered images for team color
     public static BufferedImage enemyTankChasisImage = RTSAssetManager.tankChasisRed;
@@ -203,6 +205,7 @@ public class TankUnit extends RTSUnit {
         this.maxHealth = 210;//tanks can take 4 shots
         this.currentHealth = maxHealth;
         this.baseSpeed = speed;
+        addButton(digInButton);
     }
 
     //when a tank tries to fire, it first checks if its turret is still firing. 
@@ -370,20 +373,20 @@ public class TankUnit extends RTSUnit {
             hull = t;
             this.setGraphic(sandbagSprite);
             this.setRenderBelow(false);
-            this.isSolid = true;
-            this.preventOverlap = true;
         }
         
         @Override
         public void tick() {
-            this.isSolid = hull.sandbagUsesRemaining > 0;
+            this.isSolid = hull.sandbagActive && hull.sandbagUsesRemaining > 0;
             this.isInvisible = !hull.sandbagActive;
             this.setRotation(getHost().getRotation());
         }
         
         @Override
         public void render(Graphics2D g) {
-            drawShadow(g, sandbagShadow, 2, 3);
+            if(!isInvisible) {
+                drawShadow(g, sandbagShadow, 2, 3);
+            }
             super.render(g);
         }
         
@@ -449,8 +452,14 @@ public class TankUnit extends RTSUnit {
         super.takeDamage(updatedDamage);
     }
     
+    public void startDeployingSandbags() {
+        setImmobilized(true);
+        addTickDelayedEffect(Main.ticksPerSecond * 5, c -> {
+            this.deploySandbagDirect();
+        });
+    }
     
-    public void deploySandbag() {
+    public void deploySandbagDirect() {
         this.sandbagActive = true;
         setImmobilized(true);
     }
