@@ -671,7 +671,37 @@ public class Hitbox {
      * @return rectangle
      */
     public Rectangle getBounds() {
-        //todo
+        if (type == Type.circle) {
+            // For circles, return a square that contains the circle
+            DCoordinate center = getCenter();
+            return new Rectangle(
+                (int)(center.x - radius),
+                (int)(center.y - radius),
+                (int)(radius * 2),
+                (int)(radius * 2)
+            );
+        } else {
+            // For boxes, find min/max of all vertices
+            DCoordinate[] renderVerts = getRenderVerts();
+            int minX = Integer.MAX_VALUE;
+            int minY = Integer.MAX_VALUE;
+            int maxX = Integer.MIN_VALUE;
+            int maxY = Integer.MIN_VALUE;
+            
+            for (DCoordinate vert : renderVerts) {
+                minX = Math.min(minX, (int)vert.x);
+                minY = Math.min(minY, (int)vert.y);
+                maxX = Math.max(maxX, (int)vert.x);
+                maxY = Math.max(maxY, (int)vert.y);
+            }
+            
+            return new Rectangle(
+                minX,
+                minY,
+                maxX - minX,
+                maxY - minY
+            );
+        }
     }
     
 }
