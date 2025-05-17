@@ -8,10 +8,11 @@ package Framework;
 import static Framework.Hitbox.Type.box;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 
 /**
- * Htbox class represents either a 2D polygon or circle in the world, able to 
+ * Hitbox class represents either a 2D polygon or circle in the world, able to 
  * detect when they intersect eachother and are therefore used for collision detection
  * Hitboxes are either standalone or attached to gameobject2s.
  * 
@@ -39,6 +40,9 @@ public class Hitbox {
     //private double rotation = 0.0;
     /**
      * topLeft, topRight, botLeft, botRight
+     * 
+     * If this has a host, then these are offsets relative to host.location;
+     * If it does not have a host, then these are global positions;
      */
     public Coordinate[] vertices = null;            //topLeft, topRight, botLeft, botRight
     private double farthestRange = 0; //stores the distance of the farthest vertex, used for optimising performance
@@ -660,6 +664,14 @@ public class Hitbox {
     
     public double getShortestRange() {
         return shortestRange;
+    }
+    
+    /**
+     * gets smallest rectangle in the game world that can surround this hitbox
+     * @return rectangle
+     */
+    public Rectangle getBounds() {
+        //todo
     }
     
 }
