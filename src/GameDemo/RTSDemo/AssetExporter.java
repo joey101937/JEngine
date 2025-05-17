@@ -1,5 +1,6 @@
+package GameDemo.RTSDemo;
+
 import static Framework.GraphicalAssets.Graphic.load;
-import GameDemo.RTSDemo.RTSAssetManager;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;

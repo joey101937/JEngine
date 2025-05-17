@@ -30,6 +30,7 @@ import java.awt.Stroke;
 import java.awt.geom.Area;
 import java.awt.image.VolatileImage;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -251,8 +252,7 @@ public class Game implements Runnable {
     }
 
     /**
-     * returns all gameobjects that intersect the given rectangle used for
-     * grabbing all objects in a rectanglular area uses hitbox intersect, checks
+     * returns all gameobjects based on center position being contained in given area, checks
      * for subobjects- caught subobjects return parent
      *
      * @param r rectangle object used for intersecting hitboxes
@@ -307,8 +307,13 @@ public class Game implements Runnable {
         return out;
     }
 
+    /**
+     * finds all objects whose hitboxes cover the given point. if a subobject covers the given point, then the parent object will be added
+     * @param c point to check
+     * @return list of objects
+     */
     public ArrayList<GameObject2> getObjectsIntersectingPoint(Coordinate c) {
-        ArrayList<GameObject2> out = new ArrayList<>();
+        HashSet<GameObject2> out = new HashSet<>();
         for (GameObject2 go : getAllObjects()) {
             if (go.getHitbox() != null && go.getHitbox().containsPoint(c)) {
                 out.add(go);
@@ -321,7 +326,7 @@ public class Game implements Runnable {
             }
 
         }
-        return out;
+        return new ArrayList<>(out);
     }
     
     public GameObject2 getObjectById(String id) {
@@ -414,6 +419,11 @@ public class Game implements Runnable {
         return output;
     }
     
+    /**
+     * gets all objects on screen or near the screen. 
+     * @param strict set to true if you want to limit to objects who are on screen- not just nearby
+     * @return objects found
+     */
     public List<GameObject2> getObjectsOnScreen(boolean strict) {
         if(handler.currentSnapshot == null || handler.currentSnapshot.quadTree == null) {
             return new ArrayList<>();
