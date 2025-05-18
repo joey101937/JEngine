@@ -70,6 +70,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage digOutButton;
     public static BufferedImage frontalArmorButton;
     public static BufferedImage heatSeekersButton;
+    public static BufferedImage infantryHelmetButton;
 
 
     public static BufferedImage immobilizationIcon, shieldIcon;
@@ -261,6 +262,7 @@ public abstract class RTSAssetManager {
             digOutButton = load("DemoAssets/TankGame/Buttons/digOutUnhovered.png");
             frontalArmorButton = load("DemoAssets/TankGame/Buttons/frontalArmor.png");
             heatSeekersButton = load("DemoAssets/TankGame/Buttons/heatSeekers.png");
+            infantryHelmetButton = load("DemoAssets/TankGame/Buttons/infantryHelmet.png");
         }, executor);
     }
 

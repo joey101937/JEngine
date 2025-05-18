@@ -7,6 +7,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.HeatSeekersButton;
+import GameDemo.RTSDemo.Buttons.InfantryButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
@@ -74,6 +75,7 @@ public class Bazookaman extends RTSUnit {
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;
         addButton(new HeatSeekersButton(this));
+        addButton(new InfantryButton(this));
     }
 
     @Override

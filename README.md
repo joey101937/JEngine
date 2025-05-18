@@ -144,11 +144,15 @@ Every Game object has a handler and VisualEffectHandler. These keep track of all
 **getAllObjects()** returns a list of all GameObject2's in this game's handler, which functionally means it gets all objects in the world (not their subobjects; an object's subobjects are stored in that object)
 
 **getObjectsInArea(Rectangle r)** gets all GameObject2's in this game's handler that are in *or touching* the defined rectangle area. Reminder to make a rectangle: Rectangle r = new Rectangle(int x, int y, int width, int height); where x and y are topleft coordinate. 
-*This method uses hitboxes, so your object must have a hitbox to be detected. Note objects do NOT need to be solid to get detected. Checks subobjects*
+*This method uses center points. Note objects do NOT need to be solid to get detected*
 
 **getObjectsNearPoint(Coordiante c, double distance)** gets all GameObject2's whose location is within <distance> units of the given coordinate. *Note this method uses raw location, so the center point must be within distance. Hitboxes are not required. Does NOT check for subobjects*
 
 **getObjectsIntersecting(Hitbox h)** You can create a standalone hitbox over your custom area and check collision using it. For circles, the code its *new Hitbox(Coordiante centerPoint, double radius)*, and for polygons, its *new Hitbox(Coordinate[] vertices)*; where the Coordinate array contains *exactly four* points which are, in order, top-left, top-right, bottom-left, bottom-right. This method checks each object in the world *and* their subobjects for collision. *Note this method also grabs non-solid objects*
+
+**getPreciseObjectsIntersecting(Hitbox h)** returns all GameObject2s in this Game with hitboxes that intersect the given hitbox. Will select subobejcts individually.
+
+**getObjectsIntersectingPoint(Coordinate p)** finds all objects whose hitboxes cover the given point. if a subobject covers the given point, then the parent object will be added
 
 # Visual Assets
 ## Loading Assets
