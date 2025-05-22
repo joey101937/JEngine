@@ -4,6 +4,7 @@ package GameDemo.RTSDemo;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Game;
+import static Framework.InputHandler.locationOfMouseEvent;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.UI_Elements.Examples.Minimap.MinimapMouseListener;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
@@ -22,38 +23,43 @@ public class MinimapListener extends MinimapMouseListener {
     }
 
     private boolean dragging = false;
+    
+    public Coordinate getWorldLocation(MouseEvent e) {
+        DCoordinate relativePoint = new DCoordinate(0, 0);
+        relativePoint.x = (double) e.getX() / (double) map.getWidth();
+        relativePoint.x *= hostGame.getWorldWidth();
+        relativePoint.y = (double) e.getY() / (double) map.getHeight();
+        relativePoint.y *= hostGame.getWorldHeight();
+        return relativePoint.toCoordinate();
+    }
 
     @Override
     public void mousePressed(MouseEvent e) {
         String generatedCommandGroup = generateRandomCommandGroup();
+        Coordinate inWorldLocation = getWorldLocation(e);
         if (e.getButton() == 3) {
             Collection<RTSUnit> selectedUnits = SelectionBoxEffect.selectedUnits;
             if(ExternalCommunicator.isMultiplayer) {
                 selectedUnits = selectedUnits.stream().filter(x -> x.team == ExternalCommunicator.localTeam).toList();
             }
             if(e.isControlDown()) {
-                selectedUnits.forEach(unit -> {
-                    DCoordinate relativePoint = new DCoordinate(0, 0);
-                    relativePoint.x = (double) e.getX() / (double) map.getWidth();
-                    relativePoint.x *= hostGame.getWorldWidth();
-                    relativePoint.y = (double) e.getY() / (double) map.getHeight();
-                    relativePoint.y *= hostGame.getWorldHeight();
+                selectedUnits.forEach(unit -> {         
                     unit.commandGroup = generatedCommandGroup;
-                    unit.setDesiredLocation(relativePoint.toCoordinate());
+                    unit.setDesiredLocation(inWorldLocation);
                 });
             } else {
                 Coordinate avgLocation = RTSInput.averageLocation(selectedUnits);
                  selectedUnits.forEach(unit -> {
-                    DCoordinate relativePoint = new DCoordinate(0, 0);
-                    relativePoint.x = (double) e.getX() / (double) map.getWidth();
-                    relativePoint.x *= hostGame.getWorldWidth();
-                    relativePoint.y = (double) e.getY() / (double) map.getHeight();
-                    relativePoint.y *= hostGame.getWorldHeight();
                     unit.commandGroup = generatedCommandGroup;
-                    unit.setDesiredLocation((unit.getPixelLocation().subtract(avgLocation)).add(relativePoint));
+                    unit.setDesiredLocation((unit.getPixelLocation().subtract(avgLocation)).add(inWorldLocation));
                 });
             }
-        } else if (e.getButton() == 1) {
+        } 
+        else if (e.getButton() == 1) {
+            if (RTSGame.reinforcementHandler.selectedReinforcementType != null) {
+                RTSGame.reinforcementHandler.callReinforcement(RTSGame.reinforcementHandler.selectedReinforcementType, inWorldLocation);
+                return;
+            }
             panTo(e);
             dragging = true;
         }
