@@ -35,7 +35,7 @@ public class RTSGame {
     public static void setup(Game g) {
         Main.ignoreSubobjectCollision = false; // better performance
         Main.ignoreCollisionsForStillObjects = true; // better performance
-        Main.collisionCheckRadius = 300;
+        Main.collisionCheckRadius = 390;
         Main.onScreenPadding = 400;
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;

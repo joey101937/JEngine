@@ -35,6 +35,7 @@ public class KeyBuilding extends GameObject2 {
         this.setGraphic(mainSprite);
         this.isSolid = true;
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, -400), 90 );
+        this.setZLayer(5);
     }
     
     public KeyBuilding(int x, int y, int team) {
@@ -44,6 +45,7 @@ public class KeyBuilding extends GameObject2 {
         this.isSolid = true;
         owningTeam = team;
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, 0), 90 );
+        this.setZLayer(5);
     }
     
     public KeyBuilding(int x, int y, int team, int spawnX, int spawnY, double rotation) {
@@ -53,6 +55,7 @@ public class KeyBuilding extends GameObject2 {
         this.isSolid = true;
         owningTeam = team;
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(spawnX, spawnY), rotation );
+        this.setZLayer(5);
     }
     
     @Override
