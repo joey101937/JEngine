@@ -682,7 +682,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 proposedMovement.y >= 0 ? (int) Math.ceil(proposedMovement.y) : (int)Math.floor(proposedMovement.y)
         );
         DCoordinate newLocation;
-        double padding = hostGame.handler.currentSnapshot.largestSideLength * 1.5;
+        double padding = Main.collisionCheckRadius > 0 ? Main.collisionCheckRadius : hostGame.handler.currentSnapshot.largestSideLength * 1.5;
         ArrayList<GameObject2> otherObjects = hostGame.getObjectsNearPoint(getPixelLocation(), longestSideLength() + padding);
         otherObjects.remove(this);
         ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();

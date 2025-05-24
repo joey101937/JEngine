@@ -25,19 +25,21 @@ public class FogOfWarEffect extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
+        var camera = RTSGame.game.getCamera();
+        var fov = camera.getFieldOfView();
         if(area == null) return;
             g.setClip(area);
-            var camera = RTSGame.game.getCamera();
+            if(area.contains(fov))
             g.drawImage(
                     RTSAssetManager.grassBG,
                     -camera.getPixelLocation().x ,
                     -camera.getPixelLocation().y,
-                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                    -camera.getPixelLocation().x + fov.width,
+                    -camera.getPixelLocation().y + fov.height,
                     -camera.getPixelLocation().x,
                     -camera.getPixelLocation().y,
-                    -camera.getPixelLocation().x + camera.getFieldOfView().width,
-                    -camera.getPixelLocation().y + camera.getFieldOfView().height,
+                    -camera.getPixelLocation().x + fov.width,
+                    -camera.getPixelLocation().y + fov.height,
                     null
             );
 
@@ -50,13 +52,16 @@ public class FogOfWarEffect extends IndependentEffect {
         if(!enabled) return;
         if(RTSGame.game.getGameTickNumber() % 5 != 0) return;
         area = new Area();
-        var gameObjects = RTSGame.game.getAllObjects();
+        var camera = RTSGame.game.getCamera();
+        var fov = camera.getFieldOfView();
+        var gameObjects = RTSGame.game.getObjectsOnScreen(true);
         var localUnits = gameObjects.stream()
             .filter(go -> go instanceof RTSUnit && ((RTSUnit) go).team == ExternalCommunicator.localTeam)
             .map(go -> (RTSUnit) go)
             .collect(Collectors.toList());
 
         for (int i = 0; i < localUnits.size(); i += UNITS_PER_SUBAREA) {
+            if(area.contains(fov)) break; // nd early if fov is entirely covered
             Area subArea = new Area();
             for (int j = i; j < Math.min(i + UNITS_PER_SUBAREA, localUnits.size()); j++) {
                 RTSUnit unit = localUnits.get(j);

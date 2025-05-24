@@ -99,8 +99,6 @@ public class LightTank extends RTSUnit {
          String soundToPlay = RTSSoundManager.LIGHT_TANK_ATTACK;
          int offset = Main.generateRandomIntLocally(0, 20);
          
-        System.out.println(soundToPlay);
-         
          double volumeOnScreen = Main.generateRandomDoubleLocally(.70, .76);
          
          double volumeOffScreen = Main.generateRandomDoubleLocally(.64, .71);
