@@ -26,6 +26,7 @@ public class MinotaurGame {
     
     
     public static void main(String[] args) {
+        Main.enableLerping = false;
         SpriteManager.initialize();
         scene1 = new SSLevel1();
         playerMinotaur = new Minotaur(new Coordinate(100, 0));

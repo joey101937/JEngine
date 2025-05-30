@@ -78,27 +78,9 @@ public class LightTankBullet extends Projectile {
         OnceThroughSticker s = new OnceThroughSticker(getHostGame(), explosionTiny.copyMaintainSource(), this.getPixelLocation());
     }
 
-    /**
-     * bullets just destroy when they go out of bounds
-     */
     @Override
-    public void constrainToWorld() {
-        DCoordinate loc = location;
-        if (loc.x < getHostGame().worldBorder) {
-            onTimeOut();
-            destroy();
-        }
-        if (loc.y < getHostGame().worldBorder) {
-            onTimeOut();
-            destroy();
-        }
-        if (loc.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
-            onTimeOut();
-            destroy();
-        }
-        if (loc.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
-            onTimeOut();
-            destroy();
-        }
-    }
+    public void onCollideWorldBorder(DCoordinate l) {
+        onTimeOut();
+        destroy();
+    }    
 }

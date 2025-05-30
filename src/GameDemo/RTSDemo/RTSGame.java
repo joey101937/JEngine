@@ -40,6 +40,7 @@ public class RTSGame {
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
         Main.ticksPerSecond = 90;
+        Main.enableLerping = true;
         g.getCamera().camSpeed = 20;
         g.addIndependentEffect(new SelectionBoxEffect());
         g.addIndependentEffect(new SelectionBoxEffectAir());

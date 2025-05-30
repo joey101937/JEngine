@@ -54,17 +54,17 @@ public class EnemyShip extends GameObject2{
     }
     
     @Override
-    public void constrainToWorld() {
-        if (location.x < getHostGame().worldBorder) {
+    public void onCollideWorldBorder(DCoordinate l) {
+        if (l.x <= getHostGame().worldBorder) {
             location.x = getHostGame().getWorldWidth() - getHostGame().worldBorder;
         }
-        if (location.y < getHostGame().worldBorder) {
+        if (l.y <= getHostGame().worldBorder) {
             location.y = getHostGame().getWorldHeight() - getHostGame().worldBorder - 200; // dont let ships teleport behind the player
         }
-        if (location.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
+        if (l.x >= getHostGame().getWorldWidth() - getHostGame().worldBorder) {
             location.x = getHostGame().worldBorder;
         }
-        if (location.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
+        if (l.y >= getHostGame().getWorldHeight() - getHostGame().worldBorder) {
             location.y = getHostGame().worldBorder;
         }
     }

@@ -13,6 +13,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Stickers.OnceThroughSticker;
+import java.awt.Graphics2D;
 
 /**
  *
@@ -21,7 +22,7 @@ import Framework.Stickers.OnceThroughSticker;
 public class PlayerShip extends GameObject2{
 
     private long lastHitTick = 0;
-    public final static int maxHeight = 200;
+    public final static int maxHeight = 300;
     public PlayerShip(Coordinate c) {
         super(c);
     }
@@ -40,7 +41,6 @@ public class PlayerShip extends GameObject2{
         Sprite s = new Sprite(SpriteManager.spaceship);
         // Sprite s = new Sprite(SpriteManager.localizedLight);
         setGraphic(s);
-        scale(.3);
         isSolid=true;
         setName("Player");
         movementType = MovementType.SpeedRatio;
@@ -48,11 +48,15 @@ public class PlayerShip extends GameObject2{
     }
     
     @Override
-    public void constrainToWorld(){
-        super.constrainToWorld();
+    public void tick() {
         if(getHostGame().getWorldHeight() - location.y > maxHeight){
             location.y = getHostGame().getWorldHeight() - maxHeight;
         }
+    }
+    
+    @Override
+    public void render(Graphics2D g) {
+        super.render(g);
     }
     
     //run when ship takes damage that costs a life.

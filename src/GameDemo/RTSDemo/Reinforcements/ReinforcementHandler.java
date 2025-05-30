@@ -63,7 +63,7 @@ public class ReinforcementHandler extends IndependentEffect {
     public void render(Graphics2D g) {
         double scaleAmount = 1/RTSGame.game.getZoom();
         g.scale(scaleAmount, scaleAmount);
-        Coordinate toRender = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount));
+        Coordinate toRender = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldRenderLocation().scale(1/scaleAmount));
         double percentReady = (double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval;
         
         // Draw background
@@ -94,7 +94,7 @@ public class ReinforcementHandler extends IndependentEffect {
     public void renderMenu(Graphics2D g) {
         double scaleAmount = 1/RTSGame.game.getZoom();
         g.scale(scaleAmount, scaleAmount);
-        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(1/scaleAmount));
+        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldRenderLocation().scale(1/scaleAmount));
         menuRenderLoc.y -= menuHeight;
         g.setColor(backgroundColor);
         g.fillRect(menuRenderLoc.x, menuRenderLoc.y, width, menuHeight);
@@ -141,7 +141,7 @@ public class ReinforcementHandler extends IndependentEffect {
         int scaledMouseX = (int)(mouseLocation.x * scaleAmount);
         int scaledMouseY = (int)(mouseLocation.y * scaleAmount);
         
-        Coordinate renderLocation = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(scaleAmount)); 
+        Coordinate renderLocation = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldRenderLocation().scale(scaleAmount)); 
         return scaledMouseX >= renderLocation.x && scaledMouseX < renderLocation.x + width &&
                scaledMouseY >= renderLocation.y && scaledMouseY < renderLocation.y + height;
     }
@@ -155,7 +155,7 @@ public class ReinforcementHandler extends IndependentEffect {
         int scaledMouseX = (int)(mouseLocation.x * scaleAmount);
         int scaledMouseY = (int)(mouseLocation.y * scaleAmount);
         
-        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldLocation().scale(scaleAmount));
+        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldRenderLocation().scale(scaleAmount));
         menuRenderLoc.y -= menuHeight;
         
         int buttonWidth = width / 3;
