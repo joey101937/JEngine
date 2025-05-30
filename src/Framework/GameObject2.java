@@ -16,6 +16,7 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
+import GameDemo.TownDemo.TownCharacter;
 import java.awt.AlphaComposite;
 import java.awt.image.VolatileImage;
 import java.util.List;
@@ -58,7 +59,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
     public Coordinate lastRenderLocation = null;
     private boolean cachedHasCycled = false;
-    public boolean movedLastTick = false; // if the object moved last tick. set with pretick
+    
+    private boolean movedLastTick = false; // if the object moved last tick. set with pretick
     private DCoordinate lastMovement = new DCoordinate(0,0); 
     
     /**
@@ -462,8 +464,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
            if(Main.lerpType != null && Main.lerpType.equals("predictive")) {
                 movement = getMovementNextTick();
            }
-
-           DCoordinate renderOffset = movement.scale(deltaTime);
+           
+           Coordinate renderOffset = movement.scale(deltaTime).toCoordinate();
 
            return constrainToWorld(pixelLocation.add(renderOffset).toDCoordinate()).toCoordinate();
         } else {
@@ -954,13 +956,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     /**
      * this method is triggered from the default constrainToWorld function when
      * it detects that it's x or y coordinates are outside playable bounds and needs to be brought back in
+     * @param loc the out of bounds location that the object tried to collide with
      */
     public void onCollideWorldBorder(DCoordinate loc) {};
     
     /**
-     * runs whenever an object would run out of bounds
-     * by default, prevents the object from moving outside the world by 
-     * resetting the location to a legal, in-bounds location
+     * returns a copy of the input that if the input is out of bounds, will be updated to be in bounds
+     * @param input input location
+     * @return copy of input conditionally changed
      */
     public DCoordinate constrainToWorld(DCoordinate input){
         DCoordinate value = input.copy();

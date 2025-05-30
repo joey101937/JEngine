@@ -81,7 +81,6 @@ public class Camera {
         if(Main.enableLerping) {
             if(this.isTrackingTarget() && this.target != null) {
                 Coordinate targetPosistion = target.getRenderLocation().invert();
-                System.out.println("targetPosition is " + targetPosistion);
                 DCoordinate centeringOffset = new DCoordinate((double)hostGame.windowWidth/2, (double)hostGame.windowHeight/2).scale(1/hostGame.getZoom());
                 
                 return constrainCameraToWorld(targetPosistion.add(centeringOffset).toDCoordinate());

@@ -33,9 +33,9 @@ public class TownDemo {
     public static Font gameFont = new Font("TimesRoman", Font.BOLD, 12);
     
     public static void main(String[] args) {
-        Main.ticksPerSecond = 2;
+        Main.ticksPerSecond = 60;
         Main.enableLerping = true;
-        Main.lerpType = "predictive";
+        Main.lerpType = "reactive";
         SpriteManager.initialize();
         playerCharacter = new TownCharacter(200, 200);
         townBird = new TownBird(450, 500);
