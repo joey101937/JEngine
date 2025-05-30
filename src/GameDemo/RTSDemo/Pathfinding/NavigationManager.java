@@ -25,7 +25,7 @@ import java.util.concurrent.Future;
  */
 public class NavigationManager extends IndependentEffect {
 
-    public static int updateInterval = 1; // Main.ticksPerSecond / 10;
+    public static int updateInterval = Main.ticksPerSecond / 10;
     public static ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
 
     public Game game;

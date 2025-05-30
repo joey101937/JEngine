@@ -482,7 +482,10 @@ public class Game implements Runnable {
         if(this.handleSyncTick != null)this.handleSyncTick.accept(this);
     }
     
-    
+    /**
+     * applies java graphics rendering hints
+     * @param g2d graphics obj
+     */
     private void applyRenderingHints(Graphics2D g2d) {
          if (Main.renderingHintSetter != null) {
             Main.renderingHintSetter.accept(g2d);
@@ -510,12 +513,21 @@ public class Game implements Runnable {
         }
     }
     
+    /**
+     * uses ticks per second and nanosecond timer to calculate percent of time between ticks.
+     * @return 0-1
+     */
     private float calcPercentThroughTick() {
         long currentTime = System.nanoTime();
         float delta = Math.min((currentTime - lastTickTime) / Main.getNanosecondsPerTick(), 1);
         return Math.abs(1 - delta);
     }
     
+    /**
+     * uses ticks per second and nanosecond timer to measure percent of time between ticks.
+     * this is calculated once per render
+     * @return 0-1 0 means we just ticked and 1 means we are about to tick
+     */
     public float getPercentThroughTick() {
         return this.percentThroughTick;
     }

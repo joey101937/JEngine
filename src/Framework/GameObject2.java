@@ -61,7 +61,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     private boolean cachedHasCycled = false;
     
     private boolean movedLastTick = false; // if the object moved last tick. set with pretick
-    private DCoordinate lastMovement = new DCoordinate(0,0); 
+    private DCoordinate lastMovement = new DCoordinate(0,0); // difference between location now and last tick. used for lerp
     
     /**
      * this list is a list of point offsets from the center of the game object. When determining if a location is valid to move to
@@ -439,7 +439,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         }
     }
     
-    public void scaleGraphicObj(Graphics2D graphics, double scale, DCoordinate locationOverride) {
+    private void scaleGraphicObj(Graphics2D graphics, double scale, DCoordinate locationOverride) {
         AffineTransform scaleTransform = graphics.getTransform();
         scaleTransform.translate(locationOverride.x, locationOverride.y);
         scaleTransform.scale(scale, scale);
@@ -447,13 +447,16 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         graphics.setTransform(scaleTransform);
     }
     
-    public void scaleGraphicObj(Graphics2D graphics, double scale) {
+    private void scaleGraphicObj(Graphics2D graphics, double scale) {
         scaleGraphicObj(graphics, scale, location);
     }
     
     /**
-     * returns the lerp-adjusted coordinate. use only when rendering with lerping enabled
-     * @return 
+     * This is the actual pixel location that the object should be rendered at. This will be equal to its pexelLocation unless
+     * lerping is enabled. If it is, this will be lerp adjusted.
+     * 
+     * This should only be used for render logic. Game logic should use pixelLocation instead.
+     * @return the lerp-adjusted coordinate.
      */
     public Coordinate getRenderLocation() {
          if(Main.enableLerping && movedLastTick) {
@@ -788,6 +791,12 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         return newMovement;
     }
     
+     /**
+     * Returns new movement based on impassable pathing zones
+     * triggers onPathingLayerCollision
+     * @param proposedMovement proposed movement
+     * @return new movement, adjusted for pathing
+     */
     public DCoordinate updateMovementBasedOnPathing (DCoordinate proposedMovement) {
         DCoordinate newLocation = proposedMovement.add(location.copy());
         if (getHostGame().pathingLayer != null) {

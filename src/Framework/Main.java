@@ -46,8 +46,8 @@ public class Main {
     public static int onScreenPadding = -1; // objects whose center is more than this many pixels away from the screen will not be considered for rendering. -1 means adaptive
     public static int stickerZLayer = 1000;
     public static boolean performanceMode = false;
-    public static Consumer<Graphics2D> renderingHintSetter = null;
-    public static boolean enableLerping = false; // lerping attempts to smooth movement across ticks by preemptively rendering movement
+    public static Consumer<Graphics2D> renderingHintSetter = null; // optional consumer which can be used to override which java rendering hints are active
+    public static boolean enableLerping = true; // lerping attempts to smooth movement across ticks by preemptively rendering movement
     public static String lerpType = "reactive"; // may be set to "reactive" or "predictive"
 
     public static Handler.TickType tickType = Handler.TickType.modular;

@@ -149,7 +149,7 @@ public class Camera {
         location = constrainCameraToWorld(location);
     }
     /**
-     * keeps camera from going out of bounds
+     * returns copy of input. if the input is out of bounds, the copy will be adjusted to be in bounds
      */
     private DCoordinate constrainCameraToWorld(DCoordinate input){
         DCoordinate value = input.copy();
@@ -197,6 +197,11 @@ public class Camera {
         return new DCoordinate(-location.x,-location.y);
     }
     
+    /**
+     * Returns the top left corner's world coord when rendering. This will match getWorldLocation
+     * unless the camera is lerping (not yet implemented). If you want to consistently render something relative to the camera, use this.
+     * @return location in world where the camera is rendering
+     */
     public DCoordinate getWorldRenderLocation() {
         return getRenderLocation().invert();
     };

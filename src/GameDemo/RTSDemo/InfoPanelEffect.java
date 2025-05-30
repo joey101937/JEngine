@@ -60,7 +60,6 @@ public class InfoPanelEffect extends IndependentEffect {
         g.scale(scaleAmount, scaleAmount);
         g.setColor(lightGray);
         Coordinate cameraOffset = RTSGame.game.getCamera().getWorldRenderLocation().toCoordinate();
-        System.out.println("camera offset is " + cameraOffset);
         
         cameraOffset.scale(1/scaleAmount);
         x = baseX + cameraOffset.x;
