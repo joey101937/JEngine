@@ -528,6 +528,9 @@ Adding your own terrain type involves two steps
 * **Main.performanceMode = false** // setting this to true may improve render time at the expense of antialiasing
 * **Main.collisionCheckRadius = -1;** // objects will only check forn collisions with objects whose center point is at max this distance from the checking object's edge. -1 means it updates dynamically based on the size of the largest GameObejct2 in world.
 * **Main.onScreenPadding = -1** // objects whose center is more than this many pixels away from the screen will not be considered for rendering. -1 means adaptive.
+* **Main.renderingHintSetter = null** // this is an optional field of type Consumer. This can be used to manually decide which java graphics rendering hints are applied
+* **Main.enableLerping = true** // lerping will attempt to smoothen object movement between ticks. May cause jittering. Logic performed in pre-tick and post-tick steps of each game object
+* **Main.lerpType = "reactive"** // this can be "reactive" or "predictive". Reactive should have less jitter and uses most recent movement. Predictive uses planned velocity but more prone to jitter.
 
 ### Fullscreen
 You can use Window.initializeFullscreen(Game) instead of initialize() to go straight to fullscreen mode with best results.

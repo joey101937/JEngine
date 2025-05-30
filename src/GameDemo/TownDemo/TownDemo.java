@@ -34,6 +34,8 @@ public class TownDemo {
     
     public static void main(String[] args) {
         Main.ticksPerSecond = 60;
+        Main.enableLerping = true;
+        Main.lerpType = "reactive";
         SpriteManager.initialize();
         playerCharacter = new TownCharacter(200, 200);
         townBird = new TownBird(450, 500);

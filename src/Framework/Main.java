@@ -14,11 +14,13 @@ import GameDemo.SideScollerDemo_PathingLayer.SideScrollDemo;
 import GameDemo.TownDemo.TownDemo;
 import GameDemo.Galiga.GaligaGame;
 import GameDemo.Minotaur.MinotaurGame;
+import java.awt.Graphics2D;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.swing.JOptionPane;
 
@@ -44,10 +46,18 @@ public class Main {
     public static int onScreenPadding = -1; // objects whose center is more than this many pixels away from the screen will not be considered for rendering. -1 means adaptive
     public static int stickerZLayer = 1000;
     public static boolean performanceMode = false;
+    public static Consumer<Graphics2D> renderingHintSetter = null; // optional consumer which can be used to override which java rendering hints are active
+    public static boolean enableLerping = true; // lerping attempts to smooth movement across ticks by preemptively rendering movement
+    public static String lerpType = "reactive"; // may be set to "reactive" or "predictive"
 
     public static Handler.TickType tickType = Handler.TickType.modular;
     public static long seed = (long)(Math.random()*9999999999999L);
     private static Random random;
+    
+    
+    public static float getNanosecondsPerTick () {
+        return 1000000000.0f / ticksPerSecond;
+    }
     
     
     /**

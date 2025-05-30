@@ -90,18 +90,7 @@ public class Projectile extends GameObject2{
      * projectiles by default just destroy when they go out of bounds
      */
     @Override
-    public void constrainToWorld() {
-        if (location.x < getHostGame().worldBorder) {
-            destroy();
-        }
-        if (location.y < getHostGame().worldBorder) {
-            destroy();
-        }
-        if (location.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
-            destroy();
-        }
-        if (location.y > getHostGame().getWorldHeight() - getHostGame().worldBorder) {
-            destroy();
-        }
+    public void onCollideWorldBorder(DCoordinate l) {
+        destroy();
     }
 }

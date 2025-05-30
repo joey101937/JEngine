@@ -5,6 +5,9 @@
  */
 package Framework;
 
+import static Framework.GameObject2.MovementType.RawVelocity;
+import static Framework.GameObject2.MovementType.RotationBased;
+import static Framework.GameObject2.MovementType.SpeedRatio;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
@@ -23,6 +26,7 @@ public class Camera {
     public Game hostGame;
     private boolean trackingGameObject = false; //weather or not the camera is free or if the camera is tracking a target object
     private GameObject2 target = null;
+    private DCoordinate renderLocation = new DCoordinate(0,0);
     
     
     /**
@@ -63,19 +67,69 @@ public class Camera {
     public Camera(Game g) {
         hostGame = g;
     }
+    
+    public DCoordinate getRenderLocation() {
+        return renderLocation.copy();
+    }
+    
+    /**
+     * returns negative value because camera coords are negative
+     * @return 
+     */
+    private DCoordinate calcRenderLocation(){
+        DCoordinate renderOffset = new DCoordinate(0,0);
+        if(Main.enableLerping) {
+            if(this.isTrackingTarget() && this.target != null) {
+                Coordinate targetPosistion = target.getRenderLocation().invert();
+                DCoordinate centeringOffset = new DCoordinate((double)hostGame.windowWidth/2, (double)hostGame.windowHeight/2).scale(1/hostGame.getZoom());
+                
+                return constrainCameraToWorld(targetPosistion.add(centeringOffset).toDCoordinate());
+            } else {
+                // camera lerping coming soon
+                // renderOffset.add(getMovementNextTick().scale(hostGame.getPercentThroughTick())).invert();
+            }
+        }
+        return constrainCameraToWorld(renderOffset.add(location));
+    }
 
     /**
      * runs at the beginning of game render to keep camera at correct location
      * @param g runs at the beginning of game render to keep camera at correct location
      */
     public void render(Graphics2D g) {
-        g.translate(location.x, location.y); //this runs regardless of ticks because it keeps the camera location still (g resets to 0,0 every render)   
+        this.renderLocation = calcRenderLocation();
+        g.translate(this.renderLocation.x, this.renderLocation.y); //this runs regardless of ticks because it keeps the camera location still (g resets to 0,0 every render)   
     }
 
     public void tick() {
         tickNumber++;
         updateLocation();
-        constrainCameraToWorld();
+        constrainCameraToWorld(location);
+    }
+    
+    public DCoordinate getMovementNextTick() {
+        DCoordinate toMove = new DCoordinate(0,0);
+        if (disableMovement) {
+            return toMove;
+        }
+        
+        switch (movementType) {
+            case SpeedRatio:
+            case RotationBased:
+                double delta = 0.0;
+                double totalVelocity = Math.abs(xVel) + Math.abs(yVel);
+                if (totalVelocity != 0) {
+                    delta = Math.abs(camSpeed / totalVelocity);
+                }
+                toMove.x += xVel * delta;
+                toMove.y += yVel * delta;
+                break;
+            case RawVelocity:
+                toMove.x += xVel;
+                toMove.y += yVel;          
+                break;
+        }
+        return toMove;
     }
 
     /**
@@ -88,38 +142,27 @@ public class Camera {
         if (trackingGameObject && target != null) {
             location.x = -target.location.x + (hostGame.windowWidth / Game.resolutionScaleX) / hostGame.getZoom() / 2;
             location.y = -target.location.y + (hostGame.windowHeight / Game.resolutionScaleY) / hostGame.getZoom() / 2;
+            location = constrainCameraToWorld(location);
             return;
         }
-        switch (movementType) {
-            case SpeedRatio:
-            case RotationBased:
-                double delta = 0.0;
-                double totalVelocity = Math.abs(xVel) + Math.abs(yVel);
-                if (totalVelocity != 0) {
-                    delta = Math.abs(camSpeed / totalVelocity);
-                }
-                location.x += xVel * delta;
-                location.y += yVel * delta;
-                break;
-            case RawVelocity:
-                location.x += xVel;
-                location.y += yVel;          
-                break;
-        }
-         constrainCameraToWorld();
+        location.add(getMovementNextTick());
+        location = constrainCameraToWorld(location);
     }
     /**
-     * keeps camera from going out of bounds
+     * returns copy of input. if the input is out of bounds, the copy will be adjusted to be in bounds
      */
-    private void constrainCameraToWorld(){
-        if(location.x > 0) location.x = 0;
-        if(location.y > 0) location.y = 0;
+    private DCoordinate constrainCameraToWorld(DCoordinate input){
+        DCoordinate value = input.copy();
+        if(value.x > 0) value.x = 0;
+        if(value.y > 0) value.y = 0;
         
-        if(-location.x + hostGame.windowWidth/Game.resolutionScaleX/hostGame.getZoom() > hostGame.getWorldWidth()) location.x = -1 * (hostGame.getWorldWidth()- (hostGame.windowWidth/Game.resolutionScaleX)/hostGame.getZoom());
-        if(-location.y + hostGame.windowHeight/Game.resolutionScaleY/hostGame.getZoom() > hostGame.getWorldHeight()) location.y = -1 * (hostGame.getWorldHeight() - (hostGame.windowHeight/Game.resolutionScaleY)/hostGame.getZoom());
+        if(-value.x + hostGame.windowWidth/Game.resolutionScaleX/hostGame.getZoom() > hostGame.getWorldWidth()) value.x = -1 * (hostGame.getWorldWidth()- (hostGame.windowWidth/Game.resolutionScaleX)/hostGame.getZoom());
+        if(-value.y + hostGame.windowHeight/Game.resolutionScaleY/hostGame.getZoom() > hostGame.getWorldHeight()) value.y = -1 * (hostGame.getWorldHeight() - (hostGame.windowHeight/Game.resolutionScaleY)/hostGame.getZoom());
         
-        if(location.x > 0) location.x = 0;
-        if(location.y > 0) location.y = 0;
+        if(value.x > 0) value.x = 0;
+        if(value.y > 0) value.y = 0;
+        
+        return value;
     }
     
     /**
@@ -155,6 +198,15 @@ public class Camera {
     }
     
     /**
+     * Returns the top left corner's world coord when rendering. This will match getWorldLocation
+     * unless the camera is lerping (not yet implemented). If you want to consistently render something relative to the camera, use this.
+     * @return location in world where the camera is rendering
+     */
+    public DCoordinate getWorldRenderLocation() {
+        return getRenderLocation().invert();
+    };
+    
+    /**
      * gets point at which the camera is currently centered on
      * @return 
      */
@@ -173,6 +225,6 @@ public class Camera {
         if(isTrackingTarget())return;
         location.x = -point.x + (hostGame.windowWidth / 2)/hostGame.getZoom()/Game.resolutionScaleX;
         location.y = -point.y + (hostGame.windowHeight / 2)/hostGame.getZoom()/Game.resolutionScaleY;
-        constrainCameraToWorld();
+        location = constrainCameraToWorld(location);
     }
 }

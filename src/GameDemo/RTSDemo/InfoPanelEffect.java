@@ -59,7 +59,7 @@ public class InfoPanelEffect extends IndependentEffect {
         double scaleAmount = 1/RTSGame.game.getZoom();
         g.scale(scaleAmount, scaleAmount);
         g.setColor(lightGray);
-        Coordinate cameraOffset = RTSGame.game.getCamera().getWorldLocation().toCoordinate();
+        Coordinate cameraOffset = RTSGame.game.getCamera().getWorldRenderLocation().toCoordinate();
         
         cameraOffset.scale(1/scaleAmount);
         x = baseX + cameraOffset.x;

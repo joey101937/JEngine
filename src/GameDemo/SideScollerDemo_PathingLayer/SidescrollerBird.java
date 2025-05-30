@@ -5,6 +5,7 @@
  */
 package GameDemo.SideScollerDemo_PathingLayer;
 
+import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
@@ -34,9 +35,9 @@ public class SidescrollerBird extends GameObject2{
     }
     
     @Override
-    public void onCollideWorldBorder() {
+    public void onCollideWorldBorder(DCoordinate loc) {
         Game hostGame = getHostGame();
-        if(location.x > hostGame.getWorldWidth()/2) {
+        if(loc.x > hostGame.getWorldWidth()/2) {
             // hit right side of screen
             this.velocity.x = -1;
             this.getGraphic().mirrorHorizontal();

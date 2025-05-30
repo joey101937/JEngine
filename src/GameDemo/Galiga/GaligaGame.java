@@ -8,6 +8,7 @@ package GameDemo.Galiga;
 import Framework.Audio.SoundEffect;
 import Framework.DCoordinate;
 import Framework.Game;
+import Framework.Main;
 import Framework.SpriteManager;
 import Framework.Window;
 import java.io.File;
@@ -27,6 +28,8 @@ public class GaligaGame {
     
     public static void main(String[] args) {
         SpriteManager.initialize();
+        Main.ticksPerSecond = 60;
+        Main.enableLerping = true;
         mainGame = new Game(SpriteManager.spaceBG);
         mainGame.setName("Galiga Game");
         Window.initialize(mainGame);

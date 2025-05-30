@@ -16,6 +16,7 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
+import GameDemo.TownDemo.TownCharacter;
 import java.awt.AlphaComposite;
 import java.awt.image.VolatileImage;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.function.Consumer;
  * Parent class for all objects that appear in the game world
  * @author Joseph
  */
-public class GameObject2 implements Comparable<GameObject2>, Renderable{    
+public class GameObject2 implements Comparable<GameObject2>, Renderable{
     private Game hostGame;
     private String name= this.getClass().getSimpleName(); 
     /** counts number of times this has ticked. incremented in default preTick method */
@@ -58,6 +59,9 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     private int widthAsOfLastTick = 0, heightAsOfLastTick = 0;
     public Coordinate lastRenderLocation = null;
     private boolean cachedHasCycled = false;
+    
+    private boolean movedLastTick = false; // if the object moved last tick. set with pretick
+    private DCoordinate lastMovement = new DCoordinate(0,0); // difference between location now and last tick. used for lerp
     
     /**
      * this list is a list of point offsets from the center of the game object. When determining if a location is valid to move to
@@ -435,14 +439,42 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         }
     }
     
-    public void scaleGraphicObj(Graphics2D graphics, double scale) {
+    private void scaleGraphicObj(Graphics2D graphics, double scale, DCoordinate locationOverride) {
         AffineTransform scaleTransform = graphics.getTransform();
-        scaleTransform.translate(location.x, location.y);
+        scaleTransform.translate(locationOverride.x, locationOverride.y);
         scaleTransform.scale(scale, scale);
-        scaleTransform.translate(-location.x, -location.y);
+        scaleTransform.translate(-locationOverride.x, -locationOverride.y);
         graphics.setTransform(scaleTransform);
     }
     
+    private void scaleGraphicObj(Graphics2D graphics, double scale) {
+        scaleGraphicObj(graphics, scale, location);
+    }
+    
+    /**
+     * This is the actual pixel location that the object should be rendered at. This will be equal to its pexelLocation unless
+     * lerping is enabled. If it is, this will be lerp adjusted.
+     * 
+     * This should only be used for render logic. Game logic should use pixelLocation instead.
+     * @return the lerp-adjusted coordinate.
+     */
+    public Coordinate getRenderLocation() {
+         if(Main.enableLerping && movedLastTick) {
+           Coordinate pixelLocation = getPixelLocation();
+           float deltaTime = 1- getHostGame().getPercentThroughTick();
+
+           DCoordinate movement = lastMovement.copy(); // getMovementNextTick();
+           if(Main.lerpType != null && Main.lerpType.equals("predictive")) {
+                movement = getMovementNextTick();
+           }
+           
+           Coordinate renderOffset = movement.scale(deltaTime).toCoordinate();
+
+           return constrainToWorld(pixelLocation.add(renderOffset).toDCoordinate()).toCoordinate();
+        } else {
+             return getPixelLocation();
+         }
+    }
     
     /**
      * Draws the object on screen in the game world
@@ -451,8 +483,9 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public void render(Graphics2D g, boolean ignoreRestrictions){
         renderNumber++;
-        Coordinate pixelLocation = getPixelLocation();
+        Coordinate pixelLocation = getRenderLocation();
         lastRenderLocation = pixelLocation;
+        
         boolean triggerAnimationCycle = shouldTriggerOnAnimationCycle();
         
         if (!isOnScreen() && !Main.overviewMode() && !ignoreRestrictions) {
@@ -476,11 +509,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
             }
             return;
         }
-        graphics.rotate(Math.toRadians(rotation), getPixelLocation().x, getPixelLocation().y);
+        graphics.rotate(Math.toRadians(rotation), pixelLocation.x, pixelLocation.y);
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, renderOpacity));
         
         // Apply scaling
-        scaleGraphicObj(graphics, scale);
+        scaleGraphicObj(graphics, scale, pixelLocation.toDCoordinate());
         
         if (getGraphic() == null) {
             //System.out.println("Warning null graphic for " + name);
@@ -514,7 +547,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         
         
         // Undo scaling
-        scaleGraphicObj(graphics, 1/scale);
+        scaleGraphicObj(graphics, 1/scale, pixelLocation.toDCoordinate());
         
          if (Main.debugMode) {
             renderDebugVisuals(graphics);
@@ -660,6 +693,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public void postTick(){
         updateHitbox();
+        movedLastTick = !location.equals(locationAsOfLastTick);
+        lastMovement = location.copy().subtract(locationAsOfLastTick);
     }
     
     private boolean canCollideWith(GameObject2 other) {
@@ -756,6 +791,40 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         return newMovement;
     }
     
+     /**
+     * Returns new movement based on impassable pathing zones
+     * triggers onPathingLayerCollision
+     * @param proposedMovement proposed movement
+     * @return new movement, adjusted for pathing
+     */
+    public DCoordinate updateMovementBasedOnPathing (DCoordinate proposedMovement) {
+        DCoordinate newLocation = proposedMovement.add(location.copy());
+        if (getHostGame().pathingLayer != null) {
+            if (!getHostGame().pathingLayer.getTypeAt(getPixelLocation()).name.equals(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
+                this.onPathingLayerCollision(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()));
+            }
+            if (!isNewLocationClearForPathing(newLocation.toCoordinate()) && collisionSliding) {
+                //pathing at new location is blocked. (speed multiplier < .01)
+                //check directions to see which are blocked so we can possibly slide
+                boolean xClear = isXClearForPathingAtNewLocation(newLocation.x - location.x);
+                boolean yClear = isYClearForPathingAtNewLocation(newLocation.y - location.y);
+                if (!xClear) {
+                    newLocation.x = location.x;
+                }
+                if (!yClear) {
+                    newLocation.y = location.y;
+                }
+            }
+        }
+        
+        if (!isNewLocationClearForPathing(newLocation.toCoordinate())) {
+            // cancel movement if pathing layer says destination is not pathable
+            newLocation = location.copy();
+        }
+        
+        return newLocation.subtract(location);
+    }
+    
     /**
      * checks if overlapping impassable terrain if moved on x axis
      * @param xModifier amount to add to location
@@ -829,34 +898,29 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public void updateLocation() {
         if(Main.ignoreCollisionsForStillObjects && velocity.x == 0 && velocity.y == 0) return;
-        DCoordinate proposedMovement = this.getMovementNextTick();
         
         //COLLISION
+        DCoordinate oldLocation = location.copy();
         DCoordinate newLocation = location.copy();
-        newLocation.add(updateMovementBasedOnCollision(proposedMovement));
+        
+        DCoordinate proposedMovement = this.getMovementNextTick();
+        proposedMovement = updateMovementBasedOnCollision(proposedMovement);
+        proposedMovement = updateMovementBasedOnPathing(proposedMovement);
+        
+        newLocation.add(proposedMovement);
 
         // pathing layer now
-        if (getHostGame().pathingLayer != null) {
-            if (!getHostGame().pathingLayer.getTypeAt(getPixelLocation()).name.equals(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
-                this.onPathingLayerCollision(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()));
-            }
-            if (!isNewLocationClearForPathing(newLocation.toCoordinate()) && collisionSliding) {
-                //pathing at new location is blocked. (speed multiplier < .01)
-                //check directions to see which are blocked so we can possibly slide
-                boolean xClear = isXClearForPathingAtNewLocation(newLocation.x - location.x);
-                boolean yClear = isYClearForPathingAtNewLocation(newLocation.y - location.y);
-                if (!xClear) {
-                    newLocation.x = location.x;
-                }
-                if (!yClear) {
-                    newLocation.y = location.y;
-                }
-            }
+        
+        location = newLocation;
+        
+        if(!location.equals(constrainToWorld(location))) {
+            // triggering on collide after location has been updated in case the handler wants to change location based on collision
+            onCollideWorldBorder(location.copy());
         }
-        if (getHostGame().pathingLayer == null || isNewLocationClearForPathing(newLocation.toCoordinate())) {
-            location = newLocation;
-        }
-        constrainToWorld();
+        
+        lastMovement = newLocation.copy().subtract(oldLocation);
+
+        location = constrainToWorld(location);
     }
 
     
@@ -895,36 +959,37 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
             default:
                 throw new RuntimeException("Movement Type undefined for object: " + this);
         }
-        return new DCoordinate((newLocation.x - location.x), (newLocation.y - location.y));
+        DCoordinate movement = new DCoordinate((newLocation.x - location.x), (newLocation.y - location.y));
+        return movement;
     }
     /**
      * this method is triggered from the default constrainToWorld function when
      * it detects that it's x or y coordinates are outside playable bounds and needs to be brought back in
+     * @param loc the out of bounds location that the object tried to collide with
      */
-    public void onCollideWorldBorder() {};
+    public void onCollideWorldBorder(DCoordinate loc) {};
     
     /**
-     * runs whenever an object would run out of bounds
-     * by default, prevents the object from moving outside the world by 
-     * resetting the location to a legal, in-bounds location
+     * returns a copy of the input that if the input is out of bounds, will be updated to be in bounds
+     * @param input input location
+     * @return copy of input conditionally changed
      */
-    public void constrainToWorld(){
-        if(location.x < hostGame.worldBorder) {
-            location.x=hostGame.worldBorder;
-            onCollideWorldBorder();
+    public DCoordinate constrainToWorld(DCoordinate input){
+        DCoordinate value = input.copy();
+        if(value.x < hostGame.worldBorder) {
+            value.x=hostGame.worldBorder;
         }
-        if(location.y < hostGame.worldBorder) {
-            location.y=hostGame.worldBorder;
-            onCollideWorldBorder();
+        if(value.y < hostGame.worldBorder) {
+            value.y=hostGame.worldBorder;
         }
-        if(location.x > hostGame.getWorldWidth() - hostGame.worldBorder) {
-            location.x = hostGame.getWorldWidth()- hostGame.worldBorder;
-            onCollideWorldBorder();
+        if(value.x > hostGame.getWorldWidth() - hostGame.worldBorder) {
+            value.x = hostGame.getWorldWidth()- hostGame.worldBorder;
         }
-        if(location.y > hostGame.getWorldHeight() - hostGame.worldBorder){
-            location.y = hostGame.getWorldHeight()- hostGame.worldBorder;
-            onCollideWorldBorder();
+        if(value.y > hostGame.getWorldHeight() - hostGame.worldBorder){
+            value.y = hostGame.getWorldHeight()- hostGame.worldBorder;
         }
+        
+        return value;
     }
     /**
      * Creates new GameObject2 at location

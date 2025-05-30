@@ -60,6 +60,8 @@ public class Game implements Runnable {
     public static final double OVERVIEW_MODE_ZOOM = .25;
     public static double resolutionScaleX = 1, resolutionScaleY = 1;
     /*  FIELDS   */
+    private long lastTickTime = System.nanoTime();
+    private float percentThroughTick = 0f;
     public boolean alwaysRenderFullBackground = false;
     public volatile boolean shouldShowFPS = true;
     private double zoom = 1;
@@ -468,6 +470,7 @@ public class Game implements Runnable {
 
     //core tick, tells all game Objects to tick
     public synchronized void tick() {
+        lastTickTime = System.nanoTime();
         handler.tick();
         camera.tick();
         if (getInputHandler() != null) {
@@ -477,6 +480,56 @@ public class Game implements Runnable {
         Window.TickUIElements();
 //        Window.updateFrameSize();
         if(this.handleSyncTick != null)this.handleSyncTick.accept(this);
+    }
+    
+    /**
+     * applies java graphics rendering hints
+     * @param g2d graphics obj
+     */
+    private void applyRenderingHints(Graphics2D g2d) {
+         if (Main.renderingHintSetter != null) {
+            Main.renderingHintSetter.accept(g2d);
+        } else {
+            if (Main.performanceMode) {
+                g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+                g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            } else {
+                g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+                // g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+                g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+                g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+                g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                // g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+
+                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+                g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+            }
+        }
+    }
+    
+    /**
+     * uses ticks per second and nanosecond timer to calculate percent of time between ticks.
+     * @return 0-1
+     */
+    private float calcPercentThroughTick() {
+        long currentTime = System.nanoTime();
+        float delta = Math.min((currentTime - lastTickTime) / Main.getNanosecondsPerTick(), 1);
+        return Math.abs(1 - delta);
+    }
+    
+    /**
+     * uses ticks per second and nanosecond timer to measure percent of time between ticks.
+     * this is calculated once per render
+     * @return 0-1 0 means we just ticked and 1 means we are about to tick
+     */
+    public float getPercentThroughTick() {
+        return this.percentThroughTick;
     }
 
     //core render method, tells all game Objects to render
@@ -501,26 +554,7 @@ public class Game implements Runnable {
         Graphics g = bs.getDrawGraphics();
         Graphics2D g2d = (Graphics2D) g;
         
-        if(Main.performanceMode) {
-            g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-            g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        } else {
-            g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-            // g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-            g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-            g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            // g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-            
-            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-            g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-        }
+        applyRenderingHints(g2d);
 
         g2d.scale(resolutionScaleX, resolutionScaleY);
         g2d.scale(zoom, zoom);
@@ -529,6 +563,7 @@ public class Game implements Runnable {
         if (Main.overviewMode()) {
             g2d.scale(OVERVIEW_MODE_ZOOM, OVERVIEW_MODE_ZOOM);
         }
+        percentThroughTick = calcPercentThroughTick();
         camera.render(g2d);
         this.renderBackGround(g2d);
         handler.render(g2d);
