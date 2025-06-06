@@ -54,6 +54,7 @@ public class RTSUnit extends GameObject2 {
     public String commandGroup = "0"; // assigned when given order. goes to 0 when no active order
     public int currentHealth = 100;
     public int maxHealth = 100;
+    private boolean debugFlag = false;
     
     // Movement deceleration configuration
     public int minSpeedDistance = 50; // Distance at which speed reaches minimum
@@ -86,6 +87,16 @@ public class RTSUnit extends GameObject2 {
         g.setStroke(originalStroke);
         g.setColor(originalColor);
     }
+    
+    public boolean isOnBlockedNavTile () {
+          boolean blocked = false;
+        
+        try {
+            blocked = RTSGame.navigationManager.tileMap.getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
+        } catch (Exception e) {}
+        
+        return blocked;
+    }
 
     @Override
     public void render(Graphics2D g) {
@@ -104,6 +115,8 @@ public class RTSUnit extends GameObject2 {
         }
         
         g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
+        g.drawString(""+debugFlag, getPixelLocation().x - 30, getPixelLocation().y);
+
         if (isRubble) {
             return;
         }
@@ -134,6 +147,7 @@ public class RTSUnit extends GameObject2 {
     @Override
     public void tick() {
         super.tick();
+        this.debugFlag = false;
         if (isRubble) {
             commandGroup = "0";
             return;
@@ -143,7 +157,11 @@ public class RTSUnit extends GameObject2 {
             this.velocity.y = 0;
         }
         Coordinate nextWaypoint = getNextWaypoint();
-        if (!isImmobilized && nextWaypoint.distanceFrom(location) > getWidth() / 2) {
+        if (
+                !isImmobilized &&
+                !isCloseEnoughToDesired()
+                && (nextWaypoint.distanceFrom(location) > getWidth() / 2 || isOnBlockedNavTile() || isTouchingOtherUnit)) {
+            this.debugFlag = true;
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
             double maxRotation = rotationSpeed;
             if (Math.abs(desiredRotation) < 20) {
@@ -248,10 +266,10 @@ public class RTSUnit extends GameObject2 {
     }
     
     public int getPathingPadding() {
-        if(isInfantry) return 20;
-        if(this instanceof LightTank) return 35; 
-        if(this.plane > 1) return 55; // helicopter
-        return 40; // med tank
+        if(isInfantry) return 10;
+        if(this instanceof LightTank) return 10; 
+        if(this.plane > 1) return 35; // helicopter
+        return 0; // med tank
     }
 
     public void updateWaypoints() {
@@ -474,14 +492,19 @@ public class RTSUnit extends GameObject2 {
         if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team) {
             this.isTouchingOtherUnit = true;
             if(this.commandGroup.equals(unit.commandGroup) && !this.movedLastTick() && !other.movedLastTick()) {
-                String oldCommandGroup = this.commandGroup;
-                String newCommandGroup = RTSInput.generateRandomCommandGroup();
-                this.commandGroup = newCommandGroup;
-                addTickDelayedEffect(30, c -> {
-                    if(this.commandGroup.equals(newCommandGroup)){
-                        this.commandGroup = oldCommandGroup;
-                    }
-                });
+                if(!ExternalCommunicator.isMultiplayer || this.team == ExternalCommunicator.localTeam) {
+                    // single player or this is friendly unit
+                    String oldCommandGroup = this.commandGroup;
+                    String newCommandGroup = RTSInput.generateRandomCommandGroup();
+                    this.commandGroup = newCommandGroup;
+                    addTickDelayedEffect(30, c -> {
+                        if(this.commandGroup.equals(newCommandGroup)){
+                            this.commandGroup = oldCommandGroup;
+                            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
+                        }
+                        if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
+                    });    
+                }
             }
         }
     }

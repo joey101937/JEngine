@@ -40,7 +40,7 @@ public class OccupationMap {
         for(GameObject2 go : game.getAllObjects()){
             if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.commandGroup.equals(commandGroup) || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
                 occupationTasks.add(occupationService.submit(() -> {
-                    for(Coordinate coord : tileMap.getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + Tile.tileSize + padding)) {
+                    for(Coordinate coord : tileMap.getTilesNearPoint(unit.getPixelLocation(), (int)(unit.getWidth() * 1.2) + Tile.tileSize + padding)) {
                         try {
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {
@@ -60,7 +60,24 @@ public class OccupationMap {
             }
             // todo add padding to this calculation
             if(plane == 0 && go instanceof KeyBuilding building && building.getHitbox() != null) {
-               List<Coordinate> vertices = Main.jMap(List.of(building.getHitbox().vertices), x -> x.copy().add(building.getPixelLocation().x, building.getPixelLocation().y));
+               List<Coordinate> vertices = Main.jMap(
+                       List.of(building.getHitbox().vertices),
+                       x -> x.copy().add(building.getPixelLocation().x, building.getPixelLocation().y));
+               for(int i = 0 ; i < 4; i++) {
+                   int keyBuildingPadding = padding + 50;
+                   Coordinate offset = new Coordinate(0,0);
+                   if(i == 0 || i == 2) { // left side
+                       offset.x -= keyBuildingPadding;
+                   } else { // right side
+                       offset.x += keyBuildingPadding;
+                   }
+                   if(i == 0 || i == 1) { // top side
+                       offset.y -= keyBuildingPadding;
+                   } else { // bot side
+                       offset.y += keyBuildingPadding;
+                   }
+                   vertices.get(i).add(offset);
+               }
                List<Tile> topBorder = tileMap.getTilesIntersectingLine(vertices.get(0), vertices.get(1));
                topBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
                
