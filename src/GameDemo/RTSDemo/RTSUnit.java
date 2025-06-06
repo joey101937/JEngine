@@ -12,6 +12,7 @@ import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import Framework.PathingLayer;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Pathfinding.Tile;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
@@ -89,21 +90,35 @@ public class RTSUnit extends GameObject2 {
     @Override
     public void render(Graphics2D g) {
         super.render(g);
+        
+        boolean blocked = false;
+        
+        try {
+            blocked = RTSGame.navigationManager.tileMap.getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
+        } catch (Exception e) {}
+        
+        if(blocked){
+            g.setColor(Color.red);
+        } else {
+            g.setColor(Color.green);
+        }
+        
         g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
         if (isRubble) {
             return;
         }
         if (selected) {
+            g.setColor(Color.green);
             drawHealthBar(g);
             for(Coordinate coord : waypoints) {
-                g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                g.fillRect(coord.x-5, coord.y-5, 10, 10);
                 if(coord == waypoints.getLast()) {
                     g.setColor(Color.red);
-                    g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                    g.fillRect(coord.x-5, coord.y-5, 10, 10);
                 }
                 if(coord.equals(this.getNextWaypoint())) {
                     g.setColor(Color.yellow);
-                    g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                    g.fillRect(coord.x-5, coord.y-5, 10, 10);
                 }
             }
         }
@@ -123,7 +138,10 @@ public class RTSUnit extends GameObject2 {
             commandGroup = "0";
             return;
         }
-        if(isCloseEnoughToDesired()) commandGroup = "0";
+        if(isCloseEnoughToDesired()) {
+            commandGroup = "0";
+            this.velocity.y = 0;
+        }
         Coordinate nextWaypoint = getNextWaypoint();
         if (!isImmobilized && nextWaypoint.distanceFrom(location) > getWidth() / 2) {
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
@@ -141,9 +159,6 @@ public class RTSUnit extends GameObject2 {
                 }
             }
             this.velocity.y = -100; //remember negative means forward because reasons
-        } else {
-            this.velocity.y = 0;
-            commandGroup = "0";
         }
         for(CommandButton button : getButtons()) {
             button.tick();
@@ -165,6 +180,7 @@ public class RTSUnit extends GameObject2 {
         ID = RTSUnitIdHelper.generateId(this);
         System.out.println("generated id " + ID);
         this.pathingModifiers.put(PathingLayer.Type.water, 0.0);
+        this.pathingModifiers.put(TerrainTileMap.paddingType, 1.0);
     }
 
     public void updateConstructorHitbox() {
@@ -233,9 +249,9 @@ public class RTSUnit extends GameObject2 {
     
     public int getPathingPadding() {
         if(isInfantry) return 20;
-        if(this instanceof LightTank) return 40; 
+        if(this instanceof LightTank) return 35; 
         if(this.plane > 1) return 55; // helicopter
-        return 55; // med tank
+        return 40; // med tank
     }
 
     public void updateWaypoints() {
@@ -348,8 +364,6 @@ public class RTSUnit extends GameObject2 {
         builder.append(plane); // 3
         builder.append(',');
         builder.append(commandGroup); // 4
-        builder.append(',');
-        builder.append(this.pathingModifiers.get(PathingLayer.Type.water) > 0);
         return builder.toString();
     };
 
@@ -451,14 +465,24 @@ public class RTSUnit extends GameObject2 {
         super.onCollide(other, myTick);
         
         if(other instanceof RTSUnit otherUnit) {
-            if(other.hasVelocity() && !other.getHitbox().intersectsIfMoved(this.getHitbox(), otherUnit.getMovementNextTick().toCoordinate().scale(2))) {
+            if(other.movedLastTick() && !other.getHitbox().intersectsIfMoved(this.getHitbox(), otherUnit.getMovementNextTick().toCoordinate().scale(2))) {
                 // other unit is moving with this one so we can ignore it
                 return;
             }
         }
         
-        if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team && !unit.commandGroup.equals(commandGroup)) {
+        if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team) {
             this.isTouchingOtherUnit = true;
+            if(this.commandGroup.equals(unit.commandGroup) && !this.movedLastTick() && !other.movedLastTick()) {
+                String oldCommandGroup = this.commandGroup;
+                String newCommandGroup = RTSInput.generateRandomCommandGroup();
+                this.commandGroup = newCommandGroup;
+                addTickDelayedEffect(30, c -> {
+                    if(this.commandGroup.equals(newCommandGroup)){
+                        this.commandGroup = oldCommandGroup;
+                    }
+                });
+            }
         }
     }
     

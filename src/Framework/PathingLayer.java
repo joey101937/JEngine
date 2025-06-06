@@ -53,13 +53,23 @@ public class PathingLayer {
          * This type of terrain will show up as this color when in debug mode
          */
         public final Color color;
+        
+        /**
+         * Creats a new pathing type
+         * @param name name of type
+         * @param c color it will appear as in debug view. (you use pathingLayer.assignColor to decide what it maps to in source)
+         */
         public Type(String name, Color c){
             this.name = name;
             color = c;
         }        
+        /** example terrain type with default speed modifier of 1 */
         public static final Type ground = new Type("ground",Color.green);
+        /** example terrain type with default speed modifier of .3 */
         public static final Type water = new Type("water",Color.blue);
+        /** example terrain type with default speed modifier of 1 */
         public static final Type hostile = new Type("hostile",Color.red);
+        /** example terrain type with default speed modifier of 0 */
         public static final Type impass = new Type("impass",Color.black);
     }
     
@@ -125,7 +135,7 @@ public class PathingLayer {
                 return getType(source.getRGB(c.x, c.y));
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("trying to get pathing layer outside of world " + c);
+            // System.out.println("trying to get pathing layer outside of world " + c);
             return Type.impass;
         }
     }

@@ -16,7 +16,6 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
-import GameDemo.TownDemo.TownCharacter;
 import java.awt.AlphaComposite;
 import java.awt.image.VolatileImage;
 import java.util.List;
@@ -151,7 +150,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         if (hostGame.pathingLayer == null) {
             return baseSpeed;
         }
-        return baseSpeed * pathingModifiers.get(getCurrentTerrain());
+        return baseSpeed * pathingModifiers.getOrDefault(getCurrentTerrain(), 1.0);
     }
 
    public double getBaseSpeed(){
@@ -879,7 +878,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
            pointsToCheck.add(newLocation.copy().add(offset));
        }
        for(Coordinate c : pointsToCheck) {
-           if(pathingModifiers.get(hostGame.pathingLayer.getTypeAt(Math.max(c.x, 0), Math.max(c.y, 0))) < .01) {
+           if(pathingModifiers.getOrDefault(hostGame.pathingLayer.getTypeAt(Math.max(c.x, 0), Math.max(c.y, 0)), 1.0) < .01) {
                onPathingLayerCollision(getHostGame().getPathingLayer().getTypeAt(c));
                return false;
            }
@@ -1287,4 +1286,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         return Math.max(getWidth(), getHeight());
     }
     
+    /**
+     * whether or not the object is in the same location as last tick. Logic calculated during posttick.
+     * @return value
+     */
+    public boolean movedLastTick() {
+        return this.movedLastTick;
+    }
 }

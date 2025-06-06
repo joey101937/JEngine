@@ -275,14 +275,20 @@ public class TileMap implements Serializable{
     
     public void render(Graphics2D g) {
         if(SelectionBoxEffect.selectedUnits.isEmpty()) return;
-        try {
         RTSUnit unit = (RTSUnit)SelectionBoxEffect.selectedUnits.toArray()[0];
+        try {
         getTilesNearPoint(Window.currentGame.getCameraCenterPosition(), 500).forEach(coord -> {
             Tile tile = tileGrid[coord.x][coord.y];
             if(tile.isBlocked(unit.getPathingSignature())) g.setColor(Color.red);
             else g.setColor(Color.green);
             g.drawRect(tile.x * Tile.tileSize, tile.y * Tile.tileSize, Tile.tileSize, Tile.tileSize);
         });            
+        
+        g.setColor(Color.orange);
+        g.drawLine(3000, 300, 3000, 4000);
+        for(Tile tile : getTileIntersectingThickLine(new Coordinate(3000, 300), new Coordinate(3000, 4000), unit.getWidth())) {
+            g.drawRect(tile.x * Tile.tileSize, tile.y * Tile.tileSize, Tile.tileSize, Tile.tileSize);
+        }
         } catch (Exception e) {
             
         }

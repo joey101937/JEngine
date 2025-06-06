@@ -29,7 +29,6 @@ public class OccupationMap {
     private int team;
     private int plane;
     private TileMap tileMap;
-    private boolean ignoreGroundTerrain;
     
     public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
     
@@ -80,17 +79,16 @@ public class OccupationMap {
     }
     
     
-    public OccupationMap(int padding, String commandGroup, int team, int plane, TileMap map, boolean ignoreGroundTerrain) {
+    public OccupationMap(int padding, String commandGroup, int team, int plane, TileMap map) {
         this.padding = padding;
         this.commandGroup = commandGroup;
         this.tileMap = map;
         this.team = team;
         this.plane = plane;
-        this.ignoreGroundTerrain = ignoreGroundTerrain;
     }
     
     public Boolean isTileBlocked(Tile t) {
-        return occupiedMap.getOrDefault(t, Boolean.FALSE);
+        return occupiedMap.getOrDefault(t, Boolean.FALSE) || (this.plane < 2 && TerrainTileMap.getCurrentTerrainTileMap().isTileBlocked(t));
     }
 
     public int getPadding() {

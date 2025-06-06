@@ -65,6 +65,7 @@ public class FogOfWarEffect extends IndependentEffect {
             Area subArea = new Area();
             for (int j = i; j < Math.min(i + UNITS_PER_SUBAREA, localUnits.size()); j++) {
                 RTSUnit unit = localUnits.get(j);
+                // todo use unit renderLocation instead of unit location
                 Ellipse2D.Double visibilityCircle = new Ellipse2D.Double(
                     unit.location.x - unit.sightRadius,
                     unit.location.y - unit.sightRadius,

@@ -6,7 +6,9 @@ import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
 import Framework.Main;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.SelectionBoxEffect;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,9 +66,10 @@ public class NavigationManager extends IndependentEffect {
         Tile start = tileMap.getTileAtLocation(startCoord);
         Tile goal = tileMap.getTileAtLocation(endCoord);
         String pathingSignature = self.getPathingSignature();
+        int maxCalculationDistance = 1600;
 
-        if (startCoord.distanceFrom(endCoord) > 1000) {
-            endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, 1000);
+        if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
+            endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
             goal = tileMap.getTileAtLocation(endCoord);
         }
 
@@ -94,7 +97,7 @@ public class NavigationManager extends IndependentEffect {
         }      
 
         if (start == null || goal == null) {
-            System.out.println("no path found (null start or end)");
+            if(self.isSelected()) System.out.println("no path found (null start or end)");
             ArrayList<Coordinate> out = new ArrayList<>();
             out.add(endCoord);
             return out;
@@ -158,7 +161,9 @@ public class NavigationManager extends IndependentEffect {
     private List<Coordinate> smoothenPath(List<Coordinate> path, TileMap tileMap, RTSUnit self) {
         String pathingSignature = self.getPathingSignature();
         
-        if(self.isTouchingOtherUnit) {
+        RTSUnit selectedUnit = SelectionBoxEffect.selectedUnits.size() > 0 ? (RTSUnit)SelectionBoxEffect.selectedUnits.toArray()[0] : null;
+        
+        if(RTSGame.navigationManager.tileMap.getTileAtLocation(self.getPixelLocation()).isBlocked(self.getPathingSignature())) {
             return path;
         }
         
@@ -166,51 +171,28 @@ public class NavigationManager extends IndependentEffect {
         
         int spacing = (tileMap.occupationMaps.get(pathingSignature).getPadding() + Tile.tileSize)/2;
         Coordinate start = path.get(0);
-        // Define start corner points
-        Coordinate startTopLeft = new Coordinate(start.x - spacing, start.y - spacing);
-        Coordinate startTopRight = new Coordinate(start.x + spacing, start.y - spacing);
-        Coordinate startBottomLeft = new Coordinate(start.x - spacing, start.y + spacing);
-        Coordinate startBottomRight = new Coordinate(start.x + spacing, start.y + spacing);
 
         int farLimit = Math.min(60, path.size() - 1);
         Coordinate goalFar = path.get(farLimit);
-        Coordinate goalFarTopLeft = new Coordinate(goalFar.x - spacing, goalFar.y - spacing);
-        Coordinate goalFarTopRight = new Coordinate(goalFar.x + spacing, goalFar.y - spacing);
-        Coordinate goalFarBottomLeft = new Coordinate(goalFar.x - spacing, goalFar.y + spacing);
-        Coordinate goalFarBottomRight = new Coordinate(goalFar.x + spacing, goalFar.y + spacing);
 
         int medLimit = Math.min(30, path.size() - 1);
         Coordinate goalMed = path.get(medLimit);
-        Coordinate goalMedTopLeft = new Coordinate(goalMed.x - spacing, goalMed.y - spacing);
-        Coordinate goalMedTopRight = new Coordinate(goalMed.x + spacing, goalMed.y - spacing);
-        Coordinate goalMedBottomLeft = new Coordinate(goalMed.x - spacing, goalMed.y + spacing);
-        Coordinate goalMedBottomRight = new Coordinate(goalMed.x + spacing, goalMed.y + spacing);
 
         int nearLimit = Math.min(9, path.size() - 1);
         Coordinate goalNear = path.get(nearLimit);
-        Coordinate goalNearTopLeft = new Coordinate(goalNear.x - spacing, goalNear.y - spacing);
-        Coordinate goalNearTopRight = new Coordinate(goalNear.x + spacing, goalNear.y - spacing);
-        Coordinate goalNearBottomLeft = new Coordinate(goalNear.x - spacing, goalNear.y + spacing);
-        Coordinate goalNearBottomRight = new Coordinate(goalNear.x + spacing, goalNear.y + spacing);
 
-        if (tileMap.allClear(tileMap.getTilesIntersectingLine(startTopLeft, goalFarTopLeft), pathingSignature)
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startTopRight, goalFarTopRight), pathingSignature)
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomLeft, goalFarBottomLeft), pathingSignature)
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomRight, goalFarBottomRight), pathingSignature)) {
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, self.getWidth()), pathingSignature)) {
+            if(self == selectedUnit) System.out.println("using farLimit shortcut");
             return path.subList(farLimit, path.size() - 1);
         }
 
-        if (tileMap.allClear(tileMap.getTilesIntersectingLine(startTopLeft, goalMedTopLeft), pathingSignature)
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startTopRight, goalMedTopRight), pathingSignature)
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomLeft, goalMedBottomLeft), pathingSignature)
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomRight, goalMedBottomRight), pathingSignature)) {
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, self.getWidth()), pathingSignature)) {
+             if(self == selectedUnit) System.out.println("using medLimit shortcut");
             return path.subList(medLimit, path.size() - 1);
         }
 
-        if (tileMap.allClear(tileMap.getTilesIntersectingLine(startTopLeft, goalNearTopLeft), pathingSignature)
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startTopRight, goalNearTopRight), pathingSignature)
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomLeft, goalNearBottomLeft), pathingSignature)
-                || tileMap.allClear(tileMap.getTilesIntersectingLine(startBottomRight, goalNearBottomRight), pathingSignature)) {
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, self.getWidth()), pathingSignature)) {
+            if(self == selectedUnit) System.out.println("using nearlimit shortcut");
             return path.subList(nearLimit, path.size() - 1);
         }
 
