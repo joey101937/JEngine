@@ -9,6 +9,7 @@ import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.SelectionBoxEffect;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -133,7 +134,7 @@ public class TileMap implements Serializable{
         return intersectingTiles;
     }
     
-    public ArrayList<Tile> getTilesIntersectingLine(Coordinate start, Coordinate end){
+    public ArrayList<Tile> getTilesIntersectingRectangle(Rectangle rect){
         
     }
     
