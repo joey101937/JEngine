@@ -3,7 +3,12 @@ package GameDemo.RTSDemo.Pathfinding;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
+import Framework.Window;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.SelectionBoxEffect;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +27,7 @@ public class TileMap implements Serializable{
     
     public OccupationMap generateOccupationMapFromSignature(String signature) {
         String[] parts = signature.split(",");
-        if (parts.length != 5) {
+        if (parts.length != 4) {
             System.out.println("signature: " + signature);
             throw new IllegalArgumentException("Invalid pathing signature format");
         }
@@ -30,8 +35,7 @@ public class TileMap implements Serializable{
         int team = Integer.parseInt(parts[1]);
         int plane = Integer.parseInt(parts[2]);
         String commandGroup = parts[3];
-        boolean ignoreGroundTerrain = Boolean.parseBoolean(parts[4]);
-        return new OccupationMap(padding, commandGroup, team, plane, this, ignoreGroundTerrain);
+        return new OccupationMap(padding, commandGroup, team, plane, this);
     }
     
      public TileMap(int worldWidth, int worldHeight) {
@@ -128,6 +132,20 @@ public class TileMap implements Serializable{
         
         return intersectingTiles;
     }
+    
+    
+    /**
+     * Returns a list of all tiles in the tile map which intersect with the given line
+     * Line coordinates are in pixels
+     * @param start The starting point of the line
+     * @param end The ending point of the line
+     * @param radius how thick the line is
+     * @return ArrayList of Tiles that the line passes through
+     */
+    public ArrayList<Tile> getTileIntersectingThickLine(Coordinate start, Coordinate end, int radius) {
+        
+    }
+    
     
     public ArrayList<Tile> getNeighbors(Coordinate sourceTilePos) {
        ArrayList<Tile> out = new ArrayList<>();
@@ -231,6 +249,21 @@ public class TileMap implements Serializable{
         for(String s : pathingSignatures) {
             occupationMaps.put(s, generateOccupationMapFromSignature(s));
             occupationMaps.get(s).updateOccupationMap(game);
+        }
+    }
+    
+    public void render(Graphics2D g) {
+        if(SelectionBoxEffect.selectedUnits.isEmpty()) return;
+        try {
+        RTSUnit unit = (RTSUnit)SelectionBoxEffect.selectedUnits.toArray()[0];
+        getTilesNearPoint(Window.currentGame.getCameraCenterPosition(), 500).forEach(coord -> {
+            Tile tile = tileGrid[coord.x][coord.y];
+            if(tile.isBlocked(unit.getPathingSignature())) g.setColor(Color.red);
+            else g.setColor(Color.green);
+            g.drawRect(tile.x * Tile.tileSize, tile.y * Tile.tileSize, Tile.tileSize, Tile.tileSize);
+        });            
+        } catch (Exception e) {
+            
         }
     }
 }
