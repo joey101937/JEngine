@@ -64,8 +64,8 @@ public class OccupationMap {
                 Rectangle paddedRect = new Rectangle(
                     building.getPixelLocation().x - keyBuildingPadding,
                     building.getPixelLocation().y - keyBuildingPadding,
-                    building.getWidth() + (keyBuildingPadding * 2),
-                    building.getHeight() + (keyBuildingPadding * 2)
+                    building.getHitbox().width + (keyBuildingPadding * 2),
+                    building.getHitbox().height + (keyBuildingPadding * 2)
                 );
                 
                 List<Tile> affectedTiles = tileMap.getTilesIntersectingRectangle(paddedRect);
