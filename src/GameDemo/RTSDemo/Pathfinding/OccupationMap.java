@@ -4,10 +4,10 @@ import Framework.Coordinate;
 import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.GameObject2;
-import Framework.Main;
 import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Units.Landmine;
+import java.awt.Rectangle;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
@@ -64,8 +64,8 @@ public class OccupationMap {
                 Rectangle paddedRect = new Rectangle(
                     building.getPixelLocation().x - keyBuildingPadding,
                     building.getPixelLocation().y - keyBuildingPadding,
-                    building.getHitbox().width + (keyBuildingPadding * 2),
-                    building.getHitbox().height + (keyBuildingPadding * 2)
+                    building.getWidth() + (keyBuildingPadding * 2),
+                    building.getHeight() + (keyBuildingPadding * 2)
                 );
                 
                 List<Tile> affectedTiles = tileMap.getTilesIntersectingRectangle(paddedRect);
