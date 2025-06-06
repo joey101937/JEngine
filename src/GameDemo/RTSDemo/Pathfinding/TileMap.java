@@ -135,7 +135,22 @@ public class TileMap implements Serializable{
     }
     
     public ArrayList<Tile> getTilesIntersectingRectangle(Rectangle rect){
+        ArrayList<Tile> intersectingTiles = new ArrayList<>();
         
+        // Convert pixel coordinates to tile coordinates
+        int startTileX = Math.max(0, rect.x / Tile.tileSize);
+        int startTileY = Math.max(0, rect.y / Tile.tileSize);
+        int endTileX = Math.min(tileGrid.length - 1, (rect.x + rect.width) / Tile.tileSize);
+        int endTileY = Math.min(tileGrid[0].length - 1, (rect.y + rect.height) / Tile.tileSize);
+        
+        // Add all tiles within the rectangle bounds
+        for (int x = startTileX; x <= endTileX; x++) {
+            for (int y = startTileY; y <= endTileY; y++) {
+                intersectingTiles.add(tileGrid[x][y]);
+            }
+        }
+        
+        return intersectingTiles;
     }
     
     /**
