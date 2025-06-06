@@ -27,11 +27,12 @@ import java.util.concurrent.Future;
  */
 public class NavigationManager extends IndependentEffect {
 
-    public static int updateInterval = Main.ticksPerSecond / 10;
+    private static final long UPDATE_INTERVAL_NANOS = 100_000_000; // 100ms in nanoseconds
     public static ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
 
     public Game game;
     public TileMap tileMap;
+    private long lastUpdateTime;
 
     public NavigationManager(Game g) {
         game = g;
@@ -45,9 +46,11 @@ public class NavigationManager extends IndependentEffect {
 
     @Override
     public void tick() {
-        if (game.getGameTickNumber() % updateInterval != 0) {
+        long currentTime = System.nanoTime();
+        if (currentTime - lastUpdateTime < UPDATE_INTERVAL_NANOS) {
             return;
         }
+        lastUpdateTime = currentTime;
         tileMap.refreshOccupationmaps(game);
         
         Collection<Future<?>> pathingTasks = new ArrayList<>();
