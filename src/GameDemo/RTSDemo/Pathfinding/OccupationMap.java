@@ -60,35 +60,16 @@ public class OccupationMap {
             }
             // todo add padding to this calculation
             if(plane == 0 && go instanceof KeyBuilding building && building.getHitbox() != null) {
-               List<Coordinate> vertices = Main.jMap(
-                       List.of(building.getHitbox().vertices),
-                       x -> x.copy().add(building.getPixelLocation().x, building.getPixelLocation().y));
-               for(int i = 0 ; i < 4; i++) {
-                   int keyBuildingPadding = padding + 50;
-                   Coordinate offset = new Coordinate(0,0);
-                   if(i == 0 || i == 2) { // left side
-                       offset.x -= keyBuildingPadding;
-                   } else { // right side
-                       offset.x += keyBuildingPadding;
-                   }
-                   if(i == 0 || i == 1) { // top side
-                       offset.y -= keyBuildingPadding;
-                   } else { // bot side
-                       offset.y += keyBuildingPadding;
-                   }
-                   vertices.get(i).add(offset);
-               }
-               List<Tile> topBorder = tileMap.getTilesIntersectingLine(vertices.get(0), vertices.get(1));
-               topBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-               
-               List<Tile> bottomBorder = tileMap.getTilesIntersectingLine(vertices.get(2), vertices.get(3));
-               bottomBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-               
-               List<Tile> leftBorder = tileMap.getTilesIntersectingLine(vertices.get(0), vertices.get(2));
-               leftBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-               
-               List<Tile> rightBorder = tileMap.getTilesIntersectingLine(vertices.get(1), vertices.get(3));
-               rightBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
+                int keyBuildingPadding = padding + 50;
+                Rectangle paddedRect = new Rectangle(
+                    building.getPixelLocation().x - keyBuildingPadding,
+                    building.getPixelLocation().y - keyBuildingPadding,
+                    building.getHitbox().width + (keyBuildingPadding * 2),
+                    building.getHitbox().height + (keyBuildingPadding * 2)
+                );
+                
+                List<Tile> affectedTiles = tileMap.getTilesIntersectingRectangle(paddedRect);
+                affectedTiles.forEach(tile -> occupiedMap.put(tile, true));
             }
         }
         
