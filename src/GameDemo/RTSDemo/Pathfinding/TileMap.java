@@ -143,7 +143,28 @@ public class TileMap implements Serializable{
      * @return ArrayList of Tiles that the line passes through
      */
     public ArrayList<Tile> getTileIntersectingThickLine(Coordinate start, Coordinate end, int radius) {
+        HashSet<Tile> resultTiles = new HashSet<>();  // Using HashSet to avoid duplicates
         
+        // Get the basic line tiles first
+        ArrayList<Tile> lineTiles = getTilesIntersectingLine(start, end);
+        
+        // For each tile in the line, get tiles within radius
+        for (Tile tile : lineTiles) {
+            Coordinate tileCenter = new Coordinate(
+                tile.x * Tile.tileSize + Tile.tileSize / 2,
+                tile.y * Tile.tileSize + Tile.tileSize / 2
+            );
+            
+            List<Coordinate> nearbyTileCoords = getTilesNearPoint(tileCenter, radius);
+            for (Coordinate coord : nearbyTileCoords) {
+                if (coord.x >= 0 && coord.x < tileGrid.length && 
+                    coord.y >= 0 && coord.y < tileGrid[0].length) {
+                    resultTiles.add(tileGrid[coord.x][coord.y]);
+                }
+            }
+        }
+        
+        return new ArrayList<>(resultTiles);
     }
     
     
