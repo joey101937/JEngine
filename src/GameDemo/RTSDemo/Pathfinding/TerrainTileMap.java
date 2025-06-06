@@ -3,6 +3,11 @@ package GameDemo.RTSDemo.Pathfinding;
 import Framework.Coordinate;
 import Framework.PathingLayer;
 import GameDemo.RTSDemo.RTSAssetManager;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -52,13 +57,21 @@ public class TerrainTileMap implements Serializable {
         return out;
     }
     
-    public static TerrainTileMap loadFromFile (String filename) {
-        // todo
-        return null;
+    public static TerrainTileMap loadFromFile(String filename) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
+            return (TerrainTileMap) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     
-    public void saveToFile (String filename) {
-        // todo
+    public void saveToFile(String filename) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
+            oos.writeObject(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     public static void main(String[] args) {
