@@ -4,6 +4,7 @@ import Framework.Coordinate;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
+import Framework.PathingLayer;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSAssetManager;
@@ -49,6 +50,7 @@ public class Hellicopter extends RTSUnit {
         turret = new HellicopterTurret(new Coordinate(0, 0));
         this.addSubObject(turret);
         this.canAttackAir = true;
+        this.pathingModifiers.put(PathingLayer.Type.water, 1.0);
     }
 
     @Override

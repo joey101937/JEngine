@@ -6,6 +6,9 @@ import java.io.Serializable;
 public class Tile implements Serializable{
     public static int tileSize = 36;
     
+    /**
+     * grid coords
+     */
     public int x,y;
     public TileMap tileMap;
     

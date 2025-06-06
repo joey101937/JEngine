@@ -33,6 +33,7 @@ public class RTSGame {
     public static NavigationManager navigationManager;
 
     public static void setup(Game g) {
+        g.setPathingLayer(RTSAssetManager.rtsPathing);
         Main.ignoreSubobjectCollision = false; // better performance
         Main.ignoreCollisionsForStillObjects = true; // better performance
         Main.collisionCheckRadius = 390;

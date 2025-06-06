@@ -22,7 +22,7 @@ public class TileMap implements Serializable{
     
     public OccupationMap generateOccupationMapFromSignature(String signature) {
         String[] parts = signature.split(",");
-        if (parts.length != 4) {
+        if (parts.length != 5) {
             System.out.println("signature: " + signature);
             throw new IllegalArgumentException("Invalid pathing signature format");
         }
@@ -30,7 +30,8 @@ public class TileMap implements Serializable{
         int team = Integer.parseInt(parts[1]);
         int plane = Integer.parseInt(parts[2]);
         String commandGroup = parts[3];
-        return new OccupationMap(padding, commandGroup, team, plane, this);
+        boolean ignoreGroundTerrain = Boolean.parseBoolean(parts[4]);
+        return new OccupationMap(padding, commandGroup, team, plane, this, ignoreGroundTerrain);
     }
     
      public TileMap(int worldWidth, int worldHeight) {

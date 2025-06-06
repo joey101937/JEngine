@@ -10,6 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
+import Framework.PathingLayer;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.Tile;
 import GameDemo.RTSDemo.Units.Landmine;
@@ -163,6 +164,7 @@ public class RTSUnit extends GameObject2 {
         this.team = team;
         ID = RTSUnitIdHelper.generateId(this);
         System.out.println("generated id " + ID);
+        this.pathingModifiers.put(PathingLayer.Type.water, 0.0);
     }
 
     public void updateConstructorHitbox() {
@@ -346,6 +348,8 @@ public class RTSUnit extends GameObject2 {
         builder.append(plane); // 3
         builder.append(',');
         builder.append(commandGroup); // 4
+        builder.append(',');
+        builder.append(this.pathingModifiers.get(PathingLayer.Type.water) > 0);
         return builder.toString();
     };
 
