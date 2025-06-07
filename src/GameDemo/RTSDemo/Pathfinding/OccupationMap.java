@@ -32,6 +32,12 @@ public class OccupationMap {
     
     public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
     
+    public Coordinate getGridLocationOf(Coordinate input) {
+        int adjustedX = (int)((input.x / Tile.tileSize) * Tile.tileSize) + Tile.tileSize;
+        int adjustedY = (int)((input.y / Tile.tileSize) * Tile.tileSize) + Tile.tileSize;
+        return new Coordinate(adjustedX, adjustedY);
+    }
+    
     public void updateOccupationMap(Game game) {
         occupiedMap.clear();
         Collection<Future<?>> occupationTasks = new LinkedList<>();
@@ -40,7 +46,8 @@ public class OccupationMap {
         for(GameObject2 go : game.getAllObjects()){
             if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.commandGroup.equals(commandGroup) || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
                 occupationTasks.add(occupationService.submit(() -> {
-                    for(Coordinate coord : tileMap.getTilesNearPoint(unit.getPixelLocation(), (int)(unit.getWidth() * 1.2) + Tile.tileSize + padding)) {
+                    boolean isForInfantry = padding == 16;
+                    for(Coordinate coord : tileMap.getTilesNearPoint(getGridLocationOf(unit.getPixelLocation()), (int)(unit.getWidth() * (isForInfantry ? .7 : .7)) + Tile.tileSize + padding)) {
                         try {
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {
@@ -62,10 +69,10 @@ public class OccupationMap {
             if(plane == 0 && go instanceof KeyBuilding building && building.getHitbox() != null) {
                 int keyBuildingPadding = padding + 50;
                 Rectangle paddedRect = new Rectangle(
-                    building.getPixelLocation().x - keyBuildingPadding,
-                    building.getPixelLocation().y - keyBuildingPadding,
-                    building.getHitbox().width + (keyBuildingPadding * 2),
-                    building.getHitbox().height + (keyBuildingPadding * 2)
+                    building.getPixelLocation().x - building.getWidth()/2 - keyBuildingPadding,
+                    building.getPixelLocation().y - building.getHeight()/2 - keyBuildingPadding,
+                    building.getWidth() + (keyBuildingPadding * 2),
+                    building.getHeight() + (keyBuildingPadding * 2)
                 );
                 
                 List<Tile> affectedTiles = tileMap.getTilesIntersectingRectangle(paddedRect);

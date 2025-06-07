@@ -69,7 +69,7 @@ public class NavigationManager extends IndependentEffect {
         Tile start = tileMap.getTileAtLocation(startCoord);
         Tile goal = tileMap.getTileAtLocation(endCoord);
         String pathingSignature = self.getPathingSignature();
-        int maxCalculationDistance = 1600;
+        int maxCalculationDistance = 2600;
 
         if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
             endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
@@ -92,7 +92,7 @@ public class NavigationManager extends IndependentEffect {
 
         if (goal.isBlocked(pathingSignature)) {
             goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
-            if(self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (200 + self.getWidth()/2)) {
+            if(self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (200 + self.getWidth()/6)) {
                 ArrayList<Coordinate> out = new ArrayList<>();
                 out.add(endCoord);
                 return out;
@@ -184,18 +184,15 @@ public class NavigationManager extends IndependentEffect {
         int nearLimit = Math.min(9, path.size() - 1);
         Coordinate goalNear = path.get(nearLimit);
 
-        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, self.getWidth()), pathingSignature)) {
-            if(self == selectedUnit) System.out.println("using farLimit shortcut");
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, (int)(self.getWidth()*.75)), pathingSignature)) {
             return path.subList(farLimit, path.size() - 1);
         }
 
-        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, self.getWidth()), pathingSignature)) {
-             if(self == selectedUnit) System.out.println("using medLimit shortcut");
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, (int)(self.getWidth()*.75)), pathingSignature)) {
             return path.subList(medLimit, path.size() - 1);
         }
 
-        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, self.getWidth()), pathingSignature)) {
-            if(self == selectedUnit) System.out.println("using nearlimit shortcut");
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, (int)(self.getWidth()*.75)), pathingSignature)) {
             return path.subList(nearLimit, path.size() - 1);
         }
 

@@ -322,6 +322,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
             for(GameObject2 other : getHostGame().getObjectsNearPoint(getPixelLocation(true), longestSideLength() + padding)){
                 if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
                      getHostGame().handler.registerCollision(this, other);
+                     System.out.println("preventing rotation due to collision");
                      return; 
                 }
             }

@@ -160,7 +160,7 @@ public class RTSUnit extends GameObject2 {
         if (
                 !isImmobilized &&
                 !isCloseEnoughToDesired()
-                && (nextWaypoint.distanceFrom(location) > getWidth() / 2 || isOnBlockedNavTile() || isTouchingOtherUnit)) {
+                && (nextWaypoint.distanceFrom(location) > getWidth() / 6 || isOnBlockedNavTile() || isTouchingOtherUnit)) {
             this.debugFlag = true;
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
             double maxRotation = rotationSpeed;
@@ -236,12 +236,15 @@ public class RTSUnit extends GameObject2 {
         if(!this.hasVelocity()) {
             comingFromLocation = getPixelLocation();
         }
-        desiredLocation = c;
+        int adjustedX = (int)((c.x / Tile.tileSize) * Tile.tileSize) + Tile.tileSize/2;
+        int adjustedY = (int)((c.y / Tile.tileSize) * Tile.tileSize) + Tile.tileSize/2;
+
+        desiredLocation = new Coordinate(adjustedX, adjustedY);
     }
     
     public boolean isCloseEnoughToDesired() {
         int sideLength = Math.max(getWidth(), getHeight());
-        return desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= sideLength / 2;
+        return desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= Math.max(20, sideLength / 6);
     }
 
     public Coordinate getNextWaypoint() {
@@ -257,7 +260,7 @@ public class RTSUnit extends GameObject2 {
         int sideLength = Math.max(getWidth(), getHeight());
         
         for (int i = 0; i < waypoints.size(); i++) {
-            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + Tile.tileSize/2)) {
+            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + 20 + Tile.tileSize/2)) {
                 return waypoints.get(i);
             }
         }
@@ -266,10 +269,11 @@ public class RTSUnit extends GameObject2 {
     }
     
     public int getPathingPadding() {
-        if(isInfantry) return 10;
-        if(this instanceof LightTank) return 10; 
-        if(this.plane > 1) return 35; // helicopter
-        return 0; // med tank
+        int modifier = isTouchingOtherUnit ? 1 : 1;
+        if(isInfantry) return 16;
+        if(this instanceof LightTank) return 50; 
+        if(this.plane > 1) return 35 * modifier; // helicopter
+        return 55; // med tank
     }
 
     public void updateWaypoints() {
@@ -497,7 +501,7 @@ public class RTSUnit extends GameObject2 {
                     String oldCommandGroup = this.commandGroup;
                     String newCommandGroup = RTSInput.generateRandomCommandGroup();
                     this.commandGroup = newCommandGroup;
-                    addTickDelayedEffect(30, c -> {
+                    addTickDelayedEffect(10, c -> {
                         if(this.commandGroup.equals(newCommandGroup)){
                             this.commandGroup = oldCommandGroup;
                             if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
