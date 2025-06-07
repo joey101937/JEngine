@@ -52,7 +52,7 @@ public class TerrainTileMap implements Serializable {
 
     public static synchronized TerrainTileMap getCurrentTerrainTileMapLarge() {
         if (map1TerrainMapLarge == null) {
-            map1TerrainMapLarge = map1TerrainMapFine = loadFromFile(Main.assets + "terrain_Large"); //generate(Window.currentGame.getPathingLayer(), Tile.tileSizeLarge);
+            map1TerrainMapLarge = loadFromFile(Main.assets + "terrain_Large"); //generate(Window.currentGame.getPathingLayer(), Tile.tileSizeLarge);
         }
 
         return map1TerrainMapLarge;
