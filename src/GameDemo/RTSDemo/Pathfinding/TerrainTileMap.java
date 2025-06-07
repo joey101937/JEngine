@@ -3,7 +3,6 @@ package GameDemo.RTSDemo.Pathfinding;
 import Framework.Coordinate;
 import Framework.Main;
 import Framework.PathingLayer;
-import Framework.Window;
 import GameDemo.RTSDemo.RTSAssetManager;
 import java.awt.Color;
 import java.io.FileInputStream;
@@ -120,5 +119,14 @@ public class TerrainTileMap implements Serializable {
         pl.generateMap();
         TerrainTileMap out = TerrainTileMap.generate(pl, Tile.tileSizeFine);
         out.saveToFile(Main.assets + "terrain_Fine");
+    }
+    
+    public static void loadAll() {
+        // asyncronously calls all get methods for all three maps so that they get loaded into memory from disk.
+        // returns only when all are done.
+    }
+    
+    public static void generateAll () {
+        // asyncronously generates all three maps and saves them to file
     }
 }
