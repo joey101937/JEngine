@@ -3,12 +3,7 @@ package GameDemo.RTSDemo.Pathfinding;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
-import Framework.Window;
-import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
-import GameDemo.RTSDemo.SelectionBoxEffect;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,11 +19,12 @@ public class TileMap implements Serializable{
     public Tile[][] tileGrid;
     public int worldWidth, worldHeight;
     public HashMap<String, OccupationMap> occupationMaps = new HashMap<>();
+    public int tileSize;
     
     
     public OccupationMap generateOccupationMapFromSignature(String signature) {
         String[] parts = signature.split(",");
-        if (parts.length != 4) {
+        if (parts.length != 5) {
             System.out.println("signature: " + signature);
             throw new IllegalArgumentException("Invalid pathing signature format");
         }
@@ -36,22 +32,24 @@ public class TileMap implements Serializable{
         int team = Integer.parseInt(parts[1]);
         int plane = Integer.parseInt(parts[2]);
         String commandGroup = parts[3];
-        return new OccupationMap(padding, commandGroup, team, plane, this);
+        int tileSize = Integer.parseInt(parts[4]);
+        return new OccupationMap(padding, commandGroup, team, plane, this, tileSize);
     }
     
-     public TileMap(int worldWidth, int worldHeight) {
-        tileGrid = new Tile[worldWidth/Tile.tileSize][worldHeight/Tile.tileSize];
+     public TileMap(int worldWidth, int worldHeight, int tileSize) {
+        tileGrid = new Tile[worldWidth/tileSize][worldHeight/tileSize];
         for(int x = 0; x < tileGrid.length; x++) {
             for(int y = 0; y <tileGrid[0].length; y++) {
-                tileGrid[x][y] = new Tile(this, x, y);
+                tileGrid[x][y] = new Tile(this, x, y, tileSize);
             }
         }
+        this.tileSize = tileSize;
     }
      
      
      public Tile getTileAtLocation(Coordinate location) {
-         int tileX = location.x / Tile.tileSize;
-         int tileY = location.y / Tile.tileSize;
+         int tileX = location.x / tileSize;
+         int tileY = location.y / tileSize;
          
          // Check if the calculated tile coordinates are within the grid bounds
          if (tileX >= 0 && tileX < tileGrid.length && tileY >= 0 && tileY < tileGrid[0].length) {
@@ -67,17 +65,17 @@ public class TileMap implements Serializable{
         List<Coordinate> affectedTiles = new ArrayList<>();
         
         // Calculate the bounding box of the circle
-        int minTileX = (int) Math.floor((point.x - radius) / Tile.tileSize);
-        int maxTileX = (int) Math.ceil((point.x + radius) / Tile.tileSize);
-        int minTileY = (int) Math.floor((point.y - radius) / Tile.tileSize);
-        int maxTileY = (int) Math.ceil((point.y + radius) / Tile.tileSize);
+        int minTileX = (int) Math.floor((point.x - radius) / tileSize);
+        int maxTileX = (int) Math.ceil((point.x + radius) / tileSize);
+        int minTileY = (int) Math.floor((point.y - radius) / tileSize);
+        int maxTileY = (int) Math.ceil((point.y + radius) / tileSize);
         
         // Check each tile within the bounding box
         for (int tileY = minTileY; tileY < maxTileY; tileY++) {
             for (int tileX = minTileX; tileX < maxTileX; tileX++) {
                 // Calculate the closest point on the tile to the circle's center
-                double closestX = Math.max(tileX * Tile.tileSize, Math.min(point.x, (tileX + 1) * Tile.tileSize));
-                double closestY = Math.max(tileY * Tile.tileSize, Math.min(point.y, (tileY + 1) * Tile.tileSize));
+                double closestX = Math.max(tileX * tileSize, Math.min(point.x, (tileX + 1) * tileSize));
+                double closestY = Math.max(tileY * tileSize, Math.min(point.y, (tileY + 1) * tileSize));
                 
                 // Calculate the distance between the closest point and the circle's center
                 double distance = Math.sqrt(Math.pow(closestX - point.x, 2) + Math.pow(closestY - point.y, 2));
@@ -102,10 +100,10 @@ public class TileMap implements Serializable{
     public ArrayList<Tile> getTilesIntersectingLine(Coordinate start, Coordinate end) {
         ArrayList<Tile> intersectingTiles = new ArrayList<>();
         
-        int x0 = start.x / Tile.tileSize;
-        int y0 = start.y / Tile.tileSize;
-        int x1 = end.x / Tile.tileSize;
-        int y1 = end.y / Tile.tileSize;
+        int x0 = start.x / tileSize;
+        int y0 = start.y / tileSize;
+        int x1 = end.x / tileSize;
+        int y1 = end.y / tileSize;
         
         int dx = Math.abs(x1 - x0);
         int dy = Math.abs(y1 - y0);
@@ -138,10 +136,10 @@ public class TileMap implements Serializable{
         ArrayList<Tile> intersectingTiles = new ArrayList<>();
         
         // Convert pixel coordinates to tile coordinates
-        int startTileX = Math.max(0, rect.x / Tile.tileSize);
-        int startTileY = Math.max(0, rect.y / Tile.tileSize);
-        int endTileX = Math.min(tileGrid.length - 1, (rect.x + rect.width) / Tile.tileSize);
-        int endTileY = Math.min(tileGrid[0].length - 1, (rect.y + rect.height) / Tile.tileSize);
+        int startTileX = Math.max(0, rect.x / tileSize);
+        int startTileY = Math.max(0, rect.y / tileSize);
+        int endTileX = Math.min(tileGrid.length - 1, (rect.x + rect.width) / tileSize);
+        int endTileY = Math.min(tileGrid[0].length - 1, (rect.y + rect.height) / tileSize);
         
         // Add all tiles within the rectangle bounds
         for (int x = startTileX; x <= endTileX; x++) {
@@ -170,8 +168,8 @@ public class TileMap implements Serializable{
         // For each tile in the line, get tiles within radius
         for (Tile tile : lineTiles) {
             Coordinate tileCenter = new Coordinate(
-                tile.x * Tile.tileSize + Tile.tileSize / 2,
-                tile.y * Tile.tileSize + Tile.tileSize / 2
+                tile.x * tileSize + tileSize / 2,
+                tile.y * tileSize + tileSize / 2
             );
             
             List<Coordinate> nearbyTileCoords = getTilesNearPoint(tileCenter, radius);
@@ -224,8 +222,8 @@ public class TileMap implements Serializable{
         double closestDistance = Double.MAX_VALUE;
         double closestTiebreakerDistance = Double.MAX_VALUE;
 
-        int centerX = targetPixel.x / Tile.tileSize;
-        int centerY = targetPixel.y / Tile.tileSize;
+        int centerX = targetPixel.x / tileSize;
+        int centerY = targetPixel.y / tileSize;
         int maxRadius = 10; // 20 tile area 
 
         for (int radius = 0; radius < maxRadius; radius++) {
@@ -239,8 +237,8 @@ public class TileMap implements Serializable{
                             Tile currentTile = tileGrid[x][y];
                             if (!occupationMaps.get(pathingSignature).isTileBlocked(currentTile)) {
                                 Coordinate tileCenter = new Coordinate(
-                                    (x * Tile.tileSize) + (Tile.tileSize / 2),
-                                    (y * Tile.tileSize) + (Tile.tileSize / 2)
+                                    (x * tileSize) + (tileSize / 2),
+                                    (y * tileSize) + (tileSize / 2)
                                 );
                                 double distance = tileCenter.distanceFrom(targetPixel);
 
@@ -281,7 +279,9 @@ public class TileMap implements Serializable{
         HashSet<String> pathingSignatures = new HashSet<>();
         for(GameObject2 go : game.getAllObjects()) {
             if(go instanceof RTSUnit unit) {
-                pathingSignatures.add(unit.getPathingSignature());
+                if(unit.getNavTileSize() == tileSize) {
+                    pathingSignatures.add(unit.getPathingSignature());
+                }
             }
         }
         
@@ -291,19 +291,5 @@ public class TileMap implements Serializable{
             occupationMaps.get(s).updateOccupationMap(game);
         }
     }
-    
-    public void render(Graphics2D g) {
-        if(SelectionBoxEffect.selectedUnits.isEmpty()) return;
-        RTSUnit unit = (RTSUnit)SelectionBoxEffect.selectedUnits.toArray()[0];
-        try {
-        getTilesNearPoint(Window.currentGame.getCameraCenterPosition(), 500).forEach(coord -> {
-            Tile tile = tileGrid[coord.x][coord.y];
-            if(tile.isBlocked(unit.getPathingSignature())) g.setColor(Color.red);
-            else g.setColor(Color.green);
-            g.drawRect(tile.x * Tile.tileSize, tile.y * Tile.tileSize, Tile.tileSize, Tile.tileSize);
-        });            
-        } catch (Exception e) {
-            
-        }
-    }
+  
 }

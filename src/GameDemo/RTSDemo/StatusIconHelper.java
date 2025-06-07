@@ -20,7 +20,7 @@ public class StatusIconHelper extends IndependentEffect{
 
     @Override
     public void render(Graphics2D g) {
-        RTSGame.navigationManager.tileMap.render(g);
+        // RTSGame.navigationManager.render(g);
         for(GameObject2 go : RTSGame.game.getAllObjects()) {
             if(go.isOnScreen() && go instanceof RTSUnit u && !u.isRubble) {
                 if(u.isImmobilized && !(u instanceof TankUnit tank && tank.sandbagActive)) {  

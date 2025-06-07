@@ -5,10 +5,11 @@ import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
-import Framework.Main;
+import Framework.Window;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.SelectionBoxEffect;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,17 +32,35 @@ public class NavigationManager extends IndependentEffect {
     public static ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
 
     public Game game;
-    public TileMap tileMap;
+    public TileMap tileMapNormal;
+    public TileMap tileMapFine;
+    public TileMap tileMapLarge;
     private long lastUpdateTime;
 
     public NavigationManager(Game g) {
         game = g;
-        tileMap = new TileMap(g.getWorldWidth(), g.getWorldHeight());
+        tileMapNormal = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeNormal);
+        tileMapFine = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeFine);
+        tileMapLarge = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeLarge);
+
     }
 
     @Override
     public void render(Graphics2D g) {
-
+        if(SelectionBoxEffect.selectedUnits.isEmpty()) return;
+        RTSUnit unit = (RTSUnit)SelectionBoxEffect.selectedUnits.toArray()[0];
+        TileMap tm = getTileMapBySize(unit.getNavTileSize());
+        try {
+        tm.getTilesNearPoint(Window.currentGame.getCameraCenterPosition(), 500).forEach(coord -> {
+            Tile tile = tm.tileGrid[coord.x][coord.y];
+            if(tile.isBlocked(unit.getPathingSignature())) g.setColor(Color.red);
+            else g.setColor(Color.green);
+            g.drawRect(tile.x * tm.tileSize, tile.y * tm.tileSize, tm.tileSize, tm.tileSize);
+        });            
+        } catch (Exception e) {
+            
+        }
+    
     }
 
     @Override
@@ -51,7 +70,9 @@ public class NavigationManager extends IndependentEffect {
             return;
         }
         lastUpdateTime = currentTime;
-        tileMap.refreshOccupationmaps(game);
+        tileMapFine.refreshOccupationmaps(game);
+        tileMapNormal.refreshOccupationmaps(game);
+        tileMapLarge.refreshOccupationmaps(game);
         
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
@@ -64,12 +85,22 @@ public class NavigationManager extends IndependentEffect {
         }
         Handler.waitForAllJobs(pathingTasks);
     }
+    
+    public TileMap getTileMapBySize (int size) {
+        if(size == tileMapFine.tileSize) return tileMapFine;
+        if(size == tileMapNormal.tileSize) return tileMapNormal;
+        if(size == tileMapLarge.tileSize) return tileMapLarge;
+        return null;
+    }
 
-    public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, TileMap tileMap, RTSUnit self) {
+    public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, RTSUnit self) {
+        try {
+        TileMap tileMap = getTileMapBySize(self.getNavTileSize());
         Tile start = tileMap.getTileAtLocation(startCoord);
         Tile goal = tileMap.getTileAtLocation(endCoord);
         String pathingSignature = self.getPathingSignature();
-        int maxCalculationDistance = 2600;
+        int maxCalculationDistance = 16000;
+        int maxCalculationAmount = 10000;
 
         if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
             endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
@@ -129,7 +160,7 @@ public class NavigationManager extends IndependentEffect {
         openSet.add(startNode);
         allNodes.put(start, startNode);
 
-        while (!openSet.isEmpty() && numTraversed < 8000) {
+        while (!openSet.isEmpty() && numTraversed < maxCalculationAmount) {
             Node current = openSet.poll();
             numTraversed++;
 
@@ -159,6 +190,11 @@ public class NavigationManager extends IndependentEffect {
         ArrayList<Coordinate> out = new ArrayList<>();
         out.add(endCoord);
         return out;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        
+        return null;
     }
 
     private List<Coordinate> smoothenPath(List<Coordinate> path, TileMap tileMap, RTSUnit self) {
@@ -166,13 +202,13 @@ public class NavigationManager extends IndependentEffect {
         
         RTSUnit selectedUnit = SelectionBoxEffect.selectedUnits.size() > 0 ? (RTSUnit)SelectionBoxEffect.selectedUnits.toArray()[0] : null;
         
-        if(RTSGame.navigationManager.tileMap.getTileAtLocation(self.getPixelLocation()).isBlocked(self.getPathingSignature())) {
+        if(tileMap.getTileAtLocation(self.getPixelLocation()).isBlocked(self.getPathingSignature())) {
             return path;
         }
         
         if(tileMap.getTileAtLocation(path.get(0)).isBlocked(pathingSignature)) return path;
         
-        int spacing = (tileMap.occupationMaps.get(pathingSignature).getPadding() + Tile.tileSize)/2;
+        int spacing = (tileMap.occupationMaps.get(pathingSignature).getPadding() + tileMap.tileSize)/2;
         Coordinate start = path.get(0);
 
         int farLimit = Math.min(60, path.size() - 1);

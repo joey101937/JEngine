@@ -4,22 +4,26 @@ import Framework.Coordinate;
 import java.io.Serializable;
 
 public class Tile implements Serializable{
-    public static int tileSize = 26;
+    public static int tileSizeFine = 10;
+    public static int tileSizeNormal = 26;
+    public static int tileSizeLarge = 50;
     
     /**
      * grid coords
      */
     public int x,y;
     public TileMap tileMap;
+    public int tileSize;
     
     public boolean isBlocked(String pathingSignature) {
         return tileMap.occupationMaps.get(pathingSignature).isTileBlocked(this);
     }
     
-    public Tile(TileMap tileMap, int x, int y) {
+    public Tile(TileMap tileMap, int x, int y, int size) {
         this.tileMap = tileMap;
         this.x = x;
         this.y = y;
+        this.tileSize = size;
     }
     
     public Coordinate getCenterPoint () {

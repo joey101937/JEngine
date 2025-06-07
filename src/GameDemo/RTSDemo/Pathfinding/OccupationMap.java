@@ -29,12 +29,13 @@ public class OccupationMap {
     private int team;
     private int plane;
     private TileMap tileMap;
+    private int tileSize;
     
     public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
     
     public Coordinate getGridLocationOf(Coordinate input) {
-        int adjustedX = (int)((input.x / Tile.tileSize) * Tile.tileSize) + Tile.tileSize;
-        int adjustedY = (int)((input.y / Tile.tileSize) * Tile.tileSize) + Tile.tileSize;
+        int adjustedX = (int)((input.x / tileSize) * tileSize) + tileSize;
+        int adjustedY = (int)((input.y / tileSize) * tileSize) + tileSize;
         return new Coordinate(adjustedX, adjustedY);
     }
     
@@ -47,7 +48,7 @@ public class OccupationMap {
             if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.commandGroup.equals(commandGroup) || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
                 occupationTasks.add(occupationService.submit(() -> {
                     boolean isForInfantry = padding == 16;
-                    for(Coordinate coord : tileMap.getTilesNearPoint(getGridLocationOf(unit.getPixelLocation()), (int)(unit.getWidth() * (isForInfantry ? .7 : .7)) + Tile.tileSize + padding)) {
+                    for(Coordinate coord : tileMap.getTilesNearPoint(getGridLocationOf(unit.getPixelLocation()), (int)(unit.getWidth() * (isForInfantry ? .7 : .7)) + tileSize + padding)) {
                         try {
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {
@@ -84,16 +85,17 @@ public class OccupationMap {
     }
     
     
-    public OccupationMap(int padding, String commandGroup, int team, int plane, TileMap map) {
+    public OccupationMap(int padding, String commandGroup, int team, int plane, TileMap map, int tileSize) {
         this.padding = padding;
         this.commandGroup = commandGroup;
         this.tileMap = map;
         this.team = team;
         this.plane = plane;
+        this.tileSize = tileSize;
     }
     
     public Boolean isTileBlocked(Tile t) {
-        return occupiedMap.getOrDefault(t, Boolean.FALSE) || (this.plane < 2 && TerrainTileMap.getCurrentTerrainTileMap().isTileBlocked(t));
+        return occupiedMap.getOrDefault(t, Boolean.FALSE) || (this.plane < 2 && TerrainTileMap.getCurrentTerrainTileMapForSize(tileSize).isTileBlocked(t));
     }
 
     public int getPadding() {

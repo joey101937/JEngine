@@ -92,7 +92,7 @@ public class RTSUnit extends GameObject2 {
           boolean blocked = false;
         
         try {
-            blocked = RTSGame.navigationManager.tileMap.getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
+            blocked = RTSGame.navigationManager.tileMapNormal.getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
         } catch (Exception e) {}
         
         return blocked;
@@ -105,7 +105,7 @@ public class RTSUnit extends GameObject2 {
         boolean blocked = false;
         
         try {
-            blocked = RTSGame.navigationManager.tileMap.getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
+            blocked = RTSGame.navigationManager.tileMapNormal.getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
         } catch (Exception e) {}
         
         if(blocked){
@@ -236,8 +236,8 @@ public class RTSUnit extends GameObject2 {
         if(!this.hasVelocity()) {
             comingFromLocation = getPixelLocation();
         }
-        int adjustedX = (int)((c.x / Tile.tileSize) * Tile.tileSize) + Tile.tileSize/2;
-        int adjustedY = (int)((c.y / Tile.tileSize) * Tile.tileSize) + Tile.tileSize/2;
+        int adjustedX = (int)((c.x / getNavTileSize()) * getNavTileSize()) + getNavTileSize()/2;
+        int adjustedY = (int)((c.y / getNavTileSize()) * getNavTileSize()) + getNavTileSize()/2;
 
         desiredLocation = new Coordinate(adjustedX, adjustedY);
     }
@@ -260,7 +260,7 @@ public class RTSUnit extends GameObject2 {
         int sideLength = Math.max(getWidth(), getHeight());
         
         for (int i = 0; i < waypoints.size(); i++) {
-            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + 20 + Tile.tileSize/2)) {
+            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + 20 + getNavTileSize()/2)) {
                 return waypoints.get(i);
             }
         }
@@ -269,15 +269,16 @@ public class RTSUnit extends GameObject2 {
     }
     
     public int getPathingPadding() {
-        int modifier = isTouchingOtherUnit ? 1 : 1;
-        if(isInfantry) return 16;
-        if(this instanceof LightTank) return 50; 
-        if(this.plane > 1) return 35 * modifier; // helicopter
-        return 55; // med tank
+        int navSize = getNavTileSize();
+        int extra = navSize == 10 ? 15 : 0;
+        if(isInfantry) return 16 + extra;
+        if(this instanceof LightTank) return 50 + extra; 
+        if(this.plane > 1) return 35 + extra; // helicopter
+        return 55 + extra; // med tank
     }
 
     public void updateWaypoints() {
-        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, RTSGame.navigationManager.tileMap, this);
+        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, this);
     }
 
     public RTSUnit nearestEnemyInRange() {
@@ -377,6 +378,13 @@ public class RTSUnit extends GameObject2 {
         this.commandGroup = components[8];
     }
     
+    public int getNavTileSize() {
+        int distance = (int)distanceFrom(desiredLocation);
+        if(distance < 700) return Tile.tileSizeFine;
+        if(distance < 2600) return Tile.tileSizeNormal;
+        return Tile.tileSizeLarge;
+    }        
+    
     public String getPathingSignature () {
         StringBuilder builder = new StringBuilder();
         builder.append(getPathingPadding()); // 1
@@ -386,6 +394,8 @@ public class RTSUnit extends GameObject2 {
         builder.append(plane); // 3
         builder.append(',');
         builder.append(commandGroup); // 4
+        builder.append(',');
+        builder.append(getNavTileSize()); // 5
         return builder.toString();
     };
 
