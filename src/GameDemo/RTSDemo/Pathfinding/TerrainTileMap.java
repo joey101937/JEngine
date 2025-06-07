@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -122,11 +123,32 @@ public class TerrainTileMap implements Serializable {
     }
     
     public static void loadAll() {
-        // asyncronously calls all get methods for all three maps so that they get loaded into memory from disk.
-        // returns only when all are done.
+        CompletableFuture<TerrainTileMap> normalFuture = CompletableFuture.supplyAsync(() -> getCurrentTerrainTileMapNormal());
+        CompletableFuture<TerrainTileMap> fineFuture = CompletableFuture.supplyAsync(() -> getCurrentTerrainTileMapFine());
+        CompletableFuture<TerrainTileMap> largeFuture = CompletableFuture.supplyAsync(() -> getCurrentTerrainTileMapLarge());
+        
+        CompletableFuture.allOf(normalFuture, fineFuture, largeFuture).join();
     }
     
-    public static void generateAll () {
-        // asyncronously generates all three maps and saves them to file
+    public static void generateAll() {
+        PathingLayer pl = new PathingLayer(RTSAssetManager.rtsPathing);
+        pl.generateMap();
+        
+        CompletableFuture<Void> normalFuture = CompletableFuture.runAsync(() -> {
+            TerrainTileMap normal = TerrainTileMap.generate(pl, Tile.tileSizeNormal);
+            normal.saveToFile(Main.assets + "terrain_Normal");
+        });
+        
+        CompletableFuture<Void> fineFuture = CompletableFuture.runAsync(() -> {
+            TerrainTileMap fine = TerrainTileMap.generate(pl, Tile.tileSizeFine);
+            fine.saveToFile(Main.assets + "terrain_Fine");
+        });
+        
+        CompletableFuture<Void> largeFuture = CompletableFuture.runAsync(() -> {
+            TerrainTileMap large = TerrainTileMap.generate(pl, Tile.tileSizeLarge);
+            large.saveToFile(Main.assets + "terrain_Large");
+        });
+        
+        CompletableFuture.allOf(normalFuture, fineFuture, largeFuture).join();
     }
 }
