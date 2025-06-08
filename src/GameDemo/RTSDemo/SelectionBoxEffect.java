@@ -55,7 +55,7 @@ public class SelectionBoxEffect extends IndependentEffect {
             selectedUnits.clear();
         }
         if (selectionZone != null) {
-            for (GameObject2 go : RTSGame.game.getObjectsInArea(selectionZone)) {
+            for (GameObject2 go : RTSGame.game.getObjectsIntersectingArea(selectionZone)) {
                 if (go instanceof RTSUnit) {
                     ((RTSUnit) go).setSelected(true);
                     selectedUnits.add((RTSUnit) go);

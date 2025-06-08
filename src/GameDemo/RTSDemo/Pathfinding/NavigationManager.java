@@ -144,7 +144,7 @@ public class NavigationManager extends IndependentEffect {
             Tile start = tileMap.getTileAtLocation(startCoord);
             Tile goal = tileMap.getTileAtLocation(endCoord);
             String pathingSignature = self.getPathingSignature();
-            int maxCalculationAmount = 1200;
+            int maxCalculationAmount = 2000;
 
             if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
                 // Use giant terrain map for long-distance pathfinding

@@ -263,6 +263,15 @@ public class Game implements Runnable {
     public ArrayList<GameObject2> getObjectsInArea(Rectangle r) {
         return handler.getObjectsInArea(r);
     }
+    
+    public ArrayList<GameObject2> getObjectsIntersectingArea (Rectangle r) {
+        Coordinate[] verts = new Coordinate[4];
+        verts[0] = new Coordinate(r.x, r.y);
+        verts[1] = new Coordinate(r.x + (int)r.getWidth(), r.y);
+        verts[2] = new Coordinate(r.x, r.y + (int) r.getHeight());
+        verts[3] = new Coordinate(r.x + (int)r.getWidth(), r.y + (int) r.getHeight());
+        return getObjectsIntersecting(new Hitbox(verts));
+    }
 
     /**
      * returns all gameobjects and subobjects that intersect the given rectangle

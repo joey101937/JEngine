@@ -10,6 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
+import Framework.Main;
 import Framework.PathingLayer;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
@@ -58,6 +59,9 @@ public class RTSUnit extends GameObject2 {
     private boolean debugFlag = false;
     private Coordinate pathStartCache;
     private Coordinate pathEndCache;
+    private long pathCacheSignatureLastChangedTick = 0l;
+    private String pathCacheSignature;
+    private int pathCacheUses = 0;
     private List<Coordinate> pathCache; 
     
     // Movement deceleration configuration
@@ -171,6 +175,10 @@ public class RTSUnit extends GameObject2 {
         for(CommandButton button : getButtons()) {
             button.tick();
         }
+        if(tickNumber - this.pathCacheSignatureLastChangedTick > Main.ticksPerSecond * 4) {
+            this.commandGroup = "0";
+            this.setDesiredLocation(getPixelLocation());
+        }
     }
 
     public void die() {
@@ -230,15 +238,16 @@ public class RTSUnit extends GameObject2 {
         int adjustedY = (int)((c.y / getNavTileSize()) * getNavTileSize()) + getNavTileSize()/2;
 
         desiredLocation = new Coordinate(adjustedX, adjustedY);
+        
+        pathCacheSignatureLastChangedTick = this.tickNumber;
     }
     
     public boolean isCloseEnoughToDesired() {
-        int sideLength = Math.max(getWidth(), getHeight());
-        return desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= Math.max(20, sideLength / 6);
+        return desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= Math.max(20, getSideLength() / 6);
     }
 
     public Coordinate getNextWaypoint() {
-        if(waypoints == null || waypoints.size() == 0 || isCloseEnoughToDesired()) {
+        if(waypoints == null || waypoints.size() == 0 || desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= Math.max(20, getSideLength() / 2)) {
             return desiredLocation;
         }
         
@@ -260,7 +269,7 @@ public class RTSUnit extends GameObject2 {
     
     public int getPathingPadding() {
         int navSize = getNavTileSize();
-        int extra = navSize == 10 ? 15 : 0;
+        int extra = navSize == Tile.tileSizeFine ? 15 : 0;
         if(isInfantry) return 16 + extra;
         if(this instanceof LightTank) return 50 + extra; 
         if(this.plane > 1) return 35 + extra; // helicopter
@@ -268,15 +277,21 @@ public class RTSUnit extends GameObject2 {
     }
 
     public void updateWaypoints() {
-        if(desiredLocation.equals(pathEndCache) && getPixelLocation().equals(pathStartCache)) {
+        if(pathCacheUses < 10 && desiredLocation.equals(pathEndCache) && getPixelLocation().equals(pathStartCache) && !commandGroup.equals(NavigationManager.SEPERATOR_GROUP)) {
             // if we just calculated the path for this start and end, dont recalculate it agian
             waypoints = pathCache;
+            pathCacheUses++;
             return;
         }
         waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, this);
         pathStartCache = getPixelLocation();
         pathEndCache = desiredLocation;
         pathCache = waypoints;
+        String newpathCacheSignature = ""+desiredLocation+""+getPixelLocation();
+        if(pathCacheSignature == null || !pathCacheSignature.equals(newpathCacheSignature)) {  
+            pathCacheSignatureLastChangedTick = this.tickNumber;
+        }
+        this.pathCacheSignature = newpathCacheSignature;
     }
 
     public RTSUnit nearestEnemyInRange() {
@@ -378,7 +393,7 @@ public class RTSUnit extends GameObject2 {
     
     public int getNavTileSize() {
         int distance = (int)distanceFrom(desiredLocation);
-         if(distance < 1100) return Tile.tileSizeFine;
+         if(distance < 800) return Tile.tileSizeFine;
          if(distance < 2600) return Tile.tileSizeNormal;
          return Tile.tileSizeLarge;
 
