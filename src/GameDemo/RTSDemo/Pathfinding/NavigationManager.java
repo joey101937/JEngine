@@ -93,7 +93,7 @@ public class NavigationManager extends IndependentEffect {
             tileMapNormal.refreshOccupationmaps(game);
         }));
          
-         // note not adding giantTerrain map here
+         // note not adding giantTerrain map here because that map only handles terrain.
         
         Handler.waitForAllJobs(refreshTasks);
         
