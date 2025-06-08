@@ -44,7 +44,13 @@ public class OccupationMap {
         Collection<Future<?>> occupationTasks = new LinkedList<>();
         Tile[][] tileGrid = tileMap.tileGrid;
         for(GameObject2 go : game.getAllObjects()){
-            if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.commandGroup.equals(commandGroup) || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
+            if(go instanceof RTSUnit unit 
+                    && !(go instanceof Landmine)
+                    && (!(unit.commandGroup.equals(commandGroup)
+                    && !unit.commandGroup.equals(NavigationManager.SEPERATOR_GROUP)) || unit.isRubble)
+                    && unit.isSolid
+                    && unit.plane == plane
+                    && unit.team == team) {
                 occupationTasks.add(occupationService.submit(() -> {
                     boolean isForInfantry = padding == 16;
                     for(Coordinate coord : tileMap.getTilesNearPoint(getGridLocationOf(unit.getPixelLocation()), (int)(unit.getWidth() * (isForInfantry ? .7 : .7)) + tileSize + padding)) {

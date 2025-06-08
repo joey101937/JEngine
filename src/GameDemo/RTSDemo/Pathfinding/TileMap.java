@@ -33,7 +33,7 @@ public class TileMap implements Serializable{
         int plane = Integer.parseInt(parts[2]);
         String commandGroup = parts[3];
         int tileSize = Integer.parseInt(parts[4]);
-        return new OccupationMap(padding, commandGroup, team, plane, this, tileSize);
+        return new OccupationMap(padding, commandGroup, team, plane, this, this.tileSize);
     }
     
      public TileMap(int worldWidth, int worldHeight, int tileSize) {
@@ -275,7 +275,11 @@ public class TileMap implements Serializable{
         return true;
     }
 
-    void refreshOccupationmaps(Game game) {
+    public void refreshOccupationmaps(Game game) {
+        if(this.tileSize == Tile.tileSizeGiantTerrain) {
+            refreshOccupationmapsGiantTerrain(game);
+            return;
+        }
         HashSet<String> pathingSignatures = new HashSet<>();
         for(GameObject2 go : game.getAllObjects()) {
             if(go instanceof RTSUnit unit) {
@@ -289,6 +293,19 @@ public class TileMap implements Serializable{
         for(String s : pathingSignatures) {
             occupationMaps.put(s, generateOccupationMapFromSignature(s));
             occupationMaps.get(s).updateOccupationMap(game);
+        }
+    }
+    
+    private void refreshOccupationmapsGiantTerrain(Game game){
+        HashSet<String> pathingSignatures = new HashSet<>();
+        for(GameObject2 go : game.getAllObjects()) {
+            if(go instanceof RTSUnit unit) {
+                    pathingSignatures.add(unit.getPathingSignature());
+            }
+        }
+        occupationMaps.clear();
+        for(String s : pathingSignatures) {
+            occupationMaps.put(s, generateOccupationMapFromSignature(s));
         }
     }
   

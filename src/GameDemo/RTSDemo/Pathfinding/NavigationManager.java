@@ -33,6 +33,8 @@ public class NavigationManager extends IndependentEffect {
     // private static final long UPDATE_INTERVAL_NANOS = 100_000_000; // 100ms in nanoseconds
     public static int updateInterval = Main.ticksPerSecond / 10;
     public static ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
+    public static int maxCalculationDistance = 1400;
+    public static String SEPERATOR_GROUP = "seperator";
 
     public Game game;
     public TileMap tileMapNormal;
@@ -45,35 +47,43 @@ public class NavigationManager extends IndependentEffect {
         tileMapNormal = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeNormal);
         tileMapFine = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeFine);
         tileMapLarge = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeLarge);
-        tileMapLarge = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeGiantTerrain);
+        tileMapGiantTerrain = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeGiantTerrain);
     }
 
     @Override
     public void render(Graphics2D g) {
         HashSet<String> pathingSignatures = new HashSet<>();
-        for(GameObject2 go : game.getAllObjects()) {
-            if(go instanceof RTSUnit unit) {
-                    pathingSignatures.add(unit.getPathingSignature());
+        for (GameObject2 go : game.getAllObjects()) {
+            if (go instanceof RTSUnit unit) {
+                pathingSignatures.add(unit.getPathingSignature());
             }
         }
         var camLoc = RTSGame.game.getCamera().getWorldRenderLocation().toCoordinate();
-        g.drawString("ps: " + pathingSignatures.size(), camLoc.x + 10 , camLoc.y + 10);
+        g.drawString("ps: " + pathingSignatures.size(), camLoc.x + 10, camLoc.y + 10);
         
-        if(1==2) return;
-        if(SelectionBoxEffect.selectedUnits.isEmpty()) return;
-        RTSUnit unit = (RTSUnit)SelectionBoxEffect.selectedUnits.toArray()[0];
-        TileMap tm = getTileMapBySize(unit.getNavTileSize());
-        try {
-        tm.getTilesNearPoint(Window.currentGame.getCameraCenterPosition(), 500).forEach(coord -> {
-            Tile tile = tm.tileGrid[coord.x][coord.y];
-            if(tile.isBlocked(unit.getPathingSignature())) g.setColor(Color.red);
-            else g.setColor(Color.green);
-            g.drawRect(tile.x * tm.tileSize, tile.y * tm.tileSize, tm.tileSize, tm.tileSize);
-        });            
-        } catch (Exception e) {
-            
+
+        if (1 == 2) {
+            return;
         }
-    
+        if (SelectionBoxEffect.selectedUnits.isEmpty()) {
+            return;
+        }
+        RTSUnit unit = (RTSUnit) SelectionBoxEffect.selectedUnits.toArray()[0];
+        TileMap tm = getTileMapBySize(unit.getNavTileSize()); //  this.tileMapGiantTerrain; // getTileMapBySize(unit.getNavTileSize());
+        try {
+            tm.getTilesNearPoint(Window.currentGame.getCameraCenterPosition(), 500).forEach(coord -> {
+                Tile tile = tm.tileGrid[coord.x][coord.y];
+                if (tile.isBlocked(unit.getPathingSignature())) {
+                    g.setColor(Color.red);
+                } else {
+                    g.setColor(Color.green);
+                }
+                g.drawRect(tile.x * tm.tileSize, tile.y * tm.tileSize, tm.tileSize, tm.tileSize);
+            });
+        } catch (Exception e) {
+
+        }
+
     }
 
     @Override
@@ -81,7 +91,7 @@ public class NavigationManager extends IndependentEffect {
         if (game.getGameTickNumber() % updateInterval != 0) {
             return;
         }
-        
+
         Collection<Future<?>> refreshTasks = new ArrayList<>();
         refreshTasks.add(unitPathingService.submit(() -> {
             tileMapFine.refreshOccupationmaps(game);
@@ -89,14 +99,16 @@ public class NavigationManager extends IndependentEffect {
         refreshTasks.add(unitPathingService.submit(() -> {
             tileMapLarge.refreshOccupationmaps(game);
         }));
-         refreshTasks.add(unitPathingService.submit(() -> {
+        refreshTasks.add(unitPathingService.submit(() -> {
             tileMapNormal.refreshOccupationmaps(game);
         }));
-         
-         // note not adding giantTerrain map here because that map only handles terrain.
-        
+        refreshTasks.add(unitPathingService.submit(() -> {
+            tileMapGiantTerrain.refreshOccupationmaps(game);
+        }));
+
+        // note not adding giantTerrain map here because that map only handles terrain.
         Handler.waitForAllJobs(refreshTasks);
-        
+
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
             if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired()) {
@@ -108,157 +120,143 @@ public class NavigationManager extends IndependentEffect {
         }
         Handler.waitForAllJobs(pathingTasks);
     }
-    
-    public TileMap getTileMapBySize (int size) {
-        if(size == tileMapFine.tileSize) return tileMapFine;
-        if(size == tileMapNormal.tileSize) return tileMapNormal;
-        if(size == tileMapLarge.tileSize) return tileMapLarge;
-        // not using giantTerrain
+
+    public TileMap getTileMapBySize(int size) {
+        if (size == tileMapFine.tileSize) {
+            return tileMapFine;
+        }
+        if (size == tileMapNormal.tileSize) {
+            return tileMapNormal;
+        }
+        if (size == tileMapLarge.tileSize) {
+            return tileMapLarge;
+        }
+        if (size == tileMapGiantTerrain.tileSize) {
+            return tileMapGiantTerrain;
+        }
         return null;
     }
 
     public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, RTSUnit self) {
         
-        if(1==2) {
-            ArrayList<Coordinate> out = new ArrayList<>();
-            out.add(endCoord);
-            return out;
-        }
-        
         try {
-        TileMap tileMap = getTileMapBySize(self.getNavTileSize());
-        Tile start = tileMap.getTileAtLocation(startCoord);
-        Tile goal = tileMap.getTileAtLocation(endCoord);
-        String pathingSignature = self.getPathingSignature();
-        int maxCalculationDistance = 1400;
-        int maxCalculationAmount = 8000;
+            TileMap tileMap = getTileMapBySize(self.getNavTileSize());
+            Tile start = tileMap.getTileAtLocation(startCoord);
+            Tile goal = tileMap.getTileAtLocation(endCoord);
+            String pathingSignature = self.getPathingSignature();
+            int maxCalculationAmount = 1200;
 
-        if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
-            // Use giant terrain map for long-distance pathfinding
-            TileMap giantMap = tileMapGiantTerrain;
-            Tile giantStart = giantMap.getTileAtLocation(startCoord);
-            Tile giantGoal = giantMap.getTileAtLocation(endCoord);
-            
-            // Get high-level path using giant terrain tiles
-            List<Coordinate> giantPath = getTerrainPath(giantStart, giantGoal, self);
-            
-            if (giantPath != null && !giantPath.isEmpty()) {
-                // Find the furthest waypoint within maxCalculationDistance
-                Coordinate nextWaypoint = null;
-                for (Coordinate waypoint : giantPath) {
-                    if (startCoord.distanceFrom(waypoint) <= maxCalculationDistance) {
-                        nextWaypoint = waypoint;
-                    } else {
-                        break;
+            if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
+                // Use giant terrain map for long-distance pathfinding
+                // Get high-level path using giant terrain tiles
+                List<Coordinate> giantPath = getTerrainPath(startCoord, endCoord, self);
+
+                if (giantPath != null && !giantPath.isEmpty()) {
+                    endCoord = calcIntermediateGoal(startCoord, giantPath, pathingSignature);
+                    goal = tileMap.getTileAtLocation(endCoord);
+                } else {
+                    // Fall back to circle method if terrain path fails
+                    endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
+                    goal = tileMap.getTileAtLocation(endCoord);
+                }
+            }
+
+            if (goal == null) {
+                goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
+                if (goal == null) {
+                    // no nearby open tiles, just return the end goal directly
+                    ArrayList<Coordinate> out = new ArrayList<>();
+                    out.add(endCoord);
+                    return out;
+                }
+            }
+
+            if (start.isBlocked(pathingSignature)) {
+                start = tileMap.getClosestOpenTile(startCoord, endCoord, pathingSignature);
+            }
+
+            if (goal.isBlocked(pathingSignature)) {
+                goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
+                if (self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (200 + self.getWidth() / 6)) {
+                    ArrayList<Coordinate> out = new ArrayList<>();
+                    out.add(endCoord);
+                    return out;
+                }
+            }
+
+            if (start == null || goal == null) {
+                if (self.isSelected()) {
+                    System.out.println("no path found (null start or end)");
+                }
+                ArrayList<Coordinate> out = new ArrayList<>();
+                out.add(endCoord);
+                return out;
+            }
+
+            PriorityQueue<Node> openSet = new PriorityQueue<>((a, b) -> {
+                // First compare by f value
+                int fCompare = Double.compare(a.f, b.f);
+                if (fCompare != 0) {
+                    return fCompare;
+                }
+
+                // If f values are equal, compare by h value
+                int hCompare = Double.compare(a.h, b.h);
+                if (hCompare != 0) {
+                    return hCompare;
+                }
+
+                // If h values are equal, compare by tile x coordinate
+                int xCompare = Integer.compare(a.tile.x, b.tile.x);
+                if (xCompare != 0) {
+                    return xCompare;
+                }
+
+                // Finally compare by tile y coordinate
+                return Integer.compare(a.tile.y, b.tile.y);
+            });
+            Map<Tile, Node> allNodes = new HashMap<>();
+            int numTraversed = 0;
+
+            Node startNode = new Node(start, null, 0, heuristic(start, goal));
+            openSet.add(startNode);
+            allNodes.put(start, startNode);
+
+            while (!openSet.isEmpty() && numTraversed < maxCalculationAmount) {
+                Node current = openSet.poll();
+                numTraversed++;
+
+                if (current.tile == goal) {
+                    var path = reconstructPath(current);
+                    path.add(endCoord);
+                    return smoothenPath(path, tileMap, self);
+                }
+
+                for (Tile neighbor : tileMap.getNeighbors(current.tile.getGridLocation())) {
+                    if (neighbor.isBlocked(pathingSignature)) {
+                        continue;
+                    }
+
+                    double gScore = current.g + 1;
+                    Node neighborNode = allNodes.get(neighbor);
+
+                    if (neighborNode == null || gScore < neighborNode.g) {
+                        neighborNode = new Node(neighbor, current, gScore, heuristic(neighbor, goal));
+                        allNodes.put(neighbor, neighborNode);
+                        openSet.add(neighborNode);
                     }
                 }
-                
-                // If no waypoint found within range, use the first waypoint
-                if (nextWaypoint == null && !giantPath.isEmpty()) {
-                    nextWaypoint = Coordinate.nearestPointOnCircle(startCoord, giantPath.get(0), maxCalculationDistance);
-                }
-                
-                // Fall back to circle method if no valid waypoint found
-                if (nextWaypoint == null) {
-                    nextWaypoint = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
-                }
-                
-                endCoord = nextWaypoint;
-                goal = tileMap.getTileAtLocation(endCoord);
-            } else {
-                // Fall back to circle method if terrain path fails
-                endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
-                goal = tileMap.getTileAtLocation(endCoord);
             }
-        }
 
-        if (goal == null) {
-            goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
-            if(goal == null) {
-                // no nearby open tiles, just return the end goal directly
-                ArrayList<Coordinate> out = new ArrayList<>();
-                out.add(endCoord);
-                return out;
-            }
-        }
-        
-        if (start.isBlocked(pathingSignature)) {
-            start = tileMap.getClosestOpenTile(startCoord, endCoord, pathingSignature);
-        }
-
-        if (goal.isBlocked(pathingSignature)) {
-            goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
-            if(self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (200 + self.getWidth()/6)) {
-                ArrayList<Coordinate> out = new ArrayList<>();
-                out.add(endCoord);
-                return out;
-            }
-        }      
-
-        if (start == null || goal == null) {
-            if(self.isSelected()) System.out.println("no path found (null start or end)");
+            if(self.isSelected()) System.out.println("numTraversed "+ numTraversed);
+            // System.out.println("no path found");
             ArrayList<Coordinate> out = new ArrayList<>();
             out.add(endCoord);
             return out;
-        }
-
-        PriorityQueue<Node> openSet = new PriorityQueue<>((a, b) -> {
-            // First compare by f value
-            int fCompare = Double.compare(a.f, b.f);
-            if (fCompare != 0) return fCompare;
-            
-            // If f values are equal, compare by h value
-            int hCompare = Double.compare(a.h, b.h);
-            if (hCompare != 0) return hCompare;
-            
-            // If h values are equal, compare by tile x coordinate
-            int xCompare = Integer.compare(a.tile.x, b.tile.x);
-            if (xCompare != 0) return xCompare;
-            
-            // Finally compare by tile y coordinate
-            return Integer.compare(a.tile.y, b.tile.y);
-        });
-        Map<Tile, Node> allNodes = new HashMap<>();
-        int numTraversed = 0;
-
-        Node startNode = new Node(start, null, 0, heuristic(start, goal));
-        openSet.add(startNode);
-        allNodes.put(start, startNode);
-
-        while (!openSet.isEmpty() && numTraversed < maxCalculationAmount) {
-            Node current = openSet.poll();
-            numTraversed++;
-
-            if (current.tile == goal) {
-                var path = reconstructPath(current);
-                path.add(endCoord);
-                return smoothenPath(path, tileMap, self);
-            }
-
-            for (Tile neighbor : tileMap.getNeighbors(current.tile.getGridLocation())) {
-                if (neighbor.isBlocked(pathingSignature)) {
-                    continue;
-                }
-
-                double gScore = current.g + 1;
-                Node neighborNode = allNodes.get(neighbor);
-
-                if (neighborNode == null || gScore < neighborNode.g) {
-                    neighborNode = new Node(neighbor, current, gScore, heuristic(neighbor, goal));
-                    allNodes.put(neighbor, neighborNode);
-                    openSet.add(neighborNode);
-                }
-            }
-        }
-
-        // System.out.println("no path found");
-        ArrayList<Coordinate> out = new ArrayList<>();
-        out.add(endCoord);
-        return out;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         // failed
         ArrayList<Coordinate> out = new ArrayList<>();
         out.add(endCoord);
@@ -267,14 +265,16 @@ public class NavigationManager extends IndependentEffect {
 
     private List<Coordinate> smoothenPath(List<Coordinate> path, TileMap tileMap, RTSUnit self) {
         String pathingSignature = self.getPathingSignature();
-        
-        if(tileMap.getTileAtLocation(self.getPixelLocation()).isBlocked(self.getPathingSignature())) {
+
+        if (tileMap.getTileAtLocation(self.getPixelLocation()).isBlocked(self.getPathingSignature())) {
             return path;
         }
-        
-        if(tileMap.getTileAtLocation(path.get(0)).isBlocked(pathingSignature)) return path;
-        
-        int spacing = (tileMap.occupationMaps.get(pathingSignature).getPadding() + tileMap.tileSize)/2;
+
+        if (tileMap.getTileAtLocation(path.get(0)).isBlocked(pathingSignature)) {
+            return path;
+        }
+
+        int spacing = (tileMap.occupationMaps.get(pathingSignature).getPadding() + tileMap.tileSize) / 2;
         Coordinate start = path.get(0);
 
         int farLimit = Math.min(60, path.size() - 1);
@@ -286,21 +286,21 @@ public class NavigationManager extends IndependentEffect {
         int nearLimit = Math.min(9, path.size() - 1);
         Coordinate goalNear = path.get(nearLimit);
 
-        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, (int)(self.getWidth()*.75)), pathingSignature)) {
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, (int) (self.getWidth() * .75)), pathingSignature)) {
             return path.subList(farLimit, path.size() - 1);
         }
 
-        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, (int)(self.getWidth()*.75)), pathingSignature)) {
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, (int) (self.getWidth() * .75)), pathingSignature)) {
             return path.subList(medLimit, path.size() - 1);
         }
 
-        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, (int)(self.getWidth()*.75)), pathingSignature)) {
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, (int) (self.getWidth() * .75)), pathingSignature)) {
             return path.subList(nearLimit, path.size() - 1);
         }
 
         return path;
     }
-    
+
     private ArrayList<Coordinate> reconstructPath(Node node) {
         ArrayList<Coordinate> path = new ArrayList<>();
         while (node != null) {
@@ -335,36 +335,54 @@ public class NavigationManager extends IndependentEffect {
         return -90;
     }
 
-}
-    private List<Coordinate> getTerrainPath(Tile start, Tile goal, RTSUnit self) {
-        if (start == null || goal == null) return null;
+    private List<Coordinate> getTerrainPath(Coordinate startCoord, Coordinate endCoord, RTSUnit self) {
+        int maxCalculationAmount = 500;
+        Tile start = tileMapGiantTerrain.getTileAtLocation(startCoord);
+        Tile goal = tileMapGiantTerrain.getTileAtLocation(endCoord);
+        if (start == null || goal == null) {
+            return null;
+        }
         
+        String pathingSignature = self.getPathingSignature();
+        
+         if (start.isBlocked(pathingSignature)) {
+                start = tileMapGiantTerrain.getClosestOpenTile(startCoord, endCoord, pathingSignature);
+            }
+
+            if (goal.isBlocked(pathingSignature)) {
+                goal = tileMapGiantTerrain.getClosestOpenTile(endCoord, startCoord, pathingSignature);
+            }
+
         PriorityQueue<Node> openSet = new PriorityQueue<>((a, b) -> {
             int fCompare = Double.compare(a.f, b.f);
-            if (fCompare != 0) return fCompare;
+            if (fCompare != 0) {
+                return fCompare;
+            }
             return Double.compare(a.h, b.h);
         });
-        
+
         Map<Tile, Node> allNodes = new HashMap<>();
         Node startNode = new Node(start, null, 0, heuristic(start, goal));
         openSet.add(startNode);
         allNodes.put(start, startNode);
+
+        int num = 0;
         
-        while (!openSet.isEmpty()) {
+        while (!openSet.isEmpty() && num < maxCalculationAmount) {
             Node current = openSet.poll();
-            
+            num++;
             if (current.tile == goal) {
                 return reconstructPath(current);
             }
-            
+
             for (Tile neighbor : tileMapGiantTerrain.getNeighbors(current.tile.getGridLocation())) {
                 if (TerrainTileMap.getCurrentTerrainTileMapForSize(tileMapGiantTerrain.tileSize).isTileBlocked(neighbor)) {
                     continue;
                 }
-                
+
                 double gScore = current.g + 1;
                 Node neighborNode = allNodes.get(neighbor);
-                
+
                 if (neighborNode == null || gScore < neighborNode.g) {
                     neighborNode = new Node(neighbor, current, gScore, heuristic(neighbor, goal));
                     allNodes.put(neighbor, neighborNode);
@@ -372,6 +390,17 @@ public class NavigationManager extends IndependentEffect {
                 }
             }
         }
-        
+
         return null;
     }
+
+    private Coordinate calcIntermediateGoal(Coordinate start, List<Coordinate> waypoints, String signature) {
+        for(Coordinate c : waypoints) {
+            if(c.distanceFrom(start) > maxCalculationDistance && !tileMapGiantTerrain.getTileAtLocation(c).isBlocked(signature)) {
+                return c;
+            }
+        }
+        
+        return waypoints.getLast();
+    }
+}

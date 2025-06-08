@@ -12,6 +12,7 @@ import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import Framework.PathingLayer;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Pathfinding.Tile;
 import GameDemo.RTSDemo.Units.Landmine;
@@ -55,6 +56,9 @@ public class RTSUnit extends GameObject2 {
     public int currentHealth = 100;
     public int maxHealth = 100;
     private boolean debugFlag = false;
+    private Coordinate pathStartCache;
+    private Coordinate pathEndCache;
+    private List<Coordinate> pathCache; 
     
     // Movement deceleration configuration
     public int minSpeedDistance = 50; // Distance at which speed reaches minimum
@@ -264,7 +268,15 @@ public class RTSUnit extends GameObject2 {
     }
 
     public void updateWaypoints() {
+        if(desiredLocation.equals(pathEndCache) && getPixelLocation().equals(pathStartCache)) {
+            // if we just calculated the path for this start and end, dont recalculate it agian
+            waypoints = pathCache;
+            return;
+        }
         waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, this);
+        pathStartCache = getPixelLocation();
+        pathEndCache = desiredLocation;
+        pathCache = waypoints;
     }
 
     public RTSUnit nearestEnemyInRange() {
@@ -494,19 +506,19 @@ public class RTSUnit extends GameObject2 {
         if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team) {
             this.isTouchingOtherUnit = true;
             if(this.commandGroup.equals(unit.commandGroup) && !this.movedLastTick() && !other.movedLastTick()) {
-//                if(!ExternalCommunicator.isMultiplayer || this.team == ExternalCommunicator.localTeam) {
-//                    // single player or this is friendly unit
-//                    String oldCommandGroup = this.commandGroup;
-//                    String newCommandGroup = RTSInput.generateRandomCommandGroup();
-//                    this.commandGroup = newCommandGroup;
-//                    addTickDelayedEffect(10, c -> {
-//                        if(this.commandGroup.equals(newCommandGroup)){
-//                            this.commandGroup = oldCommandGroup;
-//                            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
-//                        }
-//                        if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
-//                    });    
-//                }
+                if(!ExternalCommunicator.isMultiplayer || this.team == ExternalCommunicator.localTeam) {
+                    // single player or this is friendly unit
+                    String oldCommandGroup = this.commandGroup;
+                    String newCommandGroup = NavigationManager.SEPERATOR_GROUP;
+                    this.commandGroup = newCommandGroup;
+                    addTickDelayedEffect(10, c -> {
+                        if(this.commandGroup.equals(newCommandGroup)){
+                            this.commandGroup = oldCommandGroup;
+                            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
+                        }
+                        if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
+                    });    
+                }
             }
         }
     }
