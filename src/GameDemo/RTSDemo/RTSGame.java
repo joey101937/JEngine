@@ -40,7 +40,8 @@ public class RTSGame {
         g.setPathingLayer(pathing);
         Main.ignoreSubobjectCollision = false; // better performance
         Main.ignoreCollisionsForStillObjects = true; // better performance
-        Main.collisionCheckRadius = 390;
+        Main.ignoreCollisionsOnRotation = true;
+        Main.collisionCheckRadius = 100;
         Main.onScreenPadding = 400;
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
@@ -56,6 +57,7 @@ public class RTSGame {
         navigationManager = new NavigationManager(g);
         g.addIndependentEffect(navigationManager);
         g.addIndependentEffect(RTSSoundManager.get());
+        TerrainTileMap.loadAll();
     }
 
     public static void setupUI(Game g) {

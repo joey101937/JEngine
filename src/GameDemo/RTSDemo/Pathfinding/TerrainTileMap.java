@@ -116,10 +116,9 @@ public class TerrainTileMap implements Serializable {
 
     public static void main(String[] args) {
         RTSAssetManager.initialize();
-        PathingLayer pl = new PathingLayer(RTSAssetManager.rtsPathing);
-        pl.generateMap();
-        TerrainTileMap out = TerrainTileMap.generate(pl, Tile.tileSizeFine);
-        out.saveToFile(Main.assets + "terrain_Fine");
+        generateAll();
+        System.out.println("All Complete");
+        System.exit(0);
     }
     
     public static void loadAll() {
@@ -128,6 +127,7 @@ public class TerrainTileMap implements Serializable {
         CompletableFuture<TerrainTileMap> largeFuture = CompletableFuture.supplyAsync(() -> getCurrentTerrainTileMapLarge());
         
         CompletableFuture.allOf(normalFuture, fineFuture, largeFuture).join();
+        System.out.println("terrain map loaded");
     }
     
     public static void generateAll() {

@@ -43,7 +43,6 @@ public class OccupationMap {
         occupiedMap.clear();
         Collection<Future<?>> occupationTasks = new LinkedList<>();
         Tile[][] tileGrid = tileMap.tileGrid;
-        
         for(GameObject2 go : game.getAllObjects()){
             if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.commandGroup.equals(commandGroup) || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
                 occupationTasks.add(occupationService.submit(() -> {

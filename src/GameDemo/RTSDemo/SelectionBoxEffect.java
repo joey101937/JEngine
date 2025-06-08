@@ -13,6 +13,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,10 @@ public class SelectionBoxEffect extends IndependentEffect {
     public static Set<RTSUnit> selectedUnits = new HashSet<>();
     public static final Color uncontrollableColor = new Color(.5f, .5f, .5f, .8f);
     public static final Color selectionColor = new Color(0f, 1f, 0f, .8f);
-    private static volatile Rectangle selectionZone = null;
+    private static Rectangle selectionZone = null;
+    private Stroke stroke3 = new BasicStroke(3);
+    private Stroke stroke1 = new BasicStroke(1);
+
 
     @Override
     public int getZLayer() {
@@ -51,7 +55,7 @@ public class SelectionBoxEffect extends IndependentEffect {
             selectedUnits.clear();
         }
         if (selectionZone != null) {
-            for (GameObject2 go : RTSGame.game.getPreciseObjectsInArea(selectionZone)) {
+            for (GameObject2 go : RTSGame.game.getObjectsInArea(selectionZone)) {
                 if (go instanceof RTSUnit) {
                     ((RTSUnit) go).setSelected(true);
                     selectedUnits.add((RTSUnit) go);
@@ -61,7 +65,7 @@ public class SelectionBoxEffect extends IndependentEffect {
     }
 
     private void drawSelectionBox(Graphics2D g) {
-        g.setStroke(new BasicStroke(1));
+        g.setStroke(stroke1);
         Color originalColor = g.getColor();
         g.setColor(Color.green);
         Coordinate downLoc = RTSInput.getMouseDownLocation();
@@ -109,7 +113,7 @@ public class SelectionBoxEffect extends IndependentEffect {
     }
 
     private void drawSelectionCirclesGround(Graphics2D g) {
-        g.setStroke(new BasicStroke(3));
+        g.setStroke(stroke3);
         List<GameObject2> gos = RTSGame.game.getAllObjects();
         for (GameObject2 go : gos) {
             if (go instanceof RTSUnit unit) {

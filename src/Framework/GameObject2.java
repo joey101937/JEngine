@@ -319,12 +319,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         if(isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
             double padding = hostGame.handler.currentSnapshot.largestSideLength * 1.5;
-            for(GameObject2 other : getHostGame().getObjectsNearPoint(getPixelLocation(true), longestSideLength() + padding)){
-                if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
-                     getHostGame().handler.registerCollision(this, other);
-                     System.out.println("preventing rotation due to collision");
-                     return; 
-                }
+            if(!Main.ignoreCollisionsOnRotation) {
+                for(GameObject2 other : getHostGame().getObjectsNearPoint(getPixelLocation(true), longestSideLength() + padding)){
+                    if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
+                         getHostGame().handler.registerCollision(this, other);
+                         System.out.println("preventing rotation due to collision");
+                         return; 
+                    }
+                }   
             }
         }
         rotation += degrees;

@@ -92,7 +92,7 @@ public class RTSUnit extends GameObject2 {
           boolean blocked = false;
         
         try {
-            blocked = RTSGame.navigationManager.tileMapNormal.getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
+            blocked = RTSGame.navigationManager.getTileMapBySize(getNavTileSize()).getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
         } catch (Exception e) {}
         
         return blocked;
@@ -101,21 +101,7 @@ public class RTSUnit extends GameObject2 {
     @Override
     public void render(Graphics2D g) {
         super.render(g);
-        
-        boolean blocked = false;
-        
-        try {
-            blocked = RTSGame.navigationManager.tileMapNormal.getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
-        } catch (Exception e) {}
-        
-        if(blocked){
-            g.setColor(Color.red);
-        } else {
-            g.setColor(Color.green);
-        }
-        
         g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
-        g.drawString(""+debugFlag, getPixelLocation().x - 30, getPixelLocation().y);
 
         if (isRubble) {
             return;
@@ -380,9 +366,11 @@ public class RTSUnit extends GameObject2 {
     
     public int getNavTileSize() {
         int distance = (int)distanceFrom(desiredLocation);
-        if(distance < 700) return Tile.tileSizeFine;
-        if(distance < 2600) return Tile.tileSizeNormal;
-        return Tile.tileSizeLarge;
+         if(distance < 1100) return Tile.tileSizeFine;
+         if(distance < 2600) return Tile.tileSizeNormal;
+         return Tile.tileSizeLarge;
+
+//        return Tile.tileSizeNormal;
     }        
     
     public String getPathingSignature () {
@@ -506,19 +494,19 @@ public class RTSUnit extends GameObject2 {
         if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team) {
             this.isTouchingOtherUnit = true;
             if(this.commandGroup.equals(unit.commandGroup) && !this.movedLastTick() && !other.movedLastTick()) {
-                if(!ExternalCommunicator.isMultiplayer || this.team == ExternalCommunicator.localTeam) {
-                    // single player or this is friendly unit
-                    String oldCommandGroup = this.commandGroup;
-                    String newCommandGroup = RTSInput.generateRandomCommandGroup();
-                    this.commandGroup = newCommandGroup;
-                    addTickDelayedEffect(10, c -> {
-                        if(this.commandGroup.equals(newCommandGroup)){
-                            this.commandGroup = oldCommandGroup;
-                            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
-                        }
-                        if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
-                    });    
-                }
+//                if(!ExternalCommunicator.isMultiplayer || this.team == ExternalCommunicator.localTeam) {
+//                    // single player or this is friendly unit
+//                    String oldCommandGroup = this.commandGroup;
+//                    String newCommandGroup = RTSInput.generateRandomCommandGroup();
+//                    this.commandGroup = newCommandGroup;
+//                    addTickDelayedEffect(10, c -> {
+//                        if(this.commandGroup.equals(newCommandGroup)){
+//                            this.commandGroup = oldCommandGroup;
+//                            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
+//                        }
+//                        if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
+//                    });    
+//                }
             }
         }
     }

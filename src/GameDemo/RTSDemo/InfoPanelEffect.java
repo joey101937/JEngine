@@ -33,6 +33,8 @@ public class InfoPanelEffect extends IndependentEffect {
     public int baseX, baseY, width, height;
     public int x, y;
     private RTSUnit mainUnit = null;
+    private ArrayList<RTSUnit> selectedUnits = new ArrayList<>();
+    HashMap<String, Integer> unitCountMap = new HashMap<>();
 
     public InfoPanelEffect(Game game, int x, int y, int width, int height) {
         this.hostGame = game;
@@ -53,6 +55,18 @@ public class InfoPanelEffect extends IndependentEffect {
             unitNameImageMap.put("Landmine", RTSAssetManager.landmineSelectionImage);
         }
     }
+    
+    private void updateSelectedUnits () {
+        selectedUnits = new ArrayList<>(SelectionBoxEffect.selectedUnits.stream().filter(
+                u -> !u.isRubble && u.isAlive() && (!ExternalCommunicator.isMultiplayer || u.team == ExternalCommunicator.localTeam)).toList()
+        );
+        unitCountMap.clear();
+        selectedUnits.forEach(unit -> unitCountMap.put(unit.getName(), unitCountMap.getOrDefault(unit.getName(), 0) + 1));
+        mainUnit = null;
+        if (!selectedUnits.isEmpty()) {
+            mainUnit = selectedUnits.get(0);
+        }
+    }
 
     @Override
     public void render(Graphics2D g) {
@@ -69,15 +83,7 @@ public class InfoPanelEffect extends IndependentEffect {
 
         drawGradientBorder(g, x, y, width, height);
 
-        ArrayList<RTSUnit> selectedUnits = new ArrayList<>(SelectionBoxEffect.selectedUnits.stream().filter(
-                u -> !u.isRubble && u.isAlive() && (!ExternalCommunicator.isMultiplayer || u.team == ExternalCommunicator.localTeam)).toList()
-        );
-        HashMap<String, Integer> unitCountMap = new HashMap<>();
-        selectedUnits.forEach(unit -> unitCountMap.put(unit.getName(), unitCountMap.getOrDefault(unit.getName(), 0) + 1));
-
-        mainUnit = null;
         if (!selectedUnits.isEmpty()) {
-            mainUnit = selectedUnits.get(0);
             g.drawImage(unitNameImageMap.get(mainUnit.getName()), x + 5, y + 15, null);
             int imageWidth = unitNameImageMap.get(mainUnit.getName()).getWidth();
             g.setFont(titleFont);
@@ -283,7 +289,7 @@ public class InfoPanelEffect extends IndependentEffect {
 
     @Override
     public void tick() {
-        
+        updateSelectedUnits();
     }
     
     @Override
