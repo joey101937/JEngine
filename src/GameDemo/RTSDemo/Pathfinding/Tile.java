@@ -6,7 +6,8 @@ import java.io.Serializable;
 public class Tile implements Serializable{
     public static int tileSizeFine = 10;
     public static int tileSizeNormal = 26;
-    public static int tileSizeLarge = 50;
+    public static int tileSizeLarge = 250;
+    public static int tileSizeGiantTerrain = 250;
     
     /**
      * grid coords

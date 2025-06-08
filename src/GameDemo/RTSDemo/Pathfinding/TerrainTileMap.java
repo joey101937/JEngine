@@ -31,12 +31,14 @@ public class TerrainTileMap implements Serializable {
         if(size == Tile.tileSizeNormal) return getCurrentTerrainTileMapNormal();
         if(size == Tile.tileSizeFine) return getCurrentTerrainTileMapFine();
         if(size == Tile.tileSizeLarge) return getCurrentTerrainTileMapLarge();
+        if(size == Tile.tileSizeGiantTerrain) return getCurrentTerrainTileMapGiantTerrain();
+
         return null;
     }
 
     public static synchronized TerrainTileMap getCurrentTerrainTileMapNormal() {
         if (map1TerrainMapNormal == null) {
-            map1TerrainMapNormal = loadFromFile(Main.assets + "terrain_Normal"); // generate(Window.currentGame.getPathingLayer(), Tile.tileSizeNormal);
+            map1TerrainMapNormal = loadFromFile(Main.assets + "terrain_Normal");
         }
 
         return map1TerrainMapNormal;
@@ -44,7 +46,7 @@ public class TerrainTileMap implements Serializable {
 
     public static synchronized TerrainTileMap getCurrentTerrainTileMapFine() {
         if (map1TerrainMapFine == null) {
-            map1TerrainMapFine = loadFromFile(Main.assets + "terrain_Fine"); //generate(Window.currentGame.getPathingLayer(), Tile.tileSizeFine);
+            map1TerrainMapFine = loadFromFile(Main.assets + "terrain_Fine"); 
         }
 
         return map1TerrainMapFine;
@@ -52,7 +54,15 @@ public class TerrainTileMap implements Serializable {
 
     public static synchronized TerrainTileMap getCurrentTerrainTileMapLarge() {
         if (map1TerrainMapLarge == null) {
-            map1TerrainMapLarge = loadFromFile(Main.assets + "terrain_Large"); //generate(Window.currentGame.getPathingLayer(), Tile.tileSizeLarge);
+            map1TerrainMapLarge = loadFromFile(Main.assets + "terrain_Large"); 
+        }
+
+        return map1TerrainMapLarge;
+    }
+    
+    public static synchronized TerrainTileMap getCurrentTerrainTileMapGiantTerrain() {
+        if (map1TerrainMapLarge == null) {
+            map1TerrainMapLarge = loadFromFile(Main.assets + "terrain_GiantTerrain");
         }
 
         return map1TerrainMapLarge;
@@ -125,8 +135,9 @@ public class TerrainTileMap implements Serializable {
         CompletableFuture<TerrainTileMap> normalFuture = CompletableFuture.supplyAsync(() -> getCurrentTerrainTileMapNormal());
         CompletableFuture<TerrainTileMap> fineFuture = CompletableFuture.supplyAsync(() -> getCurrentTerrainTileMapFine());
         CompletableFuture<TerrainTileMap> largeFuture = CompletableFuture.supplyAsync(() -> getCurrentTerrainTileMapLarge());
+        CompletableFuture<TerrainTileMap> giantTerrainFuture = CompletableFuture.supplyAsync(() -> getCurrentTerrainTileMapGiantTerrain());
         
-        CompletableFuture.allOf(normalFuture, fineFuture, largeFuture).join();
+        CompletableFuture.allOf(normalFuture, fineFuture, largeFuture, giantTerrainFuture).join();
         System.out.println("terrain map loaded");
     }
     
@@ -149,6 +160,11 @@ public class TerrainTileMap implements Serializable {
             large.saveToFile(Main.assets + "terrain_Large");
         });
         
-        CompletableFuture.allOf(normalFuture, fineFuture, largeFuture).join();
+         CompletableFuture<Void> giantTerrainFuture = CompletableFuture.runAsync(() -> {
+            TerrainTileMap giantTerrain = TerrainTileMap.generate(pl, Tile.tileSizeGiantTerrain);
+            giantTerrain.saveToFile(Main.assets + "terrain_GiantTerrain");
+        });
+        
+        CompletableFuture.allOf(normalFuture, fineFuture, giantTerrainFuture).join();
     }
 }

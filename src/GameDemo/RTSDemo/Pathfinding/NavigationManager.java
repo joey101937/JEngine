@@ -58,7 +58,7 @@ public class NavigationManager extends IndependentEffect {
         var camLoc = RTSGame.game.getCamera().getWorldRenderLocation().toCoordinate();
         g.drawString("ps: " + pathingSignatures.size(), camLoc.x + 10 , camLoc.y + 10);
         
-        if(1==1) return;
+        if(1==2) return;
         if(SelectionBoxEffect.selectedUnits.isEmpty()) return;
         RTSUnit unit = (RTSUnit)SelectionBoxEffect.selectedUnits.toArray()[0];
         TileMap tm = getTileMapBySize(unit.getNavTileSize());
