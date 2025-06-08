@@ -38,13 +38,14 @@ public class NavigationManager extends IndependentEffect {
     public TileMap tileMapNormal;
     public TileMap tileMapFine;
     public TileMap tileMapLarge;
+    public TileMap tileMapGiantTerrain;
 
     public NavigationManager(Game g) {
         game = g;
         tileMapNormal = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeNormal);
         tileMapFine = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeFine);
         tileMapLarge = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeLarge);
-
+        tileMapLarge = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeGiantTerrain);
     }
 
     @Override
@@ -91,6 +92,8 @@ public class NavigationManager extends IndependentEffect {
          refreshTasks.add(unitPathingService.submit(() -> {
             tileMapNormal.refreshOccupationmaps(game);
         }));
+         
+         // note not adding giantTerrain map here
         
         Handler.waitForAllJobs(refreshTasks);
         
@@ -110,6 +113,7 @@ public class NavigationManager extends IndependentEffect {
         if(size == tileMapFine.tileSize) return tileMapFine;
         if(size == tileMapNormal.tileSize) return tileMapNormal;
         if(size == tileMapLarge.tileSize) return tileMapLarge;
+        // not using giantTerrain
         return null;
     }
 
