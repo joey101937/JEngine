@@ -134,17 +134,42 @@ public class NavigationManager extends IndependentEffect {
         int maxCalculationAmount = 8000;
 
         if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
-            // update this calculation. If the end destination is too far away, we should first calculate a path using the 
-            // giantTerrain tile map. that is a tilemap with very large tiles for easy compute. we will then use the path direction
-            // to decide which area we want to have our shorter goal. the idea is that we can use this standard a* algorithm to pathfind only nearby obsticles while
-            // following the giantTerrain path at a zoomed out levl until we get close enough to the destination that we can a* pathfind directly to the destination.
-            // the giant terrain map will only block tiles due to terrain. The tilemap in this function will account for both terrain and other units. 
+            // Use giant terrain map for long-distance pathfinding
+            TileMap giantMap = tileMapGiantTerrain;
+            Tile giantStart = giantMap.getTileAtLocation(startCoord);
+            Tile giantGoal = giantMap.getTileAtLocation(endCoord);
             
-            // what we are doing now is a very simple version of this system where we simply use a circle to calculate intermediate destinations for the a* algo.
-            // this works good without terrain but what if we need to get around a large lake? we need the large tiles to give us a general direction of where to go
-            // to get around the lake.
-            endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
-            goal = tileMap.getTileAtLocation(endCoord);
+            // Get high-level path using giant terrain tiles
+            List<Coordinate> giantPath = getTerrainPath(giantStart, giantGoal, self);
+            
+            if (giantPath != null && !giantPath.isEmpty()) {
+                // Find the furthest waypoint within maxCalculationDistance
+                Coordinate nextWaypoint = null;
+                for (Coordinate waypoint : giantPath) {
+                    if (startCoord.distanceFrom(waypoint) <= maxCalculationDistance) {
+                        nextWaypoint = waypoint;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // If no waypoint found within range, use the first waypoint
+                if (nextWaypoint == null && !giantPath.isEmpty()) {
+                    nextWaypoint = Coordinate.nearestPointOnCircle(startCoord, giantPath.get(0), maxCalculationDistance);
+                }
+                
+                // Fall back to circle method if no valid waypoint found
+                if (nextWaypoint == null) {
+                    nextWaypoint = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
+                }
+                
+                endCoord = nextWaypoint;
+                goal = tileMap.getTileAtLocation(endCoord);
+            } else {
+                // Fall back to circle method if terrain path fails
+                endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
+                goal = tileMap.getTileAtLocation(endCoord);
+            }
         }
 
         if (goal == null) {
@@ -311,3 +336,42 @@ public class NavigationManager extends IndependentEffect {
     }
 
 }
+    private List<Coordinate> getTerrainPath(Tile start, Tile goal, RTSUnit self) {
+        if (start == null || goal == null) return null;
+        
+        PriorityQueue<Node> openSet = new PriorityQueue<>((a, b) -> {
+            int fCompare = Double.compare(a.f, b.f);
+            if (fCompare != 0) return fCompare;
+            return Double.compare(a.h, b.h);
+        });
+        
+        Map<Tile, Node> allNodes = new HashMap<>();
+        Node startNode = new Node(start, null, 0, heuristic(start, goal));
+        openSet.add(startNode);
+        allNodes.put(start, startNode);
+        
+        while (!openSet.isEmpty()) {
+            Node current = openSet.poll();
+            
+            if (current.tile == goal) {
+                return reconstructPath(current);
+            }
+            
+            for (Tile neighbor : tileMapGiantTerrain.getNeighbors(current.tile.getGridLocation())) {
+                if (TerrainTileMap.getCurrentTerrainTileMapForSize(tileMapGiantTerrain.tileSize).isTileBlocked(neighbor)) {
+                    continue;
+                }
+                
+                double gScore = current.g + 1;
+                Node neighborNode = allNodes.get(neighbor);
+                
+                if (neighborNode == null || gScore < neighborNode.g) {
+                    neighborNode = new Node(neighbor, current, gScore, heuristic(neighbor, goal));
+                    allNodes.put(neighbor, neighborNode);
+                    openSet.add(neighborNode);
+                }
+            }
+        }
+        
+        return null;
+    }
