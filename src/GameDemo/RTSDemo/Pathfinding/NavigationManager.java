@@ -130,10 +130,19 @@ public class NavigationManager extends IndependentEffect {
         Tile start = tileMap.getTileAtLocation(startCoord);
         Tile goal = tileMap.getTileAtLocation(endCoord);
         String pathingSignature = self.getPathingSignature();
-        int maxCalculationDistance = 16000;
+        int maxCalculationDistance = 1400;
         int maxCalculationAmount = 8000;
 
         if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
+            // update this calculation. If the end destination is too far away, we should first calculate a path using the 
+            // giantTerrain tile map. that is a tilemap with very large tiles for easy compute. we will then use the path direction
+            // to decide which area we want to have our shorter goal. the idea is that we can use this standard a* algorithm to pathfind only nearby obsticles while
+            // following the giantTerrain path at a zoomed out levl until we get close enough to the destination that we can a* pathfind directly to the destination.
+            // the giant terrain map will only block tiles due to terrain. The tilemap in this function will account for both terrain and other units. 
+            
+            // what we are doing now is a very simple version of this system where we simply use a circle to calculate intermediate destinations for the a* algo.
+            // this works good without terrain but what if we need to get around a large lake? we need the large tiles to give us a general direction of where to go
+            // to get around the lake.
             endCoord = Coordinate.nearestPointOnCircle(startCoord, endCoord, maxCalculationDistance);
             goal = tileMap.getTileAtLocation(endCoord);
         }
