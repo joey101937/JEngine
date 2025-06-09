@@ -177,7 +177,7 @@ public class NavigationManager extends IndependentEffect {
 
             if (goal.isBlocked(pathingSignature)) {
                 goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
-                if (self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (200 + self.getWidth() / 6)) {
+                if (self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (self.getWidth())) {
                     ArrayList<Coordinate> out = new ArrayList<>();
                     out.add(endCoord);
                     return out;
@@ -287,14 +287,17 @@ public class NavigationManager extends IndependentEffect {
         Coordinate goalNear = path.get(nearLimit);
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, (int) (self.getWidth() * .75)), pathingSignature)) {
+            if(self.isSelected()) System.out.println("using far limit");
             return path.subList(farLimit, path.size() - 1);
         }
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, (int) (self.getWidth() * .75)), pathingSignature)) {
+            if(self.isSelected()) System.out.println("using med limit");
             return path.subList(medLimit, path.size() - 1);
         }
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, (int) (self.getWidth() * .75)), pathingSignature)) {
+            if(self.isSelected()) System.out.println("using near limit");
             return path.subList(nearLimit, path.size() - 1);
         }
 

@@ -16,6 +16,7 @@ import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Pathfinding.Tile;
+import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -253,6 +254,8 @@ public class RTSUnit extends GameObject2 {
         
         if(this.isTouchingOtherUnit) {
             // if touching other unit, follow waypoints exactly
+            System.out.println("following waypoints exactly");
+//            return waypoints.get(0);
             return waypoints.get((Math.min(0, waypoints.size()-1)));
         }
         
@@ -263,13 +266,19 @@ public class RTSUnit extends GameObject2 {
                 return waypoints.get(i);
             }
         }
-
+        
         return desiredLocation;
+    }
+    
+    public int getWidthForPathing () {
+        if(this instanceof TankUnit tank && !tank.sandbagActive) return this.getWidth()-10;
+        return this.getWidth();
     }
     
     public int getPathingPadding() {
         int navSize = getNavTileSize();
         int extra = navSize == Tile.tileSizeFine ? 15 : 0;
+        if(this instanceof Bazookaman) extra += 10;
         if(isInfantry) return 16 + extra;
         if(this instanceof LightTank) return 50 + extra; 
         if(this.plane > 1) return 35 + extra; // helicopter
