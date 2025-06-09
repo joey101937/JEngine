@@ -1,6 +1,7 @@
 package Framework;
 
 import GameDemo.RTSDemo.Pathfinding.*;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
 import org.junit.Test;
 import org.junit.Before;
@@ -19,7 +20,8 @@ public class PathfindingTest {
     
     @Before
     public void setUp() {
-        game = new Game(1000, 1000);
+        RTSAssetManager.initialize();
+        game = new Game(RTSAssetManager.grassBG);
         navigationManager = new NavigationManager(game);
         testUnit = new RTSUnit(100, 100, 1) {
             @Override

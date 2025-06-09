@@ -60,9 +60,12 @@ public class NavigationManager extends IndependentEffect {
         }
         var camLoc = RTSGame.game.getCamera().getWorldRenderLocation().toCoordinate();
         g.drawString("ps: " + pathingSignatures.size(), camLoc.x + 10, camLoc.y + 10);
+        g.drawString("FPS: " + game.getCurrentFPS(), camLoc.x + 10, camLoc.y + 20);
+        g.drawString("TPS: " + game.getCurrentTPS(), camLoc.x + 10, camLoc.y + 30);
+
         
 
-        if (1 == 2) {
+        if (1 == 1) {
             return;
         }
         if (SelectionBoxEffect.selectedUnits.isEmpty()) {
@@ -290,17 +293,23 @@ public class NavigationManager extends IndependentEffect {
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, (int) (self.getWidth() * .75)), pathingSignature)) {
             if(self.isSelected()) System.out.println("using far limit");
-            return path.subList(farLimit, path.size() - 1);
+            var smothened = path.subList(farLimit, path.size() - 1);
+            if(smothened.isEmpty()) smothened.add(path.getLast());
+            return smothened;
         }
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, (int) (self.getWidth() * .75)), pathingSignature)) {
             if(self.isSelected()) System.out.println("using med limit");
-            return path.subList(medLimit, path.size() - 1);
+            var smothened = path.subList(medLimit, path.size() - 1);
+            if(smothened.isEmpty()) smothened.add(path.getLast());
+            return smothened;
         }
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, (int) (self.getWidth() * .75)), pathingSignature)) {
             if(self.isSelected()) System.out.println("using near limit");
-            return path.subList(nearLimit, path.size() - 1);
+            var smothened = path.subList(nearLimit, path.size() - 1);
+            if(smothened.isEmpty()) smothened.add(path.getLast());
+            return smothened;
         }
 
         return path;

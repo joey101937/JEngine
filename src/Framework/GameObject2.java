@@ -1256,6 +1256,23 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         }
         hostGame.addTickDelayedEffect(new TickDelayedEffect(hostGame.handler.globalTickNumber + tickDelay, c));
     }
+    
+    /**
+     * Adds time triggered effect. Given function will run at the start of the first tick after given time in ms
+     * get current time in ms using System.currentTimeMillis();
+     * 
+     * (System.currentTimeMillis() + 1000)  means trigger after 1 second delay
+     * @param timeMs milli to trigger on
+     * @param c function to execute
+     */
+    public synchronized void addTimeTriggeredEffect(long timeMs, Consumer c) {
+        if(hostGame == null) {
+            System.out.println("error trying to add timeTriggeredEffect with null game");
+            Window.currentGame.addTimeTriggeredEffect(new TimeTriggeredEffect(timeMs, c));
+            return;
+        }
+         getHostGame().addTimeTriggeredEffect(new TimeTriggeredEffect(timeMs, c));
+    }
 
     public float getRenderOpacity() {
         return renderOpacity;

@@ -90,6 +90,7 @@ public class Game implements Runnable {
     // set this to only render background in this area
     private Area backgroundClipArea;
     private Canvas canvas;
+    private int currentFPS = 0, currentTPS = 0;
     
     private volatile boolean loadingScreenActive = false;
     
@@ -725,6 +726,8 @@ public class Game implements Runnable {
             frames++;
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
+                this.currentFPS = frames;
+                this.currentTPS = ticks;
                 //if frames = 1 then it likeley is an error from swapping scenes
                 if (frames != 1 && shouldShowFPS) {
                     System.out.println(name + " FPS: " + frames + "   TPS: " + ticks);
@@ -1037,6 +1040,26 @@ public class Game implements Runnable {
          this.addTickDelayedEffect(new TickDelayedEffect(handler.globalTickNumber + delay, c));
     }
     
+    /**
+     * Adds a time triggered effect
+     * @param tte effect to run
+     */
+    public synchronized void addTimeTriggeredEffect(TimeTriggeredEffect tte) {
+        this.handler.addTimeTriggeredEffect(tte);
+    }
+    
+    /**
+     * Adds time triggered effect. TTE will run at the start of the first tick after given time in ms
+     * get current time in ms using System.currentTimeMillis();
+     * 
+     * System.currentTimeMillis() + 1000 // means trigger in 1 second
+     * @param timeMs milli to trigger on
+     * @param c function to execute
+     */
+    public synchronized void addTimeTriggeredEffect(long timeMs, Consumer c) {
+         this.addTimeTriggeredEffect(new TimeTriggeredEffect(timeMs, c));
+    }
+    
     public String getName() {
         return name;
     }
@@ -1116,6 +1139,14 @@ public class Game implements Runnable {
         while(handler.globalTickNumber < tickNumber) {
             Main.wait(1);
         }
+    }
+
+    public int getCurrentFPS() {
+        return currentFPS;
+    }
+
+    public int getCurrentTPS() {
+        return currentTPS;
     }
     
 }

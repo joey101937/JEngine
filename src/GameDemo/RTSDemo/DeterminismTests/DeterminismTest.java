@@ -18,9 +18,9 @@ import GameDemo.RTSDemo.Units.TankUnit;
  */
 public class DeterminismTest {
 
-    public static Game game = new Game(RTSAssetManager.grassBG);
-
     public static void main(String[] args) {
+        RTSAssetManager.initialize();
+        Game game = new Game(RTSAssetManager.grassBG);
         Main.tickThreadCount = 1;
         Main.setRandomSeed(10);
         Window.initialize(game);
