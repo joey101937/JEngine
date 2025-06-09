@@ -186,29 +186,21 @@ public class TileMap implements Serializable{
     
     
     public ArrayList<Tile> getNeighbors(Coordinate sourceTilePos) {
-       ArrayList<Tile> out = new ArrayList<>();
-       try {
-           out.add(tileGrid[sourceTilePos.x+1][sourceTilePos.y]);
-       } catch (Exception e) {
-           // doesnt exist
-       }
-       try {
-           out.add(tileGrid[sourceTilePos.x-1][sourceTilePos.y]);
-       } catch (Exception e) {
-           // doesnt exist
-       }
-       try {
-           out.add(tileGrid[sourceTilePos.x][sourceTilePos.y + 1]);
-       } catch (Exception e) {
-           // doesnt exist
-       }
-       try {
-           out.add(tileGrid[sourceTilePos.x][sourceTilePos.y - 1]);
-       } catch (Exception e) {
-           // doesnt exist
-       }
-       return out;
-    };
+        ArrayList<Tile> out = new ArrayList<>();
+        // Check all 8 directions: cardinal and diagonal
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dx == 0 && dy == 0) continue; // Skip the center tile
+                
+                try {
+                    out.add(tileGrid[sourceTilePos.x + dx][sourceTilePos.y + dy]);
+                } catch (Exception e) {
+                    // Position doesn't exist, skip it
+                }
+            }
+        }
+        return out;
+    }
     
     
     /**

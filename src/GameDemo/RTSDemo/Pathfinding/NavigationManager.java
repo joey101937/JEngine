@@ -237,7 +237,9 @@ public class NavigationManager extends IndependentEffect {
                         continue;
                     }
 
-                    double gScore = current.g + 1;
+                    // Calculate movement cost - √2 for diagonal, 1 for cardinal
+                    double moveCost = (neighbor.x != current.tile.x && neighbor.y != current.tile.y) ? Math.sqrt(2) : 1;
+                    double gScore = current.g + moveCost;
                     Node neighborNode = allNodes.get(neighbor);
 
                     if (neighborNode == null || gScore < neighborNode.g) {
@@ -383,7 +385,9 @@ public class NavigationManager extends IndependentEffect {
                     continue;
                 }
 
-                double gScore = current.g + 1;
+                // Calculate movement cost - √2 for diagonal, 1 for cardinal
+                double moveCost = (neighbor.x != current.tile.x && neighbor.y != current.tile.y) ? Math.sqrt(2) : 1;
+                double gScore = current.g + moveCost;
                 Node neighborNode = allNodes.get(neighbor);
 
                 if (neighborNode == null || gScore < neighborNode.g) {
