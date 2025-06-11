@@ -27,7 +27,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] tankFireAnimation, tankFireAnimationRed;
     public static BufferedImage[] tankFireAnimationDamaged, tankFireAnimationDamagedRed;
     public static BufferedImage bullet, bullet2;
-    public static BufferedImage grassBG, grassBGDark;
+    public static BufferedImage grassBG, grassBGDark, rtsPathing;
     public static BufferedImage hellicopter, hellicopterRed;
     public static BufferedImage hellicopterShadow;
     public static BufferedImage hellicopterDestroyed, hellicopterDestroyedRed;
@@ -95,6 +95,7 @@ public abstract class RTSAssetManager {
                 loadUtilityAssets(),
                 loadMapAssets1(),
                 loadMapAssets2(),
+                loadMapAssets3(),
                 loadButtonAssets()
             );
 
@@ -134,6 +135,12 @@ public abstract class RTSAssetManager {
     private static CompletableFuture<Void> loadMapAssets2() {
         return CompletableFuture.runAsync(() -> {
             grassBGDark = load("DemoAssets/TankGame/terrainPlayground.png"); // load("DemoAssets/TankGame/grassTerrain_mega3_dark.png");
+        }, executor);
+    }
+    
+    private static CompletableFuture<Void> loadMapAssets3() {
+        return CompletableFuture.runAsync(() -> {
+            rtsPathing = load("DemoAssets/TankGame/terrainPlaygroundPathing.png");
         }, executor);
     }
 

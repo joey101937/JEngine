@@ -16,7 +16,6 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
-import GameDemo.TownDemo.TownCharacter;
 import java.awt.AlphaComposite;
 import java.awt.image.VolatileImage;
 import java.util.List;
@@ -151,7 +150,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         if (hostGame.pathingLayer == null) {
             return baseSpeed;
         }
-        return baseSpeed * pathingModifiers.get(getCurrentTerrain());
+        return baseSpeed * pathingModifiers.getOrDefault(getCurrentTerrain(), 1.0);
     }
 
    public double getBaseSpeed(){
@@ -320,11 +319,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         if(isSolid && preventOverlap && getHitbox()!=null){
             //if solid first check collisions
             double padding = hostGame.handler.currentSnapshot.largestSideLength * 1.5;
-            for(GameObject2 other : getHostGame().getObjectsNearPoint(getPixelLocation(true), longestSideLength() + padding)){
-                if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
-                     getHostGame().handler.registerCollision(this, other);
-                     return; 
-                }
+            if(!Main.ignoreCollisionsOnRotation) {
+                for(GameObject2 other : getHostGame().getObjectsNearPoint(getPixelLocation(true), longestSideLength() + padding)){
+                    if(canCollideWith(other) && getHitbox().intersectsIfRotated(other.getHitbox(), degrees) && !getHitbox().intersects(other.getHitbox())){
+                         getHostGame().handler.registerCollision(this, other);
+                         System.out.println("preventing rotation due to collision");
+                         return; 
+                    }
+                }   
             }
         }
         rotation += degrees;
@@ -705,6 +707,16 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 && distanceFrom(other.locationAsOfLastTick) <= (getHitbox().getFarthestRange() + other.getHitbox().getFarthestRange() + Math.abs(velocity.x * getSpeed()) + Math.abs(velocity.y * getSpeed()));
     }
     
+    
+    /**
+     * This method returns all objects that this object should check for collisions against each pretick
+     * @return list of objects to consider
+     */
+    public ArrayList<GameObject2> getObjectsForCollisionConsideration() {
+        double padding = Main.collisionCheckRadius > 0 ? Main.collisionCheckRadius : hostGame.handler.currentSnapshot.largestSideLength * 1.5;
+        return hostGame.getObjectsNearPoint(getPixelLocation(), longestSideLength() + padding);
+    }
+    
     /**
      * Returns new movement based on collisions given a proposed movement
      * triggers on collide
@@ -717,8 +729,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 proposedMovement.y >= 0 ? (int) Math.ceil(proposedMovement.y) : (int)Math.floor(proposedMovement.y)
         );
         DCoordinate newLocation;
-        double padding = Main.collisionCheckRadius > 0 ? Main.collisionCheckRadius : hostGame.handler.currentSnapshot.largestSideLength * 1.5;
-        ArrayList<GameObject2> otherObjects = hostGame.getObjectsNearPoint(getPixelLocation(), longestSideLength() + padding);
+        
+        ArrayList<GameObject2> otherObjects = getObjectsForCollisionConsideration();
         otherObjects.remove(this);
         ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();
         if(!Main.ignoreSubobjectCollision) {
@@ -879,7 +891,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
            pointsToCheck.add(newLocation.copy().add(offset));
        }
        for(Coordinate c : pointsToCheck) {
-           if(pathingModifiers.get(hostGame.pathingLayer.getTypeAt(Math.max(c.x, 0), Math.max(c.y, 0))) < .01) {
+           if(pathingModifiers.getOrDefault(hostGame.pathingLayer.getTypeAt(Math.max(c.x, 0), Math.max(c.y, 0)), 1.0) < .01) {
                onPathingLayerCollision(getHostGame().getPathingLayer().getTypeAt(c));
                return false;
            }
@@ -1254,6 +1266,23 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         }
         hostGame.addTickDelayedEffect(new TickDelayedEffect(hostGame.handler.globalTickNumber + tickDelay, c));
     }
+    
+    /**
+     * Adds time triggered effect. Given function will run at the start of the first tick after given time in ms
+     * get current time in ms using System.currentTimeMillis();
+     * 
+     * (System.currentTimeMillis() + 1000)  means trigger after 1 second delay
+     * @param timeMs milli to trigger on
+     * @param c function to execute
+     */
+    public synchronized void addTimeTriggeredEffect(long timeMs, Consumer c) {
+        if(hostGame == null) {
+            System.out.println("error trying to add timeTriggeredEffect with null game");
+            Window.currentGame.addTimeTriggeredEffect(new TimeTriggeredEffect(timeMs, c));
+            return;
+        }
+         getHostGame().addTimeTriggeredEffect(new TimeTriggeredEffect(timeMs, c));
+    }
 
     public float getRenderOpacity() {
         return renderOpacity;
@@ -1287,4 +1316,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
         return Math.max(getWidth(), getHeight());
     }
     
+    /**
+     * whether or not the object is in the same location as last tick. Logic calculated during posttick.
+     * @return value
+     */
+    public boolean movedLastTick() {
+        return this.movedLastTick;
+    }
 }

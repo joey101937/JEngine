@@ -42,6 +42,7 @@ public class Main {
     public static boolean splitBackgroundRender = true;
     public static boolean ignoreSubobjectCollision = false;
     public static boolean ignoreCollisionsForStillObjects = false;
+    public static boolean ignoreCollisionsOnRotation = false;
     public static int collisionCheckRadius = -1; // objects will only check collisions with objects whose center points are at least this distance from the cecking obj. -1 means adaptive
     public static int onScreenPadding = -1; // objects whose center is more than this many pixels away from the screen will not be considered for rendering. -1 means adaptive
     public static int stickerZLayer = 1000;
@@ -49,6 +50,7 @@ public class Main {
     public static Consumer<Graphics2D> renderingHintSetter = null; // optional consumer which can be used to override which java rendering hints are active
     public static boolean enableLerping = true; // lerping attempts to smooth movement across ticks by preemptively rendering movement
     public static String lerpType = "reactive"; // may be set to "reactive" or "predictive"
+    
 
     public static Handler.TickType tickType = Handler.TickType.modular;
     public static long seed = (long)(Math.random()*9999999999999L);

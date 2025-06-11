@@ -10,8 +10,13 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
+import Framework.Main;
+import Framework.PathingLayer;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Pathfinding.NavigationManager;
+import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Pathfinding.Tile;
+import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -52,6 +57,13 @@ public class RTSUnit extends GameObject2 {
     public String commandGroup = "0"; // assigned when given order. goes to 0 when no active order
     public int currentHealth = 100;
     public int maxHealth = 100;
+    private boolean debugFlag = false;
+    private Coordinate pathStartCache;
+    private Coordinate pathEndCache;
+    private long pathCacheSignatureLastChangedTick = 0l;
+    private String pathCacheSignature;
+    private int pathCacheUses = 0;
+    private List<Coordinate> pathCache; 
     
     // Movement deceleration configuration
     public int minSpeedDistance = 50; // Distance at which speed reaches minimum
@@ -84,28 +96,47 @@ public class RTSUnit extends GameObject2 {
         g.setStroke(originalStroke);
         g.setColor(originalColor);
     }
+    
+    public boolean isOnBlockedNavTile () {
+          boolean blocked = false;
+        
+        try {
+            blocked = RTSGame.navigationManager.getTileMapBySize(getNavTileSize()).getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
+        } catch (Exception e) {}
+        
+        return blocked;
+    }
 
     @Override
     public void render(Graphics2D g) {
         super.render(g);
         g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
+
         if (isRubble) {
             return;
         }
         if (selected) {
+            g.setColor(Color.green);
             drawHealthBar(g);
             for(Coordinate coord : waypoints) {
-                g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                g.fillRect(coord.x-5, coord.y-5, 10, 10);
                 if(coord == waypoints.getLast()) {
                     g.setColor(Color.red);
-                    g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                    g.fillRect(coord.x-5, coord.y-5, 10, 10);
                 }
                 if(coord.equals(this.getNextWaypoint())) {
                     g.setColor(Color.yellow);
-                    g.fillRect(coord.x-10, coord.y-10, 20, 20);
+                    g.fillRect(coord.x-5, coord.y-5, 10, 10);
                 }
             }
         }
+    }
+    
+    @Override
+    public ArrayList<GameObject2> getObjectsForCollisionConsideration () {
+        var existing = super.getObjectsForCollisionConsideration();
+        existing.addAll(KeyBuilding.getKeybuildings(getHostGame()));
+        return existing;
     }
     
     @Override
@@ -118,13 +149,25 @@ public class RTSUnit extends GameObject2 {
     @Override
     public void tick() {
         super.tick();
+        this.debugFlag = false;
         if (isRubble) {
             commandGroup = "0";
             return;
         }
-        if(isCloseEnoughToDesired()) commandGroup = "0";
+        if(isCloseEnoughToDesired()) {
+            commandGroup = "0";
+            this.velocity.y = 0;
+        }
         Coordinate nextWaypoint = getNextWaypoint();
-        if (!isImmobilized && nextWaypoint.distanceFrom(location) > getWidth() / 2) {
+        if(nextWaypoint == null) {
+            this.velocity.y = 0;
+            return;
+        }
+        if (
+                !isImmobilized &&
+                !isCloseEnoughToDesired()
+                && (nextWaypoint.distanceFrom(location) > getWidth() / 6 || isOnBlockedNavTile() || isTouchingOtherUnit)) {
+            this.debugFlag = true;
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
             double maxRotation = rotationSpeed;
             if (Math.abs(desiredRotation) < 20) {
@@ -140,12 +183,13 @@ public class RTSUnit extends GameObject2 {
                 }
             }
             this.velocity.y = -100; //remember negative means forward because reasons
-        } else {
-            this.velocity.y = 0;
-            commandGroup = "0";
         }
         for(CommandButton button : getButtons()) {
             button.tick();
+        }
+        if(tickNumber - this.pathCacheSignatureLastChangedTick > Main.ticksPerSecond * 4) {
+            this.commandGroup = "0";
+            this.setDesiredLocation(getPixelLocation());
         }
     }
 
@@ -163,6 +207,8 @@ public class RTSUnit extends GameObject2 {
         this.team = team;
         ID = RTSUnitIdHelper.generateId(this);
         System.out.println("generated id " + ID);
+        this.pathingModifiers.put(PathingLayer.Type.water, 0.0);
+        this.pathingModifiers.put(TerrainTileMap.paddingType, 1.0);
     }
 
     public void updateConstructorHitbox() {
@@ -200,44 +246,75 @@ public class RTSUnit extends GameObject2 {
         if(!this.hasVelocity()) {
             comingFromLocation = getPixelLocation();
         }
-        desiredLocation = c;
+        int adjustedX = (int)((c.x / getNavTileSize()) * getNavTileSize()) + getNavTileSize()/2;
+        int adjustedY = (int)((c.y / getNavTileSize()) * getNavTileSize()) + getNavTileSize()/2;
+
+        desiredLocation = new Coordinate(adjustedX, adjustedY);
+        
+        pathCacheSignatureLastChangedTick = this.tickNumber;
     }
     
     public boolean isCloseEnoughToDesired() {
-        int sideLength = Math.max(getWidth(), getHeight());
-        return desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= sideLength / 2;
+        return desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= Math.max(20, getSideLength() / 6);
     }
 
     public Coordinate getNextWaypoint() {
-        if(waypoints == null || waypoints.size() == 0 || isCloseEnoughToDesired()) {
+        if(waypoints == null || waypoints.size() == 0 || desiredLocation == null) {
+            return null;
+        }
+        if(Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= Math.max(20, getSideLength() / 2)) {
             return desiredLocation;
         }
         
         if(this.isTouchingOtherUnit) {
             // if touching other unit, follow waypoints exactly
+            if(isSelected()) System.out.println("following waypoints exactly");
+//            return waypoints.get(0);
             return waypoints.get((Math.min(0, waypoints.size()-1)));
         }
         
         int sideLength = Math.max(getWidth(), getHeight());
         
         for (int i = 0; i < waypoints.size(); i++) {
-            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + Tile.tileSize/2)) {
+            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + 20 + getNavTileSize()/2)) {
                 return waypoints.get(i);
             }
         }
-
+        
         return desiredLocation;
     }
     
+    public int getWidthForPathing () {
+        if(this instanceof TankUnit tank && !tank.sandbagActive) return this.getWidth()-10;
+        return this.getWidth();
+    }
+    
     public int getPathingPadding() {
-        if(isInfantry) return 20;
-        if(this instanceof LightTank) return 40; 
-        if(this.plane > 1) return 55; // helicopter
-        return 55; // med tank
+        int navSize = getNavTileSize();
+        int extra = navSize == Tile.tileSizeFine ? 15 : 0;
+        if(this instanceof Bazookaman) extra += 10;
+        if(isInfantry) return 16 + extra;
+        if(this instanceof LightTank) return 50 + extra; 
+        if(this.plane > 1) return 35 + extra; // helicopter
+        return 55 + extra; // med tank
     }
 
     public void updateWaypoints() {
-        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, RTSGame.navigationManager.tileMap, this);
+        if(pathCacheUses < 10 && desiredLocation.equals(pathEndCache) && getPixelLocation().equals(pathStartCache) && !commandGroup.equals(NavigationManager.SEPERATOR_GROUP)) {
+            // if we just calculated the path for this start and end, dont recalculate it agian
+            waypoints = pathCache;
+            pathCacheUses++;
+            return;
+        }
+        waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, this);
+        pathStartCache = getPixelLocation();
+        pathEndCache = desiredLocation;
+        pathCache = waypoints;
+        String newpathCacheSignature = ""+desiredLocation+""+getPixelLocation();
+        if(pathCacheSignature == null || !pathCacheSignature.equals(newpathCacheSignature)) {  
+            pathCacheSignatureLastChangedTick = this.tickNumber;
+        }
+        this.pathCacheSignature = newpathCacheSignature;
     }
 
     public RTSUnit nearestEnemyInRange() {
@@ -337,6 +414,15 @@ public class RTSUnit extends GameObject2 {
         this.commandGroup = components[8];
     }
     
+    public int getNavTileSize() {
+        int distance = (int)distanceFrom(desiredLocation);
+         if(distance < 800) return Tile.tileSizeFine;
+         if(distance < 2600) return Tile.tileSizeNormal;
+         return Tile.tileSizeLarge;
+
+//        return Tile.tileSizeNormal;
+    }        
+    
     public String getPathingSignature () {
         StringBuilder builder = new StringBuilder();
         builder.append(getPathingPadding()); // 1
@@ -346,6 +432,8 @@ public class RTSUnit extends GameObject2 {
         builder.append(plane); // 3
         builder.append(',');
         builder.append(commandGroup); // 4
+        builder.append(',');
+        builder.append(getNavTileSize()); // 5
         return builder.toString();
     };
 
@@ -447,14 +535,27 @@ public class RTSUnit extends GameObject2 {
         super.onCollide(other, myTick);
         
         if(other instanceof RTSUnit otherUnit) {
-            if(other.hasVelocity() && !other.getHitbox().intersectsIfMoved(this.getHitbox(), otherUnit.getMovementNextTick().toCoordinate().scale(2))) {
+            if(other.movedLastTick() && !other.getHitbox().intersectsIfMoved(this.getHitbox(), otherUnit.getMovementNextTick().toCoordinate().scale(2))) {
                 // other unit is moving with this one so we can ignore it
                 return;
             }
         }
         
-        if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team && !unit.commandGroup.equals(commandGroup)) {
+        if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team) {
             this.isTouchingOtherUnit = true;
+            if(this.commandGroup.equals(unit.commandGroup) && !this.movedLastTick() && !other.movedLastTick()) {
+                    // single player or this is friendly unit
+                    String oldCommandGroup = this.commandGroup;
+                    String newCommandGroup = NavigationManager.SEPERATOR_GROUP;
+                    this.commandGroup = newCommandGroup;
+                    addTickDelayedEffect(10, c -> {
+                        if(this.commandGroup.equals(newCommandGroup)){
+                            this.commandGroup = oldCommandGroup;
+                            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
+                        }
+                        if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
+                    });   
+            }
         }
     }
     

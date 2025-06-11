@@ -4,10 +4,10 @@ import Framework.Coordinate;
 import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.GameObject2;
-import Framework.Main;
 import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Units.Landmine;
+import java.awt.Rectangle;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
@@ -29,18 +29,31 @@ public class OccupationMap {
     private int team;
     private int plane;
     private TileMap tileMap;
+    private int tileSize;
     
     public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
+    
+    public Coordinate getGridLocationOf(Coordinate input) {
+        int adjustedX = (int)((input.x / tileSize) * tileSize) + tileSize;
+        int adjustedY = (int)((input.y / tileSize) * tileSize) + tileSize;
+        return new Coordinate(adjustedX, adjustedY);
+    }
     
     public void updateOccupationMap(Game game) {
         occupiedMap.clear();
         Collection<Future<?>> occupationTasks = new LinkedList<>();
         Tile[][] tileGrid = tileMap.tileGrid;
-        
         for(GameObject2 go : game.getAllObjects()){
-            if(go instanceof RTSUnit unit && !(go instanceof Landmine) && (!unit.commandGroup.equals(commandGroup) || unit.isRubble) && unit.isSolid && unit.plane == plane && unit.team == team) {
+            if(go instanceof RTSUnit unit 
+                    && !(go instanceof Landmine)
+                    && (!(unit.commandGroup.equals(commandGroup)
+                    && !unit.commandGroup.equals(NavigationManager.SEPERATOR_GROUP)) || unit.isRubble)
+                    && unit.isSolid
+                    && unit.plane == plane
+                    && unit.team == team) {
                 occupationTasks.add(occupationService.submit(() -> {
-                    for(Coordinate coord : tileMap.getTilesNearPoint(unit.getPixelLocation(), unit.getWidth() + Tile.tileSize + padding)) {
+                    boolean isForInfantry = padding == 16;
+                    for(Coordinate coord : tileMap.getTilesNearPoint(getGridLocationOf(unit.getPixelLocation()), (int)(unit.getWidthForPathing() * (isForInfantry ? .7 : .7)) + tileSize + padding)) {
                         try {
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {
@@ -60,18 +73,16 @@ public class OccupationMap {
             }
             // todo add padding to this calculation
             if(plane == 0 && go instanceof KeyBuilding building && building.getHitbox() != null) {
-               List<Coordinate> vertices = Main.jMap(List.of(building.getHitbox().vertices), x -> x.copy().add(building.getPixelLocation().x, building.getPixelLocation().y));
-               List<Tile> topBorder = tileMap.getTilesIntersectingLine(vertices.get(0), vertices.get(1));
-               topBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-               
-               List<Tile> bottomBorder = tileMap.getTilesIntersectingLine(vertices.get(2), vertices.get(3));
-               bottomBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-               
-               List<Tile> leftBorder = tileMap.getTilesIntersectingLine(vertices.get(0), vertices.get(2));
-               leftBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
-               
-               List<Tile> rightBorder = tileMap.getTilesIntersectingLine(vertices.get(1), vertices.get(3));
-               rightBorder.forEach(coord -> occupiedMap.put(tileGrid[coord.x][coord.y], true));
+                int keyBuildingPadding = padding + 50;
+                Rectangle paddedRect = new Rectangle(
+                    building.getPixelLocation().x - building.getWidth()/2 - keyBuildingPadding,
+                    building.getPixelLocation().y - building.getHeight()/2 - keyBuildingPadding,
+                    building.getWidth() + (keyBuildingPadding * 2),
+                    building.getHeight() + (keyBuildingPadding * 2)
+                );
+                
+                List<Tile> affectedTiles = tileMap.getTilesIntersectingRectangle(paddedRect);
+                affectedTiles.forEach(tile -> occupiedMap.put(tile, true));
             }
         }
         
@@ -79,16 +90,17 @@ public class OccupationMap {
     }
     
     
-    public OccupationMap(int padding, String commandGroup, int team, int plane, TileMap map) {
+    public OccupationMap(int padding, String commandGroup, int team, int plane, TileMap map, int tileSize) {
         this.padding = padding;
         this.commandGroup = commandGroup;
         this.tileMap = map;
         this.team = team;
         this.plane = plane;
+        this.tileSize = tileSize;
     }
     
     public Boolean isTileBlocked(Tile t) {
-        return occupiedMap.getOrDefault(t, Boolean.FALSE);
+        return occupiedMap.getOrDefault(t, Boolean.FALSE) || (this.plane < 2 && TerrainTileMap.getCurrentTerrainTileMapForSize(tileSize).isTileBlocked(t));
     }
 
     public int getPadding() {

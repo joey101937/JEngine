@@ -6,6 +6,7 @@ import Framework.GameObject2;
 import Framework.IndependentEffect;
 import Framework.Main;
 import Framework.TickDelayedEffect;
+import Framework.TimeTriggeredEffect;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class Handler {
     private ArrayList<GameObject2> activeObjects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
     private QuadTree quadTree;
     private ArrayList<TickDelayedEffect> tickDelayedEffects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
+    private ArrayList<TimeTriggeredEffect> timeTriggeredEffects = new ArrayList<>(); // LIVE REMEMBER TO SYNCHRONIZE
 
     public long globalTickNumber = 0L;
 
@@ -125,16 +127,28 @@ public class Handler {
 
     public synchronized void tick() {
         globalTickNumber++;
-        LinkedList<TickDelayedEffect> effectsRun = new LinkedList<>();
+        long currentMillisecond = System.currentTimeMillis();
+        LinkedList<TickDelayedEffect> tickDelatyedEffectsRun = new LinkedList<>();
+        LinkedList<TimeTriggeredEffect> timeTriggeredEffectsRun = new LinkedList<>();
         // create a copy to iterate on
         LinkedList<TickDelayedEffect> currentDelayedEffects = new LinkedList(tickDelayedEffects);
         for (TickDelayedEffect tde : currentDelayedEffects) {
             if (tde.targetTick <= globalTickNumber) {
                 tde.consumer.accept(hostGame);
-                effectsRun.add(tde);
+                tickDelatyedEffectsRun.add(tde);
             }
         }
-        updateTickDelayedEffects(effectsRun, true);
+        
+        LinkedList<TimeTriggeredEffect> currentTimeEvents = new LinkedList(timeTriggeredEffects);
+        for (TimeTriggeredEffect tte : currentTimeEvents) {
+            if (tte.targetMillisecond <= currentMillisecond) {
+                tte.consumer.accept(hostGame);
+                timeTriggeredEffectsRun.add(tte);
+            }
+        }
+        
+        updateTickDelayedEffects(tickDelatyedEffectsRun, true);
+        updateTimeTriggredEffects(timeTriggeredEffectsRun, true);
         if (Main.tickType == Handler.TickType.unified) {
             tickUnified();
         } else if (Main.tickType == Handler.TickType.modular) {
@@ -265,11 +279,26 @@ public class Handler {
             this.tickDelayedEffects.removeAll(tdes);
         }
     }
+    
+    private synchronized void updateTimeTriggredEffects(Collection<TimeTriggeredEffect> ttes, boolean forRemoval) {
+        if (!forRemoval) {
+            this.timeTriggeredEffects.addAll(ttes);
+        } else {
+            this.timeTriggeredEffects.removeAll(ttes);
+        }
+    }
 
     public synchronized void addTickDelayedEffect(TickDelayedEffect tde) {
         var list = new LinkedList<TickDelayedEffect>();
         list.add(tde);
         updateTickDelayedEffects(list, false);
+    }
+    
+    public synchronized void addTimeTriggeredEffect(TimeTriggeredEffect tte) {
+        var list = new LinkedList<TimeTriggeredEffect>();
+        list.add(tte);
+        updateTimeTriggredEffects(list, false);
+        System.out.println("adding time triggere event at " + tte.targetMillisecond);
     }
     
     public void setQuadTreeBounds (int width, int height) {
