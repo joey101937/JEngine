@@ -92,6 +92,8 @@ public class RTSInput extends InputHandler {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        long inputMilli = System.currentTimeMillis();
+        long executeTime = ExternalCommunicator.isMultiplayer ? inputMilli+150  : inputMilli+100;
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
         String generatedCommandGroup = generateRandomCommandGroup();
         if (e.getButton() == 1) { //1 means left click
@@ -130,13 +132,13 @@ public class RTSInput extends InputHandler {
                     }
                     // delay 1 tick for multiplayer sync
                     long originalTick = hostGame.handler.globalTickNumber;
-                    hostGame.addTickDelayedEffect(1, x -> {
+                    hostGame.addTimeTriggeredEffect(executeTime, x -> {
                         u.setDesiredLocation(locationOfMouseEvent);
                         u.commandGroup = generatedCommandGroup;
                         ExternalCommunicator.communicateState(u);
                     });
                     ExternalCommunicator.sendMessage("m:" + u.ID + "," + locationOfMouseEvent.x
-                            + ',' + locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber + "," + generatedCommandGroup);
+                            + ',' + locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber + "," + generatedCommandGroup + "," + executeTime);
                 }
             } else {
                 // formation move
@@ -149,12 +151,12 @@ public class RTSInput extends InputHandler {
                     Coordinate offset = new Coordinate(avgStartLocation.x - u.getPixelLocation().x, avgStartLocation.y - u.getPixelLocation().y);
                     Coordinate targetOffset = target.offsetBy(offset);
                     long originalTick = hostGame.handler.globalTickNumber;
-                    hostGame.addTickDelayedEffect(1, x -> {
+                    hostGame.addTimeTriggeredEffect(executeTime, x -> {
                         u.setDesiredLocation(targetOffset);
                         u.commandGroup = generatedCommandGroup;
                         ExternalCommunicator.communicateState(u);
                     });
-                    ExternalCommunicator.sendMessage("m:" + u.ID + "," + targetOffset.x + ',' + targetOffset.y + "," + hostGame.handler.globalTickNumber + ","+generatedCommandGroup);
+                    ExternalCommunicator.sendMessage("m:" + u.ID + "," + targetOffset.x + ',' + targetOffset.y + "," + hostGame.handler.globalTickNumber + ","+generatedCommandGroup + "," + executeTime);
                 }
             }
         }

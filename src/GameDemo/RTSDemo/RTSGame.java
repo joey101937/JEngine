@@ -103,6 +103,22 @@ public class RTSGame {
 
         game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
         game.addObject(new KeyBuilding(3000, 3000, 1));
+//          
+//        ArrayList<RTSUnit> hellis = new ArrayList<>();
+//        
+//         for (int i = 0; i < 4; i++) {
+//            Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
+//            heli.setRotation(180);
+//            game.addObject(heli);
+//            hellis.add(heli);
+//        }
+//         String commandgroup = RTSInput.generateRandomCommandGroup();
+//         for(RTSUnit u : hellis) {
+//             game.addTickDelayedEffect(10, c -> {
+//                u.commandGroup = commandgroup;
+//                u.setDesiredLocation(new Coordinate(500,500));
+//             });
+//         }
 
 //        RTSUnit infantryUnit = new Bazookaman(500, 750, 0);
 //        infantryUnit.setRotation(180);

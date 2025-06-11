@@ -2,6 +2,7 @@
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
+import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import java.awt.Graphics2D;
@@ -20,6 +21,19 @@ public class KeyBuilding extends GameObject2 {
     private static final double CAPTURE_THRESHOLD = 1.0;
     public static final double VISUAL_SCALE = 1;
     
+    
+    private static ArrayList<KeyBuilding> allKeyBuildings = new ArrayList<>();
+    
+    public static ArrayList<KeyBuilding> getKeybuildings (Game g) {
+        var out = new ArrayList<KeyBuilding>();
+        for(KeyBuilding kb : allKeyBuildings) {
+            if(kb.getHostGame() == g) {
+                out.add(kb);
+            }
+        }
+        return out;
+    }
+    
     static {
         shadowSprite.scaleTo(VISUAL_SCALE);
     }
@@ -36,6 +50,7 @@ public class KeyBuilding extends GameObject2 {
         this.isSolid = true;
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, -400), 90 );
         this.setZLayer(5);
+        allKeyBuildings.add(this);
     }
     
     public KeyBuilding(int x, int y, int team) {
@@ -46,6 +61,7 @@ public class KeyBuilding extends GameObject2 {
         owningTeam = team;
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, 0), 90 );
         this.setZLayer(5);
+        allKeyBuildings.add(this);
     }
     
     public KeyBuilding(int x, int y, int team, int spawnX, int spawnY, double rotation) {
@@ -56,6 +72,7 @@ public class KeyBuilding extends GameObject2 {
         owningTeam = team;
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(spawnX, spawnY), rotation );
         this.setZLayer(5);
+        allKeyBuildings.add(this);
     }
     
     @Override

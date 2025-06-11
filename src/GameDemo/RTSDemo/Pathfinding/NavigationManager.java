@@ -10,6 +10,7 @@ import Framework.Window;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.SelectionBoxEffect;
+import GameDemo.RTSDemo.Units.Landmine;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class NavigationManager extends IndependentEffect {
 
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
-            if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired()) {
+            if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired() ) {
                 pathingTasks.add(unitPathingService.submit(() -> {
                     unit.updateWaypoints();
                     return true;

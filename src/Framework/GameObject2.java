@@ -707,6 +707,16 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 && distanceFrom(other.locationAsOfLastTick) <= (getHitbox().getFarthestRange() + other.getHitbox().getFarthestRange() + Math.abs(velocity.x * getSpeed()) + Math.abs(velocity.y * getSpeed()));
     }
     
+    
+    /**
+     * This method returns all objects that this object should check for collisions against each pretick
+     * @return list of objects to consider
+     */
+    public ArrayList<GameObject2> getObjectsForCollisionConsideration() {
+        double padding = Main.collisionCheckRadius > 0 ? Main.collisionCheckRadius : hostGame.handler.currentSnapshot.largestSideLength * 1.5;
+        return hostGame.getObjectsNearPoint(getPixelLocation(), longestSideLength() + padding);
+    }
+    
     /**
      * Returns new movement based on collisions given a proposed movement
      * triggers on collide
@@ -719,8 +729,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
                 proposedMovement.y >= 0 ? (int) Math.ceil(proposedMovement.y) : (int)Math.floor(proposedMovement.y)
         );
         DCoordinate newLocation;
-        double padding = Main.collisionCheckRadius > 0 ? Main.collisionCheckRadius : hostGame.handler.currentSnapshot.largestSideLength * 1.5;
-        ArrayList<GameObject2> otherObjects = hostGame.getObjectsNearPoint(getPixelLocation(), longestSideLength() + padding);
+        
+        ArrayList<GameObject2> otherObjects = getObjectsForCollisionConsideration();
         otherObjects.remove(this);
         ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();
         if(!Main.ignoreSubobjectCollision) {

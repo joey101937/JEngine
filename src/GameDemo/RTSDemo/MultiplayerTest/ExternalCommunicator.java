@@ -142,6 +142,7 @@ public class ExternalCommunicator implements Runnable {
         // example: m:1,100,200
         // moves unit with id 1 to coordinate 100,200
         if (s.startsWith("m:")) {
+            System.out.println("message " + s);
             var components = s.substring(2).split(",");
             String id = components[0];
             int x = Integer.parseInt(components[1]);
@@ -150,8 +151,9 @@ public class ExternalCommunicator implements Runnable {
             String commandGroup = components[4];
             Coordinate coord = new Coordinate(x, y);
             long currentTick = Window.currentGame.handler.globalTickNumber;
+            long execMilli = Long.parseLong(components[5]);
             long tickToIssueOn = intendedTick + 1; // the input handler adds one tick delay for this purpose
-            if (tickToIssueOn <= currentTick || true) {
+            if (execMilli <= System.currentTimeMillis()) {
 //                System.out.println("issuing order to unit " + id + " to move to " + coord + " on tick " + Window.currentGame.handler.globalTickNumber);
                 GameObject2 go = Window.currentGame.getObjectById(id);
                 if (go instanceof RTSUnit unit) {
@@ -160,7 +162,7 @@ public class ExternalCommunicator implements Runnable {
 //                    System.out.println("done");
                 }
             } else {
-                Window.currentGame.addTickDelayedEffect((int) (tickToIssueOn - Window.currentGame.handler.globalTickNumber), c -> {
+                Window.currentGame.addTimeTriggeredEffect(execMilli, c -> {
 //                    System.out.println("issuing order to unit " + id + " to move to " + coord + " on tick " + Window.currentGame.handler.globalTickNumber);
                     GameObject2 go = Window.currentGame.getObjectById(id);
                     if (go instanceof RTSUnit unit) {

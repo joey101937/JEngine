@@ -133,6 +133,13 @@ public class RTSUnit extends GameObject2 {
     }
     
     @Override
+    public ArrayList<GameObject2> getObjectsForCollisionConsideration () {
+        var existing = super.getObjectsForCollisionConsideration();
+        existing.addAll(KeyBuilding.getKeybuildings(getHostGame()));
+        return existing;
+    }
+    
+    @Override
     public void preTick() {
         this.isTouchingOtherUnit = false;
         super.preTick();
@@ -152,6 +159,10 @@ public class RTSUnit extends GameObject2 {
             this.velocity.y = 0;
         }
         Coordinate nextWaypoint = getNextWaypoint();
+        if(nextWaypoint == null) {
+            this.velocity.y = 0;
+            return;
+        }
         if (
                 !isImmobilized &&
                 !isCloseEnoughToDesired()
@@ -248,13 +259,16 @@ public class RTSUnit extends GameObject2 {
     }
 
     public Coordinate getNextWaypoint() {
-        if(waypoints == null || waypoints.size() == 0 || desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= Math.max(20, getSideLength() / 2)) {
+        if(waypoints == null || waypoints.size() == 0 || desiredLocation == null) {
+            return null;
+        }
+        if(Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= Math.max(20, getSideLength() / 2)) {
             return desiredLocation;
         }
         
         if(this.isTouchingOtherUnit) {
             // if touching other unit, follow waypoints exactly
-            System.out.println("following waypoints exactly");
+            if(isSelected()) System.out.println("following waypoints exactly");
 //            return waypoints.get(0);
             return waypoints.get((Math.min(0, waypoints.size()-1)));
         }
@@ -530,7 +544,6 @@ public class RTSUnit extends GameObject2 {
         if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team) {
             this.isTouchingOtherUnit = true;
             if(this.commandGroup.equals(unit.commandGroup) && !this.movedLastTick() && !other.movedLastTick()) {
-                if(!ExternalCommunicator.isMultiplayer || this.team == ExternalCommunicator.localTeam) {
                     // single player or this is friendly unit
                     String oldCommandGroup = this.commandGroup;
                     String newCommandGroup = NavigationManager.SEPERATOR_GROUP;
@@ -541,8 +554,7 @@ public class RTSUnit extends GameObject2 {
                             if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
                         }
                         if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
-                    });    
-                }
+                    });   
             }
         }
     }
