@@ -46,7 +46,7 @@ public class NPCMinotaur extends Minotaur{
                     this.velocity.x = 0;
                     if(freeToAct() && lastAttackedTick + attackInterval < tickNumber) {
                        lastAttackedTick = this.tickNumber;
-                       this.attack((nearbyObject.location.x - this.location.x) > 0); // right or left attack based on if their x is farther to right than ours
+                       this.attack((nearbyObject.getLocation().x - this.getLocation().x) > 0); // right or left attack based on if their x is farther to right than ours
                     }
                     return;
                 }

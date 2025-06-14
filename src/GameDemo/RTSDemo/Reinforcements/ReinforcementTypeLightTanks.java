@@ -29,7 +29,7 @@ public class ReinforcementTypeLightTanks extends ReinforcementType {
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
             LightTank tank = new LightTank(spawnLocation.x, spawnLocation.y, team);
-            tank.location = ReinforcementHandler.getClosestOpenLocation(spawnLocation, tank).toDCoordinate();
+            tank.setLocation(ReinforcementHandler.getClosestOpenLocation(spawnLocation, tank).toDCoordinate());
             tank.setRotation(kb.spawnLocation.rotation);
             tank.commandGroup = commandGroup;
             tank.setDesiredLocation(targetLocation.copy().add(spawnOffset));

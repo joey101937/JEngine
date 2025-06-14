@@ -216,7 +216,7 @@ public class TankUnit extends RTSUnit {
     //when a tank tries to fire, it first checks if its turret is still firing. 
     //if not, tell the turret to fire at target location
     public void fire(Coordinate target) {
-        if (weaponOnCooldown || target.distanceFrom(location) < getHeight() * 3 / 5 || Math.abs(turret.rotationNeededToFace(target)) > 1) { //limited to one shot per 60 ticks
+        if (weaponOnCooldown || target.distanceFrom(getLocation()) < getHeight() * 3 / 5 || Math.abs(turret.rotationNeededToFace(target)) > 1) { //limited to one shot per 60 ticks
             return;
         }
         weaponOnCooldown = true;

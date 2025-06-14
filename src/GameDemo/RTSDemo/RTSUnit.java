@@ -166,7 +166,7 @@ public class RTSUnit extends GameObject2 {
         if (
                 !isImmobilized &&
                 !isCloseEnoughToDesired()
-                && (nextWaypoint.distanceFrom(location) > getWidth() / 6 || isOnBlockedNavTile() || isTouchingOtherUnit)) {
+                && (nextWaypoint.distanceFrom(getLocation()) > getWidth() / 6 || isOnBlockedNavTile() || isTouchingOtherUnit)) {
             this.debugFlag = true;
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
             double maxRotation = rotationSpeed;
@@ -342,8 +342,9 @@ public class RTSUnit extends GameObject2 {
                 if (((RTSUnit) go).isCloaked == true) {
                     continue;
                 }
-                if (location.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
-                    closestDistance = location.distanceFrom(go.getLocationAsOfLastTick());
+                var myLoc = getLocation();
+                if (myLoc.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
+                    closestDistance = myLoc.distanceFrom(go.getLocationAsOfLastTick());
                     closest = go;
                 }
             }
@@ -376,12 +377,13 @@ public class RTSUnit extends GameObject2 {
     }
     
     public String toTransportString() {
+        var myLocation = getLocation();
         StringBuilder builder = new StringBuilder();
         builder.append(this.ID);
         builder.append(",");
-        builder.append(location.x); // 1
+        builder.append(getLocation().x); // 1
         builder.append(",");
-        builder.append(location.y); //2
+        builder.append(getLocation().y); //2
         builder.append(",");
         builder.append(currentHealth); //3
         builder.append(",");
@@ -399,8 +401,8 @@ public class RTSUnit extends GameObject2 {
 
     public void setFieldsPerString(String input) {
         var components = input.split(",");
-        this.location.x = Double.parseDouble(components[1]);
-        this.location.y = Double.parseDouble(components[2]);
+        getLocation().y = Double.parseDouble(components[1]);
+        getLocation().y = Double.parseDouble(components[2]);
         this.currentHealth = Integer.parseInt(components[3]);
         this.setRotation(Double.parseDouble(components[4]));
         this.setDesiredLocation(new Coordinate(

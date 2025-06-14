@@ -78,9 +78,10 @@ public class TextObject extends GameObject2{
         g.setColor(originalColor);
         if (Main.debugMode) {
             g.setColor(Color.red);
-            g.drawRect((int) location.x - 15, (int) location.y - 15, 30, 30);
-            g.drawString(getName(), (int) location.x, (int) location.y - getHeight() / 2);
-            g.drawLine((int) location.x, (int) location.y, (int) location.x, (int) location.y - 80);
+            var loc = getLocation();
+            g.drawRect((int) loc.x - 15, (int) loc.y - 15, 30, 30);
+            g.drawString(getName(), (int) loc.x, (int) loc.y - getHeight() / 2);
+            g.drawLine((int) loc.x, (int) loc.y, (int) loc.x, (int) loc.y - 80);
         }
         g.setTransform(old); //reset rotation for next item to render
     }

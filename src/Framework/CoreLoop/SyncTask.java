@@ -21,14 +21,14 @@ public class SyncTask implements Runnable {
 
     @Override
     public void run() {
-        go.setLocationAsOfLastTick(go.location);
+        go.setLocationAsOfLastTick(go.getLocation());
         go.setRotationAsOfLastTick(go.getRotationRealTime());
         go.setScaleAsOfLastTick(go.getScale());
         go.setWidthAsOfLastTick(go.getWidth());
         go.setHeightAsOfLastTick(go.getHeight());
         go.updateSyncedState();
         for (SubObject sub : go.getAllSubObjects()) {
-            sub.setLocationAsOfLastTick(sub.location);
+            sub.setLocationAsOfLastTick(sub.getLocation());
             sub.setRotationAsOfLastTick(sub.getRotationRealTime());
             sub.setScaleAsOfLastTick(sub.getScale());
             sub.setWidthAsOfLastTick(sub.getWidth());

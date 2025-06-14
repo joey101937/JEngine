@@ -62,7 +62,7 @@ public class HellicopterBullet extends Projectile {
         this.plane = other.plane;
 
         DCoordinate randomOffset = new DCoordinate(offsetX, offsetY);
-        this.launch(other.location.copy().add(randomOffset));
+        this.launch(other.getLocation().copy().add(randomOffset));
         shadowSprite.scaleTo(.12);
         this.initialDistance = distanceFrom(other);
         explosionSmall.scaleTo(.85);

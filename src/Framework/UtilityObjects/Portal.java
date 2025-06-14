@@ -62,7 +62,7 @@ public class Portal extends BlockObject {
         g.setColor(this.getColor());
         g.fillRect(getPixelLocation().x - getWidth()/2, getPixelLocation().y - getHeight()/2, getWidth(), getHeight());
         g.setColor(Color.red);
-        g.drawString(getName(), (int) location.x - getWidth() / 2, (int) location.y - getHeight() / 2);      
+        g.drawString(getName(), (int) getLocation().x - getWidth() / 2, (int) getLocation().y - getHeight() / 2);      
         g.setColor(originalColor);
     }
     
@@ -104,7 +104,7 @@ public class Portal extends BlockObject {
             if (shouldMakeDestinationActive) {
                 destination.addTickDelayedEffect(1, x -> {
                     go.isInvisible = true;
-                    go.location = destinationPoint.toDCoordinate();
+                    go.setLocation(destinationPoint.toDCoordinate());
                     go.isInvisible = originalVisibility;
                     go.setBaseSpeed(originalSpeed);
                     currentInteractingObject = null;
@@ -119,7 +119,7 @@ public class Portal extends BlockObject {
             } else {
                 addTickDelayedEffect(1, x -> {
                     go.isInvisible = true;
-                    go.location = destinationPoint.toDCoordinate();
+                    go.setLocation(destinationPoint.toDCoordinate());
                     go.isInvisible = originalVisibility;
                     go.setBaseSpeed(originalSpeed);
                     currentInteractingObject = null;

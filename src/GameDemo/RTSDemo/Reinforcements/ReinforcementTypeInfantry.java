@@ -53,7 +53,7 @@ public class ReinforcementTypeInfantry extends ReinforcementType {
 
 
             for (RTSUnit u : created) {
-                u.location = ReinforcementHandler.getClosestOpenLocation(u.location.toCoordinate(), u).toDCoordinate();
+                u.setLocation(ReinforcementHandler.getClosestOpenLocation(u.getLocation().toCoordinate(), u).toDCoordinate());
                 u.setRotation(kb.spawnLocation.rotation);
                 u.commandGroup = commandGroup;
                 u.setDesiredLocation(targetLocation.copy().add(spawnOffset).add(innerOffsets.get(u)));

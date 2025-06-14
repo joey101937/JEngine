@@ -55,7 +55,7 @@ public class Projectile extends GameObject2{
     
     public void launch(DCoordinate destination){
         DCoordinate vel = destination.copy();
-        vel.subtract(location);
+        vel.subtract(getLocation());
         this.velocity = vel;
         this.lookAt(destination);
     }

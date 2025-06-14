@@ -140,8 +140,9 @@ public class Camera {
             return;
         }
         if (trackingGameObject && target != null) {
-            location.x = -target.location.x + (hostGame.windowWidth / Game.resolutionScaleX) / hostGame.getZoom() / 2;
-            location.y = -target.location.y + (hostGame.windowHeight / Game.resolutionScaleY) / hostGame.getZoom() / 2;
+            var targetLocation = target.getLocation();
+            location.x = -targetLocation.x + (hostGame.windowWidth / Game.resolutionScaleX) / hostGame.getZoom() / 2;
+            location.y = -targetLocation.y + (hostGame.windowHeight / Game.resolutionScaleY) / hostGame.getZoom() / 2;
             location = constrainCameraToWorld(location);
             return;
         }
@@ -171,8 +172,9 @@ public class Camera {
      */
     public void setTarget(GameObject2 obj){
         trackingGameObject=true;
-        location.x = -obj.location.x + hostGame.windowWidth/2;
-        location.y = -obj.location.y + hostGame.windowHeight/2;
+        var objLocation = obj.getLocation();
+        location.x = -objLocation.x + hostGame.windowWidth/2;
+        location.y = -objLocation.y + hostGame.windowHeight/2;
         target = obj;
     }
     

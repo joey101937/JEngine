@@ -30,7 +30,7 @@ public class ReinforcementTypeHellicopters extends ReinforcementType{
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
             Hellicopter heli = new Hellicopter(spawnLocation.x, spawnLocation.y, team);
-            heli.location = ReinforcementHandler.getClosestOpenLocation(spawnLocation, heli).toDCoordinate();
+            heli.setLocation(ReinforcementHandler.getClosestOpenLocation(spawnLocation, heli).toDCoordinate());
             heli.setRotation(kb.spawnLocation.rotation);
             heli.commandGroup = commandGroup;
             heli.setDesiredLocation(targetLocation.copy().add(spawnOffset));

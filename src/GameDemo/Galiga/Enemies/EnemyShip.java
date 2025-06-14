@@ -5,7 +5,6 @@
  */
 package GameDemo.Galiga.Enemies;
 
-import Framework.Audio.SoundEffect;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
@@ -56,16 +55,16 @@ public class EnemyShip extends GameObject2{
     @Override
     public void onCollideWorldBorder(DCoordinate l) {
         if (l.x <= getHostGame().worldBorder) {
-            location.x = getHostGame().getWorldWidth() - getHostGame().worldBorder;
+            setXCoordinate(getHostGame().getWorldWidth() - getHostGame().worldBorder);
         }
         if (l.y <= getHostGame().worldBorder) {
-            location.y = getHostGame().getWorldHeight() - getHostGame().worldBorder - 200; // dont let ships teleport behind the player
+            setYCoordinate(getHostGame().getWorldHeight() - getHostGame().worldBorder - 200); // dont let ships teleport behind the player
         }
         if (l.x >= getHostGame().getWorldWidth() - getHostGame().worldBorder) {
-            location.x = getHostGame().worldBorder;
+            setXCoordinate(getHostGame().worldBorder);
         }
         if (l.y >= getHostGame().getWorldHeight() - getHostGame().worldBorder) {
-            location.y = getHostGame().worldBorder;
+            setYCoordinate(getHostGame().worldBorder);
         }
     }
 
@@ -78,9 +77,9 @@ public class EnemyShip extends GameObject2{
     
     public void shoot(){
         Bolt b = new Bolt(this.getPixelLocation());
-        b.location.y+=this.getHeight()/2;
+        b.setYCoordinate(b.getLocation().y + this.getHeight()/2);
         b.isFriendly=false;
-        DCoordinate target = GaligaGame.player.location;
+        DCoordinate target = GaligaGame.player.getLocation();
         b.launch(target);
         getHostGame().addObject(b);
         GaligaGame.pewSound.playCopy(.7f);

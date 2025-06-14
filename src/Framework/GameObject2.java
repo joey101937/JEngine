@@ -34,7 +34,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     /** counts number of times this has rendered. incremented in default render */
     public long renderNumber = 0;
     /** location relative to the world. Changing this move the object! */
-    public DCoordinate location = new DCoordinate(0,0);
+    private DCoordinate location = new DCoordinate(0,0);
     protected DCoordinate locationAsOfLastTick = new DCoordinate(0,0);
     /** Used to move the object. Applied to location in default preTick method via the updateLocation method */
     public DCoordinate velocity = new DCoordinate(0,0);
@@ -1322,5 +1322,47 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public boolean movedLastTick() {
         return this.movedLastTick;
+    }
+    
+    /**
+     * returns a copy of the object's current location coordinate
+     * @return copy of this.location
+     */
+    public DCoordinate getLocation() {
+        return location.copy();
+    }
+    
+    /**
+     * Sets the objects position to given coordinate. This will teleport the object without considering collision
+     * @param dc new position. will be set by reference.
+     */
+    public void setLocation(DCoordinate dc) {
+        this.location = dc;
+    }
+    
+     /**
+     * Sets the objects position to given coordinate. This will teleport the object without considering collision
+     * @param x new x coord
+     * @param y new y coord
+     */
+    public void setLocation(double x, double y) {
+        this.location.x = x;
+        this.location.y = y;
+    }
+    
+    /**
+     * sets the y location coordinate of this object.
+     * @param y new location
+     */
+    public void setYCoordinate(double y) {
+        this.location.y = y;
+    }
+    
+    /**
+     * sets the x location coordinate of this object.
+     * @param x new location
+     */
+    public void setXCoordinate(double x) {
+        this.location.x = x;
     }
 }

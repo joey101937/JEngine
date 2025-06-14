@@ -61,7 +61,7 @@ public class Landmine extends RTSUnit {
     public void tick() {
         super.tick();
         // think about optimizing this
-        if (getHostGame().getObjectsNearPoint(getPixelLocation(), 300).stream().filter(x -> x instanceof RTSUnit u && u.isInfantry && u.distanceFrom(location) < 400 && u.team != team).toList().size() >= 2) {
+        if (getHostGame().getObjectsNearPoint(getPixelLocation(), 300).stream().filter(x -> x instanceof RTSUnit u && u.isInfantry && u.distanceFrom(getLocation()) < 400 && u.team != team).toList().size() >= 2) {
             this.isCloaked = false;
         }
         if(!isRubble) {

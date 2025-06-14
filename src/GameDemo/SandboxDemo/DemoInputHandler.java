@@ -65,7 +65,7 @@ public class DemoInputHandler extends InputHandler{
                     System.out.println(go.renderNumber + " " + go.getName() + " render.");               
                 }
                  System.out.println("Camera Tick: " + hostGame.getCamera().tickNumber);
-                 System.out.println(hostGame.testObject.location);
+                 System.out.println(hostGame.testObject.getLocation());
                 break;
             case 'Z':
                 //destroy random object and play explosion sticker there for science
@@ -127,7 +127,7 @@ public class DemoInputHandler extends InputHandler{
      // s.scaleTo(2.0);
       //GameObject2 bird = new SampleBird(this.locationOfMouse(e));
      // bird.velocity= new DCoordinate(.5,.5);
-     Projectile p = new Bullet(new DCoordinate(hostGame.testObject.location),new DCoordinate(locationOfMouseEvent(e)));
+     Projectile p = new Bullet(new DCoordinate(hostGame.testObject.getLocation()),new DCoordinate(locationOfMouseEvent(e)));
       hostGame.addObject(p);
     }
 

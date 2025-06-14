@@ -36,7 +36,7 @@ public class MinotaurInput extends AsyncInputHandler{
             case 'p':
                 hostGame.getAllObjects().forEach(o -> {
                     if(o instanceof Minotaur) {
-                    o.location.y = 100;
+                        o.setLocation(o.getLocation().x, 100);
                     }
                 });
             default:

@@ -114,10 +114,10 @@ public class SubObject extends GameObject2{
      */
     @Override
     public void updateLocation(){
-        DCoordinate newLocation = host.location.copy();
+        DCoordinate newLocation = host.getLocation();
         newLocation.add(adjustedOffset);
         updateHitbox();
-        this.location = newLocation;
+        this.setLocation(newLocation);
     }
     /**
      * Tick method on subobjects should alaways begin with super.tick();

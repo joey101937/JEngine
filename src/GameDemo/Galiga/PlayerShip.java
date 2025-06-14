@@ -49,8 +49,8 @@ public class PlayerShip extends GameObject2{
     
     @Override
     public void tick() {
-        if(getHostGame().getWorldHeight() - location.y > maxHeight){
-            location.y = getHostGame().getWorldHeight() - maxHeight;
+        if(getHostGame().getWorldHeight() - getLocation().y > maxHeight){
+            setYCoordinate(getHostGame().getWorldHeight() - maxHeight);
         }
     }
     
