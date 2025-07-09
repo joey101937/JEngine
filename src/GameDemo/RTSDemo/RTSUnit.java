@@ -149,6 +149,9 @@ public class RTSUnit extends GameObject2 {
     @Override
     public void tick() {
         super.tick();
+        for(CommandButton button : getButtons()) {
+            button.tick();
+        }
         this.debugFlag = false;
         if (isRubble) {
             setCommandGroup("0");
@@ -183,9 +186,6 @@ public class RTSUnit extends GameObject2 {
                 }
             }
             this.velocity.y = -100; //remember negative means forward because reasons
-        }
-        for(CommandButton button : getButtons()) {
-            button.tick();
         }
         if(tickNumber - this.pathCacheSignatureLastChangedTick > Main.ticksPerSecond * 4) {
             setCommandGroup("0");
