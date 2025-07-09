@@ -95,6 +95,9 @@ public class NavigationManager extends IndependentEffect {
         if (game.getGameTickNumber() % updateInterval != 0) {
             return;
         }
+        
+        // Update position cache
+        UnitPositionCache.updateCache(game);
 
         Collection<Future<?>> refreshTasks = new ArrayList<>();
         refreshTasks.add(unitPathingService.submit(() -> {
