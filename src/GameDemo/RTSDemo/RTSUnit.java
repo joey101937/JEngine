@@ -54,7 +54,7 @@ public class RTSUnit extends GameObject2 {
     public double originalSpeed = 1.8;
     public int sightRadius = 600;
     public boolean isTouchingOtherUnit = false;
-    public String commandGroup = "0"; // assigned when given order. goes to 0 when no active order
+    private String commandGroup = "0"; // assigned when given order. goes to 0 when no active order
     public int currentHealth = 100;
     public int maxHealth = 100;
     private boolean debugFlag = false;
@@ -151,11 +151,11 @@ public class RTSUnit extends GameObject2 {
         super.tick();
         this.debugFlag = false;
         if (isRubble) {
-            commandGroup = "0";
+            setCommandGroup("0");
             return;
         }
         if(isCloseEnoughToDesired()) {
-            commandGroup = "0";
+            setCommandGroup("0");
             this.velocity.y = 0;
         }
         Coordinate nextWaypoint = getNextWaypoint();
@@ -188,7 +188,7 @@ public class RTSUnit extends GameObject2 {
             button.tick();
         }
         if(tickNumber - this.pathCacheSignatureLastChangedTick > Main.ticksPerSecond * 4) {
-            this.commandGroup = "0";
+            setCommandGroup("0");
             this.setDesiredLocation(getPixelLocation());
         }
     }
@@ -396,13 +396,20 @@ public class RTSUnit extends GameObject2 {
         builder.append(this.isRubble); // 7
         builder.append(",");
         builder.append(this.commandGroup); // 8
+        builder.append(",");
+        builder.append(this.getNextWaypoint() != null ? this.getNextWaypoint().x : -1); // 9
+        builder.append(",");
+        builder.append(this.getNextWaypoint() != null ? this.getNextWaypoint().y : -1); // 10
+        
         return builder.toString();
     }
 
     public void setFieldsPerString(String input) {
         var components = input.split(",");
-        getLocation().y = Double.parseDouble(components[1]);
-        getLocation().y = Double.parseDouble(components[2]);
+        setLocation(
+            Double.parseDouble(components[1]),
+            Double.parseDouble(components[2])
+        );
         this.currentHealth = Integer.parseInt(components[3]);
         this.setRotation(Double.parseDouble(components[4]));
         this.setDesiredLocation(new Coordinate(
@@ -414,6 +421,10 @@ public class RTSUnit extends GameObject2 {
             }
         }
         this.commandGroup = components[8];
+        Coordinate incomingWaypoint = new Coordinate(Integer.parseInt(components[9]),  Integer.parseInt(components[10]));
+        if(incomingWaypoint.x != -1 && incomingWaypoint.y != -1) {
+            this.waypoints.addFirst(incomingWaypoint);
+        }
     }
     
     public int getNavTileSize() {
@@ -553,9 +564,7 @@ public class RTSUnit extends GameObject2 {
                     addTickDelayedEffect(10, c -> {
                         if(this.commandGroup.equals(newCommandGroup)){
                             this.commandGroup = oldCommandGroup;
-                            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
                         }
-                        if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.communicateState(this);
                     });   
             }
         }
@@ -610,4 +619,11 @@ public class RTSUnit extends GameObject2 {
         return null;
     }
     
+    public void setCommandGroup(String s) {
+        this.commandGroup = s;
+    }
+    
+    public String getCommandGroup() {
+        return this.commandGroup;
+    }
 }

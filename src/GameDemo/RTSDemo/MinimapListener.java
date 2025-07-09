@@ -44,13 +44,13 @@ public class MinimapListener extends MinimapMouseListener {
             }
             if(e.isControlDown()) {
                 selectedUnits.forEach(unit -> {         
-                    unit.commandGroup = generatedCommandGroup;
+                    unit.setCommandGroup(generatedCommandGroup);
                     unit.setDesiredLocation(inWorldLocation);
                 });
             } else {
                 Coordinate avgLocation = RTSInput.averageLocation(selectedUnits);
                  selectedUnits.forEach(unit -> {
-                    unit.commandGroup = generatedCommandGroup;
+                    unit.setCommandGroup(generatedCommandGroup);
                     unit.setDesiredLocation((unit.getPixelLocation().subtract(avgLocation)).add(inWorldLocation));
                 });
             }

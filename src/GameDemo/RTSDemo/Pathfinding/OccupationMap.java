@@ -46,8 +46,8 @@ public class OccupationMap {
         for(GameObject2 go : game.getAllObjects()){
             if(go instanceof RTSUnit unit 
                     && !(go instanceof Landmine)
-                    && (!(unit.commandGroup.equals(commandGroup)
-                    && !unit.commandGroup.equals(NavigationManager.SEPERATOR_GROUP)) || unit.isRubble)
+                    && (!(unit.getCommandGroup().equals(commandGroup)
+                    && !unit.getCommandGroup().equals(NavigationManager.SEPERATOR_GROUP)) || unit.isRubble)
                     && unit.isSolid
                     && unit.plane == plane
                     && unit.team == team) {

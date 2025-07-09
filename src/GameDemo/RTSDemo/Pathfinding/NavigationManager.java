@@ -142,14 +142,13 @@ public class NavigationManager extends IndependentEffect {
     }
 
     public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, RTSUnit self) {
-        
+            
         try {
             TileMap tileMap = getTileMapBySize(self.getNavTileSize());
             Tile start = tileMap.getTileAtLocation(startCoord);
             Tile goal = tileMap.getTileAtLocation(endCoord);
             String pathingSignature = self.getPathingSignature();
-            int maxCalculationAmount = 2000;
-
+            int maxCalculationAmount = (self.isTouchingOtherUnit && !self.movedLastTick()) ? 2000 : 3000;
             if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
                 // Use giant terrain map for long-distance pathfinding
                 // Get high-level path using giant terrain tiles

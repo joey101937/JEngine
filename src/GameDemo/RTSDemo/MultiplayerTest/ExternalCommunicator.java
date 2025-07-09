@@ -158,7 +158,7 @@ public class ExternalCommunicator implements Runnable {
                 GameObject2 go = Window.currentGame.getObjectById(id);
                 if (go instanceof RTSUnit unit) {
                     unit.setDesiredLocation(coord);
-                    unit.commandGroup = commandGroup;
+                    unit.setCommandGroup(commandGroup);
 //                    System.out.println("done");
                 }
             } else {
@@ -167,7 +167,7 @@ public class ExternalCommunicator implements Runnable {
                     GameObject2 go = Window.currentGame.getObjectById(id);
                     if (go instanceof RTSUnit unit) {
                         unit.setDesiredLocation(coord);
-                        unit.commandGroup = commandGroup;
+                        unit.setCommandGroup(commandGroup);
 //                        System.out.println("done");
                     }
                 });

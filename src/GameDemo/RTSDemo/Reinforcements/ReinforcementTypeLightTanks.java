@@ -31,7 +31,7 @@ public class ReinforcementTypeLightTanks extends ReinforcementType {
             LightTank tank = new LightTank(spawnLocation.x, spawnLocation.y, team);
             tank.setLocation(ReinforcementHandler.getClosestOpenLocation(spawnLocation, tank).toDCoordinate());
             tank.setRotation(kb.spawnLocation.rotation);
-            tank.commandGroup = commandGroup;
+            tank.setCommandGroup(commandGroup);
             tank.setDesiredLocation(targetLocation.copy().add(spawnOffset));
             RTSGame.game.addObject(tank);
 

@@ -134,7 +134,7 @@ public class RTSInput extends InputHandler {
                     long originalTick = hostGame.handler.globalTickNumber;
                     hostGame.addTimeTriggeredEffect(executeTime, x -> {
                         u.setDesiredLocation(locationOfMouseEvent);
-                        u.commandGroup = generatedCommandGroup;
+                        u.setCommandGroup(generatedCommandGroup);
                         ExternalCommunicator.communicateState(u);
                     });
                     ExternalCommunicator.sendMessage("m:" + u.ID + "," + locationOfMouseEvent.x
@@ -153,7 +153,7 @@ public class RTSInput extends InputHandler {
                     long originalTick = hostGame.handler.globalTickNumber;
                     hostGame.addTimeTriggeredEffect(executeTime, x -> {
                         u.setDesiredLocation(targetOffset);
-                        u.commandGroup = generatedCommandGroup;
+                        u.setCommandGroup(generatedCommandGroup);
                         ExternalCommunicator.communicateState(u);
                     });
                     ExternalCommunicator.sendMessage("m:" + u.ID + "," + targetOffset.x + ',' + targetOffset.y + "," + hostGame.handler.globalTickNumber + ","+generatedCommandGroup + "," + executeTime);

@@ -32,7 +32,7 @@ public class ReinforcementTypeHellicopters extends ReinforcementType{
             Hellicopter heli = new Hellicopter(spawnLocation.x, spawnLocation.y, team);
             heli.setLocation(ReinforcementHandler.getClosestOpenLocation(spawnLocation, heli).toDCoordinate());
             heli.setRotation(kb.spawnLocation.rotation);
-            heli.commandGroup = commandGroup;
+            heli.setCommandGroup(commandGroup);
             heli.setDesiredLocation(targetLocation.copy().add(spawnOffset));
             RTSGame.game.addObject(heli);
             
