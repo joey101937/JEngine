@@ -7,7 +7,7 @@ import GameDemo.RTSDemo.RTSUnit;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UnitPositionCache {
-    private static ConcurrentHashMap<RTSUnit, Coordinate> cachedPositions = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Long, Coordinate> cachedPositions = new ConcurrentHashMap<>();
     private static long lastUpdateTime = 0;
     private static final long UPDATE_INTERVAL = 100; // 100ms = 1/10th of a second
 
@@ -20,13 +20,13 @@ public class UnitPositionCache {
         cachedPositions.clear();
         for (GameObject2 go : game.getAllObjects()) {
             if (go instanceof RTSUnit unit) {
-                cachedPositions.put(unit, unit.getPixelLocation());
+                cachedPositions.put(unit.ID, unit.getPixelLocation());
             }
         }
         lastUpdateTime = currentTime;
     }
 
     public static Coordinate getCachedPosition(RTSUnit unit) {
-        return cachedPositions.getOrDefault(unit, unit.getPixelLocation());
+        return cachedPositions.getOrDefault(unit.ID, unit.getPixelLocation());
     }
 }
