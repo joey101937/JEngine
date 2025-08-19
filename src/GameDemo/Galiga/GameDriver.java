@@ -10,6 +10,7 @@ import Framework.IndependentEffect;
 import Framework.Main;
 import GameDemo.Galiga.Enemies.EnemyDiagonal;
 import GameDemo.Galiga.Enemies.EnemyShip;
+import GameDemo.Galiga.Enemies.BossShip;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -55,6 +56,11 @@ public class GameDriver extends IndependentEffect{
         if(refNumber > tickNumber-Main.ticksPerSecond*2 || tickNumber%Main.ticksPerSecond*2!=0)return;
         int numSpawned = 0;
         
+        // Check if boss is alive - if so, don't spawn other enemies
+        if(isBossAlive()) {
+            return;
+        }
+        
         while(numEnemiesOut() + numSpawned < maxShipsOut && !toSpawn.isEmpty()){
             GaligaGame.mainGame.addObject(toSpawn.remove(0));
             numSpawned++;
@@ -65,6 +71,12 @@ public class GameDriver extends IndependentEffect{
         System.out.println("next lvl");
         level++;
         refNumber=tickNumber;
+        
+        // Spawn boss on even numbered waves first
+        if(level % 2 == 0) {
+            toSpawn.add(new BossShip(GaligaGame.mainGame.getWorldWidth()/2, 100));
+        }
+        
         if(level==1){
             for(int i = 0 ; i < 4 ; i++){
                 toSpawn.add(new EnemyShip(150+ i*150,100));
@@ -101,5 +113,14 @@ public class GameDriver extends IndependentEffect{
            }
        }
        return output;
+   }
+   
+   private boolean isBossAlive(){
+       for(GameObject2 g : GaligaGame.mainGame.getAllObjects()){
+           if(g instanceof BossShip){
+               return true;
+           }
+       }
+       return false;
    }
 }

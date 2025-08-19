@@ -6,11 +6,14 @@
 package GameDemo.Galiga;
 
 import GameDemo.Galiga.Enemies.EnemyShip;
+import GameDemo.Galiga.Enemies.BossShip;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
+import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
+import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
 
 /**
@@ -59,9 +62,22 @@ public class Bolt extends Projectile{
                 this.destroy();
                 return;
             }
+        } else if (other instanceof BossShip) {
+            if (isFriendly) {
+                ((BossShip)other).takeDamage();
+                // play explosion animation
+                new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence) ,getPixelLocation());
+                this.destroy();
+                return;
+            } else {
+                //do nothing
+                return;
+            }
         } else if (other instanceof EnemyShip) {
             if (isFriendly) {
                 other.destroy();
+                // play explosion animation
+                new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence) ,getPixelLocation());
                 this.destroy();
                 return;
             } else {

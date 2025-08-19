@@ -8,10 +8,8 @@ package GameDemo.Galiga.Enemies;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
-import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.SpriteManager;
-import Framework.Stickers.OnceThroughSticker;
 import GameDemo.Galiga.Bolt;
 import GameDemo.Galiga.GaligaGame;
 import GameDemo.Galiga.PlayerShip;
@@ -70,7 +68,6 @@ public class EnemyShip extends GameObject2{
 
     @Override
     public void onDestroy(){
-        new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence) ,getPixelLocation());
         GaligaGame.deathSound.playCopy(.7f);
         GaligaGame.UI.increaseScore(500);
     }
