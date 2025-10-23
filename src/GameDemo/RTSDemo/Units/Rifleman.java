@@ -9,6 +9,7 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -63,9 +64,9 @@ public class Rifleman extends RTSUnit {
         this.addSubObject(this.turret);
         this.setZLayer(1);
         this.isSolid = true;
-        this.setBaseSpeed(1.88);
+        this.setBaseSpeed(RTSGame.tickAdjust(1.88));
         this.canAttackAir = true;
-        this.rotationSpeed = 15;
+        this.rotationSpeed = RTSGame.tickAdjust(15);
         this.maxHealth = 20;
         this.currentHealth = 20;
         this.range = 500;
@@ -189,7 +190,7 @@ public class Rifleman extends RTSUnit {
                 } else if (desiredRotation < -180) {
                     desiredRotation += 360;
                 }
-                double maxRotation = 5;
+                double maxRotation = RTSGame.tickAdjust(5);
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);
                 } else {
@@ -201,7 +202,7 @@ public class Rifleman extends RTSUnit {
                 }
             } else {
                 double desiredRotation = rotationNeededToFace(enemy.getPixelLocation());
-                double maxRotation = 5;
+                double maxRotation = RTSGame.tickAdjust(5);
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);
                 } else {

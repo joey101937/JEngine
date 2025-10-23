@@ -46,7 +46,7 @@ public class RTSUnit extends GameObject2 {
     public int range = 500;
     public boolean canAttackAir = false;
     public boolean isRubble = false;
-    public double rotationSpeed = 5;
+    public double rotationSpeed = RTSGame.tickAdjust(5);
     public boolean isInfantry = false;
     public RTSUnit nearestEnemyInfantry, nearestEnemeyGroundVehicle, nearestEnemyAircraft, nearestEnemyGroundUnit, nearestEnemyUnit;
     public boolean isCloaked = false;
@@ -64,6 +64,7 @@ public class RTSUnit extends GameObject2 {
     private String pathCacheSignature;
     private int pathCacheUses = 0;
     private List<Coordinate> pathCache; 
+    public boolean inSeperatorGroup = false;
     
     // Movement deceleration configuration
     public int minSpeedDistance = 50; // Distance at which speed reaches minimum
@@ -149,6 +150,7 @@ public class RTSUnit extends GameObject2 {
     @Override
     public void tick() {
         super.tick();
+        // System.out.println(this.ID + " " + getNextWaypoint());
         for(CommandButton button : getButtons()) {
             button.tick();
         }
@@ -174,7 +176,7 @@ public class RTSUnit extends GameObject2 {
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
             double maxRotation = rotationSpeed;
             if (Math.abs(desiredRotation) < 20) {
-                maxRotation = 2; // slow down as we get closer
+                maxRotation = RTSGame.tickAdjust(2); // slow down as we get closer
             }
             if (Math.abs(desiredRotation) < maxRotation) {
                 rotate(desiredRotation);
@@ -300,10 +302,12 @@ public class RTSUnit extends GameObject2 {
     }
 
     public void updateWaypoints() {
+        // System.out.println("updating waypoints " + this);
         if(pathCacheUses < 10 && desiredLocation.equals(pathEndCache) && getPixelLocation().equals(pathStartCache) && !commandGroup.equals(NavigationManager.SEPERATOR_GROUP)) {
             // if we just calculated the path for this start and end, dont recalculate it agian
             waypoints = pathCache;
             pathCacheUses++;
+            System.out.println(this.ID + " using cached waypoint");
             return;
         }
         waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, this);
@@ -396,10 +400,6 @@ public class RTSUnit extends GameObject2 {
         builder.append(this.isRubble); // 7
         builder.append(",");
         builder.append(this.commandGroup); // 8
-        builder.append(",");
-        builder.append(this.getNextWaypoint() != null ? this.getNextWaypoint().x : -1); // 9
-        builder.append(",");
-        builder.append(this.getNextWaypoint() != null ? this.getNextWaypoint().y : -1); // 10
         
         return builder.toString();
     }
@@ -421,10 +421,6 @@ public class RTSUnit extends GameObject2 {
             }
         }
         this.commandGroup = components[8];
-        Coordinate incomingWaypoint = new Coordinate(Integer.parseInt(components[9]),  Integer.parseInt(components[10]));
-        if(incomingWaypoint.x != -1 && incomingWaypoint.y != -1) {
-            this.waypoints.addFirst(incomingWaypoint);
-        }
     }
     
     public int getNavTileSize() {
@@ -559,11 +555,15 @@ public class RTSUnit extends GameObject2 {
             if(this.commandGroup.equals(unit.commandGroup) && !this.movedLastTick() && !other.movedLastTick()) {
                     // single player or this is friendly unit
                     String oldCommandGroup = this.commandGroup;
-                    String newCommandGroup = NavigationManager.SEPERATOR_GROUP;
-                    this.commandGroup = newCommandGroup;
+//                    String newCommandGroup = NavigationManager.SEPERATOR_GROUP;
+                    this.inSeperatorGroup = true;
+                    System.out.println(this.ID + " adding to seperator");
+//                    this.commandGroup = newCommandGroup;
                     addTickDelayedEffect(10, c -> {
-                        if(this.commandGroup.equals(newCommandGroup)){
-                            this.commandGroup = oldCommandGroup;
+                        if(this.commandGroup.equals(oldCommandGroup)){
+//                            this.commandGroup = oldCommandGroup;
+                                System.out.println(this.ID + "removing from seperator " + getHostGame().getGameTickNumber());
+                                this.inSeperatorGroup = false;
                         }
                     });   
             }
@@ -620,10 +620,11 @@ public class RTSUnit extends GameObject2 {
     }
     
     public void setCommandGroup(String s) {
+        if(s != this.commandGroup) this.inSeperatorGroup = false;
         this.commandGroup = s;
     }
     
     public String getCommandGroup() {
-        return this.commandGroup;
+        return this.inSeperatorGroup ? NavigationManager.SEPERATOR_GROUP : this.commandGroup;
     }
 }

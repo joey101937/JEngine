@@ -33,6 +33,7 @@ public class RTSGame {
     public static InfoPanelEffect infoPanelEffect;
     public static ReinforcementHandler reinforcementHandler;
     public static NavigationManager navigationManager;
+    public static int desiredTPS = 30;
 
     public static void setup(Game g) {
         PathingLayer pathing = new PathingLayer(RTSAssetManager.rtsPathing);
@@ -45,9 +46,9 @@ public class RTSGame {
         Main.onScreenPadding = 400;
         Main.tickType = Handler.TickType.modular;
         Main.tickThreadCount = 1;
-        Main.ticksPerSecond = 90;
+        Main.ticksPerSecond = desiredTPS;
         Main.enableLerping = true;
-        g.getCamera().camSpeed = 20;
+        g.getCamera().camSpeed = tickAdjust(20);
         g.addIndependentEffect(new SelectionBoxEffect());
         g.addIndependentEffect(new SelectionBoxEffectAir());
         g.addIndependentEffect(new StatusIconHelper());
@@ -96,35 +97,54 @@ public class RTSGame {
 
         Window.initializeFullScreen(game);
 
-        setup(game);
-
-        int spacer = 160;
-        int lineLength = 40; // units = this x 10
+        setup(game);       
 
         game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
-        game.addObject(new KeyBuilding(3000, 3000, 1));
-//          
-//        ArrayList<RTSUnit> hellis = new ArrayList<>();
-//        
-//         for (int i = 0; i < 4; i++) {
-//            Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
-//            heli.setRotation(180);
-//            game.addObject(heli);
-//            hellis.add(heli);
-//        }
-//         String commandgroup = RTSInput.generateRandomCommandGroup();
-//         for(RTSUnit u : hellis) {
-//             game.addTickDelayedEffect(10, c -> {
-//                u.commandGroup = commandgroup;
-//                u.setDesiredLocation(new Coordinate(500,500));
-//             });
-//         }
-
-//        RTSUnit infantryUnit = new Bazookaman(500, 750, 0);
-//        infantryUnit.setRotation(180);
-//        game.addObject(infantryUnit);
-        // greens 
-        for (int i = 0; i < lineLength; i++) {
+        game.addObject(new KeyBuilding(3000, 2500, 1));
+        
+//         spawnLines();
+        spawnTestHeli();
+       
+        game.setOnGameStabilized(x3 -> {
+            setupUI(game);
+            game.setLoadingScreenActive(false);
+            System.out.println("Loading screen off");
+        });
+    }
+    
+    private static void spawnTestHeli() {
+        int spacer = 160;
+        int lineLength = 6; // units = this x 10
+        
+         for (int i = 0; i < lineLength; i++) {
+            Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
+            heli.setRotation(180);
+            game.addObject(heli);
+        }
+         
+                 game.addTickDelayedEffect(2000, (g) -> {
+            game.getAllObjects().stream().forEach(x -> {
+                if(x instanceof RTSUnit unit) {
+                    unit.setDesiredLocation(new Coordinate(600,700));
+                    unit.setCommandGroup("test");
+                }
+            });
+        });
+        
+        game.addTickDelayedEffect(4000, (g) -> {
+            game.getAllObjects().stream().forEach(x -> {
+                if(x instanceof RTSUnit unit) {
+                    unit.setDesiredLocation(unit.getPixelLocation());
+                }
+            });
+        });
+    }
+    
+    private static void spawnLines() {
+        int spacer = 160;
+        int lineLength = 40; // units = this x 10
+        
+         for (int i = 0; i < lineLength; i++) {
             Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
             heli.setRotation(180);
             game.addObject(heli);
@@ -170,10 +190,28 @@ public class RTSGame {
         for (int i = 0; i < lineLength; i++) {
             game.addObject(new Hellicopter(100 + (i * spacer), 2300, 1));
         }
-        game.setOnGameStabilized(x3 -> {
-            setupUI(game);
-            game.setLoadingScreenActive(false);
-            System.out.println("Loading screen off");
-        });
+    }
+    
+    
+    /**
+     * accepts a value and scales it based on tick rate relative to the baseTick
+     * for example, if the game is running at 30tps and baseTick = 90, then the value will be scaled 3x
+     * @param value value
+     * @return scaled value
+     */
+    public static int tickAdjust(int value) {
+        int baseTick = 90;
+        
+        double ratio = baseTick/Main.ticksPerSecond;
+        
+        return (int)(value * ratio);
+    }
+    
+    public static double tickAdjust(double value) {
+        int baseTick = 90;
+        
+        double ratio = baseTick/desiredTPS;
+        
+        return (value * ratio);
     }
 }

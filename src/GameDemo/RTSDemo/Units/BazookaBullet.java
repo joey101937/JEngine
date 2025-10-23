@@ -10,6 +10,7 @@ import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -43,7 +44,7 @@ public class BazookaBullet extends Projectile {
 
     public BazookaBullet(RTSUnit shooter, Coordinate startingLocation, RTSUnit other) {
         super(startingLocation);
-        this.setBaseSpeed(10);
+        this.setBaseSpeed(RTSGame.tickAdjust(10.0));
         this.shooter = shooter;
         damage.source = shooter;
         damage.launchLocation = startingLocation;

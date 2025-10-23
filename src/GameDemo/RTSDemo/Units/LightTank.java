@@ -11,6 +11,7 @@ import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.LayMineButton;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -24,7 +25,7 @@ import java.util.ArrayList;
  */
 public class LightTank extends RTSUnit {
 
-    public static final double speed = 2.8;
+    public static final double speed = RTSGame.tickAdjust(2.8);
     public static final double attackInterval = 1.6;
 
     public static double VISUAL_SCALE = 1.00;
@@ -207,7 +208,7 @@ public class LightTank extends RTSUnit {
         @Override
         public void tick() {
             updateDesiredRotation();
-            double maxRotationPerTick = 5;
+            double maxRotationPerTick = RTSGame.tickAdjust(5);
             double desiredRotationAmount = desiredRotationAngle - getRotationRealTime();
             if (desiredRotationAmount > 180) {
                 desiredRotationAmount -= 360;

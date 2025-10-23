@@ -9,6 +9,7 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.HeatSeekersButton;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -64,9 +65,9 @@ public class Bazookaman extends RTSUnit {
         this.addSubObject(this.turret);
         this.setZLayer(1);
         this.isSolid = true;
-        this.setBaseSpeed(1.88);
+        this.setBaseSpeed(RTSGame.tickAdjust(1.88));
         this.canAttackAir = true;
-        this.rotationSpeed = 15;
+        this.rotationSpeed = RTSGame.tickAdjust(15);
         this.maxHealth = 30;
         this.currentHealth = 30;
         this.range = 600;
@@ -219,7 +220,7 @@ public class Bazookaman extends RTSUnit {
                 } else if (desiredRotation < -180) {
                     desiredRotation += 360;
                 }
-                double maxRotation = 5;
+                double maxRotation = RTSGame.tickAdjust(5);
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);
                 } else {
@@ -231,7 +232,7 @@ public class Bazookaman extends RTSUnit {
                 }
             } else {
                 double desiredRotation = rotationNeededToFace(enemy.getPixelLocation());
-                double maxRotation = 5;
+                double maxRotation = RTSGame.tickAdjust(5);
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);
                 } else {

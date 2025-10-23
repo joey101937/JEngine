@@ -16,6 +16,7 @@ import Framework.Stickers.OnceThroughSticker;
 import Framework.Stickers.Sticker;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -42,7 +43,7 @@ public class TankBullet extends Projectile {
         shadow.scaleTo(.2);
         setScale(.2);
         this.setGraphic(bulletGraphic.copyMaintainSource());
-        baseSpeed = 26;
+        baseSpeed = RTSGame.tickAdjust(26.0);
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 750;
         startPosition = start;

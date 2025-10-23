@@ -17,6 +17,7 @@ import GameDemo.RTSDemo.Buttons.DigOutButton;
 import GameDemo.RTSDemo.Buttons.FrontalArmorButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -34,7 +35,7 @@ import java.util.List;
 public class TankUnit extends RTSUnit {
     
     public static final double attackFrequency = 2.5;
-    public static double speed = 2.15;
+    public static double speed = RTSGame.tickAdjust(2.15);
 
     public Turret turret;
     public final static double VISUAL_SCALE = 1.10;
@@ -324,7 +325,7 @@ public class TankUnit extends RTSUnit {
                 } else if (desiredRotation < -180) {
                     desiredRotation += 360;
                 }
-                double maxRotation = 5;
+                double maxRotation = RTSGame.tickAdjust(5);
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);
                 } else {
@@ -336,7 +337,7 @@ public class TankUnit extends RTSUnit {
                 }
             } else {
                 double desiredRotation = rotationNeededToFace(enemy.getPixelLocation());
-                double maxRotation = 5;
+                double maxRotation = RTSGame.tickAdjust(5);
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);
                 } else {

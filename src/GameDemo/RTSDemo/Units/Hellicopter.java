@@ -8,6 +8,7 @@ import Framework.PathingLayer;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -46,7 +47,7 @@ public class Hellicopter extends RTSUnit {
         this.setZLayer(11);
         this.plane = 2;
         this.isSolid = true;
-        this.setBaseSpeed(4.5);
+        this.setBaseSpeed(RTSGame.tickAdjust(4.5));
         turret = new HellicopterTurret(new Coordinate(0, 0));
         this.addSubObject(turret);
         this.canAttackAir = true;
@@ -101,6 +102,7 @@ public class Hellicopter extends RTSUnit {
 
     @Override
     public void tick() {
+//        System.out.println("ticking " + this);
         if (isRubble && elevation > 1) {
             elevation -= 4.8;
             if (elevation < 1) {
@@ -202,9 +204,9 @@ public class Hellicopter extends RTSUnit {
                 bobbingDown = true;
             }
             if (bobbingDown) {
-                bobPercent += 2;
+                bobPercent += RTSGame.tickAdjust(2.0);
             } else {
-                bobPercent -= 2;
+                bobPercent -= RTSGame.tickAdjust(2.0);
             }
             double newY = bobAmount * (bobPercent / 100);
             Coordinate newOffset = new Coordinate(0, (int) newY);
@@ -215,7 +217,7 @@ public class Hellicopter extends RTSUnit {
         private void updateRotation() {
             Hellicopter host = (Hellicopter) getHost();
             double desiredRotationAmount = this.getHost().getRotation() - getRotation();
-            double maxRotation = 5;
+            double maxRotation = RTSGame.tickAdjust(5);
 
             if (host.currentTarget != null) {
                 desiredRotationAmount = rotationNeededToFace(host.currentTarget.getPixelLocation());

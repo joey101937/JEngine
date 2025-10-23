@@ -10,6 +10,7 @@ import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -37,8 +38,8 @@ public class HellicopterBullet extends Projectile {
     public long tickToDestroy = -1;
     public boolean hasCollided = false;
 
-    public int maxSpeed = 14;
-    public double minSpeed = 4.4;
+    public int maxSpeed = RTSGame.tickAdjust(14);
+    public double minSpeed = RTSGame.tickAdjust(4.4);
     public double accellerationTime = Main.ticksPerSecond * .7;
     public double accellerationStage;
 
