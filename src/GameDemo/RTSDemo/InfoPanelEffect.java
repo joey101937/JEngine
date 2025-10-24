@@ -73,10 +73,10 @@ public class InfoPanelEffect extends IndependentEffect {
     @Override
     public void render(Graphics2D g) {
         Graphics2D g2 = (Graphics2D) g.create();
-        double scaleAmount = 1/RTSGame.game.getZoom();
+        double scaleAmount = 1/hostGame.getZoom();
         g.scale(scaleAmount, scaleAmount);
         g.setColor(lightGray);
-        Coordinate cameraOffset = RTSGame.game.getCamera().getWorldRenderLocation().toCoordinate();
+        Coordinate cameraOffset = hostGame.getCamera().getWorldRenderLocation().toCoordinate();
         
         cameraOffset.scale(1/scaleAmount);
         x = baseX + cameraOffset.x;
@@ -193,7 +193,7 @@ public class InfoPanelEffect extends IndependentEffect {
     public CommandButton getButtonAtLocation(int mouseX, int mouseY) {
         if (mainUnit == null) return null;
         
-        double scaleAmount = RTSGame.game.getZoom();
+        double scaleAmount = hostGame.getZoom();
         mouseX*=scaleAmount;
         mouseY*=scaleAmount;
         int buttonRenderWidth = (height - 20) / 2;
