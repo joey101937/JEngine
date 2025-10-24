@@ -8,13 +8,11 @@ import Framework.Main;
 import Framework.Window;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
-import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUnit;
-import GameDemo.RTSDemo.SelectionBoxEffect;
 import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
- *
+ * these determinism tests are one off battles intended to be run across multiple sessions so that the results can be compared
  * @author guydu
  */
 public class DeterminismTest {

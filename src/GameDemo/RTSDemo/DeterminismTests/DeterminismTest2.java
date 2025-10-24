@@ -11,11 +11,12 @@ import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
- *
+ * these determinism tests are one off battles intended to be run across multiple sessions so that the results can be compared
  * @author guydu
  */
 public class DeterminismTest2 {
     public static void main(String[] args) {
+        RTSAssetManager.initialize();
         Game game = new Game(RTSAssetManager.grassBG);
         Main.setRandomSeed(10);
         TankUnit green = new TankUnit(100, 100, 0);

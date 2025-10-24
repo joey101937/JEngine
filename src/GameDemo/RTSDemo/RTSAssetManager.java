@@ -79,7 +79,7 @@ public abstract class RTSAssetManager {
     
     public static BufferedImage sandbagsForTank;
 
-    public static void initialize() {
+    public synchronized static void initialize() {
         if (initialized) {
             return;
         }
