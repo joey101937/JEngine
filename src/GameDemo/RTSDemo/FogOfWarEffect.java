@@ -2,6 +2,7 @@
 package GameDemo.RTSDemo;
 
 import Framework.CoreLoop.Handler;
+import Framework.Game;
 import Framework.GraphicalAssets.Graphic;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
@@ -18,14 +19,19 @@ import java.util.stream.Collectors;
  * @author guydu
  */
 public class FogOfWarEffect extends IndependentEffect {
+    private final Game game;
     private static final int UNITS_PER_SUBAREA = 7;
     private Area area = new Area();
     private boolean enabled = false;
     public static ExecutorService fogRenderService = Handler.newMinSizeCachedThreadPool(4);
+    
+    public FogOfWarEffect (Game g) {
+        this.game = g;
+    }
 
     @Override
     public void render(Graphics2D g) {
-        var camera = RTSGame.game.getCamera();
+        var camera = game.getCamera();
         var fov = camera.getFieldOfView();
         if(area == null) return;
             g.setClip(area);
@@ -43,18 +49,18 @@ public class FogOfWarEffect extends IndependentEffect {
                     null
             );
 
-            Graphic.renderLargeImageInParts(g, RTSAssetManager.grassBG, RTSGame.game.getCamera(), fogRenderService);
+            Graphic.renderLargeImageInParts(g, RTSAssetManager.grassBG, game.getCamera(), fogRenderService);
         g.setClip(null);
     }
 
     @Override
     public void tick() {
         if(!enabled) return;
-        if(RTSGame.game.getGameTickNumber() % 5 != 0) return;
+        if(game.getGameTickNumber() % 5 != 0) return;
         area = new Area();
-        var camera = RTSGame.game.getCamera();
+        var camera = game.getCamera();
         var fov = camera.getFieldOfView();
-        var gameObjects = RTSGame.game.getObjectsOnScreen(true);
+        var gameObjects = game.getObjectsOnScreen(true);
         var localUnits = gameObjects.stream()
             .filter(go -> go instanceof RTSUnit && ((RTSUnit) go).team == ExternalCommunicator.localTeam)
             .map(go -> (RTSUnit) go)
@@ -73,13 +79,13 @@ public class FogOfWarEffect extends IndependentEffect {
                     2 * unit.sightRadius
                 );
                 
-                if (visibilityCircle.intersects(RTSGame.game.getCamera().getFieldOfView())) {
+                if (visibilityCircle.intersects(game.getCamera().getFieldOfView())) {
                     subArea.add(new Area(visibilityCircle));
                 }
             }
             area.add(subArea);
         }
-        RTSGame.game.setBackgroundClip(createInverseArea(area, RTSGame.game.getWorldWidth(), RTSGame.game.getWorldHeight()));
+        game.setBackgroundClip(createInverseArea(area, game.getWorldWidth(), game.getWorldHeight()));
     }
     
     

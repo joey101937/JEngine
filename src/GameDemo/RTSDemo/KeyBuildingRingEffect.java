@@ -1,6 +1,7 @@
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
+import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
 import java.awt.AlphaComposite;
@@ -9,15 +10,20 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class KeyBuildingRingEffect extends IndependentEffect {
+    private Game game;
     
     @Override
     public int getZLayer() {
         return -200;
     }
+    
+    public KeyBuildingRingEffect (Game g) {
+        game = g;
+    }
 
     @Override
     public void render(Graphics2D g) {
-        for (GameObject2 obj : RTSGame.game.getAllObjects()) {
+        for (GameObject2 obj : game.getAllObjects()) {
             if(obj instanceof KeyBuilding) {
                 KeyBuilding building = (KeyBuilding) obj;
                 renderCaptureRing(g, building);

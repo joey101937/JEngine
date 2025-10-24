@@ -5,6 +5,7 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
+import Framework.Window;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
@@ -153,7 +154,7 @@ public class KeyBuilding extends GameObject2 {
     
     public static KeyBuilding getClosest(Coordinate target, int team) {
         KeyBuilding closest = null;
-        for (GameObject2 go : RTSGame.game.getAllObjects()) {
+        for (GameObject2 go : Window.currentGame.getAllObjects()) {
             if (go instanceof KeyBuilding kb && kb.owningTeam == team) {
                 if (closest == null || kb.distanceFrom(target) < closest.distanceFrom(target)) {
                     closest = kb;

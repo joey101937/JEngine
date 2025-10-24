@@ -1,5 +1,6 @@
 package GameDemo.RTSDemo;
 
+import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -12,6 +13,11 @@ import java.awt.Graphics2D;
 public class StatusIconHelper extends IndependentEffect{
     private static final int statusIconWidth = 20;
     private static final int statusIconHeight = 20;
+    private Game game;
+    
+    public StatusIconHelper (Game g) {
+        game = g;
+    }
     
     @Override
     public int getZLayer() {
@@ -21,7 +27,7 @@ public class StatusIconHelper extends IndependentEffect{
     @Override
     public void render(Graphics2D g) {
         // RTSGame.navigationManager.render(g);
-        for(GameObject2 go : RTSGame.game.getAllObjects()) {
+        for(GameObject2 go : game.getAllObjects()) {
             if(go.isOnScreen() && go instanceof RTSUnit u && !u.isRubble) {
                 if(u.isImmobilized && !(u instanceof TankUnit tank && tank.sandbagActive)) {  
                     g.drawImage(

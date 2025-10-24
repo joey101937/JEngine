@@ -5,12 +5,12 @@
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
+import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import static GameDemo.RTSDemo.SelectionBoxEffect.uncontrollableColor;
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
 
@@ -19,6 +19,11 @@ import java.util.List;
  * @author guydu
  */
 public class SelectionBoxEffectAir extends IndependentEffect {
+    private Game game;
+    
+    public SelectionBoxEffectAir(Game g) {
+        game = g;
+    }
     
     @Override
     public int getZLayer() {
@@ -38,7 +43,7 @@ public class SelectionBoxEffectAir extends IndependentEffect {
     
      private void drawSelectionCirclesAir(Graphics2D g) {
         g.setStroke(new BasicStroke(3));
-        List<GameObject2> gos = RTSGame.game.getAllObjects();
+        List<GameObject2> gos = game.getAllObjects();
         for (GameObject2 go : gos) {
             if (go instanceof RTSUnit unit) {
                 if(unit.plane < 2) continue;

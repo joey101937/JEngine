@@ -7,9 +7,9 @@ import Framework.GameObject2;
 import Framework.IndependentEffect;
 import Framework.Main;
 import Framework.Hitbox;
+import Framework.Window;
 import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
-import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
 import java.awt.Font;
@@ -61,10 +61,10 @@ public class ReinforcementHandler extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
-        double scaleAmount = 1/RTSGame.game.getZoom();
+        double scaleAmount = 1/Window.currentGame.getZoom();
         g.scale(scaleAmount, scaleAmount);
-        Coordinate toRender = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldRenderLocation().scale(1/scaleAmount));
-        double percentReady = (double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval;
+        Coordinate toRender = new Coordinate(locationOnScreen).add(Window.currentGame.getCamera().getWorldRenderLocation().scale(1/scaleAmount));
+        double percentReady = (double)(Window.currentGame.getGameTickNumber() - lastUsedTick) / rechargeInterval;
         
         // Draw background
         g.setColor(backgroundColor);
@@ -92,9 +92,9 @@ public class ReinforcementHandler extends IndependentEffect {
     }
     
     public void renderMenu(Graphics2D g) {
-        double scaleAmount = 1/RTSGame.game.getZoom();
+        double scaleAmount = 1/Window.currentGame.getZoom();
         g.scale(scaleAmount, scaleAmount);
-        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldRenderLocation().scale(1/scaleAmount));
+        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(Window.currentGame.getCamera().getWorldRenderLocation().scale(1/scaleAmount));
         menuRenderLoc.y -= menuHeight;
         g.setColor(backgroundColor);
         g.fillRect(menuRenderLoc.x, menuRenderLoc.y, width, menuHeight);
@@ -137,11 +137,11 @@ public class ReinforcementHandler extends IndependentEffect {
     }
     
     public boolean intersectsMainBar(Coordinate mouseLocation) {
-        double scaleAmount = RTSGame.game.getZoom();
+        double scaleAmount = Window.currentGame.getZoom();
         int scaledMouseX = (int)(mouseLocation.x * scaleAmount);
         int scaledMouseY = (int)(mouseLocation.y * scaleAmount);
         
-        Coordinate renderLocation = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldRenderLocation().scale(scaleAmount)); 
+        Coordinate renderLocation = new Coordinate(locationOnScreen).add(Window.currentGame.getCamera().getWorldRenderLocation().scale(scaleAmount)); 
         return scaledMouseX >= renderLocation.x && scaledMouseX < renderLocation.x + width &&
                scaledMouseY >= renderLocation.y && scaledMouseY < renderLocation.y + height;
     }
@@ -151,11 +151,11 @@ public class ReinforcementHandler extends IndependentEffect {
             return null;
         }
         
-        double scaleAmount = RTSGame.game.getZoom();
+        double scaleAmount = Window.currentGame.getZoom();
         int scaledMouseX = (int)(mouseLocation.x * scaleAmount);
         int scaledMouseY = (int)(mouseLocation.y * scaleAmount);
         
-        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(RTSGame.game.getCamera().getWorldRenderLocation().scale(scaleAmount));
+        Coordinate menuRenderLoc = new Coordinate(locationOnScreen).add(Window.currentGame.getCamera().getWorldRenderLocation().scale(scaleAmount));
         menuRenderLoc.y -= menuHeight;
         
         int buttonWidth = width / 3;
@@ -202,7 +202,7 @@ public class ReinforcementHandler extends IndependentEffect {
     }
 
     private void drawBreathingBar(Graphics2D g, int x, int y, int width, int height, double percentReady) {
-        double breathingCycle = (Math.sin(RTSGame.game.getGameTickNumber() * 0.1) + 1) / 2; // 0 to 1
+        double breathingCycle = (Math.sin(Window.currentGame.getGameTickNumber() * 0.1) + 1) / 2; // 0 to 1
         Color startColor = barColor;
         Color endColor = lightGreen;
         
@@ -233,7 +233,7 @@ public class ReinforcementHandler extends IndependentEffect {
      * @return
      */
     public static Coordinate getClosestOpenLocation(Coordinate desiredLocation, GameObject2 object) {
-        Game currentGame = RTSGame.game;
+        Game currentGame = Window.currentGame;
         if (currentGame == null) {
             System.out.println("Error: Current game is null");
             return desiredLocation;
@@ -266,7 +266,7 @@ public class ReinforcementHandler extends IndependentEffect {
     }
 
     private static boolean isLocationOpen(Coordinate location, GameObject2 object) {
-        Game currentGame = RTSGame.game;
+        Game currentGame = Window.currentGame;
         if (currentGame == null) {
             return false;
         }
@@ -319,7 +319,7 @@ public class ReinforcementHandler extends IndependentEffect {
     public boolean isAvailable() {
         if(reserveCount < 1) return false;
         if(KeyBuilding.getClosest(new Coordinate(0,0), ExternalCommunicator.localTeam) == null) return false;
-        return 1 < (double)(RTSGame.game.getGameTickNumber() - lastUsedTick) / rechargeInterval;
+        return 1 < (double)(Window.currentGame.getGameTickNumber() - lastUsedTick) / rechargeInterval;
     }
     
     public void setSelectedReinforcementType(ReinforcementType type) {
@@ -331,7 +331,7 @@ public class ReinforcementHandler extends IndependentEffect {
         successSound.playCopy(.7);
         type.onTrigger(targetLocation, ExternalCommunicator.localTeam);
         reserveCount--;
-        lastUsedTick = RTSGame.game.getGameTickNumber();
+        lastUsedTick = Window.currentGame.getGameTickNumber();
         isMenuOpen = false;
         selectedReinforcementType = null;
         hoveredReinforcementType = null;

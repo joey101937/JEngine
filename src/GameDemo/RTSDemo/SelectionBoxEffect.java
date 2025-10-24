@@ -6,6 +6,7 @@
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
+import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
@@ -24,6 +25,8 @@ import java.util.Set;
  * @author Joseph
  */
 public class SelectionBoxEffect extends IndependentEffect {
+    
+    private Game game;
 
     public static Set<RTSUnit> selectedUnits = new HashSet<>();
     public static final Color uncontrollableColor = new Color(.5f, .5f, .5f, .8f);
@@ -32,6 +35,9 @@ public class SelectionBoxEffect extends IndependentEffect {
     private Stroke stroke3 = new BasicStroke(3);
     private Stroke stroke1 = new BasicStroke(1);
 
+    public SelectionBoxEffect(Game g) {
+        game = g;
+    }
 
     @Override
     public int getZLayer() {
@@ -55,7 +61,7 @@ public class SelectionBoxEffect extends IndependentEffect {
             selectedUnits.clear();
         }
         if (selectionZone != null) {
-            for (GameObject2 go : RTSGame.game.getObjectsIntersectingArea(selectionZone)) {
+            for (GameObject2 go : game.getObjectsIntersectingArea(selectionZone)) {
                 if (go instanceof RTSUnit) {
                     ((RTSUnit) go).setSelected(true);
                     selectedUnits.add((RTSUnit) go);
@@ -114,7 +120,7 @@ public class SelectionBoxEffect extends IndependentEffect {
 
     private void drawSelectionCirclesGround(Graphics2D g) {
         g.setStroke(stroke3);
-        List<GameObject2> gos = RTSGame.game.getAllObjects();
+        List<GameObject2> gos = game.getAllObjects();
         for (GameObject2 go : gos) {
             if (go instanceof RTSUnit unit) {
                 if (unit.plane > 1) {

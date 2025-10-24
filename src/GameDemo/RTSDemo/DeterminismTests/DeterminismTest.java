@@ -7,6 +7,7 @@ import Framework.GameObject2;
 import Framework.Main;
 import Framework.Window;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.SelectionBoxEffect;
@@ -24,12 +25,11 @@ public class DeterminismTest {
         Main.tickThreadCount = 1;
         Main.setRandomSeed(10);
         Window.initialize(game);
-        game.setInputHandler(new RTSInput(null));
         game.getCamera().camSpeed = 20;
-        game.addIndependentEffect(new SelectionBoxEffect());
-//        Window.addUIElement(minimap);
-//        Window.addUIElement(button);
-//        minimap.setSimpleRenderHelper(new SimpleRenderHelperRTS());
+        RTSGame.setup(game);
+        game.setOnGameStabilized((x) -> {
+            RTSGame.setupUI(game);
+        });
         Main.splitBackgroundRender = true;
 
         int spacer = 160;

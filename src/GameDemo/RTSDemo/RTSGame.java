@@ -51,12 +51,12 @@ public class RTSGame {
         Main.ticksPerSecond = desiredTPS;
         Main.enableLerping = true;
         g.getCamera().camSpeed = tickAdjust(20);
-        g.addIndependentEffect(new SelectionBoxEffect());
-        g.addIndependentEffect(new SelectionBoxEffectAir());
-        g.addIndependentEffect(new StatusIconHelper());
+        g.addIndependentEffect(new SelectionBoxEffect(g));
+        g.addIndependentEffect(new SelectionBoxEffectAir(g));
+        g.addIndependentEffect(new StatusIconHelper(g));
         Main.splitBackgroundRender = true;
-        g.addIndependentEffect(new KeyBuildingRingEffect());
-        g.addIndependentEffect(new FogOfWarEffect());
+        g.addIndependentEffect(new KeyBuildingRingEffect(g));
+        g.addIndependentEffect(new FogOfWarEffect(g));
         navigationManager = new NavigationManager(g);
         g.addIndependentEffect(navigationManager);
         commandHandler = new CommandHandler(g);
@@ -66,7 +66,7 @@ public class RTSGame {
     }
 
     public static void setupUI(Game g) {
-        minimap = new Minimap(game, new Coordinate(0, 0));
+        minimap = new Minimap(g, new Coordinate(0, 0));
         minimap.setSimpleRenderHelper(new MinimapRenderHelperRTS());
         minimap.setMinimapMouseListener(new MinimapListener(g, minimap));
         minimap.setLocation(0, g.getWindowHeight() - minimap.getHeight());
@@ -78,7 +78,7 @@ public class RTSGame {
 
         g.addIndependentEffect(new TooltipHelper());
 
-        reinforcementHandler = new ReinforcementHandler(new Coordinate(0, game.getWindowHeight() - minimap.getHeight() - 30), 10);
+        reinforcementHandler = new ReinforcementHandler(new Coordinate(0, g.getWindowHeight() - minimap.getHeight() - 30), 10);
         g.addIndependentEffect(reinforcementHandler);
     }
 
@@ -106,8 +106,8 @@ public class RTSGame {
         game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
         game.addObject(new KeyBuilding(3000, 2500, 1));
         
-         spawnLines();
-//        spawnTestHeli();
+//         spawnLines();
+        spawnTestHeli();
        
         game.setOnGameStabilized(x3 -> {
             setupUI(game);

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * @author Joseph
  */
 public class RTSInput extends InputHandler {
-    public static int inputDelay = ExternalCommunicator.isMultiplayer ?  RTSGame.tickAdjust(25) : 1; // ticks
+    public static int inputDelay = ExternalCommunicator.isMultiplayer ?  RTSGame.tickAdjust(12) : 1; // ticks
 
     private static Coordinate mouseDownLocation = null;
     private static Coordinate mouseDraggedLocation = null;

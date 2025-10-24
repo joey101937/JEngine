@@ -57,7 +57,7 @@ public class NavigationManager extends IndependentEffect {
                 pathingSignatures.add(unit.getPathingSignature());
             }
         }
-        var camLoc = RTSGame.game.getCamera().getWorldRenderLocation().toCoordinate();
+        var camLoc = game.getCamera().getWorldRenderLocation().toCoordinate();
         g.drawString("ps: " + pathingSignatures.size(), camLoc.x + 10, camLoc.y + 10);
         g.drawString("FPS: " + game.getCurrentFPS(), camLoc.x + 10, camLoc.y + 20);
         g.drawString("TPS: " + game.getCurrentTPS(), camLoc.x + 10, camLoc.y + 30);
@@ -90,9 +90,9 @@ public class NavigationManager extends IndependentEffect {
 
     @Override
     public void tick() {
-        if (game.getGameTickNumber() % updateInterval != 0) {
-            return;
-        }
+//        if (game.getGameTickNumber() % updateInterval != 0) {
+//            return;
+//        }
         
 
         Collection<Future<?>> refreshTasks = new ArrayList<>();
@@ -127,7 +127,7 @@ public class NavigationManager extends IndependentEffect {
             }
         }
         Handler.waitForAllJobs(pathingTasks);
-//         System.out.println("round finished "  + RTSGame.game.getGameTickNumber());
+//         System.out.println("round finished "  + game.getGameTickNumber());
     }
 
     public TileMap getTileMapBySize(int size) {

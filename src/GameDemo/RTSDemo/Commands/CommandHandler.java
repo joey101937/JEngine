@@ -15,6 +15,7 @@ import java.util.HashMap;
 public class CommandHandler extends IndependentEffect{
     private final Game game;
     private HashMap<Long, ArrayList<Command>> commandMap;
+    private ArrayList<Command> addQueue = new ArrayList<>();
     
     public CommandHandler (Game g) {
         this.commandMap = new HashMap<>();
@@ -29,15 +30,22 @@ public class CommandHandler extends IndependentEffect{
         return commandMap.getOrDefault(tickNum, new ArrayList<>());
     }
     
+    private synchronized void conductAdditions () {
+        for(Command toAdd : addQueue) {
+            var list = commandMap.getOrDefault(toAdd.getExecuteTick(), new ArrayList<>());
+            commandMap.put(toAdd.getExecuteTick(), list);
+            list.add(toAdd);
+        }
+        addQueue.clear();
+    }
+    
     public synchronized void addCommand(Command toAdd, boolean shouldCommunicate) {
         if(toAdd.getExecuteTick() < game.getGameTickNumber()) {
             System.out.println("Trying to add command to the past" + toAdd.toMpString());
             ExternalCommunicator.beginResync(true);
             return;
         }
-        var list = commandMap.getOrDefault(toAdd.getExecuteTick(), new ArrayList<>());
-        list.add(toAdd);
-        commandMap.put(toAdd.getExecuteTick(), list);
+        addQueue.add(toAdd);
         if(shouldCommunicate) {
             ExternalCommunicator.sendMessage(toAdd.toMpString());
         }
@@ -60,6 +68,7 @@ public class CommandHandler extends IndependentEffect{
 
     @Override
     public void tick() {
+        conductAdditions();
         long currentTick = game.getGameTickNumber();
         if(currentTick % 100 == 0) {
             System.out.println("tick " + currentTick);

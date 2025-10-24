@@ -552,14 +552,9 @@ public class RTSUnit extends GameObject2 {
             if(this.commandGroup.equals(unit.commandGroup) && !this.movedLastTick() && !other.movedLastTick()) {
                     // single player or this is friendly unit
                     String oldCommandGroup = this.commandGroup;
-//                    String newCommandGroup = NavigationManager.SEPERATOR_GROUP;
                     this.inSeperatorGroup = true;
-//                    System.out.println(this.ID + " adding to seperator");
-//                    this.commandGroup = newCommandGroup;
                     addTickDelayedEffect(10, c -> {
                         if(this.commandGroup.equals(oldCommandGroup)){
-//                            this.commandGroup = oldCommandGroup;
-//                                System.out.println(this.ID + "removing from seperator " + getHostGame().getGameTickNumber());
                                 this.inSeperatorGroup = false;
                         }
                     });   

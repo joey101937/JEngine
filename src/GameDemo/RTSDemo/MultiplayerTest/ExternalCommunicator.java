@@ -266,9 +266,9 @@ public class ExternalCommunicator implements Runnable {
         if(initiator) sendMessage("beginResync");
         RTSGame.game.setPaused(true);
         for(GameObject2 go : RTSGame.game.getAllObjects()) {
-            if(go instanceof Projectile) {
-                RTSGame.game.removeObject(go);
-            }
+//            if(go instanceof Projectile) {
+//                RTSGame.game.removeObject(go);
+//            }
         }
         mpStartTime = -1;
         communicateState();

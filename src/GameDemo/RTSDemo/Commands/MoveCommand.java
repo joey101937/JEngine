@@ -20,7 +20,7 @@ public class MoveCommand implements Command{
         this.subject = subject;
         this.target = target;
         this.commandGroup = commandGroup;
-        System.out.println("move command created" + executeTick);
+        System.out.println("move command created " + executeTick);
     }
     
     @Override
