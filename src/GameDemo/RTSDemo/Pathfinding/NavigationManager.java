@@ -10,7 +10,6 @@ import Framework.Window;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.SelectionBoxEffect;
-import GameDemo.RTSDemo.Units.Landmine;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ import java.util.concurrent.Future;
  */
 public class NavigationManager extends IndependentEffect {
 
-    // private static final long UPDATE_INTERVAL_NANOS = 100_000_000; // 100ms in nanoseconds
     public static int updateInterval = Main.ticksPerSecond / 10;
     public static ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
     public static int maxCalculationDistance = 1400;
@@ -96,19 +94,21 @@ public class NavigationManager extends IndependentEffect {
             return;
         }
         
-        // Update position cache
-        UnitPositionCache.updateCache(game);
 
         Collection<Future<?>> refreshTasks = new ArrayList<>();
+        
         refreshTasks.add(unitPathingService.submit(() -> {
             tileMapFine.refreshOccupationmaps(game);
         }));
+        
         refreshTasks.add(unitPathingService.submit(() -> {
             tileMapLarge.refreshOccupationmaps(game);
         }));
+        
         refreshTasks.add(unitPathingService.submit(() -> {
             tileMapNormal.refreshOccupationmaps(game);
         }));
+        
         refreshTasks.add(unitPathingService.submit(() -> {
             tileMapGiantTerrain.refreshOccupationmaps(game);
         }));
@@ -119,6 +119,7 @@ public class NavigationManager extends IndependentEffect {
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
             if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired() ) {
+                // this is async and thats why its breaking
                 pathingTasks.add(unitPathingService.submit(() -> {
                     unit.updateWaypoints();
                     return true;
@@ -126,6 +127,7 @@ public class NavigationManager extends IndependentEffect {
             }
         }
         Handler.waitForAllJobs(pathingTasks);
+//         System.out.println("round finished "  + RTSGame.game.getGameTickNumber());
     }
 
     public TileMap getTileMapBySize(int size) {
@@ -145,7 +147,7 @@ public class NavigationManager extends IndependentEffect {
     }
 
     public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, RTSUnit self) {
-            
+//            System.out.println("getting path for " + self.ID);
         try {
             TileMap tileMap = getTileMapBySize(self.getNavTileSize());
             Tile start = tileMap.getTileAtLocation(startCoord);
@@ -186,6 +188,7 @@ public class NavigationManager extends IndependentEffect {
 
             if (goal.isBlocked(pathingSignature)) {
                 goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
+//                System.out.println("getting closest open " + endCoord + startCoord + pathingSignature);
                 if (self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (self.getWidth())) {
                     ArrayList<Coordinate> out = new ArrayList<>();
                     out.add(endCoord);
@@ -202,6 +205,7 @@ public class NavigationManager extends IndependentEffect {
                 return out;
             }
 
+//            System.out.println(self.ID + "start: "+ start.getGridLocation() + " end: " + goal.getGridLocation());
             PriorityQueue<Node> openSet = new PriorityQueue<>((a, b) -> {
                 // First compare by f value
                 int fCompare = Double.compare(a.f, b.f);
@@ -298,21 +302,21 @@ public class NavigationManager extends IndependentEffect {
         Coordinate goalNear = path.get(nearLimit);
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, (int) (self.getWidth() * .75)), pathingSignature)) {
-            if(self.isSelected()) System.out.println("using far limit");
+//            if(self.isSelected()) System.out.println("using far limit");
             var smothened = path.subList(farLimit, path.size() - 1);
             if(smothened.isEmpty()) smothened.add(path.getLast());
             return smothened;
         }
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, (int) (self.getWidth() * .75)), pathingSignature)) {
-            if(self.isSelected()) System.out.println("using med limit");
+//            if(self.isSelected()) System.out.println("using med limit");
             var smothened = path.subList(medLimit, path.size() - 1);
             if(smothened.isEmpty()) smothened.add(path.getLast());
             return smothened;
         }
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, (int) (self.getWidth() * .75)), pathingSignature)) {
-            if(self.isSelected()) System.out.println("using near limit");
+//            if(self.isSelected()) System.out.println("using near limit");
             var smothened = path.subList(nearLimit, path.size() - 1);
             if(smothened.isEmpty()) smothened.add(path.getLast());
             return smothened;

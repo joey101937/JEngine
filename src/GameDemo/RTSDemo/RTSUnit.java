@@ -269,9 +269,6 @@ public class RTSUnit extends GameObject2 {
         }
         
         if(this.isTouchingOtherUnit) {
-            // if touching other unit, follow waypoints exactly
-            if(isSelected()) System.out.println("following waypoints exactly");
-//            return waypoints.get(0);
             return waypoints.get((Math.min(0, waypoints.size()-1)));
         }
         

@@ -12,6 +12,7 @@ import Framework.Main;
 import Framework.PathingLayer;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
+import GameDemo.RTSDemo.Commands.CommandHandler;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementHandler;
@@ -33,7 +34,8 @@ public class RTSGame {
     public static InfoPanelEffect infoPanelEffect;
     public static ReinforcementHandler reinforcementHandler;
     public static NavigationManager navigationManager;
-    public static int desiredTPS = 30;
+    public static CommandHandler commandHandler;
+    public static int desiredTPS = 90;
 
     public static void setup(Game g) {
         PathingLayer pathing = new PathingLayer(RTSAssetManager.rtsPathing);
@@ -57,6 +59,8 @@ public class RTSGame {
         g.addIndependentEffect(new FogOfWarEffect());
         navigationManager = new NavigationManager(g);
         g.addIndependentEffect(navigationManager);
+        commandHandler = new CommandHandler(g);
+        g.addIndependentEffect(commandHandler);
         g.addIndependentEffect(RTSSoundManager.get());
         TerrainTileMap.loadAll();
     }
@@ -102,8 +106,8 @@ public class RTSGame {
         game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
         game.addObject(new KeyBuilding(3000, 2500, 1));
         
-//         spawnLines();
-        spawnTestHeli();
+         spawnLines();
+//        spawnTestHeli();
        
         game.setOnGameStabilized(x3 -> {
             setupUI(game);

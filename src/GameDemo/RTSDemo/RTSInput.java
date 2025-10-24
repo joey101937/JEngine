@@ -12,6 +12,7 @@ import Framework.Hitbox;
 import Framework.InputHandler;
 import Framework.Main;
 import Framework.Window;
+import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementType;
 import GameDemo.RTSDemo.Units.Landmine;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
  * @author Joseph
  */
 public class RTSInput extends InputHandler {
+    public static int inputDelay = ExternalCommunicator.isMultiplayer ?  RTSGame.tickAdjust(25) : 1; // ticks
 
     private static Coordinate mouseDownLocation = null;
     private static Coordinate mouseDraggedLocation = null;
@@ -92,8 +94,6 @@ public class RTSInput extends InputHandler {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        long inputMilli = System.currentTimeMillis();
-        long executeTime = ExternalCommunicator.isMultiplayer ? inputMilli+150  : inputMilli+100;
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
         String generatedCommandGroup = generateRandomCommandGroup();
         if (e.getButton() == 1) { //1 means left click
@@ -101,9 +101,9 @@ public class RTSInput extends InputHandler {
                 RTSGame.reinforcementHandler.toggleMenuOpen();
                 return;
             }
-            ReinforcementType clicked = RTSGame.reinforcementHandler.getReinforcementAtLocation(locationOfMouseEvent);
-            if (clicked != null) {
-                RTSGame.reinforcementHandler.setSelectedReinforcementType(clicked);
+            ReinforcementType clickedReinforcement = RTSGame.reinforcementHandler.getReinforcementAtLocation(locationOfMouseEvent);
+            if (clickedReinforcement != null) {
+                RTSGame.reinforcementHandler.setSelectedReinforcementType(clickedReinforcement);
                 return;
             }
             if (RTSGame.reinforcementHandler.selectedReinforcementType != null) {
@@ -116,6 +116,7 @@ public class RTSInput extends InputHandler {
                 infoPanelEffect.triggerButtonAt(locationOfMouseEvent.x, locationOfMouseEvent.y);
                 return;
             }
+            // done with ui checking
             for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                 u.setSelected(false);
             }
@@ -123,22 +124,20 @@ public class RTSInput extends InputHandler {
             mouseDownLocation = locationOfMouseEvent;
             mouseDraggedLocation = locationOfMouseEvent;
             handleSelectPoint(e);
-        } else if (e.getButton() == 3) { //3 means right click
+        } 
+        else if (e.getButton() == 3) { //3 means right click
             if (e.isControlDown()) {
                 // all move to exact position of mouse click
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                     if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) {
                         continue;
                     }
-                    // delay 1 tick for multiplayer sync
-                    long originalTick = hostGame.handler.globalTickNumber;
-                    hostGame.addTimeTriggeredEffect(executeTime, x -> {
-                        u.setDesiredLocation(locationOfMouseEvent);
-                        u.setCommandGroup(generatedCommandGroup);
-                        ExternalCommunicator.communicateState(u);
-                    });
-                    ExternalCommunicator.sendMessage("m:" + u.ID + "," + locationOfMouseEvent.x
-                            + ',' + locationOfMouseEvent.y + "," + hostGame.handler.globalTickNumber + "," + generatedCommandGroup + "," + executeTime);
+                    RTSGame.commandHandler.addCommand(new MoveCommand(
+                            hostGame.getGameTickNumber() + inputDelay,
+                            u,
+                            locationOfMouseEvent,
+                            generatedCommandGroup
+                    ), true);
                 }
             } else {
                 // formation move
@@ -151,12 +150,12 @@ public class RTSInput extends InputHandler {
                     Coordinate offset = new Coordinate(avgStartLocation.x - u.getPixelLocation().x, avgStartLocation.y - u.getPixelLocation().y);
                     Coordinate targetOffset = target.offsetBy(offset);
                     long originalTick = hostGame.handler.globalTickNumber;
-                    hostGame.addTimeTriggeredEffect(executeTime, x -> {
-                        u.setDesiredLocation(targetOffset);
-                        u.setCommandGroup(generatedCommandGroup);
-                        ExternalCommunicator.communicateState(u);
-                    });
-                    ExternalCommunicator.sendMessage("m:" + u.ID + "," + targetOffset.x + ',' + targetOffset.y + "," + hostGame.handler.globalTickNumber + ","+generatedCommandGroup + "," + executeTime);
+                    RTSGame.commandHandler.addCommand(new MoveCommand(
+                            hostGame.getGameTickNumber() + inputDelay,
+                            u,
+                            targetOffset,
+                            generatedCommandGroup
+                    ), true);
                 }
             }
         }
@@ -312,11 +311,12 @@ public class RTSInput extends InputHandler {
                     if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) {
                         continue;
                     }
-                    ExternalCommunicator.sendMessage("m:" + u.ID + "," + u.getPixelLocation().x + ',' + u.getPixelLocation().y + "," + hostGame.handler.globalTickNumber);
-                    hostGame.addTickDelayedEffect(1, x -> {
-                        u.setDesiredLocation(u.getPixelLocation());
-                        ExternalCommunicator.communicateState(u);
-                    });
+                    RTSGame.commandHandler.addCommand(new MoveCommand(
+                            hostGame.getGameTickNumber() + inputDelay,
+                            u,
+                            u.getPixelLocation(),
+                            "0"
+                    ), true);
                 }
             }
             // W

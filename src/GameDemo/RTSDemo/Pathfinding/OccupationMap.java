@@ -53,8 +53,7 @@ public class OccupationMap {
                     && unit.team == team) {
                 occupationTasks.add(occupationService.submit(() -> {
                     boolean isForInfantry = padding == 16;
-                    Coordinate cachedPosition = UnitPositionCache.getCachedPosition(unit);
-                    for(Coordinate coord : tileMap.getTilesNearPoint(getGridLocationOf(cachedPosition), (int)(unit.getWidthForPathing() * (isForInfantry ? .7 : .7)) + tileSize + padding)) {
+                    for(Coordinate coord : tileMap.getTilesNearPoint(getGridLocationOf(unit.getPixelLocation()), (int)(unit.getWidthForPathing() * (isForInfantry ? .7 : .7)) + tileSize + padding)) {
                         try {
                             occupiedMap.put(tileGrid[coord.x][coord.y], true);
                         } catch (IndexOutOfBoundsException ib) {

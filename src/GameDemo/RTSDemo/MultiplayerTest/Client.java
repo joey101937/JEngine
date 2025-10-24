@@ -37,6 +37,7 @@ public class Client {
             setupUI(game);
             game.setLoadingScreenActive(false);
             System.out.println("Loading screen off");
+            ExternalCommunicator.setAndCommunicateMultiplayerReady();
         });
     }
 

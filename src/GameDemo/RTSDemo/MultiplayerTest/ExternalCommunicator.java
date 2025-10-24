@@ -9,7 +9,9 @@ import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
 import Framework.Window;
+import GameDemo.RTSDemo.Commands.MoveCommand;
 import static GameDemo.RTSDemo.MultiplayerTest.Client.printStream;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -44,6 +46,25 @@ public class ExternalCommunicator implements Runnable {
     public static boolean isConnected = false;
 
     public static ExecutorService asyncService = Executors.newVirtualThreadPerTaskExecutor();
+    
+    public static volatile boolean isReadyForMultiplayerThisMachine = false;
+    public static volatile boolean isReadyForMultiplayerOtherMachine = false;
+    public static volatile long mpStartTime = -1;
+    public static volatile boolean isMpStarted = false;
+    
+    public static void setAndCommunicateMultiplayerReady () {
+        isReadyForMultiplayerThisMachine = true;
+        sendMessage("readyPhase1");
+    }
+    
+    public static void setAndCommunicateMultiplayerStartTime () {
+        mpStartTime = System.currentTimeMillis() + 1000;
+        sendMessage("mpStartTime:"+mpStartTime);
+    }
+    
+    public static boolean isWaitingForMpStart() {
+        return mpStartTime > 0 && mpStartTime > System.currentTimeMillis();
+    };
 
     public static void initialize(boolean server) {
 
@@ -94,8 +115,13 @@ public class ExternalCommunicator implements Runnable {
     public static Consumer handleSyncTick = c -> {
         Game game = (Game) c;
         long currentTick = game.handler.globalTickNumber;
-        if (isMultiplayer && currentTick % Main.ticksPerSecond == 0) {
-            communicateState();
+        if(isMultiplayer && !isMpStarted && isWaitingForMpStart()) {
+            System.out.println("waiting for mp");
+            while(isWaitingForMpStart()) {
+                Main.wait(10);
+            }
+            System.out.println("starting mp");
+            game.handler.globalTickNumber = 0;
         }
     };
 
@@ -112,7 +138,7 @@ public class ExternalCommunicator implements Runnable {
     }
 
     public static void communicateState(RTSUnit unit) {
-        sendMessage("unitstate:" + unit.toTransportString());
+         sendMessage("unitstate:" + unit.toTransportString());
     }
 
     @Override
@@ -143,35 +169,7 @@ public class ExternalCommunicator implements Runnable {
         // moves unit with id 1 to coordinate 100,200
         if (s.startsWith("m:")) {
             System.out.println("message " + s);
-            var components = s.substring(2).split(",");
-            String id = components[0];
-            int x = Integer.parseInt(components[1]);
-            int y = Integer.parseInt(components[2]);
-            long intendedTick = Long.parseLong(components[3]); // this is when the input was actually done
-            String commandGroup = components[4];
-            Coordinate coord = new Coordinate(x, y);
-            long currentTick = Window.currentGame.handler.globalTickNumber;
-            long execMilli = Long.parseLong(components[5]);
-            long tickToIssueOn = intendedTick + 1; // the input handler adds one tick delay for this purpose
-            if (execMilli <= System.currentTimeMillis()) {
-//                System.out.println("issuing order to unit " + id + " to move to " + coord + " on tick " + Window.currentGame.handler.globalTickNumber);
-                GameObject2 go = Window.currentGame.getObjectById(id);
-                if (go instanceof RTSUnit unit) {
-                    unit.setDesiredLocation(coord);
-                    unit.setCommandGroup(commandGroup);
-//                    System.out.println("done");
-                }
-            } else {
-                Window.currentGame.addTimeTriggeredEffect(execMilli, c -> {
-//                    System.out.println("issuing order to unit " + id + " to move to " + coord + " on tick " + Window.currentGame.handler.globalTickNumber);
-                    GameObject2 go = Window.currentGame.getObjectById(id);
-                    if (go instanceof RTSUnit unit) {
-                        unit.setDesiredLocation(coord);
-                        unit.setCommandGroup(commandGroup);
-//                        System.out.println("done");
-                    }
-                });
-            }
+            RTSGame.commandHandler.addCommand(MoveCommand.generateFromMpString(s), false);
         }
 
         if (s.startsWith("unitstate:")) {
@@ -200,6 +198,15 @@ public class ExternalCommunicator implements Runnable {
             if (go != null) {
                 Window.currentGame.removeObject(go);
             }
+        }
+        
+        if(s.startsWith("readyPhase1")) {
+            isReadyForMultiplayerOtherMachine = true;
+            if(isReadyForMultiplayerThisMachine) setAndCommunicateMultiplayerStartTime();
+        }
+        
+        if(s.startsWith("mpStartTime")) {
+            mpStartTime = Long.parseLong(s.split(":")[1]);
         }
     }
 
