@@ -10,6 +10,7 @@ import Framework.Main;
 import Framework.UtilityObjects.Projectile;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
+import GameDemo.RTSDemo.Commands.StopCommand;
 import static GameDemo.RTSDemo.MultiplayerTest.Client.printStream;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
@@ -19,7 +20,6 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -178,6 +178,11 @@ public class ExternalCommunicator implements Runnable {
         if (s.startsWith("m:")) {
             System.out.println("message " + s);
             RTSGame.commandHandler.addCommand(MoveCommand.generateFromMpString(s), false);
+        }
+        
+        if (s.startsWith("s:")) {
+            System.out.println("message " + s);
+            RTSGame.commandHandler.addCommand(StopCommand.generateFromMpString(s), false);
         }
 
         if (s.startsWith("unitstate:")) {

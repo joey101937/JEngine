@@ -13,6 +13,7 @@ import Framework.InputHandler;
 import Framework.Main;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
+import GameDemo.RTSDemo.Commands.StopCommand;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementType;
 import GameDemo.RTSDemo.Units.Landmine;
@@ -311,11 +312,9 @@ public class RTSInput extends InputHandler {
                     if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) {
                         continue;
                     }
-                    RTSGame.commandHandler.addCommand(new MoveCommand(
+                    RTSGame.commandHandler.addCommand(new StopCommand(
                             hostGame.getGameTickNumber() + inputDelay,
-                            u,
-                            u.getPixelLocation(),
-                            "0"
+                            u
                     ), true);
                 }
             }

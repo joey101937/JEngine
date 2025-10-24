@@ -4,7 +4,6 @@ package GameDemo.RTSDemo;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Game;
-import static Framework.InputHandler.locationOfMouseEvent;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.UI_Elements.Examples.Minimap.MinimapMouseListener;
 import GameDemo.RTSDemo.Commands.MoveCommand;

@@ -1,7 +1,6 @@
 package GameDemo.RTSDemo.Commands;
 
 import Framework.Coordinate;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 
