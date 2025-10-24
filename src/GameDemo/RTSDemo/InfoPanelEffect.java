@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InfoPanelEffect extends IndependentEffect {
+    private TooltipHelper tooltipHelper;
     public CommandButton hoveredButton = null;
 
     private static final Font titleFont = new Font("TimesRoman", Font.BOLD, 18);
@@ -43,6 +44,7 @@ public class InfoPanelEffect extends IndependentEffect {
         this.width = width;
         this.height = height;
         populateUnitNameImageMap();
+        this.tooltipHelper = new TooltipHelper(game, this);
     }
 
     private static void populateUnitNameImageMap() {
@@ -70,6 +72,7 @@ public class InfoPanelEffect extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
+        Graphics2D g2 = (Graphics2D) g.create();
         double scaleAmount = 1/RTSGame.game.getZoom();
         g.scale(scaleAmount, scaleAmount);
         g.setColor(lightGray);
@@ -97,6 +100,7 @@ public class InfoPanelEffect extends IndependentEffect {
             drawCommandButtons(g, mainUnit);
         }
         g.scale(1/scaleAmount, 1/scaleAmount);
+        tooltipHelper.render(g2);
     }
 
     private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
@@ -290,6 +294,7 @@ public class InfoPanelEffect extends IndependentEffect {
     @Override
     public void tick() {
         updateSelectedUnits();
+        tooltipHelper.tick();
     }
     
     @Override

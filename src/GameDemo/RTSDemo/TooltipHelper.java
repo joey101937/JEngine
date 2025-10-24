@@ -1,11 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
-import Framework.IndependentEffect;
+import Framework.Game;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -14,7 +11,10 @@ import java.awt.Graphics2D;
  *
  * @author guydu
  */
-public class TooltipHelper extends IndependentEffect{
+public class TooltipHelper{
+    private Game game;
+    private InfoPanelEffect infoPanelEffect;
+    public Coordinate location;
     public Font headerFont = new Font("timesRoman", Font.BOLD, 16);
     public Font bodyFont = new Font("timesRoman", Font.PLAIN, 14);
     
@@ -22,22 +22,21 @@ public class TooltipHelper extends IndependentEffect{
 
     public int width = 450;
     public int height = 100;
-    public InfoPanelEffect infoPanelEffect = RTSGame.infoPanelEffect;
-
-    public Coordinate location = new Coordinate(infoPanelEffect.baseX + infoPanelEffect.width - width, infoPanelEffect.baseY - height - 10);
     
-    public TooltipHelper () {
-        super();
-        
+    
+    public TooltipHelper (Game g, InfoPanelEffect parent) {
+        game = g;
+        infoPanelEffect = parent;
+        location = new Coordinate(infoPanelEffect.baseX + infoPanelEffect.width - width, infoPanelEffect.baseY - height - 10);
     }
+
     
-    @Override
     public void render(Graphics2D g) {
-        double scaleAmount = 1/RTSGame.game.getZoom();
+        double scaleAmount = 1/game.getZoom();
         g.scale(scaleAmount, scaleAmount);
         CommandButton cb = infoPanelEffect.hoveredButton;
         if(cb != null) {
-            Coordinate toRender = new Coordinate(location).add(RTSGame.game.getCamera().getWorldRenderLocation().scale(1/scaleAmount));
+            Coordinate toRender = new Coordinate(location).add(game.getCamera().getWorldRenderLocation().scale(1/scaleAmount));
             g.setColor(transparentGray);
             g.fillRect(toRender.x, toRender.y, width, height);
             g.setColor(Color.WHITE);
@@ -53,13 +52,8 @@ public class TooltipHelper extends IndependentEffect{
         g.scale(1/scaleAmount, 1/scaleAmount);
     }
 
-    @Override
     public void tick() {
         
     }
-    
-    @Override
-    public int getZLayer(){
-        return 999;
-    }
+
 }

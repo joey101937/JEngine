@@ -304,7 +304,7 @@ public class RTSUnit extends GameObject2 {
             // if we just calculated the path for this start and end, dont recalculate it agian
             waypoints = pathCache;
             pathCacheUses++;
-            System.out.println(this.ID + " using cached waypoint");
+//            System.out.println(this.ID + " using cached waypoint");
             return;
         }
         waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, this);

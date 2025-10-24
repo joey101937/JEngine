@@ -90,9 +90,9 @@ public class NavigationManager extends IndependentEffect {
 
     @Override
     public void tick() {
-//        if (game.getGameTickNumber() % updateInterval != 0) {
-//            return;
-//        }
+        if (game.getGameTickNumber() % updateInterval != 0) {
+            return;
+        }
         
 
         Collection<Future<?>> refreshTasks = new ArrayList<>();

@@ -76,8 +76,6 @@ public class RTSGame {
         g.setInputHandler(new RTSInput(infoPanelEffect));
         g.addIndependentEffect(infoPanelEffect);
 
-        g.addIndependentEffect(new TooltipHelper());
-
         reinforcementHandler = new ReinforcementHandler(new Coordinate(0, g.getWindowHeight() - minimap.getHeight() - 30), 10);
         g.addIndependentEffect(reinforcementHandler);
     }
@@ -106,8 +104,8 @@ public class RTSGame {
         game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
         game.addObject(new KeyBuilding(3000, 2500, 1));
         
-//         spawnLines();
-        spawnTestHeli();
+         spawnLines();
+//        spawnTestHeli();
        
         game.setOnGameStabilized(x3 -> {
             setupUI(game);
