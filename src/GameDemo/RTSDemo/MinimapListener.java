@@ -7,6 +7,7 @@ import Framework.Game;
 import static Framework.InputHandler.locationOfMouseEvent;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.UI_Elements.Examples.Minimap.MinimapMouseListener;
+import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
 import static GameDemo.RTSDemo.RTSInput.generateRandomCommandGroup;
 import java.awt.event.MouseEvent;
@@ -43,15 +44,23 @@ public class MinimapListener extends MinimapMouseListener {
                 selectedUnits = selectedUnits.stream().filter(x -> x.team == ExternalCommunicator.localTeam).toList();
             }
             if(e.isControlDown()) {
-                selectedUnits.forEach(unit -> {         
-                    unit.setCommandGroup(generatedCommandGroup);
-                    unit.setDesiredLocation(inWorldLocation);
+                selectedUnits.forEach(unit -> {
+                    RTSGame.commandHandler.addCommand(new MoveCommand(
+                            hostGame.getGameTickNumber() + RTSInput.inputDelay,
+                            unit,
+                            inWorldLocation,
+                            generatedCommandGroup
+                    ), true);
                 });
             } else {
                 Coordinate avgLocation = RTSInput.averageLocation(selectedUnits);
                  selectedUnits.forEach(unit -> {
-                    unit.setCommandGroup(generatedCommandGroup);
-                    unit.setDesiredLocation((unit.getPixelLocation().subtract(avgLocation)).add(inWorldLocation));
+                     RTSGame.commandHandler.addCommand(new MoveCommand(
+                            hostGame.getGameTickNumber() + RTSInput.inputDelay,
+                            unit,
+                            (unit.getPixelLocation().subtract(avgLocation)).add(inWorldLocation),
+                             generatedCommandGroup
+                     ), true);
                 });
             }
         } 

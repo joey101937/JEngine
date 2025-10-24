@@ -4,10 +4,10 @@
  */
 package GameDemo.RTSDemo.MultiplayerTest;
 
-import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
+import Framework.UtilityObjects.Projectile;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import static GameDemo.RTSDemo.MultiplayerTest.Client.printStream;
@@ -19,6 +19,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -44,6 +45,7 @@ public class ExternalCommunicator implements Runnable {
     public static boolean isServer = false;
     public static int localTeam = 0;
     public static boolean isConnected = false;
+    public static  boolean isResyncing = false;
 
     public static ExecutorService asyncService = Executors.newVirtualThreadPerTaskExecutor();
     
@@ -122,6 +124,7 @@ public class ExternalCommunicator implements Runnable {
             }
             System.out.println("starting mp");
             game.handler.globalTickNumber = 0;
+            game.setPaused(false);
         }
     };
 
@@ -164,9 +167,14 @@ public class ExternalCommunicator implements Runnable {
         if (s.startsWith("finished:")) {
             partnerTick = Long.parseLong(s.substring(9));
         }
-        // unit movement
-        // example: m:1,100,200
-        // moves unit with id 1 to coordinate 100,200
+        if(s.equals("beginResync")) {
+            beginResync(false);
+            return;
+        }
+        if(s.equals("beginResyncPt2")) {
+            beginResyncPt2();
+            return;
+        }
         if (s.startsWith("m:")) {
             System.out.println("message " + s);
             RTSGame.commandHandler.addCommand(MoveCommand.generateFromMpString(s), false);
@@ -207,6 +215,16 @@ public class ExternalCommunicator implements Runnable {
         
         if(s.startsWith("mpStartTime")) {
             mpStartTime = Long.parseLong(s.split(":")[1]);
+            if(isResyncing) {
+                System.out.println("waiting for mp");
+                while(isWaitingForMpStart()) {
+                    Main.wait(10);
+                }
+                System.out.println("starting mp from mpStartTime handler");
+                RTSGame.game.handler.globalTickNumber = 0;
+                RTSGame.game.setPaused(false);
+                isResyncing = false;
+            }
         }
     }
 
@@ -233,5 +251,41 @@ public class ExternalCommunicator implements Runnable {
         } catch (Exception e) {
             return "<public IP unknown>";
         }
+    }
+    
+    
+    public static synchronized void beginResync(boolean initiator) {
+        if(isResyncing) return;
+        isResyncing = true;
+        System.out.println("beginResync " + initiator);
+        if(initiator) sendMessage("beginResync");
+        RTSGame.game.setPaused(true);
+        for(GameObject2 go : RTSGame.game.getAllObjects()) {
+            if(go instanceof Projectile) {
+                RTSGame.game.removeObject(go);
+            }
+        }
+        mpStartTime = -1;
+        communicateState();
+        RTSGame.commandHandler.purge();
+        if(isServer) {
+            long seed = (long) (Math.random() * 999999999);
+            Main.setRandomSeed(seed);
+            sendMessage("randomSeed:" + seed);
+         }
+         
+        if(!initiator) sendMessage("beginResyncPt2");
+    }
+    
+    public static void beginResyncPt2() {
+       setAndCommunicateMultiplayerStartTime();
+       System.out.println("waiting for mp");
+        while(isWaitingForMpStart()) {
+            Main.wait(10);
+        }
+        System.out.println("starting mp from resyncpt2");
+        RTSGame.game.handler.globalTickNumber = 0;
+        RTSGame.game.setPaused(false);
+        isResyncing = false;
     }
 }

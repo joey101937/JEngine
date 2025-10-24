@@ -554,12 +554,12 @@ public class RTSUnit extends GameObject2 {
                     String oldCommandGroup = this.commandGroup;
 //                    String newCommandGroup = NavigationManager.SEPERATOR_GROUP;
                     this.inSeperatorGroup = true;
-                    System.out.println(this.ID + " adding to seperator");
+//                    System.out.println(this.ID + " adding to seperator");
 //                    this.commandGroup = newCommandGroup;
                     addTickDelayedEffect(10, c -> {
                         if(this.commandGroup.equals(oldCommandGroup)){
 //                            this.commandGroup = oldCommandGroup;
-                                System.out.println(this.ID + "removing from seperator " + getHostGame().getGameTickNumber());
+//                                System.out.println(this.ID + "removing from seperator " + getHostGame().getGameTickNumber());
                                 this.inSeperatorGroup = false;
                         }
                     });   

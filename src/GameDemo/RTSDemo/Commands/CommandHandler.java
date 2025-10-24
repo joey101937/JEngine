@@ -14,11 +14,15 @@ import java.util.HashMap;
  */
 public class CommandHandler extends IndependentEffect{
     private final Game game;
-    private final HashMap<Long, ArrayList<Command>> commandMap;
+    private HashMap<Long, ArrayList<Command>> commandMap;
     
     public CommandHandler (Game g) {
         this.commandMap = new HashMap<>();
         this.game = g;
+    }
+    
+    public void purge() {
+        commandMap = new HashMap<>();
     }
     
     public ArrayList<Command> getCommandsForTick (long tickNum) {
@@ -28,6 +32,7 @@ public class CommandHandler extends IndependentEffect{
     public synchronized void addCommand(Command toAdd, boolean shouldCommunicate) {
         if(toAdd.getExecuteTick() < game.getGameTickNumber()) {
             System.out.println("Trying to add command to the past" + toAdd.toMpString());
+            ExternalCommunicator.beginResync(true);
             return;
         }
         var list = commandMap.getOrDefault(toAdd.getExecuteTick(), new ArrayList<>());
