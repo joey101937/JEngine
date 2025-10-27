@@ -27,6 +27,7 @@ public class Window {
     public volatile static Game currentGame;
     private static CopyOnWriteArrayList<UIElement> UIElements = new CopyOnWriteArrayList<>();
     public static final Coordinate screenSize = new Coordinate(Toolkit.getDefaultToolkit().getScreenSize().width,Toolkit.getDefaultToolkit().getScreenSize().height);
+    private GameCanvas gameCanvas;
 
     
     
@@ -74,14 +75,19 @@ public class Window {
     private Window(Game g, boolean fullscreen) {
         currentGame = g;
         g.window = this;
+
+        // Create a single GameCanvas for all games
+        gameCanvas = new GameCanvas();
+        gameCanvas.setCurrentGame(g);
+
         panel.setLayout(null);
         frame = new JFrame(title);
         if(fullscreen) setFullscreenWindowed(true);
         frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Window.class.getResource("/Resources/JEngineIcon.png")));
         Dimension d = new Dimension(g.windowWidth,g.windowHeight);
-        g.getCanvas().setBounds(0, 0, g.windowWidth, g.windowHeight);
+        gameCanvas.setBounds(0, 0, g.windowWidth, g.windowHeight);
         panel.setSize(d);
-        panel.add(g.getCanvas());
+        panel.add(gameCanvas);
         panel.setBackground(new Color(85, 85, 115)); //blue background
         frame.add(panel);
         frame.setMinimumSize(d);
@@ -99,39 +105,66 @@ public class Window {
      * @param g new game
      */
     public synchronized static void setCurrentGame(Game g) {
-        currentGame.setPaused(true);
-//        while(!currentGame.pausedSafely){
-//            Main.wait(2);
-//        }
+        // Mark transition as in progress - this prevents any rendering
+        mainWindow.gameCanvas.setTransitionInProgress(true);
 
-        currentGame.getCanvas().setVisible(false);
-        
-        Dimension d = new Dimension(g.windowWidth, g.windowHeight);
-        g.getCanvas().setBounds(0, 0, g.windowWidth, g.windowHeight);
-        frame.setSize(d);
-        panel.setSize(d);
-        boolean alreadyContained = false;
-        for (Component c : panel.getComponents()) {
-            if (c == g.getCanvas()) {
-                g.getCanvas().setVisible(true);
-                panel.setComponentZOrder(g.getCanvas(), 0);
-                alreadyContained = true;
+        // Remove input handlers from old game
+        if (currentGame != null && currentGame.getInputHandler() != null) {
+            currentGame.applyInputHandler(false);
+        }
+
+        // Pause old game and wait for it to safely pause
+        if (currentGame != null) {
+            currentGame.setPaused(true);
+            // Wait for the game to reach a safe paused state
+            int waitCount = 0;
+            while (!currentGame.pausedSafely && waitCount < 100) {
+                Main.wait(1);
+                waitCount++;
             }
         }
-        if (!alreadyContained) {
-            panel.add(g.getCanvas());
-        }
-        //panel.setComponentZOrder(currentGame, panel.getComponentCount()-1);
+
+        // Update window dimensions if needed
+        Dimension d = new Dimension(g.windowWidth, g.windowHeight);
+        mainWindow.gameCanvas.setBounds(0, 0, g.windowWidth, g.windowHeight);
+        frame.setSize(d);
+        panel.setSize(d);
+
+        // Switch the GameCanvas to render the new game
+        g.window = mainWindow;
+
+        // Update current game reference BEFORE switching canvas
+        // This prevents the old game from trying to render during transition
+        currentGame = g;
+        mainWindow.gameCanvas.setCurrentGame(g);
+
+        // Start or unpause the new game
         if (g.hasStarted) {
             g.setPaused(false);
-        }else{
+        } else {
             g.start();
         }
-        currentGame = g;
-        currentGame.getCanvas().requestFocus();
+
+        // Apply input handlers for new game
+        if (g.getInputHandler() != null) {
+            g.applyInputHandler(true);
+        }
+
+        mainWindow.gameCanvas.requestFocus();
         setZOrders();
         updateTitlePerGame(g);
-        g.getCanvas().validate();
+        mainWindow.gameCanvas.validate();
+
+        // Wait for new game to tick and render at least once
+        long startTick = g.getGameTickNumber();
+        int waitCount = 0;
+        while (g.getGameTickNumber() <= startTick && waitCount < 100) {
+            Main.wait(2);
+            waitCount++;
+        }
+
+        // Transition complete - allow rendering again
+        mainWindow.gameCanvas.setTransitionInProgress(false);
     }
     
     protected static void UIElementsOnRender(){
@@ -172,8 +205,18 @@ public class Window {
         System.out.println(Window.UIElements.size() + " ui elements");
         for(UIElement ele : Window.UIElements){
             Window.panel.setComponentZOrder(ele, Window.UIElements.indexOf(ele));
-            Window.panel.setComponentZOrder(currentGame.getCanvas(), Window.UIElements.size());
+            if (mainWindow != null && mainWindow.gameCanvas != null) {
+                Window.panel.setComponentZOrder(mainWindow.gameCanvas, Window.UIElements.size());
+            }
         }
+    }
+
+    /**
+     * Gets the single GameCanvas instance used by this window
+     * @return The GameCanvas
+     */
+    public GameCanvas getGameCanvas() {
+        return gameCanvas;
     }
 
     protected static void updateFrameSize() {

@@ -89,7 +89,6 @@ public class Game implements Runnable {
     private final CopyOnWriteArrayList<IndependentEffect> effects = new CopyOnWriteArrayList<>();
     // set this to only render background in this area
     private Area backgroundClipArea;
-    private Canvas canvas;
     private int currentFPS = 0, currentTPS = 0;
     
     private volatile boolean loadingScreenActive = false;
@@ -164,11 +163,9 @@ public class Game implements Runnable {
      * @param image image to use as background
      */
     public Game(BufferedImage image) {
-        canvas = new Canvas();
         Sprite sprite = new Sprite(image);
         this.backgroundImage = sprite;
         setBackground(sprite);
-        canvas.setIgnoreRepaint(true);
     }
 
     /**
@@ -178,11 +175,9 @@ public class Game implements Runnable {
      * @param imageSet image to use as background
      */
     public Game(BufferedImage[] imageSet) {
-        canvas = new Canvas();
         Sequence sequ = new Sequence(imageSet);
         this.backgroundImage = sequ;
         setBackground(sequ);
-        canvas.setIgnoreRepaint(true);
     }
 
     /**
@@ -551,19 +546,27 @@ public class Game implements Runnable {
             return;
         }
         Window.UIElementsOnRender();
-        BufferStrategy bs = canvas.getBufferStrategy();
-        if (bs == null) { ///run once at the start
-            int numBuffer = 2;
-            if (Main.tripleBuffer) {
-                numBuffer = 3;
-            }
-            canvas.createBufferStrategy(numBuffer);
-            System.out.println("generating buffer");
+
+        // Delegate to GameCanvas for actual rendering
+        if (window != null && window.getGameCanvas() != null) {
+            window.getGameCanvas().renderCurrentGame();
+        }
+    }
+
+    /**
+     * Renders the game to the provided BufferStrategy.
+     * Called by GameCanvas.
+     * @param bs The buffer strategy to render to
+     */
+    protected void renderToBufferStrategy(BufferStrategy bs) {
+        // Don't render if this isn't the current game or if paused
+        if (Window.currentGame != this || this.isPaused()) {
             return;
         }
+
         Graphics g = bs.getDrawGraphics();
         Graphics2D g2d = (Graphics2D) g;
-        
+
         applyRenderingHints(g2d);
 
         g2d.scale(resolutionScaleX, resolutionScaleY);
@@ -588,12 +591,10 @@ public class Game implements Runnable {
         }
         g.dispose();
         g2d.dispose();
-        if (Window.currentGame == this && !this.isPaused()) {
-            try {
-                bs.show();
-            } catch (Exception e) {
-                System.out.println("Exception on buffer show");
-            }
+        try {
+            bs.show();
+        } catch (Exception e) {
+            System.out.println("Exception on buffer show");
         }
     }
 
@@ -677,11 +678,13 @@ public class Game implements Runnable {
         }
     }
 
-    //Core game loop 
+    //Core game loop
     @Override
     public void run() {
         this.hasStarted = true;
-        canvas.requestFocus(); ///automatically selects window so you dont have to click on it
+        if (window != null && window.getGameCanvas() != null) {
+            window.getGameCanvas().requestFocus(); ///automatically selects window so you dont have to click on it
+        }
         long lastTime = System.nanoTime();
         //double amountOfTicks = Main.ticksPerSecond;  //ticks per second
         // double ns = 1000000000 / amountOfTicks;
@@ -829,7 +832,9 @@ public class Game implements Runnable {
     }
     
     public void setName(String s) {
-        canvas.setName(s);
+        if (window != null && window.getGameCanvas() != null) {
+            window.getGameCanvas().setName(s);
+        }
         this.name = s;
         Window.updateTitlePerGame(this);
     }
@@ -870,7 +875,9 @@ public class Game implements Runnable {
         }
         paused = input;
         if (!input) {
-            canvas.requestFocus();
+            if (window != null && window.getGameCanvas() != null) {
+                window.getGameCanvas().requestFocus();
+            }
         }
         audioManager.updateGamePause();
     }
@@ -885,20 +892,22 @@ public class Game implements Runnable {
         if (inputHandler == null) {
             return;
         }
-        if (applying && !inputHandlerApplied) {
-            canvas.addMouseListener(inputHandler);
-            canvas.addMouseMotionListener(inputHandler);
-            canvas.addKeyListener(inputHandler);
-            canvas.addMouseWheelListener(inputHandler);
-            inputHandlerApplied = true;
-        } else {
-            canvas.removeMouseListener(inputHandler);
-            canvas.removeMouseMotionListener(inputHandler);
-            canvas.removeKeyListener(inputHandler);
-            canvas.removeMouseWheelListener(inputHandler);
-            inputHandlerApplied = false;
+        if (window != null && window.getGameCanvas() != null) {
+            GameCanvas canvas = window.getGameCanvas();
+            if (applying && !inputHandlerApplied) {
+                canvas.addMouseListener(inputHandler);
+                canvas.addMouseMotionListener(inputHandler);
+                canvas.addKeyListener(inputHandler);
+                canvas.addMouseWheelListener(inputHandler);
+                inputHandlerApplied = true;
+            } else {
+                canvas.removeMouseListener(inputHandler);
+                canvas.removeMouseMotionListener(inputHandler);
+                canvas.removeKeyListener(inputHandler);
+                canvas.removeMouseWheelListener(inputHandler);
+                inputHandlerApplied = false;
+            }
         }
-
     }
 
     /**
@@ -1073,11 +1082,16 @@ public class Game implements Runnable {
     }
     
     public Canvas getCanvas() {
-        return canvas;
+        if (window != null) {
+            return window.getGameCanvas();
+        }
+        return null;
     }
-    
+
     public void requestFocus() {
-        getCanvas().requestFocus();
+        if (window != null && window.getGameCanvas() != null) {
+            window.getGameCanvas().requestFocus();
+        }
     }
     
     /**
