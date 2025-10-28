@@ -29,6 +29,14 @@ public class GameCanvas extends Canvas {
      */
     public void setCurrentGame(Game game) {
         applyCurrentGameInputHandler(false);
+
+        // Dispose old buffer strategy to force a clean slate
+        // This prevents showing stale frames from the previous game
+        BufferStrategy bs = getBufferStrategy();
+        if (bs != null) {
+            bs.dispose();
+        }
+
         this.currentGame = game;
         applyCurrentGameInputHandler(true);
     }
