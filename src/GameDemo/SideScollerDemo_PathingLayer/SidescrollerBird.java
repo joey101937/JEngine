@@ -9,7 +9,7 @@ import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 
 /**
@@ -25,7 +25,7 @@ public class SidescrollerBird extends GameObject2{
     
     
     public final void init() {
-        Sequence seq = new Sequence(SpriteManager.birdySequence);
+        Sequence seq = new Sequence(DemoSpriteManager.birdySequence);
         seq.mirrorHorizontal();
         this.setGraphic(seq);
         this.setBaseSpeed(1.25);
@@ -52,7 +52,7 @@ public class SidescrollerBird extends GameObject2{
     public void onCollide(GameObject2 other, boolean myTick) {
         if(other == SideScrollDemo.playerCharacter) {
             // constructor adds this to game
-            new OnceThroughSticker(this.getHostGame(), new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+            new OnceThroughSticker(this.getHostGame(), new Sequence(DemoSpriteManager.explosionSequence), getPixelLocation());
             this.destroy();
         }
     }

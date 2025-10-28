@@ -9,7 +9,7 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 
 /**
  *
@@ -39,7 +39,7 @@ public class Barrel extends SSActor{
     }
     
     private void init(){
-        this.setGraphic(new Sprite(SpriteManager.barrel));
+        this.setGraphic(new Sprite(DemoSpriteManager.barrel));
         setScale(2);
         setMaxHealth(1);
         setCurrentHealth(1);
@@ -58,7 +58,7 @@ public class Barrel extends SSActor{
     @Override
     public void startDying(){
         setCurrentAction(Action.Dying);
-        Sequence deathSeq = new Sequence(SpriteManager.barrelDeath);
+        Sequence deathSeq = new Sequence(DemoSpriteManager.barrelDeath);
         deathSeq.setFrameDelay(150);
         this.setGraphic(deathSeq);
     }

@@ -8,7 +8,7 @@ package GameDemo.SideScollerDemo_PathingLayer;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.Main;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import Framework.UtilityObjects.TextObject;
 import Framework.Window;
 
@@ -21,11 +21,11 @@ public class SideScrollDemo {
     protected static SideScrollCharacter playerCharacter;
  
     public static void main(String[] args) {
-        SpriteManager.initialize();
+        DemoSpriteManager.initialize();
         playerCharacter = new SideScrollCharacter(new Coordinate(100,200));
         Main.ticksPerSecond = 120;
-        Game g = new Game(SpriteManager.platformBG);
-        g.setPathingLayer(SpriteManager.platformPathing);
+        Game g = new Game(DemoSpriteManager.platformBG);
+        g.setPathingLayer(DemoSpriteManager.platformPathing);
         Window.initialize(g);
         g.addObject(playerCharacter);
         g.setInputHandler(new SideScollInput());

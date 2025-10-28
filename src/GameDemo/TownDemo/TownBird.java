@@ -8,7 +8,7 @@ package GameDemo.TownDemo;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.Hitbox;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 
 /**
  *
@@ -18,7 +18,7 @@ public class TownBird extends GameObject2{
     
     public TownBird(int x, int y) {
         super(x, y);
-        this.setGraphic(new Sequence(SpriteManager.birdySequence));
+        this.setGraphic(new Sequence(DemoSpriteManager.birdySequence));
         this.setScale(.25);
         this.setBaseSpeed(2);
         this.isSolid = true; // needs to be solid to collide with portal

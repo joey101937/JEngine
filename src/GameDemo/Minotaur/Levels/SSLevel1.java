@@ -7,7 +7,7 @@ package GameDemo.Minotaur.Levels;
 
 import Framework.Coordinate;
 import Framework.Game;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import Framework.UtilityObjects.BlockObject;
 import Framework.UtilityObjects.TextObject;
 import GameDemo.Minotaur.Actors.Barrel;
@@ -24,7 +24,7 @@ import java.awt.Color;
 public class SSLevel1 extends Game{
     
     public SSLevel1() {
-        super(SpriteManager.SSBackground);
+        super(DemoSpriteManager.SSBackground);
         setup();
     }
 

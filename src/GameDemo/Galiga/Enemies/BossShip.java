@@ -10,7 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import GameDemo.Galiga.Bolt;
 import GameDemo.Galiga.GaligaGame;
@@ -23,7 +23,7 @@ import GameDemo.Galiga.PlayerShip;
 public class BossShip extends EnemyShip {
     
     private int hitPoints = 5;
-    private static Sprite bossSprite = new Sprite(SpriteManager.evilShip);
+    private static Sprite bossSprite = new Sprite(DemoSpriteManager.evilShip);
     
     public BossShip(Coordinate c) {
         super(c);
@@ -109,7 +109,7 @@ public class BossShip extends EnemyShip {
     
     @Override
     public void onDestroy() {
-        new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+        new OnceThroughSticker(GaligaGame.mainGame, new Sequence(DemoSpriteManager.explosionSequence), getPixelLocation());
         GaligaGame.deathSound.playCopy(.7f);
         // Boss gives more points than normal enemies
         GaligaGame.UI.increaseScore(2500);

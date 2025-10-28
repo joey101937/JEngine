@@ -4,7 +4,7 @@ package GameDemo.FogDemo;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 
 /**
  *
@@ -15,7 +15,7 @@ public class FogObject extends GameObject2 {
     private boolean goingUp = false;
     
     static {
-        fogSprite = new Sprite(SpriteManager.fog);
+        fogSprite = new Sprite(DemoSpriteManager.fog);
     }
     
     public FogObject(int x, int y) {

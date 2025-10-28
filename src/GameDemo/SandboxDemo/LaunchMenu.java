@@ -11,7 +11,7 @@ import Framework.Game;
 import Framework.Main;
 import Framework.Window;
 import Framework.GameObject2;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 
 /**
  *
@@ -292,10 +292,10 @@ public class LaunchMenu extends javax.swing.JFrame {
         birdCount = (int) birdSpinner.getValue();
         
         /////////////////////////////////////////////////
-        g = new Game(SpriteManager.terrainBG);
+        g = new Game(DemoSpriteManager.terrainBG);
         setup(g);
         Game.scaleForResolution();
-        alt=new Game(SpriteManager.terrainBG);
+        alt=new Game(DemoSpriteManager.terrainBG);
         setup(alt);
         g.setInputHandler(new DemoInputHandler());
         alt.setInputHandler(new DemoInputHandler());
@@ -332,7 +332,7 @@ public class LaunchMenu extends javax.swing.JFrame {
      */
     public void setup(Game g) {
         //this for-loop puts a bunch of randome birds on the screen for performance testing
-        g.setPathingLayer(SpriteManager.pathingLayer);
+        g.setPathingLayer(DemoSpriteManager.pathingLayer);
         for(int i =0; i < birdCount; i++){
             double x = Math.random()*3600.0;
             double y = Math.random()*2900.0;

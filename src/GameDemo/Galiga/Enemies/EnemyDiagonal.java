@@ -8,14 +8,14 @@ package GameDemo.Galiga.Enemies;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GraphicalAssets.Sprite;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 
 /**
  *
  * @author Joseph
  */
 public class EnemyDiagonal extends EnemyShip{
-    public static Sprite sprite = new Sprite(SpriteManager.evilShip);
+    public static Sprite sprite = new Sprite(DemoSpriteManager.evilShip);
 
     public EnemyDiagonal(Coordinate c) {
         super(c);
