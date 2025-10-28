@@ -36,8 +36,8 @@ public class MinotaurGame {
         playerMinotaur.setMaxHealth(300);
         playerMinotaur.setCurrentHealth(300);
         scene1.getCamera().setTarget(playerMinotaur);
-        Window.initialize(scene1);
         scene1.setInputHandler(new MinotaurInput());
+        Window.initialize(scene1);
         // Game.scaleForResolutionAspectRatio();
     }
 }

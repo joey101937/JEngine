@@ -275,7 +275,6 @@ public class LaunchMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_tripleCheckActionPerformed
 
     public static void main(String[] args) {
-        SpriteManager.initialize();
         LaunchMenu test = new LaunchMenu();
     }
     

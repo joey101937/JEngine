@@ -6,6 +6,8 @@
 package Framework;
 
 import java.awt.Canvas;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
 
 /**
@@ -28,9 +30,7 @@ public class GameCanvas extends Canvas {
      * @param game The game to render
      */
     public void setCurrentGame(Game game) {
-        applyCurrentGameInputHandler(false);
         this.currentGame = game;
-        applyCurrentGameInputHandler(true);
     }
 
     /**
