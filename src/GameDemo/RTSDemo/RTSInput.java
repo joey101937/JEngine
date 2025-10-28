@@ -318,6 +318,10 @@ public class RTSInput extends InputHandler {
                     ), true);
                 }
             }
+            // E
+            case 69 -> {
+                RTSGame.commandHandler.printCommandHistory();
+            }
             // W
             case 87 -> {
                 wDown = true;

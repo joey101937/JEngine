@@ -92,4 +92,16 @@ public class CommandHandler extends IndependentEffect{
       // no render
     }
     
+    public void printCommandHistory () {
+        System.out.println("PRINTING COMMAND HISTORY");
+        String out = "";
+        for(ArrayList<Command> tickList: commandMap.values().stream().sorted().toList()){
+            for(Command c : tickList) {
+                out += c.toMpString();
+                out += "\n";
+            }
+        }
+        System.out.println(out);
+    }
+    
 }
