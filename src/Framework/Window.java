@@ -105,6 +105,14 @@ public class Window {
      * @param g new game
      */
     public synchronized static void setCurrentGame(Game g) {
+        // Mark transition as in progress - this prevents any rendering
+        mainWindow.gameCanvas.setTransitionInProgress(true);
+
+        // Remove input handlers from old game
+        if (currentGame != null && currentGame.getInputHandler() != null) {
+            currentGame.applyInputHandler(false);
+        }
+
         // Pause old game and wait for it to safely pause
         if (currentGame != null) {
             currentGame.setPaused(true);
@@ -116,22 +124,17 @@ public class Window {
             }
         }
 
-        // Mark transition as in progress - this blocks rendering
-        mainWindow.gameCanvas.setTransitionInProgress(true);
-
-        // Give any in-flight render call time to complete
-        Main.wait(5);
-
-        // Now safe to swap everything
-        g.window = mainWindow;
-
         // Update window dimensions if needed
         Dimension d = new Dimension(g.windowWidth, g.windowHeight);
         mainWindow.gameCanvas.setBounds(0, 0, g.windowWidth, g.windowHeight);
         frame.setSize(d);
         panel.setSize(d);
 
-        // Switch the game reference atomically
+        // Switch the GameCanvas to render the new game
+        g.window = mainWindow;
+
+        // Update current game reference BEFORE switching canvas
+        // This prevents the old game from trying to render during transition
         currentGame = g;
         mainWindow.gameCanvas.setCurrentGame(g);
 
@@ -142,8 +145,17 @@ public class Window {
             g.start();
         }
 
-        // Wait for new game to have completed at least one full tick
-        // This ensures it has stable state to render
+        // Apply input handlers for new game
+        if (g.getInputHandler() != null) {
+            g.applyInputHandler(true);
+        }
+
+        mainWindow.gameCanvas.requestFocus();
+        setZOrders();
+        updateTitlePerGame(g);
+        mainWindow.gameCanvas.validate();
+
+        // Wait for new game to tick and render at least once
         long startTick = g.getGameTickNumber();
         int waitCount = 0;
         while (g.getGameTickNumber() <= startTick && waitCount < 100) {
@@ -151,16 +163,8 @@ public class Window {
             waitCount++;
         }
 
-        // One more brief wait to ensure first render is ready
-        Main.wait(5);
-
-        // Now re-enable rendering - next frame will be the new game
+        // Transition complete - allow rendering again
         mainWindow.gameCanvas.setTransitionInProgress(false);
-
-        mainWindow.gameCanvas.requestFocus();
-        setZOrders();
-        updateTitlePerGame(g);
-        mainWindow.gameCanvas.validate();
     }
     
     protected static void UIElementsOnRender(){
