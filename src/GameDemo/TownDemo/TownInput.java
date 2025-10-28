@@ -33,7 +33,9 @@ public class TownInput extends AsyncInputHandler{
                 Main.debugMode = !Main.debugMode;
                 break;
             case 'E':
-                if(TownDemo.playerCharacter.distanceFrom(TownDemo.portalToInside2) < 70) {
+                if(TownDemo.playerCharacter.distanceFrom(TownDemo.portalToInside2) < 70 &&
+                    TownDemo.playerCharacter.distanceFrom(TownDemo.portalToInside2) >= 0) {
+                    System.out.println(TownDemo.playerCharacter.distanceFrom(TownDemo.portalToInside2));
                     TownDemo.portalToInside2.trigger(TownDemo.playerCharacter);
                 }
                 break;
