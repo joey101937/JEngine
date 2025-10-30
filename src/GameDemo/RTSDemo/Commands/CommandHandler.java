@@ -35,6 +35,7 @@ public class CommandHandler extends IndependentEffect{
             var list = commandMap.getOrDefault(toAdd.getExecuteTick(), new ArrayList<>());
             commandMap.put(toAdd.getExecuteTick(), list);
             list.add(toAdd);
+            list.sort(null); // Sort using natural ordering (Comparable)
         }
         addQueue.clear();
     }
@@ -53,7 +54,7 @@ public class CommandHandler extends IndependentEffect{
     
     public ArrayList<Command> getUnresolvedCommandsUpTillTick(long tick) {
         long now = game.getGameTickNumber();
-        ArrayList<Command> out = new ArrayList<>(); 
+        ArrayList<Command> out = new ArrayList<>();
         for (Long key : commandMap.keySet()) {
             if(key <= now) {
                 for(Command c: commandMap.get(key)) {
@@ -63,6 +64,7 @@ public class CommandHandler extends IndependentEffect{
                 }
             }
         }
+        out.sort(null); // Sort using natural ordering (Comparable)
         return out;
     }
 
@@ -95,11 +97,15 @@ public class CommandHandler extends IndependentEffect{
     public void printCommandHistory () {
         System.out.println("PRINTING COMMAND HISTORY");
         String out = "";
-        for(ArrayList<Command> tickList: commandMap.values().stream().sorted().toList()){
-            for(Command c : tickList) {
-                out += c.toMpString();
-                out += "\n";
-            }
+        // Collect all commands and sort them
+        ArrayList<Command> allCommands = new ArrayList<>();
+        for(ArrayList<Command> tickList: commandMap.values()) {
+            allCommands.addAll(tickList);
+        }
+        allCommands.sort(null); // Sort using natural ordering (Comparable)
+        for(Command c : allCommands) {
+            out += c.toMpString();
+            out += "\n";
         }
         System.out.println(out);
     }
