@@ -1,7 +1,6 @@
 
 package GameDemo.RTSDemo.DeterminismTests;
 
-import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
