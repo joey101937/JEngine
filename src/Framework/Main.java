@@ -7,8 +7,8 @@ package Framework;
 
 import Framework.CoreLoop.Handler;
 import GameDemo.FogDemo.FogDemo;
-import GameDemo.RTSDemo.MultiplayerTest.Client;
-import GameDemo.RTSDemo.MultiplayerTest.Server;
+import GameDemo.RTSDemo.Multiplayer.Client;
+import GameDemo.RTSDemo.Multiplayer.Server;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.SideScollerDemo_PathingLayer.SideScrollDemo;
 import GameDemo.TownDemo.TownDemo;
