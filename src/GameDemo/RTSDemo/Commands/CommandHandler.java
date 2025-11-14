@@ -3,7 +3,7 @@ package GameDemo.RTSDemo.Commands;
 
 import Framework.Game;
 import Framework.IndependentEffect;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;

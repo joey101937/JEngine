@@ -9,7 +9,7 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;

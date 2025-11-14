@@ -14,7 +14,7 @@ import Framework.Main;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementType;
 import GameDemo.RTSDemo.Units.Landmine;
 import java.awt.event.KeyEvent;
@@ -133,6 +133,9 @@ public class RTSInput extends InputHandler {
                     if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) {
                         continue;
                     }
+                    if(!u.isAlive() || u.isRubble) {
+                        continue;
+                    }
                     RTSGame.commandHandler.addCommand(new MoveCommand(
                             hostGame.getGameTickNumber() + inputDelay,
                             u,
@@ -146,6 +149,9 @@ public class RTSInput extends InputHandler {
                 Coordinate avgStartLocation = averageLocation(SelectionBoxEffect.selectedUnits);
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                     if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) {
+                        continue;
+                    }
+                    if(!u.isAlive() || u.isRubble) {
                         continue;
                     }
                     Coordinate offset = new Coordinate(avgStartLocation.x - u.getPixelLocation().x, avgStartLocation.y - u.getPixelLocation().y);
@@ -312,11 +318,18 @@ public class RTSInput extends InputHandler {
                     if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) {
                         continue;
                     }
+                    if(!u.isAlive() || u.isRubble) {
+                        continue;
+                    }
                     RTSGame.commandHandler.addCommand(new StopCommand(
                             hostGame.getGameTickNumber() + inputDelay,
                             u
                     ), true);
                 }
+            }
+            // E
+            case 69 -> {
+                RTSGame.commandHandler.printCommandHistory();
             }
             // W
             case 87 -> {

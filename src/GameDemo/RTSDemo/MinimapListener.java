@@ -7,7 +7,7 @@ import Framework.Game;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.UI_Elements.Examples.Minimap.MinimapMouseListener;
 import GameDemo.RTSDemo.Commands.MoveCommand;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import static GameDemo.RTSDemo.RTSInput.generateRandomCommandGroup;
 import java.awt.event.MouseEvent;
 import java.util.Collection;

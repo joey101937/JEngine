@@ -5,7 +5,7 @@ import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.GraphicalAssets.Graphic;
 import Framework.IndependentEffect;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Area;

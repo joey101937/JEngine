@@ -3,7 +3,7 @@ package GameDemo.RTSDemo;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.IndependentEffect;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;

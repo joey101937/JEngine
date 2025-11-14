@@ -12,7 +12,7 @@ import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import Framework.Main;
 import Framework.PathingLayer;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Pathfinding.Tile;
@@ -378,26 +378,100 @@ public class RTSUnit extends GameObject2 {
     }
     
     public String toTransportString() {
+        System.out.println("running");
         var myLocation = getLocation();
         StringBuilder builder = new StringBuilder();
-        builder.append(this.ID);
+        builder.append(this.ID); // 0
         builder.append(",");
-        builder.append(getLocation().x); // 1
+        builder.append(myLocation.x); // 1
         builder.append(",");
-        builder.append(getLocation().y); //2
+        builder.append(myLocation.y); // 2
         builder.append(",");
-        builder.append(currentHealth); //3
+        builder.append(currentHealth); // 3
         builder.append(",");
-        builder.append(this.getRotationRealTime()); //4
+        builder.append(this.getRotationRealTime()); // 4
         builder.append(",");
-        builder.append(this.getDesiredLocation().x); //5
+        builder.append(this.getDesiredLocation().x); // 5
         builder.append(",");
         builder.append(this.getDesiredLocation().y); // 6
         builder.append(",");
         builder.append(this.isRubble); // 7
         builder.append(",");
         builder.append(this.commandGroup); // 8
-        
+        builder.append(",");
+        builder.append(this.velocity.x); // 9
+        builder.append(",");
+        builder.append(this.velocity.y); // 10
+        builder.append(",");
+        // comingFromLocation - could be null
+        if (this.comingFromLocation == null) {
+            builder.append("NULL"); // 11
+        } else {
+            builder.append(comingFromLocation.x).append(":").append(comingFromLocation.y);
+        }
+        builder.append(",");
+        builder.append(this.baseSpeed); // 13
+        builder.append(",");
+        builder.append(this.originalSpeed); // 14
+        builder.append(",");
+        builder.append(this.isImmobilized); // 15
+        builder.append(",");
+        builder.append(this.isCloaked); // 16
+        builder.append(",");
+        // Waypoints: encode as pipe-separated x:y pairs
+            System.out.println("appending waypoints");
+        if (waypoints.isEmpty()) {
+            builder.append("NONE"); // 17
+        } else {
+            for (int i = 0; i < waypoints.size(); i++) {
+                Coordinate wp = waypoints.get(i);
+                builder.append(wp.x).append(":").append(wp.y);
+                if (i < waypoints.size() - 1) {
+                    builder.append("|");
+                }
+            }
+        }
+        builder.append(",");
+        builder.append(this.pathCacheUses); // 18
+        builder.append(",");
+        builder.append(this.pathCacheSignatureLastChangedTick); // 19
+        builder.append(",");
+        // pathStartCache - could be null
+        if (this.pathStartCache == null) {
+            builder.append("NULL"); // 20
+        } else {
+            builder.append(pathStartCache.x).append(":").append(pathStartCache.y);
+        }
+        builder.append(",");
+        // pathEndCache - could be null
+        if (this.pathEndCache == null) {
+            builder.append("NULL"); // 21
+        } else {
+            builder.append(pathEndCache.x).append(":").append(pathEndCache.y);
+        }
+        builder.append(",");
+        // pathCacheSignature - could be null, escape commas to avoid breaking CSV parsing
+        if (this.pathCacheSignature == null) {
+            builder.append("NULL"); // 21
+        } else {
+            // Replace commas with ~ to avoid breaking field delimiter
+            builder.append(this.pathCacheSignature.replace(",", "~"));
+        }
+        builder.append(",");
+        // pathCache - encode like waypoints
+        if (this.pathCache == null || this.pathCache.isEmpty()) {
+            builder.append("NONE"); // 23
+        } else {
+            for (int i = 0; i < pathCache.size(); i++) {
+                Coordinate wp = pathCache.get(i);
+                builder.append(wp.x).append(":").append(wp.y);
+                if (i < pathCache.size() - 1) {
+                    builder.append("|");
+                }
+            }
+        }
+
+        System.out.println(builder.toString());
         return builder.toString();
     }
 
@@ -418,6 +492,85 @@ public class RTSUnit extends GameObject2 {
             }
         }
         this.commandGroup = components[8];
+        this.velocity.x = Double.parseDouble(components[9]);
+        this.velocity.y = Double.parseDouble(components[10]);
+
+        // Parse comingFromLocation
+        if (components[11].equals("NULL")) {
+            this.comingFromLocation = null;
+        } else {
+            String[] coords = components[11].split(":");
+            this.comingFromLocation = new Coordinate(
+                Integer.parseInt(coords[0]),
+                Integer.parseInt(coords[1])
+            );
+        }
+
+        this.baseSpeed = Double.parseDouble(components[12]);
+        this.originalSpeed = Double.parseDouble(components[13]);
+        this.isImmobilized = Boolean.parseBoolean(components[14]);
+        this.isCloaked = Boolean.parseBoolean(components[15]);
+
+        // Parse waypoints
+        waypoints.clear();
+        if (!components[16].equals("NONE")) {
+            String[] waypointPairs = components[16].split("\\|");
+            for (String pair : waypointPairs) {
+                String[] coords = pair.split(":");
+                waypoints.add(new Coordinate(
+                    Integer.parseInt(coords[0]),
+                    Integer.parseInt(coords[1])
+                ));
+            }
+        }
+
+        // Parse path cache fields
+        this.pathCacheUses = Integer.parseInt(components[17]);
+        this.pathCacheSignatureLastChangedTick = Long.parseLong(components[18]);
+
+        // Parse pathStartCache
+        if (components[19].equals("NULL")) {
+            this.pathStartCache = null;
+        } else {
+            String[] coords = components[19].split(":");
+            this.pathStartCache = new Coordinate(
+                Integer.parseInt(coords[0]),
+                Integer.parseInt(coords[1])
+            );
+        }
+
+        // Parse pathEndCache
+        if (components[20].equals("NULL")) {
+            this.pathEndCache = null;
+        } else {
+            String[] coords = components[20].split(":");
+            this.pathEndCache = new Coordinate(
+                Integer.parseInt(coords[0]),
+                Integer.parseInt(coords[1])
+            );
+        }
+
+        // Parse pathCacheSignature - restore commas that were escaped
+        if (components[21].equals("NULL")) {
+            this.pathCacheSignature = null;
+        } else {
+            this.pathCacheSignature = components[21].replace("~", ",");
+        }
+
+        // Parse pathCache
+        if (components[22].equals("NONE")) {
+            this.pathCache = null;
+        } else {
+            this.pathCache = new ArrayList<>();
+            String[] pathPairs = components[22].split("\\|");
+            for (String pair : pathPairs) {
+                String[] coords = pair.split(":");
+                this.pathCache.add(new Coordinate(
+                    Integer.parseInt(coords[0]),
+                    Integer.parseInt(coords[1])
+                ));
+            }
+        }
     }
     
     public int getNavTileSize() {

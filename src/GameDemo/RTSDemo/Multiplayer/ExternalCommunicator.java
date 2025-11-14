@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package GameDemo.RTSDemo.MultiplayerTest;
+package GameDemo.RTSDemo.Multiplayer;
 
 import Framework.Game;
 import Framework.GameObject2;
@@ -11,7 +11,7 @@ import Framework.UtilityObjects.Projectile;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
-import static GameDemo.RTSDemo.MultiplayerTest.Client.printStream;
+import static GameDemo.RTSDemo.Multiplayer.Client.printStream;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.io.BufferedReader;
@@ -227,6 +227,7 @@ public class ExternalCommunicator implements Runnable {
                 }
                 System.out.println("starting mp from mpStartTime handler");
                 RTSGame.game.handler.globalTickNumber = 0;
+                RTSGame.commandHandler.purge();
                 RTSGame.game.setPaused(false);
                 isResyncing = false;
             }
@@ -290,6 +291,7 @@ public class ExternalCommunicator implements Runnable {
         }
         System.out.println("starting mp from resyncpt2");
         RTSGame.game.handler.globalTickNumber = 0;
+        RTSGame.commandHandler.purge();
         RTSGame.game.setPaused(false);
         isResyncing = false;
     }

@@ -1,4 +1,4 @@
-package GameDemo.RTSDemo.MultiplayerTest;
+package GameDemo.RTSDemo.Multiplayer;
 
 import Framework.Coordinate;
 import Framework.Game;
@@ -8,9 +8,7 @@ import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import static GameDemo.RTSDemo.RTSGame.game;
 import static GameDemo.RTSDemo.RTSGame.setupUI;
-import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
-import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
  *

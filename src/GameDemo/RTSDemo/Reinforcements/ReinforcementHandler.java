@@ -9,7 +9,7 @@ import Framework.Main;
 import Framework.Hitbox;
 import Framework.Window;
 import GameDemo.RTSDemo.KeyBuilding;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
 import java.awt.Font;

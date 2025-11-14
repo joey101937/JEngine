@@ -1,10 +1,10 @@
-package GameDemo.RTSDemo.MultiplayerTest;
+package GameDemo.RTSDemo.Multiplayer;
 
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
-import static GameDemo.RTSDemo.MultiplayerTest.Server.createStartingUnits;
+import static GameDemo.RTSDemo.Multiplayer.Server.createStartingUnits;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import static GameDemo.RTSDemo.RTSGame.game;
