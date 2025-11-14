@@ -9,7 +9,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.Hitbox;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import java.util.HashMap;
 
 /**
@@ -33,14 +33,14 @@ public class TownCharacter extends GameObject2 {
         this.movementType = GameObject2.MovementType.SpeedRatio;
         this.setScale(.25);
         //initial animation
-        Sequence idleSequence = new Sequence(SpriteManager.sampleChar_idle);
+        Sequence idleSequence = new Sequence(DemoSpriteManager.sampleChar_idle);
         this.setGraphic(idleSequence);
         //add animation sequences
         this.animations.put("Idle", idleSequence);
-        this.animations.put("walkUp", new Sequence(SpriteManager.sampleChar_walkUp));
-        this.animations.put("walkDown", new Sequence(SpriteManager.sampleChar_walkDown));
-        this.animations.put("walkRight", new Sequence(SpriteManager.sampleChar_walkRight));
-        this.animations.put("walkLeft", new Sequence(SpriteManager.sampleChar_walkLeft));
+        this.animations.put("walkUp", new Sequence(DemoSpriteManager.sampleChar_walkUp));
+        this.animations.put("walkDown", new Sequence(DemoSpriteManager.sampleChar_walkDown));
+        this.animations.put("walkRight", new Sequence(DemoSpriteManager.sampleChar_walkRight));
+        this.animations.put("walkLeft", new Sequence(DemoSpriteManager.sampleChar_walkLeft));
         for(String s : animations.keySet()){
             animations.get(s).setFrameDelay(150);  //slow animation speed to 150ms
         }        

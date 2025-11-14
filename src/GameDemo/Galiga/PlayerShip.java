@@ -11,7 +11,7 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import java.awt.Graphics2D;
 
@@ -38,7 +38,7 @@ public class PlayerShip extends GameObject2{
     }
     
     private void initialize(){
-        Sprite s = new Sprite(SpriteManager.spaceship);
+        Sprite s = new Sprite(DemoSpriteManager.spaceship);
         // Sprite s = new Sprite(SpriteManager.localizedLight);
         setGraphic(s);
         isSolid=true;
@@ -67,7 +67,7 @@ public class PlayerShip extends GameObject2{
         }
         lastHitTick = tickNumber;
         GaligaGame.UI.onDeath();
-        new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence), getPixelLocation());
+        new OnceThroughSticker(GaligaGame.mainGame, new Sequence(DemoSpriteManager.explosionSequence), getPixelLocation());
          GaligaGame.deathSound.playCopy(.7f);
         if (GaligaGame.UI.getLives() > 0) {
             System.out.println("life lost");

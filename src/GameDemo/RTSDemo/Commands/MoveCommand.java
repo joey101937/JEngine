@@ -1,6 +1,7 @@
 package GameDemo.RTSDemo.Commands;
 
 import Framework.Coordinate;
+import Framework.Window;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 
@@ -26,6 +27,11 @@ public class MoveCommand implements Command{
     @Override
     public long getExecuteTick() {
         return this.executeTick;
+    }
+
+    @Override
+    public String getSubjectId() {
+        return this.subject.ID;
     }
 
     @Override
@@ -57,7 +63,7 @@ public class MoveCommand implements Command{
         int y = Integer.parseInt(components[2]);
         long executeTick = Long.parseLong(components[3]); // this is when the input was actually done
         String comGroup = components[4];
-        RTSUnit subject = (RTSUnit) RTSGame.game.getObjectById(unitId);
+        RTSUnit subject = (RTSUnit) Window.currentGame.getObjectById(unitId);
         if(subject == null) {
             System.out.println("ERROR: unable to find unit by id " + unitId);
         }

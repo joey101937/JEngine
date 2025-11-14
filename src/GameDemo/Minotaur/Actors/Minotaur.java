@@ -11,7 +11,7 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.Hitbox;
 import Framework.Main;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +31,13 @@ public class Minotaur extends SSActor{
     public Sequence getAttackSequence(boolean isRight){
         if(isRight) {
             if(rightAttack == null) {
-                rightAttack = new Sequence(SpriteManager.minotaurSwing_Right);
+                rightAttack = new Sequence(DemoSpriteManager.minotaurSwing_Right);
                 rightAttack.setFrameDelay(100);
             }
             return rightAttack;
         } else {
             if(leftAttack == null) {
-                leftAttack = new Sequence(SpriteManager.minotaurSwing_Left);
+                leftAttack = new Sequence(DemoSpriteManager.minotaurSwing_Left);
                 leftAttack.setFrameDelay(100);
             }
             return leftAttack;
@@ -67,14 +67,14 @@ public class Minotaur extends SSActor{
         collisionSliding=true;
         this.movementType = GameObject2.MovementType.RawVelocity;
         //initial animation
-        Sequence idleSequenceL = new Sequence(SpriteManager.minotaurIdle_Left);
-        Sequence idleSequenceR = new Sequence(SpriteManager.minotaurIdle_Right);
+        Sequence idleSequenceL = new Sequence(DemoSpriteManager.minotaurIdle_Left);
+        Sequence idleSequenceR = new Sequence(DemoSpriteManager.minotaurIdle_Right);
         this.setGraphic(idleSequenceR);
         //add animation sequences
         this.animations.put("IdleL", idleSequenceL);
         this.animations.put("IdleR", idleSequenceR);
-        this.animations.put("walkRight", new Sequence(SpriteManager.minotaurRun_Right));
-        this.animations.put("walkLeft", new Sequence(SpriteManager.minotaurRun_Left));    
+        this.animations.put("walkRight", new Sequence(DemoSpriteManager.minotaurRun_Right));
+        this.animations.put("walkLeft", new Sequence(DemoSpriteManager.minotaurRun_Left));    
     }
     
     /**
@@ -177,7 +177,7 @@ public class Minotaur extends SSActor{
         setCurrentAction(Action.Dying);
         isSolid=false;
         velocity.y=0;
-        Sequence deathSeq = new Sequence(SpriteManager.minotaurDeath_Right);
+        Sequence deathSeq = new Sequence(DemoSpriteManager.minotaurDeath_Right);
         deathSeq.setFrameDelay(150);
         this.setGraphic(deathSeq);
     }

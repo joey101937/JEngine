@@ -8,7 +8,7 @@ package GameDemo.Minotaur;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.Main;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import Framework.UtilityObjects.BlockObject;
 import Framework.Window;
 import GameDemo.Minotaur.Actors.Minotaur;
@@ -27,7 +27,7 @@ public class MinotaurGame {
     
     public static void main(String[] args) {
         Main.enableLerping = false;
-        SpriteManager.initialize();
+        DemoSpriteManager.initialize();
         scene1 = new SSLevel1();
         playerMinotaur = new Minotaur(new Coordinate(100, 0));
         Main.ticksPerSecond = 240; // high ticks per second for more responsiveness

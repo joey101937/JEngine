@@ -11,7 +11,7 @@ import Framework.GraphicalAssets.Sequence;
 import Framework.Hitbox;
 import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sprite;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 
 /**
@@ -24,7 +24,7 @@ public class Bullet extends Projectile{
     public Bullet(DCoordinate start, DCoordinate end) {
         super(start,end);
         this.preventOverlap=false;
-        this.setGraphic(new Sprite(SpriteManager.up));
+        this.setGraphic(new Sprite(DemoSpriteManager.up));
         this.setHitbox(new Hitbox(this,0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 500;
         System.out.println("bullet: " + numBullet++);
@@ -43,7 +43,7 @@ public class Bullet extends Projectile{
     //when this is destroyed, cause explosion
     @Override
     public void onDestroy(){
-        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), new Sequence(SpriteManager.explosionSequence), this.getPixelLocation());
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), new Sequence(DemoSpriteManager.explosionSequence), this.getPixelLocation());
         s.scaleTo(getScale());
     }
     

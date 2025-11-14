@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author guydu
  */
-public class DeterminismTestOrchestrator {
+public class DeterminismTestOrchestratorTest3 {
     public static void main(String[] args) {
         RTSAssetManager.initialize();
         var results = List.of(

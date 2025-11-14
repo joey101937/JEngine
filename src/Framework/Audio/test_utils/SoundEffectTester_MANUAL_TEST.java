@@ -9,7 +9,7 @@ import Framework.Audio.SoundEffect;
 import Framework.Game;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import java.io.File;
 
 /**
@@ -38,7 +38,7 @@ public class SoundEffectTester_MANUAL_TEST {
         System.out.println("resuming");
         effect.resume();
         Main.wait(2000);
-        Game g = new Game(new Sprite(SpriteManager.spaceBG));
+        Game g = new Game(new Sprite(DemoSpriteManager.spaceBG));
         effect.linkToGame(g);
         System.out.println("game pausing");
         g.setPaused(true);

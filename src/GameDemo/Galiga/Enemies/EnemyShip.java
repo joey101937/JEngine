@@ -9,7 +9,7 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import GameDemo.Galiga.Bolt;
 import GameDemo.Galiga.GaligaGame;
 import GameDemo.Galiga.PlayerShip;
@@ -21,7 +21,7 @@ import GameDemo.Galiga.PlayerShip;
 public class EnemyShip extends GameObject2{
     
     public static double difficultyMultiplier = 1.0; //increase this to increase difficulty
-    public static Sprite enemySprite = new Sprite(SpriteManager.evilShip);
+    public static Sprite enemySprite = new Sprite(DemoSpriteManager.evilShip);
     
     public EnemyShip(Coordinate c) {
         super(c);

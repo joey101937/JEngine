@@ -8,7 +8,7 @@ package GameDemo.TownDemo;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.Main;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import Framework.UtilityObjects.Portal;
 import Framework.UtilityObjects.TextObject;
 import Framework.Window;
@@ -36,21 +36,21 @@ public class TownDemo {
         Main.ticksPerSecond = 60;
         Main.enableLerping = true;
         Main.lerpType = "reactive";
-        SpriteManager.initialize();
+        DemoSpriteManager.initialize();
         playerCharacter = new TownCharacter(200, 200);
         townBird = new TownBird(450, 500);
-        outside = new Game(SpriteManager.townOutside);
-        outside.setPathingLayer(SpriteManager.townOutsidePathing);
+        outside = new Game(DemoSpriteManager.townOutside);
+        outside.setPathingLayer(DemoSpriteManager.townOutsidePathing);
         outside.setZoom(2);
         outside.setName("outside");
         
-        inside1 = new Game(SpriteManager.buildingInterior);
-        inside1.setPathingLayer(SpriteManager.buildingInteriorPathing);
+        inside1 = new Game(DemoSpriteManager.buildingInterior);
+        inside1.setPathingLayer(DemoSpriteManager.buildingInteriorPathing);
         inside1.setName("inside 1");
         inside1.setZoom(2);
         
-        inside2 = new Game(SpriteManager.buildingInterior);
-        inside2.setPathingLayer(SpriteManager.buildingInteriorPathing);
+        inside2 = new Game(DemoSpriteManager.buildingInterior);
+        inside2.setPathingLayer(DemoSpriteManager.buildingInteriorPathing);
         inside2.setName("inside 2");
         inside2.setZoom(2);
         

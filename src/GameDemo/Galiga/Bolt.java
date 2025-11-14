@@ -12,7 +12,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
 
@@ -45,7 +45,7 @@ public class Bolt extends Projectile{
     }
     
     private void init(){
-        this.setGraphic(new Sprite(SpriteManager.bolt));
+        this.setGraphic(new Sprite(DemoSpriteManager.bolt));
         this.isSolid=true;
         this.setScale(3);
         baseSpeed = 7;
@@ -66,7 +66,7 @@ public class Bolt extends Projectile{
             if (isFriendly) {
                 ((BossShip)other).takeDamage();
                 // play explosion animation
-                new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence) ,getPixelLocation());
+                new OnceThroughSticker(GaligaGame.mainGame, new Sequence(DemoSpriteManager.explosionSequence) ,getPixelLocation());
                 this.destroy();
                 return;
             } else {
@@ -77,7 +77,7 @@ public class Bolt extends Projectile{
             if (isFriendly) {
                 other.destroy();
                 // play explosion animation
-                new OnceThroughSticker(GaligaGame.mainGame, new Sequence(SpriteManager.explosionSequence) ,getPixelLocation());
+                new OnceThroughSticker(GaligaGame.mainGame, new Sequence(DemoSpriteManager.explosionSequence) ,getPixelLocation());
                 this.destroy();
                 return;
             } else {

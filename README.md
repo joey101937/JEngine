@@ -156,14 +156,14 @@ Every Game object has a handler and VisualEffectHandler. These keep track of all
 
 # Visual Assets
 ## Loading Assets
-JEngine contaons a built in class to load Assets though the file structure, this is what is used in the demos and demonstrates the reccommended setup. **SpriteManager class is for demo purposes- make your own!**. You should make your own class to import files from, however it is very important that you do it properly. All files should be loaded *one time* at the start of a run and then stored internally in variables. DO NOT load an image every time you need it as this will destroy your performance. Single sprites should be stored as BufferedImages, and Animation Sequences should be storred as an array of BufferedImages. Look at SpriteManager for reference.
+JEngine contaons a built in class to load Assets though the file structure, this is what is used in the demos and demonstrates the reccommended setup. **DemoSpriteManager class is for demo purposes- make your own!**. You should make your own class to import files from, however it is very important that you do it properly. All files should be loaded *one time* at the start of a run and then stored internally in variables. DO NOT load an image every time you need it as this will destroy your performance. Single sprites should be stored as BufferedImages, and Animation Sequences should be storred as an array of BufferedImages. Look at DemoSpriteManager for reference.
 
-JEngine demos load all visual assets using the **SpriteManager** class. You may want to look at it and create a similar class for your own project. Image assets are stored in either static BufferedImage for images or BufferedImage arrays for frame based animation sequences. To use it for your own assets, first declare the variable and name it appropriately, then add code to load it in SpriteManager's **Initialize** method. Initialize runs once using the static block to pre-load all assets before they need to be rendered and stores them in memory rather than using ImageIO every time we need
+JEngine demos load all visual assets using the **DemoSpriteManager** class. You may want to look at it and create a similar class for your own project. Image assets are stored in either static BufferedImage for images or BufferedImage arrays for frame based animation sequences. To use it for your own assets, first declare the variable and name it appropriately, then add code to load it in DemoSpriteManager's **Initialize** method. Initialize runs once using the static block to pre-load all assets before they need to be rendered and stores them in memory rather than using ImageIO every time we need
 to get outside assets.
 
 To make it easy, use Graphic's **load(String filename)** and **loadSequence(String folderName)** to load images and animation
 sequences respectively. Note these filepaths are *within* the assets folder. The demos included load their assets with this class and you 
-should follow the same system. Once this is done, you can reference your image using SpriteManager.<your variable name>.
+should follow the same system. Once this is done, you can reference your image using DemoSpriteManager.<your variable name>.
 
 **It is highly recommended that you pre-scale your graphics. Doing so at run time can be expensive- especially if your are scaling several objects concurrently.**
 
@@ -377,7 +377,7 @@ You can scale the GameObject2 to be larger or smaller, and rotate it in any dire
 If you dont want your object to be animated, you will use a **Sprite** object,and apply it to the object using the **setGraphic(Sprite)** method where the sprite you give is a new Sprite with your desired bufferedImage.
 
 **Applying Animated Visuals**
-If you want your object to have an animated visual, you will need to load in the frames of the animation via the SpriteManager or similar clas, and store that, in order, in a bufferedImage array. Now create a **Sequence** object with that array,**new Sequence(BufferedImage[])**. Now you can call **setGraphic(Sequence)** on the object and your object will use the given animation sequence.
+If you want your object to have an animated visual, you will need to load in the frames of the animation via the DemoSpriteManager or similar clas, and store that, in order, in a bufferedImage array. Now create a **Sequence** object with that array,**new Sequence(BufferedImage[])**. Now you can call **setGraphic(Sequence)** on the object and your object will use the given animation sequence.
 
 
 ### Transformations

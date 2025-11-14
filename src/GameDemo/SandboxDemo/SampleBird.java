@@ -9,7 +9,7 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.Hitbox;
 import Framework.GraphicalAssets.Sequence;
-import Framework.SpriteManager;
+import Framework.DemoSpriteManager;
 
 /**
  * Example of simple creature implementation
@@ -28,7 +28,7 @@ public class SampleBird extends Creature{
     }
     
     private void setup(){
-        setGraphic(new Sequence(SpriteManager.birdySequence));
+        setGraphic(new Sequence(DemoSpriteManager.birdySequence));
         isSolid=true;
         setName("Bird " + numBirds++);
         //set scale randomly from .1 - 2.1
