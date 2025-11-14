@@ -7,7 +7,6 @@ package GameDemo.RTSDemo.Multiplayer;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
-import Framework.UtilityObjects.Projectile;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;

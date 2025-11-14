@@ -1,12 +1,11 @@
 
 package GameDemo.RTSDemo.DeterminismTests;
 
-import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
 import Framework.Window;
-import GameDemo.RTSDemo.MultiplayerTest.ExternalCommunicator;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
