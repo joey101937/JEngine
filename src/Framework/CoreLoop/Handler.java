@@ -9,6 +9,7 @@ import Framework.TickDelayedEffect;
 import Framework.TimeTriggeredEffect;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  *
  * @author guydu
  */
-public class Handler {
+public class Handler implements Serializable{
 
     public static ExecutorService newMinSizeCachedThreadPool(int minSize) {
         return new ThreadPoolExecutor(minSize, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,

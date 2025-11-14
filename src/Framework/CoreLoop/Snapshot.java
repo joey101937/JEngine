@@ -1,6 +1,7 @@
 package Framework.CoreLoop;
 
 import Framework.GameObject2;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -8,7 +9,7 @@ import java.util.HashMap;
  *
  * @author guydu
  */
-public class Snapshot {
+public class Snapshot implements Serializable{
     public final ArrayList<GameObject2> gameObjects;
     public final QuadTree quadTree;
     public final HashMap<String, GameObject2> objectMap = new HashMap<>();
