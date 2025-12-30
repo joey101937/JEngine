@@ -485,6 +485,59 @@ Randomness is also an issue. This is why we have Main.setRandomSeed function tha
 Jengine does not pre-supply any networking code for general use, however it does provide an example in the RTS game folder. Your game should be deterministic in order for multiplayer to work correctly.
 You can use game.setHandleSyncTick(Consumer c) in order to add a new phase to the game's tick. After the game ticks each time, it will run the supplied Consumer with itself as the parameter. The game will not move to the next tick until this consumer is done executing. You can use this to coordinate sync logic between multiple running game instances
 
+# Game State Serialization
+JEngine includes a comprehensive serialization system that allows you to save and load complete game states to/from disk. This is useful for:
+- **Save/Load Systems**: Implement save files and quick save/load functionality
+- **Multiplayer State Sync**: Serialize game state for network transmission in lockstep multiplayer
+- **Replay Systems**: Save game states at key moments for replay functionality
+- **Debugging**: Preserve problematic game states for investigation
+
+### Quick Start
+```java
+// Save current game state
+SerializationManager.quickSave(game);  // Saves to saves/quicksave.dat
+
+// Load previously saved state
+SerializationManager.quickLoad(game);  // Loads from saves/quicksave.dat
+```
+
+### What Gets Saved
+The serialization system preserves:
+- All GameObject2 instances and their properties (position, velocity, rotation, etc.)
+- Game tick number (for deterministic playback)
+- IndependentEffect instances (selection state, game managers, etc.)
+- Camera location and viewport position
+- Custom game state via `onPostDeserialization()` hooks
+
+### Implementation Requirements
+To make your game objects serializable:
+1. Override `onPostDeserialization()` in GameObject2 subclasses to restore graphics
+2. Mark non-serializable fields (images, thread pools, Game references) as `transient`
+3. For IndependentEffects, implement `onPostDeserialization(Game)` to restore transient state
+4. Use ID-based references instead of direct GameObject references
+
+### Example: Making a Custom GameObject Serializable
+```java
+public class MyUnit extends GameObject2 {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public void onPostDeserialization() {
+        super.onPostDeserialization();
+        // Restore graphics (they're transient and not saved)
+        this.setGraphic(MyAssetManager.unitSprite);
+    }
+}
+```
+
+**See SERIALIZATION_README.md for complete documentation**, including:
+- Detailed implementation patterns for GameObject2 and IndependentEffect serialization
+- ID-based reference pattern for storing GameObject references
+- Static singleton reference pattern using reflection
+- Opt-in/opt-out serialization for special cases
+- RTS demo implementation examples
+- Troubleshooting guide
+
 # Pathing Layer
 A pathingLayer is an image file with the same dimensions as the world. This image however is made up of only a handful of colors with each of those colors representing a type of terrain. By default, there are four types defined: green= ground; red=hostile, blue= water; black= impassable.
 
