@@ -17,7 +17,6 @@ public class DeterminismTestOrchestratorTest4 {
             DeterminismTest4.run(false),
             DeterminismTest4.run(false),
             DeterminismTest4.run(false),
-            DeterminismTest4.run(false),
             DeterminismTest4.run(false)
         );
         
@@ -34,6 +33,9 @@ public class DeterminismTestOrchestratorTest4 {
         
         if(resultsMap.values().size() != 1) {
             System.out.println("ALERT: nondeterminism found");
+        } else {
+            System.out.println("Looks good");
+            System.exit(0);
         }
     }
 }

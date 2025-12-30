@@ -33,7 +33,7 @@ public class DeterminismTest4 {
         RTSGame.setup(game);
         RTSGame.setupUI(game);
 
-        int lineSize = 40;
+        int lineSize = 41;
         int spacer = 160;
         for (int i = 0; i < lineSize; i++) {
             game.addObject(new Hellicopter(200 + (i * spacer), 200, 0));
