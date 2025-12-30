@@ -16,6 +16,8 @@ The serialization system provides base-level functionality in the engine for:
 The serialization system captures:
 - **All GameObject2 instances** in the game world
 - **Global tick number** (game time)
+- **IndependentEffect instances** (with opt-in/opt-out support)
+- **Camera location** (viewport position)
 - **GameObject properties**:
   - Position (location and locationAsOfLastTick)
   - Velocity
@@ -32,11 +34,14 @@ The serialization system captures:
 
 These fields are marked as `transient` and will not be saved:
 - **Graphics** (Sprite/Sequence objects) - These contain BufferedImage/VolatileImage which are not serializable
-- **ExecutorService thread pools** in Handler
-- **Game references** in GameObjects (these are reconnected on load)
+- **ExecutorService thread pools** in Handler, NavigationManager, OccupationMap, and other managers
+- **Game references** in GameObjects and IndependentEffects (these are reconnected on load)
 - **Effects with lambda functions** (TickDelayedEffect, TimeTriggeredEffect with custom Consumer functions)
+- **Camera target tracking** (GameObject2 target reference)
+- **GameObject references in Commands** (stored as IDs instead, resolved after deserialization)
+- **IndependentEffects that opt out** via `shouldSerialize()` returning false
 
-**Important**: After loading, you'll need to manually restore graphics for your game objects. See "Post-Load Setup" below.
+**Important**: Transient fields are automatically restored via `onPostDeserialization()` hooks in GameObject2 and IndependentEffect. Graphics should be restored in your `onPostDeserialization()` override.
 
 ## Core Classes Modified
 
@@ -63,6 +68,18 @@ Added `reinitializeTransientFields()` method to recreate ExecutorService thread 
 
 ### 5. Coordinate & DCoordinate
 Already implemented `Serializable` (no changes needed).
+
+### 6. IndependentEffect
+- Now implements `Serializable`
+- Added `onPostDeserialization(Game game)` method for restoring transient state
+- Added `shouldSerialize()` method (default: true) for opt-in/opt-out serialization
+- Game references marked as `transient`
+
+### 7. Camera
+- Now implements `Serializable`
+- Camera location is preserved in saves
+- `hostGame`, `target`, and `renderLocation` marked as `transient`
+- Camera tracking is disabled after load (target references are transient)
 
 ## Usage
 
@@ -95,52 +112,161 @@ The RTS demo now includes keyboard shortcuts for save/load:
 
 These are implemented in `RTSInput.java` in the `keyPressed()` method.
 
-## Post-Load Setup
+### RTS-Specific Serialization Features
 
-Since graphics are transient, you need to restore them after loading. Here are the recommended patterns:
+The RTS demo includes comprehensive serialization support:
 
-### Option 1: Override setHostGame() in GameObject2 Subclasses
+#### 1. Selection Preservation
+**SelectionBoxEffect** saves and restores selected units:
+- Stores unit IDs before serialization
+- Restores selections by matching IDs after load
+- Selected units maintain their selection state across saves
+
+#### 2. Command System Serialization
+**CommandHandler** and **Command** implementations:
+- All commands (MoveCommand, StopCommand, etc.) are serializable
+- Commands store unit IDs instead of direct references
+- References resolved via `resolveSubject(Game)` after deserialization
+- Command history preserved for determinism
+- Static singleton reference updated via reflection after load
+
+#### 3. Navigation System
+**NavigationManager**:
+- TileMaps and pathfinding state serialized
+- ExecutorService thread pools recreated after load
+- Static singleton reference updated via reflection after load
+
+#### 4. Reinforcement System
+**ReinforcementHandler** and **ReinforcementType**:
+- All reinforcement types serializable
+- BufferedImage icons marked as transient
+- Icons restored via `restoreTransientFields()` from RTSAssetManager
+
+#### 5. Other IndependentEffects
+- **FogOfWarEffect**: Area and ExecutorService recreated after load
+- **ConcurrentSoundManager**: Opts out of serialization (persists as singleton)
+- **StatusIconHelper**, **KeyBuildingRingEffect**, **InfoPanelEffect**: Transient fields restored
+
+#### 6. Static Singleton Pattern
+For managers accessed via static references (CommandHandler, NavigationManager):
+- Uses reflection to update static fields after deserialization
+- Ensures new commands/operations use the loaded instance
+- Pattern: `updateStaticReference()` method called in `onPostDeserialization()`
+
+## Implementing IndependentEffect Serialization
+
+IndependentEffects can be serialized by implementing the deserialization hook:
+
+### Basic Pattern
 
 ```java
-@Override
-public void setHostGame(Game g) {
-    super.setHostGame(g);
+public class MyEffect extends IndependentEffect {
+    private static final long serialVersionUID = 1L;
 
-    // Restore graphics if they're null (happens after deserialization)
-    if (this.getGraphic() == null) {
-        this.setGraphic(MyAssetManager.mySprite);
+    private transient Game game;
+    private transient SomeNonSerializableField field;
+
+    @Override
+    public void onPostDeserialization(Game g) {
+        this.game = g;
+        // Restore transient fields
+        this.field = new SomeNonSerializableField();
     }
 }
 ```
 
-### Option 2: Post-Load Hook
-
-Add a method to your GameObject subclasses:
+### Opt-Out Pattern (for singletons like ConcurrentSoundManager)
 
 ```java
-public void onPostLoad() {
-    // Restore graphics
-    this.setGraphic(MyAssetManager.mySprite);
+public class MySingletonEffect extends IndependentEffect {
+    private static final long serialVersionUID = 1L;
 
-    // Restore any other transient state
+    @Override
+    public boolean shouldSerialize() {
+        return false; // Don't serialize this effect
+    }
 }
 ```
 
-Then call it after loading:
+When an effect opts out via `shouldSerialize()`, it will persist across saves without being serialized. This is useful for:
+- Singleton managers that should persist
+- Effects with non-serializable state that can be recreated
+- UI elements that don't need to be saved
+
+### ID-Based Reference Pattern (for GameObject references)
 
 ```java
-if (SerializationManager.quickLoad(game)) {
-    for (GameObject2 obj : game.getAllObjects()) {
-        if (obj instanceof MyGameObject) {
-            ((MyGameObject) obj).onPostLoad();
+public class MyEffect extends IndependentEffect {
+    private static final long serialVersionUID = 1L;
+
+    private transient GameObject2 target;
+    private String targetID;
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+        targetID = target != null ? target.ID : null;
+        out.defaultWriteObject();
+    }
+
+    @Override
+    public void onPostDeserialization(Game g) {
+        this.game = g;
+        if (targetID != null) {
+            target = g.getObjectById(targetID);
         }
     }
 }
 ```
 
-### Option 3: Store Graphic Type Identifier
+### Static Singleton Reference Pattern
 
-Add a serializable field to track which graphic to restore:
+If your game accesses an effect via static reference:
+
+```java
+public class MyManager extends IndependentEffect {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public void onPostDeserialization(Game g) {
+        this.game = g;
+        updateStaticReference();
+    }
+
+    private void updateStaticReference() {
+        try {
+            Class<?> gameClass = Class.forName("MyGame.MyGameClass");
+            java.lang.reflect.Field field = gameClass.getDeclaredField("myManager");
+            field.setAccessible(true);
+            field.set(null, this);
+        } catch (Exception e) {
+            System.err.println("Could not update static reference: " + e.getMessage());
+        }
+    }
+}
+```
+
+## Post-Load Setup for GameObject2
+
+Since graphics are transient, you need to restore them after loading. The recommended pattern is to override `onPostDeserialization()`:
+
+### Override onPostDeserialization() in GameObject2 Subclasses
+
+```java
+@Override
+public void onPostDeserialization() {
+    super.onPostDeserialization();
+
+    // Restore graphics (they're null after deserialization)
+    this.setGraphic(MyAssetManager.mySprite);
+
+    // Restore any other transient state if needed
+}
+```
+
+This method is automatically called by SerializationManager after loading, so you don't need to manually invoke it.
+
+### Store Graphic Type Identifier Pattern
+
+For dynamic graphics, add a serializable field to track which graphic to restore:
 
 ```java
 public class MyUnit extends GameObject2 {
@@ -153,9 +279,9 @@ public class MyUnit extends GameObject2 {
     }
 
     @Override
-    public void setHostGame(Game g) {
-        super.setHostGame(g);
-        if (this.getGraphic() == null && graphicType != null) {
+    public void onPostDeserialization() {
+        super.onPostDeserialization();
+        if (graphicType != null) {
             setGraphic(AssetManager.getGraphic(graphicType));
         }
     }
@@ -166,10 +292,12 @@ public class MyUnit extends GameObject2 {
 
 For each game/demo, you may need to handle:
 
-1. **Asset Restoration**: Graphics need to be manually restored after load
-2. **Non-Serializable Effects**: IndependentEffects, TickDelayedEffects, etc. with lambdas won't serialize
-3. **Static/Singleton State**: Things like NavigationManager, CommandHandler, etc. in RTS demo
-4. **UI State**: UI elements are separate from game objects and won't be serialized
+1. **Asset Restoration**: Graphics need to be manually restored after load (via `onPostDeserialization()`)
+2. **IndependentEffect Serialization**: Implement `onPostDeserialization(Game)` to restore transient fields
+3. **Static/Singleton State**: Use reflection pattern to update static references after load (see RTS demo examples)
+4. **GameObject References**: Store IDs instead of direct references, resolve after deserialization
+5. **Opt-Out Effects**: Use `shouldSerialize()` for singletons that should persist without serialization
+6. **Camera State**: Camera location is preserved, but tracking is disabled (target is transient)
 
 ## Multiplayer Support
 
@@ -185,11 +313,13 @@ However, note:
 
 ## Limitations
 
-1. **Graphics are not saved** - You must restore Sprite/Sequence objects after loading
-2. **Lambda functions don't serialize** - Effects using Consumer lambdas won't save
-3. **Singletons and static state** - Game-wide managers need special handling
-4. **UI Elements** - Not part of game state, handled separately
-5. **Audio state** - Currently playing sounds won't be preserved
+1. **Graphics are not saved** - You must restore Sprite/Sequence objects after loading (handled via `onPostDeserialization()`)
+2. **Lambda functions don't serialize** - TickDelayedEffects and TimeTriggeredEffects with Consumer lambdas won't save
+3. **Camera tracking disabled** - Camera position is preserved, but target tracking is reset (target is transient)
+4. **Audio state** - Currently playing sounds won't be preserved (ConcurrentSoundManager opts out of serialization)
+5. **ExecutorServices** - Thread pools are recreated after load (marked transient)
+
+Note: Most of these limitations are handled automatically by the framework's `onPostDeserialization()` hooks.
 
 ## Testing the Implementation
 
@@ -250,8 +380,11 @@ When adding serialization to a new game using JEngine:
 
 - [ ] Identify all custom GameObject2 subclasses
 - [ ] Mark any non-serializable fields as `transient`
-- [ ] Implement graphic restoration (Option 1, 2, or 3 above)
-- [ ] Handle game-specific managers/singletons
+- [ ] Override `onPostDeserialization()` in GameObject2 subclasses to restore graphics
+- [ ] Implement `onPostDeserialization(Game)` in IndependentEffect subclasses
+- [ ] For GameObject references, use ID-based pattern (store IDs, resolve after load)
+- [ ] For singleton IndependentEffects, override `shouldSerialize()` to return false
+- [ ] For static references to managers, use reflection pattern to update after load
 - [ ] Add save/load UI or keyboard shortcuts
 - [ ] Test save/load at different game states
 - [ ] Handle edge cases (loading into different scene, etc.)

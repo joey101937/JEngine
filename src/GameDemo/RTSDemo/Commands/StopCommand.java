@@ -1,8 +1,6 @@
 package GameDemo.RTSDemo.Commands;
 
-import Framework.Coordinate;
 import Framework.Window;
-import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 
 /**
