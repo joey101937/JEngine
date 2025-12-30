@@ -37,10 +37,10 @@ public class NavigationManager extends IndependentEffect {
     public static String SEPERATOR_GROUP = "seperator";
 
     public transient Game game;
-    public TileMap tileMapNormal;
-    public TileMap tileMapFine;
-    public TileMap tileMapLarge;
-    public TileMap tileMapGiantTerrain;
+    public transient TileMap tileMapNormal;
+    public transient TileMap tileMapFine;
+    public transient TileMap tileMapLarge;
+    public transient TileMap tileMapGiantTerrain;
 
     public NavigationManager(Game g) {
         game = g;
@@ -53,6 +53,13 @@ public class NavigationManager extends IndependentEffect {
     @Override
     public void onPostDeserialization(Game g) {
         this.game = g;
+
+        // Recreate TileMaps (these are transient and not serialized)
+        tileMapNormal = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeNormal);
+        tileMapFine = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeFine);
+        tileMapLarge = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeLarge);
+        tileMapGiantTerrain = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeGiantTerrain);
+
         if (unitPathingService == null) {
             unitPathingService = Executors.newFixedThreadPool(200);
         }
