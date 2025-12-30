@@ -11,12 +11,19 @@ import java.awt.Graphics2D;
  * @author guydu
  */
 public class StatusIconHelper extends IndependentEffect{
+    private static final long serialVersionUID = 1L;
+
     private static final int statusIconWidth = 20;
     private static final int statusIconHeight = 20;
-    private Game game;
-    
+    private transient Game game;
+
     public StatusIconHelper (Game g) {
         game = g;
+    }
+
+    @Override
+    public void onPostDeserialization(Game g) {
+        this.game = g;
     }
     
     @Override

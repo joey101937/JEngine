@@ -25,6 +25,8 @@ import java.util.ArrayList;
  * @author guydu
  */
 public class ReinforcementHandler extends IndependentEffect {
+    private static final long serialVersionUID = 1L;
+
     private static SoundEffect successSound = new SoundEffect(new File("Assets/Sounds/reinforcement-success.au"));
     private final Font headerFont = new Font("timesRoman", Font.BOLD, 16);
     private final Color backgroundColor = new Color(150, 150, 150);
@@ -120,6 +122,16 @@ public class ReinforcementHandler extends IndependentEffect {
                 
         drawGradientBorder(g, menuRenderLoc.x, menuRenderLoc.y, width, menuHeight);
         g.scale(1/scaleAmount, 1/scaleAmount);
+    }
+
+    @Override
+    public void onPostDeserialization(Framework.Game game) {
+        // Restore transient fields in all reinforcement types
+        for (ReinforcementType type : reinforcementTypes) {
+            if (type != null) {
+                type.restoreTransientFields();
+            }
+        }
     }
 
     @Override

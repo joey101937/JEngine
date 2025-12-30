@@ -13,13 +13,50 @@ import java.util.HashMap;
  * @author guydu
  */
 public class CommandHandler extends IndependentEffect{
-    private final Game game;
+    private static final long serialVersionUID = 1L;
+
+    private transient Game game;
     private HashMap<Long, ArrayList<Command>> commandMap;
-    private ArrayList<Command> addQueue = new ArrayList<>();
-    
+    private transient ArrayList<Command> addQueue = new ArrayList<>();
+
     public CommandHandler (Game g) {
         this.commandMap = new HashMap<>();
         this.game = g;
+    }
+
+    @Override
+    public void onPostDeserialization(Game g) {
+        this.game = g;
+        this.addQueue = new ArrayList<>();
+
+        // Resolve unit references in all commands
+        for (ArrayList<Command> commandList : commandMap.values()) {
+            for (Command cmd : commandList) {
+                if (cmd instanceof MoveCommand) {
+                    ((MoveCommand) cmd).resolveSubject(g);
+                } else if (cmd instanceof StopCommand) {
+                    ((StopCommand) cmd).resolveSubject(g);
+                }
+            }
+        }
+
+        // Update the static reference so RTSInput can access this instance
+        updateStaticReference();
+    }
+
+    /**
+     * Updates the static reference in RTSGame to point to this instance.
+     * Called after deserialization.
+     */
+    private void updateStaticReference() {
+        try {
+            Class<?> rtsGameClass = Class.forName("GameDemo.RTSDemo.RTSGame");
+            java.lang.reflect.Field commandHandlerField = rtsGameClass.getDeclaredField("commandHandler");
+            commandHandlerField.setAccessible(true);
+            commandHandlerField.set(null, this);
+        } catch (Exception e) {
+            System.err.println("Could not update CommandHandler static reference: " + e.getMessage());
+        }
     }
     
     public void purge() {

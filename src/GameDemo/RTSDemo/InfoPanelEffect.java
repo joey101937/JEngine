@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InfoPanelEffect extends IndependentEffect {
-    private TooltipHelper tooltipHelper;
-    public CommandButton hoveredButton = null;
+    private static final long serialVersionUID = 1L;
+
+    private transient TooltipHelper tooltipHelper;
+    public transient CommandButton hoveredButton = null;
 
     private static final Font titleFont = new Font("TimesRoman", Font.BOLD, 18);
     private static final Font healthFont = new Font("TimesRoman", Font.BOLD, 16);
@@ -30,12 +32,12 @@ public class InfoPanelEffect extends IndependentEffect {
     private static HashMap<Class<? extends CommandButton>, BufferedImage> brightenedButtonCache = new HashMap<>();
     private static HashMap<Class<? extends CommandButton>, BufferedImage> grayscaleButtonCache = new HashMap<>();
 
-    private Game hostGame;
+    private transient Game hostGame;
     public int baseX, baseY, width, height;
     public int x, y;
-    private RTSUnit mainUnit = null;
-    private ArrayList<RTSUnit> selectedUnits = new ArrayList<>();
-    HashMap<String, Integer> unitCountMap = new HashMap<>();
+    private transient RTSUnit mainUnit = null;
+    private transient ArrayList<RTSUnit> selectedUnits = new ArrayList<>();
+    transient HashMap<String, Integer> unitCountMap = new HashMap<>();
 
     public InfoPanelEffect(Game game, int x, int y, int width, int height) {
         this.hostGame = game;
@@ -45,6 +47,15 @@ public class InfoPanelEffect extends IndependentEffect {
         this.height = height;
         populateUnitNameImageMap();
         this.tooltipHelper = new TooltipHelper(game, this);
+    }
+
+    @Override
+    public void onPostDeserialization(Game game) {
+        // Restore game reference and transient fields
+        this.hostGame = game;
+        this.tooltipHelper = new TooltipHelper(game, this);
+        this.selectedUnits = new ArrayList<>();
+        this.unitCountMap = new HashMap<>();
     }
 
     private static void populateUnitNameImageMap() {

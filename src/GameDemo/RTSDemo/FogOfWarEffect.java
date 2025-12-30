@@ -19,14 +19,25 @@ import java.util.stream.Collectors;
  * @author guydu
  */
 public class FogOfWarEffect extends IndependentEffect {
-    private final Game game;
+    private static final long serialVersionUID = 1L;
+
+    private transient Game game;
     private static final int UNITS_PER_SUBAREA = 7;
-    private Area area = new Area();
+    private transient Area area = new Area();
     private boolean enabled = false;
-    public static ExecutorService fogRenderService = Handler.newMinSizeCachedThreadPool(4);
-    
+    public static transient ExecutorService fogRenderService = Handler.newMinSizeCachedThreadPool(4);
+
     public FogOfWarEffect (Game g) {
         this.game = g;
+    }
+
+    @Override
+    public void onPostDeserialization(Game g) {
+        this.game = g;
+        this.area = new Area();
+        if (fogRenderService == null) {
+            fogRenderService = Handler.newMinSizeCachedThreadPool(4);
+        }
     }
 
     @Override

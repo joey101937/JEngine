@@ -16,6 +16,7 @@ import java.util.List;
  * @author guydu
  */
 public class ReinforcementTypeInfantry extends ReinforcementType {
+    private static final long serialVersionUID = 1L;
 
     public ReinforcementTypeInfantry() {
         this.name = "Infantry";
@@ -24,6 +25,12 @@ public class ReinforcementTypeInfantry extends ReinforcementType {
         infoLines.add("Core boots on the ground");
         contents.put(Rifleman.class, 16);
         contents.put(Bazookaman.class, 4);
+    }
+
+    @Override
+    protected void restoreTransientFields() {
+        this.icon = RTSAssetManager.layMineButton;
+        this.hoverIcon = RTSAssetManager.layMineButtonHover;
     }
 
     @Override

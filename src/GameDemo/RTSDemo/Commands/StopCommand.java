@@ -10,13 +10,26 @@ import GameDemo.RTSDemo.RTSUnit;
  * @author guydu
  */
 public class StopCommand implements Command {
+    private static final long serialVersionUID = 1L;
+
     private final long executeTick;
-    private final RTSUnit subject;
+    private transient RTSUnit subject;
+    private String subjectID; // For serialization
     private boolean hasResolved = false;
-    
+
     public StopCommand (long t, RTSUnit subject) {
         this.executeTick = t;
         this.subject = subject;
+        this.subjectID = subject != null ? subject.ID : null;
+    }
+
+    /**
+     * Restore subject reference after deserialization
+     */
+    public void resolveSubject(Framework.Game game) {
+        if (subject == null && subjectID != null) {
+            subject = (RTSUnit) game.getObjectById(subjectID);
+        }
     }
     
     @Override

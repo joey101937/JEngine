@@ -8,6 +8,7 @@ import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.Units.LightTank;
 
 public class ReinforcementTypeLightTanks extends ReinforcementType {
+    private static final long serialVersionUID = 1L;
 
     public ReinforcementTypeLightTanks() {
         this.name = "Light Tanks";
@@ -16,6 +17,12 @@ public class ReinforcementTypeLightTanks extends ReinforcementType {
         infoLines.add("Maneuverable tanks");
         infoLines.add("Can lay landmines. Medium-Fast Speed.");
         contents.put(LightTank.class, 5);
+    }
+
+    @Override
+    protected void restoreTransientFields() {
+        this.icon = RTSAssetManager.layMineButton;
+        this.hoverIcon = RTSAssetManager.layMineButtonHover;
     }
 
     @Override

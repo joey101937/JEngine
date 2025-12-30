@@ -4,7 +4,7 @@ package GameDemo.RTSDemo.Commands;
  *
  * @author guydu
  */
-public interface Command extends Comparable<Command> {
+public interface Command extends Comparable<Command>, java.io.Serializable {
     /**
      * @return what tick to execute the command on
      */

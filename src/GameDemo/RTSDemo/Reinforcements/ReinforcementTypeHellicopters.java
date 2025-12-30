@@ -9,7 +9,8 @@ import GameDemo.RTSDemo.Units.Hellicopter;
 
 
 public class ReinforcementTypeHellicopters extends ReinforcementType{
-    
+    private static final long serialVersionUID = 1L;
+
     public ReinforcementTypeHellicopters(){
         this.name = "Attack Hellicopters";
         this.icon = RTSAssetManager.layMineButton;
@@ -17,6 +18,12 @@ public class ReinforcementTypeHellicopters extends ReinforcementType{
         infoLines.add("Air Strike");
         infoLines.add("Fast attack fliers. Can only be attacked by units with anti-air capabilities");
         contents.put(Hellicopter.class, 5);
+    }
+
+    @Override
+    protected void restoreTransientFields() {
+        this.icon = RTSAssetManager.layMineButton;
+        this.hoverIcon = RTSAssetManager.layMineButtonHover;
     }
 
     @Override

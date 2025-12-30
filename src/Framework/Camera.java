@@ -15,7 +15,9 @@ import java.awt.Rectangle;
  * Controls the viewing frame location for the user
  * @author joey
  */
-public class Camera {
+public class Camera implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
+
     /**Topleft coordinate of the rendering window relative to topleft of canvas NOTE this will be negative*/
     public DCoordinate location = new DCoordinate(0,0); //location of camera, 0,0 is top left. NOTE these will be negative
     public int camSpeed = 3;//how fast the camera moves
@@ -23,10 +25,10 @@ public class Camera {
     public GameObject2.MovementType movementType = GameObject2.MovementType.SpeedRatio;
     public boolean disableMovement = false;
     public int tickNumber = 0; //for debug usage
-    public Game hostGame;
+    public transient Game hostGame;
     private boolean trackingGameObject = false; //weather or not the camera is free or if the camera is tracking a target object
-    private GameObject2 target = null;
-    private DCoordinate renderLocation = new DCoordinate(0,0);
+    private transient GameObject2 target = null;
+    private transient DCoordinate renderLocation = new DCoordinate(0,0);
     
     
     /**
@@ -66,6 +68,18 @@ public class Camera {
 
     public Camera(Game g) {
         hostGame = g;
+    }
+
+    /**
+     * Restores transient fields after deserialization
+     */
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        this.renderLocation = new DCoordinate(0, 0);
+        // hostGame will be set by Game's post-deserialization
+        // Reset tracking since target is transient
+        this.trackingGameObject = false;
+        this.target = null;
     }
     
     public DCoordinate getRenderLocation() {

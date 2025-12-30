@@ -21,16 +21,18 @@ import java.util.concurrent.Future;
  *
  * @author guydu
  */
-public class OccupationMap {
-    public static ExecutorService occupationService = Executors.newFixedThreadPool(200);
-    
+public class OccupationMap implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
+
+    public static transient ExecutorService occupationService = Executors.newFixedThreadPool(200);
+
     private int padding;
     private String commandGroup;
     private int team;
     private int plane;
     private TileMap tileMap;
     private int tileSize;
-    
+
     public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
     
     public Coordinate getGridLocationOf(Coordinate input) {
@@ -40,6 +42,11 @@ public class OccupationMap {
     }
     
     public void updateOccupationMap(Game game) {
+        // Reinitialize ExecutorService if needed (after deserialization)
+        if (occupationService == null) {
+            occupationService = Executors.newFixedThreadPool(200);
+        }
+
         occupiedMap.clear();
         Collection<Future<?>> occupationTasks = new LinkedList<>();
         Tile[][] tileGrid = tileMap.tileGrid;

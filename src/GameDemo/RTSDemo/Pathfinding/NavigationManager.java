@@ -29,13 +29,14 @@ import java.util.concurrent.Future;
  * @author guydu
  */
 public class NavigationManager extends IndependentEffect {
+    private static final long serialVersionUID = 1L;
 
     public static int updateInterval = Main.ticksPerSecond / 10;
-    public static ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
+    public static transient ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
     public static int maxCalculationDistance = 1400;
     public static String SEPERATOR_GROUP = "seperator";
 
-    public Game game;
+    public transient Game game;
     public TileMap tileMapNormal;
     public TileMap tileMapFine;
     public TileMap tileMapLarge;
@@ -47,6 +48,32 @@ public class NavigationManager extends IndependentEffect {
         tileMapFine = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeFine);
         tileMapLarge = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeLarge);
         tileMapGiantTerrain = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeGiantTerrain);
+    }
+
+    @Override
+    public void onPostDeserialization(Game g) {
+        this.game = g;
+        if (unitPathingService == null) {
+            unitPathingService = Executors.newFixedThreadPool(200);
+        }
+
+        // Update the static reference so RTSGame can access this instance
+        updateStaticReference();
+    }
+
+    /**
+     * Updates the static reference in RTSGame to point to this instance.
+     * Called after deserialization.
+     */
+    private void updateStaticReference() {
+        try {
+            Class<?> rtsGameClass = Class.forName("GameDemo.RTSDemo.RTSGame");
+            java.lang.reflect.Field navigationManagerField = rtsGameClass.getDeclaredField("navigationManager");
+            navigationManagerField.setAccessible(true);
+            navigationManagerField.set(null, this);
+        } catch (Exception e) {
+            System.err.println("Could not update NavigationManager static reference: " + e.getMessage());
+        }
     }
 
     @Override

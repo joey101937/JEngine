@@ -10,15 +10,22 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class KeyBuildingRingEffect extends IndependentEffect {
-    private Game game;
-    
+    private static final long serialVersionUID = 1L;
+
+    private transient Game game;
+
     @Override
     public int getZLayer() {
         return -200;
     }
-    
+
     public KeyBuildingRingEffect (Game g) {
         game = g;
+    }
+
+    @Override
+    public void onPostDeserialization(Game g) {
+        this.game = g;
     }
 
     @Override

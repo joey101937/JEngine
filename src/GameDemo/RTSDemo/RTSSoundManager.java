@@ -71,7 +71,7 @@ public class RTSSoundManager {
         if (createdSoundManager == null) {
             createdSoundManager = create();
         }
-            
+
         return createdSoundManager;
     }
 }

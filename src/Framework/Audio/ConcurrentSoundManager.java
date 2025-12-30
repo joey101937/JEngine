@@ -18,20 +18,21 @@ import java.util.HashMap;
  * @author guydu
  */
 public class ConcurrentSoundManager extends IndependentEffect {
+    private static final long serialVersionUID = 1L;
 
     private long tickNumber = 0;
-    public HashMap<String, SoundEffectProfile> effectMap = new HashMap<>();
+    public transient HashMap<String, SoundEffectProfile> effectMap = new HashMap<>();
     /**
      * Internal class that maintains the state and configuration for a
      * registered sound effect.
      */
     private static class SoundEffectProfile {
 
-        public SoundEffect soundEffect;
+        public transient SoundEffect soundEffect;
         private int numPlaying = 0;
         public int maxConcurrent = 100;
         public int duration = Main.ticksPerSecond;
-        private final ArrayList<Long> decrementTicks = new ArrayList<>();
+        private final transient ArrayList<Long> decrementTicks = new ArrayList<>();
 
         public SoundEffectProfile(SoundEffect se, int maxConcurrent, int duration) {
             this.soundEffect = se;
@@ -54,6 +55,17 @@ public class ConcurrentSoundManager extends IndependentEffect {
         public int getNumPlaying () {
             return numPlaying;
         }
+    }
+
+    @Override
+    public boolean shouldSerialize() {
+        // Don't serialize - this is typically a singleton managed by project code
+        return false;
+    }
+
+    @Override
+    public void onPostDeserialization(Framework.Game game) {
+        // Not called since we don't serialize
     }
 
     @Override

@@ -1085,7 +1085,7 @@ public class Game implements Runnable {
      * this will render when the isLoadingScreenActive property is true
      * @param cons function that accepts a Graphics2D object
      */
-    public void setLoadScreenRender(Consumer<Graphics2D> cons) {
+     public void setLoadScreenRender(Consumer<Graphics2D> cons) {
         loadingScreenRender = cons;
     }
 

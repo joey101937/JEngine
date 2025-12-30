@@ -25,18 +25,62 @@ import java.util.Set;
  * @author Joseph
  */
 public class SelectionBoxEffect extends IndependentEffect {
-    
-    private Game game;
+    private static final long serialVersionUID = 1L;
+
+    private transient Game game;
 
     public static Set<RTSUnit> selectedUnits = new HashSet<>();
     public static final Color uncontrollableColor = new Color(.5f, .5f, .5f, .8f);
     public static final Color selectionColor = new Color(0f, 1f, 0f, .8f);
     private static Rectangle selectionZone = null;
-    private Stroke stroke3 = new BasicStroke(3);
-    private Stroke stroke1 = new BasicStroke(1);
+    private transient Stroke stroke3 = new BasicStroke(3);
+    private transient Stroke stroke1 = new BasicStroke(1);
+
+    // For serialization: store selected unit IDs
+    private HashSet<String> selectedUnitIDsForSerialization = new HashSet<>();
 
     public SelectionBoxEffect(Game g) {
         game = g;
+    }
+
+    /**
+     * Called before serialization to save selected unit IDs
+     */
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+        // Save selected unit IDs before serialization
+        selectedUnitIDsForSerialization.clear();
+        for (RTSUnit unit : selectedUnits) {
+            if (unit.ID != null) {
+                selectedUnitIDsForSerialization.add(unit.ID);
+            }
+        }
+        out.defaultWriteObject();
+    }
+
+    /**
+     * Called after deserialization to restore transient fields and selections
+     */
+    @Override
+    public void onPostDeserialization(Game g) {
+        // Restore game reference
+        this.game = g;
+
+        // Restore transient fields
+        stroke3 = new BasicStroke(3);
+        stroke1 = new BasicStroke(1);
+
+        // Restore selections by finding units with matching IDs
+        selectedUnits.clear();
+        if (game != null && selectedUnitIDsForSerialization != null) {
+            for (GameObject2 obj : game.getAllObjects()) {
+                if (obj instanceof RTSUnit unit && obj.ID != null) {
+                    if (selectedUnitIDsForSerialization.contains(obj.ID)) {
+                        unit.setSelected(true);
+                        selectedUnits.add(unit);
+                    }
+                }
+            }
+        }
     }
 
     @Override

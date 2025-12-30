@@ -10,18 +10,31 @@ import GameDemo.RTSDemo.RTSUnit;
  * @author guydu
  */
 public class MoveCommand implements Command{
+    private static final long serialVersionUID = 1L;
+
     private long executeTick;
-    private RTSUnit subject;
+    private transient RTSUnit subject;
+    private String subjectID; // For serialization
     private Coordinate target;
     private String commandGroup;
     private boolean hasResolved = false;
-    
+
     public MoveCommand(long executeTick, RTSUnit subject, Coordinate target, String commandGroup) {
         this.executeTick = executeTick;
         this.subject = subject;
+        this.subjectID = subject != null ? subject.ID : null;
         this.target = target;
         this.commandGroup = commandGroup;
         System.out.println("move command created " + executeTick);
+    }
+
+    /**
+     * Restore subject reference after deserialization
+     */
+    public void resolveSubject(Framework.Game game) {
+        if (subject == null && subjectID != null) {
+            subject = (RTSUnit) game.getObjectById(subjectID);
+        }
     }
     
     @Override

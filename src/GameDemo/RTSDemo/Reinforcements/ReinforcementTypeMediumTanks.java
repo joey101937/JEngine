@@ -9,7 +9,8 @@ import GameDemo.RTSDemo.Units.TankUnit;
 
 
 public class ReinforcementTypeMediumTanks extends ReinforcementType{
-    
+    private static final long serialVersionUID = 1L;
+
     public ReinforcementTypeMediumTanks(){
         this.name = "Medium Tanks";
         this.icon = RTSAssetManager.layMineButton;
@@ -17,6 +18,12 @@ public class ReinforcementTypeMediumTanks extends ReinforcementType{
         infoLines.add("Strong open-field combatants");
         infoLines.add("Can dig-in for extra defense. Medium Speed.");
         contents.put(TankUnit.class, 5);
+    }
+
+    @Override
+    protected void restoreTransientFields() {
+        this.icon = RTSAssetManager.layMineButton;
+        this.hoverIcon = RTSAssetManager.layMineButtonHover;
     }
 
     @Override

@@ -19,10 +19,18 @@ import java.util.List;
  * @author guydu
  */
 public class SelectionBoxEffectAir extends IndependentEffect {
-    private Game game;
-    
+    private static final long serialVersionUID = 1L;
+
+    private transient Game game;
+
     public SelectionBoxEffectAir(Game g) {
         game = g;
+    }
+
+    @Override
+    public void onPostDeserialization(Game g) {
+        // Restore game reference
+        this.game = g;
     }
     
     @Override
