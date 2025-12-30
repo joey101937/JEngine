@@ -46,6 +46,19 @@ public interface Command extends Comparable<Command>, java.io.Serializable {
         if (tickComparison != 0) {
             return tickComparison;
         }
-        return this.getSubjectId().compareTo(other.getSubjectId());
+
+        // Handle null subject IDs
+        String thisId = this.getSubjectId();
+        String otherId = other.getSubjectId();
+        if (thisId == null && otherId == null) {
+            return 0;
+        }
+        if (thisId == null) {
+            return -1;
+        }
+        if (otherId == null) {
+            return 1;
+        }
+        return thisId.compareTo(otherId);
     }
 }

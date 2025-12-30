@@ -46,7 +46,7 @@ public class MinimapListener extends MinimapMouseListener {
                 selectedUnits.forEach(unit -> {
                     RTSGame.commandHandler.addCommand(new MoveCommand(
                             hostGame.getGameTickNumber() + RTSInput.inputDelay,
-                            unit,
+                            unit.ID,
                             inWorldLocation,
                             generatedCommandGroup
                     ), true);
@@ -56,7 +56,7 @@ public class MinimapListener extends MinimapMouseListener {
                  selectedUnits.forEach(unit -> {
                      RTSGame.commandHandler.addCommand(new MoveCommand(
                             hostGame.getGameTickNumber() + RTSInput.inputDelay,
-                            unit,
+                            unit.ID,
                             (unit.getPixelLocation().subtract(avgLocation)).add(inWorldLocation),
                              generatedCommandGroup
                      ), true);

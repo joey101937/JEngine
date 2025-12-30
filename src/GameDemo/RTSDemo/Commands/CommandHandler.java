@@ -29,17 +29,6 @@ public class CommandHandler extends IndependentEffect{
         this.game = g;
         this.addQueue = new ArrayList<>();
 
-        // Resolve unit references in all commands
-        for (ArrayList<Command> commandList : commandMap.values()) {
-            for (Command cmd : commandList) {
-                if (cmd instanceof MoveCommand) {
-                    ((MoveCommand) cmd).resolveSubject(g);
-                } else if (cmd instanceof StopCommand) {
-                    ((StopCommand) cmd).resolveSubject(g);
-                }
-            }
-        }
-
         // Update the static reference so RTSInput can access this instance
         updateStaticReference();
     }

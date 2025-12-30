@@ -11,23 +11,12 @@ public class StopCommand implements Command {
     private static final long serialVersionUID = 1L;
 
     private final long executeTick;
-    private transient RTSUnit subject;
-    private String subjectID; // For serialization
+    private String subjectID;
     private boolean hasResolved = false;
 
-    public StopCommand (long t, RTSUnit subject) {
+    public StopCommand (long t, String subjectID) {
         this.executeTick = t;
-        this.subject = subject;
-        this.subjectID = subject != null ? subject.ID : null;
-    }
-
-    /**
-     * Restore subject reference after deserialization
-     */
-    public void resolveSubject(Framework.Game game) {
-        if (subject == null && subjectID != null) {
-            subject = (RTSUnit) game.getObjectById(subjectID);
-        }
+        this.subjectID = subjectID;
     }
     
     @Override
@@ -37,11 +26,16 @@ public class StopCommand implements Command {
 
     @Override
     public String getSubjectId() {
-        return this.subject.ID;
+        return this.subjectID;
     }
 
     @Override
     public boolean execute() {
+        RTSUnit subject = (RTSUnit) Window.currentGame.getObjectById(subjectID);
+        if (subject == null) {
+            System.out.println("ERROR: unable to execute stop command - unit not found: " + subjectID);
+            return true; // Mark as resolved so we don't keep trying
+        }
         subject.setDesiredLocation(subject.getPixelLocation());
         subject.setCommandGroup("0");
         return true;
@@ -49,7 +43,7 @@ public class StopCommand implements Command {
 
     @Override
     public String toMpString() {
-        return "s:" + subject.ID + "," + executeTick;
+        return "s:" + subjectID + "," + executeTick;
     }
 
     @Override
@@ -65,11 +59,7 @@ public class StopCommand implements Command {
     public static StopCommand generateFromMpString(String s) {
         var components = s.substring(2).split(",");
         String unitId = components[0];
-        long executeTick = Long.parseLong(components[1]); // this is when the input was actually done
-        RTSUnit subject = (RTSUnit) Window.currentGame.getObjectById(unitId);
-        if(subject == null) {
-            System.out.println("ERROR: unable to find unit by id " + unitId);
-        }
-        return new StopCommand(executeTick, subject);
+        long executeTick = Long.parseLong(components[1]);
+        return new StopCommand(executeTick, unitId);
     }
 }

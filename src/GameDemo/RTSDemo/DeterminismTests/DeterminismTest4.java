@@ -9,6 +9,7 @@ import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.RTSUnitIdHelper;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import java.util.List;
 
@@ -22,6 +23,9 @@ public class DeterminismTest4 {
     } 
     
     public static List<String> run (boolean show) {
+        // Reset ID helper to ensure deterministic ID generation across test runs
+        RTSUnitIdHelper.reset();
+
         Game game = new Game(RTSAssetManager.grassBG);
         RTSGame.game = game;
         Main.setRandomSeed(10);

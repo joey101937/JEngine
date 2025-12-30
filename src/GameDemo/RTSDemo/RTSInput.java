@@ -139,7 +139,7 @@ public class RTSInput extends InputHandler {
                     }
                     RTSGame.commandHandler.addCommand(new MoveCommand(
                             hostGame.getGameTickNumber() + inputDelay,
-                            u,
+                            u.ID,
                             locationOfMouseEvent,
                             generatedCommandGroup
                     ), true);
@@ -160,7 +160,7 @@ public class RTSInput extends InputHandler {
                     long originalTick = hostGame.handler.globalTickNumber;
                     RTSGame.commandHandler.addCommand(new MoveCommand(
                             hostGame.getGameTickNumber() + inputDelay,
-                            u,
+                            u.ID,
                             targetOffset,
                             generatedCommandGroup
                     ), true);
@@ -324,7 +324,7 @@ public class RTSInput extends InputHandler {
                     }
                     RTSGame.commandHandler.addCommand(new StopCommand(
                             hostGame.getGameTickNumber() + inputDelay,
-                            u
+                            u.ID
                     ), true);
                 }
             }
