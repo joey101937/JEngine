@@ -7,6 +7,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
+import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
@@ -38,8 +39,8 @@ public class Rifleman extends RTSUnit {
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryRifleDead, .8);
     public static final Damage staticDamage = new Damage(6);
     public static final int attackFrequency = 1;
-    
-    public boolean attackCoolingDown = false;
+
+    public long attackCooldownExpiresAtTick = 0;
     public Damage damage = staticDamage.copy(this);
 
     static {
@@ -74,7 +75,29 @@ public class Rifleman extends RTSUnit {
         this.minSpeedMultiplier = .8;
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;
+        initializeButtons();
+    }
+
+    private void initializeButtons() {
         addButton(new InfantryButton(this));
+    }
+
+    @Override
+    public void setHostGame(Framework.Game g) {
+        super.setHostGame(g);
+        // Restore graphics after deserialization
+        if (g != null && getGraphic() == null) {
+            this.setGraphic(baseSprite);
+            if (turret != null) {
+                turret.setGraphic(turret.getIdleAnimation());
+            }
+        }
+        // Restore button transient fields after deserialization
+        if (g != null) {
+            for (CommandButton button : getButtons()) {
+                button.restoreTransientFields();
+            }
+        }
     }
 
     @Override
@@ -90,6 +113,12 @@ public class Rifleman extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+
+        // Check attack cooldown expiration
+        if (attackCooldownExpiresAtTick > 0 && tickNumber >= attackCooldownExpiresAtTick) {
+            attackCooldownExpiresAtTick = 0;
+        }
+
         if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
             Sequence runInstance = runningSequence.copyMaintainSource();
             runInstance.advanceMs((int) (Math.random() * 1000));
@@ -107,11 +136,11 @@ public class Rifleman extends RTSUnit {
     }
 
     public void fire(RTSUnit target) {
-        if (attackCoolingDown || Math.abs(turret.rotationNeededToFace(target.getPixelLocation())) > 1) {
+        if (attackCooldownExpiresAtTick > 0 || Math.abs(turret.rotationNeededToFace(target.getPixelLocation())) > 1) {
             return;
         }
-        attackCoolingDown = true;
-       
+        attackCooldownExpiresAtTick = tickNumber + (Main.ticksPerSecond * attackFrequency);
+
             if (isOnScreen()) {
                  RTSSoundManager.get().play(
                          RTSSoundManager.RIFLEMAN_ATTACK,
@@ -127,9 +156,6 @@ public class Rifleman extends RTSUnit {
         damage.launchLocation = getPixelLocation();
         damage.impactLoaction = getPixelLocation();
         target.takeDamage(damage);
-        addTickDelayedEffect(Main.ticksPerSecond * attackFrequency, c -> {
-            this.attackCoolingDown = false;
-        });
     }
 
     @Override

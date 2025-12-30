@@ -15,6 +15,7 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.DigInButton;
 import GameDemo.RTSDemo.Buttons.DigOutButton;
 import GameDemo.RTSDemo.Buttons.FrontalArmorButton;
+import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
@@ -39,12 +40,17 @@ public class TankUnit extends RTSUnit {
 
     public Turret turret;
     public final static double VISUAL_SCALE = 1.10;
-    public boolean weaponOnCooldown = false;
+    public long weaponCooldownExpiresAtTick = 0;
     public boolean sandbagActive = false;
     public int sandbagUsesRemaining = 2;
     public Sandbag sandbag = new Sandbag(this);
-    public DigInButton digInButton = new DigInButton(this);
-    public DigOutButton digOutButton = new DigOutButton(this);
+    public DigInButton digInButton;
+    public DigOutButton digOutButton;
+
+    // State tracking for in-progress actions (survives serialization)
+    private boolean isDiggingIn = false;
+    private boolean isDiggingOut = false;
+    private long digActionStartTick = 0;
 
     // Modified buffered images for team color
     public static BufferedImage enemyTankChasisImage = RTSAssetManager.tankChasisRed;
@@ -161,8 +167,24 @@ public class TankUnit extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+
+        // Check weapon cooldown expiration
+        if (weaponCooldownExpiresAtTick > 0 && tickNumber >= weaponCooldownExpiresAtTick) {
+            weaponCooldownExpiresAtTick = 0;
+        }
+
         if (currentHealth > 0 && !isRubble) {
             this.setGraphic(getHullSprite());
+        }
+
+        // Check for in-progress dig actions
+        if (isDiggingIn && tickNumber >= digActionStartTick + (Main.ticksPerSecond * 5)) {
+            deploySandbagDirect();
+            isDiggingIn = false;
+        }
+        if (isDiggingOut && tickNumber >= digActionStartTick + (Main.ticksPerSecond * 5)) {
+            pickUpSandbag();
+            isDiggingOut = false;
         }
     }
 
@@ -199,7 +221,7 @@ public class TankUnit extends RTSUnit {
     private void init() {
         isSolid = true;
         preventOverlap = true;
-        setScale(VISUAL_SCALE); 
+        setScale(VISUAL_SCALE);
         Sprite chassSprite = getHullSprite();
         this.setGraphic(chassSprite);
         this.movementType = MovementType.RotationBased;
@@ -209,22 +231,46 @@ public class TankUnit extends RTSUnit {
         this.maxHealth = 210;//tanks can take 4 shots
         this.currentHealth = maxHealth;
         this.baseSpeed = speed;
+        initializeButtons();
+    }
+
+    private void initializeButtons() {
+        digInButton = new DigInButton(this);
+        digOutButton = new DigOutButton(this);
         addButton(digInButton);
         addButton(digOutButton);
         addButton(new FrontalArmorButton(this));
     }
 
-    //when a tank tries to fire, it first checks if its turret is still firing. 
+    @Override
+    public void setHostGame(Framework.Game g) {
+        super.setHostGame(g);
+        // Restore graphics after deserialization
+        if (g != null && getGraphic() == null) {
+            this.setGraphic(getHullSprite());
+            if (turret != null) {
+                turret.setGraphic(turret.getTurretSprite());
+            }
+            if (sandbag != null) {
+                sandbag.setGraphic(sandbagSprite);
+            }
+        }
+        // Restore button transient fields after deserialization
+        if (g != null) {
+            for (CommandButton button : getButtons()) {
+                button.restoreTransientFields();
+            }
+        }
+    }
+
+    //when a tank tries to fire, it first checks if its turret is still firing.
     //if not, tell the turret to fire at target location
     public void fire(Coordinate target) {
-        if (weaponOnCooldown || target.distanceFrom(getLocation()) < getHeight() * 3 / 5 || Math.abs(turret.rotationNeededToFace(target)) > 1) { //limited to one shot per 60 ticks
+        if (weaponCooldownExpiresAtTick > 0 || target.distanceFrom(getLocation()) < getHeight() * 3 / 5 || Math.abs(turret.rotationNeededToFace(target)) > 1) { //limited to one shot per 60 ticks
             return;
         }
-        weaponOnCooldown = true;
+        weaponCooldownExpiresAtTick = tickNumber + (int) (Main.ticksPerSecond * attackFrequency);
         turret.onFire(target);
-        this.addTickDelayedEffect((int) (Main.ticksPerSecond * attackFrequency), x -> {
-            weaponOnCooldown = false;
-        });
     }
 
     public class Turret extends SubObject {
@@ -459,15 +505,13 @@ public class TankUnit extends RTSUnit {
     
     public void startDeployingSandbags() {
         setImmobilized(true);
-        addTickDelayedEffect(Main.ticksPerSecond * 5, c -> {
-            this.deploySandbagDirect();
-        });
+        isDiggingIn = true;
+        digActionStartTick = tickNumber;
     }
-    
+
     public void startPickingUpSandbags() {
-        addTickDelayedEffect(Main.ticksPerSecond * 5, c -> {
-           pickUpSandbag();
-        });
+        isDiggingOut = true;
+        digActionStartTick = tickNumber;
     }
     
     public void deploySandbagDirect() {

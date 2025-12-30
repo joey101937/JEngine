@@ -39,12 +39,12 @@ public class PathingLayer {
     /**
      * represents a terrain type. To add your own custom terrain types, create
      * a class that extends this class, and then use assignColor method to link
-     * it to your pathing layer (Game.getPathingLayer). Note the color set in 
+     * it to your pathing layer (Game.getPathingLayer). Note the color set in
      * this class is used to desplay in debug mode and internally. The color you
      * link it to is used when parsing the source image to figure out what type
      * is where
      */
-    public static class Type{
+    public static class Type implements java.io.Serializable{
         /**
          * name of this type of terrain
          */

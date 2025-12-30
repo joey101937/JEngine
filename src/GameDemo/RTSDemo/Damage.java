@@ -2,7 +2,7 @@ package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
 
-public class Damage {
+public class Damage implements java.io.Serializable {
     public static String NORMAL_TYPE = "normal";
     
     

@@ -11,6 +11,7 @@ import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.InputHandler;
 import Framework.Main;
+import Framework.SerializationManager;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
@@ -389,6 +390,18 @@ public class RTSInput extends InputHandler {
             // Escape
             case 27 -> {
                 Window.setFullscreenWindowed(false);
+                return;
+            }
+            // F5 - Quick Save
+            case 116 -> {
+                System.out.println("Quick saving game...");
+                SerializationManager.quickSave(hostGame);
+                return;
+            }
+            // F9 - Quick Load
+            case 120 -> {
+                System.out.println("Quick loading game...");
+                SerializationManager.quickLoad(hostGame);
                 return;
             }
         }

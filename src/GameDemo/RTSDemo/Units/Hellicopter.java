@@ -55,6 +55,18 @@ public class Hellicopter extends RTSUnit {
     }
 
     @Override
+    public void setHostGame(Framework.Game g) {
+        super.setHostGame(g);
+        // Restore graphics after deserialization
+        if (g != null && getGraphic() == null) {
+            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            if (turret != null) {
+                turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            }
+        }
+    }
+
+    @Override
     public int getWidth() {
         if (isRubble) {
             return super.getWidth() / 2;

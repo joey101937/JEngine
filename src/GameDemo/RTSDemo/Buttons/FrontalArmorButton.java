@@ -15,12 +15,17 @@ public class FrontalArmorButton extends CommandButton{
         super(o);
         this.iconImage = RTSAssetManager.frontalArmorButton;
         this.hoveredImage = iconImage;
-        
+
         this.name = "Passive: Frontal Armor";
         this.isPassive = true;
         tooltipLines.add("Frontal armor decreases damage when hit from the front");
         tooltipLines.add("Subtracts 5 base damage from all sources in front of the tank");
     }
 
+    @Override
+    public void restoreTransientFields() {
+        this.iconImage = RTSAssetManager.frontalArmorButton;
+        this.hoveredImage = iconImage;
+    }
 
 }

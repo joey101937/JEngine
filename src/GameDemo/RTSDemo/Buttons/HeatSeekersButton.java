@@ -15,12 +15,17 @@ public class HeatSeekersButton extends CommandButton{
         super(o);
         this.iconImage = RTSAssetManager.heatSeekersButton;
         this.hoveredImage = iconImage;
-        
+
         this.name = "Passive: Heat Seekers";
         this.isPassive = true;
         tooltipLines.add("This unit has increased range and projectiles fired");
         tooltipLines.add("will follow vehicular targets");
     }
 
+    @Override
+    public void restoreTransientFields() {
+        this.iconImage = RTSAssetManager.heatSeekersButton;
+        this.hoveredImage = iconImage;
+    }
 
 }

@@ -12,17 +12,17 @@ import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 
 /**
- * Hitbox class represents either a 2D polygon or circle in the world, able to 
+ * Hitbox class represents either a 2D polygon or circle in the world, able to
  * detect when they intersect eachother and are therefore used for collision detection
  * Hitboxes are either standalone or attached to gameobject2s.
- * 
+ *
  * polygonal hitboxes take 4 coordinate vertices. these are offsets if connected to a gameobject or raw locations if not
  * circular hitboxes take only a radius parameter.
- * 
+ *
  * PERFORMANCE NOTE: Circular hitboxes are significantly faster to process than polygonal
  * @author joey
  */
-public class Hitbox {
+public class Hitbox implements java.io.Serializable {
 
     public void setVertices(Coordinate[] verts) {
         this.vertices = verts;
@@ -32,7 +32,7 @@ public class Hitbox {
         box, circle
     };
     public GameObject2 host;
-    public Game hostGame;
+    public transient Game hostGame;
     public Type type = box;
     private double rotation = 0;
     private  DCoordinate staticCenter = new DCoordinate(0, 0); //center point for if there is no host

@@ -10,6 +10,7 @@ import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.LayMineButton;
+import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -54,7 +55,7 @@ public class LightTank extends RTSUnit {
 
     // instance fields
     public LightTankTurret turret;
-    public boolean barrelCoolingDown = false;
+    public long barrelCooldownExpiresAtTick = 0;
 
     public LightTank(int x, int y, int team) {
         super(x, y, team);
@@ -68,7 +69,29 @@ public class LightTank extends RTSUnit {
         this.setHitbox(new Hitbox(this, getWidth() / 2));
         this.range = 500;
         this.baseSpeed = speed;
+        initializeButtons();
+    }
+
+    private void initializeButtons() {
         addButton(new LayMineButton(this));
+    }
+
+    @Override
+    public void setHostGame(Framework.Game g) {
+        super.setHostGame(g);
+        // Restore graphics after deserialization
+        if (g != null && getGraphic() == null) {
+            this.setGraphic(getHullSprite());
+            if (turret != null) {
+                turret.setGraphic(turret.getTurretSprite());
+            }
+        }
+        // Restore button transient fields after deserialization
+        if (g != null) {
+            for (CommandButton button : getButtons()) {
+                button.restoreTransientFields();
+            }
+        }
     }
 
     @Override
@@ -85,12 +108,18 @@ public class LightTank extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+
+        // Check barrel cooldown expiration
+        if (barrelCooldownExpiresAtTick > 0 && tickNumber >= barrelCooldownExpiresAtTick) {
+            barrelCooldownExpiresAtTick = 0;
+        }
+
         if (isRubble) {
             return;
         }
         populateNearbyEnemies();
         currentTarget = nearestEnemyGroundUnit;
-        if (currentTarget != null && turret.rotationNeededToFace(currentTarget.getPixelLocation()) < 1 && !barrelCoolingDown) {
+        if (currentTarget != null && turret.rotationNeededToFace(currentTarget.getPixelLocation()) < 1 && barrelCooldownExpiresAtTick == 0) {
             fire(currentTarget);
         }
         setGraphic(getHullSprite());
@@ -111,7 +140,7 @@ public class LightTank extends RTSUnit {
     }
 
     public void fire(RTSUnit target) {
-        barrelCoolingDown = true;
+        barrelCooldownExpiresAtTick = tickNumber + (int) (Main.ticksPerSecond * attackInterval);
         playAttackSound();
         turret.setGraphic(getFireSequence());
         Coordinate muzzelLocation = new Coordinate(0, 0);
@@ -122,9 +151,6 @@ public class LightTank extends RTSUnit {
         LightTankBullet bullet = new LightTankBullet(muzzelLocation.toDCoordinate(), target.getLocationAsOfLastTick().add(randomOffset));
         bullet.shooter = this;
         getHostGame().addObject(bullet);
-        addTickDelayedEffect((int) (Main.ticksPerSecond * attackInterval), c -> {
-            this.barrelCoolingDown = false;
-        });
     }
 
     public Sequence getFireSequence() {

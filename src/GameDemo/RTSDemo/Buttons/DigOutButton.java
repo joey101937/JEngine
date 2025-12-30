@@ -26,18 +26,30 @@ public class DigOutButton extends CommandButton {
             if(!isDisabled) {
                 this.setDisabled(true);
                 tickLastUsed = tickNumber;
-                TankUnit host = (TankUnit) o;
+                TankUnit host = (TankUnit) owner;
                 host.startPickingUpSandbags();
             }
         };
     }
-    
-    
+
+    @Override
+    public void restoreTransientFields() {
+        this.iconImage = RTSAssetManager.digOutButton;
+        this.onTrigger = c -> {
+            if(!isDisabled) {
+                this.setDisabled(true);
+                tickLastUsed = tickNumber;
+                TankUnit host = (TankUnit) owner;
+                host.startPickingUpSandbags();
+            }
+        };
+    }
+
     @Override
     public void tick() {
         super.tick();
         TankUnit tank = (TankUnit) owner;
         isDisabled = isOnCooldown() || !tank.sandbagActive;
     }
-    
+
 }

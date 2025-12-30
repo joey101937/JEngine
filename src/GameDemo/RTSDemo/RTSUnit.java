@@ -71,7 +71,7 @@ public class RTSUnit extends GameObject2 {
     public int maxSpeedDistance = 120; // Distance at which speed reaches maximum
     public double accellerationFloor = 1; // when accellerating away from start location, this is limit for how slow it can go
     public double minSpeedMultiplier = 0.5; // Minimum speed multiplier (50%)
-    
+
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
 

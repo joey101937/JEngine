@@ -10,19 +10,19 @@ import java.util.function.Consumer;
  *
  * @author guydu
  */
-public class CommandButton {
+public class CommandButton implements java.io.Serializable {
     public int numUsesRemaining = -1;
     public int cooldownPercent = 0; // 100 is fully on cooldown
     public double cooldownSeconds = 0;
     public long tickNumber = 0;
     public long tickLastUsed = 0;
     public boolean isPassive = true;
-    public BufferedImage iconImage;
-    public BufferedImage hoveredImage;
-    public BufferedImage disabledImage;
+    public transient BufferedImage iconImage;
+    public transient BufferedImage hoveredImage;
+    public transient BufferedImage disabledImage;
     public String name;
     public ArrayList<String> tooltipLines = new ArrayList<>();
-    public Consumer onTrigger;
+    public transient Consumer onTrigger;
     public RTSUnit owner;
     public boolean isDisabled = false;
     
@@ -45,5 +45,13 @@ public class CommandButton {
             double percentDone = Math.min((tickNumber-tickLastUsed)/cooldownTicks, 1) * 100;
             this.cooldownPercent = 100-(int)percentDone;
         }
+    }
+
+    /**
+     * Restores transient fields after deserialization
+     * Should be overridden by subclasses to restore their specific images and lambdas
+     */
+    public void restoreTransientFields() {
+        // Override in subclasses
     }
 }

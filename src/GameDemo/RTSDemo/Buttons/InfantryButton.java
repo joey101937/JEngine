@@ -15,7 +15,7 @@ public class InfantryButton extends CommandButton{
         super(o);
         this.iconImage = RTSAssetManager.infantryHelmetButton;
         this.hoveredImage = iconImage;
-        
+
         this.name = "Passive: Infantry";
         this.isPassive = true;
         tooltipLines.add("This unit is infantry. It has a longer vision radius, can");
@@ -23,5 +23,10 @@ public class InfantryButton extends CommandButton{
         tooltipLines.add("in some terrain features ");
     }
 
+    @Override
+    public void restoreTransientFields() {
+        this.iconImage = RTSAssetManager.infantryHelmetButton;
+        this.hoveredImage = iconImage;
+    }
 
 }

@@ -303,21 +303,21 @@ public class NavigationManager extends IndependentEffect {
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, (int) (self.getWidth() * .75)), pathingSignature)) {
 //            if(self.isSelected()) System.out.println("using far limit");
-            var smothened = path.subList(farLimit, path.size() - 1);
+            var smothened = new ArrayList<>(path.subList(farLimit, path.size() - 1));
             if(smothened.isEmpty()) smothened.add(path.getLast());
             return smothened;
         }
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, (int) (self.getWidth() * .75)), pathingSignature)) {
 //            if(self.isSelected()) System.out.println("using med limit");
-            var smothened = path.subList(medLimit, path.size() - 1);
+            var smothened = new ArrayList<>(path.subList(medLimit, path.size() - 1));
             if(smothened.isEmpty()) smothened.add(path.getLast());
             return smothened;
         }
 
         if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, (int) (self.getWidth() * .75)), pathingSignature)) {
 //            if(self.isSelected()) System.out.println("using near limit");
-            var smothened = path.subList(nearLimit, path.size() - 1);
+            var smothened = new ArrayList<>(path.subList(nearLimit, path.size() - 1));
             if(smothened.isEmpty()) smothened.add(path.getLast());
             return smothened;
         }

@@ -8,6 +8,7 @@ import Framework.Main;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.HeatSeekersButton;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
+import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -36,7 +37,9 @@ public class Bazookaman extends RTSUnit {
     public static final Sprite corpseSprite = new Sprite(RTSAssetManager.infantryBazookaDead);
     public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryBazookaDeadRed);
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryBazookaDead, .8);
-    public boolean attackCoolingDown = false;
+    public long attackCooldownExpiresAtTick = 0;
+    public long pendingBulletSpawnAtTick = 0;
+    public RTSUnit pendingBulletTarget = null;
     public static final double attackInterval = 3;
 
     static {
@@ -75,8 +78,30 @@ public class Bazookaman extends RTSUnit {
         this.minSpeedMultiplier = .8;
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;
+        initializeButtons();
+    }
+
+    private void initializeButtons() {
         addButton(new HeatSeekersButton(this));
         addButton(new InfantryButton(this));
+    }
+
+    @Override
+    public void setHostGame(Framework.Game g) {
+        super.setHostGame(g);
+        // Restore graphics after deserialization
+        if (g != null && getGraphic() == null) {
+            this.setGraphic(baseSprite);
+            if (turret != null) {
+                turret.setGraphic(turret.getIdleAnimation());
+            }
+        }
+        // Restore button transient fields after deserialization
+        if (g != null) {
+            for (CommandButton button : getButtons()) {
+                button.restoreTransientFields();
+            }
+        }
     }
 
     @Override
@@ -92,6 +117,23 @@ public class Bazookaman extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+
+        // Check attack cooldown expiration
+        if (attackCooldownExpiresAtTick > 0 && tickNumber >= attackCooldownExpiresAtTick) {
+            attackCooldownExpiresAtTick = 0;
+        }
+
+        // Check for pending bullet spawn
+        if (pendingBulletSpawnAtTick > 0 && tickNumber >= pendingBulletSpawnAtTick) {
+            if (pendingBulletTarget != null && getHostGame() != null) {
+                Coordinate offset = new Coordinate(5, -30);
+                offset.adjustForRotation(turret.getRotation());
+                getHostGame().addObject(new BazookaBullet(this, getPixelLocation().copy().add(offset), pendingBulletTarget));
+            }
+            pendingBulletSpawnAtTick = 0;
+            pendingBulletTarget = null;
+        }
+
         if(isRubble && this.turret.getRenderOpacity() > 0) {
                 this.turret.setRenderOpacity(turret.getRenderOpacity() - (1f/(Main.ticksPerSecond*5)));
         }
@@ -107,10 +149,11 @@ public class Bazookaman extends RTSUnit {
     }
 
     public void fire(RTSUnit target) {
-        if (attackCoolingDown || Math.abs(turret.rotationNeededToFace(target.getPixelLocation())) > 1) {
+        if (attackCooldownExpiresAtTick > 0 || Math.abs(turret.rotationNeededToFace(target.getPixelLocation())) > 1) {
             return;
         }
-        attackCoolingDown = true;
+        attackCooldownExpiresAtTick = tickNumber + (int) (Main.ticksPerSecond * attackInterval);
+
         if (isOnScreen()) {
             RTSSoundManager.get().play(
                 RTSSoundManager.BAZOOKA_ATTACK,
@@ -123,14 +166,10 @@ public class Bazookaman extends RTSUnit {
                 Main.generateRandomIntLocally(0, 10));
         }
         turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
-        addTickDelayedEffect(25, c -> {
-            Coordinate offset = new Coordinate(5, -30);
-            offset.adjustForRotation(turret.getRotation());
-            getHostGame().addObject(new BazookaBullet(this, getPixelLocation().copy().add(offset), target));
-        });
-        addTickDelayedEffect((int) (Main.ticksPerSecond * attackInterval), c -> {
-            this.attackCoolingDown = false;
-        });
+
+        // Schedule bullet spawn after 25 ticks
+        pendingBulletSpawnAtTick = tickNumber + 25;
+        pendingBulletTarget = target;
     }
 
     @Override

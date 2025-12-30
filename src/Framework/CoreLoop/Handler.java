@@ -34,12 +34,12 @@ public class Handler implements Serializable{
                 new SynchronousQueue<Runnable>());
     }
 
-    protected ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
-    protected ExecutorService renderService = Main.renderThreadCount > 0
+    protected transient ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
+    protected transient ExecutorService renderService = Main.renderThreadCount > 0
             ? Executors.newFixedThreadPool(Main.renderThreadCount)
             : Executors.newFixedThreadPool(1);
-    protected ExecutorService renderServiceCached = this.newMinSizeCachedThreadPool(6);
-    protected ExecutorService syncService = Executors.newVirtualThreadPerTaskExecutor();
+    protected transient ExecutorService renderServiceCached = this.newMinSizeCachedThreadPool(6);
+    protected transient ExecutorService syncService = Executors.newVirtualThreadPerTaskExecutor();
 
     public Game hostGame;
     private LinkedList<GameObject2> toAdd = new LinkedList<>();
@@ -304,5 +304,18 @@ public class Handler implements Serializable{
     
     public void setQuadTreeBounds (int width, int height) {
         //update quad tree root to have these bounds
+    }
+
+    /**
+     * Reinitializes transient fields after deserialization
+     * This must be called after loading a Handler from disk
+     */
+    public void reinitializeTransientFields() {
+        this.tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
+        this.renderService = Main.renderThreadCount > 0
+                ? Executors.newFixedThreadPool(Main.renderThreadCount)
+                : Executors.newFixedThreadPool(1);
+        this.renderServiceCached = this.newMinSizeCachedThreadPool(6);
+        this.syncService = Executors.newVirtualThreadPerTaskExecutor();
     }
 }

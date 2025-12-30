@@ -75,6 +75,15 @@ public class KeyBuilding extends GameObject2 {
         this.setZLayer(5);
         allKeyBuildings.add(this);
     }
+
+    @Override
+    public void setHostGame(Framework.Game g) {
+        super.setHostGame(g);
+        // Restore graphics after deserialization
+        if (g != null && getGraphic() == null) {
+            this.setGraphic(mainSprite);
+        }
+    }
     
     @Override
     public void tick() {
@@ -165,10 +174,10 @@ public class KeyBuilding extends GameObject2 {
     }
     
     
-    public static class SpawnLocation {
+    public static class SpawnLocation implements java.io.Serializable {
         public Coordinate topLeft;
         public double rotation;
-        
+
         public SpawnLocation(Coordinate t, double r) {
             topLeft = t;
             rotation = r;

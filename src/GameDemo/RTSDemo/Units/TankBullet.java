@@ -52,6 +52,15 @@ public class TankBullet extends Projectile {
     }
 
     @Override
+    public void setHostGame(Framework.Game g) {
+        super.setHostGame(g);
+        // Restore graphics after deserialization
+        if (g != null && getGraphic() == null) {
+            this.setGraphic(bulletGraphic.copyMaintainSource());
+        }
+    }
+
+    @Override
     public void onCollide(GameObject2 other, boolean fromMyTick) {
         if (other == shooter) {
             return; //dont collde with the gameobject that launched this projectile

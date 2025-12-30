@@ -25,15 +25,31 @@ public class LayMineButton extends CommandButton {
         this.onTrigger = c -> {
             if(isOnCooldown()) return;
             if(numUsesRemaining>0) {
-                Coordinate offset = new Coordinate(0, o.getHeight()/2);
-                offset.adjustForRotation(o.getRotation());
-                o.triggerAbility(0, o.getPixelLocation().add(offset));
+                Coordinate offset = new Coordinate(0, owner.getHeight()/2);
+                offset.adjustForRotation(owner.getRotation());
+                owner.triggerAbility(0, owner.getPixelLocation().add(offset));
                 numUsesRemaining--;
                 if(numUsesRemaining == 0) isDisabled = true;
                 tickLastUsed = tickNumber;
-            }                
+            }
         };
 
+    }
+
+    @Override
+    public void restoreTransientFields() {
+        this.iconImage = RTSAssetManager.layMineButton;
+        this.onTrigger = c -> {
+            if(isOnCooldown()) return;
+            if(numUsesRemaining>0) {
+                Coordinate offset = new Coordinate(0, owner.getHeight()/2);
+                offset.adjustForRotation(owner.getRotation());
+                owner.triggerAbility(0, owner.getPixelLocation().add(offset));
+                numUsesRemaining--;
+                if(numUsesRemaining == 0) isDisabled = true;
+                tickLastUsed = tickNumber;
+            }
+        };
     }
 
 }

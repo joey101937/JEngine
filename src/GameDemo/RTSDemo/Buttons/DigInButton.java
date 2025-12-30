@@ -28,17 +28,30 @@ public class DigInButton extends CommandButton {
             if(!isDisabled) {
                 this.setDisabled(true);
                 tickLastUsed = tickNumber;
-                TankUnit host = (TankUnit) o;
-                host.startDeployingSandbags();             
+                TankUnit host = (TankUnit) owner;
+                host.startDeployingSandbags();
             }
         };
     }
-    
+
+    @Override
+    public void restoreTransientFields() {
+        this.iconImage = RTSAssetManager.digInButton;
+        this.onTrigger = c -> {
+            if(!isDisabled) {
+                this.setDisabled(true);
+                tickLastUsed = tickNumber;
+                TankUnit host = (TankUnit) owner;
+                host.startDeployingSandbags();
+            }
+        };
+    }
+
     @Override
     public void tick() {
         super.tick();
         TankUnit tank = (TankUnit) owner;
         isDisabled = isOnCooldown() || tank.sandbagActive || tank.isImmobilized;
     }
-    
+
 }

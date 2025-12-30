@@ -65,6 +65,15 @@ public class BazookaBullet extends Projectile {
     }
 
     @Override
+    public void setHostGame(Framework.Game g) {
+        super.setHostGame(g);
+        // Restore graphics after deserialization
+        if (g != null && getGraphic() == null) {
+            this.setGraphic(missileSprite);
+        }
+    }
+
+    @Override
     public void onCollide(GameObject2 other, boolean myTick) {
         if (other != shooter && other instanceof RTSUnit unit) {
             if (unit.isRubble) {

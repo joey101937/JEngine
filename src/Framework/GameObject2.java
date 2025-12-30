@@ -26,8 +26,8 @@ import java.util.function.Consumer;
  * Parent class for all objects that appear in the game world
  * @author Joseph
  */
-public class GameObject2 implements Comparable<GameObject2>, Renderable{
-    private Game hostGame;
+public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io.Serializable{
+    private transient Game hostGame;
     private String name= this.getClass().getSimpleName(); 
     /** counts number of times this has ticked. incremented in default preTick method */
     public long tickNumber = 0;
@@ -40,7 +40,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
     public DCoordinate velocity = new DCoordinate(0,0);
     /** total distance the object can move per tick before pathing modifiers. RawVelocity movement type ignores this*/
     protected double baseSpeed = 2;
-    private Graphic graphic; //visual representation of the object
+    private transient Graphic graphic; //visual representation of the object
     private double rotation = 0; //rotatoin in degrees (not radians)
     private double rotationAsOfLastTick = 0; // rotation in degrees as of last tick
     /**non-solid object will phase through other objects without triggering either object's onCollide method*/
@@ -988,19 +988,19 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable{
      */
     public DCoordinate constrainToWorld(DCoordinate input){
         DCoordinate value = input.copy();
-        if(value.x < hostGame.worldBorder) {
-            value.x=hostGame.worldBorder;
+        if(value.x < getHostGame().worldBorder) {
+            value.x=getHostGame().worldBorder;
         }
-        if(value.y < hostGame.worldBorder) {
-            value.y=hostGame.worldBorder;
+        if(value.y < getHostGame().worldBorder) {
+            value.y=getHostGame().worldBorder;
         }
-        if(value.x > hostGame.getWorldWidth() - hostGame.worldBorder) {
-            value.x = hostGame.getWorldWidth()- hostGame.worldBorder;
+        if(value.x > getHostGame().getWorldWidth() - getHostGame().worldBorder) {
+            value.x = getHostGame().getWorldWidth()- getHostGame().worldBorder;
         }
-        if(value.y > hostGame.getWorldHeight() - hostGame.worldBorder){
-            value.y = hostGame.getWorldHeight()- hostGame.worldBorder;
+        if(value.y > getHostGame().getWorldHeight() - getHostGame().worldBorder){
+            value.y = getHostGame().getWorldHeight()- getHostGame().worldBorder;
         }
-        
+
         return value;
     }
     /**
