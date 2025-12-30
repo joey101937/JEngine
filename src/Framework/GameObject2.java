@@ -142,6 +142,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * triggers when this object is added to a game
      */
     public void onGameEnter(){}
+
+    /**
+     * Called after deserialization to restore transient fields
+     * Override this in subclasses to restore graphics, buttons, and other non-serializable state
+     */
+    public void onPostDeserialization() {
+        // Override in subclasses
+    }
     
     /**
      * @return speed this unit should be able to move at with the current terrain

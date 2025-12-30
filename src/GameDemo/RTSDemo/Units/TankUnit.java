@@ -51,6 +51,8 @@ public class TankUnit extends RTSUnit {
     private boolean isDiggingIn = false;
     private boolean isDiggingOut = false;
     private long digActionStartTick = 0;
+    private long fadeoutScheduledAtTick = 0;
+    private long destructionScheduledAtTick = 0;
 
     // Modified buffered images for team color
     public static BufferedImage enemyTankChasisImage = RTSAssetManager.tankChasisRed;
@@ -168,6 +170,24 @@ public class TankUnit extends RTSUnit {
     public void tick() {
         super.tick();
 
+        // Check for scheduled destruction
+        if (destructionScheduledAtTick > 0 && tickNumber >= destructionScheduledAtTick) {
+            this.destroy();
+            return;
+        }
+
+        // Check for scheduled fadeout
+        if (fadeoutScheduledAtTick > 0 && tickNumber >= fadeoutScheduledAtTick) {
+            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "transientExplosion"), getPixelLocation());
+            this.setGraphic(deathFadeout.copyMaintainSource());
+            this.isSolid = false;
+            this.setZLayer(-100);
+            this.turret.isInvisible = true;
+            destructionScheduledAtTick = tickNumber + (Main.ticksPerSecond * 3);
+            fadeoutScheduledAtTick = 0;
+            return;
+        }
+
         // Check weapon cooldown expiration
         if (weaponCooldownExpiresAtTick > 0 && tickNumber >= weaponCooldownExpiresAtTick) {
             weaponCooldownExpiresAtTick = 0;
@@ -245,21 +265,21 @@ public class TankUnit extends RTSUnit {
     @Override
     public void setHostGame(Framework.Game g) {
         super.setHostGame(g);
+    }
+
+    @Override
+    public void onPostDeserialization() {
         // Restore graphics after deserialization
-        if (g != null && getGraphic() == null) {
-            this.setGraphic(getHullSprite());
-            if (turret != null) {
-                turret.setGraphic(turret.getTurretSprite());
-            }
-            if (sandbag != null) {
-                sandbag.setGraphic(sandbagSprite);
-            }
+        this.setGraphic(getHullSprite());
+        if (turret != null) {
+            turret.setGraphic(turret.getTurretSprite());
+        }
+        if (sandbag != null) {
+            sandbag.setGraphic(sandbagSprite);
         }
         // Restore button transient fields after deserialization
-        if (g != null) {
-            for (CommandButton button : getButtons()) {
-                button.restoreTransientFields();
-            }
+        for (CommandButton button : getButtons()) {
+            button.restoreTransientFields();
         }
     }
 
@@ -459,16 +479,7 @@ public class TankUnit extends RTSUnit {
         if(isOnScreen()) {
             RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .66), 0);
         }
-        addTickDelayedEffect(Main.ticksPerSecond * 10, c -> {
-            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "transientExplosion"), getPixelLocation());
-            this.setGraphic(deathFadeout.copyMaintainSource());
-            this.isSolid = false;
-            this.setZLayer(-100);
-            this.turret.isInvisible = true;
-            addTickDelayedEffect(Main.ticksPerSecond * 3, c2 -> {
-                this.destroy();
-            });
-        });
+        fadeoutScheduledAtTick = tickNumber + (Main.ticksPerSecond * 10);
     }
     
     @Override

@@ -79,10 +79,12 @@ public class KeyBuilding extends GameObject2 {
     @Override
     public void setHostGame(Framework.Game g) {
         super.setHostGame(g);
+    }
+
+    @Override
+    public void onPostDeserialization() {
         // Restore graphics after deserialization
-        if (g != null && getGraphic() == null) {
-            this.setGraphic(mainSprite);
-        }
+        this.setGraphic(mainSprite);
     }
     
     @Override

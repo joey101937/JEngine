@@ -56,6 +56,8 @@ public class LightTank extends RTSUnit {
     // instance fields
     public LightTankTurret turret;
     public long barrelCooldownExpiresAtTick = 0;
+    private long fadeoutScheduledAtTick = 0;
+    private long destructionScheduledAtTick = 0;
 
     public LightTank(int x, int y, int team) {
         super(x, y, team);
@@ -79,18 +81,18 @@ public class LightTank extends RTSUnit {
     @Override
     public void setHostGame(Framework.Game g) {
         super.setHostGame(g);
+    }
+
+    @Override
+    public void onPostDeserialization() {
         // Restore graphics after deserialization
-        if (g != null && getGraphic() == null) {
-            this.setGraphic(getHullSprite());
-            if (turret != null) {
-                turret.setGraphic(turret.getTurretSprite());
-            }
+        this.setGraphic(getHullSprite());
+        if (turret != null) {
+            turret.setGraphic(turret.getTurretSprite());
         }
         // Restore button transient fields after deserialization
-        if (g != null) {
-            for (CommandButton button : getButtons()) {
-                button.restoreTransientFields();
-            }
+        for (CommandButton button : getButtons()) {
+            button.restoreTransientFields();
         }
     }
 
@@ -108,6 +110,24 @@ public class LightTank extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+
+        // Check for scheduled destruction
+        if (destructionScheduledAtTick > 0 && tickNumber >= destructionScheduledAtTick) {
+            this.destroy();
+            return;
+        }
+
+        // Check for scheduled fadeout
+        if (fadeoutScheduledAtTick > 0 && tickNumber >= fadeoutScheduledAtTick) {
+            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "lightTankDespawnExplosion"), getPixelLocation());
+            this.setGraphic(deathFadeout.copyMaintainSource());
+            this.isSolid = false;
+            this.setZLayer(-10);
+            this.turret.isInvisible = true;
+            destructionScheduledAtTick = tickNumber + (Main.ticksPerSecond * 3);
+            fadeoutScheduledAtTick = 0;
+            return;
+        }
 
         // Check barrel cooldown expiration
         if (barrelCooldownExpiresAtTick > 0 && tickNumber >= barrelCooldownExpiresAtTick) {
@@ -195,16 +215,7 @@ public class LightTank extends RTSUnit {
         if(isOnScreen()) {
             RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .64), 0);
         }
-        addTickDelayedEffect(Main.ticksPerSecond * 10, c -> {
-            OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "lightTankDespawnExplosion"), getPixelLocation());
-            this.setGraphic(deathFadeout.copyMaintainSource());
-            this.isSolid = false;
-            this.setZLayer(-10);
-            this.turret.isInvisible = true;
-            addTickDelayedEffect(Main.ticksPerSecond * 3, c2 -> {
-                this.destroy();
-            });
-        });
+        fadeoutScheduledAtTick = tickNumber + (Main.ticksPerSecond * 10);
     }
 
     public class LightTankTurret extends SubObject {

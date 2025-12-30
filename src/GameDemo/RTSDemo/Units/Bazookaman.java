@@ -41,6 +41,7 @@ public class Bazookaman extends RTSUnit {
     public long pendingBulletSpawnAtTick = 0;
     public RTSUnit pendingBulletTarget = null;
     public static final double attackInterval = 3;
+    private long destructionScheduledAtTick = 0;
 
     static {
         runningSequence.setFrameDelay(35);
@@ -89,18 +90,18 @@ public class Bazookaman extends RTSUnit {
     @Override
     public void setHostGame(Framework.Game g) {
         super.setHostGame(g);
+    }
+
+    @Override
+    public void onPostDeserialization() {
         // Restore graphics after deserialization
-        if (g != null && getGraphic() == null) {
-            this.setGraphic(baseSprite);
-            if (turret != null) {
-                turret.setGraphic(turret.getIdleAnimation());
-            }
+        this.setGraphic(baseSprite);
+        if (turret != null) {
+            turret.setGraphic(turret.getIdleAnimation());
         }
         // Restore button transient fields after deserialization
-        if (g != null) {
-            for (CommandButton button : getButtons()) {
-                button.restoreTransientFields();
-            }
+        for (CommandButton button : getButtons()) {
+            button.restoreTransientFields();
         }
     }
 
@@ -117,6 +118,12 @@ public class Bazookaman extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+
+        // Check for scheduled destruction
+        if (destructionScheduledAtTick > 0 && tickNumber >= destructionScheduledAtTick) {
+            this.destroy();
+            return;
+        }
 
         // Check attack cooldown expiration
         if (attackCooldownExpiresAtTick > 0 && tickNumber >= attackCooldownExpiresAtTick) {
@@ -212,7 +219,7 @@ public class Bazookaman extends RTSUnit {
         this.isRubble = true;
         this.isSolid = false;
         this.turret.setGraphic(getDeathAnimation());
-        this.addTickDelayedEffect(Main.ticksPerSecond * 10, x-> {this.destroy();});
+        destructionScheduledAtTick = tickNumber + (Main.ticksPerSecond * 10);
         this.setZLayer((int)(Math.random() * -50));
         if((tickNumber % 4) == 0) {
             RTSSoundManager.get().play(RTSSoundManager.INFANTRY_DEATH, .6, 0);

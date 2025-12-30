@@ -80,10 +80,12 @@ public class HellicopterBullet extends Projectile {
     @Override
     public void setHostGame(Framework.Game g) {
         super.setHostGame(g);
+    }
+
+    @Override
+    public void onPostDeserialization() {
         // Restore graphics after deserialization
-        if (g != null && getGraphic() == null) {
-            this.setGraphic(missileSprite);
-        }
+        this.setGraphic(missileSprite);
     }
 
     @Override

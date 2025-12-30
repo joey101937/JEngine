@@ -39,6 +39,9 @@ public class Hellicopter extends RTSUnit {
     public long lastFireTick = 0;
     public int attackInterval = Main.ticksPerSecond * 2;
     public int elevation = 99;
+    public long scheduledDestructionAtTick = 0;
+    public long pendingBulletSpawnAtTick = 0;
+    public RTSUnit pendingBulletTarget = null;
 
     public Hellicopter(int x, int y, int team) {
         super(x, y, team);
@@ -57,12 +60,14 @@ public class Hellicopter extends RTSUnit {
     @Override
     public void setHostGame(Framework.Game g) {
         super.setHostGame(g);
+    }
+
+    @Override
+    public void onPostDeserialization() {
         // Restore graphics after deserialization
-        if (g != null && getGraphic() == null) {
-            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
-            if (turret != null) {
-                turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
-            }
+        this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+        if (turret != null) {
+            turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
         }
     }
 
@@ -85,36 +90,48 @@ public class Hellicopter extends RTSUnit {
     }
 
     public void fireDelayed(RTSUnit targetUnit, int delay) {
-        addTickDelayedEffect(delay, game -> {
-            if (!this.isAlive() || !targetUnit.isAlive()) {
-                return;
-            }
-            Coordinate center = getPixelLocation();
-            Coordinate leftOffset = new Coordinate(-30, -30);
-            Coordinate rightOffset = new Coordinate(30, -30);
-
-            leftOffset.adjustForRotation(turret.getRotation());
-            rightOffset.adjustForRotation(turret.getRotation());
-
-            getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), targetUnit));
-            getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), targetUnit));
-            if (isOnScreen()) {
-                RTSSoundManager.get().play(
-                    RTSSoundManager.HELICOPTER_ATTACK,
-                    Main.generateRandomDoubleLocally(.65, .75),
-                    Main.generateRandomIntLocally(0, 200));
-            } else {
-                RTSSoundManager.get().play(
-                    RTSSoundManager.HELICOPTER_ATTACK,
-                    Main.generateRandomDoubleLocally(.55, .6),
-                    Main.generateRandomIntLocally(0, 200));
-            }
-        });
+        pendingBulletSpawnAtTick = tickNumber + delay;
+        pendingBulletTarget = targetUnit;
     }
 
     @Override
     public void tick() {
 //        System.out.println("ticking " + this);
+        // Check for scheduled destruction
+        if (scheduledDestructionAtTick > 0 && tickNumber >= scheduledDestructionAtTick) {
+            new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
+            this.destroy();
+            return;
+        }
+
+        // Check for pending bullet spawn
+        if (pendingBulletSpawnAtTick > 0 && tickNumber >= pendingBulletSpawnAtTick) {
+            if (pendingBulletTarget != null && pendingBulletTarget.isAlive() && getHostGame() != null) {
+                Coordinate center = getPixelLocation();
+                Coordinate leftOffset = new Coordinate(-30, -30);
+                Coordinate rightOffset = new Coordinate(30, -30);
+
+                leftOffset.adjustForRotation(turret.getRotation());
+                rightOffset.adjustForRotation(turret.getRotation());
+
+                getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), pendingBulletTarget));
+                getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), pendingBulletTarget));
+                if (isOnScreen()) {
+                    RTSSoundManager.get().play(
+                        RTSSoundManager.HELICOPTER_ATTACK,
+                        Main.generateRandomDoubleLocally(.65, .75),
+                        Main.generateRandomIntLocally(0, 200));
+                } else {
+                    RTSSoundManager.get().play(
+                        RTSSoundManager.HELICOPTER_ATTACK,
+                        Main.generateRandomDoubleLocally(.55, .6),
+                        Main.generateRandomIntLocally(0, 200));
+                }
+            }
+            pendingBulletSpawnAtTick = 0;
+            pendingBulletTarget = null;
+        }
+
         if (isRubble && elevation > 1) {
             elevation -= 4.8;
             if (elevation < 1) {
@@ -124,10 +141,7 @@ public class Hellicopter extends RTSUnit {
                 this.plane = 0;
                 this.setZLayer(1);
                 this.isSolid = true;
-                addTickDelayedEffect(Main.ticksPerSecond * 8, c -> {
-                    new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
-                    this.destroy();
-                });
+                scheduledDestructionAtTick = tickNumber + (Main.ticksPerSecond * 8);
                 return;
             }
             this.team = -1;

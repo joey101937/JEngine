@@ -91,6 +91,11 @@ public class SerializationManager {
 
                     // After additions complete (next tick), finalize
                     game.addTickDelayedEffect(1, g3 -> {
+                        // Restore transient fields in all deserialized objects
+                        for (GameObject2 obj : snapshot.gameObjects) {
+                            obj.onPostDeserialization();
+                        }
+
                         // Restore tick number
                         game.handler.globalTickNumber = snapshot.globalTickNumber;
 
