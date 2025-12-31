@@ -77,7 +77,7 @@ public abstract class RTSAssetManager {
     
     public static BufferedImage JEngineIconLoading;
     
-    public static BufferedImage sandbagsForTank;
+    public static BufferedImage sandbagsForTank, sandbagsForTankDamaged;
 
     public synchronized static void initialize() {
         if (initialized) {
@@ -169,6 +169,7 @@ public abstract class RTSAssetManager {
             tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
             tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
             sandbagsForTank = load("DemoAssets/TankGame/sandbagsForTank.png");
+            sandbagsForTankDamaged = load("DemoAssets/TankGame/sandbagsForTankDamaged.png");
         }, executor);
     }
 

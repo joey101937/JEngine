@@ -41,6 +41,7 @@ public class TankUnit extends RTSUnit {
     public Turret turret;
     public final static double VISUAL_SCALE = 1.10;
     public long weaponCooldownExpiresAtTick = 0;
+    public long lastTickTakenDamage = 0;
     public boolean sandbagActive = false;
     public int sandbagUsesRemaining = 2;
     public Sandbag sandbag = new Sandbag(this);
@@ -72,6 +73,7 @@ public class TankUnit extends RTSUnit {
     public static volatile Sprite shadow = null;
     public static volatile Sprite turretShadow = null;
     public static volatile Sprite sandbagSprite = null;
+    public static volatile Sprite sandbagDamagedSprite = null;
     public static volatile Sprite sandbagShadow = null;
 
     public static volatile Sprite tankHullDamagedGreen;
@@ -129,7 +131,9 @@ public class TankUnit extends RTSUnit {
         deathAnimationHull.setFrameDelay(60);
         deathAnimationTurret.setFrameDelay(60);
         
-        sandbagSprite = new Sprite(RTSAssetManager.sandbagsForTank);
+        sandbagSprite = new Sprite(RTSAssetManager.sandbagsForTank, "sandbagsForTank");
+        sandbagDamagedSprite = new Sprite(RTSAssetManager.sandbagsForTankDamaged, "sandbagsForTankDamaged");
+        
         sandbagShadow = Sprite.generateShadowSprite(RTSAssetManager.sandbagsForTank, .7);
 
         List.of(
@@ -449,9 +453,20 @@ public class TankUnit extends RTSUnit {
         
         @Override
         public void tick() {
+            long ticksSinceLastDamaged = (tickNumber - lastTickTakenDamage);
+            if(ticksSinceLastDamaged > Main.ticksPerSecond * 20 && sandbagUsesRemaining < 1) {
+                sandbagUsesRemaining = 2;
+            }
             this.isSolid = hull.sandbagActive && hull.sandbagUsesRemaining > 0;
             this.isInvisible = !hull.sandbagActive;
             this.setRotation(getHost().getRotation());
+            if(this.hull.sandbagUsesRemaining < 1 && !this.getGraphic().getSignature().equals("sandbagsForTankDamaged")) {
+                this.setGraphic(sandbagDamagedSprite);
+            }
+            if(this.hull.sandbagUsesRemaining > 0 && !this.getGraphic().getSignature().equals("sandbagsForTank")) {
+                System.out.println("setting back" + this.hull.sandbagUsesRemaining);
+                this.setGraphic(sandbagSprite);
+            }
         }
         
         @Override
@@ -492,6 +507,7 @@ public class TankUnit extends RTSUnit {
     
     @Override
     public void takeDamage(Damage d) {
+        lastTickTakenDamage = tickNumber;
         Damage updatedDamage = d.copy();
         // sandbag reduces frontal damage over 20 from front 90 degrees
         if (sandbagActive
