@@ -56,6 +56,13 @@ public class InfoPanelEffect extends IndependentEffect {
         this.tooltipHelper = new TooltipHelper(game, this);
         this.selectedUnits = new ArrayList<>();
         this.unitCountMap = new HashMap<>();
+        this.mainUnit = null;
+
+        // Update static reference so other code uses the new deserialized instance
+        RTSGame.infoPanelEffect = this;
+
+        // Update InputHandler to use the new instance
+        game.setInputHandler(new RTSInput(this));
     }
 
     private static void populateUnitNameImageMap() {
@@ -203,7 +210,7 @@ public class InfoPanelEffect extends IndependentEffect {
 
     public CommandButton getButtonAtLocation(int mouseX, int mouseY) {
         if (mainUnit == null) return null;
-        
+
         double scaleAmount = hostGame.getZoom();
         mouseX*=scaleAmount;
         mouseY*=scaleAmount;
@@ -220,9 +227,9 @@ public class InfoPanelEffect extends IndependentEffect {
                 return cb;
             }
 
-            currentY += buttonRenderHeight;
+            currentY += buttonRenderHeight + 4; // Add 4px vertical padding
             if ((i + 1) % 2 == 0) {
-                currentX -= buttonRenderWidth;
+                currentX -= (buttonRenderWidth + 4); // Add 4px horizontal padding
                 currentY = y + 10;
             }
         }

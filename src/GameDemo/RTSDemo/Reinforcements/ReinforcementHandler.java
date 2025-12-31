@@ -10,6 +10,7 @@ import Framework.Hitbox;
 import Framework.Window;
 import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
 import java.awt.Font;
@@ -132,6 +133,9 @@ public class ReinforcementHandler extends IndependentEffect {
                 type.restoreTransientFields();
             }
         }
+
+        // Update static reference so other code uses the new deserialized instance
+        RTSGame.reinforcementHandler = this;
     }
 
     @Override

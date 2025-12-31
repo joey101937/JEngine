@@ -4,6 +4,7 @@ package GameDemo.RTSDemo.Commands;
 import Framework.Game;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import GameDemo.RTSDemo.RTSGame;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +30,8 @@ public class CommandHandler extends IndependentEffect{
         this.game = g;
         this.addQueue = new ArrayList<>();
 
-        // Update the static reference so RTSInput can access this instance
-        updateStaticReference();
+        // Update static reference so other code uses the new deserialized instance
+        RTSGame.commandHandler = this;
     }
 
     /**

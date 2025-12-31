@@ -38,10 +38,9 @@ public class RTSInput extends InputHandler {
 
     public static boolean wDown = false, aDown = false, sDown = false, dDown = false;
 
-    private InfoPanelEffect infoPanelEffect;
 
     public RTSInput(InfoPanelEffect infoPanelEffect) {
-        this.infoPanelEffect = infoPanelEffect;
+        RTSGame.infoPanelEffect = infoPanelEffect;
     }
 
     @Override
@@ -112,10 +111,11 @@ public class RTSInput extends InputHandler {
                 RTSGame.reinforcementHandler.callReinforcement(RTSGame.reinforcementHandler.selectedReinforcementType, locationOfMouseEvent);
                 return;
             }
-            CommandButton clickedButton = infoPanelEffect.getButtonAtLocation(locationOfMouseEvent.x, locationOfMouseEvent.y);
+            System.out.println("checking " + locationOfMouseEvent.x + "," + locationOfMouseEvent.y);
+            CommandButton clickedButton = RTSGame.infoPanelEffect.getButtonAtLocation(locationOfMouseEvent.x, locationOfMouseEvent.y);
             if (clickedButton != null) {
                 // Handle button click
-                infoPanelEffect.triggerButtonAt(locationOfMouseEvent.x, locationOfMouseEvent.y);
+                RTSGame.infoPanelEffect.triggerButtonAt(locationOfMouseEvent.x, locationOfMouseEvent.y);
                 return;
             }
             // done with ui checking
@@ -216,8 +216,8 @@ public class RTSInput extends InputHandler {
     public void mouseMoved(MouseEvent e) {
         // panCamera(e);
         Coordinate mousePos = locationOfMouseEvent(e);
-        CommandButton hoveredButton = infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
-        infoPanelEffect.hoveredButton = hoveredButton;
+        CommandButton hoveredButton = RTSGame.infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
+        RTSGame.infoPanelEffect.hoveredButton = hoveredButton;
         if (RTSGame.reinforcementHandler != null) {
             RTSGame.reinforcementHandler.hoveredReinforcementType = RTSGame.reinforcementHandler.getReinforcementAtLocation(mousePos);
         } else {

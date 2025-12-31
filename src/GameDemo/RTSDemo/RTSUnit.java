@@ -141,6 +141,16 @@ public class RTSUnit extends GameObject2 {
     }
     
     @Override
+    public void onPostDeserialization() {
+        super.onPostDeserialization();
+        // Restore transient fields in all command buttons
+        for (CommandButton button : buttons) {
+            if (button != null) {
+                button.restoreTransientFields();
+            }
+        }
+    }
+
     public void preTick() {
         this.isTouchingOtherUnit = false;
         super.preTick();

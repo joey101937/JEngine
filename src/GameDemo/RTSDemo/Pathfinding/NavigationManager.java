@@ -64,8 +64,8 @@ public class NavigationManager extends IndependentEffect {
             unitPathingService = Executors.newFixedThreadPool(200);
         }
 
-        // Update the static reference so RTSGame can access this instance
-        updateStaticReference();
+        // Update static reference so other code uses the new deserialized instance
+        RTSGame.navigationManager = this;
     }
 
     /**

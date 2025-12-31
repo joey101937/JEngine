@@ -59,7 +59,7 @@ public class ExternalCommunicator implements Runnable {
     }
     
     public static void setAndCommunicateMultiplayerStartTime () {
-        mpStartTime = System.currentTimeMillis() + 1000;
+        mpStartTime = System.currentTimeMillis() + 2000;
         sendMessage("mpStartTime:"+mpStartTime);
     }
     
