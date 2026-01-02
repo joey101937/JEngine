@@ -66,6 +66,15 @@ public class ExternalCommunicator implements Runnable {
     private static volatile int expectedChunks = 0;
     private static volatile int receivedChunks = 0;
     private static volatile boolean clientLoadComplete = false;
+
+    // Adaptive tick synchronization
+    private static volatile int currentInputDelay = 35; // Start high after resync, target is 12
+    private static volatile long tickTimingOffset = 0; // How many ticks we're ahead/behind partner
+    private static volatile boolean readyToDecreaseDelay = false;
+    private static volatile boolean partnerReadyToDecreaseDelay = false;
+    private static volatile long lastTickSlowdownTime = 0;
+    private static final int TARGET_INPUT_DELAY = 12;
+    private static final int INITIAL_INPUT_DELAY = 35;
     
     public static void setAndCommunicateMultiplayerReady () {
         isReadyForMultiplayerThisMachine = true;
@@ -139,6 +148,43 @@ public class ExternalCommunicator implements Runnable {
             game.handler.globalTickNumber = 0;
             game.setPaused(false);
         }
+
+        // Adaptive tick slowdown to maintain synchronization
+        if(isMultiplayer && !isResyncing && currentTick > 0) {
+            // If we're ahead of partner by more than 2 ticks, slow down
+            if(tickTimingOffset > 2) {
+                long now = System.currentTimeMillis();
+                // Only slow down every 100ms to avoid excessive delays
+                if(now - lastTickSlowdownTime > 100) {
+                    long delayMs = Math.min(tickTimingOffset, 10); // Cap at 10ms delay
+                    System.out.println("Slowing down tick by " + delayMs + "ms (offset: " + tickTimingOffset + " ticks)");
+                    System.out.println("local team " + ExternalCommunicator.localTeam);
+                    Main.wait(delayMs > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)delayMs);
+                    lastTickSlowdownTime = now;
+                }
+            }
+
+            // Check if we're synchronized enough to decrease input delay
+            if(currentInputDelay > TARGET_INPUT_DELAY) {
+                // If tick offset is small (within 1 tick) and stable
+                if(Math.abs(tickTimingOffset) <= 1) {
+                    if(!readyToDecreaseDelay) {
+                        readyToDecreaseDelay = true;
+                        sendMessage("readyToDecrease");
+                        System.out.println("Ready to decrease input delay (current: " + currentInputDelay + ")");
+                    }
+
+                    // If both sides ready, decrease together
+                    if(partnerReadyToDecreaseDelay) {
+                        currentInputDelay = Math.max(currentInputDelay - 1, TARGET_INPUT_DELAY);
+                        readyToDecreaseDelay = false;
+                        partnerReadyToDecreaseDelay = false;
+                        sendMessage("decreaseDelay:" + currentInputDelay);
+                        System.out.println("Decreased input delay to " + currentInputDelay);
+                    }
+                }
+            }
+        }
     };
 
     @Override
@@ -174,21 +220,25 @@ public class ExternalCommunicator implements Runnable {
         }
         if (s.startsWith("m:")) {
             System.out.println("message " + s);
-            RTSGame.commandHandler.addCommand(MoveCommand.generateFromMpString(s), false);
-        }
-        
-        if (s.startsWith("s:")) {
-            System.out.println("message " + s);
-            RTSGame.commandHandler.addCommand(StopCommand.generateFromMpString(s), false);
+            MoveCommand cmd = MoveCommand.generateFromMpString(s);
+            RTSGame.commandHandler.addCommand(cmd, false);
+            updateTickTimingOffset(cmd.getExecuteTick());
         }
 
-        if (s.startsWith("unitRemoval:")) {
-            String id = s.split(":")[1];
-            GameObject2 go = Window.currentGame.getObjectById(id);
-            if (go != null) {
-                Window.currentGame.removeObject(go);
-            }
+        if (s.startsWith("s:")) {
+            System.out.println("message " + s);
+            StopCommand cmd = StopCommand.generateFromMpString(s);
+            RTSGame.commandHandler.addCommand(cmd, false);
+            updateTickTimingOffset(cmd.getExecuteTick());
         }
+
+//        if (s.startsWith("unitRemoval:")) {
+//            String id = s.split(":")[1];
+//            GameObject2 go = Window.currentGame.getObjectById(id);
+//            if (go != null) {
+//                Window.currentGame.removeObject(go);
+//            }
+//        }
         
         if(s.startsWith("readyPhase1")) {
             isReadyForMultiplayerOtherMachine = true;
@@ -266,6 +316,20 @@ public class ExternalCommunicator implements Runnable {
             clientLoadComplete = true;
             System.out.println("Client has completed loading");
         }
+
+        // Adaptive synchronization messages
+        if(s.equals("readyToDecrease")) {
+            partnerReadyToDecreaseDelay = true;
+            System.out.println("Partner ready to decrease input delay");
+        }
+
+        if(s.startsWith("decreaseDelay:")) {
+            int newDelay = Integer.parseInt(s.substring(14));
+            currentInputDelay = newDelay;
+            readyToDecreaseDelay = false;
+            partnerReadyToDecreaseDelay = false;
+            System.out.println("Synchronized decrease to input delay: " + currentInputDelay);
+        }
     }
 
     public static void sendMessage(String message) {
@@ -299,6 +363,9 @@ public class ExternalCommunicator implements Runnable {
         isResyncing = true;
         System.out.println("beginResync " + initiator);
         if(initiator) sendMessage("beginResync");
+
+        // Reset adaptive synchronization to initial state
+        resetAdaptiveSync();
 
         // Clear any pending operations
         mpStartTime = -1;
@@ -468,6 +535,46 @@ public class ExternalCommunicator implements Runnable {
             System.err.println("Error loading resync save file: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Updates the tick timing offset based on incoming command execute ticks
+     * This tells us if we're ahead or behind the partner
+     */
+    private static void updateTickTimingOffset(long incomingExecuteTick) {
+        long currentTick = RTSGame.game.handler.globalTickNumber;
+        long expectedExecuteTick = currentTick + currentInputDelay;
+
+        // How many ticks difference between expected and actual?
+        // Positive = we're ahead (partner sent command for further in future than expected)
+        // Negative = we're behind (partner sent command for sooner than expected)
+        long offset = incomingExecuteTick - expectedExecuteTick;
+
+        // Smooth the offset with exponential moving average
+        tickTimingOffset = (long) (tickTimingOffset * 0.8 + offset * 0.2);
+
+        if(Math.abs(offset) > 3) {
+            System.out.println("Tick offset: " + offset + " (smoothed: " + tickTimingOffset + ") - currentTick:" + currentTick + " expectedExec:" + expectedExecuteTick + " actualExec:" + incomingExecuteTick);
+        }
+    }
+
+    /**
+     * Gets the current adaptive input delay
+     */
+    public static int getCurrentInputDelay() {
+        return currentInputDelay;
+    }
+
+    /**
+     * Resets adaptive synchronization state (called after resync)
+     */
+    private static void resetAdaptiveSync() {
+        currentInputDelay = INITIAL_INPUT_DELAY;
+        tickTimingOffset = 0;
+        readyToDecreaseDelay = false;
+        partnerReadyToDecreaseDelay = false;
+        lastTickSlowdownTime = 0;
+        System.out.println("Reset adaptive sync - input delay: " + currentInputDelay);
     }
 
     public static void beginResyncPt2() {
