@@ -8,7 +8,9 @@ import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import static GameDemo.RTSDemo.RTSGame.game;
 import static GameDemo.RTSDemo.RTSGame.setupUI;
+import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.TankUnit;
 
 /**
  *
@@ -43,15 +45,15 @@ public class Server {
         for (int i = 0; i < lineSize; i++) {
             g.addObject(new Hellicopter(200 + (i * spacer), 200, 0));
         }
-//        for (int i = 0; i < lineSize; i++) {
-//            g.addObject(new Bazookaman(200 + (i * spacer), 350, 0));
-//        }
-//        for (int i = 0; i < lineSize; i++) {
-//            g.addObject(new TankUnit(200 + (i * spacer), 500, 0));
-//        }
-//        for (int i = 0; i < lineSize; i++) {
-//            g.addObject(new TankUnit(200 + (i * spacer), 650, 0));
-//        }
+        for (int i = 0; i < lineSize; i++) {
+            g.addObject(new Bazookaman(200 + (i * spacer), 350, 0));
+        }
+        for (int i = 0; i < lineSize; i++) {
+            g.addObject(new TankUnit(200 + (i * spacer), 500, 0));
+        }
+        for (int i = 0; i < lineSize; i++) {
+            g.addObject(new TankUnit(200 + (i * spacer), 650, 0));
+        }
 
         if(ExternalCommunicator.localTeam == 1) {
             g.getCamera().location.y = -2000;
@@ -59,14 +61,14 @@ public class Server {
         for (int i = 0; i < lineSize; i++) {
             g.addObject(new Hellicopter(200 + (i * spacer), 3000, 1));
         }
-//        for (int i = 0; i < lineSize; i++) {
-//            g.addObject(new Bazookaman(200 + (i * spacer), 2850, 1));
-//        }
-//        for (int i = 0; i < lineSize; i++) {
-//            g.addObject(new TankUnit(200 + (i * spacer), 2700, 1));
-//        }
-//        for (int i = 0; i < lineSize; i++) {
-//            g.addObject(new TankUnit(200 + (i * spacer), 2550, 1));
-//        }
+        for (int i = 0; i < lineSize; i++) {
+            g.addObject(new Bazookaman(200 + (i * spacer), 2850, 1));
+        }
+        for (int i = 0; i < lineSize; i++) {
+            g.addObject(new TankUnit(200 + (i * spacer), 2700, 1));
+        }
+        for (int i = 0; i < lineSize; i++) {
+            g.addObject(new TankUnit(200 + (i * spacer), 2550, 1));
+        }
     }
 }
