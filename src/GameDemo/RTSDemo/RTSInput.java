@@ -128,6 +128,7 @@ public class RTSInput extends InputHandler {
             handleSelectPoint(e);
         } 
         else if (e.getButton() == 3) { //3 means right click
+            if(hostGame.isPaused()) return;
             if (e.isControlDown()) {
                 // all move to exact position of mouse click
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {

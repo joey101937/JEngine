@@ -7,18 +7,22 @@ package GameDemo.RTSDemo.Multiplayer;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
+import Framework.SerializationManager;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
 import static GameDemo.RTSDemo.Multiplayer.Client.printStream;
 import GameDemo.RTSDemo.RTSGame;
-import GameDemo.RTSDemo.RTSUnit;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -47,11 +51,21 @@ public class ExternalCommunicator implements Runnable {
     public static  boolean isResyncing = false;
 
     public static ExecutorService asyncService = Executors.newVirtualThreadPerTaskExecutor();
-    
+
     public static volatile boolean isReadyForMultiplayerThisMachine = false;
     public static volatile boolean isReadyForMultiplayerOtherMachine = false;
     public static volatile long mpStartTime = -1;
     public static volatile boolean isMpStarted = false;
+
+    // Resync save file tracking
+    private static final String RESYNC_SAVE_PATH = "saves/mp_resync_" + System.currentTimeMillis() + ".dat";
+    private static volatile boolean waitingForSaveFile = false;
+    private static volatile boolean saveFileReceived = false;
+    private static volatile StringBuilder saveFileDataBuilder = null;
+    private static volatile int expectedSaveFileSize = 0;
+    private static volatile int expectedChunks = 0;
+    private static volatile int receivedChunks = 0;
+    private static volatile boolean clientLoadComplete = false;
     
     public static void setAndCommunicateMultiplayerReady () {
         isReadyForMultiplayerThisMachine = true;
@@ -127,22 +141,6 @@ public class ExternalCommunicator implements Runnable {
         }
     };
 
-    public static void communicateState() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("unitstate:");
-        for (GameObject2 go : Window.currentGame.getAllObjects()) {
-            if (go instanceof RTSUnit unit && unit.team == localTeam) {
-                builder.append(unit.toTransportString());
-                builder.append(';');
-            }
-        }
-        sendMessage(builder.toString());
-    }
-
-    public static void communicateState(RTSUnit unit) {
-         sendMessage("unitstate:" + unit.toTransportString());
-    }
-
     @Override
     public void run() {
         while (true) {
@@ -184,26 +182,6 @@ public class ExternalCommunicator implements Runnable {
             RTSGame.commandHandler.addCommand(StopCommand.generateFromMpString(s), false);
         }
 
-        if (s.startsWith("unitstate:")) {
-            String s2 = s.substring(10);
-            var lineItems = s2.split(";");
-            for (String line : lineItems) {
-                if(line.equals("")) continue;
-                var components = line.split(",");
-                try {
-                    GameObject2 go = Window.currentGame.getObjectById(components[0]);
-                    if (go != null && go instanceof RTSUnit unit) {
-                        unit.setFieldsPerString(line);
-                    } else if (go == null) {
-                        System.out.println("null for id" + components[0]);
-                    }
-                } catch (Exception e) {
-                    System.out.println("unit state interpretation error " + line);
-                    e.printStackTrace();
-                }
-            }
-        }
-
         if (s.startsWith("unitRemoval:")) {
             String id = s.split(":")[1];
             GameObject2 go = Window.currentGame.getObjectById(id);
@@ -220,16 +198,73 @@ public class ExternalCommunicator implements Runnable {
         if(s.startsWith("mpStartTime")) {
             mpStartTime = Long.parseLong(s.split(":")[1]);
             if(isResyncing) {
-                System.out.println("waiting for mp");
-                while(isWaitingForMpStart()) {
-                    Main.wait(10);
-                }
-                System.out.println("starting mp from mpStartTime handler");
-                RTSGame.game.handler.globalTickNumber = 0;
-                RTSGame.commandHandler.purge();
-                RTSGame.game.setPaused(false);
-                isResyncing = false;
+                // Client receives this after loading is complete and being paused
+                asyncService.submit(() -> {
+                    System.out.println("Client received restart time, waiting for synchronized restart...");
+                    while(isWaitingForMpStart()) {
+                        Main.wait(10);
+                    }
+                    System.out.println("Client unpausing multiplayer game after resync");
+                    RTSGame.game.setPaused(false);
+                    isResyncing = false;
+                    return null;
+                });
             }
+        }
+
+        // Save file transfer messages
+        if(s.startsWith("saveFileStart:")) {
+            String[] parts = s.split(":");
+            expectedSaveFileSize = Integer.parseInt(parts[1]);
+            expectedChunks = Integer.parseInt(parts[2]);
+            receivedChunks = 0;
+            saveFileDataBuilder = new StringBuilder();
+            System.out.println("Receiving save file: " + expectedSaveFileSize + " bytes in " + expectedChunks + " chunks");
+        }
+
+        if(s.startsWith("saveFileChunk:")) {
+            String[] parts = s.split(":", 3);
+            int chunkIndex = Integer.parseInt(parts[1]);
+            String chunkData = parts[2];
+            saveFileDataBuilder.append(chunkData);
+            receivedChunks++;
+            if(receivedChunks % 10 == 0) {
+                System.out.println("Received chunk " + receivedChunks + "/" + expectedChunks);
+            }
+        }
+
+        if(s.equals("saveFileEnd")) {
+            try {
+                // Decode Base64 and write to file
+                String encodedData = saveFileDataBuilder.toString();
+                byte[] fileData = Base64.getDecoder().decode(encodedData);
+
+                // Create saves directory if needed
+                File savesDir = new File("saves");
+                if (!savesDir.exists()) {
+                    savesDir.mkdir();
+                }
+
+                // Write to file
+                try (FileOutputStream fos = new FileOutputStream(RESYNC_SAVE_PATH)) {
+                    fos.write(fileData);
+                }
+
+                System.out.println("Save file received and written: " + fileData.length + " bytes");
+                saveFileReceived = true;
+                waitingForSaveFile = false;
+
+                // Clean up
+                saveFileDataBuilder = null;
+            } catch (Exception e) {
+                System.err.println("Error processing received save file: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        if(s.equals("loadComplete")) {
+            clientLoadComplete = true;
+            System.out.println("Client has completed loading");
         }
     }
 
@@ -264,34 +299,180 @@ public class ExternalCommunicator implements Runnable {
         isResyncing = true;
         System.out.println("beginResync " + initiator);
         if(initiator) sendMessage("beginResync");
-        RTSGame.game.setPaused(true);
-        for(GameObject2 go : RTSGame.game.getAllObjects()) {
-//            if(go instanceof Projectile) {
-//                RTSGame.game.removeObject(go);
-//            }
-        }
+
+        // Clear any pending operations
         mpStartTime = -1;
-        communicateState();
         RTSGame.commandHandler.purge();
+
         if(isServer) {
-            long seed = (long) (Math.random() * 999999999);
-            Main.setRandomSeed(seed);
-            sendMessage("randomSeed:" + seed);
-         }
-         
+            // Server creates save file via tick-delayed effect (NOT paused yet)
+            System.out.println("Server scheduling resync save file creation...");
+
+            RTSGame.game.addTickDelayedEffect(1, g -> {
+                System.out.println("Server creating resync save file...");
+                createResyncSaveFile();
+
+                // After save created, send it
+                sendSaveFile();
+
+                // Reset random seed
+                long seed = (long) (Math.random() * 999999999);
+                Main.setRandomSeed(seed);
+                sendMessage("randomSeed:" + seed);
+
+                // Don't pause yet - schedule loading first (still not paused)
+                // The load will pause after it completes
+                RTSGame.game.addTickDelayedEffect(1, g2 -> {
+                    System.out.println("Server starting to load resync save file...");
+                    loadResyncSaveFile();
+                });
+            });
+        } else {
+            // Client waits for save file (NOT paused yet)
+            System.out.println("Client waiting for resync save file...");
+            waitingForSaveFile = true;
+            saveFileReceived = false;
+
+            // Start async wait for file reception and loading
+            asyncService.submit(() -> {
+                while(!saveFileReceived) {
+                    Main.wait(100);
+                }
+                // Once received, load it (will use tick-delayed effects)
+                loadResyncSaveFile();
+                return null;
+            });
+        }
+
         if(!initiator) sendMessage("beginResyncPt2");
     }
-    
-    public static void beginResyncPt2() {
-       setAndCommunicateMultiplayerStartTime();
-       System.out.println("waiting for mp");
-        while(isWaitingForMpStart()) {
-            Main.wait(10);
+
+    /**
+     * Creates a save file for resync purposes (synchronous)
+     */
+    private static void createResyncSaveFile() {
+        try {
+            // Create saves directory if it doesn't exist
+            File savesDir = new File("saves");
+            if (!savesDir.exists()) {
+                savesDir.mkdir();
+            }
+
+            // Use SerializationManager to create the save
+            // We need to do this synchronously, so we'll create the snapshot directly
+            SerializationManager.GameStateSnapshot snapshot =
+                new SerializationManager.GameStateSnapshot(RTSGame.game.handler, RTSGame.game);
+
+            try (FileOutputStream fileOut = new FileOutputStream(RESYNC_SAVE_PATH);
+                 java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(fileOut)) {
+                out.writeObject(snapshot);
+                System.out.println("Resync save file created with " + snapshot.gameObjects.size() + " objects");
+            }
+        } catch (Exception e) {
+            System.err.println("Error creating resync save file: " + e.getMessage());
+            e.printStackTrace();
         }
-        System.out.println("starting mp from resyncpt2");
-        RTSGame.game.handler.globalTickNumber = 0;
-        RTSGame.commandHandler.purge();
-        RTSGame.game.setPaused(false);
-        isResyncing = false;
+    }
+
+    /**
+     * Sends the save file to the other machine via Base64 encoding
+     */
+    private static void sendSaveFile() {
+        try {
+            File saveFile = new File(RESYNC_SAVE_PATH);
+            if (!saveFile.exists()) {
+                System.err.println("Resync save file not found!");
+                return;
+            }
+
+            // Read file into byte array
+            byte[] fileData = new byte[(int) saveFile.length()];
+            try (FileInputStream fis = new FileInputStream(saveFile)) {
+                fis.read(fileData);
+            }
+
+            // Encode to Base64 for text transmission
+            String encodedData = Base64.getEncoder().encodeToString(fileData);
+
+            // Send in chunks to avoid overwhelming the buffer (64KB chunks)
+            int chunkSize = 65536;
+            int chunks = (int) Math.ceil((double) encodedData.length() / chunkSize);
+
+            System.out.println("Sending save file: " + fileData.length + " bytes in " + chunks + " chunks");
+            sendMessage("saveFileStart:" + fileData.length + ":" + chunks);
+
+            for (int i = 0; i < chunks; i++) {
+                int start = i * chunkSize;
+                int end = Math.min(start + chunkSize, encodedData.length());
+                String chunk = encodedData.substring(start, end);
+                sendMessage("saveFileChunk:" + i + ":" + chunk);
+                Main.wait(10); // Small delay between chunks
+            }
+
+            sendMessage("saveFileEnd");
+            System.out.println("Save file sent successfully");
+        } catch (Exception e) {
+            System.err.println("Error sending save file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Loads the resync save file using SerializationManager
+     */
+    private static void loadResyncSaveFile() {
+        try {
+            File saveFile = new File(RESYNC_SAVE_PATH);
+            if (!saveFile.exists()) {
+                System.err.println("Resync save file not found for loading!");
+                return;
+            }
+
+            System.out.println("Loading resync save file...");
+            SerializationManager.loadGameState(RTSGame.game, RESYNC_SAVE_PATH);
+
+            // Loading happens via tick delays (takes ~3 ticks)
+            // Schedule pause and coordination after loading finishes
+            RTSGame.game.addTickDelayedEffect(1, g -> {
+                System.out.println("Resync load complete, now pausing for coordination");
+
+                // NOW pause after loading is complete
+                RTSGame.game.setPaused(true);
+
+                if(!isServer) {
+                    // Client signals completion
+                    sendMessage("loadComplete");
+                } else {
+                    // Server waits for client to finish, then coordinates restart
+                    asyncService.submit(() -> {
+                        System.out.println("Server waiting for client load completion...");
+                        while(!clientLoadComplete) {
+                            Main.wait(100);
+                        }
+                        System.out.println("Both sides loaded and paused, coordinating restart...");
+                        setAndCommunicateMultiplayerStartTime();
+
+                        // Wait for the synchronized restart time
+                        while(isWaitingForMpStart()) {
+                            Main.wait(10);
+                        }
+                        System.out.println("Restarting multiplayer game after resync");
+                        RTSGame.game.setPaused(false);
+                        isResyncing = false;
+                        clientLoadComplete = false; // Reset for next resync
+                        return null;
+                    });
+                }
+            });
+        } catch (Exception e) {
+            System.err.println("Error loading resync save file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void beginResyncPt2() {
+       // Coordination now happens via save file load completion in loadResyncSaveFile()
+       // This acknowledgment message is received but no action needed
+       System.out.println("beginResyncPt2 acknowledged (using save file coordination)");
     }
 }
