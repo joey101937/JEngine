@@ -22,6 +22,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,6 +65,7 @@ public class ExternalCommunicator implements Runnable {
     private static volatile int expectedSaveFileSize = 0;
     private static volatile int expectedChunks = 0;
     private static volatile int receivedChunks = 0;
+    private static volatile String expectedChecksum = null;
     private static volatile boolean clientLoadComplete = false;
 
     // Adaptive tick synchronization
@@ -182,7 +184,7 @@ public class ExternalCommunicator implements Runnable {
             if(tickTimingOffset < -2) {
                 // We're behind - temporarily increase our TPS to catch up
                 // Proportional boost: 0.25 TPS per tick of offset, capped at +5 TPS
-                int maxBoost = (int) Math.min(baseTicksPerSecond * 0.4, 40); // 40% boost, capped at +40 TPS
+                int maxBoost = (int) Math.min(baseTicksPerSecond * 0.8, 80); // 80% boost, capped at +80 TPS
                 int tpsBoost = (int) Math.min(Math.abs(tickTimingOffset) * 0.25, maxBoost);
                 int targetTPS = baseTicksPerSecond + tpsBoost;
 
@@ -367,9 +369,11 @@ public class ExternalCommunicator implements Runnable {
             String[] parts = s.split(":");
             expectedSaveFileSize = Integer.parseInt(parts[1]);
             expectedChunks = Integer.parseInt(parts[2]);
+            expectedChecksum = parts[3]; // SHA-256 checksum
             receivedChunks = 0;
             saveFileDataBuilder = new StringBuilder();
             System.out.println("Receiving save file: " + expectedSaveFileSize + " bytes in " + expectedChunks + " chunks");
+            System.out.println("Expected checksum: " + expectedChecksum);
         }
 
         if(s.startsWith("saveFileChunk:")) {
@@ -388,6 +392,24 @@ public class ExternalCommunicator implements Runnable {
                 // Decode Base64 and write to file
                 String encodedData = saveFileDataBuilder.toString();
                 byte[] fileData = Base64.getDecoder().decode(encodedData);
+
+                // Verify checksum BEFORE writing to disk
+                String actualChecksum = computeChecksum(fileData);
+                System.out.println("Computed checksum: " + actualChecksum);
+
+                if (!actualChecksum.equals(expectedChecksum)) {
+                    String errorMsg = "CHECKSUM MISMATCH! Expected: " + expectedChecksum + ", Got: " + actualChecksum;
+                    System.err.println(errorMsg);
+                    System.err.println("Save file is corrupted! Size: " + fileData.length + " bytes, Expected: " + expectedSaveFileSize + " bytes");
+
+                    // Notify server of corruption
+                    sendMessage("loadFailed:Checksum verification failed - file corrupted during transmission");
+                    isResyncing = false;
+                    saveFileDataBuilder = null;
+                    return;
+                }
+
+                System.out.println("Checksum verified successfully!");
 
                 // Create saves directory if needed
                 File savesDir = new File("saves");
@@ -658,6 +680,10 @@ public class ExternalCommunicator implements Runnable {
                 fis.read(fileData);
             }
 
+            // Compute checksum of the original file data
+            String checksum = computeChecksum(fileData);
+            System.out.println("Computed file checksum: " + checksum + " (" + fileData.length + " bytes)");
+
             // Encode to Base64 for text transmission
             String encodedData = Base64.getEncoder().encodeToString(fileData);
 
@@ -666,7 +692,7 @@ public class ExternalCommunicator implements Runnable {
             int chunks = (int) Math.ceil((double) encodedData.length() / chunkSize);
 
             System.out.println("Sending save file: " + fileData.length + " bytes in " + chunks + " chunks");
-            sendMessage("saveFileStart:" + fileData.length + ":" + chunks);
+            sendMessage("saveFileStart:" + fileData.length + ":" + chunks + ":" + checksum);
 
             for (int i = 0; i < chunks; i++) {
                 int start = i * chunkSize;
@@ -681,6 +707,29 @@ public class ExternalCommunicator implements Runnable {
         } catch (Exception e) {
             System.err.println("Error sending save file: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Computes SHA-256 checksum of byte array
+     */
+    private static String computeChecksum(byte[] data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(data);
+
+            // Convert to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            System.err.println("Error computing checksum: " + e.getMessage());
+            e.printStackTrace();
+            return "ERROR";
         }
     }
 

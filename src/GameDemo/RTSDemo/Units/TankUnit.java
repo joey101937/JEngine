@@ -6,6 +6,7 @@
 package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.GameObject2.MovementType;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
@@ -274,9 +275,9 @@ public class TankUnit extends RTSUnit {
     @Override
     public void onPostDeserialization() {
         // Restore graphics after deserialization
-        this.setGraphic(getHullSprite());
+        this.setGraphic(isRubble ? rubbleHullSprite : getHullSprite());
         if (turret != null) {
-            turret.setGraphic(turret.getTurretSprite());
+            turret.setGraphic(isRubble ? rubbleTurretSprite : turret.getTurretSprite());
         }
         if (sandbag != null) {
             sandbag.setGraphic(sandbagSprite);
@@ -343,9 +344,9 @@ public class TankUnit extends RTSUnit {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Coordinate muzzelLocation = new Coordinate(0, 0);
+            DCoordinate muzzelLocation = new DCoordinate(0, 0);
             muzzelLocation.y -= getFireSequence().frames[0].getHeight() * 2 / 5;
-            muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, getRotationRealTime());
+            muzzelLocation = DCoordinate.adjustForRotation(muzzelLocation, getRotationRealTime());
             muzzelLocation.add(getPixelLocation());
             RTSUnit targetUnit = ((RTSUnit) this.getHost()).currentTarget;
             int longestSide = Math.max(targetUnit.getWidth(), targetUnit.getHeight());
@@ -354,8 +355,9 @@ public class TankUnit extends RTSUnit {
 //            addTickDelayedEffect(4, c -> {
 //                new OnceThroughSticker(getHostGame(), TankBullet.explosionSmall, target);
 //            });
-            TankBullet bullet = new TankBullet(muzzelLocation.toDCoordinate(), target.toDCoordinate());
+            TankBullet bullet = new TankBullet(muzzelLocation, target.toDCoordinate());
             bullet.shooter = this.getHost();
+            System.out.println("tankbullet created at " + muzzelLocation + " target " + target.toDCoordinate() + " from " + getHost().ID);
             getHostGame().addObject(bullet);
         }
 
