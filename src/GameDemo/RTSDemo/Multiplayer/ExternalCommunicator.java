@@ -12,6 +12,7 @@ import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
 import static GameDemo.RTSDemo.Multiplayer.Client.printStream;
 import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUnit;
 import java.io.BufferedReader;
 import java.io.File;
@@ -98,11 +99,21 @@ public class ExternalCommunicator implements Runnable {
     public static void setAndCommunicateMultiplayerStartTime () {
         mpStartTime = System.currentTimeMillis() + 4000;
         sendMessage("mpStartTime:"+mpStartTime);
+        // Reset random seed
+        long seed = (long) (Math.random() * 999999999);
+        Main.setRandomSeed(seed);
+        sendMessage("randomSeed:" + seed);
     }
     
     public static boolean isWaitingForMpStart() {
         return mpStartTime > 0 && mpStartTime > System.currentTimeMillis();
     };
+    
+    public static boolean isMPReadyForCommands() {
+        if(!isMultiplayer) return true;
+        System.out.println(tickTimingOffset + " offset compared to " + (RTSInput.inputDelay - 5));
+        return Math.abs(tickTimingOffset) < RTSInput.inputDelay - 5;
+    }
 
     private static String getResyncPath() {return "saves/mp_resync_" + (isServer ? "server" : "client") + ".dat";}
     
@@ -572,11 +583,6 @@ public class ExternalCommunicator implements Runnable {
                     // Small delay to let file handles close
                     Main.wait(50);
                     sendSaveFile();
-
-                    // Reset random seed
-                    long seed = (long) (Math.random() * 999999999);
-                    Main.setRandomSeed(seed);
-                    sendMessage("randomSeed:" + seed);
 
                     // Wait for client to confirm file received, then both load simultaneously
                     int waitCount = 0;

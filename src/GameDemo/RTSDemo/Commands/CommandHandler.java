@@ -68,6 +68,10 @@ public class CommandHandler extends IndependentEffect{
     }
     
     public synchronized void addCommand(Command toAdd, boolean shouldCommunicate) {
+        if(!ExternalCommunicator.isMPReadyForCommands()) {
+            System.out.println("command ignored due to isMPReadyForCommands() being false");
+            return;
+        }
         if(toAdd.getExecuteTick() < game.getGameTickNumber()) {
             System.out.println("Trying to add command to the past" + toAdd.toMpString());
             ExternalCommunicator.beginResync(true);

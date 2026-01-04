@@ -430,7 +430,7 @@ public class RTSUnit extends GameObject2 {
             for (int i = 0; i < waypoints.size(); i++) {
                 Coordinate wp = waypoints.get(i);
                 builder.append(wp.x).append(":").append(wp.y);
-                if (i < waypoints.size() - 1) {
+                if (i < Math.max(waypoints.size() - 1, 8)) {
                     builder.append("|");
                 }
             }
