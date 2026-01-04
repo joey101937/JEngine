@@ -37,7 +37,7 @@ public class Hellicopter extends RTSUnit {
 
     public HellicopterTurret turret;
     public long lastFireTick = 0;
-    public int attackInterval = Main.ticksPerSecond * 2;
+    public int attackInterval = RTSGame.desiredTPS * 2;
     public int elevation = 99;
     public long scheduledDestructionAtTick = 0;
     public long pendingBulletSpawnAtTick = 0;
@@ -90,22 +90,21 @@ public class Hellicopter extends RTSUnit {
     }
 
     public void fireDelayed(RTSUnit targetUnit, int delay) {
-        pendingBulletSpawnAtTick = tickNumber + delay;
+        pendingBulletSpawnAtTick = getHostGame().getGameTickNumber() + delay;
         pendingBulletTarget = targetUnit;
     }
 
     @Override
     public void tick() {
-//        System.out.println("ticking " + this);
         // Check for scheduled destruction
-        if (scheduledDestructionAtTick > 0 && tickNumber >= scheduledDestructionAtTick) {
+        if (scheduledDestructionAtTick > 0 && getHostGame().getGameTickNumber() >= scheduledDestructionAtTick) {
             new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
             this.destroy();
             return;
         }
 
         // Check for pending bullet spawn
-        if (pendingBulletSpawnAtTick > 0 && tickNumber >= pendingBulletSpawnAtTick) {
+        if (pendingBulletSpawnAtTick > 0 && getHostGame().getGameTickNumber() >= pendingBulletSpawnAtTick) {
             if (pendingBulletTarget != null && pendingBulletTarget.isAlive() && getHostGame() != null) {
                 Coordinate center = getPixelLocation();
                 Coordinate leftOffset = new Coordinate(-30, -30);
@@ -141,7 +140,7 @@ public class Hellicopter extends RTSUnit {
                 this.plane = 0;
                 this.setZLayer(1);
                 this.isSolid = true;
-                scheduledDestructionAtTick = tickNumber + (Main.ticksPerSecond * 8);
+                scheduledDestructionAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 8);
                 return;
             }
             this.team = -1;
@@ -153,10 +152,10 @@ public class Hellicopter extends RTSUnit {
         if(!isRubble) {
             super.tick();
             currentTarget = nearestEnemyInRange();
-            boolean offCooldown = (tickNumber - lastFireTick) > attackInterval;
+            boolean offCooldown = (getHostGame().getGameTickNumber() - lastFireTick) > attackInterval;
             if (currentTarget != null && offCooldown) {
                 if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {
-                    lastFireTick = tickNumber;
+                    lastFireTick = getHostGame().getGameTickNumber();
                     Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
                     turret.setGraphic(attackAnimation.copyMaintainSource());
                     fireDelayed(currentTarget, 10);

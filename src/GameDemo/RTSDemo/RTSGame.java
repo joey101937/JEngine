@@ -204,7 +204,7 @@ public class RTSGame {
     public static int tickAdjust(int value) {
         int baseTick = 90;
         
-        double ratio = baseTick/Main.ticksPerSecond;
+        double ratio = baseTick/RTSGame.desiredTPS;
         
         return (int)(value * ratio);
     }

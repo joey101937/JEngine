@@ -1,0 +1,867 @@
+package GameDemo.RTSDemo.DeterminismTests;
+
+import Framework.Game;
+import Framework.Main;
+import Framework.Window;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.RTSUnitIdHelper;
+import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.TankUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Determinism test that runs with actual rendering to verify that the render
+ * function does not lead to non-determinism. This test sets up 4 helicopters
+ * on each side (like the multiplayer server), submits a command history,
+ * and runs until tick 8500 where it captures state for comparison.
+ *
+ * @author guydu
+ */
+public class DeterminismTest8 {
+    private volatile List<String> capturedState = null;
+    private final CountDownLatch completionLatch = new CountDownLatch(1);
+    private final boolean show;
+
+    public DeterminismTest8(boolean show) {
+        this.show = show;
+    }
+
+    public List<String> run() {
+        // Reset ID helper to ensure deterministic ID generation across test runs
+        RTSUnitIdHelper.reset();
+
+        Game game = new Game(RTSAssetManager.grassBG);
+        RTSGame.game = game;
+        Main.setRandomSeed(10);
+
+        // Set up 4 helicopters on each side, just like Server.java
+        int lineSize = 40;
+        int spacer = 160;
+         for (int i = 0; i < lineSize; i++) {
+            game.addObject(new TankUnit(200 + (i * spacer), 500, 0));
+        }
+        for (int i = 0; i < lineSize; i++) {
+            game.addObject(new TankUnit(200 + (i * spacer), 650, 0));
+        }
+        
+         for (int i = 0; i < lineSize; i++) {
+            game.addObject(new TankUnit(200 + (i * spacer), 2000, 1));
+        }
+        for (int i = 0; i < lineSize; i++) {
+            game.addObject(new TankUnit(200 + (i * spacer), 2250, 1));
+        }
+
+
+        if(this.show) {
+            if(Window.mainWindow == null) {
+                Window.initialize(game);
+            } else {
+                Window.setCurrentGame(game);
+            }
+        } else {
+            // no show just associate game
+            Window.currentGame = game;
+        }
+        RTSGame.setup(game);
+        RTSGame.setupUI(game);
+
+        game.tick();
+
+        // Submit a short command history
+        populateCommands();
+
+        // Set up handler to check for tick 8500
+        game.setHandleSyncTick(g -> {
+            long tickNumber = g.getGameTickNumber();
+            if (tickNumber >= 8500 && capturedState == null) {
+                // Capture state at tick 8500
+                capturedState = game.getAllObjects().stream()
+                    .filter(x -> x instanceof RTSUnit)
+                    .map(x -> ((RTSUnit)x).toTransportString())
+                    .toList();
+
+                System.out.println("Captured state at tick " + tickNumber + " with " + capturedState.size() + " units");
+
+                // Signal completion
+                completionLatch.countDown();
+
+            }
+            if (tickNumber >= 8500) {
+                 game.setPaused(true);
+            }
+        });
+
+        System.out.println("Starting test with rendering...");
+
+        // Initialize window - this starts the rendering and tick loop
+        if(this.show) {
+            Window.initialize(game);
+        } else {
+            for(int i = 0; i < 8500; i++) {
+                game.tick();
+            }
+        }
+
+        // Wait for completion (with timeout)
+        try {
+            boolean completed = completionLatch.await(120, TimeUnit.SECONDS);
+            if (!completed) {
+                System.out.println("WARNING: Test timed out waiting for tick 8500");
+                // Capture whatever state we have
+                if (capturedState == null) {
+                    capturedState = game.getAllObjects().stream()
+                        .filter(x -> x instanceof RTSUnit)
+                        .map(x -> ((RTSUnit)x).toTransportString())
+                        .toList();
+                }
+            }
+            System.out.println("completed");
+        } catch (InterruptedException e) {
+            System.out.println("Test interrupted");
+            if (capturedState == null) {
+                capturedState = new ArrayList<>();
+            }
+        }
+
+        return capturedState != null ? capturedState : new ArrayList<>();
+    }
+
+    public static void main(String[] args) {
+       RTSAssetManager.initialize();
+       DeterminismTest8 test = new DeterminismTest8(true);
+       var res = test.run();
+       System.out.println("Result with " + res.size() + " units:");
+       res.forEach(System.out::println);
+    }
+
+    /**
+     * Static helper method for backwards compatibility
+     */
+    public static List<String> run(boolean show) {
+        return new DeterminismTest8(show).run();
+    }
+
+    /**
+     * Extended command history
+     */
+    private static void populateCommands() {
+                ExternalCommunicator.interperateMessage("m:TankUnit_T0_36,5663,783,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_37,5823,783,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_38,5983,783,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_39,6143,783,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_40,6303,783,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_41,6463,783,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_76,5663,933,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_77,5823,933,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_78,5983,933,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_79,6143,933,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_80,6303,933,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_81,6463,933,2310,G3HQ32CL3");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_31,5829,491,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_32,5989,491,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_33,6149,491,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_34,6309,491,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_35,6469,491,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_71,5829,641,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_72,5989,641,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_73,6149,641,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_74,6309,641,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_75,6469,641,2536,NC2H0E3C7");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_23,4337,299,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_24,4497,299,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_25,4657,299,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_26,4817,299,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_27,4977,299,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_28,5137,299,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_29,5297,299,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_30,5457,299,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_63,4337,449,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_64,4497,449,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_65,4657,449,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_66,4817,449,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_67,4977,449,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_68,5137,449,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_69,5297,449,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_70,5457,449,2752,L5GRB1YSP");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_10,4315,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_11,4475,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_12,4635,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_13,4795,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_14,4955,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_15,5115,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_16,5275,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_17,5435,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_18,5595,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_19,5755,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_2,3035,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_20,5915,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_21,6075,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_22,6235,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_3,3195,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_4,3355,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_42,3035,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_43,3195,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_44,3355,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_45,3515,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_46,3675,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_47,3835,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_48,3995,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_49,4155,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_5,3515,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_50,4315,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_51,4475,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_52,4635,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_53,4795,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_54,4955,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_55,5115,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_56,5275,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_57,5435,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_58,5595,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_59,5755,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_6,3675,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_60,5915,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_61,6075,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_62,6235,741,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_7,3835,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_8,3995,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_9,4155,591,3068,P3KPFEPUQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_10,4114,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_11,4274,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_12,4434,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_13,4594,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_14,4754,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_15,4914,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_16,5074,709,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_17,5233,710,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_18,5393,710,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_19,5553,710,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_2,2834,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_20,5713,710,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_21,5873,710,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_22,6033,710,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_3,2994,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_4,3154,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_42,2833,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_43,2993,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_44,3153,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_45,3313,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_46,3473,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_47,3633,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_48,3793,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_49,3953,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_5,3314,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_50,4113,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_51,4273,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_52,4433,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_53,4593,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_54,4753,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_55,4913,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_56,5073,856,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_57,5234,858,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_58,5394,859,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_59,5554,859,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_6,3474,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_60,5714,859,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_61,5874,859,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_62,6034,859,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_7,3634,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_8,3794,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_9,3954,708,3105,GZDW1BLFI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_10,4078,716,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_11,4237,717,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_12,4397,716,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_13,4558,716,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_14,4717,717,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_15,4878,716,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_16,5037,718,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_17,5191,724,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_18,5350,725,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_19,5510,725,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_2,2798,716,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_20,5670,725,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_21,5830,725,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_22,5990,725,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_3,2957,717,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_4,3118,716,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_42,2799,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_43,2959,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_44,3119,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_45,3279,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_46,3439,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_47,3599,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_48,3759,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_49,3919,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_5,3277,717,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_50,4079,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_51,4239,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_52,4399,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_53,4559,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_54,4719,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_55,4879,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_56,5039,862,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_57,5197,867,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_58,5357,868,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_59,5517,868,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_6,3437,717,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_60,5677,868,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_61,5837,868,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_62,5997,868,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_7,3598,716,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_8,3757,717,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_9,3917,717,3119,YNNI9UDV1");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_10,3991,706,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_11,4151,707,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_12,4311,706,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_13,4471,706,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_14,4631,707,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_15,4791,706,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_16,4946,712,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_17,5098,720,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_18,5258,720,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_19,5417,721,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_2,2711,706,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_20,5578,720,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_21,5735,723,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_22,5895,723,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_3,2871,707,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_4,3031,706,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_42,2713,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_43,2873,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_44,3033,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_45,3193,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_46,3353,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_47,3513,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_48,3673,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_49,3833,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_5,3191,707,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_50,3993,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_51,4153,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_52,4313,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_53,4473,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_54,4633,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_55,4793,851,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_56,4951,853,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_57,5110,857,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_58,5269,859,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_59,5429,859,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_6,3351,707,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_60,5589,859,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_61,5749,859,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_62,5909,859,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_7,3511,706,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_8,3671,707,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_9,3831,706,3135,6JIWDSUQG");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_10,3769,645,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_11,3928,646,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_12,4089,645,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_13,4249,645,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_14,4408,646,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_15,4569,645,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_16,4719,656,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_17,4872,663,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_18,5032,663,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_19,5190,666,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_2,2489,645,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_20,5352,663,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_21,5494,681,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_22,5655,681,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_3,2649,646,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_4,2809,645,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_42,2488,793,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_43,2647,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_44,2807,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_45,2968,793,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_46,3127,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_47,3288,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_48,3448,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_49,3607,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_5,2969,646,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_50,3768,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_51,3928,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_52,4087,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_53,4248,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_54,4407,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_55,4567,794,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_56,4726,796,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_57,4884,800,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_58,5044,801,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_59,5204,801,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_6,3129,646,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_60,5363,802,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_61,5524,801,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_62,5684,801,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_7,3289,645,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_8,3448,646,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_9,3609,646,3168,LHB7QAS2Q");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_10,3643,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_11,3803,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_12,3963,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_13,4123,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_14,4283,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_15,4443,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_16,4591,647,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_17,4739,659,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_18,4899,659,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_19,5057,661,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_2,2363,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_20,5219,659,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_21,5340,698,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_22,5501,697,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_3,2523,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_4,2683,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_42,2355,789,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_43,2515,789,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_44,2675,790,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_45,2835,789,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_46,2995,789,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_47,3154,790,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_48,3315,789,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_49,3475,790,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_5,2843,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_50,3634,790,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_51,3795,789,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_52,3955,790,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_53,4115,790,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_54,4275,789,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_55,4434,790,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_56,4593,791,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_57,4752,795,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_58,4911,797,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_59,5072,796,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_6,3003,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_60,5231,796,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_61,5391,797,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_62,5552,796,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_7,3163,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_8,3323,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_9,3483,634,3234,4CFDMPR7E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_74,5520,1989,3722,DGMTQMEQ9");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_75,5680,1989,3722,DGMTQMEQ9");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_76,5840,1989,3722,DGMTQMEQ9");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_74,5610,2221,3788,1NFJKWG40");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_75,5770,2221,3788,1NFJKWG40");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_76,5930,2221,3788,1NFJKWG40");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_30,4456,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_31,4616,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_32,4776,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_33,4936,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_34,5096,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_35,5256,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_36,5416,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_37,5576,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_38,5736,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_39,5896,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_40,6056,1484,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_70,4456,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_71,4616,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_72,4776,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_73,4936,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_74,5096,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_75,5256,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_76,5416,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_77,5576,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_78,5736,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_79,5896,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_80,6056,1734,3923,O2AVMQHK0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_30,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_31,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_32,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_33,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_34,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_35,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_36,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_37,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_38,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_39,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_40,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_70,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_71,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_72,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_73,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_74,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_75,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_76,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_77,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_78,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_79,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_80,5171,1652,3989,VEQV1VMLW");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_1,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_10,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_11,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_12,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_13,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_14,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_15,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_16,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_17,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_18,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_19,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_2,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_20,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_21,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_22,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_23,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_24,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_25,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_26,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_27,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_28,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_29,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_3,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_4,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_41,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_42,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_43,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_44,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_45,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_46,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_47,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_48,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_49,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_5,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_50,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_51,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_52,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_53,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_54,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_55,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_56,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_57,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_58,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_59,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_6,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_60,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_61,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_62,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_63,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_64,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_65,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_66,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_67,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_68,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_69,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_7,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_8,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_9,3279,1727,4352,SFEANET9J");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_1,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_10,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_11,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_12,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_13,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_14,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_15,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_16,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_17,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_18,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_19,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_2,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_20,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_21,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_22,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_23,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_24,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_25,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_26,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_27,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_28,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_29,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_3,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_4,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_41,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_42,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_43,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_44,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_45,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_46,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_47,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_48,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_49,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_5,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_50,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_51,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_52,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_53,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_54,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_55,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_56,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_57,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_58,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_59,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_6,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_60,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_61,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_62,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_63,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_64,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_65,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_66,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_67,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_68,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_69,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_7,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_8,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_9,4252,1755,4402,Z6JULKQQU");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_31,4276,1769,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_32,4367,1727,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_33,4467,1727,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_34,4555,1775,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_35,4650,1743,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_36,4732,1800,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_37,4735,1690,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_38,4829,1828,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_39,4828,1728,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_40,4931,1720,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_70,4418,1815,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_77,4756,1898,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_79,4929,1820,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_80,5028,1835,4559,EFSW8UROV");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_78,5831,1922,4626,CPAOVM49C");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_78,6211,1706,4702,EQTOLZU2F");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_78,5900,1683,4758,91H43Q6GQ");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_78,4904,1786,4785,C2SGW781W");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_1,2772,562,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_10,3827,706,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_11,4004,356,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_12,4097,396,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_13,4190,350,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_14,4296,321,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_15,4416,329,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_16,4242,529,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_17,4338,505,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_18,4440,499,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_19,4539,483,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_2,2885,574,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_20,4639,465,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_21,4740,455,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_22,4839,442,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_23,4927,393,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_24,5009,451,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_25,4964,541,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_26,5051,591,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_27,5124,522,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_28,5261,538,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_29,5095,403,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_3,3054,583,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_30,5567,504,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_31,5650,450,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_32,5299,433,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_33,5396,454,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_34,5439,545,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_35,5775,650,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_36,5891,609,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_37,5607,359,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_38,5990,579,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_39,5748,474,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_4,3081,736,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_40,5847,462,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_41,2612,628,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_42,2735,656,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_43,2853,669,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_44,2984,659,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_45,3173,895,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_46,3277,898,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_47,3563,898,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_48,3686,884,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_49,3427,792,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_5,3160,670,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_50,3877,819,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_51,3895,631,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_52,3960,531,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_53,3989,666,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_54,4048,583,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_55,4151,569,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_56,4213,664,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_57,4364,633,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_58,4458,598,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_59,4558,582,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_6,3380,913,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_60,4657,564,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_61,4756,554,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_62,4863,540,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_63,4816,628,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_64,4875,722,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_65,4920,632,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_66,5008,681,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_67,5145,695,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_68,5184,603,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_69,5202,458,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_7,3362,716,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_70,5807,555,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_71,5872,999,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_72,6032,999,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_73,6192,999,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_74,6352,999,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_75,6512,999,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_76,6672,999,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_77,5648,653,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_78,6356,478,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_79,6082,617,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_8,3532,663,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_80,6171,570,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_9,3637,757,5258,I0UYZQPYI");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_1,3651,346,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_10,4624,464,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_11,4862,130,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_12,4960,163,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_13,5050,115,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_14,5167,96,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_15,5290,125,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_16,5045,338,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_17,5150,294,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_18,5253,288,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_19,5353,269,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_2,3763,360,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_20,5452,248,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_21,5553,239,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_22,5654,230,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_23,5746,183,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_24,5813,267,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_25,5765,356,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_26,5866,398,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_27,5940,330,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_28,6076,332,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_29,5899,219,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_3,3934,368,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_30,6371,320,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_31,6454,266,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_32,6099,220,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_33,6203,244,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_34,6237,340,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_35,6537,482,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_36,6690,411,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_37,6374,173,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_38,6785,380,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_39,6558,274,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_4,3941,501,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_40,6655,243,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_41,3489,410,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_42,3603,436,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_43,3712,448,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_44,3859,440,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_45,4038,678,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_46,4152,719,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_47,4437,676,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_48,4570,672,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_49,4185,613,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_5,4017,432,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_50,4743,590,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_51,4705,398,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_52,4755,274,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_53,4764,480,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_54,4835,337,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_55,4943,345,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_56,4941,472,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_57,5186,448,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_58,5268,390,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_59,5368,370,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_6,4262,728,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_60,5466,348,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_61,5566,339,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_62,5667,334,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_63,5610,432,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_64,5669,534,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_65,5713,443,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_66,5827,504,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_67,5970,517,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_68,6005,407,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_69,6000,244,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_7,4183,477,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_70,6599,367,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_71,6676,815,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_72,6836,815,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_73,6996,815,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_74,7156,815,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_75,7316,815,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_76,7476,815,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_77,6395,474,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_78,7107,261,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_79,6892,409,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_8,4401,486,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_80,6974,348,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T1_9,4516,545,5308,4O04Y95O0");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_22,4752,1170,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_31,5079,967,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_32,5247,967,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_33,5403,967,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_34,5559,967,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_35,5727,967,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_36,4930,1248,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_37,5099,1249,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_38,5255,1249,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_39,5411,1249,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_40,5579,1249,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_41,5735,1249,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_62,4805,1275,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_71,5080,1120,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_72,5248,1121,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_73,5404,1121,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_74,5560,1120,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_75,5728,1120,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_77,5099,1393,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_78,5255,1393,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_79,5411,1393,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_80,5579,1393,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_81,5735,1393,5739,2OKRZ6N2D");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_10,3349,1263,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_11,3505,1263,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_12,3661,1263,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_13,3817,1263,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_14,3973,1265,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_15,4129,1265,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_16,4285,1265,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_17,4441,1291,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_18,4597,1291,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_19,4753,1291,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_20,4909,1291,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_21,5038,1316,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_22,5251,1366,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_23,4034,924,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_24,4190,925,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_25,4357,926,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_26,4514,925,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_27,4670,925,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_28,4837,926,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_29,4993,925,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_30,5150,924,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_45,2543,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_46,2700,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_47,2855,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_48,3011,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_49,3167,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_5,2543,1263,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_51,3479,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_53,3817,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_54,3973,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_56,4285,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_57,4441,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_59,4779,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_6,2699,1263,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_60,4935,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_61,5091,1419,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_62,5152,1598,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_63,4034,1080,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_64,4190,1081,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_65,4358,1081,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_66,4514,1081,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_67,4670,1081,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_68,4837,1081,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_69,4994,1080,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_7,2855,1263,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_70,5150,1079,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_8,3011,1263,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_9,3167,1263,5939,41ZJSUB0E");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_2,2921,954,6029,27J1TI78R");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_3,3103,954,6029,27J1TI78R");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_4,3259,954,6029,27J1TI78R");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_42,2921,1110,6029,27J1TI78R");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_43,3077,1110,6029,27J1TI78R");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_44,3233,1110,6029,27J1TI78R");
+
+    }
+}

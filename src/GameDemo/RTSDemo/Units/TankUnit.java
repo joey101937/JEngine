@@ -175,25 +175,25 @@ public class TankUnit extends RTSUnit {
         super.tick();
 
         // Check for scheduled destruction
-        if (destructionScheduledAtTick > 0 && tickNumber >= destructionScheduledAtTick) {
+        if (destructionScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= destructionScheduledAtTick) {
             this.destroy();
             return;
         }
 
         // Check for scheduled fadeout
-        if (fadeoutScheduledAtTick > 0 && tickNumber >= fadeoutScheduledAtTick) {
+        if (fadeoutScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= fadeoutScheduledAtTick) {
             OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "transientExplosion"), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());
             this.isSolid = false;
             this.setZLayer(-100);
             this.turret.isInvisible = true;
-            destructionScheduledAtTick = tickNumber + (Main.ticksPerSecond * 3);
+            destructionScheduledAtTick = getHostGame().getGameTickNumber() + (Main.ticksPerSecond * 3);
             fadeoutScheduledAtTick = 0;
             return;
         }
 
         // Check weapon cooldown expiration
-        if (weaponCooldownExpiresAtTick > 0 && tickNumber >= weaponCooldownExpiresAtTick) {
+        if (weaponCooldownExpiresAtTick > 0 && getHostGame().getGameTickNumber() >= weaponCooldownExpiresAtTick) {
             weaponCooldownExpiresAtTick = 0;
         }
 
@@ -202,11 +202,11 @@ public class TankUnit extends RTSUnit {
         }
 
         // Check for in-progress dig actions
-        if (isDiggingIn && tickNumber >= digActionStartTick + (Main.ticksPerSecond * 5)) {
+        if (isDiggingIn && getHostGame().getGameTickNumber() >= digActionStartTick + (Main.ticksPerSecond * 5)) {
             deploySandbagDirect();
             isDiggingIn = false;
         }
-        if (isDiggingOut && tickNumber >= digActionStartTick + (Main.ticksPerSecond * 5)) {
+        if (isDiggingOut && getHostGame().getGameTickNumber() >= digActionStartTick + (Main.ticksPerSecond * 5)) {
             pickUpSandbag();
             isDiggingOut = false;
         }
@@ -293,7 +293,7 @@ public class TankUnit extends RTSUnit {
         if (weaponCooldownExpiresAtTick > 0 || target.distanceFrom(getLocation()) < getHeight() * 3 / 5 || Math.abs(turret.rotationNeededToFace(target)) > 1) { //limited to one shot per 60 ticks
             return;
         }
-        weaponCooldownExpiresAtTick = tickNumber + (int) (Main.ticksPerSecond * attackFrequency);
+        weaponCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (Main.ticksPerSecond * attackFrequency);
         turret.onFire(target);
     }
 
@@ -453,7 +453,7 @@ public class TankUnit extends RTSUnit {
         
         @Override
         public void tick() {
-            long ticksSinceLastDamaged = (tickNumber - lastTickTakenDamage);
+            long ticksSinceLastDamaged = (getHostGame().getGameTickNumber() - lastTickTakenDamage);
             if(ticksSinceLastDamaged > Main.ticksPerSecond * 20 && sandbagUsesRemaining < 1) {
                 sandbagUsesRemaining = 2;
             }
@@ -494,7 +494,7 @@ public class TankUnit extends RTSUnit {
         if(isOnScreen()) {
             RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .66), 0);
         }
-        fadeoutScheduledAtTick = tickNumber + (Main.ticksPerSecond * 10);
+        fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (Main.ticksPerSecond * 10);
     }
     
     @Override
@@ -507,7 +507,7 @@ public class TankUnit extends RTSUnit {
     
     @Override
     public void takeDamage(Damage d) {
-        lastTickTakenDamage = tickNumber;
+        lastTickTakenDamage = getHostGame().getGameTickNumber();
         Damage updatedDamage = d.copy();
         // sandbag reduces frontal damage over 20 from front 90 degrees
         if (sandbagActive
@@ -533,12 +533,12 @@ public class TankUnit extends RTSUnit {
     public void startDeployingSandbags() {
         setImmobilized(true);
         isDiggingIn = true;
-        digActionStartTick = tickNumber;
+        digActionStartTick = getHostGame().getGameTickNumber();
     }
 
     public void startPickingUpSandbags() {
         isDiggingOut = true;
-        digActionStartTick = tickNumber;
+        digActionStartTick = getHostGame().getGameTickNumber();
     }
     
     public void deploySandbagDirect() {

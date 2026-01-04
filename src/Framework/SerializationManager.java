@@ -95,23 +95,24 @@ public class SerializationManager {
                 for (GameObject2 obj : existingObjects) {
                     game.removeObject(obj);
                 }
-
-                // After removals complete (next tick), add loaded objects
-                game.addTickDelayedEffect(1, g2 -> {
-                    // Add loaded objects
-                    for (GameObject2 obj : snapshot.gameObjects) {
-                        game.addObject(obj);
-                    }
+                // Add loaded objects
+                for (GameObject2 obj : snapshot.gameObjects) {
+                    game.addObject(obj);
+                }
+                
+                // Restore tick number
+                game.handler.globalTickNumber = snapshot.globalTickNumber;
 
                     // After additions complete (next tick), finalize
                     game.addTickDelayedEffect(1, g3 -> {
                         // Restore transient fields in all deserialized objects
                         for (GameObject2 obj : snapshot.gameObjects) {
                             obj.onPostDeserialization();
+                            // Also call onPostDeserialization on all SubObjects
+                            for (GameObject2 subObj : obj.getAllSubObjects()) {
+                                subObj.onPostDeserialization();
+                            }
                         }
-
-                        // Restore tick number
-                        game.handler.globalTickNumber = snapshot.globalTickNumber;
 
                         // Reinitialize transient fields in handler
                         game.handler.reinitializeTransientFields();
@@ -146,7 +147,6 @@ public class SerializationManager {
                         System.out.println("Game state loaded from: " + filePath);
                         System.out.println("Loaded " + snapshot.gameObjects.size() + " objects and " + snapshot.independentEffects.size() + " effects at tick " + snapshot.globalTickNumber);
                     });
-                });
             });
 
         } catch (IOException e) {

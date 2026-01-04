@@ -42,12 +42,12 @@ public class Server {
     public static void createStartingUnits(Game g) {
         int lineSize = 40;
         int spacer = 160;
-        for (int i = 0; i < lineSize; i++) {
-            g.addObject(new Hellicopter(200 + (i * spacer), 200, 0));
-        }
-        for (int i = 0; i < lineSize; i++) {
-            g.addObject(new Bazookaman(200 + (i * spacer), 350, 0));
-        }
+//        for (int i = 0; i < lineSize; i++) {
+//            g.addObject(new Hellicopter(200 + (i * spacer), 200, 0));
+//        }
+//        for (int i = 0; i < lineSize; i++) {
+//            g.addObject(new Bazookaman(200 + (i * spacer), 350, 0));
+//        }
         for (int i = 0; i < lineSize; i++) {
             g.addObject(new TankUnit(200 + (i * spacer), 500, 0));
         }
@@ -58,17 +58,17 @@ public class Server {
         if(ExternalCommunicator.localTeam == 1) {
             g.getCamera().location.y = -2000;
         }
+//        for (int i = 0; i < lineSize; i++) {
+//            g.addObject(new Hellicopter(200 + (i * spacer), 3000, 1));
+//        }
+//        for (int i = 0; i < lineSize; i++) {
+//            g.addObject(new Bazookaman(200 + (i * spacer), 2850, 1));
+//        }
         for (int i = 0; i < lineSize; i++) {
-            g.addObject(new Hellicopter(200 + (i * spacer), 3000, 1));
+            g.addObject(new TankUnit(200 + (i * spacer), 2000, 1));
         }
         for (int i = 0; i < lineSize; i++) {
-            g.addObject(new Bazookaman(200 + (i * spacer), 2850, 1));
-        }
-        for (int i = 0; i < lineSize; i++) {
-            g.addObject(new TankUnit(200 + (i * spacer), 2700, 1));
-        }
-        for (int i = 0; i < lineSize; i++) {
-            g.addObject(new TankUnit(200 + (i * spacer), 2550, 1));
+            g.addObject(new TankUnit(200 + (i * spacer), 2250, 1));
         }
     }
 }

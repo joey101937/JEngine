@@ -12,6 +12,7 @@ import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import Framework.Main;
 import Framework.PathingLayer;
+import Framework.Window;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
@@ -199,7 +200,7 @@ public class RTSUnit extends GameObject2 {
             }
             this.velocity.y = -100; //remember negative means forward because reasons
         }
-        if(tickNumber - this.pathCacheSignatureLastChangedTick > Main.ticksPerSecond * 4) {
+        if(getHostGame().getGameTickNumber() - this.pathCacheSignatureLastChangedTick > RTSGame.desiredTPS * 4) {
             setCommandGroup("0");
             this.setDesiredLocation(getPixelLocation());
         }
@@ -255,6 +256,7 @@ public class RTSUnit extends GameObject2 {
     }
 
     public void setDesiredLocation(Coordinate c) {
+        System.out.println(getHostGame().getGameTickNumber() + " vs " +  this.tickNumber + " " + this.toTransportString() + " setting desirted location " + c);
         if(!this.hasVelocity()) {
             comingFromLocation = getPixelLocation();
         }
@@ -263,7 +265,7 @@ public class RTSUnit extends GameObject2 {
 
         desiredLocation = new Coordinate(adjustedX, adjustedY);
         
-        pathCacheSignatureLastChangedTick = this.tickNumber;
+        pathCacheSignatureLastChangedTick = getHostGame().getGameTickNumber();
     }
     
     public boolean isCloseEnoughToDesired() {
@@ -309,12 +311,12 @@ public class RTSUnit extends GameObject2 {
     }
 
     public void updateWaypoints() {
-        // System.out.println("updating waypoints " + this);
+        // System.out.println("tick " + Window.currentGame.getGameTickNumber() + " updating waypoints " + this.toTransportString());
         if(pathCacheUses < 10 && desiredLocation.equals(pathEndCache) && getPixelLocation().equals(pathStartCache) && !commandGroup.equals(NavigationManager.SEPERATOR_GROUP)) {
             // if we just calculated the path for this start and end, dont recalculate it agian
             waypoints = pathCache;
             pathCacheUses++;
-//            System.out.println(this.ID + " using cached waypoint");
+            // System.out.println(this.ID + " using cached waypoint");
             return;
         }
         waypoints = RTSGame.navigationManager.getPath(getPixelLocation(), desiredLocation, this);
@@ -323,7 +325,7 @@ public class RTSUnit extends GameObject2 {
         pathCache = waypoints;
         String newpathCacheSignature = ""+desiredLocation+""+getPixelLocation();
         if(pathCacheSignature == null || !pathCacheSignature.equals(newpathCacheSignature)) {  
-            pathCacheSignatureLastChangedTick = this.tickNumber;
+            pathCacheSignatureLastChangedTick = getHostGame().getGameTickNumber();
         }
         this.pathCacheSignature = newpathCacheSignature;
     }
@@ -364,11 +366,6 @@ public class RTSUnit extends GameObject2 {
     }
 
     @Override
-    public void onDestroy() {
-        ExternalCommunicator.sendMessage("unitRemoval:" + this.ID);
-    }
-
-    @Override
     public String getName() {
         String[] s = getClass().getName().split("\\.");
         return s[s.length - 1];
@@ -388,7 +385,6 @@ public class RTSUnit extends GameObject2 {
     }
     
     public String toTransportString() {
-        System.out.println("running");
         var myLocation = getLocation();
         StringBuilder builder = new StringBuilder();
         builder.append(this.ID); // 0
@@ -414,24 +410,22 @@ public class RTSUnit extends GameObject2 {
         builder.append(this.velocity.y); // 10
         builder.append(",");
         // comingFromLocation - could be null
-        if (this.comingFromLocation == null) {
-            builder.append("NULL"); // 11
+        if (this.comingFromLocation == null) {// 11
+            builder.append("NULL"); 
         } else {
             builder.append(comingFromLocation.x).append(":").append(comingFromLocation.y);
         }
         builder.append(",");
-        builder.append(this.baseSpeed); // 13
+        builder.append(this.baseSpeed); // 12
         builder.append(",");
-        builder.append(this.originalSpeed); // 14
+        builder.append(this.originalSpeed); // 13
         builder.append(",");
-        builder.append(this.isImmobilized); // 15
+        builder.append(this.isImmobilized); // 14
         builder.append(",");
-        builder.append(this.isCloaked); // 16
+        builder.append(this.isCloaked); // 15
         builder.append(",");
-        // Waypoints: encode as pipe-separated x:y pairs
-            System.out.println("appending waypoints");
-        if (waypoints.isEmpty()) {
-            builder.append("NONE"); // 17
+        if (waypoints.isEmpty()) { // 16
+            builder.append("NONE"); 
         } else {
             for (int i = 0; i < waypoints.size(); i++) {
                 Coordinate wp = waypoints.get(i);
@@ -442,20 +436,20 @@ public class RTSUnit extends GameObject2 {
             }
         }
         builder.append(",");
-        builder.append(this.pathCacheUses); // 18
+        builder.append(this.pathCacheUses); // 17
         builder.append(",");
-        builder.append(this.pathCacheSignatureLastChangedTick); // 19
+        builder.append(this.pathCacheSignatureLastChangedTick); // 18
         builder.append(",");
         // pathStartCache - could be null
         if (this.pathStartCache == null) {
-            builder.append("NULL"); // 20
+            builder.append("NULL"); // 19
         } else {
             builder.append(pathStartCache.x).append(":").append(pathStartCache.y);
         }
         builder.append(",");
         // pathEndCache - could be null
-        if (this.pathEndCache == null) {
-            builder.append("NULL"); // 21
+        if (this.pathEndCache == null) { // 20
+            builder.append("NULL");
         } else {
             builder.append(pathEndCache.x).append(":").append(pathEndCache.y);
         }
@@ -470,7 +464,7 @@ public class RTSUnit extends GameObject2 {
         builder.append(",");
         // pathCache - encode like waypoints
         if (this.pathCache == null || this.pathCache.isEmpty()) {
-            builder.append("NONE"); // 23
+            builder.append("NONE"); // 22
         } else {
             for (int i = 0; i < pathCache.size(); i++) {
                 Coordinate wp = pathCache.get(i);

@@ -37,7 +37,7 @@ public class ReinforcementHandler extends IndependentEffect {
     private static final Color borderLight = new Color(200, 200, 200);
     private boolean wasAvailableLastTick = false;
     public int reserveCount = 0;
-    public double rechargeInterval = Main.ticksPerSecond * 1; // num ticks between reinforcement charges
+    public double rechargeInterval = RTSGame.desiredTPS * 1; // num ticks between reinforcement charges
     public long lastUsedTick = 0;
     public boolean isMenuOpen = false; // when this is true, make a gray
     public Coordinate locationOnScreen;

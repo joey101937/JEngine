@@ -40,7 +40,7 @@ public class HellicopterBullet extends Projectile {
 
     public int maxSpeed = RTSGame.tickAdjust(14);
     public double minSpeed = RTSGame.tickAdjust(4.4);
-    public double accellerationTime = Main.ticksPerSecond * .7;
+    public double accellerationTime = RTSGame.desiredTPS * .7;
     public double accellerationStage;
 
     static {
@@ -105,7 +105,7 @@ public class HellicopterBullet extends Projectile {
             } else if (!hasCollided) {
                 hasCollided = true;
                 int tickDelay = Main.generateRandomInt(2, 5);
-                tickToDestroy = tickNumber + tickDelay;
+                tickToDestroy = getHostGame().getGameTickNumber() + tickDelay;
                 collidedUnit = unit;
             }
         }
@@ -118,7 +118,7 @@ public class HellicopterBullet extends Projectile {
         double speed = Main.clamp(maxSpeed * accellarationPercent, maxSpeed, minSpeed);
         this.setBaseSpeed(speed);
         accellerationStage++;
-        if (tickNumber == tickToDestroy) {
+        if (getHostGame().getGameTickNumber() == tickToDestroy) {
             this.destroy();
         }
     }

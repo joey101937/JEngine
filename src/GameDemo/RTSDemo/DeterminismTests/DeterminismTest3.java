@@ -8,7 +8,7 @@ import Framework.Window;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
-import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.Bazookaman;
 import java.util.List;
 
 /**
@@ -30,13 +30,13 @@ public class DeterminismTest3 {
         int spacer = 160;
 
         for (int i = 0; i < 20; i++) {
-            RTSUnit unit = new Hellicopter(100 + (i * spacer), 750, 0);
+            RTSUnit unit = new Bazookaman(100 + (i * spacer), 750, 0);
             unit.setRotation(180);
             game.addObject(unit);
         }
 
         for (int i = 0; i < 20; i++) {
-            game.addObject(new Hellicopter(100 + (i * spacer), 1300, 1));
+            game.addObject(new Bazookaman(100 + (i * spacer), 1300, 1));
         }
 
         game.tick();
