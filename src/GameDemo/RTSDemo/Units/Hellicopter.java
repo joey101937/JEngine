@@ -65,10 +65,19 @@ public class Hellicopter extends RTSUnit {
     @Override
     public void onPostDeserialization() {
         // Restore graphics after deserialization
-        this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
-        if (turret != null) {
-            turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+        if(isRubble) {
+            this.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
+        } else {
+            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
         }
+        if (turret != null) {
+            if(isRubble) {
+                turret.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
+            } else {
+                turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            }
+        }
+       
     }
 
     @Override

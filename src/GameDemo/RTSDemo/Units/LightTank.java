@@ -86,9 +86,9 @@ public class LightTank extends RTSUnit {
     @Override
     public void onPostDeserialization() {
         // Restore graphics after deserialization
-        this.setGraphic(getHullSprite());
+        this.setGraphic(isRubble ? hullSpriteDestroyed : getHullSprite());
         if (turret != null) {
-            turret.setGraphic(turret.getTurretSprite());
+            turret.setGraphic(isRubble ? turretSpriteDestroyed : turret.getTurretSprite());
         }
         // Restore button transient fields after deserialization
         for (CommandButton button : getButtons()) {
