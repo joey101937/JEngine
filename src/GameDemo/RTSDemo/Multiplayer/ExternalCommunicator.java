@@ -236,11 +236,9 @@ public class ExternalCommunicator implements Runnable {
                     // Compare the strings
                     if(!ourStateString.equals(partnerStateString)) {
                         System.out.println("\n[DETERMINISM] ===== DESYNC DETECTED AT TICK " + currentTick + " =====");
-                        System.out.println("\n=== OUR STATE (Team " + localTeam + ") ===");
-                        System.out.println(ourStateString);
-                        System.out.println("\n=== PARTNER STATE ===");
-                        System.out.println(partnerStateString);
-                        System.out.println("\n=== END STATE COMPARISON ===\n");
+
+                        // Analyze and report the differences
+                        analyzeAndReportStateDifferences(ourStateString, partnerStateString, currentTick);
 
                         // Trigger resync
                         if(!isResyncing) {
@@ -492,11 +490,9 @@ public class ExternalCommunicator implements Runnable {
                 // We have our state for this tick, compare it
                 if(!ourStateString.equals(stateString)) {
                     System.out.println("\n[DETERMINISM] ===== DESYNC DETECTED AT TICK " + tick + " =====");
-                    System.out.println("\n=== OUR STATE (Team " + localTeam + ") ===");
-                    System.out.println(ourStateString);
-                    System.out.println("\n=== PARTNER STATE ===");
-                    System.out.println(stateString);
-                    System.out.println("\n=== END STATE COMPARISON ===\n");
+
+                    // Analyze and report the differences
+                    analyzeAndReportStateDifferences(ourStateString, stateString, tick);
 
                     // Trigger resync
                     if(!isResyncing) {
@@ -558,6 +554,8 @@ public class ExternalCommunicator implements Runnable {
     
     public static synchronized void beginResync(boolean initiator) {
         if(isResyncing) return;
+        ExternalCommunicator.ourStateStrings.clear();
+        ExternalCommunicator.partnerStateStrings.clear();
         RTSGame.commandHandler.printCommandHistory();
         isResyncing = true;
         System.out.println("beginResync " + initiator);
@@ -879,5 +877,119 @@ public class ExternalCommunicator implements Runnable {
        // Coordination now happens via save file load completion in loadResyncSaveFile()
        // This acknowledgment message is received but no action needed
        System.out.println("beginResyncPt2 acknowledged (using save file coordination)");
+    }
+
+    /**
+     * Helper method to analyze and report differences between two game state snapshots.
+     * Prints the number of units mismatched and which fields are different for each mismatched unit.
+     *
+     * @param ourStateString Our game state string
+     * @param partnerStateString Partner's game state string
+     * @param tick The tick number at which the desync was detected
+     */
+    private static void analyzeAndReportStateDifferences(String ourStateString, String partnerStateString, long tick) {
+        System.out.println("\n[DETERMINISM] ===== ANALYZING DESYNC AT TICK " + tick + " =====");
+
+        // Parse both state strings into maps (ID -> state line)
+        java.util.Map<String, String> ourUnits = new java.util.HashMap<>();
+        java.util.Map<String, String> partnerUnits = new java.util.HashMap<>();
+
+        // Parse our state
+        String[] ourLines = ourStateString.split("\n");
+        for (String line : ourLines) {
+            if (line.trim().isEmpty()) continue;
+            String[] fields = line.split(",", -1);
+            if (fields.length > 0) {
+                String unitId = fields[0];
+                ourUnits.put(unitId, line);
+            }
+        }
+
+        // Parse partner state
+        String[] partnerLines = partnerStateString.split("\n");
+        for (String line : partnerLines) {
+            if (line.trim().isEmpty()) continue;
+            String[] fields = line.split(",", -1);
+            if (fields.length > 0) {
+                String unitId = fields[0];
+                partnerUnits.put(unitId, line);
+            }
+        }
+
+        // Find mismatched units
+        java.util.Set<String> allUnitIds = new java.util.HashSet<>();
+        allUnitIds.addAll(ourUnits.keySet());
+        allUnitIds.addAll(partnerUnits.keySet());
+
+        int mismatchedUnits = 0;
+        java.util.List<String> mismatchDetails = new java.util.ArrayList<>();
+
+        // Field names for better reporting
+        String[] fieldNames = {
+            "ID", "location.x", "location.y", "currentHealth", "rotation",
+            "desiredLocation.x", "desiredLocation.y", "isRubble", "commandGroup",
+            "velocity.x", "velocity.y", "comingFromLocation", "baseSpeed", "originalSpeed",
+            "isImmobilized", "isCloaked", "waypoints", "pathCacheUses",
+            "pathCacheSignatureLastChangedTick", "pathStartCache", "pathEndCache",
+            "pathCacheSignature", "pathCache"
+        };
+
+        for (String unitId : allUnitIds) {
+            String ourUnit = ourUnits.get(unitId);
+            String partnerUnit = partnerUnits.get(unitId);
+
+            // Check if unit exists in both states
+            if (ourUnit == null) {
+                mismatchedUnits++;
+                mismatchDetails.add("  Unit " + unitId + ": EXISTS ONLY IN PARTNER STATE (missing from our state)");
+                continue;
+            }
+
+            if (partnerUnit == null) {
+                mismatchedUnits++;
+                mismatchDetails.add("  Unit " + unitId + ": EXISTS ONLY IN OUR STATE (missing from partner state)");
+                continue;
+            }
+
+            // Compare fields
+            if (!ourUnit.equals(partnerUnit)) {
+                mismatchedUnits++;
+                String[] ourFields = ourUnit.split(",", -1);
+                String[] partnerFields = partnerUnit.split(",", -1);
+
+                java.util.List<String> differentFields = new java.util.ArrayList<>();
+                int maxFields = Math.max(ourFields.length, partnerFields.length);
+
+                for (int i = 0; i < maxFields; i++) {
+                    String ourValue = i < ourFields.length ? ourFields[i] : "<missing>";
+                    String partnerValue = i < partnerFields.length ? partnerFields[i] : "<missing>";
+
+                    if (!ourValue.equals(partnerValue)) {
+                        String fieldName = i < fieldNames.length ? fieldNames[i] : "field[" + i + "]";
+                        differentFields.add(fieldName + " (ours: " + ourValue + ", partner: " + partnerValue + ")");
+                    }
+                }
+
+                StringBuilder detail = new StringBuilder("  Unit " + unitId + ": " + differentFields.size() + " field(s) differ\n");
+                for (String diff : differentFields) {
+                    detail.append("    - ").append(diff).append("\n");
+                }
+                mismatchDetails.add(detail.toString().trim());
+            }
+        }
+
+        // Print summary
+        System.out.println("[DETERMINISM] Total units in our state: " + ourUnits.size());
+        System.out.println("[DETERMINISM] Total units in partner state: " + partnerUnits.size());
+        System.out.println("[DETERMINISM] Number of mismatched units: " + mismatchedUnits);
+
+        if (mismatchedUnits > 0) {
+            System.out.println("\n[DETERMINISM] MISMATCH DETAILS:");
+            for (String detail : mismatchDetails) {
+                System.out.println(detail);
+            }
+        }
+
+        System.out.println("\n[DETERMINISM] ===== END DESYNC ANALYSIS =====\n");
     }
 }

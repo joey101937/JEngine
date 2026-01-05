@@ -18,10 +18,10 @@ public class DeterminismTestOrchestratorTest8 {
         System.out.println("Each run will simulate until tick 6500\n");
 
         var results = List.of(
-            runWithIndex(1, false),
-            runWithIndex(2, false),
-            runWithIndex(3, false),
-            runWithIndex(4, false)
+            runWithIndex(1, true),
+            runWithIndex(2, true),
+            runWithIndex(3, true),
+            runWithIndex(4, true)
         );
 
         System.out.println("\n=== ANALYZING RESULTS ===\n");
