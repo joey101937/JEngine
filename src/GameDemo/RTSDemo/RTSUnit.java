@@ -10,9 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
-import Framework.Main;
 import Framework.PathingLayer;
-import Framework.Window;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
@@ -113,7 +111,7 @@ public class RTSUnit extends GameObject2 {
     public void render(Graphics2D g) {
         super.render(g);
         g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
-
+        // g.drawString(getCurrentTerrain().name + " " + pathingModifiers.get(getCurrentTerrain()), getPixelLocation().x + 25, getPixelLocation().y);
         if (isRubble) {
             return;
         }

@@ -38,7 +38,7 @@ public class RTSGame {
     public static int desiredTPS = 90;
 
     public static void setup(Game g) {
-        PathingLayer pathing = new PathingLayer(RTSAssetManager.rtsPathing);
+        PathingLayer pathing = new PathingLayer(RTSAssetManager.rtsPathing, "DemoAssets/TankGame/terrainPlaygroundPathing.png");
         pathing.assignColor(new Color(0,255,255), TerrainTileMap.paddingType);
         g.setPathingLayer(pathing);
         Main.ignoreSubobjectCollision = false; // better performance

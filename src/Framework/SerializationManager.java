@@ -24,6 +24,7 @@ public class SerializationManager {
         public ArrayList<TimeTriggeredEffect> timeTriggeredEffects;
         public ArrayList<IndependentEffect> independentEffects;
         public DCoordinate cameraLocation;
+        public PathingLayer pathingLayer;
 
         public GameStateSnapshot(Handler handler, Game game) {
             this.gameObjects = new ArrayList<>(handler.getAllObjects());
@@ -44,6 +45,9 @@ public class SerializationManager {
 
             // Save camera location
             this.cameraLocation = game.getCamera().location.copy();
+
+            // Save pathing layer
+            this.pathingLayer = game.getPathingLayer();
         }
     }
 
@@ -142,6 +146,26 @@ public class SerializationManager {
                         // Restore camera location
                         if (snapshot.cameraLocation != null) {
                             game.getCamera().location = snapshot.cameraLocation.copy();
+                        }
+
+                        // Restore pathing layer
+                        if (snapshot.pathingLayer != null) {
+                            PathingLayer existingLayer = game.getPathingLayer();
+                            String savedSourcePath = snapshot.pathingLayer.getSourceFilePath();
+
+                            // Check if we can reuse the existing pathing layer
+                            if (existingLayer != null && savedSourcePath != null
+                                    && savedSourcePath.equals(existingLayer.getSourceFilePath())) {
+                                // Reuse existing layer - no need to reload
+                                System.out.println("PathingLayer reused from existing game (same source: " + savedSourcePath + ")");
+                            } else {
+                                // Need to restore the pathing layer from the snapshot
+                                snapshot.pathingLayer.onPostDeserialization();
+                                game.setPathingLayer(snapshot.pathingLayer);
+                                System.out.println("PathingLayer restored from snapshot");
+                            }
+                        } else {
+                            System.out.println("Warning: No PathingLayer found in save file");
                         }
 
                         System.out.println("Game state loaded from: " + filePath);
