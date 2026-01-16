@@ -68,7 +68,7 @@ public class CommandHandler extends IndependentEffect{
     }
     
     public synchronized void addCommand(Command toAdd, boolean shouldCommunicate) {
-        if(!ExternalCommunicator.isMPReadyForCommands()) {
+        if(shouldCommunicate && !ExternalCommunicator.isMPReadyForCommands()) { // if its a local command and we are not ready, reject
             System.out.println("command ignored due to isMPReadyForCommands() being false");
             return;
         }
