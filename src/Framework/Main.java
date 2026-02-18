@@ -257,10 +257,9 @@ public class Main {
             //if the numbers are entered backwards, rerun the method with the correct order
             return generateRandomIntFromSeed(max, min, seed);
         } else {
-            //here is the body of our method
             int diff = max - min;
-            int output = (int) ((new Random(seed)).nextDouble() * diff); //generates a random number between 0 and the difference between the numbers
-            return (min + output);                //returns that random number plus the min
+            int output = (int) ((new Random(seed)).nextDouble() * diff); 
+            return (min + output);
         }
     }
     
@@ -278,10 +277,9 @@ public class Main {
             //if the numbers are entered backwards, rerun the method with the correct order
             return generateRandomDouble(max, min);
         } else {
-            //here is the body of our method
             double diff = max - min;
-            int output = (int) (Main.getRandomSource().nextDouble() * diff); //generates a random number between 0 and the difference between the numbers
-            return (min + output);                //returns that random number plus the min
+            int output = (int) (Main.getRandomSource().nextDouble() * diff);
+            return (min + output);
         }
     }
     
