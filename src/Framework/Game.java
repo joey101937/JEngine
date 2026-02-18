@@ -94,7 +94,7 @@ public class Game implements Runnable {
     
     private volatile boolean loadingScreenActive = false;
     
-    private Consumer handleSyncTick;
+    private Consumer<Game> handleSyncTick;
     private Consumer<Graphics2D> loadingScreenRender;
     private Consumer onGameStabilized;
     
@@ -544,7 +544,7 @@ public class Game implements Runnable {
 
     //core render method, tells all game Objects to render
     private void render() {
-        pausedSafely = false;
+        pausedSafely = false; // issue with determinism?? we should use tickDelays
         if (Window.currentGame != this) {
             System.out.println("Refusing to render without container " + name);
             Main.wait(3);
@@ -713,7 +713,7 @@ public class Game implements Runnable {
             }
             if (running) {
                 try {
-                    this.render();
+                   this.render();
                 } catch (ConcurrentModificationException cme) {
                     System.out.println("cme render");
                 } catch (IllegalStateException ise) {
@@ -1028,7 +1028,7 @@ public class Game implements Runnable {
      * the game cannot proceed to the next tick until this function resolves
      * @param c 
      */
-    public void setHandleSyncTick(Consumer c) {
+    public void setHandleSyncTick(Consumer<Game> c) {
         this.handleSyncTick = c;
     }
     

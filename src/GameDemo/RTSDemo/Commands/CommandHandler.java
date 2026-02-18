@@ -68,9 +68,13 @@ public class CommandHandler extends IndependentEffect{
     }
     
     public synchronized void addCommand(Command toAdd, boolean shouldCommunicate) {
+        if(shouldCommunicate && !ExternalCommunicator.isMPReadyForCommands()) { // if its a local command and we are not ready, reject
+            System.out.println("command ignored due to isMPReadyForCommands() being false");
+            return;
+        }
         if(toAdd.getExecuteTick() < game.getGameTickNumber()) {
             System.out.println("Trying to add command to the past" + toAdd.toMpString());
-            ExternalCommunicator.beginResync(true);
+            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.beginResync(true);
             return;
         }
         addQueue.add(toAdd);
@@ -106,6 +110,7 @@ public class CommandHandler extends IndependentEffect{
         if(commandsToRun == null) return;
         for(Command com : commandsToRun) {
             try {
+                System.out.println("command " + com + " executing on tick " + game.getGameTickNumber());
                 com.setHasResolved(com.execute());
             } catch (Exception e) {
                 System.out.println("error running command " + com.toMpString());

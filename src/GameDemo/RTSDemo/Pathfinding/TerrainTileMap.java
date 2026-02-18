@@ -22,7 +22,7 @@ public class TerrainTileMap implements Serializable {
 
     public static TerrainTileMap map1TerrainMapNormal, map1TerrainMapFine, map1TerrainMapLarge, map1TerrainMapGiantTerrain = null;
 
-    public static PathingLayer.Type paddingType = new PathingLayer.Type("noPath", new Color(0, 255, 255));
+    public static PathingLayer.Type paddingType = new PathingLayer.Type("padding", new Color(0, 255, 255));
 
     public HashMap<Coordinate, Boolean> blockedMap = new HashMap<>();
     public int tileSize;
@@ -167,7 +167,7 @@ public class TerrainTileMap implements Serializable {
     }
 
     public static void generateAll() {
-        PathingLayer pl = new PathingLayer(RTSAssetManager.rtsPathing);
+        PathingLayer pl = new PathingLayer(RTSAssetManager.rtsPathing, "DemoAssets/TankGame/terrainPlaygroundPathing.png");
         pl.generateMap();
 
         CompletableFuture<Void> normalFuture = CompletableFuture.runAsync(() -> {

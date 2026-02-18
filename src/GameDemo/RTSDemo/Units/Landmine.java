@@ -5,10 +5,10 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Hitbox;
-import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
@@ -97,14 +97,14 @@ public class Landmine extends RTSUnit {
                 return;
             } else {
                 this.isRubble = true;
-                addTickDelayedEffect(Main.ticksPerSecond / 4, c -> {
+                addTickDelayedEffect(RTSGame.desiredTPS / 4, c -> {
                     this.die();
                     RTSSoundManager.get().play(RTSSoundManager.LANDMINE_EXPLOSION, isOnScreen() ? .8 : .7, 0);
                     unit.takeDamage(damage);
                     new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
                     unit.setImmobilized(true);
                 });
-                addTickDelayedEffect(Main.ticksPerSecond * 10, c -> {
+                addTickDelayedEffect(RTSGame.desiredTPS * 10, c -> {
                     unit.setImmobilized(false);
                 });
             }
@@ -118,7 +118,7 @@ public class Landmine extends RTSUnit {
         this.isSolid = false;
         this.setZLayer((int)(Math.random() * -100) - 10);
         this.setGraphic(deathFadeout.copyMaintainSource());
-        addTickDelayedEffect(Main.ticksPerSecond * 10, g -> {
+        addTickDelayedEffect(RTSGame.desiredTPS * 10, g -> {
             this.destroy();
         });
     }

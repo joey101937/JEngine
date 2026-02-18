@@ -7,10 +7,12 @@ import Framework.Main;
 import Framework.PathingLayer;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
@@ -37,7 +39,7 @@ public class Hellicopter extends RTSUnit {
 
     public HellicopterTurret turret;
     public long lastFireTick = 0;
-    public int attackInterval = Main.ticksPerSecond * 2;
+    public int attackInterval = RTSGame.desiredTPS * 2;
     public int elevation = 99;
     public long scheduledDestructionAtTick = 0;
     public long pendingBulletSpawnAtTick = 0;
@@ -65,10 +67,19 @@ public class Hellicopter extends RTSUnit {
     @Override
     public void onPostDeserialization() {
         // Restore graphics after deserialization
-        this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
-        if (turret != null) {
-            turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+        if(isRubble) {
+            this.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
+        } else {
+            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
         }
+        if (turret != null) {
+            if(isRubble) {
+                turret.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
+            } else {
+                turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            }
+        }
+       
     }
 
     @Override
@@ -90,22 +101,21 @@ public class Hellicopter extends RTSUnit {
     }
 
     public void fireDelayed(RTSUnit targetUnit, int delay) {
-        pendingBulletSpawnAtTick = tickNumber + delay;
+        pendingBulletSpawnAtTick = getHostGame().getGameTickNumber() + delay;
         pendingBulletTarget = targetUnit;
     }
 
     @Override
     public void tick() {
-//        System.out.println("ticking " + this);
         // Check for scheduled destruction
-        if (scheduledDestructionAtTick > 0 && tickNumber >= scheduledDestructionAtTick) {
+        if (scheduledDestructionAtTick > 0 && getHostGame().getGameTickNumber() >= scheduledDestructionAtTick) {
             new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
             this.destroy();
             return;
         }
 
         // Check for pending bullet spawn
-        if (pendingBulletSpawnAtTick > 0 && tickNumber >= pendingBulletSpawnAtTick) {
+        if (pendingBulletSpawnAtTick > 0 && getHostGame().getGameTickNumber() >= pendingBulletSpawnAtTick) {
             if (pendingBulletTarget != null && pendingBulletTarget.isAlive() && getHostGame() != null) {
                 Coordinate center = getPixelLocation();
                 Coordinate leftOffset = new Coordinate(-30, -30);
@@ -141,7 +151,7 @@ public class Hellicopter extends RTSUnit {
                 this.plane = 0;
                 this.setZLayer(1);
                 this.isSolid = true;
-                scheduledDestructionAtTick = tickNumber + (Main.ticksPerSecond * 8);
+                scheduledDestructionAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 8);
                 return;
             }
             this.team = -1;
@@ -153,12 +163,13 @@ public class Hellicopter extends RTSUnit {
         if(!isRubble) {
             super.tick();
             currentTarget = nearestEnemyInRange();
-            boolean offCooldown = (tickNumber - lastFireTick) > attackInterval;
+            boolean offCooldown = (getHostGame().getGameTickNumber() - lastFireTick) > attackInterval;
             if (currentTarget != null && offCooldown) {
                 if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {
-                    lastFireTick = tickNumber;
+                    lastFireTick = getHostGame().getGameTickNumber();
                     Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
                     turret.setGraphic(attackAnimation.copyMaintainSource());
+                    System.out.println("" + this.ID + " located at " + this.getLocationAsOfLastTick()+"/" + this.getLocation()+ "/" + this.getPixelLocation() + " firing on tick " + getHostGame().getGameTickNumber() + " at " + currentTarget.ID + " located at " + currentTarget.getLocationAsOfLastTick()+"/" + currentTarget.getLocation()+ "/" + currentTarget.getPixelLocation());
                     fireDelayed(currentTarget, 10);
                 }
             }
@@ -183,6 +194,11 @@ public class Hellicopter extends RTSUnit {
         if (isSelected() && !isRubble) {
             drawHealthBar(g);
         }
+        
+         if(ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
+            g.setColor(Color.ORANGE);
+            g.fillOval(getPixelLocation().x-getWidth()/2, getPixelLocation().y-getHeight()/2, getWidth()/2, getHeight()/2);
+        }
     }
 
     @Override
@@ -198,9 +214,8 @@ public class Hellicopter extends RTSUnit {
 
     public class HellicopterTurret extends SubObject {
 
-        private double bobAmount = 8;
-        private double bobPercent = 0;
-        private boolean bobbingDown = true;
+        private int bobOffset = -1;
+        private final double bobAmount = 8;
 
         public HellicopterTurret(Coordinate offset) {
             super(offset);
@@ -211,6 +226,10 @@ public class Hellicopter extends RTSUnit {
 
         @Override
         public void tick() {
+            if(bobOffset == -1) {
+                // set bobOffset for first time so they are not all bobing the exact same
+                bobOffset = Main.generateRandomIntFromSeed(0, 200, (long)(getHost().getLocationAsOfLastTick().x + getHost().getLocationAsOfLastTick().y));
+            }
             if (!isRubble) {
                 updateLocationForBob();
                 updateRotation();
@@ -223,18 +242,19 @@ public class Hellicopter extends RTSUnit {
         }
 
         private void updateLocationForBob() {
-            if (bobPercent >= 100) {
-                bobbingDown = false;
-            }
-            if (bobPercent <= 0) {
-                bobbingDown = true;
-            }
-            if (bobbingDown) {
-                bobPercent += RTSGame.tickAdjust(2.0);
-            } else {
-                bobPercent -= RTSGame.tickAdjust(2.0);
-            }
-            double newY = bobAmount * (bobPercent / 100);
+            long tick = getHostGame().getGameTickNumber() + bobOffset;
+
+            double speedPerTick = RTSGame.tickAdjust(2.0);
+            double cycleLength = 200.0 / speedPerTick; // up (100) + down (100)
+
+            double cyclePos = (tick % (long) cycleLength) * speedPerTick;
+
+            double bobPercent = cyclePos <= 100
+                    ? cyclePos
+                    : 200 - cyclePos;
+
+            double newY = bobAmount * (bobPercent / 100.0);
+
             Coordinate newOffset = new Coordinate(0, (int) newY);
             newOffset.rotateAboutPoint(new Coordinate(0, 0), -getRotation());
             this.setOffset(newOffset);

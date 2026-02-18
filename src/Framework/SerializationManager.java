@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * @author JEngine
  */
 public class SerializationManager {
-
+    private static GameStateSnapshot lastGeneratedSnapshot = lastGeneratedSnapshot = null;
     /**
      * Represents a saved game state snapshot
      */
@@ -24,10 +24,11 @@ public class SerializationManager {
         public ArrayList<TimeTriggeredEffect> timeTriggeredEffects;
         public ArrayList<IndependentEffect> independentEffects;
         public DCoordinate cameraLocation;
+        public PathingLayer pathingLayer;
 
-        public GameStateSnapshot(Handler handler, Game game) {
-            this.gameObjects = new ArrayList<>(handler.getAllObjects());
-            this.globalTickNumber = handler.globalTickNumber;
+        public GameStateSnapshot(Game game) {
+            this.gameObjects = new ArrayList<>(game.handler.getAllObjects());
+            this.globalTickNumber = game.handler.globalTickNumber;
             // Effects would need to be accessible - for now we'll skip them
             // as they contain lambda functions which are not easily serializable
             this.tickDelayedEffects = new ArrayList<>();
@@ -44,7 +45,23 @@ public class SerializationManager {
 
             // Save camera location
             this.cameraLocation = game.getCamera().location.copy();
+
+            // Save pathing layer
+            this.pathingLayer = game.getPathingLayer();
         }
+    }
+    
+    /**
+     * generates a snapshot of given game. tick safe but causes the game to tick once
+     * @param g given game
+     * @return generated snapshot
+     */
+    public synchronized static GameStateSnapshot generateStateSnapshot(Game g) {
+        g.addTickDelayedEffect(1, c -> {
+            lastGeneratedSnapshot = new GameStateSnapshot(g);
+        });
+        g.tick();
+        return lastGeneratedSnapshot;
     }
 
     /**
@@ -58,7 +75,7 @@ public class SerializationManager {
         // Schedule save to happen after next tick completes
         game.addTickDelayedEffect(1, g -> {
             try {
-                GameStateSnapshot snapshot = new GameStateSnapshot(game.handler, game);
+                GameStateSnapshot snapshot = new GameStateSnapshot(game);
 
                 try (FileOutputStream fileOut = new FileOutputStream(filePath);
                      ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
@@ -85,7 +102,7 @@ public class SerializationManager {
             // Load snapshot from disk
             GameStateSnapshot snapshot;
             try (FileInputStream fileIn = new FileInputStream(filePath);
-                 ObjectInputStream in = new ObjectInputStream(fileIn)) {
+                ObjectInputStream in = new ObjectInputStream(fileIn)) {
                 snapshot = (GameStateSnapshot) in.readObject();
             }
 
@@ -95,23 +112,24 @@ public class SerializationManager {
                 for (GameObject2 obj : existingObjects) {
                     game.removeObject(obj);
                 }
-
-                // After removals complete (next tick), add loaded objects
-                game.addTickDelayedEffect(1, g2 -> {
-                    // Add loaded objects
-                    for (GameObject2 obj : snapshot.gameObjects) {
-                        game.addObject(obj);
-                    }
+                // Add loaded objects
+                for (GameObject2 obj : snapshot.gameObjects) {
+                    game.addObject(obj);
+                }
+                
+                // Restore tick number
+                game.handler.globalTickNumber = snapshot.globalTickNumber;
 
                     // After additions complete (next tick), finalize
                     game.addTickDelayedEffect(1, g3 -> {
                         // Restore transient fields in all deserialized objects
                         for (GameObject2 obj : snapshot.gameObjects) {
                             obj.onPostDeserialization();
+                            // Also call onPostDeserialization on all SubObjects
+                            for (GameObject2 subObj : obj.getAllSubObjects()) {
+                                subObj.onPostDeserialization();
+                            }
                         }
-
-                        // Restore tick number
-                        game.handler.globalTickNumber = snapshot.globalTickNumber;
 
                         // Reinitialize transient fields in handler
                         game.handler.reinitializeTransientFields();
@@ -143,10 +161,29 @@ public class SerializationManager {
                             game.getCamera().location = snapshot.cameraLocation.copy();
                         }
 
+                        // Restore pathing layer
+                        if (snapshot.pathingLayer != null) {
+                            PathingLayer existingLayer = game.getPathingLayer();
+                            String savedSourcePath = snapshot.pathingLayer.getSourceFilePath();
+
+                            // Check if we can reuse the existing pathing layer
+                            if (existingLayer != null && savedSourcePath != null
+                                    && savedSourcePath.equals(existingLayer.getSourceFilePath())) {
+                                // Reuse existing layer - no need to reload
+                                System.out.println("PathingLayer reused from existing game (same source: " + savedSourcePath + ")");
+                            } else {
+                                // Need to restore the pathing layer from the snapshot
+                                snapshot.pathingLayer.onPostDeserialization();
+                                game.setPathingLayer(snapshot.pathingLayer);
+                                System.out.println("PathingLayer restored from snapshot");
+                            }
+                        } else {
+                            System.out.println("Warning: No PathingLayer found in save file");
+                        }
+
                         System.out.println("Game state loaded from: " + filePath);
                         System.out.println("Loaded " + snapshot.gameObjects.size() + " objects and " + snapshot.independentEffects.size() + " effects at tick " + snapshot.globalTickNumber);
                     });
-                });
             });
 
         } catch (IOException e) {

@@ -7,7 +7,10 @@ import Framework.GameObject2;
 import Framework.IndependentEffect;
 import Framework.Main;
 import Framework.Window;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import static GameDemo.RTSDemo.Multiplayer.ExternalCommunicator.tickTimingOffset;
 import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.SelectionBoxEffect;
 import java.awt.Color;
@@ -31,7 +34,7 @@ import java.util.concurrent.Future;
 public class NavigationManager extends IndependentEffect {
     private static final long serialVersionUID = 1L;
 
-    public static int updateInterval = Main.ticksPerSecond / 10;
+    public static int updateInterval = RTSGame.desiredTPS / 10;
     public static transient ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
     public static int maxCalculationDistance = 1400;
     public static String SEPERATOR_GROUP = "seperator";
@@ -95,6 +98,9 @@ public class NavigationManager extends IndependentEffect {
         g.drawString("ps: " + pathingSignatures.size(), camLoc.x + 10, camLoc.y + 10);
         g.drawString("FPS: " + game.getCurrentFPS(), camLoc.x + 10, camLoc.y + 20);
         g.drawString("TPS: " + game.getCurrentTPS(), camLoc.x + 10, camLoc.y + 30);
+        if(ExternalCommunicator.isMultiplayer){
+            g.drawString("MP: " + (ExternalCommunicator.isResyncing ? "Resyncing" : (int)ExternalCommunicator.tickTimingOffset + " | " + RTSInput.getInputDelay()), camLoc.x + 10, camLoc.y + 40);
+        }
 
         
 
@@ -153,7 +159,6 @@ public class NavigationManager extends IndependentEffect {
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
             if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired() ) {
-                // this is async and thats why its breaking
                 pathingTasks.add(unitPathingService.submit(() -> {
                     unit.updateWaypoints();
                     return true;

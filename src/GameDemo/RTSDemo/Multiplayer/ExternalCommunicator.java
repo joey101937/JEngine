@@ -8,11 +8,12 @@ import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
 import Framework.SerializationManager;
-import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
 import static GameDemo.RTSDemo.Multiplayer.Client.printStream;
 import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSInput;
+import GameDemo.RTSDemo.RTSUnit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +23,8 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,14 +61,38 @@ public class ExternalCommunicator implements Runnable {
     public static volatile boolean isMpStarted = false;
 
     // Resync save file tracking
-    private static final String RESYNC_SAVE_PATH = "saves/mp_resync_" + System.currentTimeMillis() + ".dat";
     private static volatile boolean waitingForSaveFile = false;
     private static volatile boolean saveFileReceived = false;
     private static volatile StringBuilder saveFileDataBuilder = null;
     private static volatile int expectedSaveFileSize = 0;
     private static volatile int expectedChunks = 0;
     private static volatile int receivedChunks = 0;
+    private static volatile String expectedChecksum = null;
     private static volatile boolean clientLoadComplete = false;
+
+    // Adaptive tick synchronization
+    private static volatile int currentInputDelay = 35; // Start high after resync, target is 12
+    public static volatile double tickTimingOffset = 0; // How many ticks we're ahead/behind partner (use double for precision)
+    private static volatile boolean readyToDecreaseDelay = false;
+    private static volatile boolean partnerReadyToDecreaseDelay = false;
+    private static volatile long lastTickHeartbeatTime = 0;
+    private static final int TARGET_INPUT_DELAY = 12;
+    private static final int INITIAL_INPUT_DELAY = 35;
+    private static final int TICK_HEARTBEAT_INTERVAL_MS = 200; // Send tick heartbeat every 100ms
+
+    // Speed-up control parameters (for machine that's behind)
+    private static final int NORMAL_TPS = 90;
+    private static volatile int baseTicksPerSecond = NORMAL_TPS; // Save original TPS
+
+    // Determinism check - compare game states every 5 seconds
+    private static final int DETERMINISM_CHECK_INTERVAL = 450; // Every 5 seconds at 90 TPS
+    private static final int DETERMINISM_GRACE_PERIOD = 450; // Skip checks for 10 seconds (900 ticks) after resync
+    private static volatile long lastDeterminismCheckTick = 0;
+    private static volatile long lastResyncCompletedTick = -10000; // Track when last resync completed
+    private static final java.util.concurrent.ConcurrentHashMap<Long, String> partnerStateStrings = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ConcurrentHashMap<Long, String> ourStateStrings = new java.util.concurrent.ConcurrentHashMap<>();
+    
+    public static ArrayList<String> outOfSyncUnitIds = new ArrayList<>();
     
     public static void setAndCommunicateMultiplayerReady () {
         isReadyForMultiplayerThisMachine = true;
@@ -73,18 +100,34 @@ public class ExternalCommunicator implements Runnable {
     }
     
     public static void setAndCommunicateMultiplayerStartTime () {
-        mpStartTime = System.currentTimeMillis() + 2000;
+        mpStartTime = System.currentTimeMillis() + 4000;
         sendMessage("mpStartTime:"+mpStartTime);
+        // Reset random seed
+        long seed = (long) (Math.random() * 999999999);
+        Main.setRandomSeed(seed);
+        sendMessage("randomSeed:" + seed);
     }
     
     public static boolean isWaitingForMpStart() {
         return mpStartTime > 0 && mpStartTime > System.currentTimeMillis();
     };
+    
+    public static boolean isMPReadyForCommands() {
+        if(!isMultiplayer) return true;
+        System.out.println(tickTimingOffset + " offset compared to " + (RTSInput.getInputDelay() - 5));
+        return Math.abs(tickTimingOffset) < RTSInput.getInputDelay() - 5;
+    }
 
+    private static String getResyncPath() {return "saves/mp_resync_" + (isServer ? "server" : "client") + ".dat";}
+    
     public static void initialize(boolean server) {
 
         try {
             isMultiplayer = true;
+
+            // Save the current TPS setting
+            baseTicksPerSecond = Main.ticksPerSecond;
+
             if (server) {
                 localTeam = 0;
                 isServer = server;
@@ -139,6 +182,118 @@ public class ExternalCommunicator implements Runnable {
             game.handler.globalTickNumber = 0;
             game.setPaused(false);
         }
+
+        // Adaptive tick slowdown to maintain synchronization
+        if(isMultiplayer && !isResyncing && currentTick > 0) {
+            long now = System.currentTimeMillis();
+
+            // Send periodic tick heartbeat to partner so they can measure offset
+            if(now - lastTickHeartbeatTime >= TICK_HEARTBEAT_INTERVAL_MS) {
+                sendMessage("tickHeartbeat:" + currentTick);
+                lastTickHeartbeatTime = now;
+            }
+
+            // Speed-up control when BEHIND (negative offset means partner is ahead)
+            // Instead of slowing down the ahead machine, speed up the behind machine!
+            if(tickTimingOffset < -2) {
+                // We're behind - temporarily increase our TPS to catch up
+                // Proportional boost: 0.25 TPS per tick of offset, capped at +5 TPS
+                int maxBoost = (int) Math.min(baseTicksPerSecond * 0.8, 160); // 80% boost, capped at +160 TPS
+                int tpsBoost = (int) Math.min(Math.abs(tickTimingOffset) * 0.25, maxBoost);
+                int targetTPS = baseTicksPerSecond + tpsBoost;
+
+                if(Main.ticksPerSecond != targetTPS) {
+                    // System.out.println("[SPEEDUP] Boosting TPS from " + Main.ticksPerSecond + " to " + targetTPS + " (offset: " + String.format("%.1f", tickTimingOffset) + " ticks) - Team " + localTeam);
+                    Main.ticksPerSecond = targetTPS;
+                }
+            } else if(tickTimingOffset > -1 && Main.ticksPerSecond != baseTicksPerSecond) {
+                // Close to sync or ahead - restore normal TPS
+                // System.out.println("[SPEEDUP] Restoring TPS to " + baseTicksPerSecond + " (offset: " + String.format("%.1f", tickTimingOffset) + " ticks) - Team " + localTeam);
+                Main.ticksPerSecond = baseTicksPerSecond;
+            }
+
+            // Periodic determinism check every 5 seconds
+            if(currentTick > 0 && currentTick % DETERMINISM_CHECK_INTERVAL == 0 && currentTick != lastDeterminismCheckTick) {
+                // Skip checks during grace period after resync
+                if(currentTick - lastResyncCompletedTick < DETERMINISM_GRACE_PERIOD) {
+                    System.out.println("[DETERMINISM] Skipping check at tick " + currentTick + " (grace period: " + (DETERMINISM_GRACE_PERIOD - (currentTick - lastResyncCompletedTick)) + " ticks remaining)");
+                    lastDeterminismCheckTick = currentTick; // Still mark as checked to avoid re-checking
+                    return;
+                }
+
+                lastDeterminismCheckTick = currentTick;
+
+                // Generate state string from all units
+                String ourStateString = generateGameStateString();
+
+                // Store our state string for this tick (for later comparison when partner's state arrives)
+                ourStateStrings.put(currentTick, ourStateString);
+
+                // Send to partner with tick number
+                 sendMessage("stateCheck:" + currentTick + ":" + Base64.getEncoder().encodeToString(ourStateString.getBytes()));
+                // System.out.println("[DETERMINISM] Sent state check for tick " + currentTick);
+
+                // Check if we have partner's state for this exact tick
+                String partnerStateString = partnerStateStrings.get(currentTick);
+                if(partnerStateString != null) {
+                    // Compare the strings
+                    if(!ourStateString.equals(partnerStateString)) {
+                        System.out.println("\n[DETERMINISM] ===== DESYNC DETECTED AT TICK " + currentTick + " =====");
+
+                        // Analyze and report the differences
+                        analyzeAndReportStateDifferences(ourStateString, partnerStateString, currentTick);
+
+                        // Trigger resync
+                        if(!isResyncing) {
+                            System.out.println("being resync via partenr state check");
+                            beginResync(true);
+                        }
+                    } else {
+                        System.out.println("[DETERMINISM] Check PASSED for tick " + currentTick + " - games in sync");
+                    }
+                    // Clean up both state strings after comparison
+                    partnerStateStrings.remove(currentTick);
+                    ourStateStrings.remove(currentTick);
+                }
+
+                // Clean up old state strings (keep only last 3)
+                if(partnerStateStrings.size() > 3) {
+                    long oldestToKeep = currentTick - (DETERMINISM_CHECK_INTERVAL * 2);
+                    partnerStateStrings.entrySet().removeIf(entry -> entry.getKey() < oldestToKeep);
+                }
+                if(ourStateStrings.size() > 3) {
+                    long oldestToKeep = currentTick - (DETERMINISM_CHECK_INTERVAL * 2);
+                    ourStateStrings.entrySet().removeIf(entry -> entry.getKey() < oldestToKeep);
+                }
+            }
+
+            // Check if we're synchronized enough to decrease input delay
+            if(currentInputDelay > TARGET_INPUT_DELAY) {
+                // If tick offset is small (within 6 ticks) and stable
+                if(Math.abs(tickTimingOffset) <= 6.0) {
+                    if(!readyToDecreaseDelay) {
+                        readyToDecreaseDelay = true;
+                        sendMessage("readyToDecrease");
+                        System.out.println("[SYNC] Ready to decrease input delay (current: " + currentInputDelay + ", offset: " + String.format("%.1f", tickTimingOffset) + ")");
+                    }
+
+                    // If both sides ready, decrease together
+                    if(partnerReadyToDecreaseDelay) {
+                        currentInputDelay = Math.max(currentInputDelay - 1, TARGET_INPUT_DELAY);
+                        readyToDecreaseDelay = false;
+                        partnerReadyToDecreaseDelay = false;
+                        sendMessage("decreaseDelay:" + currentInputDelay);
+                        System.out.println("[SYNC] Decreased input delay to " + currentInputDelay);
+                    }
+                } else {
+                    // Reset ready flag if we drift out of sync
+                    if(readyToDecreaseDelay) {
+                        System.out.println("[SYNC] Drift detected (" + String.format("%.1f", tickTimingOffset) + " ticks), resetting ready flag");
+                        readyToDecreaseDelay = false;
+                    }
+                }
+            }
+        }
     };
 
     @Override
@@ -165,6 +320,8 @@ public class ExternalCommunicator implements Runnable {
             partnerTick = Long.parseLong(s.substring(9));
         }
         if(s.equals("beginResync")) {
+            if(isResyncing) return;
+            System.out.println("starting rsync");
             beginResync(false);
             return;
         }
@@ -173,21 +330,27 @@ public class ExternalCommunicator implements Runnable {
             return;
         }
         if (s.startsWith("m:")) {
+            // Drop commands during resync to prevent state corruption
+            if(isResyncing) {
+                System.out.println("Dropping move command during resync");
+                return;
+            }
             System.out.println("message " + s);
-            RTSGame.commandHandler.addCommand(MoveCommand.generateFromMpString(s), false);
-        }
-        
-        if (s.startsWith("s:")) {
-            System.out.println("message " + s);
-            RTSGame.commandHandler.addCommand(StopCommand.generateFromMpString(s), false);
+            MoveCommand cmd = MoveCommand.generateFromMpString(s);
+            RTSGame.commandHandler.addCommand(cmd, false);
+            updateTickTimingOffset(cmd.getExecuteTick());
         }
 
-        if (s.startsWith("unitRemoval:")) {
-            String id = s.split(":")[1];
-            GameObject2 go = Window.currentGame.getObjectById(id);
-            if (go != null) {
-                Window.currentGame.removeObject(go);
+        if (s.startsWith("s:")) {
+            // Drop commands during resync to prevent state corruption
+            if(isResyncing) {
+                System.out.println("Dropping stop command during resync");
+                return;
             }
+            System.out.println("message " + s);
+            StopCommand cmd = StopCommand.generateFromMpString(s);
+            RTSGame.commandHandler.addCommand(cmd, false);
+            updateTickTimingOffset(cmd.getExecuteTick());
         }
         
         if(s.startsWith("readyPhase1")) {
@@ -206,6 +369,8 @@ public class ExternalCommunicator implements Runnable {
                     }
                     System.out.println("Client unpausing multiplayer game after resync");
                     RTSGame.game.setPaused(false);
+                    lastResyncCompletedTick = RTSGame.game.handler.globalTickNumber;
+                    System.out.println("[DETERMINISM] Resync completed at tick " + lastResyncCompletedTick + ", grace period of " + DETERMINISM_GRACE_PERIOD + " ticks active");
                     isResyncing = false;
                     return null;
                 });
@@ -217,9 +382,11 @@ public class ExternalCommunicator implements Runnable {
             String[] parts = s.split(":");
             expectedSaveFileSize = Integer.parseInt(parts[1]);
             expectedChunks = Integer.parseInt(parts[2]);
+            expectedChecksum = parts[3]; // SHA-256 checksum
             receivedChunks = 0;
             saveFileDataBuilder = new StringBuilder();
             System.out.println("Receiving save file: " + expectedSaveFileSize + " bytes in " + expectedChunks + " chunks");
+            System.out.println("Expected checksum: " + expectedChecksum);
         }
 
         if(s.startsWith("saveFileChunk:")) {
@@ -239,6 +406,24 @@ public class ExternalCommunicator implements Runnable {
                 String encodedData = saveFileDataBuilder.toString();
                 byte[] fileData = Base64.getDecoder().decode(encodedData);
 
+                // Verify checksum BEFORE writing to disk
+                String actualChecksum = computeChecksum(fileData);
+                System.out.println("Computed checksum: " + actualChecksum);
+
+                if (!actualChecksum.equals(expectedChecksum)) {
+                    String errorMsg = "CHECKSUM MISMATCH! Expected: " + expectedChecksum + ", Got: " + actualChecksum;
+                    System.err.println(errorMsg);
+                    System.err.println("Save file is corrupted! Size: " + fileData.length + " bytes, Expected: " + expectedSaveFileSize + " bytes");
+
+                    // Notify server of corruption
+                    sendMessage("loadFailed:Checksum verification failed - file corrupted during transmission");
+                    isResyncing = false;
+                    saveFileDataBuilder = null;
+                    return;
+                }
+
+                System.out.println("Checksum verified successfully!");
+
                 // Create saves directory if needed
                 File savesDir = new File("saves");
                 if (!savesDir.exists()) {
@@ -246,7 +431,7 @@ public class ExternalCommunicator implements Runnable {
                 }
 
                 // Write to file
-                try (FileOutputStream fos = new FileOutputStream(RESYNC_SAVE_PATH)) {
+                try (FileOutputStream fos = new FileOutputStream(getResyncPath())) {
                     fos.write(fileData);
                 }
 
@@ -259,12 +444,90 @@ public class ExternalCommunicator implements Runnable {
             } catch (Exception e) {
                 System.err.println("Error processing received save file: " + e.getMessage());
                 e.printStackTrace();
+                // Notify server of failure
+                sendMessage("loadFailed:" + e.getMessage());
+                isResyncing = false;
             }
         }
 
         if(s.equals("loadComplete")) {
             clientLoadComplete = true;
             System.out.println("Client has completed loading");
+        }
+
+        if(s.startsWith("loadFailed:")) {
+            String errorMessage = s.substring(11);
+            System.err.println("Client reported load failure: " + errorMessage);
+            System.err.println("Aborting resync");
+            isResyncing = false;
+            clientLoadComplete = true; // Set to true to break server's wait loop
+        }
+
+        // Tick heartbeat for continuous synchronization
+        if(s.startsWith("tickHeartbeat:")) {
+            long partnerTick = Long.parseLong(s.substring(14));
+            long ourTick = RTSGame.game.handler.globalTickNumber;
+
+            // Calculate offset: positive means WE are ahead, negative means PARTNER is ahead
+            long rawOffset = ourTick - partnerTick;
+
+            double oldOffset = tickTimingOffset;
+            // Smooth the offset
+            tickTimingOffset = tickTimingOffset * 0.5 + rawOffset * 0.5;
+
+//            System.out.println("[HEARTBEAT] Partner at tick " + partnerTick + ", we're at " + ourTick +
+//                             " | Raw offset: " + rawOffset + " | Smoothed: " + String.format("%.1f", oldOffset) +
+//                             " -> " + String.format("%.1f", tickTimingOffset));
+        }
+
+        // State check messages for determinism verification
+        if(s.startsWith("stateCheck:")) {
+            String[] parts = s.substring(11).split(":", 2);
+            long tick = Long.parseLong(parts[0]);
+            String stateString = new String(Base64.getDecoder().decode(parts[1]));
+
+            System.out.println("[DETERMINISM] Received partner state for tick " + tick);
+
+            // Check if we have our state stored for this tick
+            String ourStateString = ourStateStrings.get(tick);
+            if(ourStateString != null) {
+                // We have our state for this tick, compare it
+                if(!ourStateString.equals(stateString)) {
+                    System.out.println("\n[DETERMINISM] ===== DESYNC DETECTED AT TICK " + tick + " =====");
+
+                    // Analyze and report the differences
+                    analyzeAndReportStateDifferences(ourStateString, stateString, tick);
+
+                    // Trigger resync
+                    if(!isResyncing) {
+                        System.out.println("beginning resync from statecheck");
+                        beginResync(true);
+                    }
+                } else {
+                    System.out.println("[DETERMINISM] Check PASSED for tick " + tick + " - games in sync");
+                }
+                // Clean up both state strings after comparison
+                ourStateStrings.remove(tick);
+                partnerStateStrings.remove(tick);
+            } else {
+                // We don't have our state for this tick yet, store partner's for later comparison
+                partnerStateStrings.put(tick, stateString);
+                System.out.println("[DETERMINISM] Stored partner state for tick " + tick + " (waiting for our state)");
+            }
+        }
+
+        // Adaptive synchronization messages
+        if(s.equals("readyToDecrease")) {
+            partnerReadyToDecreaseDelay = true;
+            System.out.println("Partner ready to decrease input delay");
+        }
+
+        if(s.startsWith("decreaseDelay:")) {
+            int newDelay = Integer.parseInt(s.substring(14));
+            currentInputDelay = newDelay;
+            readyToDecreaseDelay = false;
+            partnerReadyToDecreaseDelay = false;
+            System.out.println("Synchronized decrease to input delay: " + currentInputDelay);
         }
     }
 
@@ -296,35 +559,54 @@ public class ExternalCommunicator implements Runnable {
     
     public static synchronized void beginResync(boolean initiator) {
         if(isResyncing) return;
+        ExternalCommunicator.ourStateStrings.clear();
+        ExternalCommunicator.partnerStateStrings.clear();
+        RTSGame.commandHandler.printCommandHistory();
         isResyncing = true;
         System.out.println("beginResync " + initiator);
         if(initiator) sendMessage("beginResync");
 
+        // Reset adaptive synchronization to initial state
+        resetAdaptiveSync();
+
         // Clear any pending operations
         mpStartTime = -1;
-        RTSGame.commandHandler.purge();
+        // NOTE: Don't purge commands - they are part of the save state and should be preserved!
 
         if(isServer) {
-            // Server creates save file via tick-delayed effect (NOT paused yet)
+            // Server creates save file on next tick, then immediately loads it
             System.out.println("Server scheduling resync save file creation...");
 
             RTSGame.game.addTickDelayedEffect(1, g -> {
                 System.out.println("Server creating resync save file...");
                 createResyncSaveFile();
 
-                // After save created, send it
-                sendSaveFile();
+                // Send file to client in background (don't wait for it)
+                asyncService.submit(() -> {
+                    // Small delay to let file handles close
+                    Main.wait(50);
+                    sendSaveFile();
 
-                // Reset random seed
-                long seed = (long) (Math.random() * 999999999);
-                Main.setRandomSeed(seed);
-                sendMessage("randomSeed:" + seed);
+                    // Wait for client to confirm file received, then both load simultaneously
+                    int waitCount = 0;
+                    int maxWaitSeconds = 10; // 10 second timeout
+                    while(!clientLoadComplete && waitCount < maxWaitSeconds * 10) {
+                        Main.wait(100);
+                        waitCount++;
+                    }
 
-                // Don't pause yet - schedule loading first (still not paused)
-                // The load will pause after it completes
-                RTSGame.game.addTickDelayedEffect(1, g2 -> {
-                    System.out.println("Server starting to load resync save file...");
+                    if(!clientLoadComplete) {
+                        System.err.println("Server timeout waiting for client load confirmation after " + maxWaitSeconds + " seconds!");
+                        System.err.println("Aborting resync - client may have failed to load save file");
+                        isResyncing = false;
+                        return null;
+                    }
+
+                    System.out.println("Client confirmed save received, both machines loading now...");
                     loadResyncSaveFile();
+                    clientLoadComplete = false; // Reset for next resync
+
+                    return null;
                 });
             });
         } else {
@@ -333,13 +615,29 @@ public class ExternalCommunicator implements Runnable {
             waitingForSaveFile = true;
             saveFileReceived = false;
 
-            // Start async wait for file reception and loading
+            // Start async wait for file reception
             asyncService.submit(() -> {
-                while(!saveFileReceived) {
-                    Main.wait(100);
+                try {
+                    while(!saveFileReceived) {
+                        Main.wait(50);
+                    }
+                    // Signal server that we received the file
+                    System.out.println("Client received save file, signaling server...");
+                    sendMessage("loadComplete");
+
+                    // Now wait a moment for the server to start loading
+                    Main.wait(200);
+
+                    // Load simultaneously with server
+                    System.out.println("Client loading save file...");
+                    loadResyncSaveFile();
+                } catch (Exception e) {
+                    System.err.println("Client error during save file loading: " + e.getMessage());
+                    e.printStackTrace();
+                    // Notify server of failure
+                    sendMessage("loadFailed:" + e.getMessage());
+                    isResyncing = false;
                 }
-                // Once received, load it (will use tick-delayed effects)
-                loadResyncSaveFile();
                 return null;
             });
         }
@@ -360,10 +658,11 @@ public class ExternalCommunicator implements Runnable {
 
             // Use SerializationManager to create the save
             // We need to do this synchronously, so we'll create the snapshot directly
-            SerializationManager.GameStateSnapshot snapshot =
-                new SerializationManager.GameStateSnapshot(RTSGame.game.handler, RTSGame.game);
+            SerializationManager.GameStateSnapshot snapshot = // SerializationManager.generateStateSnapshot(RTSGame.game);
+                new SerializationManager.GameStateSnapshot(RTSGame.game);
+            // alert! this snapshot is taken mid-tick so it may not work because some units will be one tick ahead of others.
 
-            try (FileOutputStream fileOut = new FileOutputStream(RESYNC_SAVE_PATH);
+            try (FileOutputStream fileOut = new FileOutputStream(getResyncPath());
                  java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(fileOut)) {
                 out.writeObject(snapshot);
                 System.out.println("Resync save file created with " + snapshot.gameObjects.size() + " objects");
@@ -379,7 +678,7 @@ public class ExternalCommunicator implements Runnable {
      */
     private static void sendSaveFile() {
         try {
-            File saveFile = new File(RESYNC_SAVE_PATH);
+            File saveFile = new File(getResyncPath());
             if (!saveFile.exists()) {
                 System.err.println("Resync save file not found!");
                 return;
@@ -391,6 +690,10 @@ public class ExternalCommunicator implements Runnable {
                 fis.read(fileData);
             }
 
+            // Compute checksum of the original file data
+            String checksum = computeChecksum(fileData);
+            System.out.println("Computed file checksum: " + checksum + " (" + fileData.length + " bytes)");
+
             // Encode to Base64 for text transmission
             String encodedData = Base64.getEncoder().encodeToString(fileData);
 
@@ -399,7 +702,7 @@ public class ExternalCommunicator implements Runnable {
             int chunks = (int) Math.ceil((double) encodedData.length() / chunkSize);
 
             System.out.println("Sending save file: " + fileData.length + " bytes in " + chunks + " chunks");
-            sendMessage("saveFileStart:" + fileData.length + ":" + chunks);
+            sendMessage("saveFileStart:" + fileData.length + ":" + chunks + ":" + checksum);
 
             for (int i = 0; i < chunks; i++) {
                 int start = i * chunkSize;
@@ -418,22 +721,45 @@ public class ExternalCommunicator implements Runnable {
     }
 
     /**
+     * Computes SHA-256 checksum of byte array
+     */
+    private static String computeChecksum(byte[] data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(data);
+
+            // Convert to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            System.err.println("Error computing checksum: " + e.getMessage());
+            e.printStackTrace();
+            return "ERROR";
+        }
+    }
+
+    /**
      * Loads the resync save file using SerializationManager
      */
     private static void loadResyncSaveFile() {
         try {
-            File saveFile = new File(RESYNC_SAVE_PATH);
+            File saveFile = new File(getResyncPath());
             if (!saveFile.exists()) {
                 System.err.println("Resync save file not found for loading!");
                 return;
             }
 
             System.out.println("Loading resync save file...");
-            SerializationManager.loadGameState(RTSGame.game, RESYNC_SAVE_PATH);
+            SerializationManager.loadGameState(RTSGame.game, getResyncPath());
 
-            // Loading happens via tick delays (takes ~3 ticks)
+            // Loading happens via tick delays (takes ~2 ticks)
             // Schedule pause and coordination after loading finishes
-            RTSGame.game.addTickDelayedEffect(1, g -> {
+            RTSGame.game.addTickDelayedEffect(3, g -> {
                 System.out.println("Resync load complete, now pausing for coordination");
 
                 // NOW pause after loading is complete
@@ -458,6 +784,8 @@ public class ExternalCommunicator implements Runnable {
                         }
                         System.out.println("Restarting multiplayer game after resync");
                         RTSGame.game.setPaused(false);
+                        lastResyncCompletedTick = RTSGame.game.handler.globalTickNumber;
+                        System.out.println("[DETERMINISM] Resync completed at tick " + lastResyncCompletedTick + ", grace period of " + DETERMINISM_GRACE_PERIOD + " ticks active");
                         isResyncing = false;
                         clientLoadComplete = false; // Reset for next resync
                         return null;
@@ -470,9 +798,206 @@ public class ExternalCommunicator implements Runnable {
         }
     }
 
+    /**
+     * Generates a state string from all units using their toTransportString() method
+     */
+    private static String generateGameStateString() {
+        StringBuilder stateBuilder = new StringBuilder();
+
+        // Get all units and sort by ID for deterministic ordering
+        java.util.List<RTSUnit> units = new java.util.ArrayList<>();
+        for (GameObject2 obj : RTSGame.game.getAllObjects()) {
+            if (obj instanceof RTSUnit unit) {
+                units.add(unit);
+            }
+        }
+
+        // Sort by ID to ensure same order on both machines
+        units.sort((a, b) -> a.ID.compareTo(b.ID));
+
+        // Build state string from all units using toTransportString()
+        for (RTSUnit unit : units) {
+            stateBuilder.append(unit.toTransportString());
+            stateBuilder.append("\n");
+        }
+
+        return stateBuilder.toString();
+    }
+
+    /**
+     * Updates the tick timing offset based on incoming command execute ticks
+     * This tells us if we're ahead or behind the partner
+     */
+    private static void updateTickTimingOffset(long incomingExecuteTick) {
+        long currentTick = RTSGame.game.handler.globalTickNumber;
+        long expectedExecuteTick = currentTick + currentInputDelay;
+
+        // Calculate offset from command execute tick
+        // If partner scheduled command sooner than expected, they're behind (we're ahead = positive)
+        // If partner scheduled command later than expected, they're ahead (we're behind = negative)
+        double offset = expectedExecuteTick - incomingExecuteTick;
+
+        double oldSmoothedOffset = tickTimingOffset;
+
+        // Smooth the offset with exponential moving average
+        tickTimingOffset = tickTimingOffset * 0.5 + offset * 0.5;
+
+        System.out.println("[CMD-UPDATE] Raw offset: " + String.format("%.1f", offset) +
+                          " | Smoothed: " + String.format("%.1f", oldSmoothedOffset) + " -> " + String.format("%.1f", tickTimingOffset) +
+                          " | currentTick:" + currentTick + " | inputDelay:" + currentInputDelay +
+                          " | expectedExec:" + expectedExecuteTick + " | actualExec:" + incomingExecuteTick);
+    }
+
+    /**
+     * Gets the current adaptive input delay
+     */
+    public static int getCurrentInputDelay() {
+        return currentInputDelay;
+    }
+
+    /**
+     * Resets adaptive synchronization state (called after resync)
+     */
+    private static void resetAdaptiveSync() {
+        currentInputDelay = INITIAL_INPUT_DELAY;
+        tickTimingOffset = 0.0;
+        readyToDecreaseDelay = false;
+        partnerReadyToDecreaseDelay = false;
+        lastTickHeartbeatTime = 0;
+
+        // Reset determinism check state
+        lastDeterminismCheckTick = 0;
+        partnerStateStrings.clear();
+        ourStateStrings.clear();
+
+        // Restore base TPS (in case it was boosted for catch-up)
+        if(Main.ticksPerSecond != baseTicksPerSecond) {
+            System.out.println("[SYNC] Restoring TPS to " + baseTicksPerSecond + " (was " + Main.ticksPerSecond + ")");
+            Main.ticksPerSecond = baseTicksPerSecond;
+        }
+
+        System.out.println("[SYNC] Reset adaptive sync - input delay: " + currentInputDelay);
+    }
+
     public static void beginResyncPt2() {
        // Coordination now happens via save file load completion in loadResyncSaveFile()
        // This acknowledgment message is received but no action needed
        System.out.println("beginResyncPt2 acknowledged (using save file coordination)");
+    }
+
+    /**
+     * Helper method to analyze and report differences between two game state snapshots.
+     * Prints the number of units mismatched and which fields are different for each mismatched unit.
+     *
+     * @param ourStateString Our game state string
+     * @param partnerStateString Partner's game state string
+     * @param tick The tick number at which the desync was detected
+     */
+    private static void analyzeAndReportStateDifferences(String ourStateString, String partnerStateString, long tick) {
+        System.out.println("\n[DETERMINISM] ===== ANALYZING DESYNC AT TICK " + tick + " =====");
+
+        // Parse both state strings into maps (ID -> state line)
+        java.util.Map<String, String> ourUnits = new java.util.HashMap<>();
+        java.util.Map<String, String> partnerUnits = new java.util.HashMap<>();
+
+        // Parse our state
+        String[] ourLines = ourStateString.split("\n");
+        for (String line : ourLines) {
+            if (line.trim().isEmpty()) continue;
+            String[] fields = line.split(",", -1);
+            if (fields.length > 0) {
+                String unitId = fields[0];
+                ourUnits.put(unitId, line);
+            }
+        }
+
+        // Parse partner state
+        String[] partnerLines = partnerStateString.split("\n");
+        for (String line : partnerLines) {
+            if (line.trim().isEmpty()) continue;
+            String[] fields = line.split(",", -1);
+            if (fields.length > 0) {
+                String unitId = fields[0];
+                partnerUnits.put(unitId, line);
+            }
+        }
+
+        // Find mismatched units
+        java.util.Set<String> allUnitIds = new java.util.HashSet<>();
+        allUnitIds.addAll(ourUnits.keySet());
+        allUnitIds.addAll(partnerUnits.keySet());
+
+        int mismatchedUnits = 0;
+        java.util.List<String> mismatchDetails = new java.util.ArrayList<>();
+
+        // Field names for better reporting
+        String[] fieldNames = {
+            "ID", "location.x", "location.y", "currentHealth", "rotation",
+            "desiredLocation.x", "desiredLocation.y", "isRubble", "commandGroup",
+            "velocity.x", "velocity.y", "comingFromLocation", "baseSpeed", "originalSpeed",
+            "isImmobilized", "isCloaked", "waypoints", "pathCacheUses",
+            "pathCacheSignatureLastChangedTick", "pathStartCache", "pathEndCache",
+            "pathCacheSignature", "pathCache"
+        };
+
+        for (String unitId : allUnitIds) {
+            String ourUnit = ourUnits.get(unitId);
+            String partnerUnit = partnerUnits.get(unitId);
+
+            // Check if unit exists in both states
+            if (ourUnit == null) {
+                mismatchedUnits++;
+                mismatchDetails.add("  Unit " + unitId + ": EXISTS ONLY IN PARTNER STATE (missing from our state)");
+                continue;
+            }
+
+            if (partnerUnit == null) {
+                mismatchedUnits++;
+                mismatchDetails.add("  Unit " + unitId + ": EXISTS ONLY IN OUR STATE (missing from partner state)");
+                continue;
+            }
+
+            // Compare fields
+            if (!ourUnit.equals(partnerUnit)) {
+                mismatchedUnits++;
+                String[] ourFields = ourUnit.split(",", -1);
+                String[] partnerFields = partnerUnit.split(",", -1);
+
+                java.util.List<String> differentFields = new java.util.ArrayList<>();
+                int maxFields = Math.max(ourFields.length, partnerFields.length);
+
+                for (int i = 0; i < maxFields; i++) {
+                    String ourValue = i < ourFields.length ? ourFields[i] : "<missing>";
+                    String partnerValue = i < partnerFields.length ? partnerFields[i] : "<missing>";
+
+                    if (!ourValue.equals(partnerValue)) {
+                        String fieldName = i < fieldNames.length ? fieldNames[i] : "field[" + i + "]";
+                        differentFields.add(fieldName + " (ours: " + ourValue + ", partner: " + partnerValue + ")");
+                    }
+                }
+
+                StringBuilder detail = new StringBuilder("  Unit " + unitId + ": " + differentFields.size() + " field(s) differ\n");
+                for (String diff : differentFields) {
+                    detail.append("    - ").append(diff).append("\n");
+                }
+                mismatchDetails.add(detail.toString().trim());
+                System.out.println("adding unit id to outOfSyncUnitIds" + unitId);
+                outOfSyncUnitIds.add(unitId);
+            }
+        }
+
+        // Print summary
+        System.out.println("[DETERMINISM] Total units in our state: " + ourUnits.size());
+        System.out.println("[DETERMINISM] Total units in partner state: " + partnerUnits.size());
+        System.out.println("[DETERMINISM] Number of mismatched units: " + mismatchedUnits);
+
+        if (mismatchedUnits > 0) {
+            System.out.println("\n[DETERMINISM] MISMATCH DETAILS:");
+            for (String detail : mismatchDetails) {
+                System.out.println(detail);
+            }
+        }
+
+        System.out.println("\n[DETERMINISM] ===== END DESYNC ANALYSIS =====\n");
     }
 }

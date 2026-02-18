@@ -243,6 +243,28 @@ public class Main {
     }
     
         /**
+     * returns a random integer between the given parameters using the shared random
+     *@param min minimum value the generated value can be
+     * @param max maximum value the gnerated value can be
+     * @param seed seed for random
+     * @return the number
+     */
+    public static int generateRandomIntFromSeed(int min, int max, long seed) {
+        if (min == max) {
+            return min; //if they are the same return that number
+        }
+        if (max < min) {
+            //if the numbers are entered backwards, rerun the method with the correct order
+            return generateRandomIntFromSeed(max, min, seed);
+        } else {
+            //here is the body of our method
+            int diff = max - min;
+            int output = (int) ((new Random(seed)).nextDouble() * diff); //generates a random number between 0 and the difference between the numbers
+            return (min + output);                //returns that random number plus the min
+        }
+    }
+    
+        /**
      * returns a random double between the given parameters using the shared random
      *@param min minimum value the generated value can be
      * @param max maximum value the gnerated value can be
@@ -262,6 +284,30 @@ public class Main {
             return (min + output);                //returns that random number plus the min
         }
     }
+    
+    
+            /**
+     * returns a random double between the given parameters using the shared random
+     *@param min minimum value the generated value can be
+     * @param max maximum value the generated value can be
+     * @param seed seed for random generator
+     * @return the number
+     */
+    public static double generateRandomDoubleFromSeed(double min, double max, long seed) {
+        if (min == max) {
+            return min; //if they are the same return that number
+        }
+        if (max < min) {
+            //if the numbers are entered backwards, rerun the method with the correct order
+            return generateRandomDoubleFromSeed(max, min, seed);
+        } else {
+            //here is the body of our method
+            double diff = max - min;
+            int output = (int) ((new Random(seed)).nextDouble() * diff); //generates a random number between 0 and the difference between the numbers
+            return (min + output);                //returns that random number plus the min
+        }
+    }
+    
     
     /**
      * returns a random double between the given parameters NOT using the shared random

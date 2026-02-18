@@ -92,7 +92,7 @@ public class BazookaBullet extends Projectile {
             } else if (!hasCollided) {
                 hasCollided = true;
                 int tickDelay = Main.generateRandomInt(2, 5);
-                tickToDestroy = tickNumber + tickDelay;
+                tickToDestroy = getHostGame().getGameTickNumber() + tickDelay;
                 collidedUnit = unit;
             }
         }
@@ -101,7 +101,7 @@ public class BazookaBullet extends Projectile {
     @Override
     public void tick() {
         super.tick();
-        if (tickNumber == tickToDestroy) {
+        if (getHostGame().getGameTickNumber() == tickToDestroy) {
             this.destroy();
         }
         // lockon
@@ -138,7 +138,7 @@ public class BazookaBullet extends Projectile {
         if (target.plane == 1) {
             shadowOffset = (int) ((distanceFrom(target) / initialDistance) * 100);
         } else if (target.plane > 1) {
-            shadowOffset = Math.min((int) (((double) tickNumber / (double) ticksToReachStillTarget) * 65) + 30, 95);
+            shadowOffset = Math.min((int) (((double) getHostGame().getGameTickNumber() / (double) ticksToReachStillTarget) * 65) + 30, 95);
         }
         g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
         g.drawImage(toRender, renderX, renderY + shadowOffset, null);

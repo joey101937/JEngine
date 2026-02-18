@@ -70,7 +70,7 @@ public class DeterminismTest4 {
             done = !greenAlive || !redAlive || game.getGameTickNumber() > 20000;
         }
         if(show) Window.initialize(game);
-        return game.getAllObjects().stream().filter(x -> x instanceof RTSUnit).map(x -> unitToString((RTSUnit)x)).toList();
+        return game.getAllObjects().stream().filter(x -> x instanceof RTSUnit).map(x -> ((RTSUnit)x).toTransportString()).toList();
     }
 
     public static void main(String[] args) {

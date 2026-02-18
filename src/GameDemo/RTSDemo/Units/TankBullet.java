@@ -13,7 +13,6 @@ import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Stickers.OnceThroughSticker;
-import Framework.Stickers.Sticker;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
@@ -112,7 +111,7 @@ public class TankBullet extends Projectile {
         VolatileImage toRender = shadow.getCurrentVolatileImage();
         int renderX = getPixelLocation().x - toRender.getWidth() / 2;
         int renderY = getPixelLocation().y - toRender.getHeight() / 2;
-        int shadowOffset = 30 - (int)((tickNumber/(maxRange/baseSpeed)) * 30);
+        int shadowOffset = 30 - (int)((getHostGame().getGameTickNumber()/(maxRange/baseSpeed)) * 30);
         g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
         g.drawImage(toRender, renderX, renderY + shadowOffset, null);
         g.setTransform(old);

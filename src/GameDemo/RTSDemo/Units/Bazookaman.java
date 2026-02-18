@@ -120,18 +120,18 @@ public class Bazookaman extends RTSUnit {
         super.tick();
 
         // Check for scheduled destruction
-        if (destructionScheduledAtTick > 0 && tickNumber >= destructionScheduledAtTick) {
+        if (destructionScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= destructionScheduledAtTick) {
             this.destroy();
             return;
         }
 
         // Check attack cooldown expiration
-        if (attackCooldownExpiresAtTick > 0 && tickNumber >= attackCooldownExpiresAtTick) {
+        if (attackCooldownExpiresAtTick > 0 && getHostGame().getGameTickNumber() >= attackCooldownExpiresAtTick) {
             attackCooldownExpiresAtTick = 0;
         }
 
         // Check for pending bullet spawn
-        if (pendingBulletSpawnAtTick > 0 && tickNumber >= pendingBulletSpawnAtTick) {
+        if (pendingBulletSpawnAtTick > 0 && getHostGame().getGameTickNumber() >= pendingBulletSpawnAtTick) {
             if (pendingBulletTarget != null && getHostGame() != null) {
                 Coordinate offset = new Coordinate(5, -30);
                 offset.adjustForRotation(turret.getRotation());
@@ -142,7 +142,7 @@ public class Bazookaman extends RTSUnit {
         }
 
         if(isRubble && this.turret.getRenderOpacity() > 0) {
-                this.turret.setRenderOpacity(turret.getRenderOpacity() - (1f/(Main.ticksPerSecond*5)));
+                this.turret.setRenderOpacity(turret.getRenderOpacity() - (1f/(RTSGame.desiredTPS*5)));
         }
         if(this.isRubble) return;
         if (this.velocity.y != 0 && !getGraphic().isAnimated()) {
@@ -159,7 +159,7 @@ public class Bazookaman extends RTSUnit {
         if (attackCooldownExpiresAtTick > 0 || Math.abs(turret.rotationNeededToFace(target.getPixelLocation())) > 1) {
             return;
         }
-        attackCooldownExpiresAtTick = tickNumber + (int) (Main.ticksPerSecond * attackInterval);
+        attackCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (RTSGame.desiredTPS * attackInterval);
 
         if (isOnScreen()) {
             RTSSoundManager.get().play(
@@ -175,7 +175,7 @@ public class Bazookaman extends RTSUnit {
         turret.setGraphic((team == 0 ? attackSequence : attackSequenceRed).copyMaintainSource());
 
         // Schedule bullet spawn after 25 ticks
-        pendingBulletSpawnAtTick = tickNumber + 25;
+        pendingBulletSpawnAtTick = getHostGame().getGameTickNumber() + 25;
         pendingBulletTarget = target;
     }
 
@@ -219,9 +219,9 @@ public class Bazookaman extends RTSUnit {
         this.isRubble = true;
         this.isSolid = false;
         this.turret.setGraphic(getDeathAnimation());
-        destructionScheduledAtTick = tickNumber + (Main.ticksPerSecond * 10);
+        destructionScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
         this.setZLayer((int)(Math.random() * -50));
-        if((tickNumber % 4) == 0) {
+        if((getHostGame().getGameTickNumber() % 4) == 0) {
             RTSSoundManager.get().play(RTSSoundManager.INFANTRY_DEATH, .6, 0);
         }
     }

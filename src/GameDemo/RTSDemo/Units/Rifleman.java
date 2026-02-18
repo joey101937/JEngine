@@ -116,13 +116,13 @@ public class Rifleman extends RTSUnit {
         super.tick();
 
         // Check for scheduled destruction
-        if (destructionScheduledAtTick > 0 && tickNumber >= destructionScheduledAtTick) {
+        if (destructionScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= destructionScheduledAtTick) {
             this.destroy();
             return;
         }
 
         // Check attack cooldown expiration
-        if (attackCooldownExpiresAtTick > 0 && tickNumber >= attackCooldownExpiresAtTick) {
+        if (attackCooldownExpiresAtTick > 0 && getHostGame().getGameTickNumber() >= attackCooldownExpiresAtTick) {
             attackCooldownExpiresAtTick = 0;
         }
 
@@ -138,7 +138,7 @@ public class Rifleman extends RTSUnit {
             turret.setGraphic(turret.getIdleAnimation());
         }
         if(isRubble && this.turret.getRenderOpacity() > 0) {
-                this.turret.setRenderOpacity(turret.getRenderOpacity() - (1f/(Main.ticksPerSecond*5)));
+                this.turret.setRenderOpacity(turret.getRenderOpacity() - (1f/(RTSGame.desiredTPS*5)));
         }
     }
 
@@ -146,7 +146,7 @@ public class Rifleman extends RTSUnit {
         if (attackCooldownExpiresAtTick > 0 || Math.abs(turret.rotationNeededToFace(target.getPixelLocation())) > 1) {
             return;
         }
-        attackCooldownExpiresAtTick = tickNumber + (Main.ticksPerSecond * attackFrequency);
+        attackCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * attackFrequency);
 
             if (isOnScreen()) {
                  RTSSoundManager.get().play(
@@ -295,9 +295,9 @@ public class Rifleman extends RTSUnit {
         this.isRubble = true;
         this.isSolid = false;
         this.turret.setGraphic(getDeathAnimation());
-        destructionScheduledAtTick = tickNumber + (Main.ticksPerSecond * 10);
+        destructionScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
         this.setZLayer((int)(Math.random() * -50));
-        if((tickNumber % 4) == 0) {
+        if((getHostGame().getGameTickNumber() % 4) == 0) {
             RTSSoundManager.get().play(RTSSoundManager.INFANTRY_DEATH, .6, 0);
         }
     }

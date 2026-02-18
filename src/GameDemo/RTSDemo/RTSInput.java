@@ -31,7 +31,15 @@ import java.util.stream.Collectors;
  * @author Joseph
  */
 public class RTSInput extends InputHandler {
-    public static int inputDelay = ExternalCommunicator.isMultiplayer ?  RTSGame.tickAdjust(12) : 1; // ticks
+    // Use dynamic input delay that adapts based on synchronization state
+    public static int getInputDelay() {
+        if (!ExternalCommunicator.isMultiplayer) {
+            return 1; // Single player
+        }
+        return RTSGame.tickAdjust(ExternalCommunicator.getCurrentInputDelay());
+    }
+
+    public static int inputDelay = getInputDelay(); // For compatibility, but prefer getInputDelay()
 
     private static Coordinate mouseDownLocation = null;
     private static Coordinate mouseDraggedLocation = null;
@@ -139,7 +147,7 @@ public class RTSInput extends InputHandler {
                         continue;
                     }
                     RTSGame.commandHandler.addCommand(new MoveCommand(
-                            hostGame.getGameTickNumber() + inputDelay,
+                            hostGame.getGameTickNumber() + getInputDelay(),
                             u.ID,
                             locationOfMouseEvent,
                             generatedCommandGroup
@@ -160,7 +168,7 @@ public class RTSInput extends InputHandler {
                     Coordinate targetOffset = target.offsetBy(offset);
                     long originalTick = hostGame.handler.globalTickNumber;
                     RTSGame.commandHandler.addCommand(new MoveCommand(
-                            hostGame.getGameTickNumber() + inputDelay,
+                            hostGame.getGameTickNumber() + getInputDelay(),
                             u.ID,
                             targetOffset,
                             generatedCommandGroup
@@ -324,7 +332,7 @@ public class RTSInput extends InputHandler {
                         continue;
                     }
                     RTSGame.commandHandler.addCommand(new StopCommand(
-                            hostGame.getGameTickNumber() + inputDelay,
+                            hostGame.getGameTickNumber() + getInputDelay(),
                             u.ID
                     ), true);
                 }

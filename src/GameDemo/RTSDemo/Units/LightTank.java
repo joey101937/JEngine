@@ -86,9 +86,9 @@ public class LightTank extends RTSUnit {
     @Override
     public void onPostDeserialization() {
         // Restore graphics after deserialization
-        this.setGraphic(getHullSprite());
+        this.setGraphic(isRubble ? hullSpriteDestroyed : getHullSprite());
         if (turret != null) {
-            turret.setGraphic(turret.getTurretSprite());
+            turret.setGraphic(isRubble ? turretSpriteDestroyed : turret.getTurretSprite());
         }
         // Restore button transient fields after deserialization
         for (CommandButton button : getButtons()) {
@@ -112,25 +112,25 @@ public class LightTank extends RTSUnit {
         super.tick();
 
         // Check for scheduled destruction
-        if (destructionScheduledAtTick > 0 && tickNumber >= destructionScheduledAtTick) {
+        if (destructionScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= destructionScheduledAtTick) {
             this.destroy();
             return;
         }
 
         // Check for scheduled fadeout
-        if (fadeoutScheduledAtTick > 0 && tickNumber >= fadeoutScheduledAtTick) {
+        if (fadeoutScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= fadeoutScheduledAtTick) {
             OnceThroughSticker despawnExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "lightTankDespawnExplosion"), getPixelLocation());
             this.setGraphic(deathFadeout.copyMaintainSource());
             this.isSolid = false;
             this.setZLayer(-10);
             this.turret.isInvisible = true;
-            destructionScheduledAtTick = tickNumber + (Main.ticksPerSecond * 3);
+            destructionScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 3);
             fadeoutScheduledAtTick = 0;
             return;
         }
 
         // Check barrel cooldown expiration
-        if (barrelCooldownExpiresAtTick > 0 && tickNumber >= barrelCooldownExpiresAtTick) {
+        if (barrelCooldownExpiresAtTick > 0 && getHostGame().getGameTickNumber() >= barrelCooldownExpiresAtTick) {
             barrelCooldownExpiresAtTick = 0;
         }
 
@@ -160,7 +160,7 @@ public class LightTank extends RTSUnit {
     }
 
     public void fire(RTSUnit target) {
-        barrelCooldownExpiresAtTick = tickNumber + (int) (Main.ticksPerSecond * attackInterval);
+        barrelCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (RTSGame.desiredTPS * attackInterval);
         playAttackSound();
         turret.setGraphic(getFireSequence());
         Coordinate muzzelLocation = new Coordinate(0, 0);
@@ -215,7 +215,7 @@ public class LightTank extends RTSUnit {
         if(isOnScreen()) {
             RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .64), 0);
         }
-        fadeoutScheduledAtTick = tickNumber + (Main.ticksPerSecond * 10);
+        fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
     }
 
     public class LightTankTurret extends SubObject {

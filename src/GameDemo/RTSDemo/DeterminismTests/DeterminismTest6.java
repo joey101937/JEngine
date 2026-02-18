@@ -42,7 +42,7 @@ public class DeterminismTest6 {
         RTSGame.setupUI(game);
 
         // Immediately load from existing save file
-        String saveFilePath = "saves/test_quicksave.dat";
+        String saveFilePath = "saves/mp_resync_server.dat";
         System.out.println("Loading game from " + saveFilePath + "...");
 
         SerializationManager.loadGameState(game, saveFilePath);
@@ -93,7 +93,7 @@ public class DeterminismTest6 {
         }
 
         if(show) Window.initialize(game);
-        return game.getAllObjects().stream().filter(x -> x instanceof RTSUnit).map(x -> unitToString((RTSUnit)x)).toList();
+        return game.getAllObjects().stream().filter(x -> x instanceof RTSUnit).map(x -> ((RTSUnit)x).toTransportString()).toList();
     }
 
     public static void main(String[] args) {

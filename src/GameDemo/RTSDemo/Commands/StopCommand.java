@@ -62,4 +62,9 @@ public class StopCommand implements Command {
         long executeTick = Long.parseLong(components[1]);
         return new StopCommand(executeTick, unitId);
     }
+    
+    @Override
+    public String toString() {
+        return this.toMpString();
+    }
 }

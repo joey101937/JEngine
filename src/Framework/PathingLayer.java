@@ -7,15 +7,25 @@ package Framework;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * represented by an image, uses colors to determine pathing area
  * @author Joseph
  */
-public class PathingLayer {
-    
+public class PathingLayer implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private volatile boolean internalizingSource = false;
+
+    /**
+     * File path to the source image. Used for serialization/deserialization.
+     */
+    private String sourceFilePath;
     
     /**
      * constructor, creates pathing layer based on given image
@@ -23,6 +33,17 @@ public class PathingLayer {
      */
     public PathingLayer(BufferedImage image) {
         source = image;
+        initLegend();
+    }
+
+    /**
+     * constructor, creates pathing layer based on given image with file path tracking
+     * @param image image to create based on
+     * @param filePath path to the source image file (for serialization)
+     */
+    public PathingLayer(BufferedImage image, String filePath) {
+        source = image;
+        this.sourceFilePath = filePath;
         initLegend();
     }
     
@@ -62,7 +83,21 @@ public class PathingLayer {
         public Type(String name, Color c){
             this.name = name;
             color = c;
-        }        
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            Type other = (Type) obj;
+            return name.equals(other.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return name.hashCode();
+        }
+
         /** example terrain type with default speed modifier of 1 */
         public static final Type ground = new Type("ground",Color.green);
         /** example terrain type with default speed modifier of .3 */
@@ -85,10 +120,10 @@ public class PathingLayer {
         legend.put(c.getRGB(), t);
     }
 
-    
-    private BufferedImage source = null;
+
+    private transient BufferedImage source = null;
     private HashMap<Integer,Type> legend = new HashMap<>();
-    private Type[][] map;
+    private transient Type[][] map;
     private boolean mapGenerated = false;
     private boolean sourceInternalized = false;
         
@@ -209,5 +244,49 @@ public class PathingLayer {
         return Type.impass;
     }
 
+    /**
+     * Sets the source file path for this pathing layer.
+     * This is used for serialization to allow recreation of the layer after loading.
+     * @param filePath path to the source image file
+     */
+    public void setSourceFilePath(String filePath) {
+        this.sourceFilePath = filePath;
+    }
+
+    /**
+     * Gets the source file path for this pathing layer.
+     * @return the file path, or null if not set
+     */
+    public String getSourceFilePath() {
+        return this.sourceFilePath;
+    }
+
+    /**
+     * Called after deserialization to restore transient fields.
+     * Reloads the source image from the file path.
+     */
+    public void onPostDeserialization() {
+        if (sourceFilePath != null && !sourceFilePath.isEmpty()) {
+            try {
+                this.source = Framework.GraphicalAssets.Graphic.load(sourceFilePath);
+
+                // Regenerate map if it was previously generated
+                if (mapGenerated) {
+                    generateMap();
+                }
+
+                System.out.println("PathingLayer restored from: " + sourceFilePath);
+            } catch (Exception e) {
+                System.err.println("Warning: Could not reload PathingLayer source from: " + sourceFilePath);
+                e.printStackTrace();
+                // Create a minimal fallback - this will cause all terrain to be impassable
+                this.source = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+            }
+        } else {
+            System.err.println("Warning: PathingLayer deserialized without source file path. Pathing may not work correctly.");
+            // Create a minimal fallback
+            this.source = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        }
+    }
 
 }

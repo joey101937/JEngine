@@ -40,7 +40,7 @@ public class HellicopterBullet extends Projectile {
 
     public int maxSpeed = RTSGame.tickAdjust(14);
     public double minSpeed = RTSGame.tickAdjust(4.4);
-    public double accellerationTime = Main.ticksPerSecond * .7;
+    public double accellerationTime = RTSGame.desiredTPS * .7;
     public double accellerationStage;
 
     static {
@@ -57,8 +57,8 @@ public class HellicopterBullet extends Projectile {
         this.setScale(.12);
         this.setGraphic(missileSprite);
         int shortestSide = Math.min(other.getWidth(), other.getHeight());
-        double offsetX = Main.generateRandomInt(-shortestSide / 2, shortestSide / 2);
-        double offsetY = Main.generateRandomInt(-shortestSide / 2, shortestSide / 2);
+        double offsetX = Main.generateRandomDoubleFromSeed(-shortestSide/2, shortestSide / 2, getHostGame().getGameTickNumber() + (int)getLocation().x + (int)getLocation().y); // Main.generateRandomInt(-shortestSide / 2, shortestSide / 2);
+        double offsetY = Main.generateRandomDoubleFromSeed(-shortestSide/2, shortestSide / 2, getHostGame().getGameTickNumber() + (int)getLocation().x + (int)getLocation().y); // Main.generateRandomInt(-shortestSide / 2, shortestSide / 2);
         this.setZLayer(11);
         this.plane = other.plane;
 
@@ -67,8 +67,8 @@ public class HellicopterBullet extends Projectile {
         shadowSprite.scaleTo(.12);
         this.initialDistance = distanceFrom(other);
         explosionSmall.scaleTo(.85);
-        minSpeed = Main.generateRandomInt(3, 5);
-        maxSpeed = Main.generateRandomInt(14, 18);
+        minSpeed = Main.generateRandomDoubleFromSeed(3, 5, getHostGame().getGameTickNumber() + getPixelLocation().x + getPixelLocation().y); // 4; // Main.generateRandomInt(3, 5);
+        maxSpeed = Main.generateRandomIntFromSeed(14,18, getHostGame().getGameTickNumber() + (int)getLocation().x + (int)getLocation().y); // 16; // Main.generateRandomInt(14, 18);
         if (plane == 1) {
             maxRange = 750;
         } else {
@@ -104,8 +104,8 @@ public class HellicopterBullet extends Projectile {
                 return;
             } else if (!hasCollided) {
                 hasCollided = true;
-                int tickDelay = Main.generateRandomInt(2, 5);
-                tickToDestroy = tickNumber + tickDelay;
+                int tickDelay = 3; // Main.generateRandomInt(2, 5);
+                tickToDestroy = getHostGame().getGameTickNumber() + tickDelay;
                 collidedUnit = unit;
             }
         }
@@ -118,7 +118,7 @@ public class HellicopterBullet extends Projectile {
         double speed = Main.clamp(maxSpeed * accellarationPercent, maxSpeed, minSpeed);
         this.setBaseSpeed(speed);
         accellerationStage++;
-        if (tickNumber == tickToDestroy) {
+        if (getHostGame().getGameTickNumber() == tickToDestroy) {
             this.destroy();
         }
     }

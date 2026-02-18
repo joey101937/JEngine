@@ -176,5 +176,12 @@ public class SubObject extends GameObject2{
     public void setRenderBelow(boolean renderBelow) {
         this.renderBelow = renderBelow;
     }
-    
+
+    @Override
+    public void onPostDeserialization() {
+        super.onPostDeserialization();
+        // Recalculate adjusted offset after deserialization based on host's current rotation
+        updateAdjustedOffset();
+    }
+
 }

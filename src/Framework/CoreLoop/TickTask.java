@@ -28,7 +28,7 @@ public class TickTask implements Runnable {
     public void run() {
         try {
             go.setHostGame(hostGame);
-            if (type.equals("preTick")) {
+            if(type.equals("preTick")) {
 //                    System.out.println("pretick " + go);
                 go.preTick();
                 for (SubObject so : go.getAllSubObjects()) {

@@ -45,7 +45,7 @@ public class MinimapListener extends MinimapMouseListener {
             if(e.isControlDown()) {
                 selectedUnits.forEach(unit -> {
                     RTSGame.commandHandler.addCommand(new MoveCommand(
-                            hostGame.getGameTickNumber() + RTSInput.inputDelay,
+                            hostGame.getGameTickNumber() + RTSInput.getInputDelay(),
                             unit.ID,
                             inWorldLocation,
                             generatedCommandGroup
@@ -55,7 +55,7 @@ public class MinimapListener extends MinimapMouseListener {
                 Coordinate avgLocation = RTSInput.averageLocation(selectedUnits);
                  selectedUnits.forEach(unit -> {
                      RTSGame.commandHandler.addCommand(new MoveCommand(
-                            hostGame.getGameTickNumber() + RTSInput.inputDelay,
+                            hostGame.getGameTickNumber() + RTSInput.getInputDelay(),
                             unit.ID,
                             (unit.getPixelLocation().subtract(avgLocation)).add(inWorldLocation),
                              generatedCommandGroup

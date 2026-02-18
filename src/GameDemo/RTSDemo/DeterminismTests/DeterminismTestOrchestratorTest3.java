@@ -38,6 +38,8 @@ public class DeterminismTestOrchestratorTest3 {
         
         if(resultsMap.values().size() != 1) {
             System.out.println("ALERT: nondeterminism found");
+        } else {
+            System.out.println("looks good");
         }
     }
 }

@@ -360,7 +360,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param destination location to look at
      */
     public void lookAt(DCoordinate destination){
-         rotateTo(DCoordinate.angleFrom(location, destination));
+        rotateTo(DCoordinate.angleFrom(location, destination));
     }
         /**
      * Rotates this object so that its front (determined by innate rotation) is
@@ -368,7 +368,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param destination location to look at
      */
     public void lookAt(Coordinate destination){
-         rotateTo(DCoordinate.angleFrom(getPixelLocation(), destination));
+        rotateTo(DCoordinate.angleFrom(getPixelLocation(), destination));
     }
     
     /**
@@ -926,7 +926,6 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         DCoordinate proposedMovement = this.getMovementNextTick();
         proposedMovement = updateMovementBasedOnCollision(proposedMovement);
         proposedMovement = updateMovementBasedOnPathing(proposedMovement);
-        
         newLocation.add(proposedMovement);
 
         // pathing layer now
@@ -1017,7 +1016,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public GameObject2(Coordinate c){
       init(new DCoordinate(c));
-      ID = String.valueOf(IDLog++);
+      ID = this.getClass().getSimpleName() + String.valueOf(IDLog++);
     }
      /**
      * Creates new GameObject2 at exact location
@@ -1025,7 +1024,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public GameObject2(DCoordinate dc){
         init(dc);
-        ID = String.valueOf(IDLog++);
+        ID = this.getClass().getSimpleName() + String.valueOf(IDLog++);
     }
      /**
      * Creates new GameObject2 at location
@@ -1034,7 +1033,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public GameObject2(int x, int y){
       init(new DCoordinate(x,y));
-      ID = String.valueOf(IDLog++); 
+      ID = this.getClass().getSimpleName() + String.valueOf(IDLog++); 
     }
     /**
      * sets initial values common for all gameObjects
