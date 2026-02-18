@@ -287,7 +287,8 @@ public abstract class RTSAssetManager {
         new Bazookaman(0, 0, 0);
         new Hellicopter(0, 0, 0);
         new Landmine(0, 0, 0);
-        System.out.println("done preloading");
+        RTSUnitIdHelper.reset();
+        System.out.println("done preloading.");
     }
 
     public static BufferedImage[] greenToRed(BufferedImage[] input) {

@@ -24,6 +24,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -91,6 +92,8 @@ public class ExternalCommunicator implements Runnable {
     private static final java.util.concurrent.ConcurrentHashMap<Long, String> partnerStateStrings = new java.util.concurrent.ConcurrentHashMap<>();
     private static final java.util.concurrent.ConcurrentHashMap<Long, String> ourStateStrings = new java.util.concurrent.ConcurrentHashMap<>();
     
+    public static ArrayList<String> outOfSyncUnitIds = new ArrayList<>();
+    
     public static void setAndCommunicateMultiplayerReady () {
         isReadyForMultiplayerThisMachine = true;
         sendMessage("readyPhase1");
@@ -111,8 +114,8 @@ public class ExternalCommunicator implements Runnable {
     
     public static boolean isMPReadyForCommands() {
         if(!isMultiplayer) return true;
-        System.out.println(tickTimingOffset + " offset compared to " + (RTSInput.inputDelay - 5));
-        return Math.abs(tickTimingOffset) < RTSInput.inputDelay - 5;
+        System.out.println(tickTimingOffset + " offset compared to " + (RTSInput.getInputDelay() - 5));
+        return Math.abs(tickTimingOffset) < RTSInput.getInputDelay() - 5;
     }
 
     private static String getResyncPath() {return "saves/mp_resync_" + (isServer ? "server" : "client") + ".dat";}
@@ -195,7 +198,7 @@ public class ExternalCommunicator implements Runnable {
             if(tickTimingOffset < -2) {
                 // We're behind - temporarily increase our TPS to catch up
                 // Proportional boost: 0.25 TPS per tick of offset, capped at +5 TPS
-                int maxBoost = (int) Math.min(baseTicksPerSecond * 0.8, 80); // 80% boost, capped at +80 TPS
+                int maxBoost = (int) Math.min(baseTicksPerSecond * 0.8, 160); // 80% boost, capped at +160 TPS
                 int tpsBoost = (int) Math.min(Math.abs(tickTimingOffset) * 0.25, maxBoost);
                 int targetTPS = baseTicksPerSecond + tpsBoost;
 
@@ -242,6 +245,7 @@ public class ExternalCommunicator implements Runnable {
 
                         // Trigger resync
                         if(!isResyncing) {
+                            System.out.println("being resync via partenr state check");
                             beginResync(true);
                         }
                     } else {
@@ -496,6 +500,7 @@ public class ExternalCommunicator implements Runnable {
 
                     // Trigger resync
                     if(!isResyncing) {
+                        System.out.println("beginning resync from statecheck");
                         beginResync(true);
                     }
                 } else {
@@ -653,8 +658,9 @@ public class ExternalCommunicator implements Runnable {
 
             // Use SerializationManager to create the save
             // We need to do this synchronously, so we'll create the snapshot directly
-            SerializationManager.GameStateSnapshot snapshot =
-                new SerializationManager.GameStateSnapshot(RTSGame.game.handler, RTSGame.game);
+            SerializationManager.GameStateSnapshot snapshot = // SerializationManager.generateStateSnapshot(RTSGame.game);
+                new SerializationManager.GameStateSnapshot(RTSGame.game);
+            // alert! this snapshot is taken mid-tick so it may not work because some units will be one tick ahead of others.
 
             try (FileOutputStream fileOut = new FileOutputStream(getResyncPath());
                  java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(fileOut)) {
@@ -975,6 +981,8 @@ public class ExternalCommunicator implements Runnable {
                     detail.append("    - ").append(diff).append("\n");
                 }
                 mismatchDetails.add(detail.toString().trim());
+                System.out.println("adding unit id to outOfSyncUnitIds" + unitId);
+                outOfSyncUnitIds.add(unitId);
             }
         }
 

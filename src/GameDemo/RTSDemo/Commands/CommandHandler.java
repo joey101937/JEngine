@@ -74,7 +74,7 @@ public class CommandHandler extends IndependentEffect{
         }
         if(toAdd.getExecuteTick() < game.getGameTickNumber()) {
             System.out.println("Trying to add command to the past" + toAdd.toMpString());
-            ExternalCommunicator.beginResync(true);
+            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.beginResync(true);
             return;
         }
         addQueue.add(toAdd);
@@ -110,6 +110,7 @@ public class CommandHandler extends IndependentEffect{
         if(commandsToRun == null) return;
         for(Command com : commandsToRun) {
             try {
+                System.out.println("command " + com + " executing on tick " + game.getGameTickNumber());
                 com.setHasResolved(com.execute());
             } catch (Exception e) {
                 System.out.println("error running command " + com.toMpString());

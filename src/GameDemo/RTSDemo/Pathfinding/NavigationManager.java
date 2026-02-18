@@ -159,7 +159,6 @@ public class NavigationManager extends IndependentEffect {
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
             if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired() ) {
-                // this is async and thats why its breaking
                 pathingTasks.add(unitPathingService.submit(() -> {
                     unit.updateWaypoints();
                     return true;

@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * @author JEngine
  */
 public class SerializationManager {
-
+    private static GameStateSnapshot lastGeneratedSnapshot = lastGeneratedSnapshot = null;
     /**
      * Represents a saved game state snapshot
      */
@@ -26,9 +26,9 @@ public class SerializationManager {
         public DCoordinate cameraLocation;
         public PathingLayer pathingLayer;
 
-        public GameStateSnapshot(Handler handler, Game game) {
-            this.gameObjects = new ArrayList<>(handler.getAllObjects());
-            this.globalTickNumber = handler.globalTickNumber;
+        public GameStateSnapshot(Game game) {
+            this.gameObjects = new ArrayList<>(game.handler.getAllObjects());
+            this.globalTickNumber = game.handler.globalTickNumber;
             // Effects would need to be accessible - for now we'll skip them
             // as they contain lambda functions which are not easily serializable
             this.tickDelayedEffects = new ArrayList<>();
@@ -50,6 +50,19 @@ public class SerializationManager {
             this.pathingLayer = game.getPathingLayer();
         }
     }
+    
+    /**
+     * generates a snapshot of given game. tick safe but causes the game to tick once
+     * @param g given game
+     * @return generated snapshot
+     */
+    public synchronized static GameStateSnapshot generateStateSnapshot(Game g) {
+        g.addTickDelayedEffect(1, c -> {
+            lastGeneratedSnapshot = new GameStateSnapshot(g);
+        });
+        g.tick();
+        return lastGeneratedSnapshot;
+    }
 
     /**
      * Saves the current game state to a file
@@ -62,7 +75,7 @@ public class SerializationManager {
         // Schedule save to happen after next tick completes
         game.addTickDelayedEffect(1, g -> {
             try {
-                GameStateSnapshot snapshot = new GameStateSnapshot(game.handler, game);
+                GameStateSnapshot snapshot = new GameStateSnapshot(game);
 
                 try (FileOutputStream fileOut = new FileOutputStream(filePath);
                      ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
@@ -89,7 +102,7 @@ public class SerializationManager {
             // Load snapshot from disk
             GameStateSnapshot snapshot;
             try (FileInputStream fileIn = new FileInputStream(filePath);
-                 ObjectInputStream in = new ObjectInputStream(fileIn)) {
+                ObjectInputStream in = new ObjectInputStream(fileIn)) {
                 snapshot = (GameStateSnapshot) in.readObject();
             }
 

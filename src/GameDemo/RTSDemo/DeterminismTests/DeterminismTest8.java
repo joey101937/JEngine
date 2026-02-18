@@ -151,7 +151,7 @@ public class DeterminismTest8 {
      * Extended command history
      */
     private static void populateCommands() {
-                ExternalCommunicator.interperateMessage("m:TankUnit_T0_34,5809,662,2540,027ORRLWA");
+        ExternalCommunicator.interperateMessage("m:TankUnit_T0_34,5809,662,2540,027ORRLWA");
         ExternalCommunicator.interperateMessage("m:TankUnit_T0_35,5969,662,2541,027ORRLWA");
         ExternalCommunicator.interperateMessage("m:TankUnit_T0_36,6129,662,2541,027ORRLWA");
         ExternalCommunicator.interperateMessage("m:TankUnit_T0_37,6289,662,2541,027ORRLWA");

@@ -72,4 +72,8 @@ public class MoveCommand implements Command{
         return new MoveCommand(executeTick, unitId, new Coordinate(x, y), comGroup);
     }
     
+    @Override
+    public String toString() {
+        return this.toMpString();
+    }
 }

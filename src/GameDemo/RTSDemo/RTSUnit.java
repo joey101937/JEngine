@@ -130,6 +130,10 @@ public class RTSUnit extends GameObject2 {
                 }
             }
         }
+        if(ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
+            g.setColor(Color.ORANGE);
+            g.fillOval(getPixelLocation().x-getWidth()/2, getPixelLocation().y-getHeight()/2, getWidth()/2, getHeight()/2);
+        }
     }
     
     @Override
@@ -473,7 +477,7 @@ public class RTSUnit extends GameObject2 {
             }
         }
 
-        System.out.println(builder.toString());
+        // System.out.println(builder.toString());
         return builder.toString();
     }
 

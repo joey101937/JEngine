@@ -352,6 +352,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param other object whos location we will look at
      */
     public void lookAt(GameObject2 other) {
+        System.out.println(this.ID + " looking at other located at " + other.getLocationAsOfLastTick());
         rotateTo(DCoordinate.angleFrom(location, other.getLocationAsOfLastTick()));
     }
     /**
@@ -360,7 +361,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param destination location to look at
      */
     public void lookAt(DCoordinate destination){
-         rotateTo(DCoordinate.angleFrom(location, destination));
+        System.out.println(this.ID + " looking at d" + destination);
+        rotateTo(DCoordinate.angleFrom(location, destination));
     }
         /**
      * Rotates this object so that its front (determined by innate rotation) is
@@ -368,7 +370,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param destination location to look at
      */
     public void lookAt(Coordinate destination){
-         rotateTo(DCoordinate.angleFrom(getPixelLocation(), destination));
+        System.out.println(this.ID + " looking at " + destination);
+        rotateTo(DCoordinate.angleFrom(getPixelLocation(), destination));
     }
     
     /**
@@ -377,6 +380,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @return degree of rotation required to face given point from current orientation
      */
     public double rotationNeededToFace(Coordinate point){
+        // System.out.println(this.ID + " getting rntf for " + point);
         double result = DCoordinate.angleFrom(getPixelLocation(), point);
         if(result-getRotation()>180)result-=360;
         if(result-getRotation()<-180)result+=360;
@@ -390,6 +394,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @return 
      */
     public double angleFrom(Coordinate point){
+        System.out.println(this.ID + " getting angleFrom " + point);
         double result = DCoordinate.angleFrom(getPixelLocation(), point);
         if(result>180)result-=360;
         if(result < -181) result +=360;
@@ -784,6 +789,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
                         if (newLocation.distanceFrom(other.getCenterForCollisionSliding()) > current.location.distanceFrom(other.getCenterForCollisionSliding())) {
                             continue; //if we are moving away from it, allow the movement
                         } else {
+                            System.out.println(this.ID + " cannot move due to collision");
                             xClear = false;
                             yClear = false;
                         }
@@ -792,9 +798,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
                         // check x only then y only
                         // use to determine what directions are clear
                         if (current.getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) roundedProposedMovement.x, 0))) {
+                            // System.out.println(this.ID + " x not clear");
                             xClear = false;
                         }
                         if (current.getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate(0, (int) roundedProposedMovement.y))) {
+                            // System.out.println(this.ID + " y not clear");
                             yClear = false;
                         }
                     } else {
@@ -924,9 +932,10 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         DCoordinate newLocation = location.copy();
         
         DCoordinate proposedMovement = this.getMovementNextTick();
+        // System.out.println(this.ID + " proposed movement " + proposedMovement);
         proposedMovement = updateMovementBasedOnCollision(proposedMovement);
         proposedMovement = updateMovementBasedOnPathing(proposedMovement);
-        
+        // System.out.println(this.ID + " final movement " + proposedMovement);
         newLocation.add(proposedMovement);
 
         // pathing layer now
@@ -940,7 +949,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         
         lastMovement = newLocation.copy().subtract(oldLocation);
 
-        location = constrainToWorld(location);
+        location = constrainToWorld(location).toPrecision(4);
+        // System.out.println(this.ID + "location ended up at " + location);
     }
 
     
@@ -963,6 +973,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
                   newLocation.y = ((1.0 - ratioOfDistance) * start.y) + (ratioOfDistance * rawEnd.y);
                 break;
             case RotationBased:
+                // System.out.println(this.ID + " rotation is " + rotation + " velocity " + this.velocity);
                 double deltaR = 0.0;
                 DCoordinate vel = velocity.copy();
                 vel = DCoordinate.adjustForRotation(vel, rotation);
@@ -1017,7 +1028,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public GameObject2(Coordinate c){
       init(new DCoordinate(c));
-      ID = String.valueOf(IDLog++);
+      ID = this.getClass().getSimpleName() + String.valueOf(IDLog++);
     }
      /**
      * Creates new GameObject2 at exact location
@@ -1025,7 +1036,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public GameObject2(DCoordinate dc){
         init(dc);
-        ID = String.valueOf(IDLog++);
+        ID = this.getClass().getSimpleName() + String.valueOf(IDLog++);
     }
      /**
      * Creates new GameObject2 at location
@@ -1034,7 +1045,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public GameObject2(int x, int y){
       init(new DCoordinate(x,y));
-      ID = String.valueOf(IDLog++); 
+      ID = this.getClass().getSimpleName() + String.valueOf(IDLog++); 
     }
     /**
      * sets initial values common for all gameObjects
