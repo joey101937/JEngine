@@ -140,7 +140,6 @@ public class DCoordinate implements Serializable {
             double adjacent = end.x - start.x;
             double opposite = end.y - start.y;
             double angle = Math.toDegrees(Math.atan2(opposite, adjacent)) + 90;
-            // System.out.println("angle from " + start + " and " + end + " is " + angle);
             return angle;
         }
     }
@@ -167,7 +166,6 @@ public class DCoordinate implements Serializable {
             double adjacent = end.x - start.x;
             double opposite = end.y - start.y;
             double angle = Math.toDegrees(Math.atan2(opposite, adjacent)) + 90;
-            // System.out.println("dangle from " + start + " and " + end + " is " + angle);
             return angle;
         }
     }

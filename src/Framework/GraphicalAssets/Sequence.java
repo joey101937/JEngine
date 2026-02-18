@@ -62,6 +62,7 @@ public class Sequence implements Graphic{
             }
             output = frames[currentFrameIndex].getImage();
         } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
             //check to see if threads got out of sync and updated index too fast
             //if so, reset index rather than returning null
             //UPDATE: this is likely unneeded after I fixed some issues but i will leave just in case

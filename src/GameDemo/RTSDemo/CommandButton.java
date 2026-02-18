@@ -41,7 +41,7 @@ public class CommandButton implements java.io.Serializable {
     public void tick() {
         tickNumber++;
         if(cooldownSeconds > 0) {
-            double cooldownTicks = cooldownSeconds * Main.ticksPerSecond;
+            double cooldownTicks = cooldownSeconds * RTSGame.desiredTPS;
             double percentDone = Math.min((tickNumber-tickLastUsed)/cooldownTicks, 1) * 100;
             this.cooldownPercent = 100-(int)percentDone;
         }

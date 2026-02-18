@@ -124,7 +124,7 @@ public class LightTank extends RTSUnit {
             this.isSolid = false;
             this.setZLayer(-10);
             this.turret.isInvisible = true;
-            destructionScheduledAtTick = getHostGame().getGameTickNumber() + (Main.ticksPerSecond * 3);
+            destructionScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 3);
             fadeoutScheduledAtTick = 0;
             return;
         }
@@ -160,7 +160,7 @@ public class LightTank extends RTSUnit {
     }
 
     public void fire(RTSUnit target) {
-        barrelCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (Main.ticksPerSecond * attackInterval);
+        barrelCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (RTSGame.desiredTPS * attackInterval);
         playAttackSound();
         turret.setGraphic(getFireSequence());
         Coordinate muzzelLocation = new Coordinate(0, 0);
@@ -215,7 +215,7 @@ public class LightTank extends RTSUnit {
         if(isOnScreen()) {
             RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .64), 0);
         }
-        fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (Main.ticksPerSecond * 10);
+        fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
     }
 
     public class LightTankTurret extends SubObject {

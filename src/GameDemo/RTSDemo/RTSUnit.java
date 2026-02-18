@@ -477,7 +477,6 @@ public class RTSUnit extends GameObject2 {
             }
         }
 
-        // System.out.println(builder.toString());
         return builder.toString();
     }
 

@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is a gank gameobject. Tank class is the chasis
+ * This is a tank gameobject. Tank class is the chasis
  *
  * @author Joseph
  */
@@ -188,7 +188,7 @@ public class TankUnit extends RTSUnit {
             this.isSolid = false;
             this.setZLayer(-100);
             this.turret.isInvisible = true;
-            destructionScheduledAtTick = getHostGame().getGameTickNumber() + (Main.ticksPerSecond * 3);
+            destructionScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 3);
             fadeoutScheduledAtTick = 0;
             return;
         }
@@ -203,11 +203,11 @@ public class TankUnit extends RTSUnit {
         }
 
         // Check for in-progress dig actions
-        if (isDiggingIn && getHostGame().getGameTickNumber() >= digActionStartTick + (Main.ticksPerSecond * 5)) {
+        if (isDiggingIn && getHostGame().getGameTickNumber() >= digActionStartTick + (RTSGame.desiredTPS * 5)) {
             deploySandbagDirect();
             isDiggingIn = false;
         }
-        if (isDiggingOut && getHostGame().getGameTickNumber() >= digActionStartTick + (Main.ticksPerSecond * 5)) {
+        if (isDiggingOut && getHostGame().getGameTickNumber() >= digActionStartTick + (RTSGame.desiredTPS * 5)) {
             pickUpSandbag();
             isDiggingOut = false;
         }
@@ -267,10 +267,6 @@ public class TankUnit extends RTSUnit {
         addButton(new FrontalArmorButton(this));
     }
 
-    @Override
-    public void setHostGame(Framework.Game g) {
-        super.setHostGame(g);
-    }
 
     @Override
     public void onPostDeserialization() {
@@ -294,7 +290,8 @@ public class TankUnit extends RTSUnit {
         if (weaponCooldownExpiresAtTick > 0 || target.distanceFrom(getLocation()) < getHeight() * 3 / 5 || Math.abs(turret.rotationNeededToFace(target)) > 1) { //limited to one shot per 60 ticks
             return;
         }
-        weaponCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (Main.ticksPerSecond * attackFrequency);
+        weaponCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (RTSGame.desiredTPS * attackFrequency);
+        System.out.println("" + this.ID + " located at " + this.getLocationAsOfLastTick()+"/" + this.getLocation()+ "/" + this.getPixelLocation() + " firing on tick " + getHostGame().getGameTickNumber() + " at " + currentTarget.ID + " located at " + currentTarget.getLocationAsOfLastTick()+"/" + currentTarget.getLocation()+ "/" + currentTarget.getPixelLocation());
         turret.onFire(target);
     }
 
@@ -350,16 +347,11 @@ public class TankUnit extends RTSUnit {
             muzzelLocation.add(getPixelLocation());
             RTSUnit targetUnit = ((RTSUnit) this.getHost()).currentTarget;
             int longestSide = Math.max(targetUnit.getWidth(), targetUnit.getHeight());
-//             Coordinate offset = new Coordinate(Main.generateRandomInt(-longestSide / 3, longestSide / 3), Main.generateRandomInt(-longestSide / 3, longestSide / 3));
-//            Coordinate offset = new Coordinate(
-//                    Main.generateRandomIntFromSeed(-longestSide / 3, longestSide / 3, getHostGame().getGameTickNumber() + (int) getLocationAsOfLastTick().x),
-//                    Main.generateRandomIntFromSeed(-longestSide / 3, longestSide / 3, getHostGame().getGameTickNumber() + (int) getLocationAsOfLastTick().y)
-//            );
-            Coordinate offset = new Coordinate(0,0);
+            Coordinate offset = new Coordinate(
+                    Main.generateRandomIntFromSeed(-longestSide / 3, longestSide / 3, getHostGame().getGameTickNumber() + (int) getLocationAsOfLastTick().x),
+                    Main.generateRandomIntFromSeed(-longestSide / 3, longestSide / 3, getHostGame().getGameTickNumber() + (int) getLocationAsOfLastTick().y)
+            );
             target.add(offset);
-//            addTickDelayedEffect(4, c -> {
-//                new OnceThroughSticker(getHostGame(), TankBullet.explosionSmall, target);
-//            });
             TankBullet bullet = new TankBullet(muzzelLocation, target.toDCoordinate());
             bullet.shooter = this.getHost();
             System.out.println("tankbullet created at " + muzzelLocation + " target " + target.toDCoordinate() + " from " + getHost().ID);
@@ -461,7 +453,7 @@ public class TankUnit extends RTSUnit {
         @Override
         public void tick() {
             long ticksSinceLastDamaged = (getHostGame().getGameTickNumber() - lastTickTakenDamage);
-            if(ticksSinceLastDamaged > Main.ticksPerSecond * 20 && sandbagUsesRemaining < 1) {
+            if(ticksSinceLastDamaged > RTSGame.desiredTPS * 20 && sandbagUsesRemaining < 1) {
                 sandbagUsesRemaining = 2;
             }
             this.isSolid = hull.sandbagActive && hull.sandbagUsesRemaining > 0;
@@ -501,7 +493,7 @@ public class TankUnit extends RTSUnit {
         if(isOnScreen()) {
             RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .66), 0);
         }
-        fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (Main.ticksPerSecond * 10);
+        fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
     }
     
     @Override

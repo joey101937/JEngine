@@ -123,8 +123,6 @@ public class Hellicopter extends RTSUnit {
 
                 leftOffset.adjustForRotation(turret.getRotation());
                 rightOffset.adjustForRotation(turret.getRotation());
-                
-                System.out.println(this.ID + " is firing from location " + center);
 
                 getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), pendingBulletTarget));
                 getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), pendingBulletTarget));
@@ -210,8 +208,7 @@ public class Hellicopter extends RTSUnit {
         }
         this.turret.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
         this.isRubble = true;
-        // this.isSolid = false; // possibly a deterministic problem if this happens mid tick
-        this.addTickDelayedEffect(0, x -> {this.isSolid = false;}); // set solid in tick safe manner
+        this.isSolid = false;
         this.setSelected(false);
     }
 
@@ -236,7 +233,6 @@ public class Hellicopter extends RTSUnit {
             if (!isRubble) {
                 updateLocationForBob();
                 updateRotation();
-                // if(getHost().hasVelocity()) System.out.println(this.ID + " laolt " + getLocationAsOfLastTick() + " currently " + getLocation() + " host " + getHost().ID);
             }
         }
 

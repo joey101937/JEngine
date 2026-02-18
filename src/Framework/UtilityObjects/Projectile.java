@@ -58,7 +58,6 @@ public class Projectile extends GameObject2{
         vel.subtract(getLocation());
         this.velocity = vel;
         this.lookAt(destination);
-        System.out.println(this.ID + " launching with destination " + destination);
     }
     
     public Projectile(Coordinate start){
