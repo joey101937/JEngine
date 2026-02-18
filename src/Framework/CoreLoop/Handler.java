@@ -128,7 +128,6 @@ public class Handler implements Serializable{
 
     public synchronized void tick() {
         globalTickNumber++;
-        System.out.println("tick " + globalTickNumber);
         long currentMillisecond = System.currentTimeMillis();
         LinkedList<TickDelayedEffect> tickDelatyedEffectsRun = new LinkedList<>();
         LinkedList<TimeTriggeredEffect> timeTriggeredEffectsRun = new LinkedList<>();

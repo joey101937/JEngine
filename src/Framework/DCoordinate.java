@@ -272,20 +272,4 @@ public class DCoordinate implements Serializable {
         return new Coordinate((int)Math.round(x), (int)Math.round(y));
     }
     
-    private static final double[] POW10 = {
-        1d, 10d, 100d, 1000d, 10000d, 100000d
-    };
-    
-    /**
-     * returns new DCoordinate based on this one but caps the doubles to only have given number of decimal places
-     * @param precision int 1 - 6
-     * @return new DCoordiante based on input
-     */
-    public DCoordinate toPrecision(int precision) {
-    double scale = POW10[precision]; // Math.pow(10, precision);
-    return new DCoordinate(
-            Math.round(x * scale) / scale,
-            Math.round(y * scale) / scale
-    );
-}
 }
