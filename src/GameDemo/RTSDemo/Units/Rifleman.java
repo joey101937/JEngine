@@ -76,6 +76,7 @@ public class Rifleman extends RTSUnit {
         this.minSpeedMultiplier = .8;
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;
+        this.sightRadius = 1000;
         initializeButtons();
     }
 

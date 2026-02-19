@@ -135,7 +135,7 @@ public abstract class RTSAssetManager {
     private static CompletableFuture<Void> loadMapAssets2() {
         return CompletableFuture.runAsync(() -> {
             grassBGDark = load("DemoAssets/TankGame/terrainPlayground.png"); 
-//            grassBGDark = load("DemoAssets/TankGame/grassTerrain_mega3_dark.png");
+            grassBGDark = load("DemoAssets/TankGame/terrainPlayground_dark.png");
         }, executor);
     }
     

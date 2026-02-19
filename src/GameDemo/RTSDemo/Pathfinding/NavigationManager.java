@@ -5,10 +5,8 @@ import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
-import Framework.Main;
 import Framework.Window;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
-import static GameDemo.RTSDemo.Multiplayer.ExternalCommunicator.tickTimingOffset;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUnit;
@@ -100,6 +98,8 @@ public class NavigationManager extends IndependentEffect {
         g.drawString("TPS: " + game.getCurrentTPS(), camLoc.x + 10, camLoc.y + 30);
         if(ExternalCommunicator.isMultiplayer){
             g.drawString("MP: " + (ExternalCommunicator.isResyncing ? "Resyncing" : (int)ExternalCommunicator.tickTimingOffset + " | " + RTSInput.getInputDelay()), camLoc.x + 10, camLoc.y + 40);
+            g.drawString("Ping: " + ExternalCommunicator.currentPingMs, camLoc.x + 10, camLoc.y + 50);
+
         }
 
         

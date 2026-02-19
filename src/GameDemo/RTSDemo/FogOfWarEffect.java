@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 public class FogOfWarEffect extends IndependentEffect {
     private static final long serialVersionUID = 1L;
 
+    public static boolean enabled = false;
     private transient Game game;
     private static final int UNITS_PER_SUBAREA = 7;
     private transient Area area = new Area();
-    private boolean enabled = false;
     public static transient ExecutorService fogRenderService = Handler.newMinSizeCachedThreadPool(4);
 
     public FogOfWarEffect (Game g) {
@@ -71,7 +71,11 @@ public class FogOfWarEffect extends IndependentEffect {
         area = new Area();
         var camera = game.getCamera();
         var fov = camera.getFieldOfView();
-        var gameObjects = game.getObjectsOnScreen(true);
+        int padding = 1000;
+        var gameObjects = game.getObjectsIntersectingArea(
+                new Rectangle(fov.x - padding, fov.y - padding, fov.width+(padding*2), fov.height+(padding*2)
+                )
+        );
         var localUnits = gameObjects.stream()
             .filter(go -> go instanceof RTSUnit && ((RTSUnit) go).team == ExternalCommunicator.localTeam)
             .map(go -> (RTSUnit) go)

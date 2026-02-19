@@ -80,6 +80,12 @@ public class ExternalCommunicator implements Runnable {
     private static final int INITIAL_INPUT_DELAY = 35;
     private static final int TICK_HEARTBEAT_INTERVAL_MS = 200; // Send tick heartbeat every 100ms
 
+    // Ping tracking
+    private static volatile long lastPingSentTime = 0;
+    private static volatile long pendingPingSentAt = -1;
+    public static volatile int currentPingMs = -1;
+    private static final int PING_INTERVAL_MS = 2000;
+
     // Speed-up control parameters (for machine that's behind)
     private static final int NORMAL_TPS = 90;
     private static volatile int baseTicksPerSecond = NORMAL_TPS; // Save original TPS
@@ -191,6 +197,13 @@ public class ExternalCommunicator implements Runnable {
             if(now - lastTickHeartbeatTime >= TICK_HEARTBEAT_INTERVAL_MS) {
                 sendMessage("tickHeartbeat:" + currentTick);
                 lastTickHeartbeatTime = now;
+            }
+
+            // Send periodic ping to measure round-trip latency
+            if(now - lastPingSentTime >= PING_INTERVAL_MS && pendingPingSentAt == -1) {
+                pendingPingSentAt = now;
+                lastPingSentTime = now;
+                sendMessage("ping:" + now);
             }
 
             // Speed-up control when BEHIND (negative offset means partner is ahead)
@@ -478,6 +491,22 @@ public class ExternalCommunicator implements Runnable {
 //            System.out.println("[HEARTBEAT] Partner at tick " + partnerTick + ", we're at " + ourTick +
 //                             " | Raw offset: " + rawOffset + " | Smoothed: " + String.format("%.1f", oldOffset) +
 //                             " -> " + String.format("%.1f", tickTimingOffset));
+        }
+
+        // Ping / pong for latency measurement
+        if(s.startsWith("ping:")) {
+            // Reflect back immediately so the sender can measure RTT
+            sendMessage("pong:" + s.substring(5));
+            return;
+        }
+
+        if(s.startsWith("pong:")) {
+            long sentAt = Long.parseLong(s.substring(5));
+            int rtt = (int)(System.currentTimeMillis() - sentAt);
+            currentPingMs = rtt;
+            pendingPingSentAt = -1;
+            System.out.println("[PING] Round-trip latency: " + rtt + " ms");
+            return;
         }
 
         // State check messages for determinism verification
@@ -864,6 +893,8 @@ public class ExternalCommunicator implements Runnable {
         readyToDecreaseDelay = false;
         partnerReadyToDecreaseDelay = false;
         lastTickHeartbeatTime = 0;
+        lastPingSentTime = 0;
+        pendingPingSentAt = -1;
 
         // Reset determinism check state
         lastDeterminismCheckTick = 0;
