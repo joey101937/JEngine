@@ -99,7 +99,7 @@ public final class Minimap extends UIElement {
      * @param args commandline args
      */
     public static void main(String[] args) {
-        Game.scaleForResolution();
+        DemoSpriteManager.initialize();
         Game g = new Game(new Sprite(DemoSpriteManager.dirtBG));
         Window.initialize(g);
         g.start();

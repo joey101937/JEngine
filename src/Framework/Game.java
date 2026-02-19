@@ -153,8 +153,10 @@ public class Game implements Runnable {
      * @param backgroundImage
      */
     public Game(Graphic backgroundImage) {
+        canvas = new Canvas();
         this.backgroundImage = backgroundImage;
         setBackground(backgroundImage);
+        canvas.setIgnoreRepaint(true);
     }
 
     /**
