@@ -14,6 +14,7 @@ import static GameDemo.RTSDemo.Multiplayer.Client.printStream;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.TextChatEffect;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -341,6 +342,9 @@ public class ExternalCommunicator implements Runnable {
         if(s.equals("beginResyncPt2")) {
             beginResyncPt2();
             return;
+        }
+        if(s.startsWith("chat:")) {
+            RTSGame.textChatEffect.addChatMessageToHistory(new TextChatEffect.ChatMessage(s));
         }
         if (s.startsWith("m:")) {
             // Drop commands during resync to prevent state corruption

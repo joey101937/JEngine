@@ -3,7 +3,6 @@ package GameDemo.RTSDemo;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.IndependentEffect;
-import GameDemo.RTSDemo.Commands.CommandHandler;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import java.awt.Graphics2D;
 import java.io.Serializable;
@@ -14,7 +13,8 @@ import java.util.HashMap;
  * this is an independent effect that represents a game chat window similar to that from league of legends or sc2.
  * 
  * When the player presses enter, this will appear on the screen. It will be rectangular with chat history on top and current text input at the bottom.
- * the player can type into it and send messages, adding them to the chat history. 
+ * the player can type into it and send messages, adding them to the chat history. messages last for a given number of ticks. if the game is multiplayer, it will use
+ * externalCommunicator to send the chat message over the wire. external communicator should listen for this
  * @author guydu
  */
 public class TextChatEffect extends IndependentEffect{
