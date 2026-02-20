@@ -35,6 +35,7 @@ public class RTSGame {
     public static ReinforcementHandler reinforcementHandler;
     public static NavigationManager navigationManager;
     public static CommandHandler commandHandler;
+    public static TextChatEffect textChatEffect;
     public static int desiredTPS = 90;
 
     public static void setup(Game g) {
