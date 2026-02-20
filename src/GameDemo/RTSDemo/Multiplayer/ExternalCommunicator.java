@@ -72,13 +72,13 @@ public class ExternalCommunicator implements Runnable {
     private static volatile boolean clientLoadComplete = false;
 
     // Adaptive tick synchronization
-    private static volatile int currentInputDelay = 35; // Start high after resync, target is 12
+    private static volatile int currentInputDelay = 24; // Start high after resync, target is 12
     public static volatile double tickTimingOffset = 0; // How many ticks we're ahead/behind partner (use double for precision)
     private static volatile boolean readyToDecreaseDelay = false;
     private static volatile boolean partnerReadyToDecreaseDelay = false;
     private static volatile long lastTickHeartbeatTime = 0;
     private static final int TARGET_INPUT_DELAY = 12;
-    private static final int INITIAL_INPUT_DELAY = 35;
+    private static final int INITIAL_INPUT_DELAY = 24;
     private static final int TICK_HEARTBEAT_INTERVAL_MS = 200; // Send tick heartbeat every 100ms
 
     // Ping tracking
