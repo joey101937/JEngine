@@ -344,6 +344,7 @@ public class ExternalCommunicator implements Runnable {
             return;
         }
         if(s.startsWith("chat:")) {
+            // note these messaegs are sent on the tick they were sent on. may be in the past (or future) for the receiver
             RTSGame.textChatEffect.addChatMessageToHistory(new TextChatEffect.ChatMessage(s));
         }
         if (s.startsWith("m:")) {
