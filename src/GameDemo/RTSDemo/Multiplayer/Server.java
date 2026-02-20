@@ -8,6 +8,7 @@ import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import static GameDemo.RTSDemo.RTSGame.game;
 import static GameDemo.RTSDemo.RTSGame.setupUI;
+import GameDemo.RTSDemo.TextChatEffect;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.LightTank;
@@ -22,6 +23,7 @@ public class Server {
 
     public static void main(String[] args) {
         RTSAssetManager.initialize();
+        TextChatEffect.localChatAlias = "Server";
         RTSGame.game = new Game(RTSAssetManager.grassBGDark);
         RTSGame.minimap = new Minimap(game, new Coordinate(0, 0));
         Game g = RTSGame.game;

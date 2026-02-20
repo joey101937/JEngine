@@ -72,20 +72,20 @@ public class TextChatEffect extends IndependentEffect{
         public String text;
         public long tick;
         public String senderAlias;
-        private static final String MP_SEPARATOR = "~||||~";
+        private static final String MP_SEPARATOR = "~~~~";
         public ChatMessage (String text, long tick, String sender) {
             this.text = text.replace(MP_SEPARATOR, "*");
             this.tick = tick;
             this.senderAlias = sender;
         }
         public ChatMessage (String mpString) {
-            var chunks = mpString.substring(5).split("~||||~");
+            var chunks = mpString.substring(5).split(MP_SEPARATOR);
             this.senderAlias = chunks[0];
             this.text = chunks[2];
             this.tick = Long.parseLong(chunks[1]);
         }
         public String toMpString() {
-            return "chat:" + senderAlias + "~||||~" + tick + "~||||~" + text;
+            return "chat:" + senderAlias + MP_SEPARATOR + tick + MP_SEPARATOR + text;
         }
     }
 
@@ -129,18 +129,20 @@ public class TextChatEffect extends IndependentEffect{
         int inputBoxHeight = lineHeight + 8;
         int historyHeight = height - inputBoxHeight;
 
-        // Collect and sort recent messages by tick (oldest first)
+        // Collect and sort all messages by tick (oldest first)
         ArrayList<ChatMessage> allMessages = getChatHistory();
         allMessages.sort(Comparator.comparingLong(m -> m.tick));
 
+        int maxLines = historyHeight / lineHeight;
+
+        // When open, fill however many lines fit from history.
+        // When closed, only show messages within messageLifespan.
         ArrayList<ChatMessage> recentMessages = new ArrayList<>();
         for (ChatMessage msg : allMessages) {
-            if (currentTick - msg.tick <= messageLifespan) {
+            if (isOpen || currentTick - msg.tick <= messageLifespan) {
                 recentMessages.add(msg);
             }
         }
-
-        int maxLines = historyHeight / lineHeight;
 
         if (isOpen) {
             // Panel background

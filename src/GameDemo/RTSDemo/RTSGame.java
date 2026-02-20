@@ -79,6 +79,9 @@ public class RTSGame {
 
         reinforcementHandler = new ReinforcementHandler(new Coordinate(0, g.getWindowHeight() - minimap.getHeight() - 30), 10);
         g.addIndependentEffect(reinforcementHandler);
+
+        textChatEffect = new TextChatEffect(g);
+        g.addIndependentEffect(textChatEffect);
     }
 
     public static void main(String[] args) {
