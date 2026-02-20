@@ -7,6 +7,7 @@ package GameDemo.RTSDemo;
 
 import Framework.Camera;
 import Framework.Coordinate;
+import Framework.Game;
 import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.InputHandler;
@@ -54,6 +55,12 @@ public class RTSInput extends InputHandler {
     @Override
     public void tick() {
         Camera cam = getHostGame().getCamera();
+        // Don't scroll the camera while the chat window is accepting input
+        if (RTSGame.textChatEffect != null && RTSGame.textChatEffect.isOpen()) {
+            cam.xVel = 0;
+            cam.yVel = 0;
+            return;
+        }
         double xVelocity = 0;
         double yVelocity = 0;
         if (wDown) {
@@ -102,7 +109,31 @@ public class RTSInput extends InputHandler {
     }
 
     @Override
+    public void keyTyped(KeyEvent e) {
+        if (RTSGame.textChatEffect != null && RTSGame.textChatEffect.isOpen()) {
+            char c = e.getKeyChar();
+            // Append printable characters only; control characters are handled in keyPressed
+            if (c != KeyEvent.CHAR_UNDEFINED && !Character.isISOControl(c)) {
+                RTSGame.textChatEffect.appendToTextArea(c);
+            }
+        }
+    }
+
+    @Override
     public void mousePressed(MouseEvent e) {
+        // Close chat if open and the click lands outside the chat window
+        if (RTSGame.textChatEffect != null && RTSGame.textChatEffect.isOpen()) {
+            int sx = (int)(e.getX() / Game.resolutionScaleX);
+            int sy = (int)(e.getY() / Game.resolutionScaleY);
+            Coordinate chatLoc = RTSGame.textChatEffect.locationOnScreen;
+            int cw = RTSGame.textChatEffect.width;
+            int ch = RTSGame.textChatEffect.height;
+            if (sx < chatLoc.x || sx > chatLoc.x + cw || sy < chatLoc.y || sy > chatLoc.y + ch) {
+                RTSGame.textChatEffect.close();
+            }
+            return; // consume click while chat is open
+        }
+
         Coordinate locationOfMouseEvent = locationOfMouseEvent(e);
         String generatedCommandGroup = generateRandomCommandGroup();
         if (e.getButton() == 1) { //1 means left click
@@ -320,7 +351,44 @@ public class RTSInput extends InputHandler {
      */
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
+        int keyCode = e.getKeyCode();
+        boolean chatOpen = RTSGame.textChatEffect != null && RTSGame.textChatEffect.isOpen();
+
+        // Enter: open chat if closed, or submit + close if already open
+        if (keyCode == KeyEvent.VK_ENTER) {
+            if (RTSGame.textChatEffect != null) {
+                if (!chatOpen) {
+                    RTSGame.textChatEffect.open();
+                } else {
+                    RTSGame.textChatEffect.submitCurrentText();
+                }
+            }
+            return;
+        }
+
+        // Escape: discard and close chat if open, else exit fullscreen
+        if (keyCode == KeyEvent.VK_ESCAPE) {
+            if (chatOpen) {
+                RTSGame.textChatEffect.setTextAreaContents("");
+                RTSGame.textChatEffect.close();
+            } else {
+                Window.setFullscreenWindowed(false);
+            }
+            return;
+        }
+
+        // Backspace: delete last chat character if chat is open
+        if (keyCode == KeyEvent.VK_BACK_SPACE) {
+            if (chatOpen) {
+                RTSGame.textChatEffect.backspaceTextArea();
+            }
+            return;
+        }
+
+        // Block all other game hotkeys while chat is open
+        if (chatOpen) return;
+
+        switch (keyCode) {
             // X
             case 88 -> {
                 //x for stop command
@@ -374,11 +442,6 @@ public class RTSInput extends InputHandler {
             // Z
             case 90 ->
                 Main.debugMode = !Main.debugMode;
-            // backspace
-            case 8 -> {
-                // System.out.println(Window.getUIElements().get(0).isVisible());
-                // Window.setFullscreenWindowed(true);
-            }
             // case 0-9
             case 48, 49, 50, 51, 52, 53, 54, 55, 56, 57 -> {
                 Integer groupNumber = Integer.valueOf(e.getKeyCode() - 48);
@@ -395,11 +458,6 @@ public class RTSInput extends InputHandler {
                     ControlGroupHelper.selectGroup(groupNumber);
                     return;
                 }
-            }
-            // Escape
-            case 27 -> {
-                Window.setFullscreenWindowed(false);
-                return;
             }
             // F5 - Quick Save
             case 116 -> {
