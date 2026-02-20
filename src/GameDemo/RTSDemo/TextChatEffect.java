@@ -24,7 +24,7 @@ public class TextChatEffect extends IndependentEffect{
     public static String localChatAlias = "LocalUser";
     public int messageLifespan = RTSGame.desiredTPS * 4; // display commands up to this many ticks back
     private String textAreaContents = ""; // current text area state. where the user types.
-    private Game game;
+    private transient Game game;
     private boolean isOpen = false;
 
     public Coordinate locationOnScreen = new Coordinate(10, 500);
