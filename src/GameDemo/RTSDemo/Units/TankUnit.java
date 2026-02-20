@@ -377,7 +377,6 @@ public class TankUnit extends RTSUnit {
         //tank turret tick
         @Override
         public void tick() {
-            // System.out.println(this + " " + this.ID);
             super.tick();
             if (isRubble) {
                 return;
