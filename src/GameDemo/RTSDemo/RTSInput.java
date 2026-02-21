@@ -436,6 +436,7 @@ public class RTSInput extends InputHandler {
 //                        unit.die();
 //                    }
 //                });
+                if(ExternalCommunicator.isMultiplayer) return;
                 Window.currentGame.setPaused(!Window.currentGame.isPaused());
                 return;
             }
