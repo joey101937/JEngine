@@ -167,7 +167,10 @@ public class LightTank extends RTSUnit {
         muzzelLocation.y -= turretSprite.getHeight() * 2 / 5;
         muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, turret.getRotationRealTime());
         muzzelLocation.add(turret.getPixelLocation());
-        Coordinate randomOffset = new Coordinate(Main.generateRandomInt(-target.getWidth() / 4, target.getWidth() / 4), Main.generateRandomInt(-target.getWidth() / 4, target.getWidth() / 4));
+        Coordinate randomOffset = new Coordinate(
+                Main.generateRandomIntFromSeed(-target.getWidth() / 4, target.getWidth() / 4, getHostGame().getGameTickNumber()),
+                Main.generateRandomIntFromSeed(-target.getWidth() / 4, target.getWidth() / 4, getHostGame().getGameTickNumber())
+        );
         LightTankBullet bullet = new LightTankBullet(muzzelLocation.toDCoordinate(), target.getLocationAsOfLastTick().add(randomOffset));
         bullet.shooter = this;
         getHostGame().addObject(bullet);

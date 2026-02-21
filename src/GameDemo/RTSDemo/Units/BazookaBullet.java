@@ -91,7 +91,7 @@ public class BazookaBullet extends Projectile {
                 return;
             } else if (!hasCollided) {
                 hasCollided = true;
-                int tickDelay = Main.generateRandomInt(2, 5);
+                int tickDelay = Main.generateRandomIntFromSeed(2, 5, getHostGame().getGameTickNumber());
                 tickToDestroy = getHostGame().getGameTickNumber() + tickDelay;
                 collidedUnit = unit;
             }
