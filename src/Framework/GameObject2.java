@@ -1265,7 +1265,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param tickDelay number of ticks to wait before executing the function
      * @param c function to execute. Game will be passed as the only parameter
      */
-    public void addTickDelayedEffect(int tickDelay, Consumer c) {
+    public void addTickDelayedEffect(int tickDelay, Consumer<Game> c) {
         if(hostGame == null) {
             System.out.println("error trying to add tickDelayedEffect with null game");
             Window.currentGame.addTickDelayedEffect(new TickDelayedEffect(Window.currentGame.handler.globalTickNumber + tickDelay, c));
@@ -1282,7 +1282,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param timeMs milli to trigger on
      * @param c function to execute
      */
-    public synchronized void addTimeTriggeredEffect(long timeMs, Consumer c) {
+    public synchronized void addTimeTriggeredEffect(long timeMs, Consumer<Game> c) {
         if(hostGame == null) {
             System.out.println("error trying to add timeTriggeredEffect with null game");
             Window.currentGame.addTimeTriggeredEffect(new TimeTriggeredEffect(timeMs, c));

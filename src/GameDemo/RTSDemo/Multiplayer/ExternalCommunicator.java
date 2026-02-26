@@ -177,8 +177,7 @@ public class ExternalCommunicator implements Runnable {
         }
     }
 
-    public static Consumer handleSyncTick = c -> {
-        Game game = (Game) c;
+    public static Consumer<Game> handleSyncTick = game -> {       
         long currentTick = game.handler.globalTickNumber;
         if(isMultiplayer && !isMpStarted && isWaitingForMpStart()) {
             System.out.println("waiting for mp");

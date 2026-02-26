@@ -63,6 +63,10 @@ public class InfoPanelEffect extends IndependentEffect {
 
         // Update InputHandler to use the new instance
         game.setInputHandler(new RTSInput(this));
+        
+        // reset location in case save file was from different resolution monitor
+        this.baseX = RTSGame.minimap.getWidth();
+        this.baseY = game.getWindowHeight() - 200;
     }
 
     private static void populateUnitNameImageMap() {

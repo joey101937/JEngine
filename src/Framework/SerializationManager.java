@@ -78,7 +78,7 @@ public class SerializationManager {
                 GameStateSnapshot snapshot = new GameStateSnapshot(game);
 
                 try (FileOutputStream fileOut = new FileOutputStream(filePath);
-                     ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
                     out.writeObject(snapshot);
                     System.out.println("Game state saved to: " + filePath);
                     System.out.println("Saved " + snapshot.gameObjects.size() + " objects and " + snapshot.independentEffects.size() + " effects at tick " + snapshot.globalTickNumber);

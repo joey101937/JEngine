@@ -85,6 +85,7 @@ public class RTSGame {
     }
 
     public static void main(String[] args) {
+        System.setProperty("sun.java2d.uiScale", "1");
         RTSAssetManager.initialize();
         game = new Game(RTSAssetManager.grassBGDark);
         game.setLoadScreenRender(g -> {

@@ -7,7 +7,7 @@ import java.util.function.Consumer;
  * @author guydu
  */
 public class TimeTriggeredEffect {
-    public Consumer consumer;
+    public Consumer<Game> consumer;
     public long targetMillisecond;
     
     /**
@@ -15,7 +15,7 @@ public class TimeTriggeredEffect {
      * @param targetMs Millisecond to run on
      * @param c thing to run
      */
-    public TimeTriggeredEffect(long targetMs, Consumer c) {
+    public TimeTriggeredEffect(long targetMs, Consumer<Game> c) {
         this.consumer = c;
         this.targetMillisecond = targetMs;
     }
