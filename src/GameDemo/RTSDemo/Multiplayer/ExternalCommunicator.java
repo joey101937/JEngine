@@ -121,6 +121,7 @@ public class ExternalCommunicator implements Runnable {
     
     public static boolean isMPReadyForCommands() {
         if(!isMultiplayer) return true;
+        if(!isReadyForMultiplayerOtherMachine || !isReadyForMultiplayerThisMachine) return false;
         System.out.println(tickTimingOffset + " offset compared to " + (RTSInput.getInputDelay() - 5));
         return Math.abs(tickTimingOffset) < RTSInput.getInputDelay() - 5;
     }
