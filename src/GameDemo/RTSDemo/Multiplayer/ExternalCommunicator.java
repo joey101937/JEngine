@@ -517,9 +517,10 @@ public class ExternalCommunicator implements Runnable {
         if(s.startsWith("pong:")) {
             long sentAt = Long.parseLong(s.substring(5));
             int rtt = (int)(System.currentTimeMillis() - sentAt);
-            currentPingMs = rtt;
+            // EWMA smoothing (α=0.25): heavily weights existing estimate to filter spikes
+            currentPingMs = currentPingMs < 0 ? rtt : (int)(currentPingMs * 0.75 + rtt * 0.25);
             pendingPingSentAt = -1;
-            System.out.println("[PING] Round-trip latency: " + rtt + " ms");
+            System.out.println("[PING] Round-trip latency: " + rtt + " ms (smoothed: " + currentPingMs + " ms)");
             return;
         }
 
