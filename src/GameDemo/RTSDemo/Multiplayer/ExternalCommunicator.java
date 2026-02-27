@@ -195,7 +195,7 @@ public class ExternalCommunicator implements Runnable {
 
             // Send periodic tick heartbeat to partner so they can measure offset
             if(now - lastTickHeartbeatTime >= TICK_HEARTBEAT_INTERVAL_MS) {
-                sendMessage("tickHeartbeat:" + currentTick);
+                sendMessage("tickHeartbeat:" + currentTick + ":" + now);
                 lastTickHeartbeatTime = now;
             }
 
@@ -325,6 +325,7 @@ public class ExternalCommunicator implements Runnable {
         if (s == null) {
             return;
         }
+        System.out.println("received: " + s);
         if (s.startsWith("randomSeed:")) {
             Main.setRandomSeed(Long.parseLong(s.substring("randomSeed:".length())));
             return;
@@ -482,19 +483,28 @@ public class ExternalCommunicator implements Runnable {
 
         // Tick heartbeat for continuous synchronization
         if(s.startsWith("tickHeartbeat:")) {
-            long partnerTick = Long.parseLong(s.substring(14));
+            String[] hbParts = s.substring(14).split(":");
+            long partnerTickAtSend = Long.parseLong(hbParts[0]);
+            long sentAtMs = Long.parseLong(hbParts[1]);
             long ourTick = RTSGame.game.handler.globalTickNumber;
 
+            // Estimate how many ticks the partner has advanced since sending the heartbeat.
+            // Without this, a behind machine can see a falsely positive (ahead) offset when
+            // one-way latency in ticks exceeds the real gap.
+            long elapsedMs = System.currentTimeMillis() - sentAtMs;
+            double ticksElapsedSinceSend = elapsedMs * RTSGame.desiredTPS / 1000.0;
+            double adjustedPartnerTick = partnerTickAtSend + ticksElapsedSinceSend;
+
             // Calculate offset: positive means WE are ahead, negative means PARTNER is ahead
-            long rawOffset = ourTick - partnerTick;
+            double rawOffset = ourTick - adjustedPartnerTick;
 
             double oldOffset = tickTimingOffset;
             // Smooth the offset
             tickTimingOffset = tickTimingOffset * 0.5 + rawOffset * 0.5;
 
-//            System.out.println("[HEARTBEAT] Partner at tick " + partnerTick + ", we're at " + ourTick +
-//                             " | Raw offset: " + rawOffset + " | Smoothed: " + String.format("%.1f", oldOffset) +
-//                             " -> " + String.format("%.1f", tickTimingOffset));
+            System.out.println("[HEARTBEAT] Partner at tick " + partnerTickAtSend + " (+" + String.format("%.1f", ticksElapsedSinceSend) + " transit ticks = " + String.format("%.1f", adjustedPartnerTick) + "), we're at " + ourTick +
+                             " | Raw offset: " + String.format("%.1f", rawOffset) + " | Smoothed: " + String.format("%.1f", oldOffset) +
+                             " -> " + String.format("%.1f", tickTimingOffset));
         }
 
         // Ping / pong for latency measurement
