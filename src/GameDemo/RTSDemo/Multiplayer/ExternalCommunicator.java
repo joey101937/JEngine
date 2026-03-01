@@ -8,6 +8,7 @@ import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
 import Framework.SerializationManager;
+import GameDemo.RTSDemo.Commands.ButtonCommand;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
 import static GameDemo.RTSDemo.Multiplayer.Client.printStream;
@@ -212,7 +213,7 @@ public class ExternalCommunicator implements Runnable {
             if(tickTimingOffset < -2) {
                 // We're behind - temporarily increase our TPS to catch up
                 // Proportional boost: 0.25 TPS per tick of offset, capped at +5 TPS
-                int maxBoost = (int) Math.min(baseTicksPerSecond * 0.8, 160); // 80% boost, capped at +160 TPS
+                int maxBoost = (int) Math.min(baseTicksPerSecond * 1.5, 160); // 150% boost, capped at +160 TPS
                 int tpsBoost = (int) Math.min(Math.abs(tickTimingOffset) * 0.25, maxBoost);
                 int targetTPS = baseTicksPerSecond + tpsBoost;
 
@@ -368,6 +369,18 @@ public class ExternalCommunicator implements Runnable {
             }
             System.out.println("message " + s);
             StopCommand cmd = StopCommand.generateFromMpString(s);
+            RTSGame.commandHandler.addCommand(cmd, false);
+            updateTickTimingOffset(cmd.getExecuteTick());
+        }
+        
+        if(s.startsWith("b:")) {
+            // Drop commands during resync to prevent state corruption
+            if(isResyncing) {
+                System.out.println("Dropping stop command during resync");
+                return;
+            }
+            System.out.println("message " + s);
+            ButtonCommand cmd = ButtonCommand.generateFromMpString(s);
             RTSGame.commandHandler.addCommand(cmd, false);
             updateTickTimingOffset(cmd.getExecuteTick());
         }

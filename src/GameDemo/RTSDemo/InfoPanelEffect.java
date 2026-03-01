@@ -3,6 +3,7 @@ package GameDemo.RTSDemo;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.IndependentEffect;
+import GameDemo.RTSDemo.Commands.ButtonCommand;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import java.awt.*;
 import java.awt.color.ColorSpace;
@@ -243,12 +244,17 @@ public class InfoPanelEffect extends IndependentEffect {
     
     public void triggerButtonAt(int mouseX, int mouseY) {
         CommandButton cb = getButtonAtLocation(mouseX, mouseY);
-        if(cb == null) return;
+        if (cb == null) {
+            return;
+        }
         int buttonIndex = mainUnit.getButtons().indexOf(cb);
-        for(RTSUnit unit: SelectionBoxEffect.selectedUnits) {
-            if(!unit.isRubble && unit.team == mainUnit.team && unit.getClass() == mainUnit.getClass()) {
-                CommandButton button = unit.getButtons().get(buttonIndex);
-                button.onTrigger.accept(null);
+        for (RTSUnit unit : SelectionBoxEffect.selectedUnits) {
+            if (!unit.isRubble && unit.team == mainUnit.team && unit.getClass() == mainUnit.getClass()) {
+                // CommandButton button = unit.getButtons().get(buttonIndex);
+                // button.onTrigger.accept(null);
+                RTSGame.commandHandler.addCommand(
+                        new ButtonCommand(hostGame.getGameTickNumber() + RTSInput.getInputDelay(), unit.ID, buttonIndex),
+                        true);
             }
         }
     }
