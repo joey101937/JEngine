@@ -52,7 +52,7 @@ public class TextObject extends GameObject2{
         AffineTransform old = g.getTransform();
         g.scale(getScale(), getScale());
         if(!isOnScreen() || isInvisible || text==null || font==null)return;  //dont render if off screen or invisible or no text
-        Coordinate renderLocation = getPixelLocation();
+        Coordinate renderLocation = getRenderLocation();
         //record original font and color settings to restore after rendering
         Font originalFont = g.getFont();
         Color originalColor = g.getColor();
@@ -68,7 +68,7 @@ public class TextObject extends GameObject2{
         }
         g.setColor(color);
         String[] lines = text.split("\n");
-        g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y);
+        g.rotate(Math.toRadians(getRotation()), getRenderLocation().x, getRenderLocation().y);
         for(String s : lines){
             g.drawString(s, renderLocation.x, renderLocation.y);
             renderLocation.y+=font.getSize();

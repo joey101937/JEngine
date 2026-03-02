@@ -172,10 +172,11 @@ public class Rifleman extends RTSUnit {
             super.render(g);
             AffineTransform old = g.getTransform();
             VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
-            int renderX = getPixelLocation().x - toRender.getWidth() / 2;
-            int renderY = getPixelLocation().y - toRender.getHeight() / 2;
+            Coordinate renderLocation = getRenderLocation();
+            int renderX = renderLocation.x - toRender.getWidth() / 2;
+            int renderY = renderLocation.y - toRender.getHeight() / 2;
             int shadowOffset = 4;
-            g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
+            g.rotate(Math.toRadians(getRotation()), renderLocation.x, renderLocation.y + shadowOffset);
             g.drawImage(toRender, renderX, renderY + shadowOffset, null);
             g.setTransform(old);
         }

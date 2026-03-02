@@ -180,14 +180,14 @@ public class Hellicopter extends RTSUnit {
     public void render(Graphics2D g) {
         int shadowOffsetX = 5;
         int shadowOffsetY = Math.max(elevation, 9);
-        Coordinate pixelLocation = getPixelLocation();
-        pixelLocation.x += shadowOffsetX;
-        pixelLocation.y += shadowOffsetY;
+        Coordinate renderLocation = getRenderLocation();
+        renderLocation.x += shadowOffsetX;
+        renderLocation.y += shadowOffsetY;
         AffineTransform old = g.getTransform();
         VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
-        int renderX = pixelLocation.x - toRender.getWidth() / 2;
-        int renderY = pixelLocation.y - toRender.getHeight() / 2;
-        g.rotate(Math.toRadians(turret.getRotation()), pixelLocation.x, pixelLocation.y);
+        int renderX = renderLocation.x - toRender.getWidth() / 2;
+        int renderY = renderLocation.y - toRender.getHeight() / 2;
+        g.rotate(Math.toRadians(turret.getRotation()), renderLocation.x, renderLocation.y);
         g.drawImage(toRender, renderX, renderY, null);
         g.setTransform(old);
 
@@ -197,7 +197,7 @@ public class Hellicopter extends RTSUnit {
         
          if(ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
             g.setColor(Color.ORANGE);
-            g.fillOval(getPixelLocation().x-getWidth()/2, getPixelLocation().y-getHeight()/2, getWidth()/2, getHeight()/2);
+            g.fillOval(getRenderLocation().x-getWidth()/2, getPixelLocation().y-getHeight()/2, getWidth()/2, getHeight()/2);
         }
     }
 

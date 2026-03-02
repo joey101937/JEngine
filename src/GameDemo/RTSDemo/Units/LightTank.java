@@ -267,7 +267,7 @@ public class LightTank extends RTSUnit {
             if (getHost().isSolid && !isRubble) {
                 AffineTransform old = g.getTransform();
                 VolatileImage toRender = turretShadow.getCurrentVolatileImage();
-                Coordinate pixelLocation = getPixelLocation().add(new Coordinate(2, 3));
+                Coordinate pixelLocation = getRenderLocation().add(new Coordinate(2, 3));
                 int renderX = pixelLocation.x - toRender.getWidth() / 2;
                 int renderY = pixelLocation.y - toRender.getHeight() / 2;
                 g.rotate(Math.toRadians(getRotation()), pixelLocation.x, pixelLocation.y);

@@ -39,8 +39,8 @@ public class StatusIconHelper extends IndependentEffect{
                 if(u.isImmobilized && !(u instanceof TankUnit tank && tank.sandbagActive)) {  
                     g.drawImage(
                             RTSAssetManager.immobilizationIcon,
-                            u.getPixelLocation().x - (u.getWidth() / 2),
-                            u.getPixelLocation().y - (u.getHeight() / 2) - 20,
+                            u.getRenderLocation().x - (u.getWidth() / 2),
+                            u.getRenderLocation().y - (u.getHeight() / 2) - 20,
                             statusIconWidth,
                             statusIconHeight,
                             null
@@ -49,8 +49,8 @@ public class StatusIconHelper extends IndependentEffect{
                 if(u instanceof TankUnit tank && tank.sandbagActive) {
                      g.drawImage(
                             RTSAssetManager.shieldIcon,
-                            u.getPixelLocation().x - (u.getWidth() / 2),
-                            u.getPixelLocation().y - (u.getHeight() / 2) - 20,
+                            u.getRenderLocation().x - (u.getWidth() / 2),
+                            u.getRenderLocation().y - (u.getHeight() / 2) - 20,
                             statusIconWidth,
                             statusIconHeight,
                             null
