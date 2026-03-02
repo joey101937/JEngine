@@ -175,7 +175,7 @@ public class SelectionBoxEffect extends IndependentEffect {
                     g.setColor(uncontrollableColor);
                 }
                 if (unit.isSelected() && !unit.isRubble) {
-                    Coordinate coord = unit.getPixelLocation();
+                    Coordinate coord = unit.getRenderLocation();
                     int sideLength = Math.max(unit.getWidth(), unit.getHeight());
                     g.drawOval(coord.x - sideLength / 2, coord.y - sideLength / 2, sideLength, sideLength);
                     var desiredLoc = unit.getDesiredLocation();
