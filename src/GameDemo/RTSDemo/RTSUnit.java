@@ -604,7 +604,7 @@ public class RTSUnit extends GameObject2 {
     public void drawShadow(Graphics2D g, Graphic image, int xOffset, int yOffset) {
         int shadowOffsetX = xOffset;
         int shadowOffsetY = yOffset;
-        Coordinate pixelLocation = getPixelLocation();
+        Coordinate pixelLocation = getRenderLocation();
         pixelLocation.x += shadowOffsetX;
         pixelLocation.y += shadowOffsetY;
         AffineTransform old = g.getTransform();

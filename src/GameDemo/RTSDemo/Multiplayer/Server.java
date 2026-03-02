@@ -2,12 +2,14 @@ package GameDemo.RTSDemo.Multiplayer;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.GameObject2;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import static GameDemo.RTSDemo.RTSGame.game;
 import static GameDemo.RTSDemo.RTSGame.setupUI;
+import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.TextChatEffect;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
@@ -43,6 +45,7 @@ public class Server {
             ExternalCommunicator.setAndCommunicateMultiplayerReady();
         });
     }
+
     public static void createStartingUnits(Game g) {
         int lineSize = 40;// 40; // lowering to 40 so that i can better debug
         int spacer = 160;
@@ -50,7 +53,11 @@ public class Server {
             g.addObject(new Hellicopter(200 + (i * spacer), 200, 0));
         }
         for (int i = 0; i < lineSize; i++) {
-            g.addObject(new Bazookaman(200 + (i * spacer), 350, 0));
+            if (i % 2 == 0) {
+                g.addObject(new Bazookaman(200 + (i * spacer), 350, 0));
+            } else {
+                g.addObject(new Rifleman(200 + (i * spacer), 350, 0));
+            }
         }
         for (int i = 0; i < lineSize; i++) {
             g.addObject(new TankUnit(200 + (i * spacer), 500, 0));
@@ -58,21 +65,35 @@ public class Server {
         for (int i = 0; i < lineSize; i++) {
             g.addObject(new LightTank(200 + (i * spacer), 650, 0));
         }
+        
+        for(GameObject2 go : g.getAllObjects()) {
+            if(go instanceof RTSUnit unit) {
+                if(unit.team == 0) {
+                    unit.setRotation(180);
+                }
+            }
+        }
 
-        if(ExternalCommunicator.localTeam == 1) {
-            g.getCamera().location.y = -2000;
+        if (ExternalCommunicator.localTeam == 1) {
+            g.getCamera().location.y = -g.getWorldHeight() - 2650;
+        }
+        
+        // red side
+        for (int i = 0; i < lineSize; i++) {
+            if (i % 2 == 0) {
+                g.addObject(new Rifleman(200 + (i * spacer), g.getWorldHeight() - 1650, 1));
+            } else {
+                g.addObject(new Bazookaman(200 + (i * spacer), g.getWorldHeight() - 1650, 1));
+            }
         }
         for (int i = 0; i < lineSize; i++) {
-            g.addObject(new Rifleman(200 + (i * spacer), 3000, 1));
+            g.addObject(new TankUnit(200 + (i * spacer), g.getWorldHeight() - 1500, 1));
         }
         for (int i = 0; i < lineSize; i++) {
-            g.addObject(new TankUnit(200 + (i * spacer), 2850, 1));
+            g.addObject(new LightTank(200 + (i * spacer), g.getWorldHeight() - 1350, 1));
         }
         for (int i = 0; i < lineSize; i++) {
-            g.addObject(new LightTank(200 + (i * spacer), 2000, 1));
-        }
-        for (int i = 0; i < lineSize; i++) {
-            g.addObject(new Hellicopter(200 + (i * spacer), 2250, 1));
+            g.addObject(new Hellicopter(200 + (i * spacer), g.getWorldHeight() - 1200, 1));
         }
     }
 }

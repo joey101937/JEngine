@@ -377,7 +377,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @return degree of rotation required to face given point from current orientation
      */
     public double rotationNeededToFace(Coordinate point){
-        double result = DCoordinate.angleFrom(getPixelLocation(), point);
+        double result = DCoordinate.angleFrom(locationAsOfLastTick, point.toDCoordinate());
         if(result-getRotation()>180)result-=360;
         if(result-getRotation()<-180)result+=360;
         return result - getRotation();

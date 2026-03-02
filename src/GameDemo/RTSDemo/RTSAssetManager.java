@@ -157,17 +157,14 @@ public abstract class RTSAssetManager {
             bullet = load("DemoAssets/TankGame/bullet.png");
             bullet2 = load("DemoAssets/TankGame/bullet2.png");
             tankDeadHullShadow = load("DemoAssets/TankGame/destroyedHullShadow.png");
-            tankShadow = load("DemoAssets/TankGame/tankShadow.png");
             tankHullDamaged = load("DemoAssets/TankGame/newTank/newHull2Damaged.png");
             tankHullDamagedRed = greenToRed(tankHullDamaged);
             tankTurretDamaged = load("DemoAssets/TankGame/newTank/newTurretDamaged.png");
             tankTurretDamagedRed = greenToRed(tankTurretDamaged);
-            tankFireAnimationDamaged = loadSequence("DemoAssets/TankGame/tank1FireDamaged");
+            tankFireAnimationDamaged = loadSequence("DemoAssets/TankGame/newTank/fireAnimationDamaged");
             tankFireAnimationDamagedRed = greenToRed(tankFireAnimationDamaged);
             tankDeadTurret = load("DemoAssets/TankGame/newTank/newTurretRubble.png");
             tankDeadHull = load("DemoAssets/TankGame/newTank/newHullRubble.png");
-            tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
-            tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
             sandbagsForTank = load("DemoAssets/TankGame/sandbagsForTank.png");
             sandbagsForTankDamaged = load("DemoAssets/TankGame/sandbagsForTankDamaged.png");
         }, executor);

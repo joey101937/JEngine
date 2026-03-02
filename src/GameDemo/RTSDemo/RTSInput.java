@@ -216,7 +216,6 @@ public class RTSInput extends InputHandler {
     }
 
     private void handleSelectPoint(MouseEvent e) {
-        System.out.println("handling");
         ArrayList<GameObject2> grabbed = RTSGame.game.getObjectsIntersecting(new Hitbox(locationOfMouseEvent(e).toDCoordinate(), 5));
         for (GameObject2 go : grabbed) {
             if (go instanceof RTSUnit unit) {
@@ -471,6 +470,11 @@ public class RTSInput extends InputHandler {
                 System.out.println("Quick loading game...");
                 SerializationManager.quickLoad(hostGame);
                 return;
+            }
+            
+            // f - Fullscreen
+            case 70 -> {
+                Window.setFullscreenWindowed(true);
             }
         }
     }

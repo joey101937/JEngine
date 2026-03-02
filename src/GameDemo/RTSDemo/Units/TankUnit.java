@@ -68,8 +68,6 @@ public class TankUnit extends RTSUnit {
     public static volatile Sprite turretSpriteRed = null;
     public static volatile Sprite rubbleHullSprite = null;
     public static volatile Sprite rubbleTurretSprite = null;
-    public static volatile Sequence deathAnimationHull = null;
-    public static volatile Sequence deathAnimationTurret = null;
     public static volatile Sprite deathShadow = null;
     public static volatile Sprite shadow = null;
     public static volatile Sprite turretShadow = null;
@@ -105,8 +103,6 @@ public class TankUnit extends RTSUnit {
         turretFireAnimationRed = new Sequence(enemyTankFireAnimation, "redTankFire");
         rubbleHullSprite = new Sprite(RTSAssetManager.tankDeadHull);
         rubbleTurretSprite = new Sprite(RTSAssetManager.tankDeadTurret);
-        deathAnimationHull = new Sequence(RTSAssetManager.tankHullDeathAni, "tankDeathAniHull");
-        deathAnimationTurret = new Sequence(RTSAssetManager.tankTurretDeathAni);
         deathShadow = new Sprite(RTSAssetManager.tankDeadHullShadow);
         deathFadeout = Sequence.createFadeout(RTSAssetManager.tankDeadHullShadow, 40);
         deathFadeout.setSignature("fadeout");
@@ -128,9 +124,6 @@ public class TankUnit extends RTSUnit {
         tankFireAnimationDamagedRed.setSignature("fireAnimation");
         turretFireAnimationGreen.setSignature("fireAnimation");
         turretFireAnimationRed.setSignature("fireAnimation");
-
-        deathAnimationHull.setFrameDelay(60);
-        deathAnimationTurret.setFrameDelay(60);
         
         sandbagSprite = new Sprite(RTSAssetManager.sandbagsForTank, "sandbagsForTank");
         sandbagDamagedSprite = new Sprite(RTSAssetManager.sandbagsForTankDamaged, "sandbagsForTankDamaged");
@@ -437,8 +430,8 @@ public class TankUnit extends RTSUnit {
                 VolatileImage toRender = turretShadow.getCurrentVolatileImage();
                 int renderX = getPixelLocation().x - toRender.getWidth() / 2;
                 int renderY = getPixelLocation().y - toRender.getHeight() / 2;
-                int shadowOffsetY = 4;
-                int shadowOffsetX = 2;
+                int shadowOffsetY = 2;
+                int shadowOffsetX = 1;
                 g.rotate(Math.toRadians(getRotationRealTime()), getPixelLocation().x + shadowOffsetX, getPixelLocation().y + shadowOffsetY);
                 g.drawImage(toRender, renderX, renderY + shadowOffsetY, null);
                 g.setTransform(old);
