@@ -503,6 +503,14 @@ public class Sequence implements Graphic{
     public double getOpacity() {
         return opacity;
     }
+    
+    
+    @Override
+    public void applyAlphaEdgeBlurSelf (int strength) {
+        for(Sprite s : frames) {
+            s.applyAlphaEdgeBlurSelf(strength);            
+        }
+    }
 
     
 }

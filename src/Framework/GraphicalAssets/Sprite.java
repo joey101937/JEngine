@@ -234,6 +234,12 @@ public class Sprite implements Graphic {
 
         return new Sprite(shadowImage);
     }
+     
+    @Override
+     public void applyAlphaEdgeBlurSelf (int strength) {
+        setImage(Graphic.applyAlphaEdgeBlur(this.image, strength));
+    }
+    
 
     @Override
     public double getOpacity() {

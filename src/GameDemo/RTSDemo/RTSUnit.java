@@ -110,7 +110,7 @@ public class RTSUnit extends GameObject2 {
     @Override
     public void render(Graphics2D g) {
         super.render(g);
-        g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
+        // g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
         // g.drawString(getCurrentTerrain().name + " " + pathingModifiers.get(getCurrentTerrain()), getPixelLocation().x + 25, getPixelLocation().y);
         if (isRubble) {
             return;

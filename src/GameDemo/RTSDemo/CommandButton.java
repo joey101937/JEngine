@@ -1,7 +1,6 @@
 
 package GameDemo.RTSDemo;
 
-import Framework.Main;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.function.Consumer;

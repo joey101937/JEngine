@@ -147,25 +147,25 @@ public abstract class RTSAssetManager {
 
     private static CompletableFuture<Void> loadTankAssets() {
         return CompletableFuture.runAsync(() -> {
-            tankChasis = load("DemoAssets/TankGame/tank1-hull.png");
+            tankChasis = load("DemoAssets/TankGame/newTank/newHull2.png");
             tankChasisRed = greenToRed(tankChasis);
-            tankTurret = load("DemoAssets/TankGame/tank1-turret.png");
+            tankTurret = load("DemoAssets/TankGame/newTank/newTurret.png");
             tankTurretRed = greenToRed(tankTurret);
             tankTurretShadow = load("DemoAssets/TankGame/tank1-turret-shadow.png");
-            tankFireAnimation = loadSequence("DemoAssets/TankGame/tank1Fire");
+            tankFireAnimation = loadSequence("DemoAssets/TankGame/newTank/fireAnimation");
             tankFireAnimationRed = greenToRed(tankFireAnimation);
             bullet = load("DemoAssets/TankGame/bullet.png");
             bullet2 = load("DemoAssets/TankGame/bullet2.png");
-            tankDeadHull = load("DemoAssets/TankGame/destroyedHull.png");
             tankDeadHullShadow = load("DemoAssets/TankGame/destroyedHullShadow.png");
             tankShadow = load("DemoAssets/TankGame/tankShadow.png");
-            tankHullDamaged = load("DemoAssets/TankGame/tankHullDamaged.png");
+            tankHullDamaged = load("DemoAssets/TankGame/newTank/newHull2Damaged.png");
             tankHullDamagedRed = greenToRed(tankHullDamaged);
-            tankTurretDamaged = load("DemoAssets/TankGame/tankTurretDamaged.png");
+            tankTurretDamaged = load("DemoAssets/TankGame/newTank/newTurretDamaged.png");
             tankTurretDamagedRed = greenToRed(tankTurretDamaged);
             tankFireAnimationDamaged = loadSequence("DemoAssets/TankGame/tank1FireDamaged");
             tankFireAnimationDamagedRed = greenToRed(tankFireAnimationDamaged);
-            tankDeadTurret = load("DemoAssets/TankGame/destroyedTurret.png");
+            tankDeadTurret = load("DemoAssets/TankGame/newTank/newTurretRubble.png");
+            tankDeadHull = load("DemoAssets/TankGame/newTank/newHullRubble.png");
             tankHullDeathAni = loadSequence("DemoAssets/TankGame/tankHullDeath");
             tankTurretDeathAni = loadSequence("DemoAssets/TankGame/tankTurretDeath");
             sandbagsForTank = load("DemoAssets/TankGame/sandbagsForTank.png");

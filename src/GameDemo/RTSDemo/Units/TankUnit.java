@@ -40,7 +40,7 @@ public class TankUnit extends RTSUnit {
     public static double speed = RTSGame.tickAdjust(2.15);
 
     public Turret turret;
-    public final static double VISUAL_SCALE = 1.10;
+    public final static double VISUAL_SCALE = .4;
     public long weaponCooldownExpiresAtTick = 0;
     public long lastTickTakenDamage = 0;
     public boolean sandbagActive = false;
@@ -110,8 +110,8 @@ public class TankUnit extends RTSUnit {
         deathShadow = new Sprite(RTSAssetManager.tankDeadHullShadow);
         deathFadeout = Sequence.createFadeout(RTSAssetManager.tankDeadHullShadow, 40);
         deathFadeout.setSignature("fadeout");
-        shadow = new Sprite(RTSAssetManager.tankShadow);
-        turretShadow = new Sprite(RTSAssetManager.tankTurretShadow);
+        shadow = Sprite.generateShadowSprite(RTSAssetManager.tankChasis, .8); // new Sprite(RTSAssetManager.tankShadow);
+        turretShadow = Sprite.generateShadowSprite(RTSAssetManager.tankTurret, .8); // new Sprite(RTSAssetManager.tankTurretShadow);
 
         tankHullDamagedGreen = new Sprite(RTSAssetManager.tankHullDamaged);
         tankTurretDamagedGreen = new Sprite(RTSAssetManager.tankTurretDamaged);
@@ -136,6 +136,16 @@ public class TankUnit extends RTSUnit {
         sandbagDamagedSprite = new Sprite(RTSAssetManager.sandbagsForTankDamaged, "sandbagsForTankDamaged");
         
         sandbagShadow = Sprite.generateShadowSprite(RTSAssetManager.sandbagsForTank, .7);
+        
+        shadow.applyAlphaEdgeBlurSelf(8);
+        turretShadow.applyAlphaEdgeBlurSelf(3);
+        chasisSpriteGreen.applyAlphaEdgeBlurSelf(1);
+        chasisSpriteRed.applyAlphaEdgeBlurSelf(1);
+        turretSpriteGreen.applyAlphaEdgeBlurSelf(1);
+        turretSpriteRed.applyAlphaEdgeBlurSelf(1);
+        turretFireAnimationGreen.applyAlphaEdgeBlurSelf(1);
+        turretFireAnimationRed.applyAlphaEdgeBlurSelf(1);
+
 
         List.of(
                 deathShadow,
@@ -152,9 +162,6 @@ public class TankUnit extends RTSUnit {
 
     @Override
     public void onAnimationCycle() {
-        if ("tankDeathAniHull".equals(getGraphic().getSignature())) {
-            this.setGraphic(rubbleHullSprite);
-        }
         if ("fadeout".equals(getGraphic().getSignature())) {
             this.isInvisible = true;
         }
@@ -216,13 +223,13 @@ public class TankUnit extends RTSUnit {
     @Override
     public int getWidth() {
         // consistent width so that width is not tied to animation frame
-        return chasisSpriteGreen.getWidth();
+        return (int)(chasisSpriteGreen.getWidth() * VISUAL_SCALE);
     }
 
     @Override
     public int getHeight() {
         // consistent height so that width is not tied to animation frame
-        return chasisSpriteGreen.getHeight();
+        return (int)(chasisSpriteGreen.getHeight() * VISUAL_SCALE);
     }
 
     /*
@@ -247,6 +254,8 @@ public class TankUnit extends RTSUnit {
         isSolid = true;
         preventOverlap = true;
         setScale(VISUAL_SCALE);
+        turretShadow.scaleTo(VISUAL_SCALE);
+        shadow.scaleTo(VISUAL_SCALE);
         Sprite chassSprite = getHullSprite();
         this.setGraphic(chassSprite);
         this.movementType = MovementType.RotationBased;
@@ -257,6 +266,7 @@ public class TankUnit extends RTSUnit {
         this.currentHealth = maxHealth;
         this.baseSpeed = speed;
         initializeButtons();
+        this.rotationSpeed = RTSGame.tickAdjust(2);
     }
 
     private void initializeButtons() {
@@ -371,7 +381,6 @@ public class TankUnit extends RTSUnit {
             if (isRubble) {
                 setGraphic(rubbleTurretSprite);
             }
-
         }
 
         //tank turret tick
@@ -405,7 +414,7 @@ public class TankUnit extends RTSUnit {
                 }
             } else {
                 double desiredRotation = rotationNeededToFace(enemy.getPixelLocation());
-                double maxRotation = RTSGame.tickAdjust(5);
+                double maxRotation = RTSGame.tickAdjust(2);
                 if (Math.abs(desiredRotation) < maxRotation) {
                     rotate(desiredRotation);
                 } else {
@@ -428,8 +437,8 @@ public class TankUnit extends RTSUnit {
                 VolatileImage toRender = turretShadow.getCurrentVolatileImage();
                 int renderX = getPixelLocation().x - toRender.getWidth() / 2;
                 int renderY = getPixelLocation().y - toRender.getHeight() / 2;
-                int shadowOffsetY = 3;
-                int shadowOffsetX = 1;
+                int shadowOffsetY = 4;
+                int shadowOffsetX = 2;
                 g.rotate(Math.toRadians(getRotationRealTime()), getPixelLocation().x + shadowOffsetX, getPixelLocation().y + shadowOffsetY);
                 g.drawImage(toRender, renderX, renderY + shadowOffsetY, null);
                 g.setTransform(old);
@@ -487,8 +496,8 @@ public class TankUnit extends RTSUnit {
         this.team = -1;
         this.setBaseSpeed(0);
         this.setDesiredLocation(this.getPixelLocation());
-        this.setGraphic(deathAnimationHull.copyMaintainSource());
-        turret.setGraphic(deathAnimationTurret.copyMaintainSource());
+        this.setGraphic(rubbleHullSprite);
+        turret.setGraphic(rubbleTurretSprite);
         if(isOnScreen()) {
             RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .66), 0);
         }

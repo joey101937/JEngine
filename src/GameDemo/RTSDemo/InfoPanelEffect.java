@@ -81,7 +81,7 @@ public class InfoPanelEffect extends IndependentEffect {
         }
     }
     
-    private void updateSelectedUnits () {
+    private synchronized void updateSelectedUnits () {
         selectedUnits = new ArrayList<>(SelectionBoxEffect.selectedUnits.stream().filter(
                 u -> !u.isRubble && u.isAlive() && (!ExternalCommunicator.isMultiplayer || u.team == ExternalCommunicator.localTeam)).toList()
         );

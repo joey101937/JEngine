@@ -1,6 +1,6 @@
 package GameDemo.RTSDemo;
 
-import static Framework.GraphicalAssets.Graphic.load;
+import Framework.PathingLayer;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -12,7 +12,11 @@ public class AssetExporter {
         // Main method can be used to test the exportImages function
         System.out.println("Asset Exporter initialized.");
         BufferedImage[] arr = new BufferedImage[1];
-        arr[0] = RTSAssetManager.removeGreenOutright(load("heli.png"));
+        // arr[0] = RTSAssetManager.removeGreenOutright(load("heli.png"));
+        RTSAssetManager.initialize();
+        PathingLayer pl = new PathingLayer(RTSAssetManager.rtsPathing);
+        pl.internalizeSource();
+        arr[0] = pl.getSource();
         exportImages(arr, "export");
     }
 

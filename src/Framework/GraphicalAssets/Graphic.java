@@ -18,6 +18,8 @@ import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.awt.image.VolatileImage;
 import java.io.File;
 import java.io.IOException;
@@ -120,7 +122,9 @@ public interface Graphic {
     public void setOpacity(double input);
     
     public double getOpacity();
-
+    
+    /* blurs the transparent bits and edges of image */
+    public void applyAlphaEdgeBlurSelf (int strength);
     
     /**
      * returns a scaled copy of the image
@@ -336,4 +340,68 @@ public interface Graphic {
         }
 
     }
+    
+    
+    
+    private static float[] createGaussianKernel(int radius) {
+        int size = radius * 2 + 1;
+        float[] data = new float[size * size];
+
+        float sigma = radius / 2f;
+        float sum = 0f;
+        int index = 0;
+
+        for (int y = -radius; y <= radius; y++) {
+            for (int x = -radius; x <= radius; x++) {
+                float value = (float) Math.exp(-(x * x + y * y) / (2 * sigma * sigma));
+                data[index++] = value;
+                sum += value;
+            }
+        }
+
+        // Normalize kernel
+        for (int i = 0; i < data.length; i++) {
+            data[i] /= sum;
+        }
+
+        return data;
+    }
+    
+       public static BufferedImage applyAlphaEdgeBlur(BufferedImage input, int strength) {
+
+        if (strength <= 0) return input;
+
+        int padding = strength;
+        int newW = input.getWidth() + padding * 2;
+        int newH = input.getHeight() + padding * 2;
+
+        
+        BufferedImage expanded = new BufferedImage(
+                newW,
+                newH,
+                BufferedImage.TYPE_INT_ARGB
+        );
+
+        Graphics2D g = expanded.createGraphics();
+        g.drawImage(input, padding, padding, null);
+        g.dispose();
+
+        int size = strength * 2 + 1;
+        float[] data = createGaussianKernel(strength);
+
+        Kernel kernel = new Kernel(size, size, data);
+
+        ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
+
+        BufferedImage blurred = new BufferedImage(
+                newW,
+                newH,
+                BufferedImage.TYPE_INT_ARGB
+        );
+
+        op.filter(expanded, blurred);
+
+        return blurred;
+    }
+
 }

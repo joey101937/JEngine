@@ -498,7 +498,7 @@ public class Game implements Runnable {
      * applies java graphics rendering hints
      * @param g2d graphics obj
      */
-    private void applyRenderingHints(Graphics2D g2d) {
+    public static void applyRenderingHints(Graphics2D g2d) {
          if (Main.renderingHintSetter != null) {
             Main.renderingHintSetter.accept(g2d);
         } else {
