@@ -428,11 +428,11 @@ public class TankUnit extends RTSUnit {
             if (getHost().isSolid) {
                 AffineTransform old = g.getTransform();
                 VolatileImage toRender = turretShadow.getCurrentVolatileImage();
-                int renderX = getPixelLocation().x - toRender.getWidth() / 2;
-                int renderY = getPixelLocation().y - toRender.getHeight() / 2;
+                int renderX = getRenderLocation().x - toRender.getWidth() / 2;
+                int renderY = getRenderLocation().y - toRender.getHeight() / 2;
                 int shadowOffsetY = 2;
                 int shadowOffsetX = 1;
-                g.rotate(Math.toRadians(getRotationRealTime()), getPixelLocation().x + shadowOffsetX, getPixelLocation().y + shadowOffsetY);
+                g.rotate(Math.toRadians(getRotationRealTime()), getRenderLocation().x + shadowOffsetX, getRenderLocation().y + shadowOffsetY);
                 g.drawImage(toRender, renderX, renderY + shadowOffsetY, null);
                 g.setTransform(old);
             }
