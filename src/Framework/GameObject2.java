@@ -524,37 +524,13 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         
         // Apply scaling
         scaleGraphicObj(graphics, scale, pixelLocation.toDCoordinate());
+
         
-        if (getGraphic() == null) {
-            //System.out.println("Warning null graphic for " + name);
-        } else if (isAnimated()) {
-            Sequence sequence = (Sequence)getGraphic();
-            if(sequence == null){
-                if(renderNumber>10 && tickNumber>2)System.out.println("Warning trying to render null sequence object " +getName());
-                if(Main.debugMode){
-                    renderDebugVisuals(graphics);
-                }
-                return;
-            }
-            if(sequence.getCurrentVolatileFrame()!=null){
-                sequence.startAnimating();
-                VolatileImage toRender = sequence.getCurrentVolatileFrame();
-                graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frame centered on pixelLocation
-                if(triggerAnimationCycle) this.onAnimationCycle();
-            }else{
-                if(renderNumber>10 && tickNumber>2)System.out.println("Warning: null frame in sequence of " + getName());
-            }
-        }else{
-            Sprite sprite = (Sprite)getGraphic();
-            if(sprite!=null){                
-                graphics.drawImage(sprite.getCurrentVolatileImage(), pixelLocation.x - sprite.getImage().getWidth() / 2, pixelLocation.y - sprite.getImage().getHeight() / 2, null); //draws sprite centered on pixelLocation
-            } else {
-                if (renderNumber > 10 && tickNumber > 2) {
-                    System.out.println("Warning: unanimated game object sprite is null " + getName());
-                }
-            }
-        }
-        
+        if (getGraphic() != null && getGraphic().getCurrentVolatileImage() != null) {
+            VolatileImage toRender = getGraphic().getCurrentVolatileImage();
+            graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frame centered on pixelLocation
+            if(isAnimated() && triggerAnimationCycle) this.onAnimationCycle();
+        }        
         
         // Undo scaling
         scaleGraphicObj(graphics, 1/scale, pixelLocation.toDCoordinate());
