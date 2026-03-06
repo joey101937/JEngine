@@ -1,6 +1,5 @@
 package Framework;
 
-import Framework.CoreLoop.Handler;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -11,7 +10,7 @@ import java.util.ArrayList;
  * @author JEngine
  */
 public class SerializationManager {
-    private static GameStateSnapshot lastGeneratedSnapshot = lastGeneratedSnapshot = null;
+    private static GameStateSnapshot lastGeneratedSnapshot = null;
     /**
      * Represents a saved game state snapshot
      */
