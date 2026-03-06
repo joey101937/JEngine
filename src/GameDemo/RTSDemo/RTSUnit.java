@@ -110,8 +110,9 @@ public class RTSUnit extends GameObject2 {
     @Override
     public void render(Graphics2D g) {
         super.render(g);
-        // g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
-        // g.drawString(getCurrentTerrain().name + " " + pathingModifiers.get(getCurrentTerrain()), getPixelLocation().x + 25, getPixelLocation().y);
+        if(NavigationManager.displayPathingDebugInfo) {
+           g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
+        }
         if (isRubble) {
             return;
         }
@@ -583,8 +584,6 @@ public class RTSUnit extends GameObject2 {
          if(distance < 800) return Tile.tileSizeFine;
          if(distance < 2600) return Tile.tileSizeNormal;
          return Tile.tileSizeLarge;
-
-//        return Tile.tileSizeNormal;
     }        
     
     public String getPathingSignature () {
@@ -770,7 +769,7 @@ public class RTSUnit extends GameObject2 {
     }
     
     public void setCommandGroup(String s) {
-        if(s != this.commandGroup) this.inSeperatorGroup = false;
+        if(!s.equals(this.commandGroup)) this.inSeperatorGroup = false;
         this.commandGroup = s;
     }
     

@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 public class NavigationManager extends IndependentEffect {
     private static final long serialVersionUID = 1L;
 
+    public static boolean displayPathingDebugInfo = true;
     public static int updateInterval = RTSGame.desiredTPS / 10;
     public static transient ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
     public static int maxCalculationDistance = 1400;
@@ -100,16 +101,15 @@ public class NavigationManager extends IndependentEffect {
             g.drawString("MP: " + (ExternalCommunicator.isResyncing ? "Resyncing" : (int)ExternalCommunicator.tickTimingOffset + " | " + RTSInput.getInputDelay()), camLoc.x + 10, camLoc.y + 40);
             g.drawString("Ping: " + ExternalCommunicator.currentPingMs, camLoc.x + 10, camLoc.y + 50);
 
-        }
+        }        
 
-        
-
-        if (1 == 1) {
+        if (!displayPathingDebugInfo) {
             return;
         }
         if (SelectionBoxEffect.selectedUnits.isEmpty()) {
             return;
         }
+        // renders visible tile grid that selected unit is using in center of screen
         RTSUnit unit = (RTSUnit) SelectionBoxEffect.selectedUnits.toArray()[0];
         TileMap tm = getTileMapBySize(unit.getNavTileSize()); //  this.tileMapGiantTerrain; // getTileMapBySize(unit.getNavTileSize());
         try {
