@@ -8,6 +8,7 @@ package GameDemo.Minotaur.Actors;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
+import Framework.Push;
 import Framework.GraphicalAssets.Sequence;
 import Framework.Hitbox;
 import Framework.Main;
@@ -157,6 +158,15 @@ public class Minotaur extends SSActor{
                         if (damageArea.intersects(go.getHitbox())) {
                             SSActor target = (SSActor)go;
                             target.takeDamage(10);  //10 damage
+                            // knockback push away from attacker, tapering off quickly
+                            DCoordinate myLoc = getLocationAsOfLastTick();
+                            DCoordinate targetLoc = go.getLocationAsOfLastTick();
+                            double dx = targetLoc.x - myLoc.x;
+                            double dy = targetLoc.y - myLoc.y;
+                            if (dx == 0 && dy == 0) dx = actionDirection ? 1 : -1;
+                            target.clearPushes();
+                            target.addPush(new Push(dx, dy, 6.0, 5.0, 20,
+                                    p -> { p.speed *= 0.85; p.strength *= 0.85; }));
                         }
                     }
                 }

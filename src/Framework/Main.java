@@ -14,6 +14,7 @@ import GameDemo.SideScollerDemo_PathingLayer.SideScrollDemo;
 import GameDemo.TownDemo.TownDemo;
 import GameDemo.Galiga.GaligaGame;
 import GameDemo.Minotaur.MinotaurGame;
+import GameDemo.PushDemo.PushDemoGame;
 import java.awt.Graphics2D;
 import java.io.File;
 import java.lang.reflect.Array;
@@ -66,7 +67,7 @@ public class Main {
      * this is the new main method that only shows the nicer looking demos... not that any of them look particularly good
      */
     private static void showCuratedDemos(String[] args) {
-        String[] options = { "RTS Singleplayer", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Demo - Fog", "RTS Multiplayer (host)", "RTS Multiplayer (client)"};
+        String[] options = { "RTS Singleplayer", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Demo - Fog", "Demo - Push System", "RTS Multiplayer (host)", "RTS Multiplayer (client)"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
@@ -83,9 +84,11 @@ public class Main {
             break;
             case 5: FogDemo.main(args);
             break;
-            case 6: Server.main(args);
+            case 6: PushDemoGame.main(args);
             break;
-            case 7: Client.main(args);
+            case 7: Server.main(args);
+            break;
+            case 8: Client.main(args);
             break;
             default: {
                 System.out.println("unknown selection");

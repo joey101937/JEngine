@@ -339,7 +339,7 @@ public class LaunchMenu extends javax.swing.JFrame {
             DCoordinate location = new DCoordinate(x,y);
             SampleBird bird = new SampleBird(location);
             g.addObject(bird);
-            bird.velocity=new DCoordinate(.5,.5);      
+            bird.velocity=new DCoordinate(.5,.5);
         }
         ////add player character
         SampleCharacter example = new SampleCharacter(new Coordinate(500,300));

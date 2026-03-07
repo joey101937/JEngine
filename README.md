@@ -40,7 +40,7 @@ Now you can create a character to go inside the world. I would reccomend copying
 
 Once you have your character object, call **addObject(GameObject2 go)** on your world and pass in your character. If done correctly, you should see your character's sprite at the character's location in your gameworld. note if you picked an out of bounds coordinate, the object may have been pulled back in to the nearest in-bounds location. 
 
-Moving a GameObject can be done by modifying it's location directly (forcibly teleports the object), or by changing its velocity. Velocity is the prefered way to move things if you want them to move around the world rather than just teleport to a different location. 
+Moving a GameObject can be done by modifying it's location directly (forcibly teleports the object), or by changing its velocity. Velocity is the prefered way to move things if you want them to move around the world rather than just teleport to a different location.
 
 To put your character in view if you put it in a location off-screen, position the camera over it or have the camera track it using **setTarget(GameObject2 go)** method in camera. **Ex: myGame.camera.setTarget(character);**
 
@@ -387,17 +387,69 @@ Change the *scale* field in the object and it will scale the object to the given
 **Rotating**
 Rotation is more complicated than setting a single variable. To rotate the object by a set number of degrees, call **Rotate(double)** method. This method rotates from where the object is currently rotated. To set the rotation directly, call **rotateTo(double)** method. To rotate in such a way to face a specifiec point or object, call the **lookAt(Coordinate)** or **lookAT(GameObject2)** methods.
 
-### Moving GameObejcts 
-Moving gameobjects involves changing their *location*. Directly changing the location field will result in the object 'teleporting' around the world. To gradualy move an object around, you should modify the object's *velocity*. Velociy moves the object every tick based on the direction and the extremity of the velocity. Velocity based movement is fluid and works with collision. Velocity is stored in a DCoordinate, x = X velocity, y = Y velocity. positive X velocity moves the object to the right while positive Y velocity moves the object downward. Inversing the sign to negative would produce opposite results.
+### Moving GameObejcts
+Moving gameobjects involves changing their *location*. Directly changing the location field will result in the object 'teleporting' around the world. To gradualy move an object around, you should modify the object's *velocity*. Velocity-based movement is fluid and works with collision. `velocity` is stored in a DCoordinate: x = X velocity, y = Y velocity. Positive X velocity moves the object to the right while positive Y velocity moves the object downward. Inversing the sign to negative would produce opposite results.
 
 **MOVEMENT TYPES**
 GameObject2s support 3 types of movement, these are as follows:
 
 **Raw Velocity** Raw velocity is just what it sounds like. Every tick the objects location is directly modified by whatever the velocity is. ie an object with velocity of (100,0) would move 100 units to the right every tick.
 
-**Speed Ratio** Speed ratio is a type of movement that streamlines an object's speed so that it always travels a distance equal to its given *speed* field every tick based on velocity (0 velocity will not move). This is usful if the Object is traveling in a direction that is not perpendicular to the X or Y axis, especially projectiles, and is the default type for most objects. Change how fast the object moves not by velocity but with *speed*. an object with speed of 5 and velocity of (100,0) would travel 5 untis to the right. **Note: the field you want to set is baseSpeed - calling getSpeed() will return the adjusted speed based on baseSpeed and and speed modifiers from the pathing layer**
+**Speed Ratio** Speed ratio is a type of movement that streamlines an object's speed so that it always travels a distance equal to its given *speed* field every tick based on velocity (0 velocity will not move). This is usful if the Object is traveling in a direction that is not perpendicular to the X or Y axis, especially projectiles, and is the default type for most objects. Change how fast the object moves not by velocity but with *speed*. an object with speed of 5 and velocity of (100,0) would travel 5 units to the right. **Note: the field you want to set is baseSpeed - calling getSpeed() will return the adjusted speed based on baseSpeed and and speed modifiers from the pathing layer**
 
 **Rotation Based** This is speed ratio except velocity is relative to the gameobject2's orientation, not global. positive y velocity that would usually correlate with going upwards to the top of the screen would instead push the object forward in whatever direction the object is facing. Example is a gameobject with speed of 1, velocity of (0,100), turned 90 degrees to the right. The object will move 1 unit to the right (direction its facing) every tick.
+
+### Push System
+The Push System allows external forces to be applied to any `GameObject2` on top of its own `velocity`. This is useful for knockback, explosions, conveyor belts, wind zones, or any effect that temporarily redirects an object without overwriting its own movement logic.
+
+**Key Concepts**
+
+`velocity` is the object's own movement intent. `intrinsicStrength` (default `1.0`) is the weight given to that self-directed motion.
+
+A `Push` is an external force with:
+- `x`, `y` — direction vector (does not need to be normalized)
+- `speed` — how many pixels per tick to move in that direction
+- `strength` — weight of this push relative to intrinsicStrength
+- `tickDuration` — how many ticks the push lasts (`-1` = infinite)
+- optional `Consumer<Push> updater` — called every tick to evolve the push (e.g. decay speed/strength)
+
+Each tick, the final movement vector is the **strength-weighted average** of velocity and all active pushes:
+
+```
+totalMovement = (intrinsicMovement * intrinsicStrength + Σ(push.movement * push.strength))
+                / (intrinsicStrength + Σ push.strength)
+```
+
+This means a strong intrinsicStrength resists being pushed, while a low value (e.g. `0.05`) makes the object almost fully responsive to incoming pushes.
+
+**Managing Pushes**
+
+```java
+// Apply a push: direction (dx,dy), speed 8 px/tick, strength 3.0, 60 ticks, decaying
+object.addPush(new Push(dx, dy, 8.0, 3.0, 60, p -> {
+    p.speed *= 0.96;
+    p.strength *= 0.96;
+}));
+
+object.clearPushes();          // remove all active pushes
+object.getPushes();            // List<Push> of currently active pushes
+object.removePush(push);       // remove a specific push
+```
+
+Pushes are ticked automatically in `postTick()` and removed once expired. If a push has an `updater` Consumer, it is invoked each tick — use this to implement decay, burst, oscillation, or any custom force shape.
+
+**Push Types (examples)**
+
+| Type | Updater |
+|------|---------|
+| Constant | `null` — speed and strength never change |
+| Decay | `p.speed *= 0.96; p.strength *= 0.96;` |
+| Burst | Short `tickDuration` (e.g. 15) with high initial speed |
+| Oscillate | `p.speed = base * (0.5 + 0.5 * Math.sin(p.getTicksApplied() * 0.25));` |
+
+**Push Demo**
+
+The `GameDemo/PushDemo` package provides a live sandbox for experimenting with the push system. A red player block (WASD) rams colored blocks and applies configurable pushes. Pushes cascade between blocks at reduced strength. A floating control panel lets you adjust push strength, speed, duration, and type in real time.
 
 ### Collision
 GameObjects can be in 3 states for collision; solid, non-solid, overlap allowed. 

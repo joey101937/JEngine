@@ -38,6 +38,10 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     protected DCoordinate locationAsOfLastTick = new DCoordinate(0,0);
     /** Used to move the object. Applied to location in default preTick method via the updateLocation method */
     public DCoordinate velocity = new DCoordinate(0,0);
+    /** How strongly this object's intrinsic velocity influences total movement relative to applied pushes. Default 1.0 */
+    public double intrinsicStrength = 1.0;
+    /** Active push forces applied to this object from external sources */
+    private final List<Push> pushes = new ArrayList<>();
     /** total distance the object can move per tick before pathing modifiers. RawVelocity movement type ignores this*/
     protected double baseSpeed = 2;
     private transient Graphic graphic; //visual representation of the object
@@ -50,7 +54,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     private float renderOpacity = 1f;
     private double scale = 1;
     protected double scaleAsOfLastTick = 1;
-    /** Determines how velocity is applied to this objects location each preTick */
+    /** Determines how intrinsic velocity is applied to this object's location each preTick */
     public MovementType movementType = MovementType.SpeedRatio;
     private int zLayer = 1;
     private final HashMap<String, Object> syncedState = new HashMap<>();
@@ -681,6 +685,10 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         updateHitbox();
         movedLastTick = !location.equals(locationAsOfLastTick);
         lastMovement = location.copy().subtract(locationAsOfLastTick);
+        for (Push push : new ArrayList<>(pushes)) {
+            push.tick();
+        }
+        pushes.removeIf(Push::isExpired);
     }
     
     private boolean canCollideWith(GameObject2 other) {
@@ -893,7 +901,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * -updates hitbox
      */
     public void updateLocation() {
-        if(Main.ignoreCollisionsForStillObjects && velocity.x == 0 && velocity.y == 0) return;
+        if(Main.ignoreCollisionsForStillObjects && velocity.x == 0 && velocity.y == 0 && pushes.isEmpty()) return;
         
         //COLLISION
         DCoordinate oldLocation = location.copy();
@@ -920,11 +928,34 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
 
     
     /**
-     * returns the movement the object undergo next tick assuming that 
-     * it is moved only with its own velocity and it does not collide with anything
-     * @return DCoordiante representation of the movement 
+     * returns the movement the object undergoes next tick assuming it does not collide with anything.
+     * Combines intrinsic velocity with any active pushes using a strength-weighted average.
+     * @return DCoordinate representation of the movement
      */
     public DCoordinate getMovementNextTick() {
+        DCoordinate intrinsicMovement = computeIntrinsicMovement();
+        if (pushes.isEmpty()) {
+            return intrinsicMovement;
+        }
+        double totalWeight = intrinsicStrength;
+        double combinedX = intrinsicMovement.x * intrinsicStrength;
+        double combinedY = intrinsicMovement.y * intrinsicStrength;
+        for (Push push : pushes) {
+            if (!push.isExpired()) {
+                DCoordinate pushVec = push.getMovementVector();
+                combinedX += pushVec.x * push.strength;
+                combinedY += pushVec.y * push.strength;
+                totalWeight += push.strength;
+            }
+        }
+        if (totalWeight == 0) return new DCoordinate(0, 0);
+        return new DCoordinate(combinedX / totalWeight, combinedY / totalWeight);
+    }
+
+    /**
+     * Computes the movement vector from intrinsic velocity alone, ignoring pushes.
+     */
+    private DCoordinate computeIntrinsicMovement() {
         DCoordinate newLocation = location.copy();
         switch (movementType) {
             case SpeedRatio:
@@ -954,8 +985,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             default:
                 throw new RuntimeException("Movement Type undefined for object: " + this);
         }
-        DCoordinate movement = new DCoordinate((newLocation.x - location.x), (newLocation.y - location.y));
-        return movement;
+        return new DCoordinate(newLocation.x - location.x, newLocation.y - location.y);
     }
     /**
      * this method is triggered from the default constrainToWorld function when
@@ -1289,6 +1319,22 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     
     public boolean hasVelocity() {
         return velocity.x < 0 || velocity.x > 0 || velocity.y < 0 || velocity.y > 0;
+    }
+
+    public void addPush(Push push) {
+        pushes.add(push);
+    }
+
+    public void removePush(Push push) {
+        pushes.remove(push);
+    }
+
+    public void clearPushes() {
+        pushes.clear();
+    }
+
+    public List<Push> getPushes() {
+        return pushes;
     }
     
     /**
