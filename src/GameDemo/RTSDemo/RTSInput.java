@@ -24,6 +24,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -185,25 +186,74 @@ public class RTSInput extends InputHandler {
                     ), true);
                 }
             } else {
-                // formation move
+                // formation move - arrange units compactly side by side at destination,
+                // preserving their relative arrangement within the group
                 Coordinate target = locationOfMouseEvent;
-                Coordinate avgStartLocation = averageLocation(SelectionBoxEffect.selectedUnits);
-                for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
-                    if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) {
-                        continue;
+                List<RTSUnit> validUnits = SelectionBoxEffect.selectedUnits.stream()
+                        .filter(u -> !(ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam))
+                        .filter(u -> u.isAlive() && !u.isRubble)
+                        .collect(Collectors.toList());
+                if (!validUnits.isEmpty()) {
+                    // assignmentSpacing determines which slot a unit belongs to in the source formation
+                    // (based on visual size so tightly-packed units in a grid get distinct slots)
+                    int assignmentSpacing = validUnits.stream()
+                            .mapToInt(RTSUnit::getSideLength)
+                            .max().orElse(50);
+                    // destinationSpacing determines how far apart slots are at the destination
+                    // (includes pathing padding so units can actually fit)
+                    int destinationSpacing = validUnits.stream()
+                            .mapToInt(u -> u.getWidthForPathing() + 2 * u.getPathingPadding())
+                            .max().orElse(100);
+                    int count = validUnits.size();
+
+                    double centerX = validUnits.stream().mapToInt(u -> u.getPixelLocation().x).average().orElse(0);
+                    double centerY = validUnits.stream().mapToInt(u -> u.getPixelLocation().y).average().orElse(0);
+
+                    int expectedCols = (int) Math.ceil(Math.sqrt(count));
+                    int expectedRows = (int) Math.ceil((double) count / expectedCols);
+
+                    // Determine if units are compact (already in a close formation) or scattered
+                    Coordinate centerCoord = new Coordinate((int) centerX, (int) centerY);
+                    double maxDistFromCenter = validUnits.stream()
+                            .mapToDouble(u -> u.getPixelLocation().distanceFrom(centerCoord))
+                            .max().orElse(0);
+                    double expectedRadius = Math.hypot(
+                            (expectedCols - 1) * destinationSpacing / 2.0,
+                            (expectedRows - 1) * destinationSpacing / 2.0);
+                    boolean isCompact = maxDistFromCenter <= expectedRadius * 2.0;
+
+                    if (isCompact) {
+                        // Simple translation: each unit moves by (target - center), preserving relative positions
+                        for (RTSUnit u : validUnits) {
+                            Coordinate pos = u.getPixelLocation();
+                            RTSGame.commandHandler.addCommand(new MoveCommand(
+                                    hostGame.getGameTickNumber() + getInputDelay(),
+                                    u.ID,
+                                    new Coordinate(target.x + pos.x - (int) centerX, target.y + pos.y - (int) centerY),
+                                    generatedCommandGroup
+                            ), true);
+                        }
+                    } else {
+                        // Scattered: sort by normalized row then X within each row,
+                        // and assign to a compact sequential grid at the destination.
+                        final double fCenterY = centerY;
+                        final int fAssignmentSpacing = assignmentSpacing;
+                        validUnits.sort(Comparator.comparingInt((RTSUnit u) ->
+                                (int) Math.round((u.getPixelLocation().y - fCenterY) / fAssignmentSpacing))
+                                .thenComparingInt(u -> u.getPixelLocation().x));
+                        for (int i = 0; i < count; i++) {
+                            int col = i % expectedCols;
+                            int row = i / expectedCols;
+                            int offsetX = (int) Math.round((col - (expectedCols - 1) / 2.0) * destinationSpacing);
+                            int offsetY = (int) Math.round((row - (expectedRows - 1) / 2.0) * destinationSpacing);
+                            RTSGame.commandHandler.addCommand(new MoveCommand(
+                                    hostGame.getGameTickNumber() + getInputDelay(),
+                                    validUnits.get(i).ID,
+                                    new Coordinate(target.x + offsetX, target.y + offsetY),
+                                    generatedCommandGroup
+                            ), true);
+                        }
                     }
-                    if(!u.isAlive() || u.isRubble) {
-                        continue;
-                    }
-                    Coordinate offset = new Coordinate(avgStartLocation.x - u.getPixelLocation().x, avgStartLocation.y - u.getPixelLocation().y);
-                    Coordinate targetOffset = target.offsetBy(offset);
-                    long originalTick = hostGame.handler.globalTickNumber;
-                    RTSGame.commandHandler.addCommand(new MoveCommand(
-                            hostGame.getGameTickNumber() + getInputDelay(),
-                            u.ID,
-                            targetOffset,
-                            generatedCommandGroup
-                    ), true);
                 }
             }
         }

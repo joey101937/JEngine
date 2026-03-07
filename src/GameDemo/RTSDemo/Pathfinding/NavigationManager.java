@@ -32,7 +32,7 @@ import java.util.concurrent.Future;
 public class NavigationManager extends IndependentEffect {
     private static final long serialVersionUID = 1L;
 
-    public static boolean displayPathingDebugInfo = true;
+    public static boolean displayPathingDebugInfo = false;
     public static int updateInterval = RTSGame.desiredTPS / 10;
     public static transient ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
     public static int maxCalculationDistance = 1400;
