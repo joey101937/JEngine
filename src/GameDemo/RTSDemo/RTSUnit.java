@@ -286,9 +286,9 @@ public class RTSUnit extends GameObject2 {
         if(this.isTouchingOtherUnit) {
             return waypoints.get((Math.min(0, waypoints.size()-1)));
         }
-        
+
         int sideLength = Math.max(getWidth(), getHeight());
-        
+
         for (int i = 0; i < waypoints.size(); i++) {
             if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + 20 + getNavTileSize()/2)) {
                 return waypoints.get(i);
@@ -704,7 +704,7 @@ public class RTSUnit extends GameObject2 {
             }
         }
         
-        if(other instanceof RTSUnit unit && !(other instanceof Landmine) && unit.team == team) {
+        if(other instanceof RTSUnit unit && !(other instanceof Landmine) && (unit.team == team || unit.isRubble)) {
             this.isTouchingOtherUnit = true;
             if(this.commandGroup.equals(unit.commandGroup) && !this.movedLastTick() && !other.movedLastTick()) {
                     // single player or this is friendly unit

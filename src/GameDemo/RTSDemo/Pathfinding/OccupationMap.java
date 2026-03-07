@@ -51,13 +51,13 @@ public class OccupationMap implements java.io.Serializable {
         Collection<Future<?>> occupationTasks = new LinkedList<>();
         Tile[][] tileGrid = tileMap.tileGrid;
         for(GameObject2 go : game.getAllObjects()){
-            if(go instanceof RTSUnit unit 
+            if(go instanceof RTSUnit unit
                     && !(go instanceof Landmine)
                     && (!(unit.getCommandGroup().equals(commandGroup)
                     && !unit.getCommandGroup().equals(NavigationManager.SEPERATOR_GROUP)) || unit.isRubble)
                     && unit.isSolid
                     && unit.plane == plane
-                    && unit.team == team) {
+                    && (unit.team == team || unit.isRubble)) {
                 occupationTasks.add(occupationService.submit(() -> {
                     boolean isForInfantry = padding == 16;
                     for(Coordinate coord : tileMap.getTilesNearPoint(getGridLocationOf(unit.getPixelLocation()), (int)(unit.getWidthForPathing() * (isForInfantry ? .7 : .7)) + tileSize + padding)) {
