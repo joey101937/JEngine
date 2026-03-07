@@ -7,7 +7,11 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
+import Framework.GameObject2;
 import Framework.GameObject2.MovementType;
+import Framework.Push;
+import java.util.HashMap;
+import java.util.Map;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
@@ -48,6 +52,8 @@ public class TankUnit extends RTSUnit {
     public Sandbag sandbag = new Sandbag(this);
     public DigInButton digInButton;
     public DigOutButton digOutButton;
+
+    private final Map<String, Push> lastInfantryPushPerTarget = new HashMap<>();
 
     // State tracking for in-progress actions (survives serialization)
     private boolean isDiggingIn = false;
@@ -477,6 +483,31 @@ public class TankUnit extends RTSUnit {
             super.render(g);
         }
         
+    }
+
+    @Override
+    public void onCollide(GameObject2 other, boolean myTick) {
+        super.onCollide(other, myTick);
+        if (!myTick || isRubble) return;
+        tryPushInfantry(other);
+    }
+
+    private void tryPushInfantry(GameObject2 other) {
+        if (!(other instanceof RTSUnit unit && unit.isInfantry)) return;
+
+        Push existing = lastInfantryPushPerTarget.get(other.ID);
+        if (existing != null && !existing.isExpired()) return;
+
+        DCoordinate myLoc = getLocationAsOfLastTick();
+        DCoordinate otherLoc = other.getLocationAsOfLastTick();
+        double dx = otherLoc.x - myLoc.x;
+        double dy = otherLoc.y - myLoc.y;
+        if (dx == 0 && dy == 0) dx = 1;
+
+        Push push = new Push(dx, dy, RTSGame.tickAdjust(4.0), 3.0, 20,
+                p -> { p.speed *= 0.82; p.strength *= 0.82; });
+        other.addPush(push);
+        lastInfantryPushPerTarget.put(other.ID, push);
     }
 
     @Override
