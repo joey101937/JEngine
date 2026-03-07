@@ -299,7 +299,7 @@ public class RTSUnit extends GameObject2 {
     }
     
     public int getWidthForPathing () {
-        if(this instanceof TankUnit tank && !tank.sandbagActive) return this.getWidth()-10;
+        if(this instanceof TankUnit tank && !tank.sandbagActive) return this.getSideLength()-10;
         return this.getWidth();
     }
     
