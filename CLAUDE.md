@@ -1,6 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -8,15 +5,7 @@ JEngine is a Java-based 2D game engine built on AWT that provides a framework fo
 
 ## Build System and Commands
 
-This project uses NetBeans with Ant as the build system:
-
-- **Build**: Use `ant` or the NetBeans build command to compile the project
-- **Run**: Execute via NetBeans or `java -jar dist/JEngine.jar`
-- **JAR creation**: The main JAR is built to `dist/JEngine.jar` with main class `Framework.Main`
-- **Test**: JUnit tests are configured and can be run via NetBeans or `ant test`
-- **Clean**: `ant clean` to remove build artifacts
-
-Launch4J configuration is available for creating Windows executables (currently commented out in build.xml).
+ATTENTION: AI cannot build or compile. The developer will build and test and give feedback
 
 ## Core Architecture
 
@@ -26,6 +15,7 @@ Launch4J configuration is available for creating Windows executables (currently 
   - `Game.java`: Scene/world container
   - `Window.java`: AWT window management
   - `GameObject2.java`: Base class for all game entities
+  - `IndependentEffect.java` Class for adding game tick/render logic that isnt tied specifically to an in-world entity
   - **CoreLoop/**: Rendering and update loop management
     - `Handler.java`: Manages all game objects in a scene
     - `QuadTree.java`: Spatial partitioning for collision detection
@@ -73,11 +63,11 @@ Key performance settings in `Main.java`:
 - `collisionCheckRadius`: Spatial collision culling
 - Multithreading controls via thread count variables
 
-### Determinism for Multiplayer
+### Determinism for Multiplayer (RTS Demo)
 - Use `Handler.TickType.modular` for deterministic execution
-- Access `getLocationAsOfLastTick()` instead of direct location for consistent state
-- Use `Main.setRandomSeed()` for synchronized randomness
-- Store synchronized properties via `setSyncedProperty()`/`getSyncedProperty()`
+- Use only random generators that accept a seed (see Main class)
+- Do not use an individual game object's tickNumber rather use getHostGame().getGameTickNumber() as objects can be added on different ticks
+- Do not reference Main.ticksPerSecond because that could change between machines. Use desired ticks per second from RTSGame class
 
 ## Common Development Tasks
 
@@ -103,5 +93,4 @@ Extend `GameObject2` and override:
 ### Pathfinding System
 The RTS demo includes a comprehensive pathfinding system:
 - `NavigationManager`: A* pathfinding implementation
-- `UnitPositionCache`: Deterministic unit positioning
 - `TerrainTileMap`: Tile-based movement constraints
