@@ -68,7 +68,7 @@ public class TextObject extends GameObject2{
         }
         g.setColor(color);
         String[] lines = text.split("\n");
-        g.rotate(Math.toRadians(getRotation()), getRenderLocation().x, getRenderLocation().y);
+        g.rotate(Math.toRadians(getRenderRotation()), getRenderLocation().x, getRenderLocation().y);
         for(String s : lines){
             g.drawString(s, renderLocation.x, renderLocation.y);
             renderLocation.y+=font.getSize();

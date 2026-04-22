@@ -27,7 +27,7 @@ public class BlockObject extends GameObject2{
     public void render(Graphics2D g) {
         renderNumber++;
         AffineTransform old = g.getTransform();
-        g.rotate(Math.toRadians(getRotation()), getRenderLocation().x, getRenderLocation().y);
+        g.rotate(Math.toRadians(getRenderRotation()), getRenderLocation().x, getRenderLocation().y);
         if (isInvisible) {
             if (Main.debugMode) {
                 renderDebugVisuals(g);

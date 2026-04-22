@@ -65,6 +65,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     
     private boolean movedLastTick = false; // if the object moved last tick. set with pretick
     private DCoordinate lastMovement = new DCoordinate(0,0); // difference between location now and last tick. used for lerp
+    private boolean rotatedLastTick = false; // if the object rotated last tick. set with postTick
+    private double lastRotationDelta = 0; // rotation change this tick, used for lerp
     
     /**
      * this list is a list of point offsets from the center of the game object. When determining if a location is valid to move to
@@ -491,6 +493,22 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     }
     
     /**
+     * The rotation this object should be rendered at. Equal to getRotationRealTime() unless lerping is enabled,
+     * in which case it is extrapolated forward based on the rotation delta from the last tick.
+     *
+     * This should only be used for render logic. Game logic should use getRotation() instead.
+     * @return the lerp-adjusted rotation in degrees.
+     */
+    public double getRenderRotation() {
+        if (Main.enableLerping && rotatedLastTick) {
+            float deltaTime = 1 - getHostGame().getPercentThroughTick();
+            return rotation + lastRotationDelta * deltaTime;
+        } else {
+            return rotation;
+        }
+    }
+
+    /**
      * Draws the object on screen in the game world
      * @param g Graphics2D object to draw with
      * @param ignoreRestrictions if this is true, it will render even if it usually wouldnt due to being off screen
@@ -523,7 +541,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             }
             return;
         }
-        graphics.rotate(Math.toRadians(rotation), pixelLocation.x, pixelLocation.y);
+        graphics.rotate(Math.toRadians(getRenderRotation()), pixelLocation.x, pixelLocation.y);
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, renderOpacity));
         
         // Apply scaling
@@ -685,6 +703,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         updateHitbox();
         movedLastTick = !location.equals(locationAsOfLastTick);
         lastMovement = location.copy().subtract(locationAsOfLastTick);
+        rotatedLastTick = rotation != rotationAsOfLastTick;
+        lastRotationDelta = rotation - rotationAsOfLastTick;
         for (Push push : new ArrayList<>(pushes)) {
             push.tick();
         }
