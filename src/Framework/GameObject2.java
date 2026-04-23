@@ -202,8 +202,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
 
     @Override
     public int compareTo(GameObject2 o) {
-        double myNum = getLocationAsOfLastTick().x + getLocationAsOfLastTick().y;
-        double theirNum = o.getLocationAsOfLastTick().x + o.getLocationAsOfLastTick().y;
+        double myNum = getLocation().x + getLocation().y;
+        double theirNum = o.getLocation().x + o.getLocation().y;
         if (myNum != theirNum) return myNum < theirNum ? -1 : 1;
         else return ID.compareTo(o.ID);
     }
@@ -216,11 +216,10 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     
     /**
      * used to get integer location of object, used when rendering to screen
-     * AS OF LAST TICK- PREFER WHEN MULTITHREADING
      * @return integer location
      */
     public Coordinate getPixelLocation() {
-        return new Coordinate(locationAsOfLastTick);
+        return new Coordinate(location);
     }
     
      /**
@@ -308,7 +307,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @return Rotation of this object in degrees.
      */
     public double getRotation(){
-        return rotationAsOfLastTick;
+        return rotation;
     }
     
     public double getRotationRealTime() {
@@ -358,7 +357,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param other object whos location we will look at
      */
     public void lookAt(GameObject2 other) {
-        rotateTo(DCoordinate.angleFrom(location, other.getLocationAsOfLastTick()));
+        rotateTo(DCoordinate.angleFrom(location, other.getLocation()));
     }
     /**
      * Rotates this object so that its front (determined by innate rotation) is
@@ -383,7 +382,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @return degree of rotation required to face given point from current orientation
      */
     public double rotationNeededToFace(Coordinate point){
-        double result = DCoordinate.angleFrom(locationAsOfLastTick, point.toDCoordinate());
+        double result = DCoordinate.angleFrom(location, point.toDCoordinate());
         if(result-getRotation()>180)result-=360;
         if(result-getRotation()<-180)result+=360;
         return result - getRotation();
@@ -411,7 +410,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public double distanceFrom(GameObject2 other) {
         if(this.getHostGame() != other.getHostGame()) return -1;
-        return this.getLocationAsOfLastTick().distanceFrom(other.getLocationAsOfLastTick());
+        return this.getLocation().distanceFrom(other.getLocation());
     }
     
     /**
@@ -421,7 +420,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @return  distance
      */
     public double distanceFrom(DCoordinate other) {
-        return this.getLocationAsOfLastTick().distanceFrom(other);
+        return this.getLocation().distanceFrom(other);
     }
     
      /**
@@ -431,7 +430,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @return  distance
      */
     public double distanceFrom(Coordinate other) {
-        return this.getLocationAsOfLastTick().distanceFrom(other);
+        return this.getLocation().distanceFrom(other);
     }
     
     
@@ -476,7 +475,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public Coordinate getRenderLocation() {
          if(Main.enableLerping && movedLastTick) {
-           Coordinate pixelLocation = getPixelLocation();
+           Coordinate pixelLocation = new Coordinate(locationAsOfLastTick);
            float deltaTime = 1- getHostGame().getPercentThroughTick();
 
            DCoordinate movement = lastMovement.copy(); // getMovementNextTick();
@@ -705,6 +704,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         lastMovement = location.copy().subtract(locationAsOfLastTick);
         rotatedLastTick = rotation != rotationAsOfLastTick;
         lastRotationDelta = rotation - rotationAsOfLastTick;
+        while (lastRotationDelta > 180) lastRotationDelta -= 360;
+        while (lastRotationDelta < -180) lastRotationDelta += 360;
         for (Push push : new ArrayList<>(pushes)) {
             push.tick();
         }
@@ -716,7 +717,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
                 && other != this
                 && this.getHitbox() != null && other.getHitbox() != null
                 && this.plane == other.plane
-                && distanceFrom(other.locationAsOfLastTick) <= (getHitbox().getFarthestRange() + other.getHitbox().getFarthestRange() + Math.abs(velocity.x * getSpeed()) + Math.abs(velocity.y * getSpeed()));
+                && distanceFrom(other.getLocation()) <= (getHitbox().getFarthestRange() + other.getHitbox().getFarthestRange() + Math.abs(velocity.x * getSpeed()) + Math.abs(velocity.y * getSpeed()));
     }
     
     
@@ -1230,7 +1231,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @return DCoordinate the point
      */
     public DCoordinate getCenterForCollisionSliding() {
-        return getLocationAsOfLastTick();
+        return getLocation();
     }
 
     public void setLocationAsOfLastTick(DCoordinate locationAsOfLastTIck) {
