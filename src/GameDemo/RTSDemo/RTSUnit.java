@@ -188,10 +188,7 @@ public class RTSUnit extends GameObject2 {
                 && (nextWaypoint.distanceFrom(getLocation()) > getWidth() / 6 || isOnBlockedNavTile() || isTouchingOtherUnit)) {
             this.debugFlag = true;
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
-            double maxRotation = rotationSpeed;
-            if (Math.abs(desiredRotation) < 20) {
-                maxRotation = RTSGame.tickAdjust(2); // slow down as we get closer
-            }
+            double maxRotation = getEffectiveRotationSpeed(desiredRotation);
             if (Math.abs(desiredRotation) < maxRotation) {
                 rotate(desiredRotation);
             } else {
@@ -207,6 +204,13 @@ public class RTSUnit extends GameObject2 {
             setCommandGroup("0");
             this.setDesiredLocation(getPixelLocation());
         }
+    }
+
+    protected double getEffectiveRotationSpeed(double desiredRotation) {
+        if (Math.abs(desiredRotation) < 20) {
+            return Math.min(rotationSpeed, RTSGame.tickAdjust(2));
+        }
+        return rotationSpeed;
     }
 
     public void die() {

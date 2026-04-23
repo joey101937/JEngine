@@ -178,6 +178,22 @@ public class TankUnit extends RTSUnit {
     }
 
     @Override
+    protected double getEffectiveRotationSpeed(double desiredRotation) {
+        double angle = Math.abs(desiredRotation);
+        return rotationSpeed * Math.max(0.1, Math.min(1.0, angle / 30.0));
+    }
+
+    @Override
+    public double getSpeed() {
+        Coordinate nextWaypoint = getNextWaypoint();
+        if (nextWaypoint == null || isCloseEnoughToDesired()) {
+            return super.getSpeed();
+        }
+        double angle = Math.abs(rotationNeededToFace(nextWaypoint));
+        double angleFactor = Math.max(0.0, Math.min(1.0, (90.0 - angle) / 60.0));
+        return super.getSpeed() * angleFactor;
+    }
+
     public void tick() {
         super.tick();
 
@@ -265,7 +281,7 @@ public class TankUnit extends RTSUnit {
         this.currentHealth = maxHealth;
         this.baseSpeed = speed;
         initializeButtons();
-        this.rotationSpeed = RTSGame.tickAdjust(2);
+        this.rotationSpeed = RTSGame.tickAdjust(1.4);
     }
 
     private void initializeButtons() {
