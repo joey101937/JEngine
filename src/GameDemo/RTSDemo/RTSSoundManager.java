@@ -44,7 +44,7 @@ public class RTSSoundManager {
                 4, Main.ticksPerSecond);
         csm.registerSoundEffect(
                 LIGHT_TANK_ATTACK,
-                new SoundEffect(new File(Main.assets + "Sounds/armoredCarShooting5.au")),
+                new SoundEffect(new File(Main.assets + "Sounds/armoredCarShooting5.wav")),
                 4, Main.ticksPerSecond);
         csm.registerSoundEffect(
                 LANDMINE_EXPLOSION,

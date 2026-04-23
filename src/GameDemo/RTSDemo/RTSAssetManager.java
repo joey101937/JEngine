@@ -193,7 +193,7 @@ public abstract class RTSAssetManager {
             lightTankTurretRed = greenToRed(lightTankTurret);
             lightTankFire = loadSequence("DemoAssets/TankGame/newLightTank/fire");
             lightTankFireRed = greenToRed(lightTankFire);
-            lightTankFireDamaged = loadSequence("DemoAssets/TankGame/lightTank/fireDamaged");
+            lightTankFireDamaged = loadSequence("DemoAssets/TankGame/newLightTank/fire_damaged");
             lightTankFireDamagedRed = greenToRed(lightTankFireDamaged);
             lightTankTurretDamaged = load("DemoAssets/TankGame/newLightTank/turret_damaged.png");
             lightTankTurretDamagedRed = greenToRed(lightTankTurretDamaged);
@@ -201,7 +201,7 @@ public abstract class RTSAssetManager {
             lightTankHullDamagedRed = greenToRed(lightTankHullDamaged);
             lightTankTurretDestroyed = load("DemoAssets/TankGame/newLightTank/turret_destroyed.png");
             lightTankHullDestroyed = load("DemoAssets/TankGame/newLightTank/hull_destroyed.png");
-            lightTankDeathShadow = load("DemoAssets/TankGame/lightTank/lightTankDeathShadow.png");
+            lightTankDeathShadow = load("DemoAssets/TankGame/newLightTank/deathShadow.png");
         }, executor);
     }
 

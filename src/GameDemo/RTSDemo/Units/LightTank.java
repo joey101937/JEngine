@@ -82,6 +82,8 @@ public class LightTank extends RTSUnit {
         turretShadow.applyAlphaEdgeBlurSelf(3);
         hullSprite.applyAlphaEdgeBlurSelf(1);
         turretSprite.applyAlphaEdgeBlurSelf(1);
+        fireSequence.setFrameDelay(35);
+        redFireSequence.setFrameDelay(35);
     }
 
     // instance fields
