@@ -71,6 +71,7 @@ public class LightTank extends RTSUnit {
         this.setHitbox(new Hitbox(this, getWidth() / 2));
         this.range = 500;
         this.baseSpeed = speed;
+        this.rotationSpeed = RTSGame.tickAdjust(2.5);
         initializeButtons();
     }
 
@@ -105,6 +106,23 @@ public class LightTank extends RTSUnit {
             drawRubbleProximityIndicators(g);
         }
         super.render(g);
+    }
+
+    @Override
+    protected double getEffectiveRotationSpeed(double desiredRotation) {
+        double angle = Math.abs(desiredRotation);
+        return rotationSpeed * Math.max(0.1, Math.min(1.0, angle / 30.0));
+    }
+
+    @Override
+    public double getSpeed() {
+        Coordinate nextWaypoint = getNextWaypoint();
+        if (nextWaypoint == null || isCloseEnoughToDesired()) {
+            return super.getSpeed();
+        }
+        double angle = Math.abs(rotationNeededToFace(nextWaypoint));
+        double angleFactor = Math.max(0.0, Math.min(1.0, (90.0 - angle) / 60.0));
+        return super.getSpeed() * angleFactor;
     }
 
     @Override
