@@ -241,7 +241,7 @@ public abstract class RTSAssetManager {
     private static CompletableFuture<Void> loadSelectionImages() {
         return CompletableFuture.runAsync(() -> {
             tankSelectionImage = load("DemoAssets/TankGame/tankSelectionImage.png");
-            lightTankSelectionImage = load("DemoAssets/TankGame/lightTank/lightTankSelectionImage.png");
+            lightTankSelectionImage = load("DemoAssets/TankGame/newLightTank/selectionImage.png");
             hellicopterSelectionImage = load("DemoAssets/TankGame/copter/hellicopterSelectionImage.png");
             riflemanSelectionImage = load("DemoAssets/TankGame/infantry/rifleSelectionImage.png");
             bazookamanSelectionImage = load("DemoAssets/TankGame/infantry/bazookaSelectionImage.png");
