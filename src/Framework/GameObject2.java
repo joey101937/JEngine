@@ -7,7 +7,6 @@ package Framework;
 
 import Framework.CoreLoop.Renderable;
 import Framework.GraphicalAssets.Sequence;
-import Framework.GraphicalAssets.Sprite;
 import Framework.Stickers.Sticker;
 import java.awt.Color;
 import java.awt.Graphics2D;

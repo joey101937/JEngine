@@ -29,28 +29,59 @@ public class LightTank extends RTSUnit {
     public static final double speed = RTSGame.tickAdjust(2.8);
     public static final double attackInterval = 1.6;
 
-    public static double VISUAL_SCALE = 1.00;
-    public static final Sprite hullSprite = new Sprite(RTSAssetManager.lightTankHull);
-    public static final Sprite turretSprite = new Sprite(RTSAssetManager.lightTankTurret);
-    public static final Sprite turretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamaged);
-    public static final Sprite redHullSprite = new Sprite(RTSAssetManager.lightTankHullRed);
-    public static final Sprite redTurretSprite = new Sprite(RTSAssetManager.lightTankTurretRed);
-    public static final Sprite redTurretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamagedRed);
-    public static final Sprite hullShadow = new Sprite(RTSAssetManager.lightTankShadow);
-    public static final Sprite turretShadow = Sprite.generateShadowSprite(RTSAssetManager.lightTankTurret, .8);
-    public static final Sprite hullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamaged);
-    public static final Sprite redHullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamagedRed);
-    public static final Sprite hullSpriteDestroyed = new Sprite(RTSAssetManager.lightTankHullDestroyed);
-    public static final Sprite turretSpriteDestroyed = new Sprite(RTSAssetManager.lightTankTurretDestroyed);
-    public static final Sequence fireSequence = new Sequence(RTSAssetManager.lightTankFire, "lightTankFire");
-    public static final Sequence fireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamaged, "lightTankFireDamaged");
-    public static final Sequence redFireSequence = new Sequence(RTSAssetManager.lightTankFireRed, "lightTankFireRed");
-    public static final Sequence redFireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamagedRed, "lightTankDamagedFireRed");
-    public static final Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.lightTankDeathShadow, 40);
+    public static final double VISUAL_SCALE = .44;
+    
+    public static volatile Sprite hullSprite = null;
+    public static volatile Sprite turretSprite = null;
+    public static volatile Sprite turretSpriteDamaged = null;
+    public static volatile Sprite redHullSprite = null;
+    public static volatile Sprite redTurretSprite = null;
+    public static volatile Sprite redTurretSpriteDamaged = null;
+    public static volatile Sprite hullShadow = null;
+    public static volatile Sprite turretShadow = null;
+    public static volatile Sprite hullSpriteDamaged = null;
+    public static volatile Sprite redHullSpriteDamaged = null;
+    public static volatile Sprite hullSpriteDestroyed = null;
+    public static volatile Sprite turretSpriteDestroyed = null;
+    public static volatile Sequence fireSequence = null;
+    public static volatile Sequence fireSequenceDamaged = null;
+    public static volatile Sequence redFireSequence = null;
+    public static volatile Sequence redFireSequenceDamaged = null;
+    public static volatile Sequence deathFadeout = null;
 
     static {
-        hullShadow.scaleTo(VISUAL_SCALE);
+        initGraphics();
+    }
+
+    public static void initGraphics() {
+        if (hullSprite != null) {
+            return;
+        }
+        hullSprite = new Sprite(RTSAssetManager.lightTankHull);
+        turretSprite = new Sprite(RTSAssetManager.lightTankTurret);
+        turretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamaged);
+        redHullSprite = new Sprite(RTSAssetManager.lightTankHullRed);
+        redTurretSprite = new Sprite(RTSAssetManager.lightTankTurretRed);
+        redTurretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamagedRed);
+        hullShadow = Sprite.generateShadowSprite(RTSAssetManager.lightTankHull, .8);
+        turretShadow = Sprite.generateShadowSprite(RTSAssetManager.lightTankTurret, .8);
+        hullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamaged);
+        redHullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamagedRed);
+        hullSpriteDestroyed = new Sprite(RTSAssetManager.lightTankHullDestroyed);
+        turretSpriteDestroyed = new Sprite(RTSAssetManager.lightTankTurretDestroyed);
+        fireSequence = new Sequence(RTSAssetManager.lightTankFire, "lightTankFire");
+        fireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamaged, "lightTankFireDamaged");
+        redFireSequence = new Sequence(RTSAssetManager.lightTankFireRed, "lightTankFireRed");
+        redFireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamagedRed, "lightTankDamagedFireRed");
+        deathFadeout = Sequence.createFadeout(RTSAssetManager.lightTankDeathShadow, 40);
         deathFadeout.setSignature("deathFadeoutLightTank");
+        // shadows need to be manually scaled since they dont get rendered via main render method
+        hullShadow.scaleTo(VISUAL_SCALE);
+        turretShadow.scaleTo(VISUAL_SCALE);
+        hullShadow.applyAlphaEdgeBlurSelf(8);
+        turretShadow.applyAlphaEdgeBlurSelf(3);
+        hullSprite.applyAlphaEdgeBlurSelf(1);
+        turretSprite.applyAlphaEdgeBlurSelf(1);
     }
 
     // instance fields
@@ -213,12 +244,12 @@ public class LightTank extends RTSUnit {
 
     @Override
     public int getWidth() {
-        return hullSprite.getWidth();
+        return (int)(hullSprite.getWidth() * VISUAL_SCALE);
     }
 
     @Override
     public int getHeight() {
-        return (int) (hullSprite.getHeight() * .9);
+        return (int)(hullSprite.getHeight()* VISUAL_SCALE);
     }
 
     @Override
@@ -288,7 +319,7 @@ public class LightTank extends RTSUnit {
                 Coordinate pixelLocation = getRenderLocation().add(new Coordinate(2, 3));
                 int renderX = pixelLocation.x - toRender.getWidth() / 2;
                 int renderY = pixelLocation.y - toRender.getHeight() / 2;
-                g.rotate(Math.toRadians(getRotation()), pixelLocation.x, pixelLocation.y);
+                g.rotate(Math.toRadians(getRenderRotation()), pixelLocation.x, pixelLocation.y);
                 g.drawImage(toRender, renderX, renderY, null);
                 g.setTransform(old);
             }

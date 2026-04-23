@@ -40,7 +40,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage tankDeadTurret;
     public static BufferedImage[] tankHullDeathAni;
     public static BufferedImage[] tankTurretDeathAni;
-    public static BufferedImage lightTankHull, lightTankHullRed, lightTankTurret, lightTankTurretRed, lightTankShadow,
+    public static BufferedImage lightTankHull, lightTankHullRed, lightTankTurret, lightTankTurretRed,
             lightTankHullDamaged, lightTankHullDamagedRed, lightTankTurretDamaged, lightTankTurretDamagedRed,
             lightTankHullDestroyed, lightTankTurretDestroyed, lightTankDeathShadow;
     public static BufferedImage[] lightTankFire, lightTankFireRed, lightTankFireDamaged, lightTankFireDamagedRed;
@@ -187,11 +187,10 @@ public abstract class RTSAssetManager {
 
     private static CompletableFuture<Void> loadLightTankAssets() {
         return CompletableFuture.runAsync(() -> {
-            lightTankHull = load("DemoAssets/TankGame/lightTank/lightTankHull.png");
+            lightTankHull = load("DemoAssets/TankGame/newLightTank/hull.png");
             lightTankHullRed = greenToRed(lightTankHull);
-            lightTankTurret = load("DemoAssets/TankGame/lightTank/lightTankTurret.png");
+            lightTankTurret = load("DemoAssets/TankGame/newLightTank/turret.png");
             lightTankTurretRed = greenToRed(lightTankTurret);
-            lightTankShadow = load("DemoAssets/TankGame/lightTank/lightTankShadow.png");
             lightTankFire = loadSequence("DemoAssets/TankGame/lightTank/fire");
             lightTankFireRed = greenToRed(lightTankFire);
             lightTankFireDamaged = loadSequence("DemoAssets/TankGame/lightTank/fireDamaged");

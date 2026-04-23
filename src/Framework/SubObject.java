@@ -115,6 +115,7 @@ public class SubObject extends GameObject2{
     @Override
     public void updateLocation(){
         DCoordinate newLocation = host.getLocation();
+        updateAdjustedOffset();
         newLocation.add(adjustedOffset);
         updateHitbox();
         this.setLocation(newLocation);
@@ -175,6 +176,18 @@ public class SubObject extends GameObject2{
      */
     public void setRenderBelow(boolean renderBelow) {
         this.renderBelow = renderBelow;
+    }
+
+    @Override
+    public Coordinate getRenderLocation() {
+        if (host == null) return super.getRenderLocation();
+        DCoordinate dOffset = new DCoordinate(offset.x, offset.y);
+        dOffset.adjustForRotation(host.getRenderRotation());
+        Coordinate hostLoc = host.getRenderLocation();
+        return new Coordinate(
+            (int) Math.round(hostLoc.x + dOffset.x),
+            (int) Math.round(hostLoc.y + dOffset.y)
+        );
     }
 
     @Override
