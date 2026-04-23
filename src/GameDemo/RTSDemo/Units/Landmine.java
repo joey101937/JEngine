@@ -27,13 +27,17 @@ public class Landmine extends RTSUnit {
     public static final Sprite landmineHiddenRed = new Sprite(RTSAssetManager.landmineRed);
     public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.landmine, .4);
     public static final Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.landmineBlast, 60);
-    public static final double VISUAL_SCALE = .18;
+    public static final double VISUAL_SCALE = .2;
     
     public Damage damage = staticDamage.copy();
 
     static {
-        landmineHidden.setOpacity(.5);
-        landmineHiddenRed.setOpacity(.5);
+        landmineHidden.applyAlphaEdgeBlurSelf(1);
+        landmineHiddenRed.applyAlphaEdgeBlurSelf(1);
+        landmineVisible.applyAlphaEdgeBlurSelf(1);
+        landmineVisibleRed.applyAlphaEdgeBlurSelf(1);
+        landmineHidden.setOpacity(.6);
+        landmineHiddenRed.setOpacity(.6);
         shadow.scaleTo(VISUAL_SCALE);
     }
 

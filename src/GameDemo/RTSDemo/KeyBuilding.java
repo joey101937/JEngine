@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 public class KeyBuilding extends GameObject2 {
     public static final Sprite mainSprite = new Sprite(RTSAssetManager.building);
-    public static final Sprite shadowSprite = Sprite.generateShadowSprite(mainSprite.getImage(), .5); // new Sprite(RTSAssetManager.buildingShadow);
+    public static final Sprite shadowSprite = Sprite.generateShadowSprite(mainSprite.getImage(), .5);
     private static final double CAPTURE_RATE = 0.01;
     private static final double CAPTURE_THRESHOLD = 1.0;
     public static final double VISUAL_SCALE = 1;

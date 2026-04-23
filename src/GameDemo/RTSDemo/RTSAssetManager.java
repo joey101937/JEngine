@@ -21,7 +21,7 @@ public abstract class RTSAssetManager {
 
     // RTS ASSETS
     public static BufferedImage tankChasis, tankChasisRed;
-    public static BufferedImage tankTurret, tankTurretRed, tankTurretShadow;
+    public static BufferedImage tankTurret, tankTurretRed;
     public static BufferedImage tankHullDamaged, tankHullDamagedRed;
     public static BufferedImage tankTurretDamaged, tankTurretDamagedRed;
     public static BufferedImage[] tankFireAnimation, tankFireAnimationRed;
@@ -57,7 +57,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage infantryLegs, infantryShadow;
     public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage;
 
-    public static BufferedImage building, buildingShadow;
+    public static BufferedImage building;
 
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] explosionSequenceSmall;
@@ -151,7 +151,6 @@ public abstract class RTSAssetManager {
             tankChasisRed = greenToRed(tankChasis);
             tankTurret = load("DemoAssets/TankGame/newTank/newTurret.png");
             tankTurretRed = greenToRed(tankTurret);
-            tankTurretShadow = load("DemoAssets/TankGame/tank1-turret-shadow.png");
             tankFireAnimation = loadSequence("DemoAssets/TankGame/newTank/fireAnimation");
             tankFireAnimationRed = greenToRed(tankFireAnimation);
             bullet = load("DemoAssets/TankGame/bullet.png");
@@ -253,7 +252,6 @@ public abstract class RTSAssetManager {
     private static CompletableFuture<Void> loadUtilityAssets() {
         return CompletableFuture.runAsync(() -> {
             building = load("DemoAssets/TankGame/building.png");
-            buildingShadow = load("DemoAssets/TankGame/buildingShadow.png");
             immobilizationIcon = load("DemoAssets/TankGame/immobilizationIcon.png");
             shieldIcon = load("DemoAssets/TankGame/shieldIcon.png");
         }, executor);

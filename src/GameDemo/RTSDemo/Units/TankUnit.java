@@ -112,8 +112,8 @@ public class TankUnit extends RTSUnit {
         deathShadow = new Sprite(RTSAssetManager.tankDeadHullShadow);
         deathFadeout = Sequence.createFadeout(RTSAssetManager.tankDeadHullShadow, 40);
         deathFadeout.setSignature("fadeout");
-        shadow = Sprite.generateShadowSprite(RTSAssetManager.tankChasis, .8); // new Sprite(RTSAssetManager.tankShadow);
-        turretShadow = Sprite.generateShadowSprite(RTSAssetManager.tankTurret, .8); // new Sprite(RTSAssetManager.tankTurretShadow);
+        shadow = Sprite.generateShadowSprite(RTSAssetManager.tankChasis, .8);
+        turretShadow = Sprite.generateShadowSprite(RTSAssetManager.tankTurret, .8);
 
         tankHullDamagedGreen = new Sprite(RTSAssetManager.tankHullDamaged);
         tankTurretDamagedGreen = new Sprite(RTSAssetManager.tankTurretDamaged);
