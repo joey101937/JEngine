@@ -44,7 +44,7 @@ public class TankUnit extends RTSUnit {
     public static double speed = RTSGame.tickAdjust(2.15);
 
     public Turret turret;
-    public final static double VISUAL_SCALE = .4;
+    public final static double VISUAL_SCALE = .50;
     public long weaponCooldownExpiresAtTick = 0;
     public long lastTickTakenDamage = 0;
     public boolean sandbagActive = false;

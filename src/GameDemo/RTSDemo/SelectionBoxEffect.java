@@ -18,6 +18,7 @@ import java.awt.Stroke;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * draws the green rectangular selection box
@@ -29,7 +30,7 @@ public class SelectionBoxEffect extends IndependentEffect {
 
     private transient Game game;
 
-    public static Set<RTSUnit> selectedUnits = new HashSet<>();
+    public static Set<RTSUnit> selectedUnits = new CopyOnWriteArraySet<>();
     public static final Color uncontrollableColor = new Color(.5f, .5f, .5f, .8f);
     public static final Color selectionColor = new Color(0f, 1f, 0f, .8f);
     private static Rectangle selectionZone = null;
@@ -194,5 +195,4 @@ public class SelectionBoxEffect extends IndependentEffect {
         }
         return new Rectangle(selectionZone.x, selectionZone.y, selectionZone.width, selectionZone.height);
     }
-
 }

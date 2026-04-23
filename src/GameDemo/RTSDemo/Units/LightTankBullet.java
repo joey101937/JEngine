@@ -37,7 +37,7 @@ public class LightTankBullet extends Projectile {
         shadow.scaleTo(.16);
         setScale(.16);
         this.setGraphic(bulletGraphic.copyMaintainSource());
-        baseSpeed = RTSGame.tickAdjust(16);
+        baseSpeed = RTSGame.tickAdjust(26);
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
         maxRange = 600;
         startPosition = start;

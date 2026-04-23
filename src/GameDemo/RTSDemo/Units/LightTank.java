@@ -29,7 +29,7 @@ public class LightTank extends RTSUnit {
     public static final double speed = RTSGame.tickAdjust(2.8);
     public static final double attackInterval = 1.6;
 
-    public static final double VISUAL_SCALE = .44;
+    public static final double VISUAL_SCALE = .48;
     
     public static volatile Sprite hullSprite = null;
     public static volatile Sprite turretSprite = null;
@@ -197,15 +197,11 @@ public class LightTank extends RTSUnit {
     }
     
     public void playAttackSound() {
-         String soundToPlay = RTSSoundManager.LIGHT_TANK_ATTACK;
-         int offset = Main.generateRandomIntLocally(0, 20);
-         
-         double volumeOnScreen = Main.generateRandomDoubleLocally(.70, .76);
-         
-         double volumeOffScreen = Main.generateRandomDoubleLocally(.64, .71);
-         
+        int offset = Main.generateRandomIntLocally(0, 20);
+        double volumeOnScreen = Main.generateRandomDoubleLocally(.70, .76);
+        double volumeOffScreen = Main.generateRandomDoubleLocally(.64, .71);
         RTSSoundManager.get().play(
-                soundToPlay,
+                RTSSoundManager.LIGHT_TANK_ATTACK,
                 isOnScreen() ? volumeOnScreen : volumeOffScreen,
                 offset);
     }

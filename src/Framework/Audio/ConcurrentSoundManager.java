@@ -5,6 +5,7 @@ import Framework.Main;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Manages concurrent sound effects in the game, handling multiple simultaneous
@@ -28,14 +29,14 @@ public class ConcurrentSoundManager extends IndependentEffect {
      */
     private static class SoundEffectProfile {
 
-        public transient SoundEffect soundEffect;
+        public transient List<SoundEffect> soundEffects;
         private int numPlaying = 0;
         public int maxConcurrent = 100;
         public int duration = Main.ticksPerSecond;
         private final transient ArrayList<Long> decrementTicks = new ArrayList<>();
 
-        public SoundEffectProfile(SoundEffect se, int maxConcurrent, int duration) {
-            this.soundEffect = se;
+        public SoundEffectProfile(List<SoundEffect> sounds, int maxConcurrent, int duration) {
+            this.soundEffects = sounds;
             this.maxConcurrent = maxConcurrent;
             this.duration = duration;
         }
@@ -99,11 +100,11 @@ public class ConcurrentSoundManager extends IndependentEffect {
      * @param tickDuration How many game ticks the sound effect should last
      */
     public void registerSoundEffect(String name, SoundEffect se, int maxConcurrent, int tickDuration) {
-        effectMap.put(name, new SoundEffectProfile(
-                se,
-                maxConcurrent,
-                tickDuration
-        ));
+        registerSoundEffect(name, List.of(se), maxConcurrent, tickDuration);
+    }
+
+    public void registerSoundEffect(String name, List<SoundEffect> variants, int maxConcurrent, int tickDuration) {
+        effectMap.put(name, new SoundEffectProfile(variants, maxConcurrent, tickDuration));
     }
 
     /**
@@ -127,7 +128,8 @@ public class ConcurrentSoundManager extends IndependentEffect {
             return;
         }
 
-        profile.soundEffect.playCopy(volume, msDelay);
+        SoundEffect chosen = profile.soundEffects.get(Main.generateRandomIntLocally(0, profile.soundEffects.size() - 1));
+        chosen.playCopy(volume, msDelay);
         profile.updateNumPlaying(1);
         profile.decrementTicks.add(tickNumber + msDelay);
     }

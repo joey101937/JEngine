@@ -470,4 +470,32 @@ public class SoundEffect implements Runnable{
     public boolean isDisabled(){
         return disabled;
     }
+    
+    /**
+     * use this function to create a copy of the sound but is randomly slightly altered. This is to be used if you have- for example an explosion sound effect
+     * that you want to reuse without every explosion sounding literally identical.
+     * this function should randomly alter pitch, speed, or distortion.
+     * @param intensity 0.0 = no alteration, 1.0 = full alteration (±8% pitch, ±5% volume)
+     * @return
+     */
+    public SoundEffect createAlteredCopy(double intensity) {
+        SoundEffect copy = createCopy();
+        int pitchRange = (int) Math.round(8 * intensity);
+        int volRange   = (int) Math.round(5 * intensity);
+        try {
+            FloatControl rateControl = (FloatControl) copy.clip.getControl(FloatControl.Type.SAMPLE_RATE);
+            float base = rateControl.getValue();
+            float variation = (pitchRange > 0 ? Main.generateRandomInt(-pitchRange, pitchRange) : 0) / 100f;
+            float newRate = base * (1f + variation);
+            newRate = Math.max(rateControl.getMinimum(), Math.min(rateControl.getMaximum(), newRate));
+            rateControl.setValue(newRate);
+        } catch (IllegalArgumentException e) {
+            // SAMPLE_RATE not supported by this audio line — pitch unchanged
+        }
+        float volVariation = (volRange > 0 ? Main.generateRandomInt(-volRange, volRange) : 0) / 100f;
+        float newVol = Math.max(0f, Math.min(1f, copy.getVolume() + volVariation));
+        copy.setVolume(newVol);
+        return copy;
+    }
+
 }

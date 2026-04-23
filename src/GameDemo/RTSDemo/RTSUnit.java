@@ -312,9 +312,9 @@ public class RTSUnit extends GameObject2 {
         int extra = navSize == Tile.tileSizeFine ? 15 : 0;
         if(this instanceof Bazookaman) extra += 10;
         if(isInfantry) return 16 + extra;
-        if(this instanceof LightTank) return 50 + extra; 
+        if(this instanceof LightTank) return 60 + extra; 
         if(this.plane > 1) return 35 + extra; // helicopter
-        return 55 + extra; // med tank
+        return 65 + extra; // med tank
     }
 
     public void updateWaypoints() {
