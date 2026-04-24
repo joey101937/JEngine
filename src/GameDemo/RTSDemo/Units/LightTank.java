@@ -91,6 +91,7 @@ public class LightTank extends RTSUnit {
     public long barrelCooldownExpiresAtTick = 0;
     private long fadeoutScheduledAtTick = 0;
     private long destructionScheduledAtTick = 0;
+    private double hullRotationSpeed = 0.0;
 
     public LightTank(int x, int y, int team) {
         super(x, y, team);
@@ -148,6 +149,26 @@ public class LightTank extends RTSUnit {
     }
 
     @Override
+    protected void applyHullRotation(double desiredRotation) {
+        double maxSpeed = getEffectiveRotationSpeed(desiredRotation);
+        final double accel = RTSGame.tickAdjust(0.15);
+        double targetSpeed = Math.abs(desiredRotation) < 0.01 ? 0.0 : Math.copySign(maxSpeed, desiredRotation);
+
+        if (hullRotationSpeed < targetSpeed) {
+            hullRotationSpeed = Math.min(hullRotationSpeed + accel, targetSpeed);
+        } else if (hullRotationSpeed > targetSpeed) {
+            hullRotationSpeed = Math.max(hullRotationSpeed - accel, targetSpeed);
+        }
+
+        if (Math.abs(desiredRotation) <= Math.abs(hullRotationSpeed)) {
+            rotate(desiredRotation);
+            hullRotationSpeed = 0;
+        } else {
+            rotate(hullRotationSpeed);
+        }
+    }
+
+    @Override
     public double getSpeed() {
         Coordinate nextWaypoint = getNextWaypoint();
         if (nextWaypoint == null || isCloseEnoughToDesired()) {
@@ -190,7 +211,8 @@ public class LightTank extends RTSUnit {
         }
         populateNearbyEnemies();
         currentTarget = nearestEnemyGroundUnit;
-        if (currentTarget != null && turret.rotationNeededToFace(currentTarget.getPixelLocation()) < 1 && barrelCooldownExpiresAtTick == 0) {
+        if (currentTarget != null && Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 3 && barrelCooldownExpiresAtTick == 0) {
+            System.out.println("rotation needed to face "  + turret.rotationNeededToFace(currentTarget.getPixelLocation()));
             fire(currentTarget);
         }
         setGraphic(getHullSprite());
@@ -272,6 +294,8 @@ public class LightTank extends RTSUnit {
 
         public LightTank hull;
         public double desiredRotationAngle = 0;
+        private double turretRotationSpeed = 0.0;
+        private double previousHullRotation = Double.NaN;
 
         public LightTankTurret(Coordinate offset, LightTank h) {
             super(offset);
@@ -294,18 +318,40 @@ public class LightTank extends RTSUnit {
 
         @Override
         public void tick() {
-            updateDesiredRotation();
-            double maxRotationPerTick = RTSGame.tickAdjust(5);
-            double desiredRotationAmount = desiredRotationAngle - getRotationRealTime();
-            if (desiredRotationAmount > 180) {
-                desiredRotationAmount -= 360;
-            } else if (desiredRotationAmount < -180) {
-                desiredRotationAmount += 360;
-            }
-            double toRotate = Math.clamp(desiredRotationAmount, -maxRotationPerTick, maxRotationPerTick);
-            this.rotate(toRotate);
             if (!isAnimated() || isRubble) {
                 setGraphic(getTurretSprite());
+            }
+
+            // Mirror hull rotation — turret is physically mounted on the hull
+            double currentHullRotation = getHost().getRotationRealTime();
+            if (!Double.isNaN(previousHullRotation)) {
+                double hullDelta = currentHullRotation - previousHullRotation;
+                if (hullDelta > 180) hullDelta -= 360;
+                else if (hullDelta < -180) hullDelta += 360;
+                rotate(hullDelta);
+            }
+            previousHullRotation = currentHullRotation;
+
+            updateDesiredRotation();
+            double maxSpeed = RTSGame.tickAdjust(3.5);
+            double desiredRotation = desiredRotationAngle - getRotationRealTime();
+            if (desiredRotation > 180) desiredRotation -= 360;
+            else if (desiredRotation < -180) desiredRotation += 360;
+
+            final double accel = RTSGame.tickAdjust(0.4);
+            double targetSpeed = Math.abs(desiredRotation) < 0.01 ? 0.0 : Math.copySign(maxSpeed, desiredRotation);
+
+            if (turretRotationSpeed < targetSpeed) {
+                turretRotationSpeed = Math.min(turretRotationSpeed + accel, targetSpeed);
+            } else if (turretRotationSpeed > targetSpeed) {
+                turretRotationSpeed = Math.max(turretRotationSpeed - accel, targetSpeed);
+            }
+
+            if (Math.abs(desiredRotation) <= Math.abs(turretRotationSpeed)) {
+                rotate(desiredRotation);
+                turretRotationSpeed = 0;
+            } else {
+                rotate(turretRotationSpeed);
             }
         }
 
