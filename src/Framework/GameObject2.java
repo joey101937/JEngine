@@ -1414,4 +1414,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     public void setXCoordinate(double x) {
         this.location.x = x;
     }
+    
+    public long getGameTickNumber() {
+        return getHostGame().getGameTickNumber();
+    }
 }

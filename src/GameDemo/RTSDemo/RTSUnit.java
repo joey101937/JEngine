@@ -188,21 +188,21 @@ public class RTSUnit extends GameObject2 {
                 && (nextWaypoint.distanceFrom(getLocation()) > getWidth() / 6 || isOnBlockedNavTile() || isTouchingOtherUnit)) {
             this.debugFlag = true;
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
-            double maxRotation = getEffectiveRotationSpeed(desiredRotation);
-            if (Math.abs(desiredRotation) < maxRotation) {
-                rotate(desiredRotation);
-            } else {
-                if (desiredRotation > 0) {
-                    rotate(maxRotation);
-                } else {
-                    rotate(-maxRotation);
-                }
-            }
+            applyHullRotation(desiredRotation);
             this.velocity.y = -100; //remember negative means forward because reasons
         }
         if(getHostGame().getGameTickNumber() - this.pathCacheSignatureLastChangedTick > RTSGame.desiredTPS * 4) {
             setCommandGroup("0");
             this.setDesiredLocation(getPixelLocation());
+        }
+    }
+
+    protected void applyHullRotation(double desiredRotation) {
+        double maxRotation = getEffectiveRotationSpeed(desiredRotation);
+        if (Math.abs(desiredRotation) < maxRotation) {
+            rotate(desiredRotation);
+        } else {
+            rotate(desiredRotation > 0 ? maxRotation : -maxRotation);
         }
     }
 

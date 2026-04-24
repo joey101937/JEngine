@@ -54,6 +54,7 @@ public class TankUnit extends RTSUnit {
     public DigOutButton digOutButton;
 
     private final Map<String, Push> lastInfantryPushPerTarget = new HashMap<>();
+    private double hullRotationSpeed = 0.0;
 
     // State tracking for in-progress actions (survives serialization)
     private boolean isDiggingIn = false;
@@ -175,6 +176,26 @@ public class TankUnit extends RTSUnit {
             drawRubbleProximityIndicators(g);
         }
         super.render(g);
+    }
+
+    @Override
+    protected void applyHullRotation(double desiredRotation) {
+        double maxSpeed = getEffectiveRotationSpeed(desiredRotation);
+        final double accel = RTSGame.tickAdjust(0.15);
+        double targetSpeed = Math.abs(desiredRotation) < 0.01 ? 0.0 : Math.copySign(maxSpeed, desiredRotation);
+
+        if (hullRotationSpeed < targetSpeed) {
+            hullRotationSpeed = Math.min(hullRotationSpeed + accel, targetSpeed);
+        } else if (hullRotationSpeed > targetSpeed) {
+            hullRotationSpeed = Math.max(hullRotationSpeed - accel, targetSpeed);
+        }
+
+        if (Math.abs(desiredRotation) <= Math.abs(hullRotationSpeed)) {
+            rotate(desiredRotation);
+            hullRotationSpeed = 0;
+        } else {
+            rotate(hullRotationSpeed);
+        }
     }
 
     @Override
@@ -322,6 +343,9 @@ public class TankUnit extends RTSUnit {
 
     public class Turret extends SubObject {
 
+        private double turretRotationSpeed = 0.0;
+        private double previousHullRotation = Double.NaN;
+
         public Sequence getFireSequence() {
             if (currentHealth > 0 && currentHealth < maxHealth / 3) {
                 return team == 0 ? tankFireAnimationDamagedGreen.copyMaintainSource() : tankFireAnimationDamagedRed.copyMaintainSource();
@@ -408,39 +432,48 @@ public class TankUnit extends RTSUnit {
             if (currentHealth > 0 && !getGraphic().isAnimated()) {
                 this.setGraphic(getTurretSprite());
             }
+
+            // Mirror hull rotation immediately — turret is physically mounted on the hull
+            double currentHullRotation = getHost().getRotationRealTime();
+            if (!Double.isNaN(previousHullRotation)) {
+                double hullDelta = currentHullRotation - previousHullRotation;
+                if (hullDelta > 180) hullDelta -= 360;
+                else if (hullDelta < -180) hullDelta += 360;
+                rotate(hullDelta);
+            }
+            previousHullRotation = currentHullRotation;
+
             RTSUnit enemy = nearestEnemyInRange();
             ((RTSUnit) getHost()).currentTarget = enemy;
+
+            double desiredRotation;
+            double maxSpeed = RTSGame.tickAdjust(2);
             if (enemy == null) {
-                double desiredRotation = getHost().getRotationRealTime()- getRotationRealTime();
-                if (desiredRotation > 180) {
-                    desiredRotation -= 360;
-                } else if (desiredRotation < -180) {
-                    desiredRotation += 360;
-                }
-                double maxRotation = RTSGame.tickAdjust(5);
-                if (Math.abs(desiredRotation) < maxRotation) {
-                    rotate(desiredRotation);
-                } else {
-                    if (desiredRotation > 0) {
-                        rotate(maxRotation);
-                    } else {
-                        rotate(-maxRotation);
-                    }
-                }
+                desiredRotation = getHost().getRotationRealTime() - getRotationRealTime();
+                if (desiredRotation > 180) desiredRotation -= 360;
+                else if (desiredRotation < -180) desiredRotation += 360;
             } else {
-                double desiredRotation = rotationNeededToFace(enemy.getPixelLocation());
-                double maxRotation = RTSGame.tickAdjust(2);
-                if (Math.abs(desiredRotation) < maxRotation) {
-                    rotate(desiredRotation);
-                } else {
-                    if (desiredRotation > 0) {
-                        rotate(maxRotation);
-                    } else {
-                        rotate(-maxRotation);
-                    }
-                }
-                Coordinate targetPoint = enemy.getPixelLocation();
-                ((TankUnit) getHost()).fire(targetPoint);
+                desiredRotation = rotationNeededToFace(enemy.getPixelLocation());
+            }
+
+            final double accel = RTSGame.tickAdjust(0.15);
+            double targetSpeed = Math.abs(desiredRotation) < 0.01 ? 0.0 : Math.copySign(maxSpeed, desiredRotation);
+
+            if (turretRotationSpeed < targetSpeed) {
+                turretRotationSpeed = Math.min(turretRotationSpeed + accel, targetSpeed);
+            } else if (turretRotationSpeed > targetSpeed) {
+                turretRotationSpeed = Math.max(turretRotationSpeed - accel, targetSpeed);
+            }
+
+            if (Math.abs(desiredRotation) <= Math.abs(turretRotationSpeed)) {
+                rotate(desiredRotation);
+                turretRotationSpeed = 0;
+            } else {
+                rotate(turretRotationSpeed);
+            }
+
+            if (enemy != null) {
+                ((TankUnit) getHost()).fire(enemy.getPixelLocation());
             }
         }
 
@@ -574,6 +607,7 @@ public class TankUnit extends RTSUnit {
                 updatedDamage.baseAmount = 0;
             }
         }
+        System.out.println(this + " taking damage on tick " + getHostGame().getGameTickNumber());
         super.takeDamage(updatedDamage);
     }
     

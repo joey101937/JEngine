@@ -30,7 +30,8 @@ public class TankBullet extends Projectile {
     public static Damage staticDamage = new Damage(46);
     public Damage damage = staticDamage.copy();
     public GameObject2 shooter; //the object that launched this projectile
-
+    public boolean alreadyExploded = false;
+    
     public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet}, "tankBulletGraphic");
     public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallTank");
     public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.bullet, .3);
@@ -63,7 +64,7 @@ public class TankBullet extends Projectile {
 
     @Override
     public void onCollide(GameObject2 other, boolean fromMyTick) {
-        if (other == shooter) {
+        if (other == shooter || alreadyExploded) {
             return; //dont collde with the gameobject that launched this projectile
         }
         RTSUnit otherUnit = RTSUnit.getUnitFromUnknown(other);
@@ -87,6 +88,7 @@ public class TankBullet extends Projectile {
             otherUnit.takeDamage(damage);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .25);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
+            alreadyExploded = true;
             destroy();
         }
     }

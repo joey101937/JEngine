@@ -27,11 +27,12 @@ public class LightTankBullet extends Projectile {
     public Damage damage = staticDamage.copy();
     public GameObject2 shooter; //the object that launched this projectile
     private DCoordinate startPosition;
+    private boolean alreadyExploded = false;
 
     public LightTankBullet(DCoordinate start, DCoordinate end) {
         super(start, end);
         explosionTiny.scaleTo(.8);
-        explosionTiny.setFrameDelay(20);
+        explosionTiny.setFrameDelay(17);
         bulletGraphic.setSignature("bullet graphic");
         bulletGraphic.scaleTo(.16); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
         shadow.scaleTo(.16);
@@ -57,7 +58,7 @@ public class LightTankBullet extends Projectile {
 
     @Override
     public void onCollide(GameObject2 other, boolean fromMyTick) {
-        if (other == shooter) {
+        if (other == shooter || alreadyExploded) {
             return; //dont collde with the gameobject that launched this projectile
         }
         if (other instanceof RTSUnit) {
@@ -81,6 +82,7 @@ public class LightTankBullet extends Projectile {
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .6);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionTiny.copyMaintainSource(), impactLoc);
             impactExplosion.rotation = DCoordinate.angleFrom(shooter.getPixelLocation(), other.getPixelLocation());
+            alreadyExploded = true;
             destroy();
         }
     }
