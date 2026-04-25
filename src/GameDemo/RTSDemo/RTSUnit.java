@@ -71,6 +71,8 @@ public class RTSUnit extends GameObject2 {
     public double accellerationFloor = 1; // when accellerating away from start location, this is limit for how slow it can go
     public double minSpeedMultiplier = 0.5; // Minimum speed multiplier (50%)
 
+    private String preferredTargetId = null;
+
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
 
@@ -171,8 +173,28 @@ public class RTSUnit extends GameObject2 {
         this.debugFlag = false;
         if (isRubble) {
             setCommandGroup("0");
+            preferredTargetId = null;
             return;
         }
+
+        if (preferredTargetId != null) {
+            RTSUnit prefTarget = (RTSUnit) getHostGame().getObjectById(preferredTargetId);
+            if (prefTarget == null || prefTarget.isRubble || !prefTarget.isAlive()) {
+                preferredTargetId = null;
+            } else if (distanceFrom(prefTarget) <= range) {
+                // In range — stop and let combat take over; return to skip the movement block
+                setCommandGroup("0");
+                this.velocity.y = 0;
+                return;
+            } else {
+                // Out of range — chase; only re-path when target has moved far enough
+                Coordinate targetLoc = prefTarget.getPixelLocation();
+                if (targetLoc.distanceFrom(getDesiredLocation()) > getNavTileSize() * 2) {
+                    setDesiredLocation(targetLoc);
+                }
+            }
+        }
+
         if(isCloseEnoughToDesired()) {
             setCommandGroup("0");
             this.velocity.y = 0;
@@ -772,6 +794,32 @@ public class RTSUnit extends GameObject2 {
         return null;
     }
     
+    public boolean supportsPreferredTarget() {
+        return true;
+    }
+
+    public void setPreferredTarget(String targetId) {
+        this.preferredTargetId = targetId;
+    }
+
+    public void clearPreferredTarget() {
+        this.preferredTargetId = null;
+    }
+
+    /**
+     * Returns the preferred target only if it is still alive and within range —
+     * used by subclasses to prioritise it for combat.
+     */
+    public RTSUnit getPreferredTargetIfInRange() {
+        if (preferredTargetId == null) return null;
+        RTSUnit t = (RTSUnit) getHostGame().getObjectById(preferredTargetId);
+        if (t == null || t.isRubble || !t.isAlive()) {
+            preferredTargetId = null;
+            return null;
+        }
+        return distanceFrom(t) <= range ? t : null;
+    }
+
     public void setCommandGroup(String s) {
         if(!s.equals(this.commandGroup)) this.inSeperatorGroup = false;
         this.commandGroup = s;

@@ -36,6 +36,7 @@ public class StopCommand implements Command {
             System.out.println("ERROR: unable to execute stop command - unit not found: " + subjectID);
             return true; // Mark as resolved so we don't keep trying
         }
+        subject.clearPreferredTarget();
         subject.setDesiredLocation(subject.getPixelLocation());
         subject.setCommandGroup("0");
         return true;

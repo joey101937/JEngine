@@ -210,7 +210,8 @@ public class LightTank extends RTSUnit {
             return;
         }
         populateNearbyEnemies();
-        currentTarget = nearestEnemyGroundUnit;
+        RTSUnit preferred = getPreferredTargetIfInRange();
+        currentTarget = preferred != null ? preferred : nearestEnemyGroundUnit;
         if (currentTarget != null && Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 3 && barrelCooldownExpiresAtTick == 0) {
             System.out.println("rotation needed to face "  + turret.rotationNeededToFace(currentTarget.getPixelLocation()));
             fire(currentTarget);

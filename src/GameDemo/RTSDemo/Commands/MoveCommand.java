@@ -42,6 +42,7 @@ public class MoveCommand implements Command{
             System.out.println("ERROR: unable to execute move command - unit not found: " + subjectID);
             return true; // Mark as resolved so we don't keep trying
         }
+        subject.clearPreferredTarget();
         subject.setDesiredLocation(target);
         subject.setCommandGroup(commandGroup);
         return true;

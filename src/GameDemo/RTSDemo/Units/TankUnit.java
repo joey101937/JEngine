@@ -443,7 +443,8 @@ public class TankUnit extends RTSUnit {
             }
             previousHullRotation = currentHullRotation;
 
-            RTSUnit enemy = nearestEnemyInRange();
+            RTSUnit preferred = ((RTSUnit) getHost()).getPreferredTargetIfInRange();
+            RTSUnit enemy = preferred != null ? preferred : nearestEnemyInRange();
             ((RTSUnit) getHost()).currentTarget = enemy;
 
             double desiredRotation;

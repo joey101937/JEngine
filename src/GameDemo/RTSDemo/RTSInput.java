@@ -15,6 +15,7 @@ import Framework.Main;
 import Framework.SerializationManager;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
+import GameDemo.RTSDemo.Commands.SetPreferredTargetCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementType;
@@ -169,6 +170,26 @@ public class RTSInput extends InputHandler {
         } 
         else if (e.getButton() == 3) { //3 means right click
             if(hostGame.isPaused()) return;
+
+            // Right-click on a unit of the opposite team → set as preferred target per selected unit
+            RTSUnit clickedUnit = getUnitAtLocation(locationOfMouseEvent);
+            if (clickedUnit != null && !SelectionBoxEffect.selectedUnits.isEmpty()) {
+                boolean anyIssued = false;
+                for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
+                    if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) continue;
+                    if (!u.isAlive() || u.isRubble) continue;
+                    if (clickedUnit.team == u.team) continue; // not an enemy relative to this unit
+                    if (!u.supportsPreferredTarget()) continue;
+                    RTSGame.commandHandler.addCommand(new SetPreferredTargetCommand(
+                            hostGame.getGameTickNumber() + getInputDelay(),
+                            u.ID,
+                            clickedUnit.ID
+                    ), true);
+                    anyIssued = true;
+                }
+                if (anyIssued) return;
+            }
+
             if (e.isControlDown()) {
                 // all move to exact position of mouse click
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
@@ -263,6 +284,15 @@ public class RTSInput extends InputHandler {
     public void mouseExited(MouseEvent e) {
         getHostGame().getCamera().xVel = 0;
         getHostGame().getCamera().yVel = 0;
+    }
+
+    private RTSUnit getUnitAtLocation(Coordinate loc) {
+        for (GameObject2 go : RTSGame.game.getObjectsIntersecting(new Hitbox(loc.toDCoordinate(), 5))) {
+            if (go instanceof RTSUnit unit && !unit.isRubble && unit.isAlive()) {
+                return unit;
+            }
+        }
+        return null;
     }
 
     private void handleSelectPoint(MouseEvent e) {

@@ -10,6 +10,7 @@ import Framework.Main;
 import Framework.SerializationManager;
 import GameDemo.RTSDemo.Commands.ButtonCommand;
 import GameDemo.RTSDemo.Commands.MoveCommand;
+import GameDemo.RTSDemo.Commands.SetPreferredTargetCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
 import static GameDemo.RTSDemo.Multiplayer.Client.printStream;
 import GameDemo.RTSDemo.RTSGame;
@@ -349,6 +350,16 @@ public class ExternalCommunicator implements Runnable {
             // note these messaegs are sent on the tick they were sent on. may be in the past (or future) for the receiver
             RTSGame.textChatEffect.addChatMessageToHistory(new TextChatEffect.ChatMessage(s));
         }
+        if (s.startsWith("pt:")) {
+            if(isResyncing) {
+                System.out.println("Dropping preferred target command during resync");
+                return;
+            }
+            SetPreferredTargetCommand cmd = SetPreferredTargetCommand.generateFromMpString(s);
+            RTSGame.commandHandler.addCommand(cmd, false);
+            updateTickTimingOffset(cmd.getExecuteTick());
+        }
+
         if (s.startsWith("m:")) {
             // Drop commands during resync to prevent state corruption
             if(isResyncing) {
