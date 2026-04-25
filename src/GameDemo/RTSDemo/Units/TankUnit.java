@@ -91,8 +91,8 @@ public class TankUnit extends RTSUnit {
 
     public static volatile Sequence deathFadeout;
 
-    public static volatile Sequence turretFireAnimationGreen = null; // new Sequence(RTSAssetManager.tankFireAnimation);
-    public static volatile Sequence turretFireAnimationRed = null; // new Sequence(enemyTankFireAnimation);
+    public static volatile Sequence tankFireAnimationGreen = null;
+    public static volatile Sequence tankFireAnimationRed = null;
     
     static {
         initGraphics();
@@ -106,8 +106,8 @@ public class TankUnit extends RTSUnit {
         chasisSpriteRed = new Sprite(enemyTankChasisImage);
         turretSpriteGreen = new Sprite(RTSAssetManager.tankTurret);
         turretSpriteRed = new Sprite(enemyTankTurretImage);
-        turretFireAnimationGreen = new Sequence(RTSAssetManager.tankFireAnimation, "tankFireRed");
-        turretFireAnimationRed = new Sequence(enemyTankFireAnimation, "redTankFire");
+        tankFireAnimationGreen = new Sequence(RTSAssetManager.tankFireAnimation, "tankFireRed");
+        tankFireAnimationRed = new Sequence(enemyTankFireAnimation, "redTankFire");
         rubbleHullSprite = new Sprite(RTSAssetManager.tankDeadHull);
         rubbleTurretSprite = new Sprite(RTSAssetManager.tankDeadTurret);
         deathShadow = new Sprite(RTSAssetManager.tankDeadHullShadow);
@@ -129,8 +129,8 @@ public class TankUnit extends RTSUnit {
         tankTurretDamagedRed.setSignature("damagedTurret");
         tankFireAnimationDamagedGreen.setSignature("fireAnimation");
         tankFireAnimationDamagedRed.setSignature("fireAnimation");
-        turretFireAnimationGreen.setSignature("fireAnimation");
-        turretFireAnimationRed.setSignature("fireAnimation");
+        tankFireAnimationGreen.setSignature("fireAnimation");
+        tankFireAnimationRed.setSignature("fireAnimation");
         
         sandbagSprite = new Sprite(RTSAssetManager.sandbagsForTank, "sandbagsForTank");
         sandbagDamagedSprite = new Sprite(RTSAssetManager.sandbagsForTankDamaged, "sandbagsForTankDamaged");
@@ -143,9 +143,14 @@ public class TankUnit extends RTSUnit {
         chasisSpriteRed.applyAlphaEdgeBlurSelf(1);
         turretSpriteGreen.applyAlphaEdgeBlurSelf(1);
         turretSpriteRed.applyAlphaEdgeBlurSelf(1);
-        turretFireAnimationGreen.applyAlphaEdgeBlurSelf(1);
-        turretFireAnimationRed.applyAlphaEdgeBlurSelf(1);
-
+        tankFireAnimationGreen.applyAlphaEdgeBlurSelf(1);
+        tankFireAnimationRed.applyAlphaEdgeBlurSelf(1);
+        
+        List.of(tankFireAnimationDamagedGreen,
+                tankFireAnimationDamagedRed,
+                tankFireAnimationGreen,
+                tankFireAnimationRed
+        ).forEach(x -> x.setFrameDelay(35));
 
         List.of(
                 deathShadow,
@@ -350,7 +355,7 @@ public class TankUnit extends RTSUnit {
             if (currentHealth > 0 && currentHealth < maxHealth / 3) {
                 return team == 0 ? tankFireAnimationDamagedGreen.copyMaintainSource() : tankFireAnimationDamagedRed.copyMaintainSource();
             }
-            return team == 0 ? turretFireAnimationGreen.copyMaintainSource() : turretFireAnimationRed.copyMaintainSource();
+            return team == 0 ? tankFireAnimationGreen.copyMaintainSource() : tankFireAnimationRed.copyMaintainSource();
         }
 
         public Sprite getTurretSprite() {
