@@ -108,8 +108,10 @@ public class Truck extends RTSUnit{
         @Override
         public void tick() {
             super.tick();
+            // todo make wheels turn gradually and limit max difference in rotation between the wheel and host
             if(hull.getDesiredLocation()!= null) {
-              this.setRotation(hull.angleFrom(hull.getDesiredLocation()));
+              double desiredRotation = hull.angleFrom(hull.getDesiredLocation());
+              this.setRotation(desiredRotation);
             }
         }
         
