@@ -337,7 +337,7 @@ public class RTSUnit extends GameObject2 {
     public int getPathingPadding() {
         int navSize = getNavTileSize();
         int extra = navSize == Tile.tileSizeFine ? 15 : 0;
-        if(this instanceof Bazookaman) extra += 10;
+        if(this instanceof Bazookaman) extra += 12;
         if(isInfantry) return 16 + extra;
         if(this instanceof LightTank) return 60 + extra; 
         if(this.plane > 1) return 35 + extra; // helicopter

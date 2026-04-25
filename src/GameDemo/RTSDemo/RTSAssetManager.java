@@ -35,6 +35,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage missile, yellowMissile;
     public static BufferedImage missileShadow, yellowMissileShadow;
     public static BufferedImage tankDeadHull;
+    public static BufferedImage[] tankDeath;
     public static BufferedImage tankDeadHullShadow;
     public static BufferedImage tankShadow;
     public static BufferedImage tankDeadTurret;
@@ -166,6 +167,7 @@ public abstract class RTSAssetManager {
             tankDeadHull = load("DemoAssets/TankGame/newTank/newHullRubble.png");
             sandbagsForTank = load("DemoAssets/TankGame/sandbagsForTank.png");
             sandbagsForTankDamaged = load("DemoAssets/TankGame/sandbagsForTankDamaged.png");
+            tankDeath = loadSequence("DemoAssets/TankGame/newTank/deathAnimation1");
         }, executor);
     }
 

@@ -94,6 +94,8 @@ public class TankUnit extends RTSUnit {
     public static volatile Sequence tankFireAnimationGreen = null;
     public static volatile Sequence tankFireAnimationRed = null;
     
+    public static volatile Sequence tankDeathAnimation = null;
+    
     static {
         initGraphics();
     }
@@ -102,6 +104,8 @@ public class TankUnit extends RTSUnit {
         if (chasisSpriteGreen != null) {
             return;
         }
+        tankDeathAnimation = new Sequence(RTSAssetManager.tankDeath, "deathAnimation");
+        tankDeathAnimation.setFrameDelay(35);
         chasisSpriteGreen = new Sprite(RTSAssetManager.tankChasis);
         chasisSpriteRed = new Sprite(enemyTankChasisImage);
         turretSpriteGreen = new Sprite(RTSAssetManager.tankTurret);
@@ -145,6 +149,8 @@ public class TankUnit extends RTSUnit {
         turretSpriteRed.applyAlphaEdgeBlurSelf(1);
         tankFireAnimationGreen.applyAlphaEdgeBlurSelf(1);
         tankFireAnimationRed.applyAlphaEdgeBlurSelf(1);
+        sandbagSprite.applyAlphaEdgeBlurSelf(1);
+        sandbagDamagedSprite.applyAlphaEdgeBlurSelf(1);
         
         List.of(tankFireAnimationDamagedGreen,
                 tankFireAnimationDamagedRed,
@@ -169,6 +175,10 @@ public class TankUnit extends RTSUnit {
     public void onAnimationCycle() {
         if ("fadeout".equals(getGraphic().getSignature())) {
             this.isInvisible = true;
+        }
+        
+        if("deathAnimation".equals(getGraphic().getSignature())) {
+            this.setGraphic(rubbleHullSprite);
         }
     }
 
@@ -504,12 +514,15 @@ public class TankUnit extends RTSUnit {
     
     public class Sandbag extends SubObject {
         public TankUnit hull;
+        public static final double SANDBAG_SCALE = .56;
         
         public Sandbag(TankUnit t) {
             super(new Coordinate(0,0));
             hull = t;
             this.setGraphic(sandbagSprite);
             this.setRenderBelow(false);
+            this.setScale(SANDBAG_SCALE);
+            sandbagShadow.scaleTo(SANDBAG_SCALE);
         }
         
         @Override
@@ -575,7 +588,7 @@ public class TankUnit extends RTSUnit {
         this.team = -1;
         this.setBaseSpeed(0);
         this.setDesiredLocation(this.getPixelLocation());
-        this.setGraphic(rubbleHullSprite);
+        this.setGraphic(tankDeathAnimation);
         turret.setGraphic(rubbleTurretSprite);
         if(isOnScreen()) {
             RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .66), 0);
