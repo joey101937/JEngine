@@ -187,7 +187,12 @@ public class RTSInput extends InputHandler {
                     ), true);
                     anyIssued = true;
                 }
-                if (anyIssued) return;
+                if (anyIssued) {
+                    if (!PreferredTargetIndicator.hasActiveIndicator(clickedUnit)) {
+                        new PreferredTargetIndicator(hostGame, clickedUnit);
+                    }
+                    return;
+                }
             }
 
             if (e.isControlDown()) {
