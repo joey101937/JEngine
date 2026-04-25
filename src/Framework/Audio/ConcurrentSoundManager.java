@@ -48,12 +48,18 @@ public class ConcurrentSoundManager extends IndependentEffect {
                 decrementTicks.remove(l);
             }
         }
-        
-        public synchronized void updateNumPlaying (int change) {
+
+        public synchronized List<Long> drainExpiredTicks(long currentTick) {
+            List<Long> expired = decrementTicks.stream().filter(y -> y <= currentTick).toList();
+            expired.forEach(decrementTicks::remove);
+            return expired;
+        }
+
+        public synchronized void updateNumPlaying(int change) {
             numPlaying += change;
-         }
-        
-        public int getNumPlaying () {
+        }
+
+        public synchronized int getNumPlaying() {
             return numPlaying;
         }
     }
@@ -82,11 +88,8 @@ public class ConcurrentSoundManager extends IndependentEffect {
     public void tick() {
         tickNumber++;
         effectMap.values().forEach(x -> {
-            var toRemove = x.decrementTicks.stream().filter(y -> y <= tickNumber).toList();
-            toRemove.forEach(l -> {
-                 x.addRemoveDecrementTick(false, l);
-            });
-            x.updateNumPlaying(-1 * toRemove.size());
+            int expired = x.drainExpiredTicks(tickNumber).size();
+            x.updateNumPlaying(-expired);
         });
     }
 
@@ -131,7 +134,7 @@ public class ConcurrentSoundManager extends IndependentEffect {
         SoundEffect chosen = profile.soundEffects.get(Main.generateRandomIntLocally(0, profile.soundEffects.size() - 1));
         chosen.playCopy(volume, msDelay);
         profile.updateNumPlaying(1);
-        profile.decrementTicks.add(tickNumber + msDelay);
+        profile.addRemoveDecrementTick(true, tickNumber + profile.duration);
     }
 
 }
