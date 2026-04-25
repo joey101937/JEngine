@@ -6,6 +6,8 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
+import java.util.HashSet;
+import java.util.Set;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
 import GameDemo.RTSDemo.Damage;
@@ -36,6 +38,8 @@ public class BazookaBullet extends Projectile {
     public double initialDistance;
     public Coordinate startPosition;
     public double maxRotationPerTick = 1;
+    public String preferredTargetId = null;
+    private final Set<String> ignoredUnitIds = new HashSet<>();
 
     public long tickToDestroy = -1;
     public boolean hasCollided = false;
@@ -46,6 +50,7 @@ public class BazookaBullet extends Projectile {
         super(startingLocation);
         this.setBaseSpeed(RTSGame.tickAdjust(10.0));
         this.shooter = shooter;
+        this.preferredTargetId = shooter.getPreferredTargetId();
         damage.source = shooter;
         damage.launchLocation = startingLocation;
         this.target = other;
@@ -89,7 +94,16 @@ public class BazookaBullet extends Projectile {
             }
             if (unit.team == shooter.team) {
                 return;
-            } else if (!hasCollided) {
+            }
+            if (ignoredUnitIds.contains(unit.ID)) return;
+            if (preferredTargetId != null && !unit.ID.equals(preferredTargetId)) {
+                int ignoreChance = unit.isInfantry ? 90 : 50;
+                if (Main.generateDeterministicRandomInt(0, 99) < ignoreChance) {
+                    ignoredUnitIds.add(unit.ID);
+                    return;
+                }
+            }
+            if (!hasCollided) {
                 hasCollided = true;
                 int tickDelay = Main.generateRandomIntFromSeed(2, 5, getHostGame().getGameTickNumber());
                 tickToDestroy = getHostGame().getGameTickNumber() + tickDelay;

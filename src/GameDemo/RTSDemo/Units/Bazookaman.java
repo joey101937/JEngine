@@ -258,7 +258,8 @@ public class Bazookaman extends RTSUnit {
             if (isRubble) {
                 return;
             }
-            RTSUnit enemy = nearestEnemyInRange();
+            RTSUnit preferred = ((RTSUnit) getHost()).getPreferredTargetIfInRange();
+            RTSUnit enemy = preferred != null ? preferred : nearestEnemyInRange();
             ((RTSUnit) getHost()).currentTarget = enemy;
             if (enemy == null) {
                 double desiredRotation = getHost().getRotation() - getRotation();

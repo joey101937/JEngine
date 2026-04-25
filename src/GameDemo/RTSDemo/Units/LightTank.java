@@ -241,7 +241,7 @@ public class LightTank extends RTSUnit {
                 Main.generateRandomIntFromSeed(-target.getWidth() / 4, target.getWidth() / 4, getHostGame().getGameTickNumber()),
                 Main.generateRandomIntFromSeed(-target.getWidth() / 4, target.getWidth() / 4, getHostGame().getGameTickNumber())
         );
-        LightTankBullet bullet = new LightTankBullet(muzzelLocation.toDCoordinate(), target.getLocationAsOfLastTick().add(randomOffset));
+        LightTankBullet bullet = new LightTankBullet(muzzelLocation.toDCoordinate(), target.getLocationAsOfLastTick().add(randomOffset), getPreferredTargetId());
         bullet.shooter = this;
         getHostGame().addObject(bullet);
     }

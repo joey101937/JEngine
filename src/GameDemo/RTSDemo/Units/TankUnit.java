@@ -401,7 +401,7 @@ public class TankUnit extends RTSUnit {
                     Main.generateRandomIntFromSeed(-longestSide / 3, longestSide / 3, getHostGame().getGameTickNumber() + (int) getLocationAsOfLastTick().y)
             );
             target.add(offset);
-            TankBullet bullet = new TankBullet(muzzelLocation, target.toDCoordinate());
+            TankBullet bullet = new TankBullet(muzzelLocation, target.toDCoordinate(), ((RTSUnit) this.getHost()).getPreferredTargetId());
             bullet.shooter = this.getHost();
             System.out.println("tankbullet created at " + muzzelLocation + " target " + target.toDCoordinate() + " from " + getHost().ID);
             getHostGame().addObject(bullet);

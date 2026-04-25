@@ -162,7 +162,8 @@ public class Hellicopter extends RTSUnit {
         }
         if(!isRubble) {
             super.tick();
-            currentTarget = nearestEnemyInRange();
+            RTSUnit preferred = getPreferredTargetIfInRange();
+            currentTarget = preferred != null ? preferred : nearestEnemyInRange();
             boolean offCooldown = (getHostGame().getGameTickNumber() - lastFireTick) > attackInterval;
             if (currentTarget != null && offCooldown) {
                 if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {

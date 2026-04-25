@@ -4,6 +4,7 @@
  */
 package Framework;
 
+import java.util.HashMap;
 import java.util.List;
 import org.junit.Test;
 
@@ -45,6 +46,29 @@ public class RandomFromSeedTest {
       
       for(int i = 0; i < results.size() - 1; i++) {
           assert results.get(i) == results.get(i + 1);
+      }
+    }
+    
+    public static void main(String[] args) {
+     HashMap<Integer, Integer> map = new HashMap<>();
+      for(int i =0; i < 100; i++) {
+          int res = Main.generateRandomIntFromSeed(0, 100, (10000 + i) * 0x9e3779b97f4a7c15L);
+          map.put(res, map.getOrDefault(res, 0) + 1);
+          System.out.println("generated " + res);
+      }
+    }
+    
+    
+        @Test
+    public void intFromSeedNegative () {
+      HashMap<Integer, Integer> map = new HashMap<>();
+      for(int i =0; i < 100; i++) {
+          int res = Main.generateRandomIntFromSeed(0, 100, 10000);
+          map.put(res, map.getOrDefault(res, 0) + 1);
+          System.out.println("generated " + res);
+      }
+      for(Integer val : map.values()) {
+          assert val <= 1;
       }
     }
     

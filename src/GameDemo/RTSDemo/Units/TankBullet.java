@@ -17,10 +17,13 @@ import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
+import Framework.Main;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -36,9 +39,12 @@ public class TankBullet extends Projectile {
     public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallTank");
     public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.bullet, .3);
     private DCoordinate startPosition;
+    public String preferredTargetId = null;
+    private final Set<String> ignoredUnitIds = new HashSet<>();
 
-    public TankBullet(DCoordinate start, DCoordinate end) {
+    public TankBullet(DCoordinate start, DCoordinate end, String preferredTargetId) {
         super(start, end);
+        this.preferredTargetId = preferredTargetId;
         bulletGraphic.scaleTo(.2); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
         shadow.scaleTo(.2);
         setScale(.2);
@@ -80,7 +86,14 @@ public class TankBullet extends Projectile {
             }
             if (otherUnit.isRubble) {
                 if (startPosition.distanceFrom(otherUnit.getPixelLocation()) < RTSUnit.RUBBLE_PROXIMITY) {
-                    // if shooting unit is next to the rubble, it can shoot over it
+                    return;
+                }
+            }
+            if (ignoredUnitIds.contains(otherUnit.ID)) return;
+            if (preferredTargetId != null && !otherUnit.ID.equals(preferredTargetId)) {
+                int ignoreChance = otherUnit.isInfantry ? 90 : 50;
+                if (Main.generateDeterministicRandomInt(0, 99) < ignoreChance) {
+                    ignoredUnitIds.add(otherUnit.ID);
                     return;
                 }
             }

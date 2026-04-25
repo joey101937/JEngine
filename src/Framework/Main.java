@@ -308,8 +308,21 @@ public class Main {
             return (min + output);                //returns that random number plus the min
         }
     }
-    
-    
+
+    public static int generateDeterministicRandomInt(int min, int max) {
+        long tick = (Window.currentGame != null) ? Window.currentGame.getGameTickNumber() : 0;
+        long seed = tick * 0x9e3779b97f4a7c15L;
+        seed ^= seed >>> 32;
+        return generateRandomIntFromSeed(min, max, seed);
+    }
+
+    public static double generateDeterministicRandomDouble(double min, double max) {
+        long tick = (Window.currentGame != null) ? Window.currentGame.getGameTickNumber() : 0;
+        long seed = tick * 0x9e3779b97f4a7c15L;
+        seed ^= seed >>> 32;
+        return generateRandomDoubleFromSeed(min, max, seed);
+    }
+
     /**
      * returns a random double between the given parameters NOT using the shared random
      *@param min minimum value the generated value can be

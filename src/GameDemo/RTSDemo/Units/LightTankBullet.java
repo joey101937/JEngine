@@ -3,6 +3,7 @@ package GameDemo.RTSDemo.Units;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
+import Framework.Main;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Hitbox;
@@ -13,6 +14,8 @@ import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -28,9 +31,12 @@ public class LightTankBullet extends Projectile {
     public GameObject2 shooter; //the object that launched this projectile
     private DCoordinate startPosition;
     private boolean alreadyExploded = false;
+    public String preferredTargetId = null;
+    private final Set<String> ignoredUnitIds = new HashSet<>();
 
-    public LightTankBullet(DCoordinate start, DCoordinate end) {
+    public LightTankBullet(DCoordinate start, DCoordinate end, String preferredTargetId) {
         super(start, end);
+        this.preferredTargetId = preferredTargetId;
         explosionTiny.scaleTo(.8);
         explosionTiny.setFrameDelay(17);
         bulletGraphic.setSignature("bullet graphic");
@@ -73,7 +79,14 @@ public class LightTankBullet extends Projectile {
             }
             if (otherUnit.isRubble) {
                 if (startPosition.distanceFrom(otherUnit.getPixelLocation()) < RTSUnit.RUBBLE_PROXIMITY) {
-                    // if shooting unit is next to the rubble, it can shoot over it
+                    return;
+                }
+            }
+            if (ignoredUnitIds.contains(otherUnit.ID)) return;
+            if (preferredTargetId != null && !otherUnit.ID.equals(preferredTargetId)) {
+                int ignoreChance = otherUnit.isInfantry ? 90 : 50;
+                if (Main.generateDeterministicRandomInt(0, 99) < ignoreChance) {
+                    ignoredUnitIds.add(otherUnit.ID);
                     return;
                 }
             }

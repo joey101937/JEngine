@@ -166,6 +166,13 @@ public class RTSUnit extends GameObject2 {
     @Override
     public void tick() {
         super.tick();
+        // Clear preferred target immediately if it has died
+        if (preferredTargetId != null) {
+            RTSUnit prefTarget = (RTSUnit) getHostGame().getObjectById(preferredTargetId);
+            if (prefTarget == null || prefTarget.isRubble || !prefTarget.isAlive()) {
+                preferredTargetId = null;
+            }
+        }
         // System.out.println(this.ID + " " + getNextWaypoint());
         for(CommandButton button : getButtons()) {
             button.tick();
@@ -179,9 +186,7 @@ public class RTSUnit extends GameObject2 {
 
         if (preferredTargetId != null) {
             RTSUnit prefTarget = (RTSUnit) getHostGame().getObjectById(preferredTargetId);
-            if (prefTarget == null || prefTarget.isRubble || !prefTarget.isAlive()) {
-                preferredTargetId = null;
-            } else if (distanceFrom(prefTarget) <= range) {
+            if (distanceFrom(prefTarget) <= range) {
                 // In range — stop and let combat take over; return to skip the movement block
                 setCommandGroup("0");
                 this.velocity.y = 0;
@@ -796,6 +801,10 @@ public class RTSUnit extends GameObject2 {
     
     public boolean supportsPreferredTarget() {
         return true;
+    }
+
+    public String getPreferredTargetId() {
+        return preferredTargetId;
     }
 
     public void setPreferredTarget(String targetId) {
