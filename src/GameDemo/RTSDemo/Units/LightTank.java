@@ -26,8 +26,8 @@ import java.util.ArrayList;
  */
 public class LightTank extends RTSUnit {
 
-    public static final double speed = RTSGame.tickAdjust(2.8);
-    public static final double attackInterval = 1.6;
+    public static final double LIGHT_TANK_SPEED = RTSGame.tickAdjust(2.8);
+    public static final double LIGHT_TANK_ATTACK_INTERVAL = 1.6;
 
     public static final double VISUAL_SCALE = .48;
     
@@ -106,7 +106,7 @@ public class LightTank extends RTSUnit {
         this.isSolid = true;
         this.setHitbox(new Hitbox(this, getWidth() / 2));
         this.range = 500;
-        this.baseSpeed = speed;
+        this.baseSpeed = LIGHT_TANK_SPEED;
         this.rotationSpeed = RTSGame.tickAdjust(2.5);
         initializeButtons();
     }
@@ -232,7 +232,7 @@ public class LightTank extends RTSUnit {
     }
 
     public void fire(RTSUnit target) {
-        barrelCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (RTSGame.desiredTPS * attackInterval);
+        barrelCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (RTSGame.desiredTPS * LIGHT_TANK_ATTACK_INTERVAL);
         playAttackSound();
         turret.setGraphic(getFireSequence());
         Coordinate muzzelLocation = new Coordinate(0, 0);
@@ -393,8 +393,8 @@ public class LightTank extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + LightTankBullet.staticDamage + "    Interval: " + attackInterval + "s    Range: " + range);
-        out.add("Speed: " + speed + "    Targets: Ground");
+        out.add("Dmg: " + LightTankBullet.staticDamage + "    Interval: " + LIGHT_TANK_ATTACK_INTERVAL + "s    Range: " + range);
+        out.add("Speed: " + LIGHT_TANK_SPEED + "    Targets: Ground");
         return out;
     }
 

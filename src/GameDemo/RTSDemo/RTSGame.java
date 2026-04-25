@@ -21,6 +21,7 @@ import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
+import GameDemo.RTSDemo.Units.Truck;
 import java.awt.Color;
 
 /**
@@ -157,9 +158,9 @@ public class RTSGame {
             game.addObject(heli);
         }
         for (int i = 0; i < lineLength; i++) {
-            TankUnit tank = new TankUnit(100 + (i * spacer), 300, 0);
-            tank.setRotation(180);
-            game.addObject(tank);
+            Truck truck = new Truck(100 + (i * spacer), 300, 0);
+            truck.setRotation(180);
+            game.addObject(truck);
         }
         for (int i = 0; i < lineLength; i++) {
             TankUnit tank = new TankUnit(100 + (i * spacer), 450, 0);
@@ -189,7 +190,7 @@ public class RTSGame {
             game.addObject(new TankUnit(100 + (i * spacer), 1850, 1));
         }
         for (int i = 0; i < lineLength; i++) {
-            game.addObject(new TankUnit(100 + (i * spacer), 2000, 1));
+            game.addObject(new Truck(100 + (i * spacer), 2000, 1));
         }
         for (int i = 0; i < lineLength; i++) {
             game.addObject(new LightTank(100 + (i * spacer), 2150, 1));

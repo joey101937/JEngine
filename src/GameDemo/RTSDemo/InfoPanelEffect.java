@@ -78,6 +78,7 @@ public class InfoPanelEffect extends IndependentEffect {
             unitNameImageMap.put("Rifleman", RTSAssetManager.riflemanSelectionImage);
             unitNameImageMap.put("Hellicopter", RTSAssetManager.hellicopterSelectionImage);
             unitNameImageMap.put("Landmine", RTSAssetManager.landmineSelectionImage);
+            unitNameImageMap.put("Truck", RTSAssetManager.landmineSelectionImage);
         }
     }
     

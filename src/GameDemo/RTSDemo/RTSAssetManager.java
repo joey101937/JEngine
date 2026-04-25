@@ -8,6 +8,7 @@ import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
+import GameDemo.RTSDemo.Units.Truck;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.util.concurrent.CompletableFuture;
@@ -79,6 +80,9 @@ public abstract class RTSAssetManager {
     public static BufferedImage JEngineIconLoading;
     
     public static BufferedImage sandbagsForTank, sandbagsForTankDamaged;
+    
+    public static BufferedImage truckHull, truckHullRed, truckHullDamaged, truckHullDamagedRed;
+    public static BufferedImage truckWheel;
 
     public synchronized static void initialize() {
         if (initialized) {
@@ -92,6 +96,7 @@ public abstract class RTSAssetManager {
                 loadLightTankAssets(),
                 loadInfantryAssets(),
                 loadLandmineAssets(),
+                loadTruckAssets(),
                 loadSelectionImages(),
                 loadUtilityAssets(),
                 loadMapAssets1(),
@@ -239,6 +244,18 @@ public abstract class RTSAssetManager {
             landmineBlast = load("DemoAssets/TankGame/landmineBlast.png");
         }, executor);
     }
+    
+    
+    private static CompletableFuture<Void> loadTruckAssets() {
+        return CompletableFuture.runAsync(() -> {
+            truckHull = load("DemoAssets/TankGame/truck/hull.png");
+            truckHullRed = greenToRed(truckHull);
+            truckHullDamaged = load("DemoAssets/TankGame/truck/hull_damaged.png");
+            truckHullDamagedRed = greenToRed(truckHullDamaged);
+            truckWheel = load("DemoAssets/TankGame/truck/tire.png");
+        }, executor);
+    }
+
 
     private static CompletableFuture<Void> loadSelectionImages() {
         return CompletableFuture.runAsync(() -> {
@@ -283,6 +300,7 @@ public abstract class RTSAssetManager {
         new Bazookaman(0, 0, 0);
         new Hellicopter(0, 0, 0);
         new Landmine(0, 0, 0);
+        new Truck(0,0,0);
         RTSUnitIdHelper.reset();
         System.out.println("done preloading.");
     }
