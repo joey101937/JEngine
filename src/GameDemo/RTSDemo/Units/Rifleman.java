@@ -5,6 +5,7 @@ import Framework.GraphicalAssets.Graphic;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
+import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
 import GameDemo.RTSDemo.CommandButton;
@@ -39,6 +40,7 @@ public class Rifleman extends RTSUnit {
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryRifleDead, .8);
     public static final Damage staticDamage = new Damage(6);
     public static final int attackFrequency = 1;
+    public static Sequence smallImpact = new Sequence(RTSAssetManager.smallImpact);
 
     public long attackCooldownExpiresAtTick = 0;
     public Damage damage = staticDamage.copy(this);
@@ -54,6 +56,8 @@ public class Rifleman extends RTSUnit {
         corpseSpriteRed.setSignature("corpseSprite");
         deathAnimation.setLooping(false);
         deathAnimationRed.setLooping(false);
+        smallImpact.scaleTo(1.6);
+        smallImpact.setFrameDelay(30);
     }
 
     // fields
@@ -164,6 +168,11 @@ public class Rifleman extends RTSUnit {
         damage.launchLocation = getPixelLocation();
         damage.impactLoaction = getPixelLocation();
         target.takeDamage(damage);
+        Coordinate impactLocation = target.getPixelLocation();
+        impactLocation.x += Main.generateRandomInt(-target.getWidth()/3, target.getWidth()/3);
+        impactLocation.y += Main.generateRandomInt(-target.getHeight()/3, target.getHeight()/3);
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), smallImpact.copyMaintainSource(), impactLocation);
+        s.rotation = Main.generateRandomInt(0, 360);
     }
 
     @Override

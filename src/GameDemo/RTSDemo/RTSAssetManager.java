@@ -64,6 +64,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] explosionSequenceSmall;
     public static BufferedImage[] impactCone;
+    public static BufferedImage[] smallImpact;
 
     public static BufferedImage landmine, landmineRed, landmineSelectionImage, landmineBlast;
 
@@ -233,6 +234,7 @@ public abstract class RTSAssetManager {
             infantryBazookaDieRed = darkToRed(infantryBazookaDie);
             infantryBazookaDead = load("DemoAssets/TankGame/Infantry/bazooka/dead.png");
             infantryBazookaDeadRed = darkToRed(infantryBazookaDead);
+            smallImpact = loadSequence("DemoAssets/TankGame/smallImpact");
         }, executor);
     }
 
