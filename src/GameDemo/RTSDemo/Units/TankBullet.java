@@ -90,12 +90,18 @@ public class TankBullet extends Projectile {
                 }
             }
             if (ignoredUnitIds.contains(otherUnit.ID)) return;
-            if (preferredTargetId != null && !otherUnit.ID.equals(preferredTargetId)) {
-                int ignoreChance = otherUnit.isInfantry ? 90 : 50;
-                if (Main.generateDeterministicRandomInt(0, 99) < ignoreChance) {
-                    ignoredUnitIds.add(otherUnit.ID);
-                    return;
+            boolean preferOtherUnit = preferredTargetId != null && !otherUnit.ID.equals(preferredTargetId);
+            int dodgeChance = otherUnit.getDodgeChance();
+            int ignoreChance = dodgeChance;
+            if (preferOtherUnit) ignoreChance += 50;
+            int roll = Main.generateDeterministicRandomInt(0, 99);
+            if (roll < ignoreChance) {
+                ignoredUnitIds.add(otherUnit.ID);
+                if (roll < dodgeChance) {
+                    double capRange = startPosition.distanceFrom(otherUnit.getPixelLocation()) + 150;
+                    if (capRange < maxRange) maxRange = (int) capRange;
                 }
+                return;
             }
             damage.impactLoaction = getPixelLocation();
             otherUnit.takeDamage(damage);

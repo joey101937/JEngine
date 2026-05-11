@@ -331,7 +331,7 @@ public class Bazookaman extends RTSUnit {
     
     @Override
     public int getDodgeChance() {
-        return 40;
+        return 35;
     }
 
 }

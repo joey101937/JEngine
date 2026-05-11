@@ -46,7 +46,7 @@ public class Rifleman extends RTSUnit {
     public long attackCooldownExpiresAtTick = 0;
     public Damage damage = staticDamage.copy(this);
     private long destructionScheduledAtTick = 0;
-    public int accuracyBonus = 10;
+    public int accuracyBonus = 10; // this unit is inheritly more accurate
 
     static {
         runningSequence.setFrameDelay(35);
@@ -366,6 +366,6 @@ public class Rifleman extends RTSUnit {
     
     @Override
     public int getDodgeChance() {
-        return 40;
+        return 35;
     }
 }
