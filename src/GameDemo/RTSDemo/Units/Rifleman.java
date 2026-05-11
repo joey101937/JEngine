@@ -58,6 +58,12 @@ public class Rifleman extends RTSUnit {
         deathAnimationRed.setLooping(false);
         smallImpact.scaleTo(1.6);
         smallImpact.setFrameDelay(30);
+        baseSprite.applyAlphaEdgeBlurSelf(1);
+        runningSequence.applyAlphaEdgeBlurSelf(1);
+        idleAnimation.applyAlphaEdgeBlurSelf(1);
+        idleAnimationRed.applyAlphaEdgeBlurSelf(1);
+        attackSequence.applyAlphaEdgeBlurSelf(1);
+        attackSequenceRed.applyAlphaEdgeBlurSelf(1);
     }
 
     // fields
@@ -114,6 +120,17 @@ public class Rifleman extends RTSUnit {
     @Override
     public int getHeight() {
         return (int)((baseSprite.getHeight()* getScale()) + 24);
+    }
+
+    @Override
+    public double getSpeed() {
+        Coordinate nextWaypoint = getNextWaypoint();
+        if (nextWaypoint == null || isCloseEnoughToDesired()) {
+            return super.getSpeed();
+        }
+        double angle = Math.abs(rotationNeededToFace(nextWaypoint));
+        double angleFactor = Math.max(0.0, Math.min(1.0, (90.0 - angle) / 60.0));
+        return super.getSpeed() * angleFactor;
     }
 
     @Override

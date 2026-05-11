@@ -156,6 +156,17 @@ public class Truck extends RTSUnit {
     }
 
     @Override
+    public double getSpeed() {
+        Coordinate nextWaypoint = getNextWaypoint();
+        if (nextWaypoint == null || isCloseEnoughToDesired()) {
+            return super.getSpeed();
+        }
+        double angle = Math.abs(rotationNeededToFace(nextWaypoint));
+        double angleFactor = Math.max(0.0, Math.min(1.0, (90.0 - angle) / 60.0));
+        return super.getSpeed() * angleFactor;
+    }
+
+    @Override
     public int getWidth() {
         return (int) (hullSprite.getWidth() * VISUAL_SCALE);
     }
