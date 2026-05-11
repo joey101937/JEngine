@@ -39,7 +39,7 @@ public class BazookaBullet extends Projectile {
     public Coordinate startPosition;
     public double maxRotationPerTick = 1;
     public String preferredTargetId = null;
-    private final Set<String> ignoredUnitIds = new HashSet<>();
+    private final Set<String> ignoredUnitIds = new HashSet<>(); 
 
     public long tickToDestroy = -1;
     public boolean hasCollided = false;
@@ -82,32 +82,34 @@ public class BazookaBullet extends Projectile {
 
     @Override
     public void onCollide(GameObject2 other, boolean myTick) {
-        if (other != shooter && other instanceof RTSUnit unit) {
-            if (unit.isRubble) {
-                if (startPosition.distanceFrom(unit.getPixelLocation()) < 100) {
+        if (other != shooter && other instanceof RTSUnit otherUnit) {
+            if (otherUnit.isRubble) {
+                if (startPosition.distanceFrom(otherUnit.getPixelLocation()) < 100) {
                     // if shooting unit is next to the rubble, it can shoot over it
                     return;
                 }
             }
-            if (unit.isCloaked) {
+            if (otherUnit.isCloaked) {
                 return;
             }
-            if (unit.team == shooter.team) {
+            if (otherUnit.team == shooter.team) {
                 return;
             }
-            if (ignoredUnitIds.contains(unit.ID)) return;
-            if (preferredTargetId != null && !unit.ID.equals(preferredTargetId)) {
-                int ignoreChance = unit.isInfantry ? 90 : 50;
-                if (Main.generateDeterministicRandomInt(0, 99) < ignoreChance) {
-                    ignoredUnitIds.add(unit.ID);
-                    return;
-                }
+            if (ignoredUnitIds.contains(otherUnit.ID)) return;
+            
+            boolean preferOtherUnit = preferredTargetId != null && !otherUnit.ID.equals(preferredTargetId);
+            int ignoreChance = otherUnit.getDodgeChance();
+            if(preferOtherUnit) ignoreChance += 50;
+            if (Main.generateDeterministicRandomInt(0, 99) < ignoreChance) {
+                ignoredUnitIds.add(otherUnit.ID);
+                return;
             }
+            
             if (!hasCollided) {
                 hasCollided = true;
                 int tickDelay = Main.generateRandomIntFromSeed(2, 5, getHostGame().getGameTickNumber());
                 tickToDestroy = getHostGame().getGameTickNumber() + tickDelay;
-                collidedUnit = unit;
+                collidedUnit = otherUnit;
             }
         }
     }

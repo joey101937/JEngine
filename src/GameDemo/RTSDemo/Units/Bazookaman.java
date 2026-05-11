@@ -328,5 +328,10 @@ public class Bazookaman extends RTSUnit {
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
         return out;
     }
+    
+    @Override
+    public int getDodgeChance() {
+        return 40;
+    }
 
 }

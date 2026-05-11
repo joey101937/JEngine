@@ -304,29 +304,35 @@ public class Main {
         } else {
             //here is the body of our method
             double diff = max - min;
-            int output = (int) ((new Random(seed)).nextDouble() * diff); //generates a random number between 0 and the difference between the numbers
-            return (min + output);                //returns that random number plus the min
+            double output = (new Random(seed)).nextDouble() * diff;
+            return (min + output);
         }
     }
 
-    public static int generateDeterministicRandomInt(int min, int max) {
+    private static long deterministicSeed() {
         long tick = (Window.currentGame != null) ? Window.currentGame.getGameTickNumber() : 0;
+        // splitmix64 finalize — 1-bit tick difference flips ~50% of output bits
         long seed = tick * 0x9e3779b97f4a7c15L;
-        seed ^= seed >>> 32;
-        return generateRandomIntFromSeed(min, max, seed);
+        seed ^= seed >>> 30;
+        seed *= 0xbf58476d1ce4e5b9L;
+        seed ^= seed >>> 27;
+        seed *= 0x94d049bb133111ebL;
+        seed ^= seed >>> 31;
+        return seed;
+    }
+
+    public static int generateDeterministicRandomInt(int min, int max) {
+        return generateRandomIntFromSeed(min, max, deterministicSeed());
     }
 
     public static double generateDeterministicRandomDouble(double min, double max) {
-        long tick = (Window.currentGame != null) ? Window.currentGame.getGameTickNumber() : 0;
-        long seed = tick * 0x9e3779b97f4a7c15L;
-        seed ^= seed >>> 32;
-        return generateRandomDoubleFromSeed(min, max, seed);
+        return generateRandomDoubleFromSeed(min, max, deterministicSeed());
     }
 
     /**
      * returns a random double between the given parameters NOT using the shared random
      *@param min minimum value the generated value can be
-     * @param max maximum value the gnerated value can be
+     * @param max maximum value the generated value can be
      * @return the number
      */
     public static double generateRandomDoubleLocally(double min, double max) {

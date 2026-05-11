@@ -837,4 +837,13 @@ public class RTSUnit extends GameObject2 {
     public String getCommandGroup() {
         return this.inSeperatorGroup ? NavigationManager.SEPERATOR_GROUP : this.commandGroup;
     }
+    
+    /**
+     * 0-100 percent chance this unit can avoid getting hit by an attack.
+     * The actual avoidance is done by the attacker so it may be ignored
+     * @return 0-100
+     */
+    public int getDodgeChance() {
+        return 0;
+    }
 }

@@ -7,6 +7,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import Framework.Window;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Damage;
@@ -38,13 +39,14 @@ public class Rifleman extends RTSUnit {
     public static final Sprite corpseSprite = new Sprite(RTSAssetManager.infantryRifleDead);
     public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryRifleDeadRed);
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryRifleDead, .8);
-    public static final Damage staticDamage = new Damage(6);
+    public static final Damage staticDamage = new Damage(2);
     public static final int attackFrequency = 1;
     public static Sequence smallImpact = new Sequence(RTSAssetManager.smallImpact);
 
     public long attackCooldownExpiresAtTick = 0;
     public Damage damage = staticDamage.copy(this);
     private long destructionScheduledAtTick = 0;
+    public int accuracyBonus = 10;
 
     static {
         runningSequence.setFrameDelay(35);
@@ -182,14 +184,45 @@ public class Rifleman extends RTSUnit {
                          Main.generateRandomIntLocally(0, 20));
             }
         turret.setGraphic(turret.getFireAnimation());
-        damage.launchLocation = getPixelLocation();
-        damage.impactLoaction = getPixelLocation();
-        target.takeDamage(damage);
-        Coordinate impactLocation = target.getPixelLocation();
-        impactLocation.x += Main.generateRandomInt(-target.getWidth()/3, target.getWidth()/3);
-        impactLocation.y += Main.generateRandomInt(-target.getHeight()/3, target.getHeight()/3);
-        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), smallImpact.copyMaintainSource(), impactLocation);
-        s.rotation = Main.generateRandomInt(0, 360);
+        // riflemen attack by shooting 2dmg 3 times.
+        // each time recalculates dodge chance separately so that it has higher possibility of hitting at least one shot
+        performAttack(target, 0);
+        performAttack(target, 1);
+        performAttack(target, 2);
+        createImpactVisual(target, 0);
+        createImpactVisual(target, RTSGame.tickAdjust(14));
+        createImpactVisual(target, RTSGame.tickAdjust(24));
+
+    }
+    
+    private void performAttack(RTSUnit target, int callNum){
+        if(Main.generateRandomIntFromSeed(0, 100, generateRandomSeed(callNum)) + accuracyBonus > target.getDodgeChance()) {
+            damage.launchLocation = getPixelLocation();
+            damage.impactLoaction = getPixelLocation();
+            target.takeDamage(damage);
+        }
+    }
+    
+    private long generateRandomSeed (int lookahead) {
+        long tick = getGameTickNumber() + lookahead;
+        // splitmix64 finalize — 1-bit tick difference flips ~50% of output bits
+        long seed = tick * 0x9e3779b97f4a7c15L;
+        seed ^= seed >>> 30;
+        seed *= 0xbf58476d1ce4e5b9L;
+        seed ^= seed >>> 27;
+        seed *= 0x94d049bb133111ebL;
+        seed ^= seed >>> 31;
+        return seed;
+    }
+    
+    private void createImpactVisual(RTSUnit target, int tickDelay) {
+        this.addTickDelayedEffect(tickDelay, c -> {
+            Coordinate impactLocation = target.getPixelLocation();
+            impactLocation.x += Main.generateRandomInt(-target.getWidth()/3, target.getWidth()/3);
+            impactLocation.y += Main.generateRandomInt(-target.getHeight()/3, target.getHeight()/3);
+            OnceThroughSticker s = new OnceThroughSticker(getHostGame(), smallImpact.copyMaintainSource(), impactLocation);
+            s.rotation = Main.generateRandomInt(0, 360);
+        });
     }
 
     @Override
@@ -329,5 +362,10 @@ public class Rifleman extends RTSUnit {
         if((getHostGame().getGameTickNumber() % 4) == 0) {
             RTSSoundManager.get().play(RTSSoundManager.INFANTRY_DEATH, .6, 0);
         }
+    }
+    
+    @Override
+    public int getDodgeChance() {
+        return 40;
     }
 }
