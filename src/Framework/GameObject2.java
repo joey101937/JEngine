@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
 import java.awt.AlphaComposite;
+import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -51,6 +53,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     /** invisible objects are not rendered by default however will render debug visuals and continue incrementing renderCount */
     public boolean isInvisible = false;
     private float renderOpacity = 1f;
+    private double renderBrightness = 1.0;
+    private double renderScale = 1.0;
     private double scale = 1;
     protected double scaleAsOfLastTick = 1;
     /** Determines how intrinsic velocity is applied to this object's location each preTick */
@@ -544,15 +548,25 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         
         // Apply scaling
         scaleGraphicObj(graphics, scale, pixelLocation.toDCoordinate());
+        if (renderScale != 1.0) scaleGraphicObj(graphics, renderScale, pixelLocation.toDCoordinate());
 
-        
         if (getGraphic() != null && getGraphic().getCurrentVolatileImage() != null) {
             VolatileImage toRender = getGraphic().getCurrentVolatileImage();
-            graphics.drawImage(toRender, pixelLocation.x-toRender.getWidth()/2 , pixelLocation.y-toRender.getHeight()/2,null); //draws frame centered on pixelLocation
+            int drawX = pixelLocation.x - toRender.getWidth() / 2;
+            int drawY = pixelLocation.y - toRender.getHeight() / 2;
+            if (renderBrightness != 1.0) {
+                BufferedImage snapshot = toRender.getSnapshot();
+                float b = (float) Math.max(0.0, renderBrightness);
+                RescaleOp rescale = new RescaleOp(new float[]{b, b, b, 1f}, new float[]{0, 0, 0, 0}, null);
+                graphics.drawImage(rescale.filter(snapshot, null), drawX, drawY, null);
+            } else {
+                graphics.drawImage(toRender, drawX, drawY, null);
+            }
             if(isAnimated() && triggerAnimationCycle) this.onAnimationCycle();
         }        
         
         // Undo scaling
+        if (renderScale != 1.0) scaleGraphicObj(graphics, 1.0 / renderScale, pixelLocation.toDCoordinate());
         scaleGraphicObj(graphics, 1/scale, pixelLocation.toDCoordinate());
         
          if (Main.debugMode) {
@@ -1325,7 +1339,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * 0-1 value for percent opaque to render the graphic
      * @param renderOpacity 0f-1f
      */
-    public void setRenderOpacity(float renderOpacity) { 
+    public void setRenderOpacity(float renderOpacity) {
         if(renderOpacity < 0) {
             this.renderOpacity = 0;
             return;
@@ -1335,6 +1349,34 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             return;
         }
         this.renderOpacity = renderOpacity;
+    }
+
+    public double getRenderBrightness() {
+        return renderBrightness;
+    }
+
+    /**
+     * Scales RGB channels of the rendered graphic by this factor. 1.0 = normal, 0.0 = black, >1.0 = brighter.
+     * No overhead when at the default value of 1.0.
+     * @param renderBrightness multiplier for RGB channels; clamped to >= 0
+     */
+    public void setRenderBrightness(double renderBrightness) {
+        this.renderBrightness = Math.max(0.0, renderBrightness);
+    }
+
+    public double getRenderScale() {
+        return renderScale;
+    }
+
+    /**
+     * Scales the rendered image by this factor without affecting the object's actual scale, hitbox, or
+     * any game logic. Unlike setScale(), this is purely visual — safe to animate frequently (e.g. spawn
+     * pop, hit-flash, bounce) without altering collision geometry or getWidth()/getHeight().
+     * 1.0 = normal size. No overhead when at the default value of 1.0.
+     * @param renderScale size multiplier; clamped to >= 0
+     */
+    public void setRenderScale(double renderScale) {
+        this.renderScale = Math.max(0.0, renderScale);
     }
     
     public boolean hasVelocity() {

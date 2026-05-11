@@ -30,6 +30,8 @@ public class SoundEffect implements Runnable{
     private volatile AudioInputStream stream;//stream connected to source
     private volatile Clip clip;              //clip used to control most things
     private volatile FloatControl gainControl;//used to control volueme
+    private volatile FloatControl rateControl;//used to control pitch via sample rate
+    private volatile float baseSampleRate = -1f;//base sample rate captured at init
     private volatile boolean disabled = false;//disabling makes this sound terminate
     private volatile boolean hasStarted = false;
     private volatile boolean paused = false;    //paused directly
@@ -76,6 +78,12 @@ public class SoundEffect implements Runnable{
             clip = AudioSystem.getClip();
             clip.open(stream);
             gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            try {
+                rateControl = (FloatControl) clip.getControl(FloatControl.Type.SAMPLE_RATE);
+                baseSampleRate = rateControl.getValue();
+            } catch (IllegalArgumentException e) {
+                // SAMPLE_RATE not supported by this audio line — pitch control unavailable
+            }
         } catch (UnsupportedAudioFileException e) {
             e.printStackTrace();
             throw new RuntimeException("ERROR File " + f.getName() + " is not supported. Remeber to use only supported filetypes \n .au .wav .aiff are good choices");
@@ -218,6 +226,31 @@ public class SoundEffect implements Runnable{
         return (current - min) / range;
     }
     
+    /**
+     * Adjusts the pitch of this sound by a percentage relative to its original pitch.
+     * Uses sample rate manipulation — higher rate raises pitch, lower rate lowers it.
+     * @param percentChange amount to shift pitch: 0.1 = +10%, -0.1 = -10%, 0.0 = original
+     */
+    public void alterPitch(double percentChange) {
+        if (rateControl == null || baseSampleRate < 0) {
+            System.out.println("Pitch control not supported for: " + source.getName());
+            return;
+        }
+        float newRate = baseSampleRate * (float)(1.0 + percentChange);
+        newRate = Math.max(rateControl.getMinimum(), Math.min(rateControl.getMaximum(), newRate));
+        rateControl.setValue(newRate);
+        if (listener != null) listener.onAlterPitch(percentChange);
+    }
+
+    /**
+     * Returns the current pitch offset as a percentage from the original.
+     * 0.0 = original, 0.1 = +10%, -0.1 = -10%
+     */
+    public double getPitch() {
+        if (rateControl == null || baseSampleRate < 0) return 0.0;
+        return (rateControl.getValue() / baseSampleRate) - 1.0;
+    }
+
     /**
      *Pauses the current audio in place.
      * Note that this disables looping so if you want to continue looping after
@@ -405,7 +438,9 @@ public class SoundEffect implements Runnable{
      * @return A fresh SoundEffect of the same source
      */
     public SoundEffect createCopy(){
-        return new SoundEffect(source, this);
+        SoundEffect copy = new SoundEffect(source, this);
+        copy.alterPitch(this.getPitch());
+        return copy;
     }
     
     public void playCopy() {
@@ -482,15 +517,9 @@ public class SoundEffect implements Runnable{
         SoundEffect copy = createCopy();
         int pitchRange = (int) Math.round(8 * intensity);
         int volRange   = (int) Math.round(5 * intensity);
-        try {
-            FloatControl rateControl = (FloatControl) copy.clip.getControl(FloatControl.Type.SAMPLE_RATE);
-            float base = rateControl.getValue();
-            float variation = (pitchRange > 0 ? Main.generateRandomInt(-pitchRange, pitchRange) : 0) / 100f;
-            float newRate = base * (1f + variation);
-            newRate = Math.max(rateControl.getMinimum(), Math.min(rateControl.getMaximum(), newRate));
-            rateControl.setValue(newRate);
-        } catch (IllegalArgumentException e) {
-            // SAMPLE_RATE not supported by this audio line — pitch unchanged
+        if (pitchRange > 0) {
+            double variation = Main.generateRandomInt(-pitchRange, pitchRange) / 100.0;
+            copy.alterPitch(copy.getPitch() + variation);
         }
         float volVariation = (volRange > 0 ? Main.generateRandomInt(-volRange, volRange) : 0) / 100f;
         float newVol = Math.max(0f, Math.min(1f, copy.getVolume() + volVariation));

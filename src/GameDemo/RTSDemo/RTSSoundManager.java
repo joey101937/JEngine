@@ -56,6 +56,7 @@ public class RTSSoundManager {
                 helicopterAttackBase.createAlteredCopy(3.0)
         ), 4, Main.ticksPerSecond);
         SoundEffect lightTankAttackBase = new SoundEffect(new File(Main.assets + "Sounds/armoredCarShooting5.wav"));
+        lightTankAttackBase.alterPitch(-10);
         csm.registerSoundEffect(LIGHT_TANK_ATTACK, List.of(
                 lightTankAttackBase,
                 lightTankAttackBase.createAlteredCopy(3.0),

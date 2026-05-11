@@ -19,4 +19,5 @@ public interface SoundEffectListener {
     public void onDisable();
     public void onRestart();
     public void onSetVolume(float percentage);
+    public void onAlterPitch(double percentChange);
 }

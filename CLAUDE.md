@@ -65,7 +65,7 @@ Key performance settings in `Main.java`:
 
 ### Determinism for Multiplayer (RTS Demo)
 - Use `Handler.TickType.modular` for deterministic execution
-- Use only random generators that accept a seed (see Main class)
+- Use only random generators that accept a seed or generateDeterministicRandomInt (see Main class)
 - Do not use an individual game object's tickNumber rather use getHostGame().getGameTickNumber() as objects can be added on different ticks
 - Do not reference Main.ticksPerSecond because that could change between machines. Use desired ticks per second from RTSGame class
 
