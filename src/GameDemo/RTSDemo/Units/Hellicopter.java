@@ -26,7 +26,7 @@ import java.util.ArrayList;
  */
 public class Hellicopter extends RTSUnit {
 
-    public static final double VISUAL_SCALE = .24;
+    public static final double VISUAL_SCALE = .32;
 
     public static volatile Sprite baseSprite = null;
     public static volatile Sprite baseSpriteRed = null;
