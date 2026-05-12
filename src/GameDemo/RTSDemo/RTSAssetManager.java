@@ -30,6 +30,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage bullet, bullet2;
     public static BufferedImage grassBG, grassBGDark, rtsPathing;
     public static BufferedImage hellicopter, hellicopterRed;
+    public static BufferedImage hellicopterBlades, hellicopterBladesRed;
     public static BufferedImage hellicopterShadow;
     public static BufferedImage hellicopterDestroyed, hellicopterDestroyedRed;
     public static BufferedImage[] hellicopterAttack, hellicopterAttackRed;
@@ -179,13 +180,15 @@ public abstract class RTSAssetManager {
 
     private static CompletableFuture<Void> loadHelicopterAssets() {
         return CompletableFuture.runAsync(() -> {
-            hellicopter = load("DemoAssets/TankGame/copter/base.png");
-            hellicopterRed = blueToRed(hellicopter);
+            hellicopter = load("DemoAssets/TankGame/copter/newChopperFrames/frame_cleaned_2.png");
+            hellicopterRed = greenToRed(hellicopter);
             hellicopterDestroyed = load("DemoAssets/TankGame/copter/hellicopterDestroyed.png");
             hellicopterDestroyedRed = blueToRed(hellicopterDestroyed);
             hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
             hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/fire");
             hellicopterAttackRed = blueToRed(hellicopterAttack);
+            hellicopterBlades = load("DemoAssets/TankGame/copter/newChopperFrames/blades.png");
+            hellicopterBladesRed = greenToRed(hellicopterBlades);
             missile = load("DemoAssets/TankGame/missile.png");
             missileShadow = load("DemoAssets/TankGame/missileShadow.png");
             yellowMissile = load("DemoAssets/TankGame/yellowMissile.png");

@@ -26,21 +26,51 @@ import java.util.ArrayList;
  */
 public class Hellicopter extends RTSUnit {
 
-    public static final double VISUAL_SCALE = 1.05;
+    public static final double VISUAL_SCALE = .24;
 
-    public static final Sprite baseSprite = new Sprite(RTSAssetManager.hellicopter);
-    public static final Sprite destroyedSprite = new Sprite(RTSAssetManager.hellicopterDestroyed);
-    public static final Sprite destroyedSpriteRed = new Sprite(RTSAssetManager.hellicopterDestroyedRed);
-    public static final Sprite shadowSprite = new Sprite(RTSAssetManager.hellicopterShadow);
-    public static final Sequence attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
+    public static volatile Sprite baseSprite = null;
+    public static volatile Sprite baseSpriteRed = null;
+    public static volatile Sprite destroyedSprite = null;
+    public static volatile Sprite destroyedSpriteRed = null;
+    public static volatile Sprite shadowSprite = null;
+    public static volatile Sequence attackSequence = null;
+    public static volatile Sequence attackSequenceRed = null;
+    public static volatile Sprite bladesSprite = null;
+    public static volatile Sprite bladesSpriteRed = null;
 
-    public static final Sprite baseSpriteRed = new Sprite(RTSAssetManager.hellicopterRed);
-    public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.hellicopterAttackRed, "helliAttackRed");
+    static {
+        initGraphics();
+    }
+
+    public static void initGraphics() {
+        if (baseSprite != null) {
+            return;
+        }
+        baseSprite = new Sprite(RTSAssetManager.hellicopter);
+        baseSpriteRed = new Sprite(RTSAssetManager.hellicopterRed);
+        destroyedSprite = new Sprite(RTSAssetManager.hellicopterDestroyed);
+        destroyedSpriteRed = new Sprite(RTSAssetManager.hellicopterDestroyedRed);
+        shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.hellicopter, .7);
+        shadowSprite.scaleTo(VISUAL_SCALE);
+        shadowSprite.applyAlphaEdgeBlurSelf(4);
+        attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
+        attackSequenceRed = new Sequence(RTSAssetManager.hellicopterAttackRed, "helliAttackRed");
+        bladesSprite = new Sprite(RTSAssetManager.hellicopterBlades);
+        bladesSpriteRed = new Sprite(RTSAssetManager.hellicopterBladesRed);
+        // blades are rendered manually so need explicit scaling
+        bladesSprite.scaleTo(VISUAL_SCALE);
+        bladesSpriteRed.scaleTo(VISUAL_SCALE);
+        baseSprite.applyAlphaEdgeBlurSelf(2);
+        baseSpriteRed.applyAlphaEdgeBlurSelf(2);
+        bladesSprite.applyAlphaEdgeBlurSelf(2);
+        bladesSpriteRed.applyAlphaEdgeBlurSelf(2);
+    }
 
     public HellicopterTurret turret;
     public long lastFireTick = 0;
     public int attackInterval = RTSGame.desiredTPS * 2;
-    public int elevation = 99;
+    public int elevation = 149;
+    private double hullRotationSpeed = 0.0;
     public long scheduledDestructionAtTick = 0;
     public long pendingBulletSpawnAtTick = 0;
     public RTSUnit pendingBulletTarget = null;
@@ -53,15 +83,56 @@ public class Hellicopter extends RTSUnit {
         this.plane = 2;
         this.isSolid = true;
         this.setBaseSpeed(RTSGame.tickAdjust(4.5));
+        this.rotationSpeed = RTSGame.tickAdjust(3.2);
         turret = new HellicopterTurret(new Coordinate(0, 0));
         this.addSubObject(turret);
         this.canAttackAir = true;
         this.pathingModifiers.put(PathingLayer.Type.water, 1.0);
+        this.setRenderBrightness(1.25);
     }
 
     @Override
     public void setHostGame(Framework.Game g) {
         super.setHostGame(g);
+    }
+
+    @Override
+    protected double getEffectiveRotationSpeed(double desiredRotation) {
+        double angle = Math.abs(desiredRotation);
+        return rotationSpeed * Math.max(0.1, Math.min(1.0, angle / 30.0));
+    }
+
+    @Override
+    protected void applyHullRotation(double desiredRotation) {
+        double maxSpeed = getEffectiveRotationSpeed(desiredRotation);
+        final double accel = RTSGame.tickAdjust(0.18);
+        double targetSpeed = Math.abs(desiredRotation) < 0.01 ? 0.0 : Math.copySign(maxSpeed, desiredRotation);
+
+        if (hullRotationSpeed < targetSpeed) {
+            hullRotationSpeed = Math.min(hullRotationSpeed + accel, targetSpeed);
+        } else if (hullRotationSpeed > targetSpeed) {
+            hullRotationSpeed = Math.max(hullRotationSpeed - accel, targetSpeed);
+        }
+
+        if (Math.abs(desiredRotation) <= Math.abs(hullRotationSpeed)) {
+            rotate(desiredRotation);
+            hullRotationSpeed = 0;
+        } else {
+            rotate(hullRotationSpeed);
+        }
+    }
+
+    @Override
+    public double getSpeed() {
+        Coordinate nextWaypoint = getNextWaypoint();
+        if (nextWaypoint == null || isCloseEnoughToDesired()) {
+            return super.getSpeed();
+        }
+        double angle = Math.abs(rotationNeededToFace(nextWaypoint));
+        // stops at 90°; raise numerator/denominator together to start moving at wider angles
+        // denominator controls how quickly speed ramps up as angle closes (lower = sharper ramp)
+        double angleFactor = Math.max(0.0, Math.min(1.0, (160 - angle) / 160));
+        return super.getSpeed() * angleFactor;
     }
 
     @Override
@@ -87,7 +158,7 @@ public class Hellicopter extends RTSUnit {
         if (isRubble) {
             return super.getWidth() / 2;
         } else {
-            return super.getWidth();
+            return super.getWidth()/2;
         }
     }
 
@@ -96,7 +167,7 @@ public class Hellicopter extends RTSUnit {
         if (isRubble) {
             return super.getHeight() / 2;
         } else {
-            return super.getHeight();
+            return super.getHeight()/2;
         }
     }
 
@@ -234,6 +305,20 @@ public class Hellicopter extends RTSUnit {
             if (!isRubble) {
                 updateLocationForBob();
                 updateRotation();
+            }
+        }
+
+        @Override
+        public void render(Graphics2D g) {
+            super.render(g);
+            if (!isRubble) {
+                double bladesAngle = (System.currentTimeMillis() * 2160.0 / 1000.0) % 360;
+                Coordinate renderLoc = getRenderLocation();
+                VolatileImage bladesImg = (team == 0 ? bladesSprite : bladesSpriteRed).getCurrentVolatileImage();
+                AffineTransform old = g.getTransform();
+                g.rotate(Math.toRadians(bladesAngle), renderLoc.x, renderLoc.y);
+                g.drawImage(bladesImg, renderLoc.x - bladesImg.getWidth() / 2, renderLoc.y - bladesImg.getHeight() / 2, null);
+                g.setTransform(old);
             }
         }
 
