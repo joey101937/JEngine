@@ -30,6 +30,7 @@ import java.util.Set;
  * @author Joseph
  */
 public class TankBullet extends Projectile {
+    public static final double VISUAL_SCALE = .3;
     public static Damage staticDamage = new Damage(46);
     public Damage damage = staticDamage.copy();
     public GameObject2 shooter; //the object that launched this projectile
@@ -37,7 +38,7 @@ public class TankBullet extends Projectile {
     
     public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet}, "tankBulletGraphic");
     public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallTank");
-    public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.bullet, .3);
+    public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.bullet, .34);
     private DCoordinate startPosition;
     public String preferredTargetId = null;
     private final Set<String> ignoredUnitIds = new HashSet<>();
@@ -45,9 +46,9 @@ public class TankBullet extends Projectile {
     public TankBullet(DCoordinate start, DCoordinate end, String preferredTargetId) {
         super(start, end);
         this.preferredTargetId = preferredTargetId;
-        bulletGraphic.scaleTo(.2); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
-        shadow.scaleTo(.2);
-        setScale(.2);
+        bulletGraphic.scaleTo(VISUAL_SCALE); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
+        shadow.scaleTo(VISUAL_SCALE);
+        setScale(VISUAL_SCALE);
         this.setGraphic(bulletGraphic.copyMaintainSource());
         baseSpeed = RTSGame.tickAdjust(26.0);
         this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default

@@ -318,6 +318,7 @@ public class TankUnit extends RTSUnit {
         this.baseSpeed = speed;
         initializeButtons();
         this.rotationSpeed = RTSGame.tickAdjust(1.4);
+        this.setRenderBrightness(.9);
     }
 
     private void initializeButtons() {

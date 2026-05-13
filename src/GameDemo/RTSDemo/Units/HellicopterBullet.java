@@ -23,11 +23,12 @@ import java.awt.image.VolatileImage;
  * @author guydu
  */
 public class HellicopterBullet extends Projectile {
+    public static final double VISUAL_SCALE = .36;
     
     public static Damage staticDamage = new Damage(0, 10);
 
-    public static final Sprite missileSprite = new Sprite(RTSAssetManager.yellowMissile);
-    public static final Sprite shadowSprite = new Sprite(RTSAssetManager.yellowMissileShadow);
+    public static final Sprite missileSprite = new Sprite(RTSAssetManager.missile);
+    public static final Sprite shadowSprite = new Sprite(RTSAssetManager.missileShadow);
     public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallHeli");
     
     public Damage damage = staticDamage.copy();
@@ -48,7 +49,7 @@ public class HellicopterBullet extends Projectile {
     public double accellerationStage;
 
     static {
-        shadowSprite.scaleTo(.12);
+        shadowSprite.scaleTo(VISUAL_SCALE);
     }
 
     public HellicopterBullet(RTSUnit shooter, Coordinate startingLocation, RTSUnit other) {
@@ -59,7 +60,7 @@ public class HellicopterBullet extends Projectile {
         damage.source = shooter;
         damage.launchLocation = startingLocation;
         this.target = other;
-        this.setScale(.12);
+        this.setScale(VISUAL_SCALE);
         this.setGraphic(missileSprite);
         int shortestSide = Math.min(other.getWidth(), other.getHeight());
         double offsetX = Main.generateRandomDoubleFromSeed(-shortestSide/2, shortestSide / 2, getHostGame().getGameTickNumber() + (int)getLocation().x + (int)getLocation().y); // Main.generateRandomInt(-shortestSide / 2, shortestSide / 2);
@@ -69,7 +70,7 @@ public class HellicopterBullet extends Projectile {
 
         DCoordinate randomOffset = new DCoordinate(offsetX, offsetY);
         this.launch(other.getLocation().copy().add(randomOffset));
-        shadowSprite.scaleTo(.12);
+        shadowSprite.scaleTo(VISUAL_SCALE);
         this.initialDistance = distanceFrom(other);
         explosionSmall.scaleTo(.85);
         minSpeed = Main.generateRandomDoubleFromSeed(3, 5, getHostGame().getGameTickNumber() + getPixelLocation().x + getPixelLocation().y); // 4; // Main.generateRandomInt(3, 5);

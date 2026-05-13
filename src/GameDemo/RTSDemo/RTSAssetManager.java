@@ -180,7 +180,7 @@ public abstract class RTSAssetManager {
 
     private static CompletableFuture<Void> loadHelicopterAssets() {
         return CompletableFuture.runAsync(() -> {
-            hellicopter = load("DemoAssets/TankGame/copter/newChopperFrames/newChopper2Cleaned.png");
+            hellicopter = load("DemoAssets/TankGame/copter/newChopperFrames/newChopper3Cleaned.png");
             hellicopterRed = greenToRed(hellicopter);
             hellicopterDestroyed = load("DemoAssets/TankGame/copter/hellicopterDestroyed.png");
             hellicopterDestroyedRed = blueToRed(hellicopterDestroyed);
@@ -189,7 +189,7 @@ public abstract class RTSAssetManager {
             hellicopterAttackRed = blueToRed(hellicopterAttack);
             hellicopterBlades = load("DemoAssets/TankGame/copter/newChopperFrames/blades.png");
             hellicopterBladesRed = greenToRed(hellicopterBlades);
-            missile = load("DemoAssets/TankGame/missile.png");
+            missile = load("DemoAssets/TankGame/copter/newMissile.png");
             missileShadow = load("DemoAssets/TankGame/missileShadow.png");
             yellowMissile = load("DemoAssets/TankGame/yellowMissile.png");
             yellowMissileShadow = load("DemoAssets/TankGame/yellowMissileShadow.png");
