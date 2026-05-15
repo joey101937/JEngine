@@ -844,6 +844,6 @@ public class RTSUnit extends GameObject2 {
      * @return 0-100
      */
     public int getDodgeChance() {
-        return 0;
+        return isRubble ? 25 : 0;
     }
 }

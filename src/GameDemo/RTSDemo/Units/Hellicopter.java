@@ -26,7 +26,7 @@ import java.util.ArrayList;
  */
 public class Hellicopter extends RTSUnit {
 
-    public static final double VISUAL_SCALE = .36;
+    public static final double VISUAL_SCALE = .34;
 
     public static volatile Sprite baseSprite = null;
     public static volatile Sprite baseSpriteRed = null;
@@ -64,6 +64,8 @@ public class Hellicopter extends RTSUnit {
         baseSpriteRed.applyAlphaEdgeBlurSelf(2);
         bladesSprite.applyAlphaEdgeBlurSelf(2);
         bladesSpriteRed.applyAlphaEdgeBlurSelf(2);
+        attackSequence.setFrameDelay(40);
+        attackSequenceRed.setFrameDelay(40);
     }
 
     public HellicopterTurret turret;

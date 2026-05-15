@@ -43,8 +43,8 @@ public class HellicopterBullet extends Projectile {
     public long tickToDestroy = -1;
     public boolean hasCollided = false;
 
-    public int maxSpeed = RTSGame.tickAdjust(14);
-    public double minSpeed = RTSGame.tickAdjust(4.4);
+    public int maxSpeed = RTSGame.tickAdjust(19);
+    public double minSpeed = RTSGame.tickAdjust(6);
     public double accellerationTime = RTSGame.desiredTPS * .7;
     public double accellerationStage;
 
@@ -73,8 +73,8 @@ public class HellicopterBullet extends Projectile {
         shadowSprite.scaleTo(VISUAL_SCALE);
         this.initialDistance = distanceFrom(other);
         explosionSmall.scaleTo(.85);
-        minSpeed = Main.generateRandomDoubleFromSeed(3, 5, getHostGame().getGameTickNumber() + getPixelLocation().x + getPixelLocation().y); // 4; // Main.generateRandomInt(3, 5);
-        maxSpeed = Main.generateRandomIntFromSeed(14,18, getHostGame().getGameTickNumber() + (int)getLocation().x + (int)getLocation().y); // 16; // Main.generateRandomInt(14, 18);
+        minSpeed = Main.generateRandomDoubleFromSeed(5, 7, getHostGame().getGameTickNumber() + getPixelLocation().x + getPixelLocation().y); // 4; // Main.generateRandomInt(3, 5);
+        maxSpeed = Main.generateRandomIntFromSeed(17,20, getHostGame().getGameTickNumber() + (int)getLocation().x + (int)getLocation().y); // 16; // Main.generateRandomInt(14, 18);
         if (plane == 1) {
             maxRange = 750;
         } else {
