@@ -104,8 +104,8 @@ public class InfoPanelEffect extends IndependentEffect {
 
         if (!selectedUnits.isEmpty()) {
             BufferedImage selectionImage = mainUnit.getSelectionImage();
-            g.drawImage(selectionImage, x + 5, y + 15, null);
-            int imageWidth = selectionImage != null ? selectionImage.getWidth() : 0;
+            g.drawImage(selectionImage, x + 5, y + 15, 100, 100, null);
+            int imageWidth = selectionImage != null ? 100 : 0;
             g.setFont(titleFont);
             g.setColor(Color.BLACK);
             g.drawString(mainUnit.getName(), x + imageWidth + 15, y + 40);
