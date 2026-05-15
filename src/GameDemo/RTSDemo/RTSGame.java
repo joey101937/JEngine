@@ -16,6 +16,7 @@ import GameDemo.RTSDemo.Commands.CommandHandler;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementHandler;
+import GameDemo.RTSDemo.Units.Apache;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.LightTank;
@@ -123,9 +124,9 @@ public class RTSGame {
     private static void spawnTestHeli() {
         int spacer = 160;
         int lineLength = 6; // units = this x 10
-        
+
          for (int i = 0; i < lineLength; i++) {
-            Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
+            Apache heli = new Apache(100 + (i * spacer), 100, 0);
             heli.setRotation(180);
             game.addObject(heli);
         }
@@ -153,7 +154,7 @@ public class RTSGame {
         int lineLength = 40; // units = this x 10
         
          for (int i = 0; i < lineLength; i++) {
-            Hellicopter heli = new Hellicopter(100 + (i * spacer), 100, 0);
+            Apache heli = new Apache(100 + (i * spacer), 100, 0);
             heli.setRotation(180);
             game.addObject(heli);
         }
@@ -196,7 +197,7 @@ public class RTSGame {
             game.addObject(new LightTank(100 + (i * spacer), 2150, 1));
         }
         for (int i = 0; i < lineLength; i++) {
-            game.addObject(new Hellicopter(100 + (i * spacer), 2300, 1));
+            game.addObject(new Apache(100 + (i * spacer), 2300, 1));
         }
     }
     

@@ -3,6 +3,7 @@ package GameDemo.RTSDemo;
 import static Framework.GraphicalAssets.Graphic.load;
 import static Framework.GraphicalAssets.Graphic.loadSequence;
 import GameDemo.RTSDemo.Units.Bazookaman;
+import GameDemo.RTSDemo.Units.Apache;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
@@ -304,6 +305,7 @@ public abstract class RTSAssetManager {
         new Rifleman(0, 0, 0);
         new Bazookaman(0, 0, 0);
         new Hellicopter(0, 0, 0);
+        new Apache(0, 0, 0);
         new Landmine(0, 0, 0);
         new Truck(0,0,0);
         RTSUnitIdHelper.reset();

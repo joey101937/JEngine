@@ -139,6 +139,11 @@ public class Landmine extends RTSUnit {
     }
 
     @Override
+    public java.awt.image.BufferedImage getSelectionImage() {
+        return RTSAssetManager.landmineSelectionImage;
+    }
+
+    @Override
     public ArrayList<String> getInfoLines() {
         ArrayList<String> out = new ArrayList<>();
         out.add("Blows up when enemy units walk over it, dealing 30 dmg");

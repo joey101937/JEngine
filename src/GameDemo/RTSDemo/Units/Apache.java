@@ -19,12 +19,12 @@ import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 
 /**
- * the hellicopter itself is invisible, instead we render the subobject to
- * simply movement and rotation
+ * the apache itself is invisible, instead we render the subobject to
+ * simplify movement and rotation
  *
  * @author guydu
  */
-public class Hellicopter extends RTSUnit {
+public class Apache extends RTSUnit {
 
     public static final double VISUAL_SCALE = .34;
 
@@ -68,7 +68,7 @@ public class Hellicopter extends RTSUnit {
         attackSequenceRed.setFrameDelay(40);
     }
 
-    public HellicopterTurret turret;
+    public ApacheTurret turret;
     public long lastFireTick = 0;
     public int attackInterval = RTSGame.desiredTPS * 2;
     public int elevation = 149;
@@ -77,7 +77,7 @@ public class Hellicopter extends RTSUnit {
     public long pendingBulletSpawnAtTick = 0;
     public RTSUnit pendingBulletTarget = null;
 
-    public Hellicopter(int x, int y, int team) {
+    public Apache(int x, int y, int team) {
         super(x, y, team);
         this.setScale(VISUAL_SCALE);
         this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
@@ -86,7 +86,7 @@ public class Hellicopter extends RTSUnit {
         this.isSolid = true;
         this.setBaseSpeed(RTSGame.tickAdjust(4.5));
         this.rotationSpeed = RTSGame.tickAdjust(3.2);
-        turret = new HellicopterTurret(new Coordinate(0, 0));
+        turret = new ApacheTurret(new Coordinate(0, 0));
         this.addSubObject(turret);
         this.canAttackAir = true;
         this.pathingModifiers.put(PathingLayer.Type.water, 1.0);
@@ -152,7 +152,7 @@ public class Hellicopter extends RTSUnit {
                 turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
             }
         }
-       
+
     }
 
     @Override
@@ -268,7 +268,7 @@ public class Hellicopter extends RTSUnit {
         if (isSelected() && !isRubble) {
             drawHealthBar(g);
         }
-        
+
          if(ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
             g.setColor(Color.ORANGE);
             g.fillOval(getRenderLocation().x-getWidth()/2, getPixelLocation().y-getHeight()/2, getWidth()/2, getHeight()/2);
@@ -286,12 +286,12 @@ public class Hellicopter extends RTSUnit {
         this.setSelected(false);
     }
 
-    public class HellicopterTurret extends SubObject {
+    public class ApacheTurret extends SubObject {
 
         private int bobOffset = -1;
         private final double bobAmount = 8;
 
-        public HellicopterTurret(Coordinate offset) {
+        public ApacheTurret(Coordinate offset) {
             super(offset);
             this.setScale(VISUAL_SCALE);
             this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
@@ -349,7 +349,7 @@ public class Hellicopter extends RTSUnit {
         }
 
         private void updateRotation() {
-            Hellicopter host = (Hellicopter) getHost();
+            Apache host = (Apache) getHost();
             double desiredRotationAmount = this.getHost().getRotation() - getRotation();
             double maxRotation = RTSGame.tickAdjust(5);
 

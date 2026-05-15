@@ -85,12 +85,12 @@ Extend `GameObject2` and override:
 4. Add GameObjects via `game.addObject()`
 5. Switch scenes via `Window.setCurrentGame()`
 
-### Audio Integration
-- Use `ConcurrentSoundManager` for multiple concurrent sounds
-- Link sounds to games via `game.audioManager` for pause-aware playback
-- Support for `.au` files primarily
-
 ### Pathfinding System
 The RTS demo includes a comprehensive pathfinding system:
 - `NavigationManager`: A* pathfinding implementation
 - `TerrainTileMap`: Tile-based movement constraints
+
+## Adding new RTS Units
+All RTS units must have deterministic game logic
+Make sure they are added to the RTSAssetManager preloadUnits function
+Make sure InfoPanelEffect is updated

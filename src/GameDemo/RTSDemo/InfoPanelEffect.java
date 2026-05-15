@@ -29,7 +29,6 @@ public class InfoPanelEffect extends IndependentEffect {
     private static final Color borderLight = new Color(200, 200, 200);
     private static final Color cooldownColor = new Color(0, 0, 0, 128); // Semi-transparent black
     private static final ColorSpace GRAYSCALE_COLORSPACE = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-    private static HashMap<String, BufferedImage> unitNameImageMap = new HashMap<>();
     private static HashMap<Class<? extends CommandButton>, BufferedImage> brightenedButtonCache = new HashMap<>();
     private static HashMap<Class<? extends CommandButton>, BufferedImage> grayscaleButtonCache = new HashMap<>();
 
@@ -39,6 +38,7 @@ public class InfoPanelEffect extends IndependentEffect {
     private transient RTSUnit mainUnit = null;
     private transient ArrayList<RTSUnit> selectedUnits = new ArrayList<>();
     transient HashMap<String, Integer> unitCountMap = new HashMap<>();
+    transient HashMap<String, RTSUnit> unitRepresentativeMap = new HashMap<>();
 
     public InfoPanelEffect(Game game, int x, int y, int width, int height) {
         this.hostGame = game;
@@ -46,7 +46,6 @@ public class InfoPanelEffect extends IndependentEffect {
         this.baseY = y;
         this.width = width;
         this.height = height;
-        populateUnitNameImageMap();
         this.tooltipHelper = new TooltipHelper(game, this);
     }
 
@@ -57,6 +56,7 @@ public class InfoPanelEffect extends IndependentEffect {
         this.tooltipHelper = new TooltipHelper(game, this);
         this.selectedUnits = new ArrayList<>();
         this.unitCountMap = new HashMap<>();
+        this.unitRepresentativeMap = new HashMap<>();
         this.mainUnit = null;
 
         // Update static reference so other code uses the new deserialized instance
@@ -70,24 +70,16 @@ public class InfoPanelEffect extends IndependentEffect {
         this.baseY = game.getWindowHeight() - 200;
     }
 
-    private static void populateUnitNameImageMap() {
-        if (unitNameImageMap.isEmpty()) {
-            unitNameImageMap.put("TankUnit", RTSAssetManager.tankSelectionImage);
-            unitNameImageMap.put("LightTank", RTSAssetManager.lightTankSelectionImage);
-            unitNameImageMap.put("Bazookaman", RTSAssetManager.bazookamanSelectionImage);
-            unitNameImageMap.put("Rifleman", RTSAssetManager.riflemanSelectionImage);
-            unitNameImageMap.put("Hellicopter", RTSAssetManager.hellicopterSelectionImage);
-            unitNameImageMap.put("Landmine", RTSAssetManager.landmineSelectionImage);
-            unitNameImageMap.put("Truck", RTSAssetManager.landmineSelectionImage);
-        }
-    }
-    
     private synchronized void updateSelectedUnits () {
         selectedUnits = new ArrayList<>(SelectionBoxEffect.selectedUnits.stream().filter(
                 u -> !u.isRubble && u.isAlive() && (!ExternalCommunicator.isMultiplayer || u.team == ExternalCommunicator.localTeam)).toList()
         );
         unitCountMap.clear();
-        selectedUnits.forEach(unit -> unitCountMap.put(unit.getName(), unitCountMap.getOrDefault(unit.getName(), 0) + 1));
+        unitRepresentativeMap.clear();
+        selectedUnits.forEach(unit -> {
+            unitCountMap.put(unit.getName(), unitCountMap.getOrDefault(unit.getName(), 0) + 1);
+            unitRepresentativeMap.putIfAbsent(unit.getName(), unit);
+        });
         mainUnit = null;
         if (!selectedUnits.isEmpty()) {
             mainUnit = selectedUnits.get(0);
@@ -111,8 +103,9 @@ public class InfoPanelEffect extends IndependentEffect {
         drawGradientBorder(g, x, y, width, height);
 
         if (!selectedUnits.isEmpty()) {
-            g.drawImage(unitNameImageMap.get(mainUnit.getName()), x + 5, y + 15, null);
-            int imageWidth = unitNameImageMap.get(mainUnit.getName()).getWidth();
+            BufferedImage selectionImage = mainUnit.getSelectionImage();
+            g.drawImage(selectionImage, x + 5, y + 15, null);
+            int imageWidth = selectionImage != null ? selectionImage.getWidth() : 0;
             g.setFont(titleFont);
             g.setColor(Color.BLACK);
             g.drawString(mainUnit.getName(), x + imageWidth + 15, y + 40);
@@ -157,8 +150,10 @@ public class InfoPanelEffect extends IndependentEffect {
         }
         g.setFont(infoLinesFont);
         int gradualHeight = 0;
+        BufferedImage img = unit.getSelectionImage();
+        int imgWidth = img != null ? img.getWidth() : 0;
         for (String s : unit.getInfoLines()) {
-            g.drawString(s, x + unitNameImageMap.get(unit.getName()).getWidth() + 15, y + 90 + gradualHeight);
+            g.drawString(s, x + imgWidth + 15, y + 90 + gradualHeight);
             gradualHeight += 20;
         }
     }
@@ -167,7 +162,8 @@ public class InfoPanelEffect extends IndependentEffect {
         int gradualWidth = 0;
         g.setFont(otherCountFont);
         for (String unitName : nameCountMap.keySet()) {
-            var image = unitNameImageMap.get(unitName);
+            RTSUnit rep = unitRepresentativeMap.get(unitName);
+            BufferedImage image = rep != null ? rep.getSelectionImage() : null;
             int imageWidth = 60;
             int imageHeight = 60;
             g.drawImage(image, x + gradualWidth, y + height - imageHeight, imageWidth, imageHeight, null);

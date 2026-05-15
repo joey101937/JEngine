@@ -176,4 +176,9 @@ public class Truck extends RTSUnit {
         return (int) (hullSprite.getHeight() * VISUAL_SCALE);
     }
 
+    @Override
+    public java.awt.image.BufferedImage getSelectionImage() {
+        return GameDemo.RTSDemo.RTSAssetManager.landmineSelectionImage;
+    }
+
 }

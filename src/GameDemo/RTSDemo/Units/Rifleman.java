@@ -328,6 +328,11 @@ public class Rifleman extends RTSUnit {
     }
     
     @Override
+    public java.awt.image.BufferedImage getSelectionImage() {
+        return RTSAssetManager.riflemanSelectionImage;
+    }
+
+    @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
         out.add("Dmg: " + damage + "    Interval: " + attackFrequency+"s    Range: "+ range);

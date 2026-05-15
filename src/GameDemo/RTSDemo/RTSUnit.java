@@ -405,6 +405,10 @@ public class RTSUnit extends GameObject2 {
         return s[s.length - 1];
     }
 
+    public java.awt.image.BufferedImage getSelectionImage() {
+        return null;
+    }
+
     // placeholder
     public ArrayList<String> getInfoLines() {
         return new ArrayList<>();

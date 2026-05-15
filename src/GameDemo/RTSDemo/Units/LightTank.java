@@ -391,6 +391,11 @@ public class LightTank extends RTSUnit {
     }
 
     @Override
+    public java.awt.image.BufferedImage getSelectionImage() {
+        return RTSAssetManager.lightTankSelectionImage;
+    }
+
+    @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
         out.add("Dmg: " + LightTankBullet.staticDamage + "    Interval: " + LIGHT_TANK_ATTACK_INTERVAL + "s    Range: " + range);

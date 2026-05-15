@@ -322,6 +322,11 @@ public class Bazookaman extends RTSUnit {
     }
 
     @Override
+    public java.awt.image.BufferedImage getSelectionImage() {
+        return RTSAssetManager.bazookamanSelectionImage;
+    }
+
+    @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
         out.add("Dmg: " + BazookaBullet.staticDamage + "    Interval: " + attackInterval + "s    Range: " + range);
