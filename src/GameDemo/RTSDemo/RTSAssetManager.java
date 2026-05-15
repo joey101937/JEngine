@@ -35,6 +35,12 @@ public abstract class RTSAssetManager {
     public static BufferedImage hellicopterShadow;
     public static BufferedImage hellicopterDestroyed, hellicopterDestroyedRed;
     public static BufferedImage[] hellicopterAttack, hellicopterAttackRed;
+
+    public static BufferedImage apache, apacheRed;
+    public static BufferedImage apacheBlades, apacheBladesRed;
+    public static BufferedImage apacheShadow;
+    public static BufferedImage apacheDestroyed, apacheDestroyedRed;
+    public static BufferedImage[] apacheAttack, apacheAttackRed;
     public static BufferedImage missile, yellowMissile;
     public static BufferedImage missileShadow, yellowMissileShadow;
     public static BufferedImage tankDeadHull;
@@ -59,7 +65,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage infantryRifleDead, infantryRifleDeadRed;
     public static BufferedImage infantryBazookaDead, infantryBazookaDeadRed;
     public static BufferedImage infantryLegs, infantryShadow;
-    public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage;
+    public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage, apacheSelectionImage;
 
     public static BufferedImage building;
 
@@ -96,6 +102,7 @@ public abstract class RTSAssetManager {
                 loadExplosionAssets(),
                 loadTankAssets(),
                 loadHelicopterAssets(),
+                loadApacheAssets(),
                 loadLightTankAssets(),
                 loadInfantryAssets(),
                 loadLandmineAssets(),
@@ -197,6 +204,20 @@ public abstract class RTSAssetManager {
         }, executor);
     }
 
+    private static CompletableFuture<Void> loadApacheAssets() {
+        return CompletableFuture.runAsync(() -> {
+            apache = load("DemoAssets/TankGame/apache/newChopperFrames/newChopper3Cleaned.png");
+            apacheRed = greenToRed(apache);
+            apacheDestroyed = load("DemoAssets/TankGame/apache/apacheDestroyed.png");
+            apacheDestroyedRed = blueToRed(apacheDestroyed);
+            apacheShadow = load("DemoAssets/TankGame/apache/shadow.png");
+            apacheAttack = loadSequence("DemoAssets/TankGame/apache/newFire");
+            apacheAttackRed = greenToRed(apacheAttack);
+            apacheBlades = load("DemoAssets/TankGame/apache/newChopperFrames/blades.png");
+            apacheBladesRed = greenToRed(apacheBlades);
+        }, executor);
+    }
+
     private static CompletableFuture<Void> loadLightTankAssets() {
         return CompletableFuture.runAsync(() -> {
             lightTankHull = load("DemoAssets/TankGame/newLightTank/hull.png");
@@ -268,6 +289,7 @@ public abstract class RTSAssetManager {
             tankSelectionImage = load("DemoAssets/TankGame/tankSelectionImage.png");
             lightTankSelectionImage = load("DemoAssets/TankGame/newLightTank/selectionImage.png");
             hellicopterSelectionImage = load("DemoAssets/TankGame/copter/hellicopterSelectionImage.png");
+            apacheSelectionImage = load("DemoAssets/TankGame/apache/apacheSelectionImage.png");
             riflemanSelectionImage = load("DemoAssets/TankGame/infantry/rifleSelectionImage.png");
             bazookamanSelectionImage = load("DemoAssets/TankGame/infantry/bazookaSelectionImage.png");
         }, executor);

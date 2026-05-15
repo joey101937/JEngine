@@ -46,17 +46,17 @@ public class Apache extends RTSUnit {
         if (baseSprite != null) {
             return;
         }
-        baseSprite = new Sprite(RTSAssetManager.hellicopter);
-        baseSpriteRed = new Sprite(RTSAssetManager.hellicopterRed);
-        destroyedSprite = new Sprite(RTSAssetManager.hellicopterDestroyed);
-        destroyedSpriteRed = new Sprite(RTSAssetManager.hellicopterDestroyedRed);
-        shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.hellicopter, .7);
+        baseSprite = new Sprite(RTSAssetManager.apache);
+        baseSpriteRed = new Sprite(RTSAssetManager.apacheRed);
+        destroyedSprite = new Sprite(RTSAssetManager.apacheDestroyed);
+        destroyedSpriteRed = new Sprite(RTSAssetManager.apacheDestroyedRed);
+        shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.apache, .7);
         shadowSprite.scaleTo(VISUAL_SCALE);
         shadowSprite.applyAlphaEdgeBlurSelf(4);
-        attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
-        attackSequenceRed = new Sequence(RTSAssetManager.hellicopterAttackRed, "helliAttackRed");
-        bladesSprite = new Sprite(RTSAssetManager.hellicopterBlades);
-        bladesSpriteRed = new Sprite(RTSAssetManager.hellicopterBladesRed);
+        attackSequence = new Sequence(RTSAssetManager.apacheAttack, "apacheAttack");
+        attackSequenceRed = new Sequence(RTSAssetManager.apacheAttackRed, "apacheAttackRed");
+        bladesSprite = new Sprite(RTSAssetManager.apacheBlades);
+        bladesSpriteRed = new Sprite(RTSAssetManager.apacheBladesRed);
         // blades are rendered manually so need explicit scaling
         bladesSprite.scaleTo(VISUAL_SCALE);
         bladesSpriteRed.scaleTo(VISUAL_SCALE);
@@ -372,7 +372,7 @@ public class Apache extends RTSUnit {
 
     @Override
     public java.awt.image.BufferedImage getSelectionImage() {
-        return RTSAssetManager.hellicopterSelectionImage;
+        return RTSAssetManager.apacheSelectionImage;
     }
 
     @Override
