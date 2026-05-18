@@ -90,7 +90,6 @@ public class InfoPanelEffect extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
-        TargetingModeManager.render(g);
         Graphics2D g2 = (Graphics2D) g.create();
         double scaleAmount = 1/hostGame.getZoom();
         g.scale(scaleAmount, scaleAmount);
@@ -326,12 +325,11 @@ public class InfoPanelEffect extends IndependentEffect {
     @Override
     public void tick() {
         updateSelectedUnits();
-        TargetingModeManager.tick();
         tooltipHelper.tick();
     }
     
     @Override
     public int getZLayer() {
-        return Integer.MAX_VALUE;
+        return Integer.MAX_VALUE - 1;
     }
 }

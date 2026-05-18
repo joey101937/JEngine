@@ -148,7 +148,7 @@ public class Apache extends RTSUnit {
 
     @Override
     public void onPostDeserialization() {
-        // Restore graphics after deserialization
+        super.onPostDeserialization();
         if(isRubble) {
             this.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
         } else {

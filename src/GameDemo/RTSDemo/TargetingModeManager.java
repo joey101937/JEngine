@@ -1,6 +1,8 @@
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
+import Framework.Game;
+import Framework.IndependentEffect;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -12,7 +14,8 @@ import java.util.List;
  * Manages client-side targeting mode for abilities that require a target coordinate.
  * Purely local — only the confirmed target coordinate is sent over the network.
  */
-public class TargetingModeManager {
+public class TargetingModeManager extends IndependentEffect {
+    private static final long serialVersionUID = 1L;
 
     private static boolean active = false;
     private static int abilityIndex = -1;
@@ -56,8 +59,13 @@ public class TargetingModeManager {
         cursorWorldPosition = worldPos;
     }
 
-    /** Called each tick from InfoPanelEffect to check exit conditions. */
-    public static void tick() {
+    @Override
+    public void onPostDeserialization(Game g) {
+        cancel();
+    }
+
+    @Override
+    public void tick() {
         if (!active) return;
 
         castingUnits.removeIf(u -> !u.isAlive() || u.isRubble);
@@ -67,7 +75,6 @@ public class TargetingModeManager {
             return;
         }
 
-        // Exit if casting unit type is no longer in the current selection
         Class<?> castingClass = castingUnits.get(0).getClass();
         int castingTeam = castingUnits.get(0).team;
         boolean stillSelected = SelectionBoxEffect.selectedUnits.stream()
@@ -77,7 +84,6 @@ public class TargetingModeManager {
             return;
         }
 
-        // Exit if the button is disabled or on cooldown
         RTSUnit rep = castingUnits.get(0);
         if (abilityIndex >= 0 && abilityIndex < rep.getButtons().size()) {
             CommandButton btn = rep.getButtons().get(abilityIndex);
@@ -87,14 +93,13 @@ public class TargetingModeManager {
         }
     }
 
-    /** Called from InfoPanelEffect.render() before the UI scale transform, so coordinates are world-space. */
-    public static void render(Graphics2D g) {
+    @Override
+    public void render(Graphics2D g) {
         if (!active || castingUnits.isEmpty()) return;
 
         Stroke oldStroke = g.getStroke();
         Color oldColor = g.getColor();
 
-        // Dotted gray range circles around each casting unit
         if (maxCastRange > 0) {
             float[] dash = {12f, 8f};
             g.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, dash, 0));
@@ -106,7 +111,6 @@ public class TargetingModeManager {
             }
         }
 
-        // Red cursor circle following the mouse
         if (cursorWorldPosition != null) {
             int r = TARGET_VISUAL_RADIUS;
             g.setStroke(new BasicStroke(2));
@@ -118,5 +122,10 @@ public class TargetingModeManager {
 
         g.setStroke(oldStroke);
         g.setColor(oldColor);
+    }
+
+    @Override
+    public int getZLayer() {
+        return Integer.MAX_VALUE - 1;
     }
 }

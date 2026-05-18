@@ -124,6 +124,19 @@ public class RTSInput extends InputHandler {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        // Handle game menu clicks first
+        if (RTSGame.gameMenuEffect != null && RTSGame.gameMenuEffect.isOpen()) {
+            int sx = (int)(e.getX() / Game.resolutionScaleX);
+            int sy = (int)(e.getY() / Game.resolutionScaleY);
+            int buttonIndex = RTSGame.gameMenuEffect.getButtonIndexAt(sx, sy);
+            if (buttonIndex >= 0) {
+                RTSGame.gameMenuEffect.triggerButton(buttonIndex);
+            } else {
+                RTSGame.gameMenuEffect.close();
+            }
+            return;
+        }
+
         // Close chat if open and the click lands outside the chat window
         if (RTSGame.textChatEffect != null && RTSGame.textChatEffect.isOpen()) {
             int sx = (int)(e.getX() / Game.resolutionScaleX);
@@ -357,6 +370,12 @@ public class RTSInput extends InputHandler {
     @Override
     public void mouseMoved(MouseEvent e) {
         // panCamera(e);
+        int sx = (int)(e.getX() / Game.resolutionScaleX);
+        int sy = (int)(e.getY() / Game.resolutionScaleY);
+        if (RTSGame.gameMenuEffect != null && RTSGame.gameMenuEffect.isOpen()) {
+            RTSGame.gameMenuEffect.updateHover(sx, sy);
+            return;
+        }
         Coordinate mousePos = locationOfMouseEvent(e);
         TargetingModeManager.updateCursorPosition(mousePos);
         CommandButton hoveredButton = RTSGame.infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
@@ -469,11 +488,21 @@ public class RTSInput extends InputHandler {
             return;
         }
 
-        // Escape: discard and close chat if open, else exit fullscreen
+        // F10: toggle game menu
+        if (keyCode == KeyEvent.VK_F10) {
+            if (RTSGame.gameMenuEffect != null) {
+                RTSGame.gameMenuEffect.toggle();
+            }
+            return;
+        }
+
+        // Escape: discard and close chat if open, close menu if open, else exit fullscreen
         if (keyCode == KeyEvent.VK_ESCAPE) {
             if (chatOpen) {
                 RTSGame.textChatEffect.setTextAreaContents("");
                 RTSGame.textChatEffect.close();
+            } else if (RTSGame.gameMenuEffect != null && RTSGame.gameMenuEffect.isOpen()) {
+                RTSGame.gameMenuEffect.close();
             } else {
                 Window.setFullscreenWindowed(false);
             }
@@ -488,8 +517,10 @@ public class RTSInput extends InputHandler {
             return;
         }
 
-        // Block all other game hotkeys while chat is open
+        // Block all other game hotkeys while chat or menu is open
         if (chatOpen) return;
+        boolean menuOpen = RTSGame.gameMenuEffect != null && RTSGame.gameMenuEffect.isOpen();
+        if (menuOpen) return;
 
         switch (keyCode) {
             // X
