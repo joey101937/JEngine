@@ -38,6 +38,10 @@ public class CommandButton implements java.io.Serializable {
     public boolean isOnCooldown() {
         return cooldownPercent > 0;
     }
+
+    public char getHotkey() {
+        return ButtonHotkeyMap.getHotkey(this.getClass());
+    }
     
     public void tick() {
         tickNumber++;

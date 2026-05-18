@@ -612,6 +612,9 @@ public class RTSInput extends InputHandler {
                 Window.setFullscreenWindowed(true);
             }
         }
+        if (Character.isLetter((char) keyCode) && RTSGame.infoPanelEffect != null) {
+            RTSGame.infoPanelEffect.triggerButtonForHotkey((char) keyCode);
+        }
     }
 
     @Override

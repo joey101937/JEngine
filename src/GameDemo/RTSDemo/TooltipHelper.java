@@ -41,7 +41,9 @@ public class TooltipHelper{
             g.fillRect(toRender.x, toRender.y, width, height);
             g.setColor(Color.WHITE);
             g.setFont(headerFont);
-            g.drawString(cb.name, toRender.x + 8, toRender.y + 24);
+            char hotkey = cb.getHotkey();
+            String header = hotkey != 0 ? cb.name + " [" + hotkey + "]" : cb.name;
+            g.drawString(header, toRender.x + 8, toRender.y + 24);
             g.setFont(bodyFont);
             int runningY = toRender.y + 16 + 32;
             for(String line : cb.tooltipLines) {

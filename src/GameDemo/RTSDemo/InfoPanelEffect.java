@@ -246,11 +246,27 @@ public class InfoPanelEffect extends IndependentEffect {
         if (cb == null || cb.isDisabled || cb.isOnCooldown()) {
             return;
         }
-        int buttonIndex = mainUnit.getButtons().indexOf(cb);
+        triggerButton(mainUnit.getButtons().indexOf(cb));
+    }
+
+    public void triggerButtonForHotkey(char hotkey) {
+        if (mainUnit == null) return;
+        List<CommandButton> buttons = mainUnit.getButtons();
+        for (int i = 0; i < buttons.size(); i++) {
+            CommandButton cb = buttons.get(i);
+            if (!cb.isPassive && cb.getHotkey() == Character.toUpperCase(hotkey)
+                    && !cb.isDisabled && !cb.isOnCooldown()) {
+                triggerButton(i);
+                return;
+            }
+        }
+    }
+
+    private void triggerButton(int buttonIndex) {
+        CommandButton cb = mainUnit.getButtons().get(buttonIndex);
         List<RTSUnit> validUnits = SelectionBoxEffect.selectedUnits.stream()
                 .filter(u -> !u.isRubble && u.team == mainUnit.team && u.getClass() == mainUnit.getClass())
                 .collect(Collectors.toList());
-
         if (cb.requiresTarget) {
             TargetingModeManager.activate(buttonIndex, cb.maxCastRange, validUnits);
         } else {
