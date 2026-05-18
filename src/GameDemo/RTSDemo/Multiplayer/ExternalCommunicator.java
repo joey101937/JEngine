@@ -8,7 +8,6 @@ import Framework.Game;
 import Framework.GameObject2;
 import Framework.Main;
 import Framework.SerializationManager;
-import GameDemo.RTSDemo.Commands.ButtonCommand;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.SetPreferredTargetCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
@@ -385,18 +384,6 @@ public class ExternalCommunicator implements Runnable {
             updateTickTimingOffset(cmd.getExecuteTick());
         }
         
-        if(s.startsWith("b:")) {
-            // Drop commands during resync to prevent state corruption
-            if(isResyncing) {
-                System.out.println("Dropping stop command during resync");
-                return;
-            }
-            System.out.println("message " + s);
-            ButtonCommand cmd = ButtonCommand.generateFromMpString(s);
-            RTSGame.commandHandler.addCommand(cmd, false);
-            updateTickTimingOffset(cmd.getExecuteTick());
-        }
-
         if(s.startsWith("ta:")) {
             if(isResyncing) {
                 System.out.println("Dropping trigger ability command during resync");

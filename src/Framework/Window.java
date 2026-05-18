@@ -9,6 +9,10 @@ import Framework.UI_Elements.UIElement;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JFrame;
@@ -204,23 +208,41 @@ public class Window {
     
     
     public static void setFullscreenWindowed(boolean x) {
+        GraphicsDevice currentDevice = getCurrentMonitor();
+        Rectangle bounds = currentDevice.getDefaultConfiguration().getBounds();
         if(x) {
-            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setVisible(false);
             frame.dispose();
             frame.setUndecorated(true);
-            frame.pack();
-            frame.setLocationRelativeTo(null);
+            frame.setBounds(bounds);
             frame.setVisible(true);
         } else {
-            frame.setLocationRelativeTo(null);
-            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setVisible(false);
             frame.dispose();
             frame.setUndecorated(false);
             frame.pack();
+            frame.setLocation(bounds.x + (bounds.width - frame.getWidth()) / 2,
+                              bounds.y + (bounds.height - frame.getHeight()) / 2);
             frame.setVisible(true);
         }
+    }
+
+    private static GraphicsDevice getCurrentMonitor() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] devices = ge.getScreenDevices();
+        Rectangle frameBounds = frame.getBounds();
+        GraphicsDevice best = ge.getDefaultScreenDevice();
+        int bestOverlap = 0;
+        for (GraphicsDevice device : devices) {
+            Rectangle screen = device.getDefaultConfiguration().getBounds();
+            Rectangle overlap = screen.intersection(frameBounds);
+            int area = overlap.width * overlap.height;
+            if (area > bestOverlap) {
+                bestOverlap = area;
+                best = device;
+            }
+        }
+        return best;
     }
 
 }
