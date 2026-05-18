@@ -1,7 +1,7 @@
 
 ## Project Overview
 
-JEngine is a Java-based 2D game engine built on AWT that provides a framework for implementing 2D scenes, frame-based animations, and gameplay. It's designed to be simple, customizable, and requires no external libraries to work.
+JEngine is a Java-based 2D game engine built on AWT
 
 ## Build System and Commands
 

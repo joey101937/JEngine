@@ -1,6 +1,5 @@
 package GameDemo.RTSDemo.Buttons;
 
-import Framework.Main;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
@@ -25,11 +24,9 @@ public class DigInButton extends CommandButton {
         this.tooltipLines.add("Uses will recharge over time");
 
         this.onTrigger = c -> {
-            if(!isDisabled) {
+            if (!isDisabled) {
                 this.setDisabled(true);
                 tickLastUsed = tickNumber;
-                TankUnit host = (TankUnit) owner;
-                host.startDeployingSandbags();
             }
         };
     }
@@ -38,11 +35,9 @@ public class DigInButton extends CommandButton {
     public void restoreTransientFields() {
         this.iconImage = RTSAssetManager.digInButton;
         this.onTrigger = c -> {
-            if(!isDisabled) {
+            if (!isDisabled) {
                 this.setDisabled(true);
                 tickLastUsed = tickNumber;
-                TankUnit host = (TankUnit) owner;
-                host.startDeployingSandbags();
             }
         };
     }

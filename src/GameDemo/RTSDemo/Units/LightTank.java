@@ -406,7 +406,14 @@ public class LightTank extends RTSUnit {
     @Override
     public void triggerAbility(int index, Coordinate target) {
         if (index == 0) {
-            getHostGame().addObject(new Landmine(target.x, target.y, team));
+            Coordinate minePos = target;
+            if (minePos == null) {
+                minePos = getPixelLocation().copy();
+                Coordinate offset = new Coordinate(0, getHeight() / 2);
+                offset.adjustForRotation(getRotation());
+                minePos = minePos.add(offset);
+            }
+            getHostGame().addObject(new Landmine(minePos.x, minePos.y, team));
         }
     }
 }

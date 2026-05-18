@@ -3,8 +3,10 @@ package GameDemo.RTSDemo;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.IndependentEffect;
-import GameDemo.RTSDemo.Commands.ButtonCommand;
+import GameDemo.RTSDemo.Commands.TriggerAbilityCommand;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
@@ -88,6 +90,7 @@ public class InfoPanelEffect extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
+        TargetingModeManager.render(g);
         Graphics2D g2 = (Graphics2D) g.create();
         double scaleAmount = 1/hostGame.getZoom();
         g.scale(scaleAmount, scaleAmount);
@@ -241,16 +244,20 @@ public class InfoPanelEffect extends IndependentEffect {
     
     public void triggerButtonAt(int mouseX, int mouseY) {
         CommandButton cb = getButtonAtLocation(mouseX, mouseY);
-        if (cb == null) {
+        if (cb == null || cb.isDisabled || cb.isOnCooldown()) {
             return;
         }
         int buttonIndex = mainUnit.getButtons().indexOf(cb);
-        for (RTSUnit unit : SelectionBoxEffect.selectedUnits) {
-            if (!unit.isRubble && unit.team == mainUnit.team && unit.getClass() == mainUnit.getClass()) {
-                // CommandButton button = unit.getButtons().get(buttonIndex);
-                // button.onTrigger.accept(null);
+        List<RTSUnit> validUnits = SelectionBoxEffect.selectedUnits.stream()
+                .filter(u -> !u.isRubble && u.team == mainUnit.team && u.getClass() == mainUnit.getClass())
+                .collect(Collectors.toList());
+
+        if (cb.requiresTarget) {
+            TargetingModeManager.activate(buttonIndex, cb.maxCastRange, validUnits);
+        } else {
+            for (RTSUnit unit : validUnits) {
                 RTSGame.commandHandler.addCommand(
-                        new ButtonCommand(hostGame.getGameTickNumber() + RTSInput.getInputDelay(), unit.ID, buttonIndex),
+                        new TriggerAbilityCommand(hostGame.getGameTickNumber() + RTSInput.getInputDelay(), unit.ID, buttonIndex, null),
                         true);
             }
         }
@@ -319,6 +326,7 @@ public class InfoPanelEffect extends IndependentEffect {
     @Override
     public void tick() {
         updateSelectedUnits();
+        TargetingModeManager.tick();
         tooltipHelper.tick();
     }
     

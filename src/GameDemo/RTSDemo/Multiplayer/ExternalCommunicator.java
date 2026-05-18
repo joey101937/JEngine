@@ -12,6 +12,7 @@ import GameDemo.RTSDemo.Commands.ButtonCommand;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.SetPreferredTargetCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
+import GameDemo.RTSDemo.Commands.TriggerAbilityCommand;
 import static GameDemo.RTSDemo.Multiplayer.Client.printStream;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSInput;
@@ -392,6 +393,17 @@ public class ExternalCommunicator implements Runnable {
             }
             System.out.println("message " + s);
             ButtonCommand cmd = ButtonCommand.generateFromMpString(s);
+            RTSGame.commandHandler.addCommand(cmd, false);
+            updateTickTimingOffset(cmd.getExecuteTick());
+        }
+
+        if(s.startsWith("ta:")) {
+            if(isResyncing) {
+                System.out.println("Dropping trigger ability command during resync");
+                return;
+            }
+            System.out.println("message " + s);
+            TriggerAbilityCommand cmd = TriggerAbilityCommand.generateFromMpString(s);
             RTSGame.commandHandler.addCommand(cmd, false);
             updateTickTimingOffset(cmd.getExecuteTick());
         }

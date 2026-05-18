@@ -1,6 +1,5 @@
 package GameDemo.RTSDemo.Buttons;
 
-import Framework.Coordinate;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
@@ -23,13 +22,10 @@ public class LayMineButton extends CommandButton {
         this.cooldownSeconds = 1.5;
 
         this.onTrigger = c -> {
-            if(isOnCooldown()) return;
-            if(numUsesRemaining>0) {
-                Coordinate offset = new Coordinate(0, owner.getHeight()/2);
-                offset.adjustForRotation(owner.getRotation());
-                owner.triggerAbility(0, owner.getPixelLocation().add(offset));
+            if (isOnCooldown()) return;
+            if (numUsesRemaining > 0) {
                 numUsesRemaining--;
-                if(numUsesRemaining == 0) isDisabled = true;
+                if (numUsesRemaining == 0) isDisabled = true;
                 tickLastUsed = tickNumber;
             }
         };
@@ -40,13 +36,10 @@ public class LayMineButton extends CommandButton {
     public void restoreTransientFields() {
         this.iconImage = RTSAssetManager.layMineButton;
         this.onTrigger = c -> {
-            if(isOnCooldown()) return;
-            if(numUsesRemaining>0) {
-                Coordinate offset = new Coordinate(0, owner.getHeight()/2);
-                offset.adjustForRotation(owner.getRotation());
-                owner.triggerAbility(0, owner.getPixelLocation().add(offset));
+            if (isOnCooldown()) return;
+            if (numUsesRemaining > 0) {
                 numUsesRemaining--;
-                if(numUsesRemaining == 0) isDisabled = true;
+                if (numUsesRemaining == 0) isDisabled = true;
                 tickLastUsed = tickNumber;
             }
         };

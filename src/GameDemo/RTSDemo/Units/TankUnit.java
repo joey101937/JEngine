@@ -647,6 +647,14 @@ public class TankUnit extends RTSUnit {
         digActionStartTick = getHostGame().getGameTickNumber();
     }
     
+    @Override
+    public void triggerAbility(int index, Coordinate target) {
+        switch (index) {
+            case 0 -> startDeployingSandbags();
+            case 1 -> startPickingUpSandbags();
+        }
+    }
+
     public void deploySandbagDirect() {
         this.sandbagActive = true;
         setImmobilized(true);

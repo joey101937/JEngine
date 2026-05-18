@@ -24,6 +24,8 @@ public class CommandButton implements java.io.Serializable {
     public transient Consumer onTrigger;
     public RTSUnit owner;
     public boolean isDisabled = false;
+    public boolean requiresTarget = false;
+    public double maxCastRange = -1;
     
     public CommandButton(RTSUnit o) {
         owner = o;

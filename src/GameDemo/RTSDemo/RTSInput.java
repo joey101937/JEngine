@@ -17,6 +17,7 @@ import Framework.Window;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.SetPreferredTargetCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
+import GameDemo.RTSDemo.Commands.TriggerAbilityCommand;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementType;
 import GameDemo.RTSDemo.Units.Landmine;
@@ -152,10 +153,21 @@ public class RTSInput extends InputHandler {
                 RTSGame.reinforcementHandler.callReinforcement(RTSGame.reinforcementHandler.selectedReinforcementType, locationOfMouseEvent);
                 return;
             }
+            if (TargetingModeManager.isActive()) {
+                for (RTSUnit castingUnit : TargetingModeManager.getCastingUnits()) {
+                    RTSGame.commandHandler.addCommand(new TriggerAbilityCommand(
+                            hostGame.getGameTickNumber() + getInputDelay(),
+                            castingUnit.ID,
+                            TargetingModeManager.getAbilityIndex(),
+                            locationOfMouseEvent
+                    ), true);
+                }
+                TargetingModeManager.cancel();
+                return;
+            }
             System.out.println("checking " + locationOfMouseEvent.x + "," + locationOfMouseEvent.y);
             CommandButton clickedButton = RTSGame.infoPanelEffect.getButtonAtLocation(locationOfMouseEvent.x, locationOfMouseEvent.y);
             if (clickedButton != null) {
-                // Handle button click
                 RTSGame.infoPanelEffect.triggerButtonAt(locationOfMouseEvent.x, locationOfMouseEvent.y);
                 return;
             }
@@ -169,6 +181,10 @@ public class RTSInput extends InputHandler {
             handleSelectPoint(e);
         } 
         else if (e.getButton() == 3) { //3 means right click
+            if (TargetingModeManager.isActive()) {
+                TargetingModeManager.cancel();
+                return;
+            }
             if(hostGame.isPaused()) return;
 
             // Right-click on a unit of the opposite team → set as preferred target per selected unit
@@ -332,7 +348,9 @@ public class RTSInput extends InputHandler {
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        mouseDraggedLocation = locationOfMouseEvent(e);
+        Coordinate pos = locationOfMouseEvent(e);
+        mouseDraggedLocation = pos;
+        TargetingModeManager.updateCursorPosition(pos);
         // panCamera(e);
     }
 
@@ -340,6 +358,7 @@ public class RTSInput extends InputHandler {
     public void mouseMoved(MouseEvent e) {
         // panCamera(e);
         Coordinate mousePos = locationOfMouseEvent(e);
+        TargetingModeManager.updateCursorPosition(mousePos);
         CommandButton hoveredButton = RTSGame.infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
         RTSGame.infoPanelEffect.hoveredButton = hoveredButton;
         if (RTSGame.reinforcementHandler != null) {

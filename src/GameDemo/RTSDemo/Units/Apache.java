@@ -7,6 +7,7 @@ import Framework.Main;
 import Framework.PathingLayer;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.Buttons.LaunchMissileButton;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
@@ -91,6 +92,14 @@ public class Apache extends RTSUnit {
         this.canAttackAir = true;
         this.pathingModifiers.put(PathingLayer.Type.water, 1.0);
         this.setRenderBrightness(1.25);
+        this.addButton(new LaunchMissileButton(this));
+    }
+
+    @Override
+    public void triggerAbility(int index, Coordinate target) {
+        if (index == 0) {
+            System.out.println("Apache " + ID + " launching missile at " + target);
+        }
     }
 
     @Override

@@ -23,11 +23,9 @@ public class DigOutButton extends CommandButton {
         this.tooltipLines.add("This action disables the tank for 5 seconds.");
         
         this.onTrigger = c -> {
-            if(!isDisabled) {
+            if (!isDisabled) {
                 this.setDisabled(true);
                 tickLastUsed = tickNumber;
-                TankUnit host = (TankUnit) owner;
-                host.startPickingUpSandbags();
             }
         };
     }
@@ -36,11 +34,9 @@ public class DigOutButton extends CommandButton {
     public void restoreTransientFields() {
         this.iconImage = RTSAssetManager.digOutButton;
         this.onTrigger = c -> {
-            if(!isDisabled) {
+            if (!isDisabled) {
                 this.setDisabled(true);
                 tickLastUsed = tickNumber;
-                TankUnit host = (TankUnit) owner;
-                host.startPickingUpSandbags();
             }
         };
     }
