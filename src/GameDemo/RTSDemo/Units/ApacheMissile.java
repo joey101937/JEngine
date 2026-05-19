@@ -64,7 +64,7 @@ public class ApacheMissile extends Projectile {
         this.maxRange = initialDistance + 80;
 
         long scaleSeed = shooter.getHostGame().getGameTickNumber() + missileIndex * 1337L + spawnPos.x;
-        this.scaleLoss = Main.generateRandomDoubleFromSeed(0.0, 0.05, scaleSeed);
+        this.scaleLoss = Main.generateRandomDoubleFromSeed(0.0, 0.10, scaleSeed);
 
         this.launch(new DCoordinate(targetCoord.x, targetCoord.y));
     }

@@ -34,8 +34,8 @@ public class Apache extends RTSUnit {
     private static final int[][] DOCKED_MISSILE_OFFSETS = {
         {-85, -25},
         { -65, -25},
-        {  65, -25},
-        { 85, -25},
+        {  60, -25},
+        { 75, -25},
     };
 
     private static final int MISSILE_FIRE_INTERVAL = 12; // ticks between each of the 4 launches
