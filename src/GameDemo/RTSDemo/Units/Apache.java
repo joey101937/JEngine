@@ -20,7 +20,7 @@ import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 
 /**
- * the apache itself is invisible, instead we render the subobject to
+ * the apache itself is invisible, instead we render the subobject as the hull of the apache to
  * simplify movement and rotation
  *
  * @author guydu
@@ -29,8 +29,22 @@ public class Apache extends RTSUnit {
 
     public static final double VISUAL_SCALE = .34;
 
+    // Docked missile positions in original image pixels (before VISUAL_SCALE).
+    // Left outer, left inner, right inner, right outer.
+    private static final int[][] DOCKED_MISSILE_OFFSETS = {
+        {-85, -25},
+        { -65, -25},
+        {  65, -25},
+        { 85, -25},
+    };
+
+    private static final int MISSILE_FIRE_INTERVAL = 12; // ticks between each of the 4 launches
+
     public static volatile Sprite baseSprite = null;
     public static volatile Sprite baseSpriteRed = null;
+    public static volatile Sprite emptyPodsSprite = null;
+    public static volatile Sprite emptyPodsSpriteRed = null;
+    public static volatile Sprite dockedMissileSprite = null;
     public static volatile Sprite destroyedSprite = null;
     public static volatile Sprite destroyedSpriteRed = null;
     public static volatile Sprite shadowSprite = null;
@@ -49,24 +63,28 @@ public class Apache extends RTSUnit {
         }
         baseSprite = new Sprite(RTSAssetManager.apache);
         baseSpriteRed = new Sprite(RTSAssetManager.apacheRed);
+        emptyPodsSprite = new Sprite(RTSAssetManager.apacheEmptyPods);
+        emptyPodsSpriteRed = new Sprite(RTSAssetManager.apacheEmptyPodsRed);
         destroyedSprite = new Sprite(RTSAssetManager.apacheDestroyed);
         destroyedSpriteRed = new Sprite(RTSAssetManager.apacheDestroyedRed);
-        shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.apache, .7);
+        shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.apacheEmptyPods, .7);
         shadowSprite.scaleTo(VISUAL_SCALE);
         shadowSprite.applyAlphaEdgeBlurSelf(4);
         attackSequence = new Sequence(RTSAssetManager.apacheAttack, "apacheAttack");
         attackSequenceRed = new Sequence(RTSAssetManager.apacheAttackRed, "apacheAttackRed");
         bladesSprite = new Sprite(RTSAssetManager.apacheBlades);
         bladesSpriteRed = new Sprite(RTSAssetManager.apacheBladesRed);
-        // blades are rendered manually so need explicit scaling
         bladesSprite.scaleTo(VISUAL_SCALE);
         bladesSpriteRed.scaleTo(VISUAL_SCALE);
-        baseSprite.applyAlphaEdgeBlurSelf(2);
-        baseSpriteRed.applyAlphaEdgeBlurSelf(2);
+        dockedMissileSprite = new Sprite(RTSAssetManager.apacheDockedMissile);
+        dockedMissileSprite.scaleTo(VISUAL_SCALE);
+        emptyPodsSprite.applyAlphaEdgeBlurSelf(2);
+        emptyPodsSpriteRed.applyAlphaEdgeBlurSelf(2);
         bladesSprite.applyAlphaEdgeBlurSelf(2);
         bladesSpriteRed.applyAlphaEdgeBlurSelf(2);
         attackSequence.setFrameDelay(40);
         attackSequenceRed.setFrameDelay(40);
+        ApacheMissile.initGraphics();
     }
 
     public ApacheTurret turret;
@@ -78,15 +96,22 @@ public class Apache extends RTSUnit {
     public long pendingBulletSpawnAtTick = 0;
     public RTSUnit pendingBulletTarget = null;
 
+    // Missile ability state
+    public Coordinate missileAbilityTarget = null;
+    public int missilesFiredCount = 0;
+    public int missilesInFlight = 0;
+    public long missileNextFireAtTick = -1;
+    private boolean abilityNavSuppressCancel = false;
+
     public Apache(int x, int y, int team) {
         super(x, y, team);
         this.setScale(VISUAL_SCALE);
-        this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+        this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
         this.setZLayer(11);
         this.plane = 2;
         this.isSolid = true;
         this.setBaseSpeed(RTSGame.tickAdjust(4.5));
-        this.rotationSpeed = RTSGame.tickAdjust(3.2);
+        this.rotationSpeed = RTSGame.tickAdjust(2.0);
         turret = new ApacheTurret(new Coordinate(0, 0));
         this.addSubObject(turret);
         this.canAttackAir = true;
@@ -98,8 +123,39 @@ public class Apache extends RTSUnit {
     @Override
     public void triggerAbility(int index, Coordinate target) {
         if (index == 0) {
-            System.out.println("Apache " + ID + " launching missile at " + target);
+            missileAbilityTarget = target.copy();
+            missilesFiredCount = 0;
+            missileNextFireAtTick = -1;
+            double castRange = getButtons().get(0).maxCastRange;
+            if (distanceFrom(target) <= castRange) {
+                missileNextFireAtTick = getHostGame().getGameTickNumber();
+                LaunchMissileButton btn = (LaunchMissileButton) getButtons().get(0);
+                btn.tickLastUsed = btn.tickNumber;
+            } else {
+                Coordinate navTarget = calculateNavTarget(target, castRange);
+                abilityNavSuppressCancel = true;
+                setDesiredLocation(navTarget);
+                abilityNavSuppressCancel = false;
+            }
         }
+    }
+
+    private Coordinate calculateNavTarget(Coordinate target, double castRange) {
+        Coordinate myLoc = getPixelLocation();
+        double dx = target.x - myLoc.x;
+        double dy = target.y - myLoc.y;
+        double dist = Math.sqrt(dx * dx + dy * dy);
+        // t moves from myLoc toward target until we are (castRange-60) px from target
+        double t = (dist - castRange + 60) / dist;
+        return new Coordinate((int) (myLoc.x + dx * t), (int) (myLoc.y + dy * t));
+    }
+
+    @Override
+    public void setDesiredLocation(Coordinate c) {
+        if (!abilityNavSuppressCancel && missileAbilityTarget != null && missileNextFireAtTick == -1) {
+            missileAbilityTarget = null;
+        }
+        super.setDesiredLocation(c);
     }
 
     @Override
@@ -140,8 +196,6 @@ public class Apache extends RTSUnit {
             return super.getSpeed();
         }
         double angle = Math.abs(rotationNeededToFace(nextWaypoint));
-        // stops at 90°; raise numerator/denominator together to start moving at wider angles
-        // denominator controls how quickly speed ramps up as angle closes (lower = sharper ramp)
         double angleFactor = Math.max(0.0, Math.min(1.0, (160 - angle) / 160));
         return super.getSpeed() * angleFactor;
     }
@@ -149,37 +203,28 @@ public class Apache extends RTSUnit {
     @Override
     public void onPostDeserialization() {
         super.onPostDeserialization();
-        if(isRubble) {
+        if (isRubble) {
             this.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
         } else {
-            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
         }
         if (turret != null) {
-            if(isRubble) {
+            if (isRubble) {
                 turret.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
             } else {
-                turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+                turret.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
             }
         }
-
     }
 
     @Override
     public int getWidth() {
-        if (isRubble) {
-            return super.getWidth() / 2;
-        } else {
-            return super.getWidth()/2;
-        }
+        return super.getWidth() / 2;
     }
 
     @Override
     public int getHeight() {
-        if (isRubble) {
-            return super.getHeight() / 2;
-        } else {
-            return super.getHeight()/2;
-        }
+        return super.getHeight() / 2;
     }
 
     public void fireDelayed(RTSUnit targetUnit, int delay) {
@@ -187,16 +232,48 @@ public class Apache extends RTSUnit {
         pendingBulletTarget = targetUnit;
     }
 
+    private void fireMissile(int missileIndex) {
+        int[] offsets = DOCKED_MISSILE_OFFSETS[missileIndex];
+        int ox = (int) (offsets[0] * VISUAL_SCALE);
+        int oy = (int) (offsets[1] * VISUAL_SCALE);
+        Coordinate spawnOffset = new Coordinate(ox, oy);
+        spawnOffset.adjustForRotation(turret.getRotation());
+        Coordinate spawnPos = turret.getPixelLocation().copy().add(spawnOffset);
+
+        double angle = Math.toRadians(missileIndex * 90 + 45);
+        int offsetX = (int) (Math.cos(angle) * ApacheMissile.AOE_RADIUS * 0.6);
+        int offsetY = (int) (Math.sin(angle) * ApacheMissile.AOE_RADIUS * 0.6);
+        Coordinate targetPos = new Coordinate(
+                missileAbilityTarget.x + offsetX,
+                missileAbilityTarget.y + offsetY);
+
+        missilesInFlight++;
+        getHostGame().addObject(new ApacheMissile(this, spawnPos, targetPos, missileIndex));
+
+        if (isOnScreen()) {
+            RTSSoundManager.get().play(RTSSoundManager.HELICOPTER_ATTACK,
+                    Main.generateRandomDoubleLocally(0.7, 0.9),
+                    Main.generateRandomIntLocally(0, 150));
+        }
+    }
+
+    public void onMissileExploded() {
+        missilesInFlight = Math.max(0, missilesInFlight - 1);
+        if (missilesInFlight == 0 && missilesFiredCount >= 4) {
+            missileAbilityTarget = null;
+            missilesFiredCount = 0;
+            missileNextFireAtTick = -1;
+        }
+    }
+
     @Override
     public void tick() {
-        // Check for scheduled destruction
         if (scheduledDestructionAtTick > 0 && getHostGame().getGameTickNumber() >= scheduledDestructionAtTick) {
             new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
             this.destroy();
             return;
         }
 
-        // Check for pending bullet spawn
         if (pendingBulletSpawnAtTick > 0 && getHostGame().getGameTickNumber() >= pendingBulletSpawnAtTick) {
             if (pendingBulletTarget != null && pendingBulletTarget.isAlive() && getHostGame() != null) {
                 Coordinate center = getPixelLocation();
@@ -210,14 +287,14 @@ public class Apache extends RTSUnit {
                 getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), pendingBulletTarget));
                 if (isOnScreen()) {
                     RTSSoundManager.get().play(
-                        RTSSoundManager.HELICOPTER_ATTACK,
-                        Main.generateRandomDoubleLocally(.65, .75),
-                        Main.generateRandomIntLocally(0, 200));
+                            RTSSoundManager.HELICOPTER_ATTACK,
+                            Main.generateRandomDoubleLocally(.65, .75),
+                            Main.generateRandomIntLocally(0, 200));
                 } else {
                     RTSSoundManager.get().play(
-                        RTSSoundManager.HELICOPTER_ATTACK,
-                        Main.generateRandomDoubleLocally(.55, .6),
-                        Main.generateRandomIntLocally(0, 200));
+                            RTSSoundManager.HELICOPTER_ATTACK,
+                            Main.generateRandomDoubleLocally(.55, .6),
+                            Main.generateRandomIntLocally(0, 200));
                 }
             }
             pendingBulletSpawnAtTick = 0;
@@ -242,18 +319,59 @@ public class Apache extends RTSUnit {
             this.turret.rotate(4);
             return;
         }
-        if(!isRubble) {
+
+        if (!isRubble) {
             super.tick();
-            RTSUnit preferred = getPreferredTargetIfInRange();
-            currentTarget = preferred != null ? preferred : nearestEnemyInRange();
-            boolean offCooldown = (getHostGame().getGameTickNumber() - lastFireTick) > attackInterval;
-            if (currentTarget != null && offCooldown) {
-                if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {
-                    lastFireTick = getHostGame().getGameTickNumber();
-                    Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
-                    turret.setGraphic(attackAnimation.copyMaintainSource());
-                    System.out.println("" + this.ID + " located at " + this.getLocationAsOfLastTick()+"/" + this.getLocation()+ "/" + this.getPixelLocation() + " firing on tick " + getHostGame().getGameTickNumber() + " at " + currentTarget.ID + " located at " + currentTarget.getLocationAsOfLastTick()+"/" + currentTarget.getLocation()+ "/" + currentTarget.getPixelLocation());
-                    fireDelayed(currentTarget, 10);
+
+            // Missile ability handling
+            if (missileAbilityTarget != null) {
+                double castRange = getButtons().get(0).maxCastRange;
+                double distToTarget = distanceFrom(missileAbilityTarget);
+
+                // Navigation phase: waiting to enter range (no shots fired yet)
+                if (missileNextFireAtTick == -1 && missilesFiredCount == 0 && missilesInFlight == 0) {
+                    if (distToTarget <= castRange) {
+                        missileNextFireAtTick = getHostGame().getGameTickNumber();
+                        LaunchMissileButton btn = (LaunchMissileButton) getButtons().get(0);
+                        btn.tickLastUsed = btn.tickNumber;
+                    }
+                }
+
+                // Firing + in-flight lock: hold position and face target
+                if (missileNextFireAtTick != -1 || missilesInFlight > 0) {
+                    this.velocity.y = 0;
+                    applyHullRotation(rotationNeededToFace(missileAbilityTarget));
+
+                    if (missilesFiredCount < 4 && getHostGame().getGameTickNumber() >= missileNextFireAtTick) {
+                        // Wait for hull to be roughly facing before first shot
+                        boolean aligned = missilesFiredCount > 0
+                                || Math.abs(rotationNeededToFace(missileAbilityTarget)) < 15;
+                        if (aligned) {
+                            fireMissile(missilesFiredCount);
+                            missilesFiredCount++;
+                            if (missilesFiredCount < 4) {
+                                missileNextFireAtTick = getHostGame().getGameTickNumber() + MISSILE_FIRE_INTERVAL;
+                            } else {
+                                missileNextFireAtTick = -1; // all fired; onMissileExploded() will clear target
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Regular gun combat (skipped while actively firing missiles)
+            if (missileNextFireAtTick == -1) {
+                RTSUnit preferred = getPreferredTargetIfInRange();
+                currentTarget = preferred != null ? preferred : nearestEnemyInRange();
+                boolean offCooldown = (getHostGame().getGameTickNumber() - lastFireTick) > attackInterval;
+                if (currentTarget != null && offCooldown) {
+                    if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {
+                        lastFireTick = getHostGame().getGameTickNumber();
+                        Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
+                        turret.setGraphic(attackAnimation.copyMaintainSource());
+                        System.out.println("" + this.ID + " located at " + this.getLocationAsOfLastTick() + "/" + this.getLocation() + "/" + this.getPixelLocation() + " firing on tick " + getHostGame().getGameTickNumber() + " at " + currentTarget.ID + " located at " + currentTarget.getLocationAsOfLastTick() + "/" + currentTarget.getLocation() + "/" + currentTarget.getPixelLocation());
+                        fireDelayed(currentTarget, 10);
+                    }
                 }
             }
         }
@@ -278,9 +396,9 @@ public class Apache extends RTSUnit {
             drawHealthBar(g);
         }
 
-         if(ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
+        if (ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
             g.setColor(Color.ORANGE);
-            g.fillOval(getRenderLocation().x-getWidth()/2, getPixelLocation().y-getHeight()/2, getWidth()/2, getHeight()/2);
+            g.fillOval(getRenderLocation().x - getWidth() / 2, getPixelLocation().y - getHeight() / 2, getWidth() / 2, getHeight() / 2);
         }
     }
 
@@ -289,6 +407,10 @@ public class Apache extends RTSUnit {
         if (isRubble) {
             return;
         }
+        missileAbilityTarget = null;
+        missilesFiredCount = 0;
+        missilesInFlight = 0;
+        missileNextFireAtTick = -1;
         this.turret.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
         this.isRubble = true;
         this.isSolid = false;
@@ -303,15 +425,14 @@ public class Apache extends RTSUnit {
         public ApacheTurret(Coordinate offset) {
             super(offset);
             this.setScale(VISUAL_SCALE);
-            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
             this.setZLayer(11);
         }
 
         @Override
         public void tick() {
-            if(bobOffset == -1) {
-                // set bobOffset for first time so they are not all bobing the exact same
-                bobOffset = Main.generateRandomIntFromSeed(0, 200, (long)(getHost().getLocationAsOfLastTick().x + getHost().getLocationAsOfLastTick().y));
+            if (bobOffset == -1) {
+                bobOffset = Main.generateRandomIntFromSeed(0, 200, (long) (getHost().getLocationAsOfLastTick().x + getHost().getLocationAsOfLastTick().y));
             }
             if (!isRubble) {
                 updateLocationForBob();
@@ -321,8 +442,27 @@ public class Apache extends RTSUnit {
 
         @Override
         public void render(Graphics2D g) {
-            super.render(g);
             if (!isRubble) {
+                // Docked missiles rendered before body so they appear underneath
+                Coordinate renderLoc = getRenderLocation();
+                LaunchMissileButton missileButton = (LaunchMissileButton) Apache.this.getButtons().get(0);
+                int firstVisible;
+                if (Apache.this.missileNextFireAtTick != -1) {
+                    firstVisible = Apache.this.missilesFiredCount;
+                } else if (!missileButton.isOnCooldown()) {
+                    firstVisible = 0;
+                } else {
+                    firstVisible = 4;
+                }
+                if (dockedMissileSprite != null && firstVisible < 4) {
+                    renderDockedMissiles(g, renderLoc, firstVisible);
+                }
+            }
+
+            super.render(g); // renders emptyPodsSprite (or destroyed sprite) on top of docked missiles
+
+            if (!isRubble) {
+                // Rotor blades on top of body
                 double bladesAngle = (System.currentTimeMillis() * 2160.0 / 1000.0) % 360;
                 Coordinate renderLoc = getRenderLocation();
                 VolatileImage bladesImg = (team == 0 ? bladesSprite : bladesSpriteRed).getCurrentVolatileImage();
@@ -333,16 +473,32 @@ public class Apache extends RTSUnit {
             }
         }
 
+        private void renderDockedMissiles(Graphics2D g, Coordinate renderLoc, int startIndex) {
+            VolatileImage missileImg = dockedMissileSprite.getCurrentVolatileImage();
+            if (missileImg == null) return;
+            AffineTransform old = g.getTransform();
+            g.rotate(Math.toRadians(getRotation()), renderLoc.x, renderLoc.y);
+            for (int i = startIndex; i < DOCKED_MISSILE_OFFSETS.length; i++) {
+                int[] offset = DOCKED_MISSILE_OFFSETS[i];
+                int ox = (int) (offset[0] * VISUAL_SCALE);
+                int oy = (int) (offset[1] * VISUAL_SCALE);
+                g.drawImage(missileImg,
+                        renderLoc.x + ox - missileImg.getWidth() / 2,
+                        renderLoc.y + oy - missileImg.getHeight() / 2, null);
+            }
+            g.setTransform(old);
+        }
+
         @Override
         public void onAnimationCycle() {
-            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
         }
 
         private void updateLocationForBob() {
             long tick = getHostGame().getGameTickNumber() + bobOffset;
 
             double speedPerTick = RTSGame.tickAdjust(2.0);
-            double cycleLength = 200.0 / speedPerTick; // up (100) + down (100)
+            double cycleLength = 200.0 / speedPerTick;
 
             double cyclePos = (tick % (long) cycleLength) * speedPerTick;
 
@@ -360,14 +516,16 @@ public class Apache extends RTSUnit {
         private void updateRotation() {
             Apache host = (Apache) getHost();
             double desiredRotationAmount = this.getHost().getRotation() - getRotation();
-            double maxRotation = RTSGame.tickAdjust(5);
+            double maxRotation = RTSGame.tickAdjust(2.0);
 
-            if (host.currentTarget != null) {
+            // During missile ability (firing or missiles still in flight), face the ability target
+            if (host.missileAbilityTarget != null && (host.missileNextFireAtTick != -1 || host.missilesInFlight > 0)) {
+                desiredRotationAmount = rotationNeededToFace(host.missileAbilityTarget);
+            } else if (host.currentTarget != null) {
                 desiredRotationAmount = rotationNeededToFace(host.currentTarget.getPixelLocation());
             }
 
-            double rotationAmount = 0;
-
+            double rotationAmount;
             if (Math.abs(desiredRotationAmount) > maxRotation) {
                 rotationAmount = desiredRotationAmount > 0 ? maxRotation : -maxRotation;
             } else {
@@ -389,6 +547,7 @@ public class Apache extends RTSUnit {
         var out = new ArrayList<String>();
         out.add("Dmg: " + HellicopterBullet.staticDamage + " (x2)   Interval: " + 2 + "s    Range: " + range);
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
+        out.add("Missile: " + ApacheMissile.DAMAGE_AMOUNT + " AoE (x4)   Range: 600   Cooldown: 10s");
         return out;
     }
 

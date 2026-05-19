@@ -18,20 +18,12 @@ public class LaunchMissileButton extends CommandButton {
         this.tooltipLines.add("Launches a missile at the target location.");
         this.tooltipLines.add("Deals damage in the impact area. Range: 600.");
 
-        this.onTrigger = c -> {
-            if (!isOnCooldown()) {
-                tickLastUsed = tickNumber;
-            }
-        };
+        this.onTrigger = c -> {};  // cooldown started by Apache when firing actually begins
     }
 
     @Override
     public void restoreTransientFields() {
         this.iconImage = RTSAssetManager.heatSeekersButton;
-        this.onTrigger = c -> {
-            if (!isOnCooldown()) {
-                tickLastUsed = tickNumber;
-            }
-        };
+        this.onTrigger = c -> {};  // cooldown started by Apache when firing actually begins
     }
 }

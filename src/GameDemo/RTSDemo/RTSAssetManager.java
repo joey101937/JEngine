@@ -41,6 +41,9 @@ public abstract class RTSAssetManager {
     public static BufferedImage apacheShadow;
     public static BufferedImage apacheDestroyed, apacheDestroyedRed;
     public static BufferedImage[] apacheAttack, apacheAttackRed;
+    public static BufferedImage apacheEmptyPods, apacheEmptyPodsRed;
+    public static BufferedImage apacheMissileProjectile;
+    public static BufferedImage apacheDockedMissile;
     public static BufferedImage missile, yellowMissile;
     public static BufferedImage missileShadow, yellowMissileShadow;
     public static BufferedImage tankDeadHull;
@@ -215,6 +218,10 @@ public abstract class RTSAssetManager {
             apacheAttackRed = greenToRed(apacheAttack);
             apacheBlades = load("DemoAssets/TankGame/apache/newChopperFrames/blades.png");
             apacheBladesRed = greenToRed(apacheBlades);
+            apacheEmptyPods = load("DemoAssets/TankGame/apache/apacheEmptyPods.png");
+            apacheEmptyPodsRed = greenToRed(apacheEmptyPods);
+            apacheMissileProjectile = load("DemoAssets/TankGame/apache/apacheMissile.png");
+            apacheDockedMissile = load("DemoAssets/TankGame/apache/dockedMissile.png");
         }, executor);
     }
 

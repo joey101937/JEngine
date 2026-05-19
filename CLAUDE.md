@@ -94,3 +94,8 @@ The RTS demo includes a comprehensive pathfinding system:
 All RTS units must have deterministic game logic
 Make sure they are added to the RTSAssetManager preloadUnits function
 Make sure InfoPanelEffect is updated
+
+## Scaling Gameobject2s
+Sprite and Sequence objects are stateful. only scale them once.
+Use the gameobject scale function when making one-time scales that impact game logic
+use setRenderScale when doing gradual scales and/or when the scaling should not impact game logic
