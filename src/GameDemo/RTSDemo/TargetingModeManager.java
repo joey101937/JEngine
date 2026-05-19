@@ -20,18 +20,21 @@ public class TargetingModeManager extends IndependentEffect {
     private static boolean active = false;
     private static int abilityIndex = -1;
     private static double maxCastRange = -1;
+    private static double minCastRange = -1;
     private static final List<RTSUnit> castingUnits = new ArrayList<>();
     private static Coordinate cursorWorldPosition = null;
 
     private static final int TARGET_VISUAL_RADIUS = 50;
     private static final Color RANGE_CIRCLE_COLOR = new Color(180, 180, 180, 160);
+    private static final Color MIN_RANGE_CIRCLE_COLOR = new Color(220, 80, 80, 160);
     private static final Color TARGET_FILL_COLOR = new Color(255, 0, 0, 80);
     private static final Color TARGET_BORDER_COLOR = new Color(220, 0, 0, 220);
 
-    public static void activate(int index, double castRange, List<RTSUnit> units) {
+    public static void activate(int index, double castRange, double minRange, List<RTSUnit> units) {
         active = true;
         abilityIndex = index;
         maxCastRange = castRange;
+        minCastRange = minRange;
         castingUnits.clear();
         castingUnits.addAll(units);
     }
@@ -40,6 +43,7 @@ public class TargetingModeManager extends IndependentEffect {
         active = false;
         abilityIndex = -1;
         maxCastRange = -1;
+        minCastRange = -1;
         castingUnits.clear();
     }
 
@@ -100,13 +104,21 @@ public class TargetingModeManager extends IndependentEffect {
         Stroke oldStroke = g.getStroke();
         Color oldColor = g.getColor();
 
+        float[] dash = {12f, 8f};
+        g.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, dash, 0));
         if (maxCastRange > 0) {
-            float[] dash = {12f, 8f};
-            g.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, dash, 0));
             g.setColor(RANGE_CIRCLE_COLOR);
             for (RTSUnit unit : castingUnits) {
                 Coordinate pos = unit.getRenderLocation();
                 int r = (int) maxCastRange;
+                g.drawOval(pos.x - r, pos.y - r, r * 2, r * 2);
+            }
+        }
+        if (minCastRange > 0) {
+            g.setColor(MIN_RANGE_CIRCLE_COLOR);
+            for (RTSUnit unit : castingUnits) {
+                Coordinate pos = unit.getRenderLocation();
+                int r = (int) minCastRange;
                 g.drawOval(pos.x - r, pos.y - r, r * 2, r * 2);
             }
         }

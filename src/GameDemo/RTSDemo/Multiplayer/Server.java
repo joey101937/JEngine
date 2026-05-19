@@ -12,7 +12,7 @@ import static GameDemo.RTSDemo.RTSGame.setupUI;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.TextChatEffect;
 import GameDemo.RTSDemo.Units.Bazookaman;
-import GameDemo.RTSDemo.Units.Hellicopter;
+import GameDemo.RTSDemo.Units.Apache;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
@@ -50,7 +50,7 @@ public class Server {
         int lineSize = 40;// 40; // lowering to 40 so that i can better debug
         int spacer = 160;
         for (int i = 0; i < lineSize; i++) {
-            g.addObject(new Hellicopter(200 + (i * spacer), 200, 0));
+            g.addObject(new Apache(200 + (i * spacer), 200, 0));
         }
         for (int i = 0; i < lineSize; i++) {
             if (i % 2 == 0) {
@@ -93,7 +93,7 @@ public class Server {
             g.addObject(new LightTank(200 + (i * spacer), g.getWorldHeight() - 1350, 1));
         }
         for (int i = 0; i < lineSize; i++) {
-            g.addObject(new Hellicopter(200 + (i * spacer), g.getWorldHeight() - 1200, 1));
+            g.addObject(new Apache(200 + (i * spacer), g.getWorldHeight() - 1200, 1));
         }
     }
 }

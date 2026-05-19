@@ -14,7 +14,8 @@ public class LaunchMissileButton extends CommandButton {
         this.isPassive = false;
         this.cooldownSeconds = 10;
         this.requiresTarget = true;
-        this.maxCastRange = 600;
+        this.maxCastRange = 700;
+        this.minCastRange = 300;
         this.tooltipLines.add("Launches a missile at the target location.");
         this.tooltipLines.add("Deals damage in the impact area. Range: 600.");
 

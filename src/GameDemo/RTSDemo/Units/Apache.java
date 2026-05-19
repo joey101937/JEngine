@@ -126,13 +126,18 @@ public class Apache extends RTSUnit {
             missileAbilityTarget = target.copy();
             missilesFiredCount = 0;
             missileNextFireAtTick = -1;
-            double castRange = getButtons().get(0).maxCastRange;
-            if (distanceFrom(target) <= castRange) {
+            LaunchMissileButton btn = (LaunchMissileButton) getButtons().get(0);
+            double dist = distanceFrom(target);
+            if (dist <= btn.maxCastRange && dist >= btn.minCastRange) {
                 missileNextFireAtTick = getHostGame().getGameTickNumber();
-                LaunchMissileButton btn = (LaunchMissileButton) getButtons().get(0);
                 btn.tickLastUsed = btn.tickNumber;
+            } else if (dist > btn.maxCastRange) {
+                Coordinate navTarget = calculateNavToward(target, btn.maxCastRange);
+                abilityNavSuppressCancel = true;
+                setDesiredLocation(navTarget);
+                abilityNavSuppressCancel = false;
             } else {
-                Coordinate navTarget = calculateNavTarget(target, castRange);
+                Coordinate navTarget = calculateNavAway(target, btn.minCastRange);
                 abilityNavSuppressCancel = true;
                 setDesiredLocation(navTarget);
                 abilityNavSuppressCancel = false;
@@ -140,14 +145,24 @@ public class Apache extends RTSUnit {
         }
     }
 
-    private Coordinate calculateNavTarget(Coordinate target, double castRange) {
+    private Coordinate calculateNavToward(Coordinate target, double castRange) {
         Coordinate myLoc = getPixelLocation();
         double dx = target.x - myLoc.x;
         double dy = target.y - myLoc.y;
         double dist = Math.sqrt(dx * dx + dy * dy);
-        // t moves from myLoc toward target until we are (castRange-60) px from target
         double t = (dist - castRange + 60) / dist;
         return new Coordinate((int) (myLoc.x + dx * t), (int) (myLoc.y + dy * t));
+    }
+
+    private Coordinate calculateNavAway(Coordinate target, double minRange) {
+        Coordinate myLoc = getPixelLocation();
+        double dx = myLoc.x - target.x;
+        double dy = myLoc.y - target.y;
+        double dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 1) { dx = 1; dist = 1; } // avoid divide-by-zero if exactly on top
+        return new Coordinate(
+                (int) (target.x + dx / dist * (minRange + 60)),
+                (int) (target.y + dy / dist * (minRange + 60)));
     }
 
     @Override
@@ -328,11 +343,11 @@ public class Apache extends RTSUnit {
                 double castRange = getButtons().get(0).maxCastRange;
                 double distToTarget = distanceFrom(missileAbilityTarget);
 
-                // Navigation phase: waiting to enter range (no shots fired yet)
+                // Navigation phase: waiting for a valid firing position (no shots fired yet)
                 if (missileNextFireAtTick == -1 && missilesFiredCount == 0 && missilesInFlight == 0) {
-                    if (distToTarget <= castRange) {
+                    LaunchMissileButton btn = (LaunchMissileButton) getButtons().get(0);
+                    if (distToTarget <= castRange && distToTarget >= btn.minCastRange) {
                         missileNextFireAtTick = getHostGame().getGameTickNumber();
-                        LaunchMissileButton btn = (LaunchMissileButton) getButtons().get(0);
                         btn.tickLastUsed = btn.tickNumber;
                     }
                 }
@@ -342,18 +357,14 @@ public class Apache extends RTSUnit {
                     this.velocity.y = 0;
                     applyHullRotation(rotationNeededToFace(missileAbilityTarget));
 
-                    if (missilesFiredCount < 4 && getHostGame().getGameTickNumber() >= missileNextFireAtTick) {
-                        // Wait for hull to be roughly facing before first shot
-                        boolean aligned = missilesFiredCount > 0
-                                || Math.abs(rotationNeededToFace(missileAbilityTarget)) < 15;
-                        if (aligned) {
-                            fireMissile(missilesFiredCount);
-                            missilesFiredCount++;
-                            if (missilesFiredCount < 4) {
-                                missileNextFireAtTick = getHostGame().getGameTickNumber() + MISSILE_FIRE_INTERVAL;
-                            } else {
-                                missileNextFireAtTick = -1; // all fired; onMissileExploded() will clear target
-                            }
+                    if (missilesFiredCount < 4 && getHostGame().getGameTickNumber() >= missileNextFireAtTick
+                            && (missilesFiredCount > 0 || Math.abs(turret.rotationNeededToFace(missileAbilityTarget)) < 10)) {
+                        fireMissile(missilesFiredCount);
+                        missilesFiredCount++;
+                        if (missilesFiredCount < 4) {
+                            missileNextFireAtTick = getHostGame().getGameTickNumber() + MISSILE_FIRE_INTERVAL;
+                        } else {
+                            missileNextFireAtTick = -1; // all fired; onMissileExploded() will clear target
                         }
                     }
                 }

@@ -268,7 +268,7 @@ public class InfoPanelEffect extends IndependentEffect {
                 .filter(u -> !u.isRubble && u.team == mainUnit.team && u.getClass() == mainUnit.getClass())
                 .collect(Collectors.toList());
         if (cb.requiresTarget) {
-            TargetingModeManager.activate(buttonIndex, cb.maxCastRange, validUnits);
+            TargetingModeManager.activate(buttonIndex, cb.maxCastRange, cb.minCastRange, validUnits);
         } else {
             for (RTSUnit unit : validUnits) {
                 RTSGame.commandHandler.addCommand(

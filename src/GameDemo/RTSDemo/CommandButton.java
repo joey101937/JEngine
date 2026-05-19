@@ -26,6 +26,7 @@ public class CommandButton implements java.io.Serializable {
     public boolean isDisabled = false;
     public boolean requiresTarget = false;
     public double maxCastRange = -1;
+    public double minCastRange = -1;
     
     public CommandButton(RTSUnit o) {
         owner = o;
