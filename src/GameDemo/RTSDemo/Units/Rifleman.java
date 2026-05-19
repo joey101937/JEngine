@@ -7,7 +7,6 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
-import Framework.Window;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Damage;
@@ -196,23 +195,11 @@ public class Rifleman extends RTSUnit {
     }
     
     private void performAttack(RTSUnit target, int callNum){
-        if(Main.generateRandomIntFromSeed(0, 100, generateRandomSeed(callNum)) + accuracyBonus > target.getDodgeChance()) {
+        if(Main.generateDeterministicRandomInt(0, 100, callNum) + accuracyBonus > target.getDodgeChance()) {
             damage.launchLocation = getPixelLocation();
             damage.impactLoaction = getPixelLocation();
             target.takeDamage(damage);
         }
-    }
-    
-    private long generateRandomSeed (int lookahead) {
-        long tick = getGameTickNumber() + lookahead;
-        // splitmix64 finalize — 1-bit tick difference flips ~50% of output bits
-        long seed = tick * 0x9e3779b97f4a7c15L;
-        seed ^= seed >>> 30;
-        seed *= 0xbf58476d1ce4e5b9L;
-        seed ^= seed >>> 27;
-        seed *= 0x94d049bb133111ebL;
-        seed ^= seed >>> 31;
-        return seed;
     }
     
     private void createImpactVisual(RTSUnit target, int tickDelay) {

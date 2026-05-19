@@ -309,8 +309,8 @@ public class Main {
         }
     }
 
-    private static long deterministicSeed() {
-        long tick = (Window.currentGame != null) ? Window.currentGame.getGameTickNumber() : 0;
+    private static long deterministicSeed(int lookahead) {
+        long tick = ((Window.currentGame != null) ? Window.currentGame.getGameTickNumber() : 0) + lookahead;
         // splitmix64 finalize — 1-bit tick difference flips ~50% of output bits
         long seed = tick * 0x9e3779b97f4a7c15L;
         seed ^= seed >>> 30;
@@ -322,11 +322,19 @@ public class Main {
     }
 
     public static int generateDeterministicRandomInt(int min, int max) {
-        return generateRandomIntFromSeed(min, max, deterministicSeed());
+        return generateRandomIntFromSeed(min, max, deterministicSeed(0));
+    }
+
+    public static int generateDeterministicRandomInt(int min, int max, int lookahead) {
+        return generateRandomIntFromSeed(min, max, deterministicSeed(lookahead));
     }
 
     public static double generateDeterministicRandomDouble(double min, double max) {
-        return generateRandomDoubleFromSeed(min, max, deterministicSeed());
+        return generateRandomDoubleFromSeed(min, max, deterministicSeed(0));
+    }
+
+    public static double generateDeterministicRandomDouble(double min, double max, int lookahead) {
+        return generateRandomDoubleFromSeed(min, max, deterministicSeed(lookahead));
     }
 
     /**
