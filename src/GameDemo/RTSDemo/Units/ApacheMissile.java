@@ -26,7 +26,7 @@ public class ApacheMissile extends Projectile {
 
     public static final int AOE_RADIUS = 80;
     public static final int DAMAGE_AMOUNT = 40;
-    private static final int INITIAL_SHADOW_OFFSET = 85;
+    private static final int INITIAL_SHADOW_OFFSET = 149;
     private static final double INITIAL_SPEED = RTSGame.tickAdjust(1.5);
     private static final double MAX_SPEED = RTSGame.tickAdjust(9);
     private static final double SPEED_ACCEL = RTSGame.tickAdjust(0.35);
@@ -64,7 +64,7 @@ public class ApacheMissile extends Projectile {
         this.maxRange = initialDistance + 80;
 
         
-        this.scaleLoss = .1;
+        this.scaleLoss = .18;
 
         this.launch(new DCoordinate(targetCoord.x, targetCoord.y));
     }
@@ -82,6 +82,7 @@ public class ApacheMissile extends Projectile {
             double dist = Coordinate.distanceBetween(getPixelLocation(), targetCoord);
             double progress = (initialDistance > 0) ? Math.max(0.0, Math.min(1.0, 1.0 - dist / initialDistance)) : 1.0;
             setRenderScale(1.0 - scaleLoss * progress);
+            setRenderBrightness(1.0 - scaleLoss * progress);
             if (dist <= RTSGame.tickAdjust(16) + 5) {
                 hasExploded = true;
                 destroy();
@@ -129,6 +130,7 @@ public class ApacheMissile extends Projectile {
         Coordinate pixLoc = getPixelLocation();
         double dist = Coordinate.distanceBetween(pixLoc, targetCoord);
         double progress = (initialDistance > 0) ? Math.max(0.0, Math.min(1.0, 1.0 - dist / initialDistance)) : 1.0;
+        double scale = 1.0 - scaleLoss * progress;
 
         AffineTransform saved = g.getTransform();
 
@@ -136,10 +138,13 @@ public class ApacheMissile extends Projectile {
         int shadowOffset = (int) (INITIAL_SHADOW_OFFSET * (1.0 - progress));
         VolatileImage shadowImg = shadowSprite.getCurrentVolatileImage();
         if (shadowImg != null) {
-            g.rotate(Math.toRadians(getRotation()), pixLoc.x, pixLoc.y + shadowOffset);
-            g.drawImage(shadowImg,
-                    pixLoc.x - shadowImg.getWidth() / 2,
-                    pixLoc.y + shadowOffset - shadowImg.getHeight() / 2, null);
+            AffineTransform at = new AffineTransform(saved);
+            at.translate(pixLoc.x, pixLoc.y + shadowOffset);
+            at.rotate(Math.toRadians(getRotation()));
+            at.scale(scale, scale);
+            at.translate(-shadowImg.getWidth() / 2.0, -shadowImg.getHeight() / 2.0);
+            g.setTransform(at);
+            g.drawImage(shadowImg, 0, 0, null);
             g.setTransform(saved);
         }
 
