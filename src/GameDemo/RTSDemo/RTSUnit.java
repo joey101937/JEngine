@@ -687,7 +687,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         double infantryDistance = 999999999, vehicleDistance = 999999999, aircraftDistance = 999999999, closestDistance = 999999999;
         Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
         for (GameObject2 go : nearby) {
-            if (go instanceof RTSUnit unit && unit.team != team && !unit.isRubble && !unit.isCloaked) {
+            if (go instanceof RTSUnit unit && unit.team != team && !unit.isRubble && !unit.isCloaked && unit.isVisible(team)) {
                 double distance = distanceFrom(unit);
                 if (unit.plane > 1) {
                     if (nearestAircraft == null || distance < aircraftDistance) {

@@ -12,6 +12,9 @@ import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
@@ -27,22 +30,22 @@ public class ApacheMissile extends Projectile {
     public static final int AOE_RADIUS = 80;
     public static final int DAMAGE_AMOUNT = 40;
     private static final int INITIAL_SHADOW_OFFSET = 149;
-    private static final double INITIAL_SPEED = RTSGame.tickAdjust(1.5);
-    private static final double MAX_SPEED = RTSGame.tickAdjust(9);
-    private static final double SPEED_ACCEL = RTSGame.tickAdjust(0.35);
+    private static final double INITIAL_SPEED = RTSGame.tickAdjust(7.0);
+    private static final double MIN_SPEED = RTSGame.tickAdjust(6.5);
 
     public static volatile Sprite missileSprite = null;
     public static volatile Sprite shadowSprite = null;
 
-    private static final double BOB_AMOUNT = 6.0;
+    private static final int TRAIL_LENGTH = 10;
+    private static final Color TRAIL_COLOR = new Color(210, 210, 210);
 
     private final Apache shooter;
     private final Coordinate targetCoord;
     private final double initialDistance;
     private final double scaleLoss;
     private boolean hasExploded = false;
-    private int bobOffset = -1;
-    private double renderBobY = 0;
+    private final Coordinate[] trail = new Coordinate[TRAIL_LENGTH];
+    private int trailHead = 0;
 
     public static void initGraphics() {
         if (missileSprite != null) return;
@@ -68,7 +71,7 @@ public class ApacheMissile extends Projectile {
         this.maxRange = initialDistance + 80;
 
         
-        this.scaleLoss = .2;
+        this.scaleLoss = .15;
 
         this.launch(new DCoordinate(targetCoord.x, targetCoord.y));
     }
@@ -82,22 +85,25 @@ public class ApacheMissile extends Projectile {
     public void tick() {
         super.tick();
         if (!hasExploded) {
-            if (bobOffset == -1) {
-                Coordinate loc = getPixelLocation();
-                bobOffset = Main.generateRandomIntFromSeed(0, 200, (long) (loc.x + loc.y));
-            }
-            long tick = getHostGame().getGameTickNumber() + bobOffset;
-            double speedPerTick = RTSGame.tickAdjust(2.0);
-            double cycleLength = 200.0 / speedPerTick;
-            double cyclePos = (tick % (long) cycleLength) * speedPerTick;
-            double bobPercent = cyclePos <= 100 ? cyclePos : 200 - cyclePos;
-            renderBobY = BOB_AMOUNT * (bobPercent / 100.0);
-
-            setBaseSpeed(Math.min(MAX_SPEED, getBaseSpeed() + SPEED_ACCEL));
             double dist = Coordinate.distanceBetween(getPixelLocation(), targetCoord);
             double progress = (initialDistance > 0) ? Math.max(0.0, Math.min(1.0, 1.0 - dist / initialDistance)) : 1.0;
+            setBaseSpeed(INITIAL_SPEED - (INITIAL_SPEED - MIN_SPEED) * progress);
             setRenderScale(1.0 - scaleLoss * progress);
             setRenderBrightness(1.0 - scaleLoss * progress);
+
+            double dx = targetCoord.x - getLocation().x;
+            double dy = targetCoord.y - getLocation().y;
+            double len = Math.sqrt(dx * dx + dy * dy);
+            if (len > 5) {
+                double perpX = -dy / len;
+                double perpY = dx / len;
+                double snakeAmp = 20.0 * (1.0 - progress * progress);
+                double snakeVal = Math.sin(getHostGame().getGameTickNumber() * 0.15) * snakeAmp;
+                launch(new DCoordinate(
+                        targetCoord.x + perpX * snakeVal,
+                        targetCoord.y + perpY * snakeVal));
+            }
+
             if (dist <= RTSGame.tickAdjust(16) + 5) {
                 hasExploded = true;
                 destroy();
@@ -163,9 +169,28 @@ public class ApacheMissile extends Projectile {
             g.setTransform(saved);
         }
 
-        // Bob the missile sprite up/down; shadow stays at ground position
-        g.translate(0, -renderBobY);
+        // Record position for smoke trail
+        trail[trailHead] = new Coordinate(pixLoc.x, pixLoc.y);
+        trailHead = (trailHead + 1) % TRAIL_LENGTH;
+
+        // Draw smoke trail behind missile, condensing toward missile as it descends
+        Coordinate missileRenderPos = trail[(trailHead - 1 + TRAIL_LENGTH) % TRAIL_LENGTH];
+        Composite oldComposite = g.getComposite();
+        for (int i = 0; i < TRAIL_LENGTH; i++) {
+            int idx = (trailHead - 1 - i + TRAIL_LENGTH) % TRAIL_LENGTH;
+            Coordinate tp = trail[idx];
+            if (tp == null || missileRenderPos == null) break;
+            double spread = Math.max(0.05, 1.0 - progress * 0.95);
+            int cx = missileRenderPos.x + (int) ((tp.x - missileRenderPos.x) * spread);
+            int cy = missileRenderPos.y + (int) ((tp.y - missileRenderPos.y) * spread);
+            float alpha = (1.0f - (float) i / TRAIL_LENGTH) * 0.45f;
+            int radius = Math.max(1, (int) (4 * scale * (1.0 - (double) i / TRAIL_LENGTH * 0.6)));
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+            g.setColor(TRAIL_COLOR);
+            g.fillOval(cx - radius, cy - radius, radius * 2, radius * 2);
+        }
+        g.setComposite(oldComposite);
+
         super.render(g);
-        g.setTransform(saved);
     }
 }
