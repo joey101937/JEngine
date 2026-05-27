@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 
 public class FogOfWarGrid {
 
-    public static final int TILE_SIZE = 32;
+    public static final int TILE_SIZE = 26;
     public static final int MAX_TEAMS = 3;
 
     private static final ExecutorService POOL = Executors.newFixedThreadPool(
@@ -105,14 +105,32 @@ public class FogOfWarGrid {
     private void markProviderVisible(int team, VisionProvider provider, List<SightBlocker> blockers) {
         int ux = provider.getVisionLocation().x;
         int uy = provider.getVisionLocation().y;
-        int r = provider.getVisionRange();
-        long rSq = (long) r * r;
+        int baseR = provider.getVisionRange();
+        long baseRSq = (long) baseR * baseR;
         boolean ignoresBlockers = provider.ignoresSightBlockers();
 
-        int txMin = Math.max(0, (ux - r) / TILE_SIZE);
-        int txMax = Math.min(gridW - 1, (ux + r) / TILE_SIZE);
-        int tyMin = Math.max(0, (uy - r) / TILE_SIZE);
-        int tyMax = Math.min(gridH - 1, (uy + r) / TILE_SIZE);
+        // Directional cone setup — computed once per provider, not per tile
+        boolean hasDirectional = provider instanceof DirectionalVisionProvider;
+        double facingDx = 0, facingDy = 0, cosHalfAngleSq = 0;
+        long directionalRSq = baseRSq;
+        int maxR = baseR;
+
+        if (hasDirectional) {
+            DirectionalVisionProvider dvp = (DirectionalVisionProvider) provider;
+            double facingRad = Math.toRadians(dvp.getVisionFacingDegrees());
+            facingDx = Math.sin(facingRad);   // game: 0=north, CW positive → sin/−cos
+            facingDy = -Math.cos(facingRad);
+            double cosHalfAngle = Math.cos(Math.toRadians(dvp.getDirectionalVisionHalfAngle()));
+            cosHalfAngleSq = cosHalfAngle * cosHalfAngle;
+            int directionalR = (int) (baseR * dvp.getDirectionalRangeMultiplier());
+            directionalRSq = (long) directionalR * directionalR;
+            maxR = Math.max(baseR, directionalR);
+        }
+
+        int txMin = Math.max(0, (ux - maxR) / TILE_SIZE);
+        int txMax = Math.min(gridW - 1, (ux + maxR) / TILE_SIZE);
+        int tyMin = Math.max(0, (uy - maxR) / TILE_SIZE);
+        int tyMax = Math.min(gridH - 1, (uy + maxR) / TILE_SIZE);
 
         for (int ty = tyMin; ty <= tyMax; ty++) {
             for (int tx = txMin; tx <= txMax; tx++) {
@@ -123,7 +141,19 @@ public class FogOfWarGrid {
 
                 long dx = tcx - ux;
                 long dy = tcy - uy;
-                if (dx * dx + dy * dy > rSq) continue;
+                long distSq = dx * dx + dy * dy;
+
+                // Pick effective range: base, or directional bonus if tile is inside the cone.
+                // Cone test: (facing · tile_dir)² >= cos²(halfAngle) * distSq, with dot > 0
+                long effectiveRSq = baseRSq;
+                if (hasDirectional) {
+                    double dot = facingDx * dx + facingDy * dy;
+                    if (dot > 0 && dot * dot >= cosHalfAngleSq * distSq) {
+                        effectiveRSq = directionalRSq;
+                    }
+                }
+
+                if (distSq > effectiveRSq) continue;
 
                 if (ignoresBlockers || !hasBlockerOnPath(ux, uy, tcx, tcy, blockers)) {
                     visible[team][ty][tx] = true;

@@ -16,7 +16,7 @@ public class FogOfWarEffect extends IndependentEffect {
     private transient Game game;
 
     public static final int FOG_ALPHA = 140;
-    private static final int BLUR_RADIUS = 2;
+    private static final int BLUR_RADIUS = 3;
 
     private volatile transient BufferedImage fogImage;
 

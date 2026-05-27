@@ -59,6 +59,7 @@ public class Landmine extends RTSUnit {
         damage.launchLocation = getPixelLocation();
         damage.source = this;
         damage.impactLoaction = getPixelLocation();
+        this.sightRadius = 20;
     }
 
     @Override

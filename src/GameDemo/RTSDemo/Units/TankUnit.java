@@ -25,6 +25,7 @@ import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
+import GameDemo.RTSDemo.FogOfWar.DirectionalVisionProvider;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -38,7 +39,7 @@ import java.util.List;
  *
  * @author Joseph
  */
-public class TankUnit extends RTSUnit {
+public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     
     public static final double attackFrequency = 2.5;
     public static double speed = RTSGame.tickAdjust(2.15);
@@ -320,6 +321,7 @@ public class TankUnit extends RTSUnit {
         initializeButtons();
         this.rotationSpeed = RTSGame.tickAdjust(1.4);
         this.setRenderBrightness(.9);
+        this.sightRadius = 300;
     }
 
     private void initializeButtons() {
@@ -613,6 +615,15 @@ public class TankUnit extends RTSUnit {
         return out;
     }
     
+    @Override
+    public double getDirectionalVisionHalfAngle() { return 40; }
+
+    @Override
+    public double getDirectionalRangeMultiplier() { return 2; }
+
+    @Override
+    public double getVisionFacingDegrees() { return getRotation(); }
+
     @Override
     public void takeDamage(Damage d) {
         lastTickTakenDamage = getHostGame().getGameTickNumber();

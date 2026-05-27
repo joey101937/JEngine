@@ -64,7 +64,7 @@ public class ApacheMissile extends Projectile {
         this.maxRange = initialDistance + 80;
 
         
-        this.scaleLoss = .18;
+        this.scaleLoss = .2;
 
         this.launch(new DCoordinate(targetCoord.x, targetCoord.y));
     }
