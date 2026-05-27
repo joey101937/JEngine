@@ -716,6 +716,17 @@ public class RTSUnit extends GameObject2 {
     }
 
     /**
+     * Returns true if this unit is within at least one visible tile for the given team.
+     * O(1) lookup into the fog-of-war grid.
+     */
+    public boolean isVisible(int team) {
+        if (!FogOfWarEffect.enabled) return true;
+        FogOfWarGrid grid = RTSGame.fogOfWarGrid;
+        if (grid == null) return true;
+        return grid.isTileVisible(team, (int) getLocation().x, (int) getLocation().y);
+    }
+
+    /**
      * get button images
      *
      * @return

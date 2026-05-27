@@ -7,6 +7,7 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Window;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
@@ -15,7 +16,8 @@ import java.util.ArrayList;
  *
  * @author guydu
  */
-public class KeyBuilding extends GameObject2 {
+public class KeyBuilding extends GameObject2 implements SightBlocker {
+    private static final long serialVersionUID = 1L;
     public static final Sprite mainSprite = new Sprite(RTSAssetManager.building);
     public static final Sprite shadowSprite = Sprite.generateShadowSprite(mainSprite.getImage(), .5);
     private static final double CAPTURE_RATE = 0.01;
@@ -79,6 +81,14 @@ public class KeyBuilding extends GameObject2 {
     @Override
     public void setHostGame(Framework.Game g) {
         super.setHostGame(g);
+    }
+
+    @Override
+    public Rectangle getBlockerBounds() {
+        Coordinate center = getPixelLocation();
+        int w = getWidth();
+        int h = getHeight();
+        return new Rectangle(center.x - w / 2, center.y - h / 2, w, h);
     }
 
     @Override

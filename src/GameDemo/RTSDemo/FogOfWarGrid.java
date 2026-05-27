@@ -1,0 +1,131 @@
+package GameDemo.RTSDemo;
+
+import Framework.Game;
+import Framework.GameObject2;
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class FogOfWarGrid {
+
+    public static final int TILE_SIZE = 64;
+    public static final int MAX_TEAMS = 3;
+
+    private final int gridW;
+    private final int gridH;
+    private final boolean[][][] visible; // [team][ty][tx]
+
+    public FogOfWarGrid(int worldWidth, int worldHeight) {
+        this.gridW = (worldWidth + TILE_SIZE - 1) / TILE_SIZE;
+        this.gridH = (worldHeight + TILE_SIZE - 1) / TILE_SIZE;
+        this.visible = new boolean[MAX_TEAMS][gridH][gridW];
+    }
+
+    public int getGridW() { return gridW; }
+    public int getGridH() { return gridH; }
+
+    /**
+     * O(1) tile visibility lookup. Does not check FogOfWarEffect.enabled —
+     * callers must check that if needed.
+     */
+    public boolean isTileVisible(int team, int worldX, int worldY) {
+        int tx = worldX / TILE_SIZE;
+        int ty = worldY / TILE_SIZE;
+        if (team < 0 || team >= MAX_TEAMS || tx < 0 || ty < 0 || tx >= gridW || ty >= gridH) return false;
+        return visible[team][ty][tx];
+    }
+
+    /**
+     * Recomputes visibility for all teams. Called from the tick thread every N ticks.
+     * Single pass over game objects collects both units and blockers.
+     */
+    @SuppressWarnings("unchecked")
+    public void update(Game game) {
+        List<RTSUnit>[] unitsByTeam = new List[MAX_TEAMS];
+        for (int t = 0; t < MAX_TEAMS; t++) unitsByTeam[t] = new ArrayList<>();
+        List<SightBlocker> blockers = new ArrayList<>();
+
+        for (GameObject2 go : game.getAllObjects()) {
+            if (go instanceof RTSUnit unit && !unit.isRubble && unit.team >= 0 && unit.team < MAX_TEAMS) {
+                unitsByTeam[unit.team].add(unit);
+            }
+            if (go instanceof SightBlocker sb) {
+                blockers.add(sb);
+            }
+        }
+
+        for (int t = 0; t < MAX_TEAMS; t++) {
+            for (int ty = 0; ty < gridH; ty++) {
+                Arrays.fill(visible[t][ty], false);
+            }
+        }
+
+        for (int t = 0; t < MAX_TEAMS; t++) {
+            for (RTSUnit unit : unitsByTeam[t]) {
+                markUnitVisible(t, unit, blockers);
+            }
+        }
+
+        // If any tile of a blocker is visible, reveal all of its tiles.
+        for (SightBlocker blocker : blockers) {
+            Rectangle bounds = blocker.getBlockerBounds();
+            int txMin = Math.max(0, bounds.x / TILE_SIZE);
+            int txMax = Math.min(gridW - 1, (bounds.x + bounds.width) / TILE_SIZE);
+            int tyMin = Math.max(0, bounds.y / TILE_SIZE);
+            int tyMax = Math.min(gridH - 1, (bounds.y + bounds.height) / TILE_SIZE);
+            for (int t = 0; t < MAX_TEAMS; t++) {
+                boolean anyVisible = false;
+                outer:
+                for (int ty = tyMin; ty <= tyMax; ty++) {
+                    for (int tx = txMin; tx <= txMax; tx++) {
+                        if (visible[t][ty][tx]) { anyVisible = true; break outer; }
+                    }
+                }
+                if (anyVisible) {
+                    for (int ty = tyMin; ty <= tyMax; ty++) {
+                        Arrays.fill(visible[t][ty], txMin, txMax + 1, true);
+                    }
+                }
+            }
+        }
+    }
+
+    private void markUnitVisible(int team, RTSUnit unit, List<SightBlocker> blockers) {
+        int ux = (int) unit.getLocation().x;
+        int uy = (int) unit.getLocation().y;
+        int r = unit.sightRadius;
+        long rSq = (long) r * r;
+
+        int txMin = Math.max(0, (ux - r) / TILE_SIZE);
+        int txMax = Math.min(gridW - 1, (ux + r) / TILE_SIZE);
+        int tyMin = Math.max(0, (uy - r) / TILE_SIZE);
+        int tyMax = Math.min(gridH - 1, (uy + r) / TILE_SIZE);
+
+        for (int ty = tyMin; ty <= tyMax; ty++) {
+            for (int tx = txMin; tx <= txMax; tx++) {
+                if (visible[team][ty][tx]) continue; // already lit by another unit, skip LOS test
+
+                int tcx = tx * TILE_SIZE + TILE_SIZE / 2;
+                int tcy = ty * TILE_SIZE + TILE_SIZE / 2;
+
+                long dx = tcx - ux;
+                long dy = tcy - uy;
+                if (dx * dx + dy * dy > rSq) continue;
+
+                if (!hasBlockerOnPath(ux, uy, tcx, tcy, blockers)) {
+                    visible[team][ty][tx] = true;
+                }
+            }
+        }
+    }
+
+    private boolean hasBlockerOnPath(int px, int py, int qx, int qy, List<SightBlocker> blockers) {
+        for (SightBlocker blocker : blockers) {
+            if (blocker.isSightBlockingEnabled() && blocker.getBlockerBounds().intersectsLine(px, py, qx, qy)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

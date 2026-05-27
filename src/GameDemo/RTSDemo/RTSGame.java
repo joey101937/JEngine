@@ -40,6 +40,7 @@ public class RTSGame {
     public static TextChatEffect textChatEffect;
     public static GameMenuEffect gameMenuEffect;
     public static int desiredTPS = 90;
+    public static FogOfWarGrid fogOfWarGrid;
 
     public static void setup(Game g) {
         PathingLayer pathing = new PathingLayer(RTSAssetManager.rtsPathing, "DemoAssets/TankGame/terrainPlaygroundPathing.png");
@@ -60,6 +61,7 @@ public class RTSGame {
         g.addIndependentEffect(new StatusIconHelper(g));
         Main.splitBackgroundRender = true;
         g.addIndependentEffect(new KeyBuildingRingEffect(g));
+        fogOfWarGrid = new FogOfWarGrid(g.getWorldWidth(), g.getWorldHeight());
         g.addIndependentEffect(new FogOfWarEffect(g));
         navigationManager = new NavigationManager(g);
         g.addIndependentEffect(navigationManager);
