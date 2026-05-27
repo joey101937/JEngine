@@ -81,6 +81,8 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     public static BufferedImage enemyTankTurretImage = RTSAssetManager.tankTurretRed;
     public static BufferedImage[] enemyTankFireAnimation = RTSAssetManager.tankFireAnimationRed;
 
+    public static volatile Sequence hullMGImpact = null;
+
     // sprites for reuse
     public static volatile Sprite chasisSpriteGreen = null;
     public static volatile Sprite chasisSpriteRed = null;
@@ -175,6 +177,10 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
                 deathShadow,
                 shadow
         ).forEach(x -> x.scaleTo(VISUAL_SCALE));
+
+        hullMGImpact = new Sequence(RTSAssetManager.smallImpact);
+        hullMGImpact.scaleTo(2.4);
+        hullMGImpact.setFrameDelay(30);
     }
 
     public Sprite getHullSprite() {
@@ -409,28 +415,32 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         } else {
             RTSSoundManager.get().play(RTSSoundManager.RIFLEMAN_ATTACK, Main.generateRandomDoubleLocally(.4f, .48f), Main.generateRandomIntLocally(0, 20));
         }
-        performHullMGAttack(target, 0);
-        performHullMGAttack(target, 1);
-        performHullMGAttack(target, 2);
-        createHullMGImpactVisual(target, 0);
-        createHullMGImpactVisual(target, RTSGame.tickAdjust(14));
-        createHullMGImpactVisual(target, RTSGame.tickAdjust(24));
+        boolean hit0 = performHullMGAttack(target, 0);
+        boolean hit1 = performHullMGAttack(target, 1);
+        boolean hit2 = performHullMGAttack(target, 2);
+        createHullMGImpactVisual(target, 0, hit0);
+        createHullMGImpactVisual(target, RTSGame.tickAdjust(14), hit1);
+        createHullMGImpactVisual(target, RTSGame.tickAdjust(24), hit2);
     }
 
-    private void performHullMGAttack(RTSUnit target, int callNum) {
+    private boolean performHullMGAttack(RTSUnit target, int callNum) {
         if (Main.generateDeterministicRandomInt(0, 100, callNum) + 10 > target.getDodgeChance()) {
             hullMGDamage.launchLocation = getPixelLocation();
             hullMGDamage.impactLoaction = getPixelLocation();
             target.takeDamage(hullMGDamage);
+            return true;
         }
+        return false;
     }
 
-    private void createHullMGImpactVisual(RTSUnit target, int tickDelay) {
+    private void createHullMGImpactVisual(RTSUnit target, int tickDelay, boolean hit) {
         addTickDelayedEffect(tickDelay, c -> {
             Coordinate impactLocation = target.getPixelLocation();
-            impactLocation.x += Main.generateRandomInt(-target.getWidth() / 3, target.getWidth() / 3);
-            impactLocation.y += Main.generateRandomInt(-target.getHeight() / 3, target.getHeight() / 3);
-            OnceThroughSticker s = new OnceThroughSticker(getHostGame(), Rifleman.smallImpact.copyMaintainSource(), impactLocation);
+            int scatter = hit ? target.getWidth() / 3 : target.getWidth() / 2 + 22;
+            impactLocation.x += Main.generateRandomInt(-scatter, scatter);
+            impactLocation.y += Main.generateRandomInt(-scatter, scatter);
+            Sequence visual = hit ? Rifleman.smallImpact.copyMaintainSource() : hullMGImpact.copyMaintainSource();
+            OnceThroughSticker s = new OnceThroughSticker(getHostGame(), visual, impactLocation);
             s.rotation = Main.generateRandomInt(0, 360);
         });
     }
