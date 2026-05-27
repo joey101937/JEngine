@@ -12,7 +12,6 @@ import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
-import GameDemo.RTSDemo.FogOfWar.SightBlockerImmune;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -26,12 +25,12 @@ import java.util.ArrayList;
  *
  * @author guydu
  */
-public class Apache extends RTSUnit implements SightBlockerImmune {
+public class Apache extends RTSUnit {
 
     public boolean sightBlockerImmune = true;
 
     @Override
-    public boolean isSightBlockerImmune() { return sightBlockerImmune; }
+    public boolean ignoresSightBlockers() { return sightBlockerImmune; }
 
     public static final double VISUAL_SCALE = .34;
 

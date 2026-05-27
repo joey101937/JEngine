@@ -2,7 +2,6 @@ package GameDemo.RTSDemo.FogOfWar;
 
 import Framework.Game;
 import Framework.GameObject2;
-import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,13 +49,13 @@ public class FogOfWarGrid {
      */
     @SuppressWarnings("unchecked")
     public void update(Game game) {
-        List<RTSUnit>[] unitsByTeam = new List[MAX_TEAMS];
-        for (int t = 0; t < MAX_TEAMS; t++) unitsByTeam[t] = new ArrayList<>();
+        List<VisionProvider>[] providersByTeam = new List[MAX_TEAMS];
+        for (int t = 0; t < MAX_TEAMS; t++) providersByTeam[t] = new ArrayList<>();
         List<SightBlocker> blockers = new ArrayList<>();
 
         for (GameObject2 go : game.getAllObjects()) {
-            if (go instanceof RTSUnit unit && !unit.isRubble && unit.team >= 0 && unit.team < MAX_TEAMS) {
-                unitsByTeam[unit.team].add(unit);
+            if (go instanceof VisionProvider vp && vp.isVisionEnabled()) {
+                providersByTeam[vp.getVisionTeam()].add(vp);
             }
             if (go instanceof SightBlocker sb) {
                 blockers.add(sb);
@@ -72,9 +71,9 @@ public class FogOfWarGrid {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int t = 0; t < MAX_TEAMS; t++) {
             final int team = t;
-            for (RTSUnit unit : unitsByTeam[t]) {
+            for (VisionProvider provider : providersByTeam[t]) {
                 futures.add(CompletableFuture.runAsync(
-                    () -> markUnitVisible(team, unit, blockers), POOL));
+                    () -> markProviderVisible(team, provider, blockers), POOL));
             }
         }
         futures.forEach(CompletableFuture::join);
@@ -103,12 +102,12 @@ public class FogOfWarGrid {
         }
     }
 
-    private void markUnitVisible(int team, RTSUnit unit, List<SightBlocker> blockers) {
-        int ux = (int) unit.getLocation().x;
-        int uy = (int) unit.getLocation().y;
-        int r = unit.sightRadius;
+    private void markProviderVisible(int team, VisionProvider provider, List<SightBlocker> blockers) {
+        int ux = provider.getVisionLocation().x;
+        int uy = provider.getVisionLocation().y;
+        int r = provider.getVisionRange();
         long rSq = (long) r * r;
-        boolean ignoresBlockers = unit instanceof SightBlockerImmune imm && imm.isSightBlockerImmune();
+        boolean ignoresBlockers = provider.ignoresSightBlockers();
 
         int txMin = Math.max(0, (ux - r) / TILE_SIZE);
         int txMax = Math.min(gridW - 1, (ux + r) / TILE_SIZE);

@@ -13,6 +13,7 @@ import Framework.Hitbox;
 import Framework.PathingLayer;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarEffect;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarGrid;
+import GameDemo.RTSDemo.FogOfWar.VisionProvider;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
@@ -35,7 +36,7 @@ import java.util.List;
  *
  * @author Joseph
  */
-public class RTSUnit extends GameObject2 {
+public class RTSUnit extends GameObject2 implements VisionProvider {
 
     public static final int RUBBLE_PROXIMITY = 90;
 
@@ -738,6 +739,26 @@ public class RTSUnit extends GameObject2 {
         FogOfWarGrid grid = RTSGame.fogOfWarGrid;
         if (grid == null) return true;
         return grid.isTileVisible(team, (int) getLocation().x, (int) getLocation().y);
+    }
+
+    @Override
+    public boolean isVisionEnabled() {
+        return !isRubble && team >= 0 && team < FogOfWarGrid.MAX_TEAMS;
+    }
+
+    @Override
+    public int getVisionTeam() {
+        return team;
+    }
+
+    @Override
+    public int getVisionRange() {
+        return sightRadius;
+    }
+
+    @Override
+    public Coordinate getVisionLocation() {
+        return new Coordinate((int) getLocation().x, (int) getLocation().y);
     }
 
     /**
