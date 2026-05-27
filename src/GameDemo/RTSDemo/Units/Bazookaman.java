@@ -79,7 +79,7 @@ public class Bazookaman extends RTSUnit {
         this.minSpeedMultiplier = .8;
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;
-        this.sightRadius = 1000;
+        this.sightRadius = 1400;
         initializeButtons();
     }
 
@@ -193,6 +193,7 @@ public class Bazookaman extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
+        if (!shouldRender()) return;
         if(isRubble) return;
         super.render(g);
         if (shadowSprite == null) {
@@ -260,6 +261,7 @@ public class Bazookaman extends RTSUnit {
         
         @Override
         public void render(Graphics2D g) {
+            if (!hull.shouldRender()) return;
             super.render(g);
         }
 

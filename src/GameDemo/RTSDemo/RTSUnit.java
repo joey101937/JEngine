@@ -11,6 +11,8 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import Framework.PathingLayer;
+import GameDemo.RTSDemo.FogOfWar.FogOfWarEffect;
+import GameDemo.RTSDemo.FogOfWar.FogOfWarGrid;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
@@ -108,9 +110,21 @@ public class RTSUnit extends GameObject2 {
         
         return blocked;
     }
-
+       
+    /**
+     * if the rts unit should render based on if it is on screen and if it is visible through fog of war
+     * @return 
+     */
+    public boolean shouldRender () {
+        if(FogOfWarEffect.enabled) {
+            return super.isOnScreen() && (team == ExternalCommunicator.localTeam || isVisible(ExternalCommunicator.localTeam));
+        }
+        return super.isOnScreen();
+    }
+    
     @Override
     public void render(Graphics2D g) {
+        if(!shouldRender()) return;
         super.render(g);
         if(NavigationManager.displayPathingDebugInfo) {
            g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);

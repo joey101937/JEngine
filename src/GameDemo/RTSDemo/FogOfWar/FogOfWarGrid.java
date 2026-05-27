@@ -1,16 +1,24 @@
-package GameDemo.RTSDemo;
+package GameDemo.RTSDemo.FogOfWar;
 
 import Framework.Game;
 import Framework.GameObject2;
+import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FogOfWarGrid {
 
-    public static final int TILE_SIZE = 64;
+    public static final int TILE_SIZE = 32;
     public static final int MAX_TEAMS = 3;
+
+    private static final ExecutorService POOL = Executors.newFixedThreadPool(
+        Math.max(1, Runtime.getRuntime().availableProcessors() - 1),
+        r -> { Thread t = new Thread(r, "fow-worker"); t.setDaemon(true); return t; });
 
     private final int gridW;
     private final int gridH;
@@ -61,11 +69,15 @@ public class FogOfWarGrid {
             }
         }
 
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int t = 0; t < MAX_TEAMS; t++) {
+            final int team = t;
             for (RTSUnit unit : unitsByTeam[t]) {
-                markUnitVisible(t, unit, blockers);
+                futures.add(CompletableFuture.runAsync(
+                    () -> markUnitVisible(team, unit, blockers), POOL));
             }
         }
+        futures.forEach(CompletableFuture::join);
 
         // If any tile of a blocker is visible, reveal all of its tiles.
         for (SightBlocker blocker : blockers) {
@@ -96,6 +108,7 @@ public class FogOfWarGrid {
         int uy = (int) unit.getLocation().y;
         int r = unit.sightRadius;
         long rSq = (long) r * r;
+        boolean ignoresBlockers = unit instanceof SightBlockerImmune imm && imm.isSightBlockerImmune();
 
         int txMin = Math.max(0, (ux - r) / TILE_SIZE);
         int txMax = Math.min(gridW - 1, (ux + r) / TILE_SIZE);
@@ -104,7 +117,7 @@ public class FogOfWarGrid {
 
         for (int ty = tyMin; ty <= tyMax; ty++) {
             for (int tx = txMin; tx <= txMax; tx++) {
-                if (visible[team][ty][tx]) continue; // already lit by another unit, skip LOS test
+                if (visible[team][ty][tx]) continue;
 
                 int tcx = tx * TILE_SIZE + TILE_SIZE / 2;
                 int tcy = ty * TILE_SIZE + TILE_SIZE / 2;
@@ -113,7 +126,7 @@ public class FogOfWarGrid {
                 long dy = tcy - uy;
                 if (dx * dx + dy * dy > rSq) continue;
 
-                if (!hasBlockerOnPath(ux, uy, tcx, tcy, blockers)) {
+                if (ignoresBlockers || !hasBlockerOnPath(ux, uy, tcx, tcy, blockers)) {
                     visible[team][ty][tx] = true;
                 }
             }
@@ -122,9 +135,10 @@ public class FogOfWarGrid {
 
     private boolean hasBlockerOnPath(int px, int py, int qx, int qy, List<SightBlocker> blockers) {
         for (SightBlocker blocker : blockers) {
-            if (blocker.isSightBlockingEnabled() && blocker.getBlockerBounds().intersectsLine(px, py, qx, qy)) {
-                return true;
-            }
+            if (!blocker.isSightBlockingEnabled()) continue;
+            Rectangle r = blocker.getBlockerBounds();
+            if (r.contains(qx, qy)) continue; // tile is inside this blocker — never self-occlude
+            if (r.intersectsLine(px, py, qx, qy)) return true;
         }
         return false;
     }

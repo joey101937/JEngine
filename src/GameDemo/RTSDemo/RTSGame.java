@@ -13,6 +13,8 @@ import Framework.PathingLayer;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.CommandHandler;
+import GameDemo.RTSDemo.FogOfWar.FogOfWarEffect;
+import GameDemo.RTSDemo.FogOfWar.FogOfWarGrid;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementHandler;

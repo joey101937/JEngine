@@ -184,6 +184,7 @@ public class TankUnit extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
+        if (!shouldRender()) return;
         if (isSolid) {
             drawShadow(g, shadow, 5, 9);
         }
@@ -497,6 +498,7 @@ public class TankUnit extends RTSUnit {
         // turret render
         @Override
         public void render(Graphics2D g) {
+            if (!((RTSUnit) getHost()).shouldRender()) return;
             if (getHost().isSolid) {
                 AffineTransform old = g.getTransform();
                 VolatileImage toRender = turretShadow.getCurrentVolatileImage();
@@ -546,6 +548,7 @@ public class TankUnit extends RTSUnit {
         
         @Override
         public void render(Graphics2D g) {
+            if (!hull.shouldRender()) return;
             if(!isInvisible) {
                 drawShadow(g, sandbagShadow, 2, 3);
             }

@@ -87,7 +87,7 @@ public class Rifleman extends RTSUnit {
         this.minSpeedMultiplier = .8;
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;
-        this.sightRadius = 1000;
+        this.sightRadius = 1400;
         initializeButtons();
     }
 
@@ -214,6 +214,7 @@ public class Rifleman extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
+        if (!shouldRender()) return;
         if(!isRubble) {
             super.render(g);
             AffineTransform old = g.getTransform();
@@ -253,6 +254,12 @@ public class Rifleman extends RTSUnit {
             this.setScale(VISUAL_SCALE);
             this.hull = r;
             this.setGraphic(getIdleAnimation());
+        }
+
+        @Override
+        public void render(Graphics2D g) {
+            if (!((RTSUnit) getHost()).shouldRender()) return;
+            super.render(g);
         }
 
         @Override

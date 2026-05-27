@@ -1,8 +1,9 @@
-package GameDemo.RTSDemo;
+package GameDemo.RTSDemo.FogOfWar;
 
 import Framework.Game;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import GameDemo.RTSDemo.RTSGame;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
@@ -67,6 +68,6 @@ public class FogOfWarEffect extends IndependentEffect {
 
     @Override
     public int getZLayer() {
-        return Integer.MAX_VALUE;
+        return 1000;
     }
 }

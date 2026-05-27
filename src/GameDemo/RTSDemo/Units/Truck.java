@@ -121,6 +121,7 @@ public class Truck extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
+        if (!shouldRender()) return;
         if (isSolid) {
             drawShadow(g, hullShadow, 5, 9);
         }

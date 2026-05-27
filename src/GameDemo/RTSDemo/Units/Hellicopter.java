@@ -11,6 +11,7 @@ import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
+import GameDemo.RTSDemo.FogOfWar.SightBlockerImmune;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -24,7 +25,12 @@ import java.util.ArrayList;
  *
  * @author guydu
  */
-public class Hellicopter extends RTSUnit {
+public class Hellicopter extends RTSUnit implements SightBlockerImmune {
+
+    public boolean sightBlockerImmune = true;
+
+    @Override
+    public boolean isSightBlockerImmune() { return sightBlockerImmune; }
 
     public static final double VISUAL_SCALE = .34;
 
@@ -252,6 +258,7 @@ public class Hellicopter extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
+        if (!shouldRender()) return;
         int shadowOffsetX = 5;
         int shadowOffsetY = Math.max(elevation, 9);
         Coordinate renderLocation = getRenderLocation();
@@ -312,6 +319,7 @@ public class Hellicopter extends RTSUnit {
 
         @Override
         public void render(Graphics2D g) {
+            if (!((RTSUnit) getHost()).shouldRender()) return;
             super.render(g);
             if (!isRubble) {
                 double bladesAngle = (System.currentTimeMillis() * 2160.0 / 1000.0) % 360;

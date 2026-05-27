@@ -2,6 +2,7 @@
 package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
+import GameDemo.RTSDemo.FogOfWar.SightBlocker;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;

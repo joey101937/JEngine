@@ -135,6 +135,7 @@ public class LightTank extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
+        if (!shouldRender()) return;
         if (isSolid) {
             drawShadow(g, hullShadow, 5, 9);
         }
@@ -360,6 +361,7 @@ public class LightTank extends RTSUnit {
 
         @Override
         public void render(Graphics2D g) {
+            if (!hull.shouldRender()) return;
             if (getHost().isSolid && !isRubble) {
                 AffineTransform old = g.getTransform();
                 VolatileImage toRender = turretShadow.getCurrentVolatileImage();

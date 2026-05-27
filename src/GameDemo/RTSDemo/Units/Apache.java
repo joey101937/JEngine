@@ -12,6 +12,7 @@ import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
+import GameDemo.RTSDemo.FogOfWar.SightBlockerImmune;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -25,7 +26,12 @@ import java.util.ArrayList;
  *
  * @author guydu
  */
-public class Apache extends RTSUnit {
+public class Apache extends RTSUnit implements SightBlockerImmune {
+
+    public boolean sightBlockerImmune = true;
+
+    @Override
+    public boolean isSightBlockerImmune() { return sightBlockerImmune; }
 
     public static final double VISUAL_SCALE = .34;
 
@@ -390,6 +396,7 @@ public class Apache extends RTSUnit {
 
     @Override
     public void render(Graphics2D g) {
+        if (!shouldRender()) return;
         int shadowOffsetX = 5;
         int shadowOffsetY = Math.max(elevation, 9);
         Coordinate renderLocation = getRenderLocation();
@@ -453,6 +460,7 @@ public class Apache extends RTSUnit {
 
         @Override
         public void render(Graphics2D g) {
+            if (!((RTSUnit) getHost()).shouldRender()) return;
             if (!isRubble) {
                 // Docked missiles rendered before body so they appear underneath
                 Coordinate renderLoc = getRenderLocation();

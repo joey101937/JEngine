@@ -1,4 +1,4 @@
-package GameDemo.RTSDemo;
+package GameDemo.RTSDemo.FogOfWar;
 
 import java.awt.Rectangle;
 import java.io.Serializable;
