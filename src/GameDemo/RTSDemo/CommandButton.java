@@ -14,7 +14,7 @@ public class CommandButton implements java.io.Serializable {
     public int cooldownPercent = 0; // 100 is fully on cooldown
     public double cooldownSeconds = 0;
     public long tickNumber = 0;
-    public long tickLastUsed = 0;
+    public long tickLastUsed = -99999;
     public boolean isPassive = true;
     public transient BufferedImage iconImage;
     public transient BufferedImage hoveredImage;

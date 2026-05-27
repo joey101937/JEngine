@@ -1,6 +1,5 @@
 package GameDemo.RTSDemo.Buttons;
 
-import Framework.Coordinate;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;

@@ -355,7 +355,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         if(this instanceof Bazookaman) extra += 12;
         if(isInfantry) return 16 + extra;
         if(this instanceof LightTank) return 60 + extra; 
-        if(this.plane > 1) return 35 + extra; // helicopter
+        if(this.plane > 1) return 100 + extra; // helicopter
         return 65 + extra; // med tank
     }
 
@@ -402,6 +402,9 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
                     continue;
                 }
                 if (((RTSUnit) go).isCloaked == true) {
+                    continue;
+                }
+                 if (((RTSUnit) go).isVisible(this.team) == false) {
                     continue;
                 }
                 var myLoc = getLocation();

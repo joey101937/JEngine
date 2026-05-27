@@ -34,11 +34,15 @@ public class ApacheMissile extends Projectile {
     public static volatile Sprite missileSprite = null;
     public static volatile Sprite shadowSprite = null;
 
+    private static final double BOB_AMOUNT = 6.0;
+
     private final Apache shooter;
     private final Coordinate targetCoord;
     private final double initialDistance;
     private final double scaleLoss;
     private boolean hasExploded = false;
+    private int bobOffset = -1;
+    private double renderBobY = 0;
 
     public static void initGraphics() {
         if (missileSprite != null) return;
@@ -78,6 +82,17 @@ public class ApacheMissile extends Projectile {
     public void tick() {
         super.tick();
         if (!hasExploded) {
+            if (bobOffset == -1) {
+                Coordinate loc = getPixelLocation();
+                bobOffset = Main.generateRandomIntFromSeed(0, 200, (long) (loc.x + loc.y));
+            }
+            long tick = getHostGame().getGameTickNumber() + bobOffset;
+            double speedPerTick = RTSGame.tickAdjust(2.0);
+            double cycleLength = 200.0 / speedPerTick;
+            double cyclePos = (tick % (long) cycleLength) * speedPerTick;
+            double bobPercent = cyclePos <= 100 ? cyclePos : 200 - cyclePos;
+            renderBobY = BOB_AMOUNT * (bobPercent / 100.0);
+
             setBaseSpeed(Math.min(MAX_SPEED, getBaseSpeed() + SPEED_ACCEL));
             double dist = Coordinate.distanceBetween(getPixelLocation(), targetCoord);
             double progress = (initialDistance > 0) ? Math.max(0.0, Math.min(1.0, 1.0 - dist / initialDistance)) : 1.0;
@@ -148,6 +163,9 @@ public class ApacheMissile extends Projectile {
             g.setTransform(saved);
         }
 
+        // Bob the missile sprite up/down; shadow stays at ground position
+        g.translate(0, -renderBobY);
         super.render(g);
+        g.setTransform(saved);
     }
 }
