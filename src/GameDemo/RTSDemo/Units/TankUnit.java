@@ -27,6 +27,9 @@ import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.FogOfWar.DirectionalVisionProvider;
 import GameDemo.RTSDemo.RTSUnit;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -56,6 +59,15 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
     private final Map<String, Push> lastInfantryPushPerTarget = new HashMap<>();
     private double hullRotationSpeed = 0.0;
+
+    // Hull machine gun
+    public static final Damage staticHullMGDamage = new Damage(4);
+    public static final double HULL_MG_ATTACK_FREQUENCY = 1.0;
+    public Damage hullMGDamage;
+    public long hullMGCooldownExpiresAtTick = 0;
+    public int hullMGMuzzleOffsetX = 15;
+    public int hullMGMuzzleForwardOffset = -2;
+    private long[] hullMGFlashTicks = {-9999, -9999, -9999};
 
     // State tracking for in-progress actions (survives serialization)
     private boolean isDiggingIn = false;
@@ -193,6 +205,9 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             drawRubbleProximityIndicators(g);
         }
         super.render(g);
+        if (!isRubble) {
+            renderHullMGFlash(g);
+        }
     }
 
     @Override
@@ -257,6 +272,9 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         if (weaponCooldownExpiresAtTick > 0 && getHostGame().getGameTickNumber() >= weaponCooldownExpiresAtTick) {
             weaponCooldownExpiresAtTick = 0;
         }
+        if (hullMGCooldownExpiresAtTick > 0 && getHostGame().getGameTickNumber() >= hullMGCooldownExpiresAtTick) {
+            hullMGCooldownExpiresAtTick = 0;
+        }
 
         if (currentHealth > 0 && !isRubble) {
             this.setGraphic(getHullSprite());
@@ -270,6 +288,10 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         if (isDiggingOut && getHostGame().getGameTickNumber() >= digActionStartTick + (RTSGame.desiredTPS * 5)) {
             pickUpSandbag();
             isDiggingOut = false;
+        }
+
+        if (!isRubble && !isImmobilized && velocity.y == 0 && rotationSpeed > 0) {
+            tickHullMachineGun();
         }
     }
 
@@ -322,6 +344,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         this.rotationSpeed = RTSGame.tickAdjust(1.4);
         this.setRenderBrightness(.9);
         this.sightRadius = 300;
+        hullMGDamage = staticHullMGDamage.copy(this);
     }
 
     private void initializeButtons() {
@@ -347,6 +370,101 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         for (CommandButton button : getButtons()) {
             button.restoreTransientFields();
         }
+    }
+
+    private void tickHullMachineGun() {
+        RTSUnit infantryTarget = nearestVisibleEnemyInfantryInRange();
+        if (infantryTarget == null) return;
+        double angleToTarget = rotationNeededToFace(infantryTarget.getPixelLocation());
+        applyHullRotation(angleToTarget);
+        if (Math.abs(angleToTarget) <= 10) {
+            fireHullMG(infantryTarget);
+        }
+    }
+
+    private RTSUnit nearestVisibleEnemyInfantryInRange() {
+        double closest = range + 1;
+        RTSUnit found = null;
+        for (var go : getHostGame().getObjectsNearPoint(getPixelLocation(), range)) {
+            if (!(go instanceof RTSUnit unit)) continue;
+            if (unit.team == team || unit.isRubble || !unit.isInfantry || !unit.isVisible(team)) continue;
+            double dist = distanceFrom(unit);
+            if (dist < closest) {
+                closest = dist;
+                found = unit;
+            }
+        }
+        return found;
+    }
+
+    private void fireHullMG(RTSUnit target) {
+        if (hullMGCooldownExpiresAtTick > 0) return;
+        hullMGCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (long)(RTSGame.desiredTPS * HULL_MG_ATTACK_FREQUENCY);
+        long fireTick = getHostGame().getGameTickNumber();
+        hullMGFlashTicks[0] = fireTick;
+        hullMGFlashTicks[1] = fireTick + RTSGame.tickAdjust(14);
+        hullMGFlashTicks[2] = fireTick + RTSGame.tickAdjust(24);
+        if (isOnScreen()) {
+            RTSSoundManager.get().play(RTSSoundManager.RIFLEMAN_ATTACK, Main.generateRandomDoubleLocally(.55f, .63f), Main.generateRandomIntLocally(0, 20));
+        } else {
+            RTSSoundManager.get().play(RTSSoundManager.RIFLEMAN_ATTACK, Main.generateRandomDoubleLocally(.4f, .48f), Main.generateRandomIntLocally(0, 20));
+        }
+        performHullMGAttack(target, 0);
+        performHullMGAttack(target, 1);
+        performHullMGAttack(target, 2);
+        createHullMGImpactVisual(target, 0);
+        createHullMGImpactVisual(target, RTSGame.tickAdjust(14));
+        createHullMGImpactVisual(target, RTSGame.tickAdjust(24));
+    }
+
+    private void performHullMGAttack(RTSUnit target, int callNum) {
+        if (Main.generateDeterministicRandomInt(0, 100, callNum) + 10 > target.getDodgeChance()) {
+            hullMGDamage.launchLocation = getPixelLocation();
+            hullMGDamage.impactLoaction = getPixelLocation();
+            target.takeDamage(hullMGDamage);
+        }
+    }
+
+    private void createHullMGImpactVisual(RTSUnit target, int tickDelay) {
+        addTickDelayedEffect(tickDelay, c -> {
+            Coordinate impactLocation = target.getPixelLocation();
+            impactLocation.x += Main.generateRandomInt(-target.getWidth() / 3, target.getWidth() / 3);
+            impactLocation.y += Main.generateRandomInt(-target.getHeight() / 3, target.getHeight() / 3);
+            OnceThroughSticker s = new OnceThroughSticker(getHostGame(), Rifleman.smallImpact.copyMaintainSource(), impactLocation);
+            s.rotation = Main.generateRandomInt(0, 360);
+        });
+    }
+
+    private void renderHullMGFlash(Graphics2D g) {
+        long currentTick = getHostGame().getGameTickNumber();
+        boolean anyVisible = false;
+        for (long flashTick : hullMGFlashTicks) {
+            if (currentTick - flashTick <= 4) { anyVisible = true; break; }
+        }
+        if (!anyVisible) return;
+        DCoordinate muzzleOffset = new DCoordinate(hullMGMuzzleOffsetX, -(getHeight() / 2.0 + hullMGMuzzleForwardOffset));
+        muzzleOffset.adjustForRotation(getRotationRealTime());
+        Coordinate renderLoc = getRenderLocation();
+        int mx = (int)(renderLoc.x + muzzleOffset.x);
+        int my = (int)(renderLoc.y + muzzleOffset.y);
+        Composite oldComposite = g.getComposite();
+        Color oldColor = g.getColor();
+        for (long flashTick : hullMGFlashTicks) {
+            long ticksSince = currentTick - flashTick;
+            if (ticksSince < 0 || ticksSince > 4) continue;
+            float fadeAlpha = 1.0f - (ticksSince / 5.0f);
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, fadeAlpha * 0.5f));
+            g.setColor(new Color(255, 220, 50));
+            g.fillOval(mx - 4, my - 4, 8, 8);
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, fadeAlpha * 0.7f));
+            g.setColor(new Color(255, 140, 0));
+            g.fillOval(mx - 2, my - 2, 5, 5);
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, fadeAlpha));
+            g.setColor(Color.WHITE);
+            g.fillOval(mx - 1, my - 1, 3, 3);
+        }
+        g.setColor(oldColor);
+        g.setComposite(oldComposite);
     }
 
     //when a tank tries to fire, it first checks if its turret is still firing.
