@@ -35,6 +35,7 @@ public class TankBullet extends Projectile {
     public Damage damage = staticDamage.copy();
     public GameObject2 shooter; //the object that launched this projectile
     public boolean alreadyExploded = false;
+    public int penetrationChancePercent = 70;
     
     public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet}, "tankBulletGraphic");
     public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallTank");
@@ -96,6 +97,7 @@ public class TankBullet extends Projectile {
             int ignoreChance = dodgeChance;
             if (preferOtherUnit) ignoreChance += 50;
             int roll = Main.generateDeterministicRandomInt(0, 99);
+            // check miss
             if (roll < ignoreChance) {
                 ignoredUnitIds.add(otherUnit.ID);
                 if (roll < dodgeChance) {
@@ -108,6 +110,13 @@ public class TankBullet extends Projectile {
             otherUnit.takeDamage(damage);
             Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .25);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
+            // check penetration for infantry
+            if (otherUnit.isInfantry && Main.generateDeterministicRandomInt(0, 99) < penetrationChancePercent) {
+                ignoredUnitIds.add(otherUnit.ID);
+                double capRange = startPosition.distanceFrom(otherUnit.getPixelLocation()) + 150;
+                if (capRange < maxRange) maxRange = (int) capRange;
+                return;
+            }
             alreadyExploded = true;
             destroy();
         }

@@ -185,28 +185,31 @@ public class Rifleman extends RTSUnit {
         turret.setGraphic(turret.getFireAnimation());
         // riflemen attack by shooting 2dmg 3 times.
         // each time recalculates dodge chance separately so that it has higher possibility of hitting at least one shot
-        performAttack(target, 0);
-        performAttack(target, 1);
-        performAttack(target, 2);
-        createImpactVisual(target, 0);
-        createImpactVisual(target, RTSGame.tickAdjust(14));
-        createImpactVisual(target, RTSGame.tickAdjust(24));
+        boolean hit0 = performAttack(target, 0);
+        boolean hit1 = performAttack(target, 1);
+        boolean hit2 = performAttack(target, 2);
+        createImpactVisual(target, 0, hit0);
+        createImpactVisual(target, RTSGame.tickAdjust(14), hit1);
+        createImpactVisual(target, RTSGame.tickAdjust(24), hit2);
 
     }
     
-    private void performAttack(RTSUnit target, int callNum){
+    private boolean performAttack(RTSUnit target, int callNum){
         if(Main.generateDeterministicRandomInt(0, 100, callNum) + accuracyBonus > target.getDodgeChance()) {
             damage.launchLocation = getPixelLocation();
             damage.impactLoaction = getPixelLocation();
             target.takeDamage(damage);
+            return true;
         }
+        return false;
     }
-    
-    private void createImpactVisual(RTSUnit target, int tickDelay) {
+
+    private void createImpactVisual(RTSUnit target, int tickDelay, boolean hit) {
         this.addTickDelayedEffect(tickDelay, c -> {
+            int scatter = hit ? target.getWidth() / 3 : target.getWidth() / 2 + 22;
             Coordinate impactLocation = target.getPixelLocation();
-            impactLocation.x += Main.generateRandomInt(-target.getWidth()/3, target.getWidth()/3);
-            impactLocation.y += Main.generateRandomInt(-target.getHeight()/3, target.getHeight()/3);
+            impactLocation.x += Main.generateRandomInt(-scatter, scatter);
+            impactLocation.y += Main.generateRandomInt(-scatter, scatter);
             OnceThroughSticker s = new OnceThroughSticker(getHostGame(), smallImpact.copyMaintainSource(), impactLocation);
             s.rotation = Main.generateRandomInt(0, 360);
         });

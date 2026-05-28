@@ -424,7 +424,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     }
 
     private boolean performHullMGAttack(RTSUnit target, int callNum) {
-        if (Main.generateDeterministicRandomInt(0, 100, callNum) + 10 > target.getDodgeChance()) {
+        if (Main.generateDeterministicRandomInt(0, 100, callNum) > target.getDodgeChance()) {
             hullMGDamage.launchLocation = getPixelLocation();
             hullMGDamage.impactLoaction = getPixelLocation();
             target.takeDamage(hullMGDamage);
