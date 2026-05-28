@@ -37,7 +37,6 @@ public class TankBullet extends Projectile {
     public Damage damage = staticDamage.copy();
     public GameObject2 shooter; //the object that launched this projectile
     public boolean alreadyExploded = false;
-    public int penetrationChancePercent = 70;
     
     public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet}, "tankBulletGraphic");
     public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallTank");
@@ -111,14 +110,6 @@ public class TankBullet extends Projectile {
             damage.impactLoaction = getPixelLocation();
             otherUnit.takeDamage(damage);
             Coordinate impactLoc = otherUnit.getNearestBodyPoint(getPixelLocation());
-            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
-            // check penetration for infantry
-            if (otherUnit.isInfantry && Main.generateDeterministicRandomInt(0, 99) < penetrationChancePercent) {
-                ignoredUnitIds.add(otherUnit.ID);
-                double capRange = startPosition.distanceFrom(otherUnit.getPixelLocation()) + 150;
-                if (capRange < maxRange) maxRange = (int) capRange;
-                return;
-            }
             if (otherUnit.isSoftTarget) {
                 getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), impactLoc, 15, RTSGame.desiredTPS * 5));
             } else {
@@ -130,6 +121,7 @@ public class TankBullet extends Projectile {
                 otherUnit.addRenderHook(new HullBurnDecal(vehicleBurnPos, otherUnit, 15, RTSGame.desiredTPS * 5));
             }
             alreadyExploded = true;
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
             destroy();
         }
     }

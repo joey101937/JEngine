@@ -175,12 +175,12 @@ public class Rifleman extends RTSUnit {
             if (isOnScreen()) {
                  RTSSoundManager.get().play(
                          RTSSoundManager.RIFLEMAN_ATTACK,
-                         Main.generateRandomDoubleLocally(.55f, .63f),
+                         Main.generateRandomDoubleLocally(.50f, .55f),
                          Main.generateRandomIntLocally(0, 20));
             } else {
                 RTSSoundManager.get().play(
                          RTSSoundManager.RIFLEMAN_ATTACK,
-                         Main.generateRandomDoubleLocally(.4f, .48f),
+                         Main.generateRandomDoubleLocally(.4f, .46f),
                          Main.generateRandomIntLocally(0, 20));
             }
         turret.setGraphic(turret.getFireAnimation());
@@ -333,7 +333,7 @@ public class Rifleman extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + damage + "    Interval: " + attackFrequency+"s    Range: "+ range);
+        out.add("Dmg: " + damage + " x 3      Interval: " + attackFrequency+"s    Range: "+ range);
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
         return out;
     }

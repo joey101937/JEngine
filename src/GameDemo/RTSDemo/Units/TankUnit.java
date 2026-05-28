@@ -39,6 +39,8 @@ import java.util.List;
 
 /**
  * This is a tank gameobject. Tank class is the chasis
+ * 
+ * Has directional armor, hull mounted secondary weapon with restricted firing params, and ability to deploy sandbags
  *
  * @author Joseph
  */
@@ -62,7 +64,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
     // Hull machine gun
     public static final Damage staticHullMGDamage = new Damage(4);
-    public static final double HULL_MG_ATTACK_FREQUENCY = 1.0;
+    public static final double HULL_MG_ATTACK_FREQUENCY = 1.5;
     public Damage hullMGDamage;
     public long hullMGCooldownExpiresAtTick = 0;
     public int hullMGMuzzleOffsetX = 15;
@@ -179,7 +181,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         ).forEach(x -> x.scaleTo(VISUAL_SCALE));
 
         hullMGImpact = new Sequence(RTSAssetManager.smallImpact);
-        hullMGImpact.scaleTo(2.4);
+        hullMGImpact.scaleTo(3);
         hullMGImpact.setFrameDelay(30);
     }
 
@@ -383,7 +385,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         if (infantryTarget == null) return;
         double angleToTarget = rotationNeededToFace(infantryTarget.getPixelLocation());
         applyHullRotation(angleToTarget);
-        if (Math.abs(angleToTarget) <= 10) {
+        if (Math.abs(angleToTarget) <= 14) {
             fireHullMG(infantryTarget);
         }
     }

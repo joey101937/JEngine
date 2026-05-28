@@ -40,10 +40,10 @@ public class ReinforcementTypeInfantry extends ReinforcementType {
         String commandGroup = RTSInput.generateRandomCommandGroup();
         int initialOffset = -360;
         for (int i = 0; i < 4; i++) {
-            Coordinate spawnOffset = new Coordinate(initialOffset + (i * 150), 50);
+            Coordinate spawnOffset = new Coordinate(initialOffset + (i * 200), 50);
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
-            int padding = 40;
+            int padding = 50;
             Rifleman r1 = new Rifleman(spawnLocation.x, spawnLocation.y, team);
             Rifleman r2 = new Rifleman(spawnLocation.x + padding, spawnLocation.y, team);
             Rifleman r3 = new Rifleman(spawnLocation.x, spawnLocation.y + padding, team);

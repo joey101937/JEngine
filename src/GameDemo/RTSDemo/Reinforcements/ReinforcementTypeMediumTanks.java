@@ -17,7 +17,7 @@ public class ReinforcementTypeMediumTanks extends ReinforcementType{
         this.hoverIcon = RTSAssetManager.layMineButtonHover;
         infoLines.add("Strong open-field combatants");
         infoLines.add("Can dig-in for extra defense. Medium Speed.");
-        contents.put(TankUnit.class, 5);
+        contents.put(TankUnit.class, 4);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ReinforcementTypeMediumTanks extends ReinforcementType{
         Coordinate base = kb.spawnLocation.topLeft;
         int initialOffset = -325;
         String commandGroup = RTSInput.generateRandomCommandGroup();
-        for(int i = 0; i < 5; i ++) {
+        for(int i = 0; i < 4; i ++) {
             Coordinate spawnOffset = new Coordinate(initialOffset + (i * 130), 50);
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);

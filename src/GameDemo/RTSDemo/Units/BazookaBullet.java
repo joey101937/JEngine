@@ -100,7 +100,7 @@ public class BazookaBullet extends Projectile {
             if (ignoredUnitIds.contains(otherUnit.ID)) return;
             
             boolean preferOtherUnit = preferredTargetId != null && !otherUnit.ID.equals(preferredTargetId);
-            int ignoreChance = otherUnit.getDodgeChance();
+            int ignoreChance = otherUnit.isInfantry ? otherUnit.getDodgeChance() : 0; // bazooka cannot be dodged by vehicles
             if(preferOtherUnit) ignoreChance += 50;
             if (Main.generateDeterministicRandomInt(0, 99) < ignoreChance) {
                 ignoredUnitIds.add(otherUnit.ID);
@@ -157,7 +157,7 @@ public class BazookaBullet extends Projectile {
         } else {
             Coordinate missPos = getPixelLocation(true);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), missPos);
-            getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), missPos, 9, RTSGame.desiredTPS * 5));
+            if (this.plane<2) getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), missPos, 9, RTSGame.desiredTPS * 5));
         }
     }
 

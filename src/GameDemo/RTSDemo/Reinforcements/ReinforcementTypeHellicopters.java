@@ -17,7 +17,7 @@ public class ReinforcementTypeHellicopters extends ReinforcementType{
         this.hoverIcon = RTSAssetManager.layMineButtonHover;
         infoLines.add("Air Strike");
         infoLines.add("Fast attack fliers. Can only be attacked by units with anti-air capabilities");
-        contents.put(Hellicopter.class, 5);
+        contents.put(Hellicopter.class, 2);
     }
 
     @Override
@@ -32,8 +32,8 @@ public class ReinforcementTypeHellicopters extends ReinforcementType{
         Coordinate base = kb.spawnLocation.topLeft;
         int initialOffset = -240;
         String commandGroup = RTSInput.generateRandomCommandGroup();
-        for(int i = 0; i < 3; i ++) {
-            Coordinate spawnOffset = new Coordinate(initialOffset + (i * 160), 50);
+        for(int i = 0; i < 2; i ++) {
+            Coordinate spawnOffset = new Coordinate(initialOffset + (i * 200), 50);
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
             Hellicopter heli = new Hellicopter(spawnLocation.x, spawnLocation.y, team);

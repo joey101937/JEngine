@@ -31,7 +31,7 @@ public class ReinforcementTypeLightTanks extends ReinforcementType {
         Coordinate base = kb.spawnLocation.topLeft;
         String commandGroup = RTSInput.generateRandomCommandGroup();
         int initialOffset = -360;
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 5; i++) {
             Coordinate spawnOffset = new Coordinate(initialOffset + (i * 120), 50);
             spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);

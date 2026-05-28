@@ -11,6 +11,7 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import Framework.PathingLayer;
+import Framework.RenderHook;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarEffect;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarGrid;
 import GameDemo.RTSDemo.FogOfWar.VisionProvider;
@@ -31,6 +32,7 @@ import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  *
@@ -733,6 +735,13 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
 
     public void triggerAbility(int abilityNumber, Coordinate target) {
     }
+    
+    
+    @Override
+    public CopyOnWriteArrayList<RenderHook> getRenderHooks() {
+        if(shouldRender()) return super.getRenderHooks();
+        else return new CopyOnWriteArrayList<>();
+    }
 
     /**
      * Returns true if this unit is within at least one visible tile for the given team.
@@ -898,7 +907,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
      * @return 0-100
      */
     public int getDodgeChance() {
-        return isRubble ? 25 : 0;
+        return isRubble ? 25 : 8;
     }
 
     public double bodyRectWidthFraction  = 0.55;
