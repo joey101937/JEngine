@@ -68,7 +68,12 @@ public class Truck extends RTSUnit {
         this.setScale(VISUAL_SCALE);
         this.setGraphic(getHullSprite());
         this.isSolid = true;
+        this.isSoftTarget = true;           // receives ground burn mark on hit rather than hull decal
+        this.bodyRectWidthFraction  = 0.38; // fraction of sprite width used as the impact-detection rectangle
+        this.bodyRectHeightFraction = 0.50; // fraction of sprite height used as the impact-detection rectangle
         this.rotationSpeed = RTSGame.tickAdjust(2.5);
+        this.maxHealth = 65;
+        this.currentHealth = 65;
     }
 
     @Override

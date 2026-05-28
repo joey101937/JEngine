@@ -50,6 +50,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     public boolean isRubble = false;
     public double rotationSpeed = RTSGame.tickAdjust(5);
     public boolean isInfantry = false;
+    public boolean isSoftTarget = false; // ground burn mark instead of hull decal on hit
     public RTSUnit nearestEnemyInfantry, nearestEnemeyGroundVehicle, nearestEnemyAircraft, nearestEnemyGroundUnit, nearestEnemyUnit;
     public boolean isCloaked = false;
     public boolean isImmobilized = false;
@@ -898,5 +899,31 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
      */
     public int getDodgeChance() {
         return isRubble ? 25 : 0;
+    }
+
+    public double bodyRectWidthFraction  = 0.55;
+    public double bodyRectHeightFraction = 0.65;
+
+    public Coordinate getNearestBodyPoint(Coordinate from) {
+        int bw = (int)(getWidth()  * bodyRectWidthFraction);
+        int bh = (int)(getHeight() * bodyRectHeightFraction);
+        return nearestPointOnRotatedRect(from, getPixelLocation(), bw, bh, getRotation());
+    }
+
+    protected static Coordinate nearestPointOnRotatedRect(Coordinate from, Coordinate center, int w, int h, double rotDeg) {
+        double cosN = Math.cos(Math.toRadians(-rotDeg));
+        double sinN = Math.sin(Math.toRadians(-rotDeg));
+        double dx = from.x - center.x;
+        double dy = from.y - center.y;
+        double localX = cosN * dx - sinN * dy;
+        double localY = sinN * dx + cosN * dy;
+        double cx = Math.max(-w / 2.0, Math.min(w / 2.0, localX));
+        double cy = Math.max(-h / 2.0, Math.min(h / 2.0, localY));
+        double cosP = Math.cos(Math.toRadians(rotDeg));
+        double sinP = Math.sin(Math.toRadians(rotDeg));
+        return new Coordinate(
+            center.x + (int)(cosP * cx - sinP * cy),
+            center.y + (int)(sinP * cx + cosP * cy)
+        );
     }
 }

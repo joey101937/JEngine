@@ -99,6 +99,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     private static int IDLog = 0; //used to assign IDs
     public HashMap<PathingLayer.Type,Double> pathingModifiers = new HashMap<>(); //stores default speed modifiers for different terrain types
     private CopyOnWriteArrayList<SubObject> subObjects = new CopyOnWriteArrayList<>(); //stores all subobjects on this object
+    private transient CopyOnWriteArrayList<RenderHook> renderHooks = new CopyOnWriteArrayList<>();
     /**this determines weather or not a gameobject will be able to move through other solid units, however this still triggers onCollide*/
     public boolean preventOverlap = true; 
 
@@ -135,6 +136,16 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     
     public void addSubObject(SubObject sub){
         sub.setHost(this);
+    }
+
+    public void addRenderHook(RenderHook hook) {
+        if (renderHooks == null) renderHooks = new CopyOnWriteArrayList<>();
+        renderHooks.add(hook);
+    }
+
+    public CopyOnWriteArrayList<RenderHook> getRenderHooks() {
+        if (renderHooks == null) renderHooks = new CopyOnWriteArrayList<>();
+        return renderHooks;
     }
     
     

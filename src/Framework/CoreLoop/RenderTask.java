@@ -5,6 +5,7 @@
 package Framework.CoreLoop;
 
 import Framework.GameObject2;
+import Framework.RenderHook;
 import Framework.SubObject;
 import java.awt.Graphics2D;
 
@@ -29,19 +30,30 @@ public class RenderTask implements Runnable {
                 for (SubObject so : go.getAllSubObjects()) {
                     if(so.isRenderBelow()) {
                         so.render((Graphics2D) graphics.create());
+                        fireRenderHooks(so);
                     }
-                }   
-            } 
+                }
+            }
             renderable.render((Graphics2D) graphics.create());
             if(renderable instanceof GameObject2 go) {
+                fireRenderHooks(go);
                 for (SubObject so : go.getAllSubObjects()) {
                     if(!so.isRenderBelow()) {
                         so.render((Graphics2D) graphics.create());
+                        fireRenderHooks(so);
                     }
-                }   
-            } 
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void fireRenderHooks(GameObject2 go) {
+        go.getRenderHooks().removeIf(hook -> {
+            if (hook.isExpired()) return true;
+            hook.render((Graphics2D) graphics.create(), go);
+            return hook.isExpired();
+        });
     }
 }

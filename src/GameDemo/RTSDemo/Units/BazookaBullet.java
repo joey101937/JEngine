@@ -10,7 +10,9 @@ import java.util.HashSet;
 import java.util.Set;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
+import GameDemo.RTSDemo.BurnMarkEffect;
 import GameDemo.RTSDemo.Damage;
+import GameDemo.RTSDemo.HullBurnDecal;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
@@ -137,10 +139,25 @@ public class BazookaBullet extends Projectile {
 
     @Override
     public void onDestroy() {
-        OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), getPixelLocation(true));
         if (collidedUnit != null) {
             damage.impactLoaction = getPixelLocation();
             collidedUnit.takeDamage(damage);
+            Coordinate impactLoc = collidedUnit.getNearestBodyPoint(getPixelLocation());
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
+            if (collidedUnit.isSoftTarget) {
+                getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), impactLoc, 9, RTSGame.desiredTPS * 5));
+            } else {
+                Coordinate vehicleCenter = collidedUnit.getPixelLocation();
+                Coordinate vehicleBurnPos = new Coordinate(
+                    (int)(impactLoc.x * 0.8 + vehicleCenter.x * 0.2),
+                    (int)(impactLoc.y * 0.8 + vehicleCenter.y * 0.2)
+                );
+                collidedUnit.addRenderHook(new HullBurnDecal(vehicleBurnPos, collidedUnit, 9, RTSGame.desiredTPS * 5));
+            }
+        } else {
+            Coordinate missPos = getPixelLocation(true);
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), missPos);
+            getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), missPos, 9, RTSGame.desiredTPS * 5));
         }
     }
 

@@ -13,6 +13,8 @@ import Framework.UtilityObjects.Projectile;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Stickers.OnceThroughSticker;
+import GameDemo.RTSDemo.BurnMarkEffect;
+import GameDemo.RTSDemo.HullBurnDecal;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
@@ -108,7 +110,7 @@ public class TankBullet extends Projectile {
             }
             damage.impactLoaction = getPixelLocation();
             otherUnit.takeDamage(damage);
-            Coordinate impactLoc = Coordinate.nearestPointOnCircle(getPixelLocation(), other.getPixelLocation(), other.getWidth() * .25);
+            Coordinate impactLoc = otherUnit.getNearestBodyPoint(getPixelLocation());
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
             // check penetration for infantry
             if (otherUnit.isInfantry && Main.generateDeterministicRandomInt(0, 99) < penetrationChancePercent) {
@@ -116,6 +118,16 @@ public class TankBullet extends Projectile {
                 double capRange = startPosition.distanceFrom(otherUnit.getPixelLocation()) + 150;
                 if (capRange < maxRange) maxRange = (int) capRange;
                 return;
+            }
+            if (otherUnit.isSoftTarget) {
+                getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), impactLoc, 15, RTSGame.desiredTPS * 5));
+            } else {
+                Coordinate vehicleCenter = otherUnit.getPixelLocation();
+                Coordinate vehicleBurnPos = new Coordinate(
+                    (int)(impactLoc.x * 0.8 + vehicleCenter.x * 0.2),
+                    (int)(impactLoc.y * 0.8 + vehicleCenter.y * 0.2)
+                );
+                otherUnit.addRenderHook(new HullBurnDecal(vehicleBurnPos, otherUnit, 15, RTSGame.desiredTPS * 5));
             }
             alreadyExploded = true;
             destroy();
@@ -125,6 +137,7 @@ public class TankBullet extends Projectile {
     @Override
     public void onTimeOut() {
         OnceThroughSticker s = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), this.getPixelLocation());
+        getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), getPixelLocation(), 15, RTSGame.desiredTPS * 5));
     }
 
     /**

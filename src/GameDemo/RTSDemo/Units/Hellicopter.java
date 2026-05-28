@@ -93,6 +93,8 @@ public class Hellicopter extends RTSUnit {
         this.rotationSpeed = RTSGame.tickAdjust(3.2);
         turret = new HellicopterTurret(new Coordinate(0, 0));
         this.addSubObject(turret);
+        this.bodyRectWidthFraction  = 0.28;
+        this.bodyRectHeightFraction = 0.28;
         this.canAttackAir = true;
         this.pathingModifiers.put(PathingLayer.Type.water, 1.0);
         this.setRenderBrightness(1.25);
@@ -158,6 +160,11 @@ public class Hellicopter extends RTSUnit {
             }
         }
        
+    }
+
+    @Override
+    public void addRenderHook(Framework.RenderHook hook) {
+        turret.addRenderHook(hook);
     }
 
     @Override

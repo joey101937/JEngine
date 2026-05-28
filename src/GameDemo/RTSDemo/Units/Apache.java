@@ -119,6 +119,8 @@ public class Apache extends RTSUnit {
         this.rotationSpeed = RTSGame.tickAdjust(2.0);
         turret = new ApacheTurret(new Coordinate(0, 0));
         this.addSubObject(turret);
+        this.bodyRectWidthFraction  = 0.28;
+        this.bodyRectHeightFraction = 0.28;
         this.canAttackAir = true;
         this.pathingModifiers.put(PathingLayer.Type.water, 1.0);
         this.setRenderBrightness(1.25);
@@ -235,6 +237,11 @@ public class Apache extends RTSUnit {
                 turret.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
             }
         }
+    }
+
+    @Override
+    public void addRenderHook(Framework.RenderHook hook) {
+        turret.addRenderHook(hook);
     }
 
     @Override
