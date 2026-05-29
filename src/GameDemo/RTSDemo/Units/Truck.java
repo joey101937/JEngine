@@ -11,6 +11,7 @@ import GameDemo.RTSDemo.Buttons.UnloadAllButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Transport;
 import java.awt.Graphics2D;
@@ -176,9 +177,26 @@ public class Truck extends RTSUnit implements Transport {
         if (isRubble) {
             return;
         }
+        ArrayList<RTSUnit> toEject = new ArrayList<>(loadedUnits);
+        toEject.addAll(unloadQueue);
         loadedUnits.clear();
         unloadQueue.clear();
         remobilizeTick = -1;
+        int ejectCount = toEject.size();
+        int spawnRadius = getSideLength() / 2 + 60;
+        for (int i = 0; i < ejectCount; i++) {
+            RTSUnit unit = toEject.get(i);
+            double t = ejectCount == 1 ? 0.0 : ((double) i / (ejectCount - 1) - 0.5);
+            double angle = Math.PI / 2.0 + Math.toRadians(getRotation()) + t * Math.toRadians(90);
+            int x = getPixelLocation().x + (int) Math.round(Math.cos(angle) * spawnRadius);
+            int y = getPixelLocation().y + (int) Math.round(Math.sin(angle) * spawnRadius);
+            unit.setLocation(x, y);
+            unit.setDesiredLocation(new Coordinate(x, y));
+            unit.setCommandGroup("0");
+            unit.clearBoardingTransport();
+            getHostGame().addObject(unit);
+            unit.takeDamage(new Damage(Main.generateDeterministicRandomInt(5, 40, i)));
+        }
         Sprite rubbleSprite = team == 1 ? hullSpriteDestroyedRed : hullSpriteDestroyed;
         new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "truckDeathExplosion"), getPixelLocation());
         this.isRubble = true;
