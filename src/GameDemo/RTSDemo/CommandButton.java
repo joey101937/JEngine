@@ -25,6 +25,7 @@ public class CommandButton implements java.io.Serializable {
     public RTSUnit owner;
     public boolean isDisabled = false;
     public boolean requiresTarget = false;
+    public boolean requiresUnitTarget = false; // when true, user picks a unit rather than a coordinate
     public double maxCastRange = -1;
     public double minCastRange = -1;
     

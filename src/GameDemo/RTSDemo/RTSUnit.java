@@ -13,6 +13,7 @@ import Framework.Hitbox;
 import Framework.PathingLayer;
 import Framework.RenderHook;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarEffect;
+import GameDemo.RTSDemo.Transport;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarGrid;
 import GameDemo.RTSDemo.FogOfWar.VisionProvider;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
@@ -78,6 +79,12 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     public double minSpeedMultiplier = 0.5; // Minimum speed multiplier (50%)
 
     private String preferredTargetId = null;
+    private String boardingTransportId = null;
+    public int cargoSize = -1; // -1 = cannot be transported; 0 = free (no slot cost); >0 = cargo slot cost
+
+    public int getBoardingRange(RTSUnit transport) {
+        return transport.getSideLength() / 2 + getSideLength() / 2 + 15;
+    }
 
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
@@ -199,10 +206,29 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         if (isRubble) {
             setCommandGroup("0");
             preferredTargetId = null;
+            boardingTransportId = null;
             return;
         }
 
-        if (preferredTargetId != null) {
+        boolean isBoardingActive = false;
+        if (boardingTransportId != null) {
+            RTSUnit transport = (RTSUnit) getHostGame().getObjectById(boardingTransportId);
+            if (transport == null || transport.isRubble || !transport.isAlive() || !(transport instanceof Transport t) || transport.team != this.team) {
+                boardingTransportId = null;
+            } else if (!t.canLoad(this)) {
+                boardingTransportId = null;
+            } else {
+                setDesiredLocation(transport.getPixelLocation());
+                if (distanceFrom(transport) <= getBoardingRange(transport)) {
+                    t.load(this);
+                    boardingTransportId = null;
+                    return; // unit is inside transport now
+                }
+                isBoardingActive = true; // still moving toward transport
+            }
+        }
+
+        if (!isBoardingActive && preferredTargetId != null) {
             RTSUnit prefTarget = (RTSUnit) getHostGame().getObjectById(preferredTargetId);
             if (distanceFrom(prefTarget) <= range) {
                 // In range — stop and let combat take over; return to skip the movement block
@@ -533,6 +559,8 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
                 }
             }
         }
+        builder.append(",");
+        builder.append(boardingTransportId == null ? "null" : boardingTransportId); // 23
 
         return builder.toString();
     }
@@ -632,6 +660,11 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
                     Integer.parseInt(coords[1])
                 ));
             }
+        }
+
+        // Parse boardingTransportId
+        if (components.length > 23) {
+            this.boardingTransportId = components[23].equals("null") ? null : components[23];
         }
     }
     
@@ -733,7 +766,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         }
     }
 
-    public void triggerAbility(int abilityNumber, Coordinate target) {
+    public void triggerAbility(int abilityNumber, Coordinate target, String targetUnitId) {
     }
     
     
@@ -876,6 +909,18 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
 
     public void clearPreferredTarget() {
         this.preferredTargetId = null;
+    }
+
+    public void setBoardingTransportId(String id) {
+        this.boardingTransportId = id;
+    }
+
+    public void clearBoardingTransport() {
+        this.boardingTransportId = null;
+    }
+
+    public String getBoardingTransportId() {
+        return boardingTransportId;
     }
 
     /**

@@ -14,10 +14,12 @@ import Framework.InputHandler;
 import Framework.Main;
 import Framework.SerializationManager;
 import Framework.Window;
+import GameDemo.RTSDemo.Commands.BoardTransportCommand;
 import GameDemo.RTSDemo.Commands.MoveCommand;
 import GameDemo.RTSDemo.Commands.SetPreferredTargetCommand;
 import GameDemo.RTSDemo.Commands.StopCommand;
 import GameDemo.RTSDemo.Commands.TriggerAbilityCommand;
+import GameDemo.RTSDemo.Transport;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementType;
 import GameDemo.RTSDemo.Units.Landmine;
@@ -167,15 +169,32 @@ public class RTSInput extends InputHandler {
                 return;
             }
             if (TargetingModeManager.isActive()) {
-                for (RTSUnit castingUnit : TargetingModeManager.getCastingUnits()) {
-                    RTSGame.commandHandler.addCommand(new TriggerAbilityCommand(
-                            hostGame.getGameTickNumber() + getInputDelay(),
-                            castingUnit.ID,
-                            TargetingModeManager.getAbilityIndex(),
-                            locationOfMouseEvent
-                    ), true);
+                if (TargetingModeManager.isUnitTargetingMode()) {
+                    RTSUnit clickedUnit = getUnitAtLocation(locationOfMouseEvent);
+                    if (clickedUnit != null) {
+                        for (RTSUnit castingUnit : TargetingModeManager.getCastingUnits()) {
+                            RTSGame.commandHandler.addCommand(new TriggerAbilityCommand(
+                                    hostGame.getGameTickNumber() + getInputDelay(),
+                                    castingUnit.ID,
+                                    TargetingModeManager.getAbilityIndex(),
+                                    (Coordinate) null,
+                                    clickedUnit.ID
+                            ), true);
+                        }
+                        TargetingModeManager.cancel();
+                    }
+                } else {
+                    for (RTSUnit castingUnit : TargetingModeManager.getCastingUnits()) {
+                        RTSGame.commandHandler.addCommand(new TriggerAbilityCommand(
+                                hostGame.getGameTickNumber() + getInputDelay(),
+                                castingUnit.ID,
+                                TargetingModeManager.getAbilityIndex(),
+                                locationOfMouseEvent,
+                                null
+                        ), true);
+                    }
+                    TargetingModeManager.cancel();
                 }
-                TargetingModeManager.cancel();
                 return;
             }
             System.out.println("checking " + locationOfMouseEvent.x + "," + locationOfMouseEvent.y);
@@ -201,8 +220,28 @@ public class RTSInput extends InputHandler {
             if(hostGame.isPaused()) return;
 
             // Right-click on a unit of the opposite team → set as preferred target per selected unit
+            // Right-click on a friendly transport → board selected units that can load
             RTSUnit clickedUnit = getUnitAtLocation(locationOfMouseEvent);
             if (clickedUnit != null && !SelectionBoxEffect.selectedUnits.isEmpty()) {
+                // Friendly transport: issue board commands for eligible selected units
+                if (clickedUnit instanceof Transport transport && !clickedUnit.isRubble && clickedUnit.isAlive()
+                        && (!ExternalCommunicator.isMultiplayer || clickedUnit.team == ExternalCommunicator.localTeam)) {
+                    boolean anyIssued = false;
+                    for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
+                        if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) continue;
+                        if (!u.isAlive() || u.isRubble || u == clickedUnit) continue;
+                        if (u.team != clickedUnit.team) continue;
+                        if (!transport.canLoad(u)) continue;
+                        RTSGame.commandHandler.addCommand(new BoardTransportCommand(
+                                hostGame.getGameTickNumber() + getInputDelay(),
+                                u.ID,
+                                clickedUnit.ID
+                        ), true);
+                        anyIssued = true;
+                    }
+                    if (anyIssued) return;
+                }
+
                 boolean anyIssued = false;
                 for (RTSUnit u : SelectionBoxEffect.selectedUnits) {
                     if (ExternalCommunicator.isMultiplayer && u.team != ExternalCommunicator.localTeam) continue;
@@ -364,6 +403,9 @@ public class RTSInput extends InputHandler {
         Coordinate pos = locationOfMouseEvent(e);
         mouseDraggedLocation = pos;
         TargetingModeManager.updateCursorPosition(pos);
+        if (TargetingModeManager.isUnitTargetingMode()) {
+            TargetingModeManager.updateHoveredUnit(getUnitAtLocation(pos));
+        }
         // panCamera(e);
     }
 
@@ -378,6 +420,9 @@ public class RTSInput extends InputHandler {
         }
         Coordinate mousePos = locationOfMouseEvent(e);
         TargetingModeManager.updateCursorPosition(mousePos);
+        if (TargetingModeManager.isUnitTargetingMode()) {
+            TargetingModeManager.updateHoveredUnit(getUnitAtLocation(mousePos));
+        }
         CommandButton hoveredButton = RTSGame.infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
         RTSGame.infoPanelEffect.hoveredButton = hoveredButton;
         if (RTSGame.reinforcementHandler != null) {

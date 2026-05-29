@@ -85,6 +85,7 @@ public class Rifleman extends RTSUnit {
         this.range = 500;
         isInfantry = true;
         isSoftTarget = true;
+        cargoSize = 1;
         this.minSpeedMultiplier = .8;
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;

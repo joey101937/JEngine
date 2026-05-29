@@ -267,12 +267,14 @@ public class InfoPanelEffect extends IndependentEffect {
         List<RTSUnit> validUnits = SelectionBoxEffect.selectedUnits.stream()
                 .filter(u -> !u.isRubble && u.team == mainUnit.team && u.getClass() == mainUnit.getClass())
                 .collect(Collectors.toList());
-        if (cb.requiresTarget) {
+        if (cb.requiresUnitTarget) {
+            TargetingModeManager.activateUnitTargeting(buttonIndex, cb.maxCastRange, validUnits);
+        } else if (cb.requiresTarget) {
             TargetingModeManager.activate(buttonIndex, cb.maxCastRange, cb.minCastRange, validUnits);
         } else {
             for (RTSUnit unit : validUnits) {
                 RTSGame.commandHandler.addCommand(
-                        new TriggerAbilityCommand(hostGame.getGameTickNumber() + RTSInput.getInputDelay(), unit.ID, buttonIndex, null),
+                        new TriggerAbilityCommand(hostGame.getGameTickNumber() + RTSInput.getInputDelay(), unit.ID, buttonIndex, null, null),
                         true);
             }
         }

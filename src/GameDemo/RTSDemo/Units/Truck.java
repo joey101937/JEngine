@@ -3,18 +3,32 @@ package GameDemo.RTSDemo.Units;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GraphicalAssets.Sprite;
+import GameDemo.RTSDemo.Buttons.LoadUnitButton;
+import GameDemo.RTSDemo.Buttons.UnloadAllButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.Transport;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author guydu
  */
-public class Truck extends RTSUnit {
+public class Truck extends RTSUnit implements Transport {
+
+    public static final int MAX_CARGO_CAPACITY = 6;
+    private ArrayList<RTSUnit> loadedUnits = new ArrayList<>();
+    private ArrayList<RTSUnit> unloadQueue = new ArrayList<>();
+    private int unloadTotalCount = 0;
+    private long unloadStartTick = -1;
+    private long remobilizeTick = -1;
+    private static final int TICKS_BETWEEN_UNLOADS = 12;
     public static double VISUAL_SCALE = .4;
     public static double TRUCK_SPEED = RTSGame.tickAdjust(2.8);
 
@@ -74,6 +88,104 @@ public class Truck extends RTSUnit {
         this.rotationSpeed = RTSGame.tickAdjust(2.5);
         this.maxHealth = 65;
         this.currentHealth = 65;
+        this.addButton(new LoadUnitButton(this));
+        this.addButton(new UnloadAllButton(this));
+    }
+
+    // ── Transport interface ──────────────────────────────────────────────────
+
+    @Override
+    public boolean canLoad(RTSUnit unit) {
+        if (isRubble || !isAlive()) return false;
+        if (!unloadQueue.isEmpty()) return false;
+        if (unit.cargoSize < 0) return false;
+        if (unit.team != this.team) return false;
+        int currentLoad = loadedUnits.stream().mapToInt(u -> u.cargoSize).sum();
+        return currentLoad + unit.cargoSize <= MAX_CARGO_CAPACITY;
+    }
+
+    @Override
+    public void load(RTSUnit unit) {
+        if (!canLoad(unit)) return;
+        loadedUnits.add(unit);
+        unit.destroy();
+    }
+
+    @Override
+    public void unloadAll() {
+        if (loadedUnits.isEmpty() || !unloadQueue.isEmpty()) return;
+        unloadQueue = new ArrayList<>(loadedUnits);
+        unloadTotalCount = unloadQueue.size();
+        unloadStartTick = getHostGame().getGameTickNumber();
+        loadedUnits.clear();
+        setImmobilized(true);
+    }
+
+    private void spawnNextUnloading() {
+        int idx = unloadTotalCount - unloadQueue.size();
+        RTSUnit unit = unloadQueue.remove(0);
+        int spawnRadius = getSideLength() / 2 + 60;
+        double backAngle = Math.PI / 2.0 + Math.toRadians(getRotation());
+        double t = unloadTotalCount == 1 ? 0.0 : (idx / (double)(unloadTotalCount - 1) - 0.5);
+        double angle = backAngle + t * Math.toRadians(90);
+        int x = getPixelLocation().x + (int) Math.round(Math.cos(angle) * spawnRadius);
+        int y = getPixelLocation().y + (int) Math.round(Math.sin(angle) * spawnRadius);
+        unit.setLocation(x, y);
+        unit.setDesiredLocation(new Coordinate(x, y));
+        unit.setCommandGroup("0");
+        unit.clearBoardingTransport();
+        getHostGame().addObject(unit);
+        if (unloadQueue.isEmpty()) {
+            remobilizeTick = getHostGame().getGameTickNumber() + (long)(RTSGame.desiredTPS * 2);
+        }
+    }
+
+    @Override
+    public List<RTSUnit> getLoadedUnits() {
+        return loadedUnits;
+    }
+
+    @Override
+    public int getMaxCapacity() {
+        return MAX_CARGO_CAPACITY;
+    }
+
+    @Override
+    public void die() {
+        loadedUnits.clear();
+        unloadQueue.clear();
+        remobilizeTick = -1;
+        super.die();
+    }
+
+    @Override
+    public void triggerAbility(int index, Coordinate target, String targetUnitId) {
+        if (index == 0 && targetUnitId != null) {
+            // Load unit ability: tell the target unit to board this truck
+            RTSUnit targetUnit = (RTSUnit) getHostGame().getObjectById(targetUnitId);
+            if (targetUnit != null && !targetUnit.isRubble && targetUnit.isAlive() && canLoad(targetUnit)) {
+                targetUnit.setBoardingTransportId(this.ID);
+                targetUnit.clearPreferredTarget();
+            }
+        } else if (index == 1) {
+            unloadAll();
+        }
+    }
+
+    @Override
+    public int getVisionRange() {
+        return (!loadedUnits.isEmpty() || !unloadQueue.isEmpty()) ? 1400 : sightRadius;
+    }
+
+    @Override
+    public ArrayList<String> getInfoLines() {
+        ArrayList<String> lines = super.getInfoLines();
+        int load = loadedUnits.stream().mapToInt(u -> u.cargoSize).sum();
+        lines.add("Cargo: " + load + " / " + MAX_CARGO_CAPACITY);
+        if (!loadedUnits.isEmpty()) {
+            lines.add(loadedUnits.stream().map(RTSUnit::getName).collect(Collectors.joining(", ")));
+        }
+        return lines;
     }
 
     @Override
@@ -105,6 +217,16 @@ public class Truck extends RTSUnit {
     @Override
     public void tick() {
         super.tick();
+        if (!unloadQueue.isEmpty()) {
+            int spawnedSoFar = unloadTotalCount - unloadQueue.size();
+            if (getHostGame().getGameTickNumber() >= unloadStartTick + (long) spawnedSoFar * TICKS_BETWEEN_UNLOADS) {
+                spawnNextUnloading();
+            }
+        }
+        if (remobilizeTick > 0 && getHostGame().getGameTickNumber() >= remobilizeTick) {
+            setImmobilized(false);
+            remobilizeTick = -1;
+        }
         setGraphic(getHullSprite());
 
         double hullRot = getRotation();

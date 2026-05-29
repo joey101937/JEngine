@@ -43,6 +43,7 @@ public class MoveCommand implements Command{
             return true; // Mark as resolved so we don't keep trying
         }
         subject.clearPreferredTarget();
+        subject.clearBoardingTransport();
         subject.setDesiredLocation(target);
         subject.setCommandGroup(commandGroup);
         return true;

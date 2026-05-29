@@ -406,7 +406,7 @@ public class LightTank extends RTSUnit {
     }
 
     @Override
-    public void triggerAbility(int index, Coordinate target) {
+    public void triggerAbility(int index, Coordinate target, String targetUnitId) {
         if (index == 0) {
             Coordinate minePos = target;
             if (minePos == null) {

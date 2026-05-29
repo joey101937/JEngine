@@ -37,6 +37,7 @@ public class StopCommand implements Command {
             return true; // Mark as resolved so we don't keep trying
         }
         subject.clearPreferredTarget();
+        subject.clearBoardingTransport();
         subject.setDesiredLocation(subject.getPixelLocation());
         subject.setCommandGroup("0");
         return true;

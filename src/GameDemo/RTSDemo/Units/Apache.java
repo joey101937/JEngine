@@ -128,7 +128,7 @@ public class Apache extends RTSUnit {
     }
 
     @Override
-    public void triggerAbility(int index, Coordinate target) {
+    public void triggerAbility(int index, Coordinate target, String targetUnitId) {
         if (index == 0) {
             missileAbilityTarget = target.copy();
             missilesFiredCount = 0;

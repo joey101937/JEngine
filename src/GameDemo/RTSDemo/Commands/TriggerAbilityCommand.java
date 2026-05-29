@@ -15,12 +15,14 @@ public class TriggerAbilityCommand implements Command {
     private final int abilityIndex;
     private final int targetX;
     private final int targetY;
+    private final String targetUnitId; // non-null when ability targets a specific unit
     private boolean hasResolved = false;
 
-    public TriggerAbilityCommand(long executeTick, String subjectId, int abilityIndex, Coordinate target) {
+    public TriggerAbilityCommand(long executeTick, String subjectId, int abilityIndex, Coordinate target, String targetUnitId) {
         this.executeTick = executeTick;
         this.subjectId = subjectId;
         this.abilityIndex = abilityIndex;
+        this.targetUnitId = targetUnitId;
         if (target != null) {
             this.targetX = target.x;
             this.targetY = target.y;
@@ -56,12 +58,15 @@ public class TriggerAbilityCommand implements Command {
         if (button.onTrigger != null) {
             button.onTrigger.accept(target);
         }
-        subject.triggerAbility(abilityIndex, target);
+        subject.triggerAbility(abilityIndex, target, targetUnitId);
         return true;
     }
 
     @Override
     public String toMpString() {
+        if (targetUnitId != null) {
+            return "ta:" + subjectId + "," + abilityIndex + ",unit:" + targetUnitId + "," + executeTick;
+        }
         if (targetX == NO_TARGET) {
             return "ta:" + subjectId + "," + abilityIndex + ",null," + executeTick;
         }
@@ -83,14 +88,18 @@ public class TriggerAbilityCommand implements Command {
         String[] parts = body.split(",");
         String unitId = parts[0];
         int abilityIndex = Integer.parseInt(parts[1]);
-        if ("null".equals(parts[2])) {
+        if (parts[2].startsWith("unit:")) {
+            String targetUnitId = parts[2].substring(5);
             long executeTick = Long.parseLong(parts[3]);
-            return new TriggerAbilityCommand(executeTick, unitId, abilityIndex, null);
+            return new TriggerAbilityCommand(executeTick, unitId, abilityIndex, (Coordinate) null, targetUnitId);
+        } else if ("null".equals(parts[2])) {
+            long executeTick = Long.parseLong(parts[3]);
+            return new TriggerAbilityCommand(executeTick, unitId, abilityIndex, null, null);
         } else {
             int tX = Integer.parseInt(parts[2]);
             int tY = Integer.parseInt(parts[3]);
             long executeTick = Long.parseLong(parts[4]);
-            return new TriggerAbilityCommand(executeTick, unitId, abilityIndex, new Coordinate(tX, tY));
+            return new TriggerAbilityCommand(executeTick, unitId, abilityIndex, new Coordinate(tX, tY), null);
         }
     }
 

@@ -18,11 +18,13 @@ public class TargetingModeManager extends IndependentEffect {
     private static final long serialVersionUID = 1L;
 
     private static boolean active = false;
+    private static boolean unitTargetingMode = false;
     private static int abilityIndex = -1;
     private static double maxCastRange = -1;
     private static double minCastRange = -1;
     private static final List<RTSUnit> castingUnits = new ArrayList<>();
     private static Coordinate cursorWorldPosition = null;
+    private static RTSUnit hoveredUnit = null;
 
     private static final int TARGET_VISUAL_RADIUS = 50;
     private static final Color RANGE_CIRCLE_COLOR = new Color(180, 180, 180, 160);
@@ -32,6 +34,7 @@ public class TargetingModeManager extends IndependentEffect {
 
     public static void activate(int index, double castRange, double minRange, List<RTSUnit> units) {
         active = true;
+        unitTargetingMode = false;
         abilityIndex = index;
         maxCastRange = castRange;
         minCastRange = minRange;
@@ -39,12 +42,32 @@ public class TargetingModeManager extends IndependentEffect {
         castingUnits.addAll(units);
     }
 
+    public static void activateUnitTargeting(int index, double castRange, List<RTSUnit> units) {
+        active = true;
+        unitTargetingMode = true;
+        abilityIndex = index;
+        maxCastRange = castRange;
+        minCastRange = -1;
+        castingUnits.clear();
+        castingUnits.addAll(units);
+    }
+
     public static void cancel() {
         active = false;
+        unitTargetingMode = false;
         abilityIndex = -1;
         maxCastRange = -1;
         minCastRange = -1;
         castingUnits.clear();
+        hoveredUnit = null;
+    }
+
+    public static void updateHoveredUnit(RTSUnit unit) {
+        hoveredUnit = unit;
+    }
+
+    public static boolean isUnitTargetingMode() {
+        return unitTargetingMode;
     }
 
     public static boolean isActive() {
@@ -123,9 +146,25 @@ public class TargetingModeManager extends IndependentEffect {
             }
         }
 
-        if (cursorWorldPosition != null) {
+        g.setStroke(new BasicStroke(2));
+        if (unitTargetingMode) {
+            if (hoveredUnit != null && !hoveredUnit.isRubble && hoveredUnit.isAlive()) {
+                Coordinate pos = hoveredUnit.getRenderLocation();
+                int hw = hoveredUnit.getWidth() / 2 + 8;
+                int hh = hoveredUnit.getHeight() / 2 + 8;
+                g.setColor(TARGET_FILL_COLOR);
+                g.fillRect(pos.x - hw, pos.y - hh, hw * 2, hh * 2);
+                g.setColor(TARGET_BORDER_COLOR);
+                g.drawRect(pos.x - hw, pos.y - hh, hw * 2, hh * 2);
+            } else if (cursorWorldPosition != null) {
+                // No unit under cursor — small crosshair to show mode is active
+                int cs = 10;
+                g.setColor(TARGET_BORDER_COLOR);
+                g.drawLine(cursorWorldPosition.x - cs, cursorWorldPosition.y, cursorWorldPosition.x + cs, cursorWorldPosition.y);
+                g.drawLine(cursorWorldPosition.x, cursorWorldPosition.y - cs, cursorWorldPosition.x, cursorWorldPosition.y + cs);
+            }
+        } else if (cursorWorldPosition != null) {
             int r = TARGET_VISUAL_RADIUS;
-            g.setStroke(new BasicStroke(2));
             g.setColor(TARGET_FILL_COLOR);
             g.fillOval(cursorWorldPosition.x - r, cursorWorldPosition.y - r, r * 2, r * 2);
             g.setColor(TARGET_BORDER_COLOR);

@@ -77,6 +77,7 @@ public class Bazookaman extends RTSUnit {
         this.range = 600;
         isInfantry = true;
         isSoftTarget = true;
+        cargoSize = 1;
         this.minSpeedMultiplier = .8;
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;

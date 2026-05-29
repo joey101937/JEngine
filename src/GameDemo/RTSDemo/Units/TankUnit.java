@@ -792,7 +792,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     }
     
     @Override
-    public void triggerAbility(int index, Coordinate target) {
+    public void triggerAbility(int index, Coordinate target, String targetUnitId) {
         switch (index) {
             case 0 -> startDeployingSandbags();
             case 1 -> startPickingUpSandbags();

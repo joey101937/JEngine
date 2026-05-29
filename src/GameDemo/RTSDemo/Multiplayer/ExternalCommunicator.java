@@ -394,7 +394,18 @@ public class ExternalCommunicator implements Runnable {
             RTSGame.commandHandler.addCommand(cmd, false);
             updateTickTimingOffset(cmd.getExecuteTick());
         }
-        
+
+        if(s.startsWith("bt:")) {
+            if(isResyncing) {
+                System.out.println("Dropping board transport command during resync");
+                return;
+            }
+            System.out.println("message " + s);
+            GameDemo.RTSDemo.Commands.BoardTransportCommand cmd = GameDemo.RTSDemo.Commands.BoardTransportCommand.generateFromMpString(s);
+            RTSGame.commandHandler.addCommand(cmd, false);
+            updateTickTimingOffset(cmd.getExecuteTick());
+        }
+
         if(s.startsWith("readyPhase1")) {
             isReadyForMultiplayerOtherMachine = true;
             if(isReadyForMultiplayerThisMachine) setAndCommunicateMultiplayerStartTime();
