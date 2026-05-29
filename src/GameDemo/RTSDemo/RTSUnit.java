@@ -69,7 +69,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     private long pathCacheSignatureLastChangedTick = 0l;
     private String pathCacheSignature;
     private int pathCacheUses = 0;
-    private List<Coordinate> pathCache; 
+    private List<Coordinate> pathCache;
     public boolean inSeperatorGroup = false;
     
     // Movement deceleration configuration
@@ -402,7 +402,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         pathEndCache = desiredLocation;
         pathCache = waypoints;
         String newpathCacheSignature = ""+desiredLocation+""+getPixelLocation();
-        if(pathCacheSignature == null || !pathCacheSignature.equals(newpathCacheSignature)) {  
+        if(pathCacheSignature == null || !pathCacheSignature.equals(newpathCacheSignature)) {
             pathCacheSignatureLastChangedTick = getHostGame().getGameTickNumber();
         }
         this.pathCacheSignature = newpathCacheSignature;

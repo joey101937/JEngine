@@ -140,32 +140,18 @@ public class NavigationManager extends IndependentEffect {
         if (game.getGameTickNumber() % updateInterval != 0) {
             return;
         }
-        
 
         Collection<Future<?>> refreshTasks = new ArrayList<>();
-        
-        refreshTasks.add(unitPathingService.submit(() -> {
-            tileMapFine.refreshOccupationmaps(game);
-        }));
-        
-        refreshTasks.add(unitPathingService.submit(() -> {
-            tileMapLarge.refreshOccupationmaps(game);
-        }));
-        
-        refreshTasks.add(unitPathingService.submit(() -> {
-            tileMapNormal.refreshOccupationmaps(game);
-        }));
-        
-        refreshTasks.add(unitPathingService.submit(() -> {
-            tileMapGiantTerrain.refreshOccupationmaps(game);
-        }));
-
+        refreshTasks.add(unitPathingService.submit(() -> tileMapFine.refreshOccupationmaps(game)));
+        refreshTasks.add(unitPathingService.submit(() -> tileMapLarge.refreshOccupationmaps(game)));
+        refreshTasks.add(unitPathingService.submit(() -> tileMapNormal.refreshOccupationmaps(game)));
+        refreshTasks.add(unitPathingService.submit(() -> tileMapGiantTerrain.refreshOccupationmaps(game)));
         // note not adding giantTerrain map here because that map only handles terrain.
         Handler.waitForAllJobs(refreshTasks);
 
         Collection<Future<?>> pathingTasks = new ArrayList<>();
         for (GameObject2 go : game.getAllObjects()) {
-            if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired() ) {
+            if (go instanceof RTSUnit unit && !unit.isCloseEnoughToDesired()) {
                 pathingTasks.add(unitPathingService.submit(() -> {
                     unit.updateWaypoints();
                     return true;
@@ -173,7 +159,6 @@ public class NavigationManager extends IndependentEffect {
             }
         }
         Handler.waitForAllJobs(pathingTasks);
-//         System.out.println("round finished "  + game.getGameTickNumber());
     }
 
     public TileMap getTileMapBySize(int size) {
@@ -316,7 +301,9 @@ public class NavigationManager extends IndependentEffect {
                 // budget exhausted — return a partial path to whichever explored tile got closest to the goal
                 Node bestNode = null;
                 for (Node n : allNodes.values()) {
-                    if (bestNode == null || n.h < bestNode.h) {
+                    if (bestNode == null || n.h < bestNode.h
+                            || (n.h == bestNode.h && (n.tile.x < bestNode.tile.x
+                                || (n.tile.x == bestNode.tile.x && n.tile.y < bestNode.tile.y)))) {
                         bestNode = n;
                     }
                 }
