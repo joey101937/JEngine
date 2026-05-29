@@ -86,9 +86,12 @@ public class NavigationManager extends IndependentEffect {
     }
 
     public int getNavTileSize(RTSUnit unit) {
+        if (unit.isInPathingRestrictedMode()) {
+            return Tile.tileSizeLarge;
+        }
         int distance = (int) unit.distanceFrom(unit.getDesiredLocation());
         // if (distance < 600) return Tile.tileSizeFine;
-        if (distance < 2600) return Tile.tileSizeNormal;
+        if (distance < 900) return Tile.tileSizeNormal;
         return Tile.tileSizeLarge;
     }
 
@@ -180,10 +183,12 @@ public class NavigationManager extends IndependentEffect {
     public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, RTSUnit self) {
 //            System.out.println("getting path for " + self.ID);
         try {
-            boolean restrictedMode = (self.isTouchingOtherUnit && !self.movedLastTick());
-            int maxCalculationAmount = restrictedMode ? 1000 : 3000;
-            
-            TileMap tileMap = restrictedMode ? tileMapLarge : getTileMapBySize(getNavTileSize(self));
+            int maxCalculationAmount = self.isInPathingRestrictedMode() ? 500 : 2000;
+
+            TileMap tileMap = getTileMapBySize(getNavTileSize(self));
+            if (tileMap != null && !tileMap.occupationMaps.containsKey(self.getPathingSignature())) {
+                System.out.println("getPath: occupation map not yet built for signature " + self.getPathingSignature() + " (unit " + self.ID + ")");
+            }
             Tile start = tileMap.getTileAtLocation(startCoord);
             Tile goal = tileMap.getTileAtLocation(endCoord);
             String pathingSignature = self.getPathingSignature();
@@ -212,13 +217,19 @@ public class NavigationManager extends IndependentEffect {
                 }
             }
 
+            if (start == null) {
+                System.out.println("getPath: start tile is null for unit " + self.ID + " at " + startCoord);
+                ArrayList<Coordinate> out = new ArrayList<>();
+                out.add(endCoord);
+                return out;
+            }
+
             if (start.isBlocked(pathingSignature)) {
                 start = tileMap.getClosestOpenTile(startCoord, endCoord, pathingSignature);
             }
-
+ 
             if (goal.isBlocked(pathingSignature)) {
                 goal = tileMap.getClosestOpenTile(endCoord, startCoord, pathingSignature);
-//                System.out.println("getting closest open " + endCoord + startCoord + pathingSignature);
                 if (self != null && Coordinate.distanceBetween(self.getPixelLocation(), endCoord) <= (self.getWidth())) {
                     ArrayList<Coordinate> out = new ArrayList<>();
                     out.add(endCoord);
@@ -315,6 +326,7 @@ public class NavigationManager extends IndependentEffect {
             }
             return out;
         } catch (Exception e) {
+            System.out.println("exception in nag manager getPath for " + self);
             e.printStackTrace();
         }
 
@@ -327,15 +339,30 @@ public class NavigationManager extends IndependentEffect {
     private List<Coordinate> smoothenPath(List<Coordinate> path, TileMap tileMap, RTSUnit self) {
         String pathingSignature = self.getPathingSignature();
 
-        if (tileMap.getTileAtLocation(self.getPixelLocation()).isBlocked(self.getPathingSignature())) {
+        Tile selfTile = tileMap.getTileAtLocation(self.getPixelLocation());
+        if (selfTile == null) {
+            System.out.println("smoothenPath: self tile is null for unit " + self.ID + " at " + self.getPixelLocation());
+            return path;
+        }
+        if (selfTile.isBlocked(self.getPathingSignature())) {
             return path;
         }
 
-        if (tileMap.getTileAtLocation(path.get(0)).isBlocked(pathingSignature)) {
+        Tile firstTile = tileMap.getTileAtLocation(path.get(0));
+        if (firstTile == null) {
+            System.out.println("smoothenPath: first waypoint tile is null for unit " + self.ID + " at " + path.get(0));
+            return path;
+        }
+        if (firstTile.isBlocked(pathingSignature)) {
             return path;
         }
 
-        int spacing = (tileMap.occupationMaps.get(pathingSignature).getPadding() + tileMap.tileSize) / 2;
+        var occupationMap = tileMap.occupationMaps.get(pathingSignature);
+        if (occupationMap == null) {
+            System.out.println("smoothenPath: no occupation map for signature " + pathingSignature + " (unit " + self.ID + ")");
+            return path;
+        }
+        int spacing = (occupationMap.getPadding() + tileMap.tileSize) / 2;
         Coordinate start = path.get(0);
 
         int farLimit = Math.min(60, path.size() - 1);

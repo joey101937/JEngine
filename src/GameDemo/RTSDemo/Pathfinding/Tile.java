@@ -17,7 +17,11 @@ public class Tile implements Serializable{
     public int tileSize;
     
     public boolean isBlocked(String pathingSignature) {
-        return tileMap.occupationMaps.get(pathingSignature).isTileBlocked(this);
+        OccupationMap om = tileMap.occupationMaps.get(pathingSignature);
+        if (om == null) {
+            return false;
+        }
+        return om.isTileBlocked(this);
     }
     
     public Tile(TileMap tileMap, int x, int y, int size) {

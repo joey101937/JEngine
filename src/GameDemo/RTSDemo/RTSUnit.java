@@ -336,7 +336,6 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     }
 
     public void setDesiredLocation(Coordinate c) {
-        System.out.println(getHostGame().getGameTickNumber() + " vs " +  this.tickNumber + " " + this.toTransportString() + " setting desirted location " + c);
         if(!this.hasVelocity()) {
             comingFromLocation = getPixelLocation();
         }
@@ -349,6 +348,10 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     
     public boolean isCloseEnoughToDesired() {
         return desiredLocation == null || Coordinate.distanceBetween(getPixelLocation(), desiredLocation) <= Math.max(20, getSideLength() / 6);
+    }
+
+    public boolean isInPathingRestrictedMode() {
+        return (isTouchingOtherUnit && !movedLastTick()) || inSeperatorGroup;
     }
 
     public Coordinate getNextWaypoint() {
@@ -375,7 +378,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     }
     
     public int getWidthForPathing () {
-        return this.getWidth();
+        return this.getSideLength() / 2;
     }
     
     public int getPathingPadding() {

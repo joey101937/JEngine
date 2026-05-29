@@ -317,7 +317,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
     @Override
     public int getWidthForPathing() {
-        return sandbagActive ? getWidth() : getSideLength() - 10;
+        return sandbagActive ? getWidth() : getSideLength() /2;
     }
 
     /*

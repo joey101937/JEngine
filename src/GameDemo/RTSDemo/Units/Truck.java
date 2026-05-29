@@ -380,7 +380,7 @@ public class Truck extends RTSUnit implements Transport {
 
     @Override
     public int getWidthForPathing() {
-        return getSideLength() - 10;
+        return getSideLength() /2 ;
     }
 
     @Override
