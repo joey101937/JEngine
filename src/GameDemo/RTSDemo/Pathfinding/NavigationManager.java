@@ -85,6 +85,13 @@ public class NavigationManager extends IndependentEffect {
         }
     }
 
+    public int getNavTileSize(RTSUnit unit) {
+        int distance = (int) unit.distanceFrom(unit.getDesiredLocation());
+        // if (distance < 600) return Tile.tileSizeFine;
+        if (distance < 2600) return Tile.tileSizeNormal;
+        return Tile.tileSizeLarge;
+    }
+
     @Override
     public void render(Graphics2D g) {
         HashSet<String> pathingSignatures = new HashSet<>();
@@ -111,7 +118,7 @@ public class NavigationManager extends IndependentEffect {
         }
         // renders visible tile grid that selected unit is using in center of screen
         RTSUnit unit = (RTSUnit) SelectionBoxEffect.selectedUnits.toArray()[0];
-        TileMap tm = getTileMapBySize(unit.getNavTileSize()); //  this.tileMapGiantTerrain; // getTileMapBySize(unit.getNavTileSize());
+        TileMap tm = getTileMapBySize(getNavTileSize(unit));
         try {
             tm.getTilesNearPoint(Window.currentGame.getCameraCenterPosition(), 500).forEach(coord -> {
                 Tile tile = tm.tileGrid[coord.x][coord.y];
@@ -191,13 +198,10 @@ public class NavigationManager extends IndependentEffect {
             boolean restrictedMode = (self.isTouchingOtherUnit && !self.movedLastTick());
             int maxCalculationAmount = restrictedMode ? 1000 : 3000;
             
-            TileMap tileMap = restrictedMode ? tileMapNormal : getTileMapBySize(self.getNavTileSize());
+            TileMap tileMap = restrictedMode ? tileMapLarge : getTileMapBySize(getNavTileSize(self));
             Tile start = tileMap.getTileAtLocation(startCoord);
             Tile goal = tileMap.getTileAtLocation(endCoord);
             String pathingSignature = self.getPathingSignature();
-//            if(Coordinate.distanceBetween(startCoord, endCoord) < 100 && start.isBlocked(pathingSignature) && goal.isBlocked(pathingSignature)) {
-//                return List.of(endCoord);
-//            }
             if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
                 // Use giant terrain map for long-distance pathfinding
                 // Get high-level path using giant terrain tiles

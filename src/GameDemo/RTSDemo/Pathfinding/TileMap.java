@@ -3,6 +3,7 @@ package GameDemo.RTSDemo.Pathfinding;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
+import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Rectangle;
 import java.io.Serializable;
@@ -275,7 +276,7 @@ public class TileMap implements Serializable{
         HashSet<String> pathingSignatures = new HashSet<>();
         for(GameObject2 go : game.getAllObjects()) {
             if(go instanceof RTSUnit unit) {
-                if(unit.getNavTileSize() == tileSize) {
+                if(RTSGame.navigationManager.getNavTileSize(unit) == tileSize) {
                     pathingSignatures.add(unit.getPathingSignature());
                 }
             }

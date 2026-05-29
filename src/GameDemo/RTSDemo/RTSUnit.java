@@ -116,7 +116,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
           boolean blocked = false;
         
         try {
-            blocked = RTSGame.navigationManager.getTileMapBySize(getNavTileSize()).getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
+            blocked = RTSGame.navigationManager.getTileMapBySize(RTSGame.navigationManager.getNavTileSize(this)).getTileAtLocation(getPixelLocation()).isBlocked(getPathingSignature());
         } catch (Exception e) {}
         
         return blocked;
@@ -238,7 +238,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
             } else {
                 // Out of range — chase; only re-path when target has moved far enough
                 Coordinate targetLoc = prefTarget.getPixelLocation();
-                if (targetLoc.distanceFrom(getDesiredLocation()) > getNavTileSize() * 2) {
+                if (targetLoc.distanceFrom(getDesiredLocation()) > RTSGame.navigationManager.getNavTileSize(this) * 2) {
                     setDesiredLocation(targetLoc);
                 }
             }
@@ -340,8 +340,8 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         if(!this.hasVelocity()) {
             comingFromLocation = getPixelLocation();
         }
-        int adjustedX = (int)((c.x / getNavTileSize()) * getNavTileSize()) + getNavTileSize()/2;
-        int adjustedY = (int)((c.y / getNavTileSize()) * getNavTileSize()) + getNavTileSize()/2;
+        int adjustedX = (int)((c.x / RTSGame.navigationManager.getNavTileSize(this)) * RTSGame.navigationManager.getNavTileSize(this)) + RTSGame.navigationManager.getNavTileSize(this)/2;
+        int adjustedY = (int)((c.y / RTSGame.navigationManager.getNavTileSize(this)) * RTSGame.navigationManager.getNavTileSize(this)) + RTSGame.navigationManager.getNavTileSize(this)/2;
 
         desiredLocation = new Coordinate(adjustedX, adjustedY);
         pathCacheSignatureLastChangedTick = getHostGame().getGameTickNumber();
@@ -366,7 +366,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         int sideLength = Math.max(getWidth(), getHeight());
 
         for (int i = 0; i < waypoints.size(); i++) {
-            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + 20 + getNavTileSize()/2)) {
+            if(Coordinate.distanceBetween(getPixelLocation(), waypoints.get(i)) > (sideLength/2 + 20 + RTSGame.navigationManager.getNavTileSize(this)/2)) {
                 return waypoints.get(i);
             }
         }
@@ -379,7 +379,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     }
     
     public int getPathingPadding() {
-        int navSize = getNavTileSize();
+        int navSize = RTSGame.navigationManager.getNavTileSize(this);
         int extra = navSize == Tile.tileSizeFine ? 15 : 0;
         if(this instanceof Bazookaman) extra += 12;
         if(isInfantry) return 16 + extra;
@@ -668,13 +668,6 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         }
     }
     
-    public int getNavTileSize() {
-        int distance = (int)distanceFrom(desiredLocation);
-         if(distance < 350) return Tile.tileSizeFine;
-         if(distance < 2600) return Tile.tileSizeNormal;
-         return Tile.tileSizeLarge;
-    }        
-    
     public String getPathingSignature () {
         StringBuilder builder = new StringBuilder();
         builder.append(getPathingPadding()); // 1
@@ -685,7 +678,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         builder.append(',');
         builder.append(commandGroup); // 4
         builder.append(',');
-        builder.append(getNavTileSize()); // 5
+        builder.append(RTSGame.navigationManager.getNavTileSize(this)); // 5
         return builder.toString();
     };
 
