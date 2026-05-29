@@ -32,7 +32,7 @@ import java.util.concurrent.Future;
 public class NavigationManager extends IndependentEffect {
     private static final long serialVersionUID = 1L;
 
-    public static boolean displayPathingDebugInfo = false;
+    public static boolean displayPathingDebugInfo = true;
     public static int updateInterval = RTSGame.desiredTPS / 10;
     public static transient ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
     public static int maxCalculationDistance = 1400;
@@ -188,14 +188,16 @@ public class NavigationManager extends IndependentEffect {
     public List<Coordinate> getPath(Coordinate startCoord, Coordinate endCoord, RTSUnit self) {
 //            System.out.println("getting path for " + self.ID);
         try {
-            TileMap tileMap = getTileMapBySize(self.getNavTileSize());
+            boolean restrictedMode = (self.isTouchingOtherUnit && !self.movedLastTick());
+            int maxCalculationAmount = restrictedMode ? 1000 : 3000;
+            
+            TileMap tileMap = restrictedMode ? tileMapNormal : getTileMapBySize(self.getNavTileSize());
             Tile start = tileMap.getTileAtLocation(startCoord);
             Tile goal = tileMap.getTileAtLocation(endCoord);
             String pathingSignature = self.getPathingSignature();
 //            if(Coordinate.distanceBetween(startCoord, endCoord) < 100 && start.isBlocked(pathingSignature) && goal.isBlocked(pathingSignature)) {
 //                return List.of(endCoord);
 //            }
-            int maxCalculationAmount = (self.isTouchingOtherUnit && !self.movedLastTick()) ? 2000 : 3000;
             if (startCoord.distanceFrom(endCoord) > maxCalculationDistance) {
                 // Use giant terrain map for long-distance pathfinding
                 // Get high-level path using giant terrain tiles
@@ -302,10 +304,24 @@ public class NavigationManager extends IndependentEffect {
                 }
             }
 
-            if(self.isSelected()) System.out.println("numTraversed "+ numTraversed);
-            // System.out.println("no path found");
+            if(self.isSelected()) System.out.println("numTraversed capped out "+ numTraversed);
             ArrayList<Coordinate> out = new ArrayList<>();
-            out.add(endCoord);
+            if(Coordinate.distanceBetween(startCoord, endCoord) < 100) {
+                out.add(endCoord);
+            } else {
+                // budget exhausted — return a partial path to whichever explored tile got closest to the goal
+                Node bestNode = null;
+                for (Node n : allNodes.values()) {
+                    if (bestNode == null || n.h < bestNode.h) {
+                        bestNode = n;
+                    }
+                }
+                if (bestNode != null) {
+                    var partial = reconstructPath(bestNode);
+                    partial.add(endCoord);
+                    return smoothenPath(partial, tileMap, self);
+                }
+            }
             return out;
         } catch (Exception e) {
             e.printStackTrace();
@@ -340,21 +356,21 @@ public class NavigationManager extends IndependentEffect {
         int nearLimit = Math.min(9, path.size() - 1);
         Coordinate goalNear = path.get(nearLimit);
 
-        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, (int) (self.getWidth() * .75)), pathingSignature)) {
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalFar, (int) (self.getWidth())), pathingSignature)) {
 //            if(self.isSelected()) System.out.println("using far limit");
             var smothened = new ArrayList<>(path.subList(farLimit, path.size() - 1));
             if(smothened.isEmpty()) smothened.add(path.getLast());
             return smothened;
         }
 
-        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, (int) (self.getWidth() * .75)), pathingSignature)) {
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalMed, (int) (self.getWidth())), pathingSignature)) {
 //            if(self.isSelected()) System.out.println("using med limit");
             var smothened = new ArrayList<>(path.subList(medLimit, path.size() - 1));
             if(smothened.isEmpty()) smothened.add(path.getLast());
             return smothened;
         }
 
-        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, (int) (self.getWidth() * .75)), pathingSignature)) {
+        if (tileMap.allClear(tileMap.getTileIntersectingThickLine(start, goalNear, (int) (self.getWidth())), pathingSignature)) {
 //            if(self.isSelected()) System.out.println("using near limit");
             var smothened = new ArrayList<>(path.subList(nearLimit, path.size() - 1));
             if(smothened.isEmpty()) smothened.add(path.getLast());

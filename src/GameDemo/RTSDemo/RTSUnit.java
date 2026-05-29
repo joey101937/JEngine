@@ -13,7 +13,6 @@ import Framework.Hitbox;
 import Framework.PathingLayer;
 import Framework.RenderHook;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarEffect;
-import GameDemo.RTSDemo.Transport;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarGrid;
 import GameDemo.RTSDemo.FogOfWar.VisionProvider;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
@@ -24,6 +23,7 @@ import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.TankUnit;
+import GameDemo.RTSDemo.Units.Truck;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -260,7 +260,9 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
             this.debugFlag = true;
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
             applyHullRotation(desiredRotation);
-            this.velocity.y = -100; //remember negative means forward because reasons
+            if (!isTouchingOtherUnit || Math.abs(desiredRotation) < 9) {
+                this.velocity.y = -100; //remember negative means forward because reasons
+            }
         }
         if(getHostGame().getGameTickNumber() - this.pathCacheSignatureLastChangedTick > RTSGame.desiredTPS * 4) {
             setCommandGroup("0");
@@ -342,7 +344,6 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         int adjustedY = (int)((c.y / getNavTileSize()) * getNavTileSize()) + getNavTileSize()/2;
 
         desiredLocation = new Coordinate(adjustedX, adjustedY);
-        
         pathCacheSignatureLastChangedTick = getHostGame().getGameTickNumber();
     }
     
@@ -374,7 +375,6 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     }
     
     public int getWidthForPathing () {
-        if(this instanceof TankUnit tank && !tank.sandbagActive) return this.getSideLength()-10;
         return this.getWidth();
     }
     
@@ -670,7 +670,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     
     public int getNavTileSize() {
         int distance = (int)distanceFrom(desiredLocation);
-         if(distance < 800) return Tile.tileSizeFine;
+         if(distance < 350) return Tile.tileSizeFine;
          if(distance < 2600) return Tile.tileSizeNormal;
          return Tile.tileSizeLarge;
     }        

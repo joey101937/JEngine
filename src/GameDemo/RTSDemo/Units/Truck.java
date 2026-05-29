@@ -379,6 +379,11 @@ public class Truck extends RTSUnit implements Transport {
     }
 
     @Override
+    public int getWidthForPathing() {
+        return getSideLength() - 10;
+    }
+
+    @Override
     public java.awt.image.BufferedImage getSelectionImage() {
         return GameDemo.RTSDemo.RTSAssetManager.landmineSelectionImage;
     }

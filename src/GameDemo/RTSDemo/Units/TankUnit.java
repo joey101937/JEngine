@@ -315,6 +315,11 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         return (int)(chasisSpriteGreen.getHeight() * VISUAL_SCALE);
     }
 
+    @Override
+    public int getWidthForPathing() {
+        return sandbagActive ? getWidth() : getSideLength() - 10;
+    }
+
     /*
     sets up the tank values
      */
