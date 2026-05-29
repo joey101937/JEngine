@@ -2,11 +2,15 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
+import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
+import Framework.Main;
+import Framework.Stickers.OnceThroughSticker;
 import GameDemo.RTSDemo.Buttons.LoadUnitButton;
 import GameDemo.RTSDemo.Buttons.UnloadAllButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Transport;
 import java.awt.Graphics2D;
@@ -37,6 +41,8 @@ public class Truck extends RTSUnit implements Transport {
     public static Sprite hullSpriteDamaged = null;
     public static Sprite hullSpriteDamagedRed = null;
     public static Sprite hullSpriteDestroyed = null;
+    public static Sprite hullSpriteDestroyedRed = null;
+    public static Sequence deathFadeout = null;
     public static Sprite hullShadow = null;
     public static Sprite wheelSprite = null;
 
@@ -47,6 +53,8 @@ public class Truck extends RTSUnit implements Transport {
     private double hullRotationSpeed = 0.0;
     private double wheelRotation = 0;
     private double previousHullRotation = 0;
+    private long fadeoutScheduledAtTick = 0;
+    private long destructionScheduledAtTick = 0;
 
     static {
         initGraphics();
@@ -57,11 +65,18 @@ public class Truck extends RTSUnit implements Transport {
         hullSpriteRed = new Sprite(RTSAssetManager.truckHullRed);
         hullSpriteDamaged = new Sprite(RTSAssetManager.truckHullDamaged);
         hullSpriteDamagedRed = new Sprite(RTSAssetManager.truckHullDamagedRed);
+        hullSpriteDestroyed = new Sprite(RTSAssetManager.truckRubble);
+        hullSpriteDestroyedRed = new Sprite(RTSAssetManager.truckRubbleRed);
         hullShadow = Sprite.generateShadowSprite(hullSprite.getImage(), .7);
         hullShadow.scaleTo(VISUAL_SCALE);
         hullSprite.applyAlphaEdgeBlurSelf(1);
         hullSpriteRed.applyAlphaEdgeBlurSelf(1);
+        hullSpriteDestroyed.applyAlphaEdgeBlurSelf(1);
+        hullSpriteDestroyedRed.applyAlphaEdgeBlurSelf(1);
         hullShadow.applyAlphaEdgeBlurSelf(2);
+        
+        deathFadeout = Sequence.createFadeout(RTSAssetManager.tankDeadHullShadow, 40);
+        deathFadeout.setSignature("deathFadeoutTruck");
 
         wheelSprite = new Sprite(RTSAssetManager.truckWheel);
         wheelSprite.applyAlphaEdgeBlurSelf(1);
@@ -69,7 +84,7 @@ public class Truck extends RTSUnit implements Transport {
 
     public final Sprite getHullSprite() {
         if (isRubble) {
-            return hullSpriteDestroyed;
+            return team == 1 ? hullSpriteDestroyedRed : hullSpriteDestroyed;
         }
         if (currentHealth > maxHealth * .33) {
             return team == 0 ? hullSprite : hullSpriteRed;
@@ -91,6 +106,11 @@ public class Truck extends RTSUnit implements Transport {
         this.addButton(new LoadUnitButton(this));
         this.addButton(new UnloadAllButton(this));
         this.setBaseSpeed(TRUCK_SPEED);
+    }
+
+    @Override
+    public void onPostDeserialization() {
+        this.setGraphic(isRubble ? hullSpriteDestroyed : getHullSprite());
     }
 
     // ── Transport interface ──────────────────────────────────────────────────
@@ -153,10 +173,23 @@ public class Truck extends RTSUnit implements Transport {
 
     @Override
     public void die() {
+        if (isRubble) {
+            return;
+        }
         loadedUnits.clear();
         unloadQueue.clear();
         remobilizeTick = -1;
-        super.die();
+        Sprite rubbleSprite = team == 1 ? hullSpriteDestroyedRed : hullSpriteDestroyed;
+        new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "truckDeathExplosion"), getPixelLocation());
+        this.isRubble = true;
+        this.team = -1;
+        this.setBaseSpeed(0);
+        this.setDesiredLocation(this.getPixelLocation());
+        this.setGraphic(rubbleSprite);
+        if (isOnScreen()) {
+            RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .64), 0);
+        }
+        fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
     }
 
     @Override
@@ -218,6 +251,26 @@ public class Truck extends RTSUnit implements Transport {
     @Override
     public void tick() {
         super.tick();
+
+        if (destructionScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= destructionScheduledAtTick) {
+            this.destroy();
+            return;
+        }
+
+        if (fadeoutScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= fadeoutScheduledAtTick) {
+            new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "truckDespawnExplosion"), getPixelLocation());
+            this.setGraphic(deathFadeout.copyMaintainSource());
+            this.isSolid = false;
+            this.setZLayer(-10);
+            destructionScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 3);
+            fadeoutScheduledAtTick = 0;
+            return;
+        }
+
+        if (isRubble) {
+            return;
+        }
+
         if (!unloadQueue.isEmpty()) {
             int spawnedSoFar = unloadTotalCount - unloadQueue.size();
             if (getHostGame().getGameTickNumber() >= unloadStartTick + (long) spawnedSoFar * TICKS_BETWEEN_UNLOADS) {
@@ -256,7 +309,9 @@ public class Truck extends RTSUnit implements Transport {
         if (isSelected()) {
             drawRubbleProximityIndicators(g);
         }
-        drawWheels(g);
+        if (!isRubble) {
+            drawWheels(g);
+        }
         super.render(g);
     }
 
