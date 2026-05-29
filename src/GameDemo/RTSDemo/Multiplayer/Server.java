@@ -16,6 +16,7 @@ import GameDemo.RTSDemo.Units.Apache;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
+import GameDemo.RTSDemo.Units.Truck;
 
 /**
  *
@@ -65,6 +66,9 @@ public class Server {
         for (int i = 0; i < lineSize; i++) {
             g.addObject(new LightTank(200 + (i * spacer), 650, 0));
         }
+        for (int i = 0; i < 4; i++) {
+            g.addObject(new Truck(200 + (i * spacer), 800, 0));
+        }
         
         for(GameObject2 go : g.getAllObjects()) {
             if(go instanceof RTSUnit unit) {
@@ -94,6 +98,9 @@ public class Server {
         }
         for (int i = 0; i < lineSize; i++) {
             g.addObject(new Apache(200 + (i * spacer), g.getWorldHeight() - 1200, 1));
+        }
+        for (int i = 0; i < 4; i++) {
+            g.addObject(new Truck(200 + (i * spacer), g.getWorldHeight() - 1050, 1));
         }
     }
 }

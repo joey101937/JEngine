@@ -7,6 +7,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -152,10 +153,13 @@ public class TargetingModeManager extends IndependentEffect {
                 Coordinate pos = hoveredUnit.getRenderLocation();
                 int hw = hoveredUnit.getWidth() / 2 + 8;
                 int hh = hoveredUnit.getHeight() / 2 + 8;
+                AffineTransform old = g.getTransform();
+                g.rotate(Math.toRadians(hoveredUnit.getRenderRotation()), pos.x, pos.y);
                 g.setColor(TARGET_FILL_COLOR);
                 g.fillRect(pos.x - hw, pos.y - hh, hw * 2, hh * 2);
                 g.setColor(TARGET_BORDER_COLOR);
                 g.drawRect(pos.x - hw, pos.y - hh, hw * 2, hh * 2);
+                g.setTransform(old);
             } else if (cursorWorldPosition != null) {
                 // No unit under cursor — small crosshair to show mode is active
                 int cs = 10;

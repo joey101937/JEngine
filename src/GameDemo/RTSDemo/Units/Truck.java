@@ -90,6 +90,7 @@ public class Truck extends RTSUnit implements Transport {
         this.currentHealth = 65;
         this.addButton(new LoadUnitButton(this));
         this.addButton(new UnloadAllButton(this));
+        this.setBaseSpeed(TRUCK_SPEED);
     }
 
     // ── Transport interface ──────────────────────────────────────────────────
