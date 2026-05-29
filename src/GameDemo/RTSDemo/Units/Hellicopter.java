@@ -92,6 +92,7 @@ public class Hellicopter extends RTSUnit {
     private boolean shadowPhase = false;
     private double deathVelocityX = 0;
     private double deathVelocityY = 0;
+    private boolean deathExplosionSpawned = false;
     public long pendingBulletSpawnAtTick = 0;
     public RTSUnit pendingBulletTarget = null;
 
@@ -251,10 +252,13 @@ public class Hellicopter extends RTSUnit {
 
         if (isRubble && elevation > 0) {
             elevation -= 3.0;
-            if (elevation <= 0) {
+            if (!deathExplosionSpawned && elevation < 8) {
                 OnceThroughSticker deathBlast = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
-                deathBlast.setRenderScale(1.4);
+                deathBlast.setRenderScale(1.6);
                 RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, .56, 0);
+                deathExplosionSpawned = true;
+            }
+            if (elevation <= 0) {
                 this.baseSpeed = 0;
                 this.velocity.x = 0;
                 this.velocity.y = 0;
