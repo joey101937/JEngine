@@ -306,7 +306,7 @@ public class NavigationManager extends IndependentEffect {
 
             if(self.isSelected()) System.out.println("numTraversed capped out "+ numTraversed);
             ArrayList<Coordinate> out = new ArrayList<>();
-            if(Coordinate.distanceBetween(startCoord, endCoord) < 100) {
+            if(Coordinate.distanceBetween(startCoord, self.getDesiredLocation()) < 110) {
                 out.add(endCoord);
             } else {
                 // budget exhausted — return a partial path to whichever explored tile got closest to the goal
