@@ -95,7 +95,7 @@ public abstract class RTSAssetManager {
     
     public static BufferedImage sandbagsForTank, sandbagsForTankDamaged;
     
-    public static BufferedImage truckHull, truckHullRed, truckHullDamaged, truckHullDamagedRed, truckRubble, truckRubbleRed;
+    public static BufferedImage truckHull, truckHullRed, truckHullDamaged, truckHullDamagedRed, truckRubble, truckRubbleRed, truckDeathShadow;
     public static BufferedImage truckWheel;
 
     public synchronized static void initialize() {
@@ -291,6 +291,7 @@ public abstract class RTSAssetManager {
             truckWheel = load("DemoAssets/TankGame/truck/tire.png");
             truckRubble = load("DemoAssets/TankGame/truck/greenRubble2.png");
             truckRubbleRed = greenToRed(truckRubble);
+            truckDeathShadow = load("DemoAssets/TankGame/truck/deathShadow.png");
         }, executor);
     }
 

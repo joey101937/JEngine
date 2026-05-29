@@ -75,7 +75,7 @@ public class Truck extends RTSUnit implements Transport {
         hullSpriteDestroyedRed.applyAlphaEdgeBlurSelf(1);
         hullShadow.applyAlphaEdgeBlurSelf(2);
         
-        deathFadeout = Sequence.createFadeout(RTSAssetManager.tankDeadHullShadow, 40);
+        deathFadeout = Sequence.createFadeout(RTSAssetManager.truckDeathShadow, 40);
         deathFadeout.setSignature("deathFadeoutTruck");
 
         wheelSprite = new Sprite(RTSAssetManager.truckWheel);
