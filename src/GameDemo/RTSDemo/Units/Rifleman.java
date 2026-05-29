@@ -77,7 +77,7 @@ public class Rifleman extends RTSUnit {
         this.addSubObject(this.turret);
         this.setZLayer(1);
         this.isSolid = true;
-        this.setBaseSpeed(RTSGame.tickAdjust(1.88));
+        this.setBaseSpeed(RTSGame.tickAdjust(1.6));
         this.canAttackAir = true;
         this.rotationSpeed = RTSGame.tickAdjust(15);
         this.maxHealth = 20;
