@@ -9,7 +9,6 @@ package Framework.Stickers;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
-import Framework.GraphicalAssets.Graphic;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ConcurrentModificationException;
@@ -80,7 +79,9 @@ public class Sticker {
             }
             if (!disabled) {
                 if (image != null) {
-                    gCopy.drawImage(image, renderLocation.x, renderLocation.y, null);
+                    int w = (int)(image.getWidth() * scale);
+                    int h = (int)(image.getHeight() * scale);
+                    gCopy.drawImage(image, spawnLocation.x - w / 2, spawnLocation.y - h / 2, w, h, null);
                 }
             }
         } catch (Exception e) {
@@ -107,23 +108,17 @@ public class Sticker {
      * @param d multiplier to scale by
      */
     public void scale(double d) {
-        image = Graphic.scaleImage(image,d);
-        scale*=d;
+        scale *= d;
     }
-    
-    /**
-     * sets the scale of all frames of this sequence to a given scale
-     * @param d new value to be scale, relative to the default scale of the images
-     */
+
     public void scaleTo(double d) {
-        image = Graphic.scaleImage(image,d/scale);
         scale = d;
     }
 
-    /**
-     * returns current scaling of this sequence
-     * @return  current scale
-     */
+    public void setRenderScale(double d) {
+        scale = d;
+    }
+
     public double getScale() {
         return scale;
     }

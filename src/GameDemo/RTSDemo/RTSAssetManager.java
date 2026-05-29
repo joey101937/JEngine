@@ -35,6 +35,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage hellicopterShadow;
     public static BufferedImage hellicopterDestroyed, hellicopterDestroyedRed;
     public static BufferedImage[] hellicopterAttack, hellicopterAttackRed;
+    public static BufferedImage chopperDead, chopperRubble, chopperDeathShadow;
 
     public static BufferedImage apache, apacheRed;
     public static BufferedImage apacheBlades, apacheBladesRed;
@@ -206,6 +207,9 @@ public abstract class RTSAssetManager {
             missileShadow = load("DemoAssets/TankGame/missileShadow.png");
             yellowMissile = load("DemoAssets/TankGame/yellowMissile.png");
             yellowMissileShadow = load("DemoAssets/TankGame/yellowMissileShadow.png");
+            chopperDead = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDead.png");
+            chopperRubble = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperRubble.png");
+            chopperDeathShadow = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDeathShadow.png");
         }, executor);
     }
 

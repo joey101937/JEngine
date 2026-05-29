@@ -59,7 +59,9 @@ public class AnimatedSticker extends Sticker{
             if (!disabled) {
                 if (image != null) {
                    VolatileImage toRender = sequence.getCurrentVolatileFrame();
-                   gToUse.drawImage(toRender, spawnLocation.x-toRender.getWidth()/2 , spawnLocation.y-toRender.getHeight()/2,null); //draws frmae centered on pixelLocation
+                   int w = (int)(toRender.getWidth() * scale);
+                   int h = (int)(toRender.getHeight() * scale);
+                   gToUse.drawImage(toRender, spawnLocation.x - w/2, spawnLocation.y - h/2, w, h, null);
                 }
             }
         } catch (Exception e) {
@@ -73,18 +75,12 @@ public class AnimatedSticker extends Sticker{
      */
     @Override
     public void scale(double d) {
-        scale *=d;
-        sequence.scale(d);
+        scale *= d;
     }
-    
-    /**
-     * sets the scale of all frames of this sequence to a given scale
-     * @param d new value to be scale, relative to the default scale of the images
-     */
+
     @Override
     public void scaleTo(double d) {
         scale = d;
-        sequence.scaleTo(d);
     }
     /**
      * returns current scaling of this sequence

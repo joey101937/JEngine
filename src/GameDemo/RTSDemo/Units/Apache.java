@@ -52,6 +52,9 @@ public class Apache extends RTSUnit {
     public static volatile Sprite dockedMissileSprite = null;
     public static volatile Sprite destroyedSprite = null;
     public static volatile Sprite destroyedSpriteRed = null;
+    public static volatile Sprite deadSprite = null;
+    public static volatile Sprite rubbleSprite = null;
+    public static volatile Sequence deathShadowFadeout = null;
     public static volatile Sprite shadowSprite = null;
     public static volatile Sequence attackSequence = null;
     public static volatile Sequence attackSequenceRed = null;
@@ -83,6 +86,12 @@ public class Apache extends RTSUnit {
         bladesSpriteRed.scaleTo(VISUAL_SCALE);
         dockedMissileSprite = new Sprite(RTSAssetManager.apacheDockedMissile);
         dockedMissileSprite.scaleTo(VISUAL_SCALE);
+        deadSprite = new Sprite(RTSAssetManager.chopperDead);
+        rubbleSprite = new Sprite(RTSAssetManager.chopperRubble);
+        deathShadowFadeout = Sequence.createFadeout(RTSAssetManager.chopperDeathShadow, 40);
+        deathShadowFadeout.setSignature("apacheDeathShadow");
+        deadSprite.applyAlphaEdgeBlurSelf(2);
+        rubbleSprite.applyAlphaEdgeBlurSelf(2);
         emptyPodsSprite.applyAlphaEdgeBlurSelf(2);
         emptyPodsSpriteRed.applyAlphaEdgeBlurSelf(2);
         bladesSprite.applyAlphaEdgeBlurSelf(2);
@@ -107,6 +116,11 @@ public class Apache extends RTSUnit {
     public int missilesInFlight = 0;
     public long missileNextFireAtTick = -1;
     private boolean abilityNavSuppressCancel = false;
+    public long fadeoutScheduledAtTick = 0;
+    private boolean shadowPhase = false;
+    private double deathVelocityX = 0;
+    private double deathVelocityY = 0;
+
 
     public Apache(int x, int y, int team) {
         super(x, y, team);
@@ -225,15 +239,14 @@ public class Apache extends RTSUnit {
     @Override
     public void onPostDeserialization() {
         super.onPostDeserialization();
-        if (isRubble) {
-            this.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
+        if (isRubble && elevation <= 0) {
+            this.setGraphic(rubbleSprite);
+            if (turret != null) {
+                turret.setGraphic(rubbleSprite);
+            }
         } else {
             this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
-        }
-        if (turret != null) {
-            if (isRubble) {
-                turret.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
-            } else {
+            if (turret != null) {
                 turret.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
             }
         }
@@ -296,8 +309,19 @@ public class Apache extends RTSUnit {
     @Override
     public void tick() {
         if (scheduledDestructionAtTick > 0 && getHostGame().getGameTickNumber() >= scheduledDestructionAtTick) {
-            new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
             this.destroy();
+            return;
+        }
+
+        if (fadeoutScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= fadeoutScheduledAtTick) {
+            new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
+            this.setGraphic(deathShadowFadeout.copyMaintainSource());
+            turret.isInvisible = true;
+            this.isSolid = false;
+            this.setZLayer(-10);
+            shadowPhase = true;
+            scheduledDestructionAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 3);
+            fadeoutScheduledAtTick = 0;
             return;
         }
 
@@ -328,22 +352,36 @@ public class Apache extends RTSUnit {
             pendingBulletTarget = null;
         }
 
-        if (isRubble && elevation > 1) {
-            elevation -= 4.8;
-            if (elevation < 1) {
-                new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
+        if (isRubble && elevation > 0) {
+            elevation -= 3.0;
+            if (elevation <= 0) {
+                OnceThroughSticker deathBlast = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
+                deathBlast.setRenderScale(1.4);
                 RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, .56, 0);
                 this.baseSpeed = 0;
+                this.velocity.x = 0;
+                this.velocity.y = 0;
                 this.plane = 0;
                 this.setZLayer(1);
                 this.isSolid = true;
-                scheduledDestructionAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 8);
+                this.turret.setGraphic(rubbleSprite);
+                this.setRenderScale(1.0);
+                this.turret.setRenderScale(1.0);
+                fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 8);
                 return;
             }
+            double fallScale = 0.95 + 0.05 * (Math.max(0, elevation) / 149.0);
+            this.setRenderScale(fallScale);
+            turret.setRenderScale(fallScale);
             this.team = -1;
-            this.velocity.y = -1;
-            this.velocity.x = .1;
-            this.turret.rotate(4);
+            if (Math.abs(deathVelocityX) < 0.1 && Math.abs(deathVelocityY) < 0.1) {
+                this.velocity.x = 0;
+                this.velocity.y = -1.2;
+            } else {
+                this.velocity.x = deathVelocityX;
+                this.velocity.y = deathVelocityY;
+            }
+            this.turret.rotate(1.5);
             return;
         }
 
@@ -403,17 +441,30 @@ public class Apache extends RTSUnit {
     @Override
     public void render(Graphics2D g) {
         if (!shouldRender()) return;
+
+        if (shadowPhase) {
+            super.render(g);
+            return;
+        }
+
+        if (isRubble && elevation <= 0) {
+            return;
+        }
+
         int shadowOffsetX = 5;
         int shadowOffsetY = Math.max(elevation, 9);
         Coordinate renderLocation = getRenderLocation();
         renderLocation.x += shadowOffsetX;
         renderLocation.y += shadowOffsetY;
+        double shadowScale = isRubble ? 0.95 + 0.05 * (Math.max(0, elevation) / 149.0) : 1.0;
         AffineTransform old = g.getTransform();
         VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
-        int renderX = renderLocation.x - toRender.getWidth() / 2;
-        int renderY = renderLocation.y - toRender.getHeight() / 2;
+        int drawWidth = (int)(toRender.getWidth() * shadowScale);
+        int drawHeight = (int)(toRender.getHeight() * shadowScale);
+        int renderX = renderLocation.x - drawWidth / 2;
+        int renderY = renderLocation.y - drawHeight / 2;
         g.rotate(Math.toRadians(turret.getRotation()), renderLocation.x, renderLocation.y);
-        g.drawImage(toRender, renderX, renderY, null);
+        g.drawImage(toRender, renderX, renderY, drawWidth, drawHeight, null);
         g.setTransform(old);
 
         if (isSelected() && !isRubble) {
@@ -435,7 +486,8 @@ public class Apache extends RTSUnit {
         missilesFiredCount = 0;
         missilesInFlight = 0;
         missileNextFireAtTick = -1;
-        this.turret.setGraphic(team == 0 ? destroyedSprite : destroyedSpriteRed);
+        deathVelocityX = this.velocity.x;
+        deathVelocityY = this.velocity.y;
         this.isRubble = true;
         this.isSolid = false;
         this.setSelected(false);
@@ -516,7 +568,9 @@ public class Apache extends RTSUnit {
 
         @Override
         public void onAnimationCycle() {
-            this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
+            if (!isRubble) {
+                this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
+            }
         }
 
         private void updateLocationForBob() {
