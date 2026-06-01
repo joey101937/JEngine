@@ -6,7 +6,6 @@ import GameDemo.RTSDemo.FogOfWar.SightBlocker;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
-import Framework.Window;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
  *
  * @author guydu
  */
-public class KeyBuilding extends GameObject2 implements SightBlocker {
+public class KeyBuilding extends GameObject2 implements SightBlocker, ReinforcementPoint, MinimapRenderable {
     private static final long serialVersionUID = 1L;
     public static final Sprite mainSprite = new Sprite(RTSAssetManager.building);
     public static final Sprite shadowSprite = Sprite.generateShadowSprite(mainSprite.getImage(), .5);
@@ -174,26 +173,23 @@ public class KeyBuilding extends GameObject2 implements SightBlocker {
     }
     
     
-    public static KeyBuilding getClosest(Coordinate target, int team) {
-        KeyBuilding closest = null;
-        for (GameObject2 go : Window.currentGame.getAllObjects()) {
-            if (go instanceof KeyBuilding kb && kb.owningTeam == team) {
-                if (closest == null || kb.distanceFrom(target) < closest.distanceFrom(target)) {
-                    closest = kb;
-                }
-            }
-        }
-        return closest;
+    @Override
+    public int getOwningTeam() {
+        return owningTeam;
     }
-    
-    
-    public static class SpawnLocation implements java.io.Serializable {
-        public Coordinate topLeft;
-        public double rotation;
 
-        public SpawnLocation(Coordinate t, double r) {
-            topLeft = t;
-            rotation = r;
-        }
+    @Override
+    public double getCaptureRadius() {
+        return captureRadius;
+    }
+
+    @Override
+    public SpawnLocation getSpawnLocation() {
+        return spawnLocation;
+    }
+
+    @Override
+    public java.awt.Color getMinimapColor() {
+        return owningTeam >= 0 ? RTSUnit.getColorFromTeam(owningTeam) : java.awt.Color.GRAY;
     }
 }

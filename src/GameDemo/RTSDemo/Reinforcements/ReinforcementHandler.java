@@ -8,7 +8,7 @@ import Framework.IndependentEffect;
 import Framework.Main;
 import Framework.Hitbox;
 import Framework.Window;
-import GameDemo.RTSDemo.KeyBuilding;
+import GameDemo.RTSDemo.ReinforcementPoint;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
@@ -313,7 +313,7 @@ public class ReinforcementHandler extends IndependentEffect {
 
         // Check for collisions with other RTSUnits
         for (GameObject2 go : currentGame.getAllObjects()) {
-            if ((go instanceof RTSUnit || go instanceof KeyBuilding) && go != object && go.getHitbox() != null && go.isSolid) {
+            if (go.isSolid && go.preventOverlap && go != object && go.getHitbox() != null) {
                 if (tempHitbox.intersects(go.getHitbox())) {
                     return false;
                 }
@@ -334,7 +334,7 @@ public class ReinforcementHandler extends IndependentEffect {
     
     public boolean isAvailable() {
         if(reserveCount < 1) return false;
-        if(KeyBuilding.getClosest(new Coordinate(0,0), ExternalCommunicator.localTeam) == null) return false;
+        if(!ReinforcementPoint.anyOwnedBy(ExternalCommunicator.localTeam)) return false;
         return 1 < (double)(Window.currentGame.getGameTickNumber() - lastUsedTick) / rechargeInterval;
     }
     

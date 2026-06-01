@@ -31,27 +31,26 @@ public class KeyBuildingRingEffect extends IndependentEffect {
     @Override
     public void render(Graphics2D g) {
         for (GameObject2 obj : game.getAllObjects()) {
-            if(obj instanceof KeyBuilding) {
-                KeyBuilding building = (KeyBuilding) obj;
-                renderCaptureRing(g, building);
+            if (obj instanceof ReinforcementPoint rp) {
+                renderCaptureRing(g, obj, rp);
             }
         }
     }
 
     @Override
     public void tick() {
-        // No tick logic needed for this effect
     }
 
-    private void renderCaptureRing(Graphics2D g, KeyBuilding building) {
-        Coordinate pixelLocation = building.getPixelLocation();
-        Color ringColor = building.owningTeam == -1 ? Color.GRAY : RTSUnit.getColorFromTeam(building.owningTeam);
-        
+    private void renderCaptureRing(Graphics2D g, GameObject2 gameObject, ReinforcementPoint point) {
+        if(!point.isCapturable()) return;
+        Coordinate pixelLocation = gameObject.getPixelLocation();
+        Color ringColor = point.getOwningTeam() == -1 ? Color.GRAY : RTSUnit.getColorFromTeam(point.getOwningTeam());
+        int radius = (int) point.getCaptureRadius();
+
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
         g.setColor(ringColor);
         g.setStroke(new BasicStroke(12));
-        g.drawOval(pixelLocation.x - building.captureRadius, pixelLocation.y - building.captureRadius, building.captureRadius * 2, building.captureRadius * 2);
-        // Reset composite
+        g.drawOval(pixelLocation.x - radius, pixelLocation.y - radius, radius * 2, radius * 2);
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
 }

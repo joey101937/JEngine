@@ -31,18 +31,21 @@ public class MinimapRenderHelperRTS extends SimpleRenderHelper {
             }
             g.fillOval(go.getPixelLocation().x - longerSide/2, go.getPixelLocation().y - longerSide/2, longerSide, longerSide);
         }
-        if(go instanceof KeyBuilding keyBuilding) {
-            Color originalColor = g.getColor();
+        if (go instanceof MinimapRenderable mr) {
             int longerSide = Math.min(go.getWidth(), go.getHeight());
             int borderDiameter = longerSide + 64;
-            g.setColor(Color.BLACK);
-            g.fillRect(go.getPixelLocation().x - borderDiameter/2, go.getPixelLocation().y - borderDiameter/2, borderDiameter, borderDiameter);
-            if(keyBuilding.owningTeam >= 0) {
-                g.setColor(RTSUnit.getColorFromTeam(keyBuilding.owningTeam));
+            Color fillColor = mr.getMinimapColor();
+            if (mr.getMinimapShape() == MinimapRenderable.Shape.RECTANGLE) {
+                g.setColor(Color.BLACK);
+                g.fillRect(go.getPixelLocation().x - borderDiameter/2, go.getPixelLocation().y - borderDiameter/2, borderDiameter, borderDiameter);
+                g.setColor(fillColor);
+                g.fillRect(go.getPixelLocation().x - longerSide/2, go.getPixelLocation().y - longerSide/2, longerSide, longerSide);
             } else {
-                g.setColor(Color.GRAY);
+                g.setColor(Color.BLACK);
+                g.fillOval(go.getPixelLocation().x - borderDiameter/2, go.getPixelLocation().y - borderDiameter/2, borderDiameter, borderDiameter);
+                g.setColor(fillColor);
+                g.fillOval(go.getPixelLocation().x - longerSide/2, go.getPixelLocation().y - longerSide/2, longerSide, longerSide);
             }
-            g.fillRect(go.getPixelLocation().x - longerSide/2, go.getPixelLocation().y - longerSide/2, longerSide, longerSide);
         }
     }
     

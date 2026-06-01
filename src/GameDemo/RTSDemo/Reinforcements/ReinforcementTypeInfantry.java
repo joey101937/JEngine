@@ -1,7 +1,8 @@
 package GameDemo.RTSDemo.Reinforcements;
 
 import Framework.Coordinate;
-import GameDemo.RTSDemo.KeyBuilding;
+import GameDemo.RTSDemo.ReinforcementPoint;
+import GameDemo.RTSDemo.SpawnLocation;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSInput;
@@ -35,13 +36,14 @@ public class ReinforcementTypeInfantry extends ReinforcementType {
 
     @Override
     public void onTrigger(Coordinate targetLocation, int team) {
-        KeyBuilding kb = KeyBuilding.getClosest(targetLocation, team);
-        Coordinate base = kb.spawnLocation.topLeft;
+        ReinforcementPoint rp = ReinforcementPoint.getClosest(targetLocation, team);
+        SpawnLocation spawn = rp.getSpawnLocation();
+        Coordinate base = spawn.topLeft;
         String commandGroup = RTSInput.generateRandomCommandGroup();
         int initialOffset = -360;
         for (int i = 0; i < 4; i++) {
             Coordinate spawnOffset = new Coordinate(initialOffset + (i * 200), 50);
-            spawnOffset.adjustForRotation(kb.spawnLocation.rotation);
+            spawnOffset.adjustForRotation(spawn.rotation);
             Coordinate spawnLocation = base.copy().add(spawnOffset);
             int padding = 50;
             Rifleman r1 = new Rifleman(spawnLocation.x, spawnLocation.y, team);
@@ -52,21 +54,19 @@ public class ReinforcementTypeInfantry extends ReinforcementType {
 
             List<RTSUnit> created = List.of(r1, r2, r3, r4, b);
             HashMap<RTSUnit, Coordinate> innerOffsets = new HashMap<>();
-            innerOffsets.put(r1, new Coordinate(0,0));
-            innerOffsets.put(r2, new Coordinate(padding,0));
-            innerOffsets.put(r3, new Coordinate(0,padding));
-            innerOffsets.put(r4, new Coordinate(padding,padding));
-            innerOffsets.put(b, new Coordinate(padding*2,0));
-
+            innerOffsets.put(r1, new Coordinate(0, 0));
+            innerOffsets.put(r2, new Coordinate(padding, 0));
+            innerOffsets.put(r3, new Coordinate(0, padding));
+            innerOffsets.put(r4, new Coordinate(padding, padding));
+            innerOffsets.put(b, new Coordinate(padding*2, 0));
 
             for (RTSUnit u : created) {
                 u.setLocation(ReinforcementHandler.getClosestOpenLocation(u.getLocation().toCoordinate(), u).toDCoordinate());
-                u.setRotation(kb.spawnLocation.rotation);
+                u.setRotation(spawn.rotation);
                 u.setCommandGroup(commandGroup);
                 u.setDesiredLocation(targetLocation.copy().add(spawnOffset).add(innerOffsets.get(u)));
                 RTSGame.game.addObject(u);
             }
-
         }
     }
 
