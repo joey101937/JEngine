@@ -93,7 +93,7 @@ The RTS demo includes a comprehensive pathfinding system:
 ## Adding new RTS Units
 All RTS units must have deterministic game logic
 Make sure they are added to the RTSAssetManager preloadUnits function
-Make sure InfoPanelEffect is updated
+Check Assets folder to verify presence of visual assets if using new ones
 
 ## Scaling Gameobject2s
 Sprite and Sequence objects are stateful. only scale them once.

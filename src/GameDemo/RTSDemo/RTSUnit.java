@@ -456,7 +456,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     }
 
     public java.awt.image.BufferedImage getSelectionImage() {
-        return null;
+        return RTSAssetManager.landmineSelectionImage; // placeholder to prevent nullpointers.
     }
 
     // placeholder

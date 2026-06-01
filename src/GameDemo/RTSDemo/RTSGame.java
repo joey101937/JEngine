@@ -24,6 +24,7 @@ import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
+import GameDemo.RTSDemo.Units.TransportHelicopter;
 import GameDemo.RTSDemo.Units.Truck;
 import java.awt.Color;
 
@@ -168,6 +169,11 @@ public class RTSGame {
             game.addObject(heli);
         }
         for (int i = 0; i < lineLength; i++) {
+            TransportHelicopter transport = new TransportHelicopter(100 + (i * spacer), 200, 0);
+            transport.setRotation(180);
+            game.addObject(transport);
+        }
+        for (int i = 0; i < lineLength; i++) {
             Truck truck = new Truck(100 + (i * spacer), 300, 0);
             truck.setRotation(180);
             game.addObject(truck);
@@ -207,6 +213,9 @@ public class RTSGame {
         }
         for (int i = 0; i < lineLength; i++) {
             game.addObject(new Apache(100 + (i * spacer), 2300, 1));
+        }
+        for (int i = 0; i < lineLength; i++) {
+            game.addObject(new TransportHelicopter(100 + (i * spacer), 2450, 1));
         }
     }
     

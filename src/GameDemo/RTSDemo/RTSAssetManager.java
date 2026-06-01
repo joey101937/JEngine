@@ -9,6 +9,7 @@ import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
 import GameDemo.RTSDemo.Units.TankUnit;
+import GameDemo.RTSDemo.Units.TransportHelicopter;
 import GameDemo.RTSDemo.Units.Truck;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
@@ -86,6 +87,8 @@ public abstract class RTSAssetManager {
     public static BufferedImage frontalArmorButton;
     public static BufferedImage heatSeekersButton;
     public static BufferedImage infantryHelmetButton;
+    public static BufferedImage landButton;
+    public static BufferedImage flyButton;
     public static BufferedImage loadButton;
     public static BufferedImage unloadButton;
 
@@ -98,6 +101,7 @@ public abstract class RTSAssetManager {
     
     public static BufferedImage truckHull, truckHullRed, truckHullDamaged, truckHullDamagedRed, truckRubble, truckRubbleRed, truckDeathShadow;
     public static BufferedImage truckWheel;
+    public static BufferedImage transportHeli, transportHeliRed;
 
     public synchronized static void initialize() {
         if (initialized) {
@@ -113,6 +117,7 @@ public abstract class RTSAssetManager {
                 loadInfantryAssets(),
                 loadLandmineAssets(),
                 loadTruckAssets(),
+                loadTransportHeliAssets(),
                 loadSelectionImages(),
                 loadUtilityAssets(),
                 loadMapAssets1(),
@@ -299,6 +304,13 @@ public abstract class RTSAssetManager {
         }, executor);
     }
 
+    private static CompletableFuture<Void> loadTransportHeliAssets() {
+        return CompletableFuture.runAsync(() -> {
+            transportHeli = load("DemoAssets/TankGame/transportHeli/body.png");
+            transportHeliRed = greenToRed(transportHeli);
+        }, executor);
+    }
+
 
     private static CompletableFuture<Void> loadSelectionImages() {
         return CompletableFuture.runAsync(() -> {
@@ -331,6 +343,8 @@ public abstract class RTSAssetManager {
             infantryHelmetButton = load("DemoAssets/TankGame/Buttons/infantryHelmet.png");
             loadButton = load("DemoAssets/TankGame/Buttons/loadButton.png");
             unloadButton = load("DemoAssets/TankGame/Buttons/unloadButton.png");
+            landButton = load("DemoAssets/TankGame/Buttons/landButton.png");
+            flyButton = load("DemoAssets/TankGame/Buttons/flyButton.png");
         }, executor);
     }
 
@@ -348,6 +362,7 @@ public abstract class RTSAssetManager {
         new Apache(0, 0, 0);
         new Landmine(0, 0, 0);
         new Truck(0,0,0);
+        new TransportHelicopter(0, 0, 0);
         RTSUnitIdHelper.reset();
         System.out.println("done preloading.");
     }
