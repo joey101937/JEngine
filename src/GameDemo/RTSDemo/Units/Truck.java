@@ -15,6 +15,8 @@ import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Transport;
 import java.awt.Graphics2D;
+import java.util.HashMap;
+import java.util.Map;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
@@ -37,18 +39,15 @@ public class Truck extends RTSUnit implements Transport {
     public static double VISUAL_SCALE = .4;
     public static double TRUCK_SPEED = RTSGame.tickAdjust(2.8);
 
-    public static Sprite hullSprite = null;
-    public static Sprite hullSpriteRed = null;
-    public static Sprite hullSpriteYellow = null;
-    public static Sprite hullSpriteDamaged = null;
-    public static Sprite hullSpriteDamagedRed = null;
-    public static Sprite hullSpriteDamagedYellow = null;
-    public static Sprite hullSpriteDestroyed = null;
-    public static Sprite hullSpriteDestroyedRed = null;
-    public static Sprite hullSpriteDestroyedYellow = null;
-    public static Sequence deathFadeout = null;
+    // Team-neutral sprites
     public static Sprite hullShadow = null;
     public static Sprite wheelSprite = null;
+    public static Sequence deathFadeout = null;
+
+    // Team-colored maps
+    private static final Map<Integer, Sprite> hullSpriteMap          = new HashMap<>();
+    private static final Map<Integer, Sprite> hullDamagedSpriteMap   = new HashMap<>();
+    private static final Map<Integer, Sprite> hullDestroyedSpriteMap = new HashMap<>();
 
     private static final int[][] WHEEL_OFFSETS = {{-24, -51}, {24, -51}};
     private static final double MAX_WHEEL_ANGLE = 30.0;
@@ -65,46 +64,36 @@ public class Truck extends RTSUnit implements Transport {
     }
 
     public static void initGraphics() {
-        hullSprite = new Sprite(RTSAssetManager.truckHull);
-        hullSpriteRed = new Sprite(RTSAssetManager.truckHullRed);
-        hullSpriteYellow = new Sprite(RTSAssetManager.truckHullYellow);
-        hullSpriteDamaged = new Sprite(RTSAssetManager.truckHullDamaged);
-        hullSpriteDamagedRed = new Sprite(RTSAssetManager.truckHullDamagedRed);
-        hullSpriteDamagedYellow = new Sprite(RTSAssetManager.truckHullDamagedYellow);
-        hullSpriteDestroyed = new Sprite(RTSAssetManager.truckRubble);
-        hullSpriteDestroyedRed = new Sprite(RTSAssetManager.truckRubbleRed);
-        hullSpriteDestroyedYellow = new Sprite(RTSAssetManager.truckRubbleYellow);
-        hullShadow = Sprite.generateShadowSprite(hullSprite.getImage(), .7);
+        if (!hullSpriteMap.isEmpty()) return;
+
+        hullShadow = Sprite.generateShadowSprite(RTSAssetManager.truckHull, .7);
         hullShadow.scaleTo(VISUAL_SCALE);
-        hullSprite.applyAlphaEdgeBlurSelf(1);
-        hullSpriteRed.applyAlphaEdgeBlurSelf(1);
-        hullSpriteYellow.applyAlphaEdgeBlurSelf(1);
-        hullSpriteDestroyed.applyAlphaEdgeBlurSelf(1);
-        hullSpriteDestroyedRed.applyAlphaEdgeBlurSelf(1);
-        hullSpriteDestroyedYellow.applyAlphaEdgeBlurSelf(1);
         hullShadow.applyAlphaEdgeBlurSelf(2);
-        
         deathFadeout = Sequence.createFadeout(RTSAssetManager.truckDeathShadow, 40);
         deathFadeout.setSignature("deathFadeoutTruck");
-
         wheelSprite = new Sprite(RTSAssetManager.truckWheel);
         wheelSprite.applyAlphaEdgeBlurSelf(1);
+
+        for (int team : RTSGame.activeTeams) {
+            Sprite hull = new Sprite(RTSAssetManager.getTruckHull(team));
+            hull.applyAlphaEdgeBlurSelf(1);
+            hullSpriteMap.put(team, hull);
+
+            hullDamagedSpriteMap.put(team, new Sprite(RTSAssetManager.getTruckHullDamaged(team)));
+
+            Sprite destroyed = new Sprite(RTSAssetManager.getTruckRubble(team));
+            destroyed.applyAlphaEdgeBlurSelf(1);
+            hullDestroyedSpriteMap.put(team, destroyed);
+        }
     }
 
-    public final Sprite getHullSprite() {
-        if (isRubble) {
-            return switch (team) {
-                case 1 -> hullSpriteDestroyedRed;
-                case 2 -> hullSpriteDestroyedYellow;
-                default -> hullSpriteDestroyed;
-            };
-        }
+    public Sprite getHullSprite() {
         boolean isDamaged = currentHealth <= maxHealth * .33;
-        return switch (team) {
-            case 1 -> isDamaged ? hullSpriteDamagedRed : hullSpriteRed;
-            case 2 -> isDamaged ? hullSpriteDamagedYellow : hullSpriteYellow;
-            default -> isDamaged ? hullSpriteDamaged : hullSprite;
-        };
+        return isDamaged ? hullDamagedSpriteMap.get(team) : hullSpriteMap.get(team);
+    }
+
+    public Sprite getRubbleSprite() {
+        return hullDestroyedSpriteMap.getOrDefault(team, hullDestroyedSpriteMap.get(0));
     }
 
     public Truck(int x, int y, int team) {
@@ -126,7 +115,7 @@ public class Truck extends RTSUnit implements Transport {
 
     @Override
     public void onPostDeserialization() {
-        this.setGraphic(isRubble ? hullSpriteDestroyed : getHullSprite());
+        this.setGraphic(isRubble ? getRubbleSprite() : getHullSprite());
     }
 
     // ── Transport interface ──────────────────────────────────────────────────
@@ -213,11 +202,7 @@ public class Truck extends RTSUnit implements Transport {
             getHostGame().addObject(unit);
             unit.takeDamage(new Damage(Main.generateDeterministicRandomInt(5, 40, i)));
         }
-        Sprite rubbleSprite = switch (team) {
-            case 1 -> hullSpriteDestroyedRed;
-            case 2 -> hullSpriteDestroyedYellow;
-            default -> hullSpriteDestroyed;
-        };
+        Sprite rubbleSprite = getRubbleSprite();
         new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "truckDeathExplosion"), getPixelLocation());
         this.isRubble = true;
         this.team = -1;
@@ -390,12 +375,12 @@ public class Truck extends RTSUnit implements Transport {
 
     @Override
     public int getWidth() {
-        return (int) (hullSprite.getWidth() * VISUAL_SCALE);
+        return (int) (hullSpriteMap.get(0).getWidth() * VISUAL_SCALE);
     }
 
     @Override
     public int getHeight() {
-        return (int) (hullSprite.getHeight() * VISUAL_SCALE);
+        return (int) (hullSpriteMap.get(0).getHeight() * VISUAL_SCALE);
     }
 
     @Override

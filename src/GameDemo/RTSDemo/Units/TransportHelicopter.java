@@ -20,7 +20,9 @@ import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.SpawnLocation;
 import GameDemo.RTSDemo.Transport;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -37,52 +39,30 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
 
     public static final double VISUAL_SCALE = .44;
 
-    public static volatile Sprite baseSprite = null;
-    public static volatile Sprite baseSpriteRed = null;
-    public static volatile Sprite baseSpriteYellow = null;
+    // Team-neutral sprites
     public static volatile Sprite deadSprite = null;
     public static volatile Sprite rubbleSprite = null;
     public static volatile Sequence deathShadowFadeout = null;
     public static volatile Sprite shadowSprite = null;
-    public static volatile Sprite bladesSprite = null;
-    public static volatile Sprite bladesSpriteRed = null;
-    public static volatile Sprite bladesSpriteYellow = null;
-    public static volatile Sprite roofSprite = null;
-    public static volatile Sprite roofSpriteRed = null;
-    public static volatile Sprite roofSpriteYellow = null;
     public static volatile Sprite roofShadowSprite = null;
+
+    // Team-colored maps
+    private static final Map<Integer, Sprite> bodySpriteMap  = new HashMap<>();
+    private static final Map<Integer, Sprite> bladesSpriteMap = new HashMap<>();
+    private static final Map<Integer, Sprite> roofSpriteMap  = new HashMap<>();
 
     static {
         initGraphics();
     }
 
     public static void initGraphics() {
-        if (baseSprite != null) {
-            return;
-        }
-        baseSprite = new Sprite(RTSAssetManager.transportHeli);
-        baseSpriteRed = new Sprite(RTSAssetManager.transportHeliRed);
-        baseSpriteYellow = new Sprite(RTSAssetManager.transportHeliYellow);
+        if (!bodySpriteMap.isEmpty()) return;
+
         shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.transportHeli, .7);
         shadowSprite.scaleTo(VISUAL_SCALE);
         shadowSprite.applyAlphaEdgeBlurSelf(4);
-        bladesSprite = new Sprite(RTSAssetManager.hellicopterBlades);
-        bladesSpriteRed = new Sprite(RTSAssetManager.hellicopterBladesRed);
-        bladesSpriteYellow = new Sprite(RTSAssetManager.hellicopterBladesYellow);
-        bladesSprite.scaleTo(VISUAL_SCALE);
-        bladesSpriteRed.scaleTo(VISUAL_SCALE);
-        bladesSpriteYellow.scaleTo(VISUAL_SCALE);
-        roofSprite = new Sprite(RTSAssetManager.transportHeliRoof);
-        roofSpriteRed = new Sprite(RTSAssetManager.transportHeliRoofRed);
-        roofSpriteYellow = new Sprite(RTSAssetManager.transportHeliRoofYellow);
         roofShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.transportHeliRoof, 0.55);
-        roofSprite.scaleTo(VISUAL_SCALE);
-        roofSpriteRed.scaleTo(VISUAL_SCALE);
-        roofSpriteYellow.scaleTo(VISUAL_SCALE);
         roofShadowSprite.scaleTo(VISUAL_SCALE);
-        roofSprite.applyAlphaEdgeBlurSelf(1);
-        roofSpriteRed.applyAlphaEdgeBlurSelf(1);
-        roofSpriteYellow.applyAlphaEdgeBlurSelf(1);
         roofShadowSprite.applyAlphaEdgeBlurSelf(1);
         deadSprite = new Sprite(RTSAssetManager.chopperDead);
         rubbleSprite = new Sprite(RTSAssetManager.chopperRubble);
@@ -90,37 +70,27 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
         deathShadowFadeout.setSignature("chopperDeathShadow");
         deadSprite.applyAlphaEdgeBlurSelf(1);
         rubbleSprite.applyAlphaEdgeBlurSelf(1);
-        baseSprite.applyAlphaEdgeBlurSelf(1);
-        baseSpriteRed.applyAlphaEdgeBlurSelf(1);
-        baseSpriteYellow.applyAlphaEdgeBlurSelf(1);
-        bladesSprite.applyAlphaEdgeBlurSelf(1);
-        bladesSpriteRed.applyAlphaEdgeBlurSelf(1);
-        bladesSpriteYellow.applyAlphaEdgeBlurSelf(1);
+
+        for (int team : RTSGame.activeTeams) {
+            Sprite body = new Sprite(RTSAssetManager.getTransportHeliBody(team));
+            body.applyAlphaEdgeBlurSelf(1);
+            bodySpriteMap.put(team, body);
+
+            Sprite blades = new Sprite(RTSAssetManager.getHellicopterBlades(team));
+            blades.scaleTo(VISUAL_SCALE);
+            blades.applyAlphaEdgeBlurSelf(1);
+            bladesSpriteMap.put(team, blades);
+
+            Sprite roof = new Sprite(RTSAssetManager.getTransportHeliRoof(team));
+            roof.scaleTo(VISUAL_SCALE);
+            roof.applyAlphaEdgeBlurSelf(1);
+            roofSpriteMap.put(team, roof);
+        }
     }
 
-    public Sprite getBodySprite() {
-        return switch (team) {
-            case 1 -> baseSpriteRed;
-            case 2 -> baseSpriteYellow;
-            default -> baseSprite;
-        };
-    }
-
-    public Sprite getBladesSprite() {
-        return switch (team) {
-            case 1 -> bladesSpriteRed;
-            case 2 -> bladesSpriteYellow;
-            default -> bladesSprite;
-        };
-    }
-
-    public Sprite getRoofSprite() {
-        return switch (team) {
-            case 1 -> roofSpriteRed;
-            case 2 -> roofSpriteYellow;
-            default -> roofSprite;
-        };
-    }
+    public Sprite getBodySprite()  { return bodySpriteMap.get(team); }
+    public Sprite getBladesSprite() { return bladesSpriteMap.get(team); }
+    public Sprite getRoofSprite()  { return roofSpriteMap.get(team); }
 
     public TransportHeliTurret turret;
     public int elevation = 149;

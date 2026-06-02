@@ -17,6 +17,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * the hellicopter itself is invisible, instead we render the subobject to
@@ -33,90 +35,53 @@ public class Hellicopter extends RTSUnit {
 
     public static final double VISUAL_SCALE = .34;
 
-    public static volatile Sprite baseSprite = null;
-    public static volatile Sprite baseSpriteRed = null;
-    public static volatile Sprite baseSpriteYellow = null;
-    public static volatile Sprite destroyedSprite = null;
-    public static volatile Sprite destroyedSpriteRed = null;
-    public static volatile Sprite destroyedSpriteYellow = null;
+    // Team-neutral sprites
     public static volatile Sprite deadSprite = null;
     public static volatile Sprite rubbleSprite = null;
     public static volatile Sequence deathShadowFadeout = null;
     public static volatile Sprite shadowSprite = null;
-    public static volatile Sequence attackSequence = null;
-    public static volatile Sequence attackSequenceRed = null;
-    public static volatile Sequence attackSequenceYellow = null;
-    public static volatile Sprite bladesSprite = null;
-    public static volatile Sprite bladesSpriteRed = null;
-    public static volatile Sprite bladesSpriteYellow = null;
+
+    // Team-colored maps
+    private static final Map<Integer, Sprite>   bodySpriteMap   = new HashMap<>();
+    private static final Map<Integer, Sprite>   bladesSpriteMap = new HashMap<>();
+    private static final Map<Integer, Sequence> attackSeqMap    = new HashMap<>();
 
     static {
         initGraphics();
     }
 
     public static void initGraphics() {
-        if (baseSprite != null) {
-            return;
-        }
-        baseSprite = new Sprite(RTSAssetManager.hellicopter);
-        baseSpriteRed = new Sprite(RTSAssetManager.hellicopterRed);
-        baseSpriteYellow = new Sprite(RTSAssetManager.hellicopterYellow);
-        destroyedSprite = new Sprite(RTSAssetManager.hellicopterDestroyed);
-        destroyedSpriteRed = new Sprite(RTSAssetManager.hellicopterDestroyedRed);
-        destroyedSpriteYellow = new Sprite(RTSAssetManager.hellicopterDestroyedYellow);
+        if (!bodySpriteMap.isEmpty()) return;
+
         shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.hellicopter, .7);
         shadowSprite.scaleTo(VISUAL_SCALE);
         shadowSprite.applyAlphaEdgeBlurSelf(4);
-        attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
-        attackSequenceRed = new Sequence(RTSAssetManager.hellicopterAttackRed, "helliAttackRed");
-        attackSequenceYellow = new Sequence(RTSAssetManager.hellicopterAttackYellow, "heliAttackYellow");
-        bladesSprite = new Sprite(RTSAssetManager.hellicopterBlades);
-        bladesSpriteRed = new Sprite(RTSAssetManager.hellicopterBladesRed);
-        bladesSpriteYellow = new Sprite(RTSAssetManager.hellicopterBladesYellow);
-        // blades are rendered manually so need explicit scaling
-        bladesSprite.scaleTo(VISUAL_SCALE);
-        bladesSpriteRed.scaleTo(VISUAL_SCALE);
-        bladesSpriteYellow.scaleTo(VISUAL_SCALE);
         deadSprite = new Sprite(RTSAssetManager.chopperDead);
         rubbleSprite = new Sprite(RTSAssetManager.chopperRubble);
         deathShadowFadeout = Sequence.createFadeout(RTSAssetManager.chopperDeathShadow, 40);
         deathShadowFadeout.setSignature("chopperDeathShadow");
         deadSprite.applyAlphaEdgeBlurSelf(2);
         rubbleSprite.applyAlphaEdgeBlurSelf(2);
-        baseSprite.applyAlphaEdgeBlurSelf(2);
-        baseSpriteRed.applyAlphaEdgeBlurSelf(2);
-        baseSpriteYellow.applyAlphaEdgeBlurSelf(2);
-        bladesSprite.applyAlphaEdgeBlurSelf(2);
-        bladesSpriteRed.applyAlphaEdgeBlurSelf(2);
-        bladesSpriteYellow.applyAlphaEdgeBlurSelf(2);
-        attackSequence.setFrameDelay(40);
-        attackSequenceRed.setFrameDelay(40);
-        attackSequenceYellow.setFrameDelay(40);
+
+        for (int team : RTSGame.activeTeams) {
+            Sprite body = new Sprite(RTSAssetManager.getHellicopterBody(team));
+            body.applyAlphaEdgeBlurSelf(2);
+            bodySpriteMap.put(team, body);
+
+            Sprite blades = new Sprite(RTSAssetManager.getHellicopterBlades(team));
+            blades.scaleTo(VISUAL_SCALE);
+            blades.applyAlphaEdgeBlurSelf(2);
+            bladesSpriteMap.put(team, blades);
+
+            Sequence attack = new Sequence(RTSAssetManager.getHellicopterAttack(team), "heliAttack");
+            attack.setFrameDelay(40);
+            attackSeqMap.put(team, attack);
+        }
     }
 
-    public Sprite getBodySprite() {
-        return switch (team) {
-            case 1 -> baseSpriteRed;
-            case 2 -> baseSpriteYellow;
-            default -> baseSprite;
-        };
-    }
-
-    public Sprite getBladesSprite() {
-        return switch (team) {
-            case 1 -> bladesSpriteRed;
-            case 2 -> bladesSpriteYellow;
-            default -> bladesSprite;
-        };
-    }
-
-    public Sequence getAttackSequence() {
-        return switch (team) {
-            case 1 -> attackSequenceRed;
-            case 2 -> attackSequenceYellow;
-            default -> attackSequence;
-        };
-    }
+    public Sprite getBodySprite()    { return bodySpriteMap.get(team); }
+    public Sprite getBladesSprite()  { return bladesSpriteMap.get(team); }
+    public Sequence getAttackSequence() { return attackSeqMap.get(team); }
 
     public HellicopterTurret turret;
     public long lastFireTick = 0;

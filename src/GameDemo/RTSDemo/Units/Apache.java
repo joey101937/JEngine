@@ -18,6 +18,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * the apache itself is invisible, instead we render the subobject as the hull of the apache to
@@ -45,56 +47,28 @@ public class Apache extends RTSUnit {
 
     private static final int MISSILE_FIRE_INTERVAL = 12; // ticks between each of the 4 launches
 
-    public static volatile Sprite baseSprite = null;
-    public static volatile Sprite baseSpriteRed = null;
-    public static volatile Sprite baseSpriteYellow = null;
-    public static volatile Sprite emptyPodsSprite = null;
-    public static volatile Sprite emptyPodsSpriteRed = null;
-    public static volatile Sprite emptyPodsSpriteYellow = null;
+    // Team-neutral sprites
     public static volatile Sprite dockedMissileSprite = null;
-    public static volatile Sprite destroyedSprite = null;
-    public static volatile Sprite destroyedSpriteRed = null;
-    public static volatile Sprite destroyedSpriteYellow = null;
     public static volatile Sprite deadSprite = null;
     public static volatile Sprite rubbleSprite = null;
     public static volatile Sequence deathShadowFadeout = null;
     public static volatile Sprite shadowSprite = null;
-    public static volatile Sequence attackSequence = null;
-    public static volatile Sequence attackSequenceRed = null;
-    public static volatile Sequence attackSequenceYellow = null;
-    public static volatile Sprite bladesSprite = null;
-    public static volatile Sprite bladesSpriteRed = null;
-    public static volatile Sprite bladesSpriteYellow = null;
+
+    // Team-colored maps
+    private static final Map<Integer, Sprite>   emptyPodsSpriteMap = new HashMap<>();
+    private static final Map<Integer, Sprite>   bladesSpriteMap    = new HashMap<>();
+    private static final Map<Integer, Sequence> attackSeqMap       = new HashMap<>();
 
     static {
         initGraphics();
     }
 
     public static void initGraphics() {
-        if (baseSprite != null) {
-            return;
-        }
-        baseSprite = new Sprite(RTSAssetManager.apache);
-        baseSpriteRed = new Sprite(RTSAssetManager.apacheRed);
-        baseSpriteYellow = new Sprite(RTSAssetManager.apacheYellow);
-        emptyPodsSprite = new Sprite(RTSAssetManager.apacheEmptyPods);
-        emptyPodsSpriteRed = new Sprite(RTSAssetManager.apacheEmptyPodsRed);
-        emptyPodsSpriteYellow = new Sprite(RTSAssetManager.apacheEmptyPodsYellow);
-        destroyedSprite = new Sprite(RTSAssetManager.apacheDestroyed);
-        destroyedSpriteRed = new Sprite(RTSAssetManager.apacheDestroyedRed);
-        destroyedSpriteYellow = new Sprite(RTSAssetManager.apacheDestroyedYellow);
+        if (!emptyPodsSpriteMap.isEmpty()) return;
+
         shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.apacheEmptyPods, .7);
         shadowSprite.scaleTo(VISUAL_SCALE);
         shadowSprite.applyAlphaEdgeBlurSelf(4);
-        attackSequence = new Sequence(RTSAssetManager.apacheAttack, "apacheAttack");
-        attackSequenceRed = new Sequence(RTSAssetManager.apacheAttackRed, "apacheAttackRed");
-        attackSequenceYellow = new Sequence(RTSAssetManager.apacheAttackYellow, "apacheAttackYellow");
-        bladesSprite = new Sprite(RTSAssetManager.apacheBlades);
-        bladesSpriteRed = new Sprite(RTSAssetManager.apacheBladesRed);
-        bladesSpriteYellow = new Sprite(RTSAssetManager.apacheBladesYellow);
-        bladesSprite.scaleTo(VISUAL_SCALE);
-        bladesSpriteRed.scaleTo(VISUAL_SCALE);
-        bladesSpriteYellow.scaleTo(VISUAL_SCALE);
         dockedMissileSprite = new Sprite(RTSAssetManager.apacheDockedMissile);
         dockedMissileSprite.scaleTo(VISUAL_SCALE);
         deadSprite = new Sprite(RTSAssetManager.chopperDead);
@@ -103,41 +77,28 @@ public class Apache extends RTSUnit {
         deathShadowFadeout.setSignature("apacheDeathShadow");
         deadSprite.applyAlphaEdgeBlurSelf(2);
         rubbleSprite.applyAlphaEdgeBlurSelf(2);
-        emptyPodsSprite.applyAlphaEdgeBlurSelf(2);
-        emptyPodsSpriteRed.applyAlphaEdgeBlurSelf(2);
-        emptyPodsSpriteYellow.applyAlphaEdgeBlurSelf(2);
-        bladesSprite.applyAlphaEdgeBlurSelf(2);
-        bladesSpriteRed.applyAlphaEdgeBlurSelf(2);
-        bladesSpriteYellow.applyAlphaEdgeBlurSelf(2);
-        attackSequence.setFrameDelay(40);
-        attackSequenceRed.setFrameDelay(40);
-        attackSequenceYellow.setFrameDelay(40);
+
+        for (int team : RTSGame.activeTeams) {
+            Sprite pods = new Sprite(RTSAssetManager.getApacheEmptyPods(team));
+            pods.applyAlphaEdgeBlurSelf(2);
+            emptyPodsSpriteMap.put(team, pods);
+
+            Sprite blades = new Sprite(RTSAssetManager.getApacheBlades(team));
+            blades.scaleTo(VISUAL_SCALE);
+            blades.applyAlphaEdgeBlurSelf(2);
+            bladesSpriteMap.put(team, blades);
+
+            Sequence attack = new Sequence(RTSAssetManager.getApacheAttack(team), "apacheAttack");
+            attack.setFrameDelay(40);
+            attackSeqMap.put(team, attack);
+        }
+
         ApacheMissile.initGraphics();
     }
 
-    public Sprite getBodySprite() {
-        return switch (team) {
-            case 1 -> emptyPodsSpriteRed;
-            case 2 -> emptyPodsSpriteYellow;
-            default -> emptyPodsSprite;
-        };
-    }
-
-    public Sprite getBladesSprite() {
-        return switch (team) {
-            case 1 -> bladesSpriteRed;
-            case 2 -> bladesSpriteYellow;
-            default -> bladesSprite;
-        };
-    }
-
-    public Sequence getAttackSequence() {
-        return switch (team) {
-            case 1 -> attackSequenceRed;
-            case 2 -> attackSequenceYellow;
-            default -> attackSequence;
-        };
-    }
+    public Sprite getBodySprite()    { return emptyPodsSpriteMap.get(team); }
+    public Sprite getBladesSprite()  { return bladesSpriteMap.get(team); }
+    public Sequence getAttackSequence() { return attackSeqMap.get(team); }
 
     public ApacheTurret turret;
     public long lastFireTick = 0;

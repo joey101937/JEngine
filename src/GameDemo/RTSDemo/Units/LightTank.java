@@ -19,6 +19,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -31,77 +33,59 @@ public class LightTank extends RTSUnit {
 
     public static final double VISUAL_SCALE = .48;
     
-    public static volatile Sprite hullSprite = null;
-    public static volatile Sprite turretSprite = null;
-    public static volatile Sprite turretSpriteDamaged = null;
-    public static volatile Sprite redHullSprite = null;
-    public static volatile Sprite redTurretSprite = null;
-    public static volatile Sprite redTurretSpriteDamaged = null;
-    public static volatile Sprite yellowHullSprite = null;
-    public static volatile Sprite yellowTurretSprite = null;
-    public static volatile Sprite yellowTurretSpriteDamaged = null;
+    // Team-neutral sprites
     public static volatile Sprite hullShadow = null;
     public static volatile Sprite turretShadow = null;
-    public static volatile Sprite hullSpriteDamaged = null;
-    public static volatile Sprite redHullSpriteDamaged = null;
-    public static volatile Sprite yellowHullSpriteDamaged = null;
     public static volatile Sprite hullSpriteDestroyed = null;
     public static volatile Sprite turretSpriteDestroyed = null;
-    public static volatile Sequence fireSequence = null;
-    public static volatile Sequence fireSequenceDamaged = null;
-    public static volatile Sequence redFireSequence = null;
-    public static volatile Sequence redFireSequenceDamaged = null;
-    public static volatile Sequence yellowFireSequence = null;
-    public static volatile Sequence yellowFireSequenceDamaged = null;
     public static volatile Sequence deathFadeout = null;
+
+    // Team-colored maps
+    private static final Map<Integer, Sprite>   hullSpriteMap         = new HashMap<>();
+    private static final Map<Integer, Sprite>   turretSpriteMap       = new HashMap<>();
+    private static final Map<Integer, Sprite>   hullDamagedSpriteMap  = new HashMap<>();
+    private static final Map<Integer, Sprite>   turretDamagedSpriteMap = new HashMap<>();
+    private static final Map<Integer, Sequence> fireSequenceMap       = new HashMap<>();
+    private static final Map<Integer, Sequence> fireDamagedSequenceMap = new HashMap<>();
 
     static {
         initGraphics();
     }
 
     public static void initGraphics() {
-        if (hullSprite != null) {
-            return;
-        }
-        hullSprite = new Sprite(RTSAssetManager.lightTankHull);
-        turretSprite = new Sprite(RTSAssetManager.lightTankTurret);
-        turretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamaged);
-        redHullSprite = new Sprite(RTSAssetManager.lightTankHullRed);
-        redTurretSprite = new Sprite(RTSAssetManager.lightTankTurretRed);
-        redTurretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamagedRed);
+        if (!hullSpriteMap.isEmpty()) return;
+
         hullShadow = Sprite.generateShadowSprite(RTSAssetManager.lightTankHull, .8);
         turretShadow = Sprite.generateShadowSprite(RTSAssetManager.lightTankTurret, .8);
-        hullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamaged);
-        redHullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamagedRed);
         hullSpriteDestroyed = new Sprite(RTSAssetManager.lightTankHullDestroyed);
         turretSpriteDestroyed = new Sprite(RTSAssetManager.lightTankTurretDestroyed);
-        fireSequence = new Sequence(RTSAssetManager.lightTankFire, "lightTankFire");
-        fireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamaged, "lightTankFireDamaged");
-        redFireSequence = new Sequence(RTSAssetManager.lightTankFireRed, "lightTankFireRed");
-        redFireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamagedRed, "lightTankDamagedFireRed");
-        yellowHullSprite = new Sprite(RTSAssetManager.lightTankHullYellow);
-        yellowTurretSprite = new Sprite(RTSAssetManager.lightTankTurretYellow);
-        yellowTurretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamagedYellow);
-        yellowHullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamagedYellow);
-        yellowFireSequence = new Sequence(RTSAssetManager.lightTankFireYellow, "lightTankFireYellow");
-        yellowFireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamagedYellow, "lightTankFireDamagedYellow");
         deathFadeout = Sequence.createFadeout(RTSAssetManager.lightTankDeathShadow, 40);
         deathFadeout.setSignature("deathFadeoutLightTank");
-        // shadows need to be manually scaled since they dont get rendered via main render method
         hullShadow.scaleTo(VISUAL_SCALE);
         turretShadow.scaleTo(VISUAL_SCALE);
         hullShadow.applyAlphaEdgeBlurSelf(8);
         turretShadow.applyAlphaEdgeBlurSelf(3);
-        hullSprite.applyAlphaEdgeBlurSelf(1);
-        turretSprite.applyAlphaEdgeBlurSelf(1);
-        yellowHullSprite.applyAlphaEdgeBlurSelf(1);
-        yellowTurretSprite.applyAlphaEdgeBlurSelf(1);
-        fireSequence.setFrameDelay(35);
-        fireSequenceDamaged.setFrameDelay(35);
-        redFireSequenceDamaged.setFrameDelay(35);
-        redFireSequence.setFrameDelay(35);
-        yellowFireSequence.setFrameDelay(35);
-        yellowFireSequenceDamaged.setFrameDelay(35);
+
+        for (int team : RTSGame.activeTeams) {
+            Sprite hull = new Sprite(RTSAssetManager.getLightTankHull(team));
+            hull.applyAlphaEdgeBlurSelf(1);
+            hullSpriteMap.put(team, hull);
+
+            Sprite turret = new Sprite(RTSAssetManager.getLightTankTurret(team));
+            turret.applyAlphaEdgeBlurSelf(1);
+            turretSpriteMap.put(team, turret);
+
+            hullDamagedSpriteMap.put(team, new Sprite(RTSAssetManager.getLightTankHullDamaged(team)));
+            turretDamagedSpriteMap.put(team, new Sprite(RTSAssetManager.getLightTankTurretDamaged(team)));
+
+            Sequence fire = new Sequence(RTSAssetManager.getLightTankFire(team), "lightTankFire");
+            fire.setFrameDelay(35);
+            fireSequenceMap.put(team, fire);
+
+            Sequence fireDamaged = new Sequence(RTSAssetManager.getLightTankFireDamaged(team), "lightTankFireDamaged");
+            fireDamaged.setFrameDelay(35);
+            fireDamagedSequenceMap.put(team, fireDamaged);
+        }
     }
 
     // instance fields
@@ -259,7 +243,7 @@ public class LightTank extends RTSUnit {
         playAttackSound();
         turret.setGraphic(getFireSequence());
         Coordinate muzzelLocation = new Coordinate(0, 0);
-        muzzelLocation.y -= turretSprite.getHeight() * 2 / 5;
+        muzzelLocation.y -= turretSpriteMap.get(0).getHeight() * 2 / 5;
         muzzelLocation = Coordinate.adjustForRotation(muzzelLocation, turret.getRotationRealTime());
         muzzelLocation.add(turret.getPixelLocation());
         Coordinate randomOffset = new Coordinate(
@@ -273,33 +257,23 @@ public class LightTank extends RTSUnit {
 
     public Sequence getFireSequence() {
         boolean isDamaged = currentHealth <= maxHealth * .33;
-        return switch (team) {
-            case 1 -> isDamaged ? redFireSequenceDamaged.copyMaintainSource() : redFireSequence.copyMaintainSource();
-            case 2 -> isDamaged ? yellowFireSequenceDamaged.copyMaintainSource() : yellowFireSequence.copyMaintainSource();
-            default -> isDamaged ? fireSequenceDamaged.copyMaintainSource() : fireSequence.copyMaintainSource();
-        };
+        return isDamaged ? fireDamagedSequenceMap.get(team).copyMaintainSource() : fireSequenceMap.get(team).copyMaintainSource();
     }
 
     public Sprite getHullSprite() {
-        if (isRubble) {
-            return hullSpriteDestroyed;
-        }
+        if (isRubble) return hullSpriteDestroyed;
         boolean isDamaged = currentHealth <= maxHealth * .33;
-        return switch (team) {
-            case 1 -> isDamaged ? redHullSpriteDamaged : redHullSprite;
-            case 2 -> isDamaged ? yellowHullSpriteDamaged : yellowHullSprite;
-            default -> isDamaged ? hullSpriteDamaged : hullSprite;
-        };
+        return isDamaged ? hullDamagedSpriteMap.get(team) : hullSpriteMap.get(team);
     }
 
     @Override
     public int getWidth() {
-        return (int)(hullSprite.getWidth() * VISUAL_SCALE);
+        return (int)(hullSpriteMap.get(0).getWidth() * VISUAL_SCALE);
     }
 
     @Override
     public int getHeight() {
-        return (int)(hullSprite.getHeight()* VISUAL_SCALE);
+        return (int)(hullSpriteMap.get(0).getHeight() * VISUAL_SCALE);
     }
 
     @Override
@@ -402,15 +376,9 @@ public class LightTank extends RTSUnit {
         }
 
         public Graphic getTurretSprite() {
-            if (isRubble) {
-                return turretSpriteDestroyed;
-            }
+            if (isRubble) return turretSpriteDestroyed;
             boolean isDamaged = hull != null && hull.currentHealth <= hull.maxHealth * .33;
-            return switch (team) {
-                case 1 -> isDamaged ? redTurretSpriteDamaged : redTurretSprite;
-                case 2 -> isDamaged ? yellowTurretSpriteDamaged : yellowTurretSprite;
-                default -> isDamaged ? turretSpriteDamaged : turretSprite;
-            };
+            return isDamaged ? turretDamagedSpriteMap.get(team) : turretSpriteMap.get(team);
         }
 
         @Override

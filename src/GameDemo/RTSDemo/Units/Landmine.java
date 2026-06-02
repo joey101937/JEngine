@@ -13,6 +13,8 @@ import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -21,29 +23,27 @@ import java.util.ArrayList;
 public class Landmine extends RTSUnit {
     
     public static final Damage staticDamage = new Damage(0, 30);
-    public static final Sprite landmineVisible = new Sprite(RTSAssetManager.landmine);
-    public static final Sprite landmineVisibleRed = new Sprite(RTSAssetManager.landmineRed);
-    public static final Sprite landmineVisibleYellow = new Sprite(RTSAssetManager.landmineYellow);
-    public static final Sprite landmineHidden = new Sprite(RTSAssetManager.landmine);
-    public static final Sprite landmineHiddenRed = new Sprite(RTSAssetManager.landmineRed);
-    public static final Sprite landmineHiddenYellow = new Sprite(RTSAssetManager.landmineYellow);
     public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.landmine, .4);
     public static final Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.landmineBlast, 60);
     public static final double VISUAL_SCALE = .2;
-    
+
+    private static final Map<Integer, Sprite> visibleSpriteMap = new HashMap<>();
+    private static final Map<Integer, Sprite> hiddenSpriteMap  = new HashMap<>();
+
     public Damage damage = staticDamage.copy();
 
     static {
-        landmineHidden.applyAlphaEdgeBlurSelf(1);
-        landmineHiddenRed.applyAlphaEdgeBlurSelf(1);
-        landmineHiddenYellow.applyAlphaEdgeBlurSelf(1);
-        landmineVisible.applyAlphaEdgeBlurSelf(1);
-        landmineVisibleRed.applyAlphaEdgeBlurSelf(1);
-        landmineVisibleYellow.applyAlphaEdgeBlurSelf(1);
-        landmineHidden.setOpacity(.6);
-        landmineHiddenRed.setOpacity(.6);
-        landmineHiddenYellow.setOpacity(.6);
         shadow.scaleTo(VISUAL_SCALE);
+        for (int team : RTSGame.activeTeams) {
+            Sprite visible = new Sprite(RTSAssetManager.getLandmine(team));
+            visible.applyAlphaEdgeBlurSelf(1);
+            visibleSpriteMap.put(team, visible);
+
+            Sprite hidden = new Sprite(RTSAssetManager.getLandmine(team));
+            hidden.applyAlphaEdgeBlurSelf(1);
+            hidden.setOpacity(.6);
+            hiddenSpriteMap.put(team, hidden);
+        }
     }
 
     // instance fields
@@ -52,7 +52,7 @@ public class Landmine extends RTSUnit {
     public Landmine(int x, int y, int team) {
         super(x, y, team);
         this.setScale(VISUAL_SCALE);
-        this.setGraphic(landmineHidden);
+        this.setGraphic(getHiddenSprite());
         this.setZLayer((int)(Math.random() * -50));
         this.setHitbox(new Hitbox(this, 1));
         this.isSolid = true;
@@ -83,21 +83,8 @@ public class Landmine extends RTSUnit {
         }
     }
     
-    public Sprite getVisibleSprite() {
-        return switch(team) {
-            case 1 -> landmineVisibleRed;
-            case 2 -> landmineVisibleYellow;
-            default -> landmineVisible;
-        };
-    }
-
-    public Sprite getHiddenSprite() {
-        return switch(team) {
-            case 1 -> landmineHiddenRed;
-            case 2 -> landmineHiddenYellow;
-            default -> landmineHidden;
-        };
-    }
+    public Sprite getVisibleSprite() { return visibleSpriteMap.get(team); }
+    public Sprite getHiddenSprite()  { return hiddenSpriteMap.get(team); }
 
     @Override
     public void onCollide(GameObject2 go, boolean myTick) {

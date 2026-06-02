@@ -80,13 +80,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
     public static volatile Sequence hullMGImpact = null;
 
-    // sprites for reuse
-    public static volatile Sprite chasisSpriteGreen = null;
-    public static volatile Sprite chasisSpriteRed = null;
-    public static volatile Sprite chasisSpriteYellow = null;
-    public static volatile Sprite turretSpriteGreen = null;
-    public static volatile Sprite turretSpriteRed = null;
-    public static volatile Sprite turretSpriteYellow = null;
+    // Team-neutral sprites
     public static volatile Sprite rubbleHullSprite = null;
     public static volatile Sprite rubbleTurretSprite = null;
     public static volatile Sprite deathShadow = null;
@@ -95,44 +89,26 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     public static volatile Sprite sandbagSprite = null;
     public static volatile Sprite sandbagDamagedSprite = null;
     public static volatile Sprite sandbagShadow = null;
-
-    public static volatile Sprite tankHullDamagedGreen;
-    public static volatile Sprite tankTurretDamagedGreen;
-    public static volatile Sprite tankHullDamagedRed;
-    public static volatile Sprite tankTurretDamagedRed;
-    public static volatile Sprite tankHullDamagedYellow;
-    public static volatile Sprite tankTurretDamagedYellow;
-    public static volatile Sequence tankFireAnimationDamagedGreen;
-    public static volatile Sequence tankFireAnimationDamagedRed;
-    public static volatile Sequence tankFireAnimationDamagedYellow;
-
     public static volatile Sequence deathFadeout;
-
-    public static volatile Sequence tankFireAnimationGreen = null;
-    public static volatile Sequence tankFireAnimationRed = null;
-    public static volatile Sequence tankFireAnimationYellow = null;
-    
     public static volatile Sequence tankDeathAnimation = null;
-    
+
+    // Team-colored sprite/sequence maps
+    private static final Map<Integer, Sprite>    chasisSpriteMap       = new HashMap<>();
+    private static final Map<Integer, Sprite>    turretSpriteMap       = new HashMap<>();
+    private static final Map<Integer, Sprite>    hullDamagedSpriteMap  = new HashMap<>();
+    private static final Map<Integer, Sprite>    turretDamagedSpriteMap = new HashMap<>();
+    private static final Map<Integer, Sequence>  fireAnimMap           = new HashMap<>();
+    private static final Map<Integer, Sequence>  fireAnimDamagedMap    = new HashMap<>();
+
     static {
         initGraphics();
     }
 
     public static void initGraphics() {
-        if (chasisSpriteGreen != null) {
-            return;
-        }
+        if (!chasisSpriteMap.isEmpty()) return;
+
         tankDeathAnimation = new Sequence(RTSAssetManager.tankDeath, "deathAnimation");
         tankDeathAnimation.setFrameDelay(35);
-        chasisSpriteGreen = new Sprite(RTSAssetManager.tankChasis);
-        chasisSpriteRed = new Sprite(RTSAssetManager.tankChasisRed);
-        chasisSpriteYellow = new Sprite(RTSAssetManager.tankChasisYellow);
-        turretSpriteGreen = new Sprite(RTSAssetManager.tankTurret);
-        turretSpriteRed = new Sprite(RTSAssetManager.tankTurretRed);
-        turretSpriteYellow = new Sprite(RTSAssetManager.tankTurretYellow);
-        tankFireAnimationGreen = new Sequence(RTSAssetManager.tankFireAnimation, "tankFireGreen");
-        tankFireAnimationRed = new Sequence(RTSAssetManager.tankFireAnimationRed, "redTankFire");
-        tankFireAnimationYellow = new Sequence(RTSAssetManager.tankFireAnimationYellow, "yellowTankFire");
         rubbleHullSprite = new Sprite(RTSAssetManager.tankDeadHull);
         rubbleTurretSprite = new Sprite(RTSAssetManager.tankDeadTurret);
         deathShadow = new Sprite(RTSAssetManager.tankDeadHullShadow);
@@ -140,56 +116,46 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         deathFadeout.setSignature("fadeout");
         shadow = Sprite.generateShadowSprite(RTSAssetManager.tankChasis, .8);
         turretShadow = Sprite.generateShadowSprite(RTSAssetManager.tankTurret, .8);
-
-        tankHullDamagedGreen = new Sprite(RTSAssetManager.tankHullDamaged);
-        tankTurretDamagedGreen = new Sprite(RTSAssetManager.tankTurretDamaged);
-        tankHullDamagedRed = new Sprite(RTSAssetManager.tankHullDamagedRed);
-        tankTurretDamagedRed = new Sprite(RTSAssetManager.tankTurretDamagedRed);
-        tankHullDamagedYellow = new Sprite(RTSAssetManager.tankHullDamagedYellow);
-        tankTurretDamagedYellow = new Sprite(RTSAssetManager.tankTurretDamagedYellow);
-        tankFireAnimationDamagedGreen = new Sequence(RTSAssetManager.tankFireAnimationDamaged);
-        tankFireAnimationDamagedRed = new Sequence(RTSAssetManager.tankFireAnimationDamagedRed);
-        tankFireAnimationDamagedYellow = new Sequence(RTSAssetManager.tankFireAnimationDamagedYellow);
-
-        tankHullDamagedGreen.setSignature("damagedHull");
-        tankTurretDamagedGreen.setSignature("damagedTurret");
-        tankHullDamagedRed.setSignature("damagedHull");
-        tankTurretDamagedRed.setSignature("damagedTurret");
-        tankHullDamagedYellow.setSignature("damagedHull");
-        tankTurretDamagedYellow.setSignature("damagedTurret");
-        tankFireAnimationDamagedGreen.setSignature("fireAnimation");
-        tankFireAnimationDamagedRed.setSignature("fireAnimation");
-        tankFireAnimationDamagedYellow.setSignature("fireAnimation");
-        tankFireAnimationGreen.setSignature("fireAnimation");
-        tankFireAnimationRed.setSignature("fireAnimation");
-        tankFireAnimationYellow.setSignature("fireAnimation");
-        
         sandbagSprite = new Sprite(RTSAssetManager.sandbagsForTank, "sandbagsForTank");
         sandbagDamagedSprite = new Sprite(RTSAssetManager.sandbagsForTankDamaged, "sandbagsForTankDamaged");
-        
         sandbagShadow = Sprite.generateShadowSprite(RTSAssetManager.sandbagsForTank, .7);
-        
         shadow.applyAlphaEdgeBlurSelf(8);
         turretShadow.applyAlphaEdgeBlurSelf(3);
-        chasisSpriteGreen.applyAlphaEdgeBlurSelf(1);
-        chasisSpriteRed.applyAlphaEdgeBlurSelf(1);
-        chasisSpriteYellow.applyAlphaEdgeBlurSelf(1);
-        turretSpriteGreen.applyAlphaEdgeBlurSelf(1);
-        turretSpriteRed.applyAlphaEdgeBlurSelf(1);
-        turretSpriteYellow.applyAlphaEdgeBlurSelf(1);
-        tankFireAnimationGreen.applyAlphaEdgeBlurSelf(1);
-        tankFireAnimationRed.applyAlphaEdgeBlurSelf(1);
-        tankFireAnimationYellow.applyAlphaEdgeBlurSelf(1);
         sandbagSprite.applyAlphaEdgeBlurSelf(1);
         sandbagDamagedSprite.applyAlphaEdgeBlurSelf(1);
-        
-        List.of(tankFireAnimationDamagedGreen,
-                tankFireAnimationDamagedRed,
-                tankFireAnimationDamagedYellow,
-                tankFireAnimationGreen,
-                tankFireAnimationRed,
-                tankFireAnimationYellow
-        ).forEach(x -> x.setFrameDelay(35));
+        List.of(deathShadow, shadow).forEach(x -> x.scaleTo(VISUAL_SCALE));
+        hullMGImpact = new Sequence(RTSAssetManager.smallImpact);
+        hullMGImpact.scaleTo(3);
+        hullMGImpact.setFrameDelay(30);
+
+        for (int team : RTSGame.activeTeams) {
+            Sprite chassis = new Sprite(RTSAssetManager.getTankChasis(team));
+            chassis.applyAlphaEdgeBlurSelf(1);
+            chasisSpriteMap.put(team, chassis);
+
+            Sprite turret = new Sprite(RTSAssetManager.getTankTurret(team));
+            turret.applyAlphaEdgeBlurSelf(1);
+            turretSpriteMap.put(team, turret);
+
+            Sprite hullDamaged = new Sprite(RTSAssetManager.getTankHullDamaged(team));
+            hullDamaged.setSignature("damagedHull");
+            hullDamagedSpriteMap.put(team, hullDamaged);
+
+            Sprite turretDamaged = new Sprite(RTSAssetManager.getTankTurretDamaged(team));
+            turretDamaged.setSignature("damagedTurret");
+            turretDamagedSpriteMap.put(team, turretDamaged);
+
+            Sequence fire = new Sequence(RTSAssetManager.getTankFireAnim(team), "tankFire");
+            fire.setSignature("fireAnimation");
+            fire.setFrameDelay(35);
+            fire.applyAlphaEdgeBlurSelf(1);
+            fireAnimMap.put(team, fire);
+
+            Sequence fireDamaged = new Sequence(RTSAssetManager.getTankFireAnimDamaged(team));
+            fireDamaged.setSignature("fireAnimation");
+            fireDamaged.setFrameDelay(35);
+            fireAnimDamagedMap.put(team, fireDamaged);
+        }
 
         List.of(
                 deathShadow,
@@ -203,11 +169,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
     public Sprite getHullSprite() {
         boolean isDamaged = currentHealth > 0 && currentHealth < maxHealth / 3;
-        return switch (team) {
-            case 1 -> isDamaged ? tankHullDamagedRed : chasisSpriteRed;
-            case 2 -> isDamaged ? tankHullDamagedYellow : chasisSpriteYellow;
-            default -> isDamaged ? tankHullDamagedGreen : chasisSpriteGreen;
-        };
+        return isDamaged ? hullDamagedSpriteMap.get(team) : chasisSpriteMap.get(team);
     }
 
     @Override
@@ -324,13 +286,13 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     @Override
     public int getWidth() {
         // consistent width so that width is not tied to animation frame
-        return (int)(chasisSpriteGreen.getWidth() * VISUAL_SCALE);
+        return (int)(chasisSpriteMap.get(0).getWidth() * VISUAL_SCALE);
     }
 
     @Override
     public int getHeight() {
         // consistent height so that width is not tied to animation frame
-        return (int)(chasisSpriteGreen.getHeight() * VISUAL_SCALE);
+        return (int)(chasisSpriteMap.get(0).getHeight() * VISUAL_SCALE);
     }
 
     @Override
@@ -521,20 +483,12 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
         public Sequence getFireSequence() {
             boolean isDamaged = currentHealth > 0 && currentHealth < maxHealth / 3;
-            return switch (team) {
-                case 1 -> isDamaged ? tankFireAnimationDamagedRed.copyMaintainSource() : tankFireAnimationRed.copyMaintainSource();
-                case 2 -> isDamaged ? tankFireAnimationDamagedYellow.copyMaintainSource() : tankFireAnimationYellow.copyMaintainSource();
-                default -> isDamaged ? tankFireAnimationDamagedGreen.copyMaintainSource() : tankFireAnimationGreen.copyMaintainSource();
-            };
+            return isDamaged ? fireAnimDamagedMap.get(team).copyMaintainSource() : fireAnimMap.get(team).copyMaintainSource();
         }
 
         public Sprite getTurretSprite() {
             boolean isDamaged = currentHealth > 0 && currentHealth < maxHealth / 3;
-            return switch (team) {
-                case 1 -> isDamaged ? tankTurretDamagedRed : turretSpriteRed;
-                case 2 -> isDamaged ? tankTurretDamagedYellow : turretSpriteYellow;
-                default -> isDamaged ? tankTurretDamagedGreen : turretSpriteGreen;
-            };
+            return isDamaged ? turretDamagedSpriteMap.get(team) : turretSpriteMap.get(team);
         }
 
         public Turret(Coordinate offset) {

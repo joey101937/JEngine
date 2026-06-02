@@ -28,12 +28,15 @@ import GameDemo.RTSDemo.Units.TankUnit;
 import GameDemo.RTSDemo.Units.TransportHelicopter;
 import GameDemo.RTSDemo.Units.Truck;
 import java.awt.Color;
+import java.util.Set;
 
 /**
  *
  * @author Joseph
  */
 public class RTSGame {
+
+    public static final Set<Integer> activeTeams = Set.of(0, 1, 2);
 
     public static Game game = null;
     public static Minimap minimap = null;

@@ -1,6 +1,8 @@
 package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
+import java.util.HashMap;
+import java.util.Map;
 import Framework.GraphicalAssets.Graphic;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
@@ -28,42 +30,39 @@ public class Bazookaman extends RTSUnit {
     public static final Sprite baseSprite = new Sprite(RTSAssetManager.infantryLegs);
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.infantryShadow);
     public static final Sequence runningSequence = new Sequence(RTSAssetManager.infantryLegsRun, "bazookaRun");
-    public static final Sequence attackSequence = new Sequence(RTSAssetManager.infantryBazookaFire, "bazookaFire");
-    public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.infantryBazookaFireRed, "bazookaFireRed");
-    public static final Sequence attackSequenceYellow = new Sequence(RTSAssetManager.infantryBazookaFireYellow, "bazookaFireYellow");
-    public static final Sequence idleAnimation = new Sequence(RTSAssetManager.infantryBazookaIdle, "bazookaIdle");
-    public static final Sequence idleAnimationRed = new Sequence(RTSAssetManager.infantryBazookaIdleRed, "bazookaIdleRed");
-    public static final Sequence idleAnimationYellow = new Sequence(RTSAssetManager.infantryBazookaIdleYellow, "bazookaIdleYellow");
-    public static final Sequence deathAnimation = new Sequence(RTSAssetManager.infantryBazookaDie, "BazookaDie");
-    public static final Sequence deathAnimationRed = new Sequence(RTSAssetManager.infantryBazookaDieRed, "BazookaDieRed");
-    public static final Sequence deathAnimationYellow = new Sequence(RTSAssetManager.infantryBazookaDieYellow, "BazookaDieYellow");
-    public static final Sprite corpseSprite = new Sprite(RTSAssetManager.infantryBazookaDead);
-    public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryBazookaDeadRed);
-    public static final Sprite corpseSpriteYellow = new Sprite(RTSAssetManager.infantryBazookaDeadYellow);
-    public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryBazookaDead, .8);
+    public static Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryBazookaDead, .8);
     public long attackCooldownExpiresAtTick = 0;
     public long pendingBulletSpawnAtTick = 0;
     public RTSUnit pendingBulletTarget = null;
     public static final double attackInterval = 3;
     private long destructionScheduledAtTick = 0;
 
+    // Team-colored maps
+    private static final Map<Integer, Sequence> idleAnimMap   = new HashMap<>();
+    private static final Map<Integer, Sequence> attackAnimMap = new HashMap<>();
+    private static final Map<Integer, Sequence> deathAnimMap  = new HashMap<>();
+    private static final Map<Integer, Sprite>   corpseMap     = new HashMap<>();
+
     static {
         runningSequence.setFrameDelay(35);
-        attackSequence.setSignature("attackSequence");
-        attackSequenceRed.setSignature("attackSequence");
-        attackSequenceYellow.setSignature("attackSequence");
-        attackSequence.setFrameDelay(30);
-        attackSequenceRed.setFrameDelay(30);
-        attackSequenceYellow.setFrameDelay(30);
-        deathAnimation.setFrameDelay(30);
-        deathAnimationRed.setFrameDelay(30);
-        deathAnimationYellow.setFrameDelay(30);
-        corpseSprite.setSignature("corpseSprite");
-        corpseSpriteRed.setSignature("corpseSprite");
-        corpseSpriteYellow.setSignature("corpseSprite");
-        deathAnimation.setLooping(false);
-        deathAnimationRed.setLooping(false);
-        deathAnimationYellow.setLooping(false);
+        for (int team : RTSGame.activeTeams) {
+            Sequence idle = new Sequence(RTSAssetManager.getBazookaIdle(team), "bazookaIdle");
+            idleAnimMap.put(team, idle);
+
+            Sequence attack = new Sequence(RTSAssetManager.getBazookaFire(team), "bazookaFire");
+            attack.setSignature("attackSequence");
+            attack.setFrameDelay(30);
+            attackAnimMap.put(team, attack);
+
+            Sequence death = new Sequence(RTSAssetManager.getBazookaDie(team), "BazookaDie");
+            death.setFrameDelay(30);
+            death.setLooping(false);
+            deathAnimMap.put(team, death);
+
+            Sprite corpse = new Sprite(RTSAssetManager.getBazookaDead(team));
+            corpse.setSignature("corpseSprite");
+            corpseMap.put(team, corpse);
+        }
     }
 
     // fields
@@ -195,12 +194,7 @@ public class Bazookaman extends RTSUnit {
                 Main.generateRandomDoubleLocally(.67f, .71f),
                 Main.generateRandomIntLocally(0, 10));
         }
-        Sequence attackAnim = switch (team) {
-            case 1 -> attackSequenceRed;
-            case 2 -> attackSequenceYellow;
-            default -> attackSequence;
-        };
-        turret.setGraphic(attackAnim.copyMaintainSource());
+        turret.setGraphic(attackAnimMap.get(team).copyMaintainSource());
 
         // Schedule bullet spawn after 25 ticks
         pendingBulletSpawnAtTick = getHostGame().getGameTickNumber() + 25;
@@ -226,21 +220,8 @@ public class Bazookaman extends RTSUnit {
         g.setTransform(old);
     }
     
-    private Sequence getDeathAnimation() {
-        return switch(team){
-            case 1 -> deathAnimationRed.copyMaintainSource();
-            case 2 -> deathAnimationYellow.copyMaintainSource();
-            default -> deathAnimation.copyMaintainSource();
-        };
-    }
-
-    private Graphic getCorpseGraphic() {
-        return switch(team) {
-            case 1 -> corpseSpriteRed;
-            case 2 -> corpseSpriteYellow;
-            default -> corpseSprite;
-        };
-    }
+    private Sequence getDeathAnimation() { return deathAnimMap.get(team).copyMaintainSource(); }
+    private Graphic  getCorpseGraphic()  { return corpseMap.get(team); }
     
     @Override
     public void die() {
@@ -258,13 +239,7 @@ public class Bazookaman extends RTSUnit {
 
     public class BazookamanTurret extends SubObject {
         
-        public Graphic getIdleAnimation() {
-            return switch(team) {
-                case 1 -> idleAnimationRed;
-                case 2 -> idleAnimationYellow;
-                default -> idleAnimation;
-            };
-        }
+        public Graphic getIdleAnimation() { return idleAnimMap.get(team); }
 
         public Bazookaman hull;
 
