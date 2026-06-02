@@ -454,8 +454,8 @@ public abstract class RTSAssetManager {
                 int rgba = input.getRGB(x, y);
                 Color prevColor = new Color(rgba, true);
                 if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5) {
-                    int newRed = Math.min(255, (int)(prevColor.getGreen() * 1.32));
-                    int newGreen = Math.min(255, (int)(prevColor.getGreen() * 1.15));
+                    int newRed = Math.min(255, (int)(prevColor.getGreen() * 1.6));
+                    int newGreen = Math.min(255, (int)(prevColor.getGreen() * 1.24));
                     int newBlue = Math.min(255, (int)(prevColor.getBlue() * 0.24));
                     Color newColor = new Color(newRed, newGreen, newBlue, prevColor.getAlpha());
                     bi.setRGB(x, y, newColor.getRGB());
