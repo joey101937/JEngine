@@ -103,7 +103,7 @@ public class RTSGame {
     public static void main(String[] args) {
         System.setProperty("sun.java2d.uiScale", "1");
         RTSAssetManager.initialize();
-        game = new Game(RTSAssetManager.grassBGDark);
+        game = new Game(RTSAssetManager.grassBG);
         game.setLoadScreenRender(g -> {
             g.setColor(new Color(100, 100, 100));
             Coordinate camLocation = game.getCamera().getWorldLocation().toCoordinate();

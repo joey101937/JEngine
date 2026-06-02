@@ -23,7 +23,7 @@ public class Client {
     public static void main(String[] args) {
         RTSAssetManager.initialize();
         TextChatEffect.localChatAlias = "Client";
-        RTSGame.game = new Game(RTSAssetManager.grassBGDark);
+        RTSGame.game = new Game(RTSAssetManager.grassBG);
         RTSGame.minimap = new Minimap(game, new Coordinate(0, 0));
         Client c = new Client();
         Game g = RTSGame.game;

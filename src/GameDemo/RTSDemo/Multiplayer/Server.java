@@ -27,7 +27,7 @@ public class Server {
     public static void main(String[] args) {
         RTSAssetManager.initialize();
         TextChatEffect.localChatAlias = "Server";
-        RTSGame.game = new Game(RTSAssetManager.grassBGDark);
+        RTSGame.game = new Game(RTSAssetManager.grassBG);
         RTSGame.minimap = new Minimap(game, new Coordinate(0, 0));
         Game g = RTSGame.game;
         Window.currentGame = g;

@@ -33,17 +33,15 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] tankFireAnimation;
     public static BufferedImage[] tankFireAnimationDamaged;
     public static BufferedImage bullet, bullet2;
-    public static BufferedImage grassBG, grassBGDark, rtsPathing;
+    public static BufferedImage grassBG, rtsPathing;
     public static BufferedImage hellicopter;
     public static BufferedImage hellicopterBlades;
-    public static BufferedImage hellicopterShadow;
     public static BufferedImage hellicopterDestroyed;
     public static BufferedImage[] hellicopterAttack;
     public static BufferedImage chopperDead, chopperRubble, chopperDeathShadow;
 
     public static BufferedImage apache;
     public static BufferedImage apacheBlades;
-    public static BufferedImage apacheShadow;
     public static BufferedImage apacheDestroyed;
     public static BufferedImage[] apacheAttack;
     public static BufferedImage apacheEmptyPods;
@@ -54,10 +52,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage tankDeadHull;
     public static BufferedImage[] tankDeath;
     public static BufferedImage tankDeadHullShadow;
-    public static BufferedImage tankShadow;
     public static BufferedImage tankDeadTurret;
-    public static BufferedImage[] tankHullDeathAni;
-    public static BufferedImage[] tankTurretDeathAni;
     public static BufferedImage lightTankHull, lightTankTurret,
             lightTankHullDamaged, lightTankTurretDamaged,
             lightTankHullDestroyed, lightTankTurretDestroyed, lightTankDeathShadow;
@@ -155,7 +150,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage applyTeamTransform(BufferedImage src, int team) {
         return switch (team) {
             case 1 -> greenToRed(src);
-            case 2 -> greenToYellow(src);
+            case 2 -> greenToCharcoal(src);
             case 3 -> greenToTan(src);
             default -> src;
         };
@@ -164,7 +159,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] applyTeamTransform(BufferedImage[] src, int team) {
         return switch (team) {
             case 1 -> greenToRed(src);
-            case 2 -> greenToYellow(src);
+            case 2 -> greenToCharcoal(src);
             case 3 -> greenToTan(src);
             default -> src;
         };
@@ -173,7 +168,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage applyInfantryTeamTransform(BufferedImage src, int team) {
         return switch (team) {
             case 1 -> darkToRed(src);
-            case 2 -> darkToYellow(src);
+            case 2 -> darkToCharcoal(src);
             case 3 -> darkToTan(src);
             default -> src;
         };
@@ -182,7 +177,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] applyInfantryTeamTransform(BufferedImage[] src, int team) {
         return switch (team) {
             case 1 -> darkToRed(src);
-            case 2 -> darkToYellow(src);
+            case 2 -> darkToCharcoal(src);
             case 3 -> darkToTan(src);
             default -> src;
         };
@@ -305,7 +300,6 @@ public abstract class RTSAssetManager {
                 loadUtilityAssets(),
                 loadMapAssets1(),
                 loadMapAssets2(),
-                loadMapAssets3(),
                 loadButtonAssets()
             );
 
@@ -343,13 +337,8 @@ public abstract class RTSAssetManager {
         }, executor);
     }
 
-    private static CompletableFuture<Void> loadMapAssets2() {
-        return CompletableFuture.runAsync(() -> {
-            grassBGDark = load("DemoAssets/TankGame/terrainPlayground.png");
-        }, executor);
-    }
 
-    private static CompletableFuture<Void> loadMapAssets3() {
+    private static CompletableFuture<Void> loadMapAssets2() {
         return CompletableFuture.runAsync(() -> {
             rtsPathing = load("DemoAssets/TankGame/terrainPlaygroundPathing.png");
         }, executor);
@@ -378,7 +367,6 @@ public abstract class RTSAssetManager {
         return CompletableFuture.runAsync(() -> {
             hellicopter = load("DemoAssets/TankGame/copter/newChopperFrames/newChopper3Cleaned.png");
             hellicopterDestroyed = load("DemoAssets/TankGame/copter/hellicopterDestroyed.png");
-            hellicopterShadow = load("DemoAssets/TankGame/copter/shadow.png");
             hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/newFire");
             hellicopterBlades = load("DemoAssets/TankGame/copter/newChopperFrames/blades.png");
             missile = load("DemoAssets/TankGame/copter/newMissile.png");
@@ -395,7 +383,6 @@ public abstract class RTSAssetManager {
         return CompletableFuture.runAsync(() -> {
             apache = load("DemoAssets/TankGame/apache/newChopperFrames/newChopper3Cleaned.png");
             apacheDestroyed = load("DemoAssets/TankGame/apache/apacheDestroyed.png");
-            apacheShadow = load("DemoAssets/TankGame/apache/shadow.png");
             apacheAttack = loadSequence("DemoAssets/TankGame/apache/newFire");
             apacheBlades = load("DemoAssets/TankGame/apache/newChopperFrames/blades.png");
             apacheEmptyPods = load("DemoAssets/TankGame/apache/apacheEmptyPods.png");
@@ -639,6 +626,64 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] darkToYellow(BufferedImage[] input) {
         BufferedImage[] out = new BufferedImage[input.length];
         for (int i = 0; i < out.length; i++) out[i] = darkToYellow(input[i]);
+        return out;
+    }
+
+    public static BufferedImage greenToCharcoal(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5
+                        && prevColor.getRed() < prevColor.getGreen() + 25) {
+                    int dark = Math.min(140, (int)(prevColor.getGreen() * 0.72));
+                    int newRed   = (int)(dark * 0.85);
+                    int newGreen = dark;
+                    int newBlue  = Math.min(255, (int)(dark * 1.15));
+                    bi.setRGB(x, y, new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB());
+                } else {
+                    bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage[] greenToCharcoal(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = greenToCharcoal(input[i]);
+        return out;
+    }
+
+    public static BufferedImage darkToCharcoal(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5
+                        && prevColor.getRed() < prevColor.getGreen() + 25) {
+                    int dark = Math.min(120, (int)(prevColor.getGreen() * 0.65));
+                    bi.setRGB(x, y, new Color((int)(dark * 0.85), dark, Math.min(255, (int)(dark * 1.15)), prevColor.getAlpha()).getRGB());
+                } else if (prevColor.getBlue() + prevColor.getRed() + prevColor.getGreen() < 300
+                        && prevColor.getRed() < 30 + prevColor.getGreen() + prevColor.getBlue()
+                        && prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue() > 30) {
+                    int newRed   = Math.max(0, prevColor.getRed() - 5);
+                    int newGreen = prevColor.getGreen();
+                    int newBlue  = Math.min(255, prevColor.getBlue() + 12);
+                    bi.setRGB(x, y, new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB());
+                } else {
+                    bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage[] darkToCharcoal(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = darkToCharcoal(input[i]);
         return out;
     }
 
