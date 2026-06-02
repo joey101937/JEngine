@@ -39,10 +39,13 @@ public class Truck extends RTSUnit implements Transport {
 
     public static Sprite hullSprite = null;
     public static Sprite hullSpriteRed = null;
+    public static Sprite hullSpriteYellow = null;
     public static Sprite hullSpriteDamaged = null;
     public static Sprite hullSpriteDamagedRed = null;
+    public static Sprite hullSpriteDamagedYellow = null;
     public static Sprite hullSpriteDestroyed = null;
     public static Sprite hullSpriteDestroyedRed = null;
+    public static Sprite hullSpriteDestroyedYellow = null;
     public static Sequence deathFadeout = null;
     public static Sprite hullShadow = null;
     public static Sprite wheelSprite = null;
@@ -64,16 +67,21 @@ public class Truck extends RTSUnit implements Transport {
     public static void initGraphics() {
         hullSprite = new Sprite(RTSAssetManager.truckHull);
         hullSpriteRed = new Sprite(RTSAssetManager.truckHullRed);
+        hullSpriteYellow = new Sprite(RTSAssetManager.truckHullYellow);
         hullSpriteDamaged = new Sprite(RTSAssetManager.truckHullDamaged);
         hullSpriteDamagedRed = new Sprite(RTSAssetManager.truckHullDamagedRed);
+        hullSpriteDamagedYellow = new Sprite(RTSAssetManager.truckHullDamagedYellow);
         hullSpriteDestroyed = new Sprite(RTSAssetManager.truckRubble);
         hullSpriteDestroyedRed = new Sprite(RTSAssetManager.truckRubbleRed);
+        hullSpriteDestroyedYellow = new Sprite(RTSAssetManager.truckRubbleYellow);
         hullShadow = Sprite.generateShadowSprite(hullSprite.getImage(), .7);
         hullShadow.scaleTo(VISUAL_SCALE);
         hullSprite.applyAlphaEdgeBlurSelf(1);
         hullSpriteRed.applyAlphaEdgeBlurSelf(1);
+        hullSpriteYellow.applyAlphaEdgeBlurSelf(1);
         hullSpriteDestroyed.applyAlphaEdgeBlurSelf(1);
         hullSpriteDestroyedRed.applyAlphaEdgeBlurSelf(1);
+        hullSpriteDestroyedYellow.applyAlphaEdgeBlurSelf(1);
         hullShadow.applyAlphaEdgeBlurSelf(2);
         
         deathFadeout = Sequence.createFadeout(RTSAssetManager.truckDeathShadow, 40);
@@ -85,12 +93,18 @@ public class Truck extends RTSUnit implements Transport {
 
     public final Sprite getHullSprite() {
         if (isRubble) {
-            return team == 1 ? hullSpriteDestroyedRed : hullSpriteDestroyed;
+            return switch (team) {
+                case 1 -> hullSpriteDestroyedRed;
+                case 2 -> hullSpriteDestroyedYellow;
+                default -> hullSpriteDestroyed;
+            };
         }
-        if (currentHealth > maxHealth * .33) {
-            return team == 0 ? hullSprite : hullSpriteRed;
-        }
-        return team == 0 ? hullSpriteDamaged : hullSpriteDamagedRed;
+        boolean isDamaged = currentHealth <= maxHealth * .33;
+        return switch (team) {
+            case 1 -> isDamaged ? hullSpriteDamagedRed : hullSpriteRed;
+            case 2 -> isDamaged ? hullSpriteDamagedYellow : hullSpriteYellow;
+            default -> isDamaged ? hullSpriteDamaged : hullSprite;
+        };
     }
 
     public Truck(int x, int y, int team) {
@@ -198,7 +212,11 @@ public class Truck extends RTSUnit implements Transport {
             getHostGame().addObject(unit);
             unit.takeDamage(new Damage(Main.generateDeterministicRandomInt(5, 40, i)));
         }
-        Sprite rubbleSprite = team == 1 ? hullSpriteDestroyedRed : hullSpriteDestroyed;
+        Sprite rubbleSprite = switch (team) {
+            case 1 -> hullSpriteDestroyedRed;
+            case 2 -> hullSpriteDestroyedYellow;
+            default -> hullSpriteDestroyed;
+        };
         new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "truckDeathExplosion"), getPixelLocation());
         this.isRubble = true;
         this.team = -1;

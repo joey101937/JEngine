@@ -24,11 +24,7 @@ public class MinimapRenderHelperRTS extends SimpleRenderHelper {
             int borderDiameter = longerSide + 64;
             g.setColor(Color.BLACK);
             g.fillOval(go.getPixelLocation().x - borderDiameter/2, go.getPixelLocation().y - borderDiameter/2, borderDiameter, borderDiameter);
-            if(unit.team == 0) {
-                g.setColor(Color.green);
-            } else {
-                g.setColor(Color.red);
-            }
+            g.setColor(RTSUnit.getColorFromTeam(unit.team));
             g.fillOval(go.getPixelLocation().x - longerSide/2, go.getPixelLocation().y - longerSide/2, longerSide, longerSide);
         }
         if (go instanceof MinimapRenderable mr) {

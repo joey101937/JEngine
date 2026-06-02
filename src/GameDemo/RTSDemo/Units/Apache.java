@@ -47,19 +47,24 @@ public class Apache extends RTSUnit {
 
     public static volatile Sprite baseSprite = null;
     public static volatile Sprite baseSpriteRed = null;
+    public static volatile Sprite baseSpriteYellow = null;
     public static volatile Sprite emptyPodsSprite = null;
     public static volatile Sprite emptyPodsSpriteRed = null;
+    public static volatile Sprite emptyPodsSpriteYellow = null;
     public static volatile Sprite dockedMissileSprite = null;
     public static volatile Sprite destroyedSprite = null;
     public static volatile Sprite destroyedSpriteRed = null;
+    public static volatile Sprite destroyedSpriteYellow = null;
     public static volatile Sprite deadSprite = null;
     public static volatile Sprite rubbleSprite = null;
     public static volatile Sequence deathShadowFadeout = null;
     public static volatile Sprite shadowSprite = null;
     public static volatile Sequence attackSequence = null;
     public static volatile Sequence attackSequenceRed = null;
+    public static volatile Sequence attackSequenceYellow = null;
     public static volatile Sprite bladesSprite = null;
     public static volatile Sprite bladesSpriteRed = null;
+    public static volatile Sprite bladesSpriteYellow = null;
 
     static {
         initGraphics();
@@ -71,19 +76,25 @@ public class Apache extends RTSUnit {
         }
         baseSprite = new Sprite(RTSAssetManager.apache);
         baseSpriteRed = new Sprite(RTSAssetManager.apacheRed);
+        baseSpriteYellow = new Sprite(RTSAssetManager.apacheYellow);
         emptyPodsSprite = new Sprite(RTSAssetManager.apacheEmptyPods);
         emptyPodsSpriteRed = new Sprite(RTSAssetManager.apacheEmptyPodsRed);
+        emptyPodsSpriteYellow = new Sprite(RTSAssetManager.apacheEmptyPodsYellow);
         destroyedSprite = new Sprite(RTSAssetManager.apacheDestroyed);
         destroyedSpriteRed = new Sprite(RTSAssetManager.apacheDestroyedRed);
+        destroyedSpriteYellow = new Sprite(RTSAssetManager.apacheDestroyedYellow);
         shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.apacheEmptyPods, .7);
         shadowSprite.scaleTo(VISUAL_SCALE);
         shadowSprite.applyAlphaEdgeBlurSelf(4);
         attackSequence = new Sequence(RTSAssetManager.apacheAttack, "apacheAttack");
         attackSequenceRed = new Sequence(RTSAssetManager.apacheAttackRed, "apacheAttackRed");
+        attackSequenceYellow = new Sequence(RTSAssetManager.apacheAttackYellow, "apacheAttackYellow");
         bladesSprite = new Sprite(RTSAssetManager.apacheBlades);
         bladesSpriteRed = new Sprite(RTSAssetManager.apacheBladesRed);
+        bladesSpriteYellow = new Sprite(RTSAssetManager.apacheBladesYellow);
         bladesSprite.scaleTo(VISUAL_SCALE);
         bladesSpriteRed.scaleTo(VISUAL_SCALE);
+        bladesSpriteYellow.scaleTo(VISUAL_SCALE);
         dockedMissileSprite = new Sprite(RTSAssetManager.apacheDockedMissile);
         dockedMissileSprite.scaleTo(VISUAL_SCALE);
         deadSprite = new Sprite(RTSAssetManager.chopperDead);
@@ -94,11 +105,38 @@ public class Apache extends RTSUnit {
         rubbleSprite.applyAlphaEdgeBlurSelf(2);
         emptyPodsSprite.applyAlphaEdgeBlurSelf(2);
         emptyPodsSpriteRed.applyAlphaEdgeBlurSelf(2);
+        emptyPodsSpriteYellow.applyAlphaEdgeBlurSelf(2);
         bladesSprite.applyAlphaEdgeBlurSelf(2);
         bladesSpriteRed.applyAlphaEdgeBlurSelf(2);
+        bladesSpriteYellow.applyAlphaEdgeBlurSelf(2);
         attackSequence.setFrameDelay(40);
         attackSequenceRed.setFrameDelay(40);
+        attackSequenceYellow.setFrameDelay(40);
         ApacheMissile.initGraphics();
+    }
+
+    public Sprite getBodySprite() {
+        return switch (team) {
+            case 1 -> emptyPodsSpriteRed;
+            case 2 -> emptyPodsSpriteYellow;
+            default -> emptyPodsSprite;
+        };
+    }
+
+    public Sprite getBladesSprite() {
+        return switch (team) {
+            case 1 -> bladesSpriteRed;
+            case 2 -> bladesSpriteYellow;
+            default -> bladesSprite;
+        };
+    }
+
+    public Sequence getAttackSequence() {
+        return switch (team) {
+            case 1 -> attackSequenceRed;
+            case 2 -> attackSequenceYellow;
+            default -> attackSequence;
+        };
     }
 
     public ApacheTurret turret;
@@ -126,7 +164,7 @@ public class Apache extends RTSUnit {
     public Apache(int x, int y, int team) {
         super(x, y, team);
         this.setScale(VISUAL_SCALE);
-        this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
+        this.setGraphic(getBodySprite());
         this.setZLayer(11);
         this.plane = 2;
         this.isSolid = true;
@@ -246,9 +284,9 @@ public class Apache extends RTSUnit {
                 turret.setGraphic(rubbleSprite);
             }
         } else {
-            this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
+            this.setGraphic(getBodySprite());
             if (turret != null) {
-                turret.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
+                turret.setGraphic(getBodySprite());
             }
         }
     }
@@ -432,8 +470,7 @@ public class Apache extends RTSUnit {
                 if (currentTarget != null && offCooldown) {
                     if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {
                         lastFireTick = getHostGame().getGameTickNumber();
-                        Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
-                        turret.setGraphic(attackAnimation.copyMaintainSource());
+                        turret.setGraphic(getAttackSequence().copyMaintainSource());
                         System.out.println("" + this.ID + " located at " + this.getLocationAsOfLastTick() + "/" + this.getLocation() + "/" + this.getPixelLocation() + " firing on tick " + getHostGame().getGameTickNumber() + " at " + currentTarget.ID + " located at " + currentTarget.getLocationAsOfLastTick() + "/" + currentTarget.getLocation() + "/" + currentTarget.getPixelLocation());
                         fireDelayed(currentTarget, 10);
                     }
@@ -505,7 +542,7 @@ public class Apache extends RTSUnit {
         public ApacheTurret(Coordinate offset) {
             super(offset);
             this.setScale(VISUAL_SCALE);
-            this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
+            this.setGraphic(getBodySprite());
             this.setZLayer(11);
         }
 
@@ -546,7 +583,7 @@ public class Apache extends RTSUnit {
                 // Rotor blades on top of body
                 double bladesAngle = (System.currentTimeMillis() * 2160.0 / 1000.0) % 360;
                 Coordinate renderLoc = getRenderLocation();
-                VolatileImage bladesImg = (team == 0 ? bladesSprite : bladesSpriteRed).getCurrentVolatileImage();
+                VolatileImage bladesImg = getBladesSprite().getCurrentVolatileImage();
                 AffineTransform old = g.getTransform();
                 g.rotate(Math.toRadians(bladesAngle), renderLoc.x, renderLoc.y);
                 g.drawImage(bladesImg, renderLoc.x - bladesImg.getWidth() / 2, renderLoc.y - bladesImg.getHeight() / 2, null);
@@ -573,7 +610,7 @@ public class Apache extends RTSUnit {
         @Override
         public void onAnimationCycle() {
             if (!isRubble) {
-                this.setGraphic(team == 0 ? emptyPodsSprite : emptyPodsSpriteRed);
+                this.setGraphic(getBodySprite());
             }
         }
 

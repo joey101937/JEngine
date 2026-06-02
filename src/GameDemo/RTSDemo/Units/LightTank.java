@@ -37,16 +37,22 @@ public class LightTank extends RTSUnit {
     public static volatile Sprite redHullSprite = null;
     public static volatile Sprite redTurretSprite = null;
     public static volatile Sprite redTurretSpriteDamaged = null;
+    public static volatile Sprite yellowHullSprite = null;
+    public static volatile Sprite yellowTurretSprite = null;
+    public static volatile Sprite yellowTurretSpriteDamaged = null;
     public static volatile Sprite hullShadow = null;
     public static volatile Sprite turretShadow = null;
     public static volatile Sprite hullSpriteDamaged = null;
     public static volatile Sprite redHullSpriteDamaged = null;
+    public static volatile Sprite yellowHullSpriteDamaged = null;
     public static volatile Sprite hullSpriteDestroyed = null;
     public static volatile Sprite turretSpriteDestroyed = null;
     public static volatile Sequence fireSequence = null;
     public static volatile Sequence fireSequenceDamaged = null;
     public static volatile Sequence redFireSequence = null;
     public static volatile Sequence redFireSequenceDamaged = null;
+    public static volatile Sequence yellowFireSequence = null;
+    public static volatile Sequence yellowFireSequenceDamaged = null;
     public static volatile Sequence deathFadeout = null;
 
     static {
@@ -73,6 +79,12 @@ public class LightTank extends RTSUnit {
         fireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamaged, "lightTankFireDamaged");
         redFireSequence = new Sequence(RTSAssetManager.lightTankFireRed, "lightTankFireRed");
         redFireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamagedRed, "lightTankDamagedFireRed");
+        yellowHullSprite = new Sprite(RTSAssetManager.lightTankHullYellow);
+        yellowTurretSprite = new Sprite(RTSAssetManager.lightTankTurretYellow);
+        yellowTurretSpriteDamaged = new Sprite(RTSAssetManager.lightTankTurretDamagedYellow);
+        yellowHullSpriteDamaged = new Sprite(RTSAssetManager.lightTankHullDamagedYellow);
+        yellowFireSequence = new Sequence(RTSAssetManager.lightTankFireYellow, "lightTankFireYellow");
+        yellowFireSequenceDamaged = new Sequence(RTSAssetManager.lightTankFireDamagedYellow, "lightTankFireDamagedYellow");
         deathFadeout = Sequence.createFadeout(RTSAssetManager.lightTankDeathShadow, 40);
         deathFadeout.setSignature("deathFadeoutLightTank");
         // shadows need to be manually scaled since they dont get rendered via main render method
@@ -82,10 +94,14 @@ public class LightTank extends RTSUnit {
         turretShadow.applyAlphaEdgeBlurSelf(3);
         hullSprite.applyAlphaEdgeBlurSelf(1);
         turretSprite.applyAlphaEdgeBlurSelf(1);
+        yellowHullSprite.applyAlphaEdgeBlurSelf(1);
+        yellowTurretSprite.applyAlphaEdgeBlurSelf(1);
         fireSequence.setFrameDelay(35);
         fireSequenceDamaged.setFrameDelay(35);
         redFireSequenceDamaged.setFrameDelay(35);
         redFireSequence.setFrameDelay(35);
+        yellowFireSequence.setFrameDelay(35);
+        yellowFireSequenceDamaged.setFrameDelay(35);
     }
 
     // instance fields
@@ -256,20 +272,24 @@ public class LightTank extends RTSUnit {
     }
 
     public Sequence getFireSequence() {
-        if (currentHealth > maxHealth * .33) {
-            return team == 0 ? fireSequence.copyMaintainSource() : redFireSequence.copyMaintainSource();
-        }
-        return team == 0 ? fireSequenceDamaged.copyMaintainSource() : redFireSequenceDamaged.copyMaintainSource();
+        boolean isDamaged = currentHealth <= maxHealth * .33;
+        return switch (team) {
+            case 1 -> isDamaged ? redFireSequenceDamaged.copyMaintainSource() : redFireSequence.copyMaintainSource();
+            case 2 -> isDamaged ? yellowFireSequenceDamaged.copyMaintainSource() : yellowFireSequence.copyMaintainSource();
+            default -> isDamaged ? fireSequenceDamaged.copyMaintainSource() : fireSequence.copyMaintainSource();
+        };
     }
 
     public Sprite getHullSprite() {
         if (isRubble) {
             return hullSpriteDestroyed;
         }
-        if (currentHealth > maxHealth * .33) {
-            return team == 0 ? hullSprite : redHullSprite;
-        }
-        return team == 0 ? hullSpriteDamaged : redHullSpriteDamaged;
+        boolean isDamaged = currentHealth <= maxHealth * .33;
+        return switch (team) {
+            case 1 -> isDamaged ? redHullSpriteDamaged : redHullSprite;
+            case 2 -> isDamaged ? yellowHullSpriteDamaged : yellowHullSprite;
+            default -> isDamaged ? hullSpriteDamaged : hullSprite;
+        };
     }
 
     @Override
@@ -385,10 +405,12 @@ public class LightTank extends RTSUnit {
             if (isRubble) {
                 return turretSpriteDestroyed;
             }
-            if (hull != null && hull.currentHealth > hull.maxHealth * .33) {
-                return team == 0 ? turretSprite : redTurretSprite;
-            }
-            return team == 0 ? turretSpriteDamaged : redTurretSpriteDamaged;
+            boolean isDamaged = hull != null && hull.currentHealth <= hull.maxHealth * .33;
+            return switch (team) {
+                case 1 -> isDamaged ? redTurretSpriteDamaged : redTurretSprite;
+                case 2 -> isDamaged ? yellowTurretSpriteDamaged : yellowTurretSprite;
+                default -> isDamaged ? turretSpriteDamaged : turretSprite;
+            };
         }
 
         @Override

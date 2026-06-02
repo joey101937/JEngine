@@ -35,16 +35,20 @@ public class Hellicopter extends RTSUnit {
 
     public static volatile Sprite baseSprite = null;
     public static volatile Sprite baseSpriteRed = null;
+    public static volatile Sprite baseSpriteYellow = null;
     public static volatile Sprite destroyedSprite = null;
     public static volatile Sprite destroyedSpriteRed = null;
+    public static volatile Sprite destroyedSpriteYellow = null;
     public static volatile Sprite deadSprite = null;
     public static volatile Sprite rubbleSprite = null;
     public static volatile Sequence deathShadowFadeout = null;
     public static volatile Sprite shadowSprite = null;
     public static volatile Sequence attackSequence = null;
     public static volatile Sequence attackSequenceRed = null;
+    public static volatile Sequence attackSequenceYellow = null;
     public static volatile Sprite bladesSprite = null;
     public static volatile Sprite bladesSpriteRed = null;
+    public static volatile Sprite bladesSpriteYellow = null;
 
     static {
         initGraphics();
@@ -56,18 +60,23 @@ public class Hellicopter extends RTSUnit {
         }
         baseSprite = new Sprite(RTSAssetManager.hellicopter);
         baseSpriteRed = new Sprite(RTSAssetManager.hellicopterRed);
+        baseSpriteYellow = new Sprite(RTSAssetManager.hellicopterYellow);
         destroyedSprite = new Sprite(RTSAssetManager.hellicopterDestroyed);
         destroyedSpriteRed = new Sprite(RTSAssetManager.hellicopterDestroyedRed);
+        destroyedSpriteYellow = new Sprite(RTSAssetManager.hellicopterDestroyedYellow);
         shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.hellicopter, .7);
         shadowSprite.scaleTo(VISUAL_SCALE);
         shadowSprite.applyAlphaEdgeBlurSelf(4);
         attackSequence = new Sequence(RTSAssetManager.hellicopterAttack, "heliAttack");
         attackSequenceRed = new Sequence(RTSAssetManager.hellicopterAttackRed, "helliAttackRed");
+        attackSequenceYellow = new Sequence(RTSAssetManager.hellicopterAttackYellow, "heliAttackYellow");
         bladesSprite = new Sprite(RTSAssetManager.hellicopterBlades);
         bladesSpriteRed = new Sprite(RTSAssetManager.hellicopterBladesRed);
+        bladesSpriteYellow = new Sprite(RTSAssetManager.hellicopterBladesYellow);
         // blades are rendered manually so need explicit scaling
         bladesSprite.scaleTo(VISUAL_SCALE);
         bladesSpriteRed.scaleTo(VISUAL_SCALE);
+        bladesSpriteYellow.scaleTo(VISUAL_SCALE);
         deadSprite = new Sprite(RTSAssetManager.chopperDead);
         rubbleSprite = new Sprite(RTSAssetManager.chopperRubble);
         deathShadowFadeout = Sequence.createFadeout(RTSAssetManager.chopperDeathShadow, 40);
@@ -76,10 +85,37 @@ public class Hellicopter extends RTSUnit {
         rubbleSprite.applyAlphaEdgeBlurSelf(2);
         baseSprite.applyAlphaEdgeBlurSelf(2);
         baseSpriteRed.applyAlphaEdgeBlurSelf(2);
+        baseSpriteYellow.applyAlphaEdgeBlurSelf(2);
         bladesSprite.applyAlphaEdgeBlurSelf(2);
         bladesSpriteRed.applyAlphaEdgeBlurSelf(2);
+        bladesSpriteYellow.applyAlphaEdgeBlurSelf(2);
         attackSequence.setFrameDelay(40);
         attackSequenceRed.setFrameDelay(40);
+        attackSequenceYellow.setFrameDelay(40);
+    }
+
+    public Sprite getBodySprite() {
+        return switch (team) {
+            case 1 -> baseSpriteRed;
+            case 2 -> baseSpriteYellow;
+            default -> baseSprite;
+        };
+    }
+
+    public Sprite getBladesSprite() {
+        return switch (team) {
+            case 1 -> bladesSpriteRed;
+            case 2 -> bladesSpriteYellow;
+            default -> bladesSprite;
+        };
+    }
+
+    public Sequence getAttackSequence() {
+        return switch (team) {
+            case 1 -> attackSequenceRed;
+            case 2 -> attackSequenceYellow;
+            default -> attackSequence;
+        };
     }
 
     public HellicopterTurret turret;
@@ -99,7 +135,7 @@ public class Hellicopter extends RTSUnit {
     public Hellicopter(int x, int y, int team) {
         super(x, y, team);
         this.setScale(VISUAL_SCALE);
-        this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+        this.setGraphic(getBodySprite());
         this.setZLayer(11);
         this.plane = 2;
         this.isSolid = true;
@@ -166,9 +202,9 @@ public class Hellicopter extends RTSUnit {
                 turret.setGraphic(rubbleSprite);
             }
         } else {
-            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            this.setGraphic(getBodySprite());
             if (turret != null) {
-                turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+                turret.setGraphic(getBodySprite());
             }
         }
     }
@@ -293,8 +329,7 @@ public class Hellicopter extends RTSUnit {
             if (currentTarget != null && offCooldown) {
                 if (Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 2) {
                     lastFireTick = getHostGame().getGameTickNumber();
-                    Sequence attackAnimation = team == 0 ? attackSequence : attackSequenceRed;
-                    turret.setGraphic(attackAnimation.copyMaintainSource());
+                    turret.setGraphic(getAttackSequence().copyMaintainSource());
                     System.out.println("" + this.ID + " located at " + this.getLocationAsOfLastTick()+"/" + this.getLocation()+ "/" + this.getPixelLocation() + " firing on tick " + getHostGame().getGameTickNumber() + " at " + currentTarget.ID + " located at " + currentTarget.getLocationAsOfLastTick()+"/" + currentTarget.getLocation()+ "/" + currentTarget.getPixelLocation());
                     fireDelayed(currentTarget, 10);
                 }
@@ -361,7 +396,7 @@ public class Hellicopter extends RTSUnit {
         public HellicopterTurret(Coordinate offset) {
             super(offset);
             this.setScale(VISUAL_SCALE);
-            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            this.setGraphic(getBodySprite());
             this.setZLayer(11);
         }
 
@@ -384,7 +419,7 @@ public class Hellicopter extends RTSUnit {
             if (!isRubble) {
                 double bladesAngle = (System.currentTimeMillis() * 2160.0 / 1000.0) % 360;
                 Coordinate renderLoc = getRenderLocation();
-                VolatileImage bladesImg = (team == 0 ? bladesSprite : bladesSpriteRed).getCurrentVolatileImage();
+                VolatileImage bladesImg = getBladesSprite().getCurrentVolatileImage();
                 AffineTransform old = g.getTransform();
                 g.rotate(Math.toRadians(bladesAngle), renderLoc.x, renderLoc.y);
                 g.drawImage(bladesImg, renderLoc.x - bladesImg.getWidth() / 2, renderLoc.y - bladesImg.getHeight() / 2, null);
@@ -395,7 +430,7 @@ public class Hellicopter extends RTSUnit {
         @Override
         public void onAnimationCycle() {
             if (!isRubble) {
-                this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+                this.setGraphic(getBodySprite());
             }
         }
 

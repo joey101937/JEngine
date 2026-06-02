@@ -39,14 +39,17 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
 
     public static volatile Sprite baseSprite = null;
     public static volatile Sprite baseSpriteRed = null;
+    public static volatile Sprite baseSpriteYellow = null;
     public static volatile Sprite deadSprite = null;
     public static volatile Sprite rubbleSprite = null;
     public static volatile Sequence deathShadowFadeout = null;
     public static volatile Sprite shadowSprite = null;
     public static volatile Sprite bladesSprite = null;
     public static volatile Sprite bladesSpriteRed = null;
+    public static volatile Sprite bladesSpriteYellow = null;
     public static volatile Sprite roofSprite = null;
     public static volatile Sprite roofSpriteRed = null;
+    public static volatile Sprite roofSpriteYellow = null;
     public static volatile Sprite roofShadowSprite = null;
 
     static {
@@ -59,21 +62,27 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
         }
         baseSprite = new Sprite(RTSAssetManager.transportHeli);
         baseSpriteRed = new Sprite(RTSAssetManager.transportHeliRed);
+        baseSpriteYellow = new Sprite(RTSAssetManager.transportHeliYellow);
         shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.transportHeli, .7);
         shadowSprite.scaleTo(VISUAL_SCALE);
         shadowSprite.applyAlphaEdgeBlurSelf(4);
         bladesSprite = new Sprite(RTSAssetManager.hellicopterBlades);
         bladesSpriteRed = new Sprite(RTSAssetManager.hellicopterBladesRed);
+        bladesSpriteYellow = new Sprite(RTSAssetManager.hellicopterBladesYellow);
         bladesSprite.scaleTo(VISUAL_SCALE);
         bladesSpriteRed.scaleTo(VISUAL_SCALE);
+        bladesSpriteYellow.scaleTo(VISUAL_SCALE);
         roofSprite = new Sprite(RTSAssetManager.transportHeliRoof);
         roofSpriteRed = new Sprite(RTSAssetManager.transportHeliRoofRed);
+        roofSpriteYellow = new Sprite(RTSAssetManager.transportHeliRoofYellow);
         roofShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.transportHeliRoof, 0.55);
         roofSprite.scaleTo(VISUAL_SCALE);
         roofSpriteRed.scaleTo(VISUAL_SCALE);
+        roofSpriteYellow.scaleTo(VISUAL_SCALE);
         roofShadowSprite.scaleTo(VISUAL_SCALE);
         roofSprite.applyAlphaEdgeBlurSelf(1);
         roofSpriteRed.applyAlphaEdgeBlurSelf(1);
+        roofSpriteYellow.applyAlphaEdgeBlurSelf(1);
         roofShadowSprite.applyAlphaEdgeBlurSelf(1);
         deadSprite = new Sprite(RTSAssetManager.chopperDead);
         rubbleSprite = new Sprite(RTSAssetManager.chopperRubble);
@@ -83,8 +92,34 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
         rubbleSprite.applyAlphaEdgeBlurSelf(1);
         baseSprite.applyAlphaEdgeBlurSelf(1);
         baseSpriteRed.applyAlphaEdgeBlurSelf(1);
+        baseSpriteYellow.applyAlphaEdgeBlurSelf(1);
         bladesSprite.applyAlphaEdgeBlurSelf(1);
         bladesSpriteRed.applyAlphaEdgeBlurSelf(1);
+        bladesSpriteYellow.applyAlphaEdgeBlurSelf(1);
+    }
+
+    public Sprite getBodySprite() {
+        return switch (team) {
+            case 1 -> baseSpriteRed;
+            case 2 -> baseSpriteYellow;
+            default -> baseSprite;
+        };
+    }
+
+    public Sprite getBladesSprite() {
+        return switch (team) {
+            case 1 -> bladesSpriteRed;
+            case 2 -> bladesSpriteYellow;
+            default -> bladesSprite;
+        };
+    }
+
+    public Sprite getRoofSprite() {
+        return switch (team) {
+            case 1 -> roofSpriteRed;
+            case 2 -> roofSpriteYellow;
+            default -> roofSprite;
+        };
     }
 
     public TransportHeliTurret turret;
@@ -118,7 +153,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
     public TransportHelicopter(int x, int y, int team) {
         super(x, y, team);
         this.setScale(VISUAL_SCALE);
-        this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+        this.setGraphic(getBodySprite());
         this.setZLayer(11);
         this.plane = 2;
         this.isSolid = true;
@@ -244,9 +279,9 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
                 turret.setGraphic(rubbleSprite);
             }
         } else {
-            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            this.setGraphic(getBodySprite());
             if (turret != null) {
-                turret.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+                turret.setGraphic(getBodySprite());
             }
         }
     }
@@ -470,7 +505,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
         public TransportHeliTurret(Coordinate offset) {
             super(offset);
             this.setScale(VISUAL_SCALE);
-            this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+            this.setGraphic(getBodySprite());
             this.setZLayer(11);
         }
 
@@ -503,7 +538,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
                         renderLoc.y + shadowOff.y - shadowImg.getHeight() / 2, null);
                 g.setTransform(old);
                 // roof itself
-                VolatileImage roofImg = (team == 0 ? roofSprite : roofSpriteRed).getCurrentVolatileImage();
+                VolatileImage roofImg = getRoofSprite().getCurrentVolatileImage();
                 old = g.getTransform();
                 g.rotate(Math.toRadians(getRotation()), renderLoc.x, renderLoc.y);
                 g.drawImage(roofImg, renderLoc.x - roofImg.getWidth() / 2, renderLoc.y - roofImg.getHeight() / 2, null);
@@ -522,7 +557,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
                 lastBladesRenderMs = (elevation > 0) ? now : -1;
 
                 Coordinate renderLoc = getRenderLocation();
-                VolatileImage bladesImg = (team == 0 ? bladesSprite : bladesSpriteRed).getCurrentVolatileImage();
+                VolatileImage bladesImg = getBladesSprite().getCurrentVolatileImage();
                 AffineTransform old = g.getTransform();
                 g.rotate(Math.toRadians(bladesAngle), renderLoc.x, renderLoc.y);
                 g.drawImage(bladesImg, renderLoc.x - bladesImg.getWidth() / 2, renderLoc.y - bladesImg.getHeight() / 2, null);
@@ -533,7 +568,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
         @Override
         public void onAnimationCycle() {
             if (!isRubble) {
-                this.setGraphic(team == 0 ? baseSprite : baseSpriteRed);
+                this.setGraphic(getBodySprite());
             }
         }
 

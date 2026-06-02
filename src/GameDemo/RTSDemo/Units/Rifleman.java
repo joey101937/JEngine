@@ -31,12 +31,16 @@ public class Rifleman extends RTSUnit {
     public static final Sequence runningSequence = new Sequence(RTSAssetManager.infantryLegsRun);
     public static final Sequence attackSequence = new Sequence(RTSAssetManager.infantryRifleFire, "riflemanAttackSequence");
     public static final Sequence attackSequenceRed = new Sequence(RTSAssetManager.infantryRifleFireRed, "riflemanAttackSequence");
+    public static final Sequence attackSequenceYellow = new Sequence(RTSAssetManager.infantryRifleFireYellow, "riflemanAttackSequence");
     public static final Sequence idleAnimation = new Sequence(RTSAssetManager.infantryRifleIdle, "riflemanIdle");
     public static final Sequence idleAnimationRed = new Sequence(RTSAssetManager.infantryRifleIdleRed, "redRiflemanIdle");
+    public static final Sequence idleAnimationYellow = new Sequence(RTSAssetManager.infantryRifleIdleYellow, "yellowRiflemanIdle");
     public static final Sequence deathAnimation = new Sequence(RTSAssetManager.infantryRifleDie, "RiflemanDie");
     public static final Sequence deathAnimationRed = new Sequence(RTSAssetManager.infantryRifleDieRed, "RiflemanDieRed");
+    public static final Sequence deathAnimationYellow = new Sequence(RTSAssetManager.infantryRifleDieYellow, "RiflemanDieYellow");
     public static final Sprite corpseSprite = new Sprite(RTSAssetManager.infantryRifleDead);
     public static final Sprite corpseSpriteRed = new Sprite(RTSAssetManager.infantryRifleDeadRed);
+    public static final Sprite corpseSpriteYellow = new Sprite(RTSAssetManager.infantryRifleDeadYellow);
     public static final Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryRifleDead, .8);
     public static final Damage staticDamage = new Damage(2);
     public static final int attackFrequency = 1;
@@ -53,18 +57,23 @@ public class Rifleman extends RTSUnit {
         deadShadowSprite.scale(VISUAL_SCALE);
         deathAnimation.setFrameDelay(30);
         deathAnimationRed.setFrameDelay(30);
+        deathAnimationYellow.setFrameDelay(30);
         corpseSprite.setSignature("corpseSprite");
         corpseSpriteRed.setSignature("corpseSprite");
+        corpseSpriteYellow.setSignature("corpseSprite");
         deathAnimation.setLooping(false);
         deathAnimationRed.setLooping(false);
+        deathAnimationYellow.setLooping(false);
         smallImpact.scaleTo(1.6);
         smallImpact.setFrameDelay(30);
         baseSprite.applyAlphaEdgeBlurSelf(1);
         runningSequence.applyAlphaEdgeBlurSelf(1);
         idleAnimation.applyAlphaEdgeBlurSelf(1);
         idleAnimationRed.applyAlphaEdgeBlurSelf(1);
+        idleAnimationYellow.applyAlphaEdgeBlurSelf(1);
         attackSequence.applyAlphaEdgeBlurSelf(1);
         attackSequenceRed.applyAlphaEdgeBlurSelf(1);
+        attackSequenceYellow.applyAlphaEdgeBlurSelf(1);
     }
 
     // fields
@@ -240,16 +249,16 @@ public class Rifleman extends RTSUnit {
         
         public Graphic getIdleAnimation () {
             return switch(hull.team) {
-                case 0 -> idleAnimation;
                 case 1 -> idleAnimationRed;
+                case 2 -> idleAnimationYellow;
                 default -> idleAnimation;
             };
         }
-        
+
         public Graphic getFireAnimation() {
             return switch(hull.team) {
-                case 0 -> attackSequence.copyMaintainSource();
                 case 1 -> attackSequenceRed.copyMaintainSource();
+                case 2 -> attackSequenceYellow.copyMaintainSource();
                 default -> attackSequence.copyMaintainSource();
             };
         }
@@ -341,16 +350,16 @@ public class Rifleman extends RTSUnit {
 
     private Sequence getDeathAnimation() {
         return switch(team){
-            case 0 -> deathAnimation.copyMaintainSource();
             case 1 -> deathAnimationRed.copyMaintainSource();
+            case 2 -> deathAnimationYellow.copyMaintainSource();
             default -> deathAnimation.copyMaintainSource();
         };
     }
-    
+
     private Graphic getCorpseGraphic() {
         return switch(team) {
-            case 0 -> corpseSprite;
-            case 1 -> corpseSpriteRed;                
+            case 1 -> corpseSpriteRed;
+            case 2 -> corpseSpriteYellow;
             default -> corpseSprite;
         };
     }

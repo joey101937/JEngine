@@ -19,6 +19,7 @@ import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementHandler;
 import GameDemo.RTSDemo.Units.Apache;
+import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.LightTank;
@@ -121,7 +122,8 @@ public class RTSGame {
         game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
         game.addObject(new KeyBuilding(3000, 2500, 1));
         
-         spawnLines();
+        spawnLines();
+        spawnTeam2Showcase();
 //        spawnTestHeli();
        
         game.setOnGameStabilized(x3 -> {
@@ -131,6 +133,18 @@ public class RTSGame {
         });
     }
     
+    private static void spawnTeam2Showcase() {
+        game.addObject(new TankUnit(500, 3500, 2));
+        game.addObject(new LightTank(700, 3500, 2));
+        game.addObject(new Truck(900, 3500, 2));
+        game.addObject(new TransportHelicopter(1100, 3500, 2));
+        game.addObject(new Hellicopter(1300, 3500, 2));
+        game.addObject(new Apache(1500, 3500, 2));
+        game.addObject(new Landmine(1700, 3500, 2));
+        game.addObject(new Rifleman(1900, 3500, 2));
+        game.addObject(new Bazookaman(2100, 3500, 2));
+    }
+
     private static void spawnTestHeli() {
         int spacer = 160;
         int lineLength = 6; // units = this x 10

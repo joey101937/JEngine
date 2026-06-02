@@ -78,18 +78,15 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     private long fadeoutScheduledAtTick = 0;
     private long destructionScheduledAtTick = 0;
 
-    // Modified buffered images for team color
-    public static BufferedImage enemyTankChasisImage = RTSAssetManager.tankChasisRed;
-    public static BufferedImage enemyTankTurretImage = RTSAssetManager.tankTurretRed;
-    public static BufferedImage[] enemyTankFireAnimation = RTSAssetManager.tankFireAnimationRed;
-
     public static volatile Sequence hullMGImpact = null;
 
     // sprites for reuse
     public static volatile Sprite chasisSpriteGreen = null;
     public static volatile Sprite chasisSpriteRed = null;
+    public static volatile Sprite chasisSpriteYellow = null;
     public static volatile Sprite turretSpriteGreen = null;
     public static volatile Sprite turretSpriteRed = null;
+    public static volatile Sprite turretSpriteYellow = null;
     public static volatile Sprite rubbleHullSprite = null;
     public static volatile Sprite rubbleTurretSprite = null;
     public static volatile Sprite deathShadow = null;
@@ -103,13 +100,17 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     public static volatile Sprite tankTurretDamagedGreen;
     public static volatile Sprite tankHullDamagedRed;
     public static volatile Sprite tankTurretDamagedRed;
+    public static volatile Sprite tankHullDamagedYellow;
+    public static volatile Sprite tankTurretDamagedYellow;
     public static volatile Sequence tankFireAnimationDamagedGreen;
     public static volatile Sequence tankFireAnimationDamagedRed;
+    public static volatile Sequence tankFireAnimationDamagedYellow;
 
     public static volatile Sequence deathFadeout;
 
     public static volatile Sequence tankFireAnimationGreen = null;
     public static volatile Sequence tankFireAnimationRed = null;
+    public static volatile Sequence tankFireAnimationYellow = null;
     
     public static volatile Sequence tankDeathAnimation = null;
     
@@ -124,11 +125,14 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         tankDeathAnimation = new Sequence(RTSAssetManager.tankDeath, "deathAnimation");
         tankDeathAnimation.setFrameDelay(35);
         chasisSpriteGreen = new Sprite(RTSAssetManager.tankChasis);
-        chasisSpriteRed = new Sprite(enemyTankChasisImage);
+        chasisSpriteRed = new Sprite(RTSAssetManager.tankChasisRed);
+        chasisSpriteYellow = new Sprite(RTSAssetManager.tankChasisYellow);
         turretSpriteGreen = new Sprite(RTSAssetManager.tankTurret);
-        turretSpriteRed = new Sprite(enemyTankTurretImage);
-        tankFireAnimationGreen = new Sequence(RTSAssetManager.tankFireAnimation, "tankFireRed");
-        tankFireAnimationRed = new Sequence(enemyTankFireAnimation, "redTankFire");
+        turretSpriteRed = new Sprite(RTSAssetManager.tankTurretRed);
+        turretSpriteYellow = new Sprite(RTSAssetManager.tankTurretYellow);
+        tankFireAnimationGreen = new Sequence(RTSAssetManager.tankFireAnimation, "tankFireGreen");
+        tankFireAnimationRed = new Sequence(RTSAssetManager.tankFireAnimationRed, "redTankFire");
+        tankFireAnimationYellow = new Sequence(RTSAssetManager.tankFireAnimationYellow, "yellowTankFire");
         rubbleHullSprite = new Sprite(RTSAssetManager.tankDeadHull);
         rubbleTurretSprite = new Sprite(RTSAssetManager.tankDeadTurret);
         deathShadow = new Sprite(RTSAssetManager.tankDeadHullShadow);
@@ -141,17 +145,24 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         tankTurretDamagedGreen = new Sprite(RTSAssetManager.tankTurretDamaged);
         tankHullDamagedRed = new Sprite(RTSAssetManager.tankHullDamagedRed);
         tankTurretDamagedRed = new Sprite(RTSAssetManager.tankTurretDamagedRed);
+        tankHullDamagedYellow = new Sprite(RTSAssetManager.tankHullDamagedYellow);
+        tankTurretDamagedYellow = new Sprite(RTSAssetManager.tankTurretDamagedYellow);
         tankFireAnimationDamagedGreen = new Sequence(RTSAssetManager.tankFireAnimationDamaged);
         tankFireAnimationDamagedRed = new Sequence(RTSAssetManager.tankFireAnimationDamagedRed);
+        tankFireAnimationDamagedYellow = new Sequence(RTSAssetManager.tankFireAnimationDamagedYellow);
 
         tankHullDamagedGreen.setSignature("damagedHull");
         tankTurretDamagedGreen.setSignature("damagedTurret");
         tankHullDamagedRed.setSignature("damagedHull");
         tankTurretDamagedRed.setSignature("damagedTurret");
+        tankHullDamagedYellow.setSignature("damagedHull");
+        tankTurretDamagedYellow.setSignature("damagedTurret");
         tankFireAnimationDamagedGreen.setSignature("fireAnimation");
         tankFireAnimationDamagedRed.setSignature("fireAnimation");
+        tankFireAnimationDamagedYellow.setSignature("fireAnimation");
         tankFireAnimationGreen.setSignature("fireAnimation");
         tankFireAnimationRed.setSignature("fireAnimation");
+        tankFireAnimationYellow.setSignature("fireAnimation");
         
         sandbagSprite = new Sprite(RTSAssetManager.sandbagsForTank, "sandbagsForTank");
         sandbagDamagedSprite = new Sprite(RTSAssetManager.sandbagsForTankDamaged, "sandbagsForTankDamaged");
@@ -162,17 +173,22 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         turretShadow.applyAlphaEdgeBlurSelf(3);
         chasisSpriteGreen.applyAlphaEdgeBlurSelf(1);
         chasisSpriteRed.applyAlphaEdgeBlurSelf(1);
+        chasisSpriteYellow.applyAlphaEdgeBlurSelf(1);
         turretSpriteGreen.applyAlphaEdgeBlurSelf(1);
         turretSpriteRed.applyAlphaEdgeBlurSelf(1);
+        turretSpriteYellow.applyAlphaEdgeBlurSelf(1);
         tankFireAnimationGreen.applyAlphaEdgeBlurSelf(1);
         tankFireAnimationRed.applyAlphaEdgeBlurSelf(1);
+        tankFireAnimationYellow.applyAlphaEdgeBlurSelf(1);
         sandbagSprite.applyAlphaEdgeBlurSelf(1);
         sandbagDamagedSprite.applyAlphaEdgeBlurSelf(1);
         
         List.of(tankFireAnimationDamagedGreen,
                 tankFireAnimationDamagedRed,
+                tankFireAnimationDamagedYellow,
                 tankFireAnimationGreen,
-                tankFireAnimationRed
+                tankFireAnimationRed,
+                tankFireAnimationYellow
         ).forEach(x -> x.setFrameDelay(35));
 
         List.of(
@@ -186,10 +202,12 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     }
 
     public Sprite getHullSprite() {
-        if (currentHealth > 0 && currentHealth < maxHealth / 3) {
-            return team == 0 ? tankHullDamagedGreen : tankHullDamagedRed;
-        }
-        return team == 0 ? chasisSpriteGreen : chasisSpriteRed;
+        boolean isDamaged = currentHealth > 0 && currentHealth < maxHealth / 3;
+        return switch (team) {
+            case 1 -> isDamaged ? tankHullDamagedRed : chasisSpriteRed;
+            case 2 -> isDamaged ? tankHullDamagedYellow : chasisSpriteYellow;
+            default -> isDamaged ? tankHullDamagedGreen : chasisSpriteGreen;
+        };
     }
 
     @Override
@@ -502,17 +520,21 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         private double previousHullRotation = Double.NaN;
 
         public Sequence getFireSequence() {
-            if (currentHealth > 0 && currentHealth < maxHealth / 3) {
-                return team == 0 ? tankFireAnimationDamagedGreen.copyMaintainSource() : tankFireAnimationDamagedRed.copyMaintainSource();
-            }
-            return team == 0 ? tankFireAnimationGreen.copyMaintainSource() : tankFireAnimationRed.copyMaintainSource();
+            boolean isDamaged = currentHealth > 0 && currentHealth < maxHealth / 3;
+            return switch (team) {
+                case 1 -> isDamaged ? tankFireAnimationDamagedRed.copyMaintainSource() : tankFireAnimationRed.copyMaintainSource();
+                case 2 -> isDamaged ? tankFireAnimationDamagedYellow.copyMaintainSource() : tankFireAnimationYellow.copyMaintainSource();
+                default -> isDamaged ? tankFireAnimationDamagedGreen.copyMaintainSource() : tankFireAnimationGreen.copyMaintainSource();
+            };
         }
 
         public Sprite getTurretSprite() {
-            if (currentHealth > 0 && currentHealth < maxHealth / 3) {
-                return team == 0 ? tankTurretDamagedGreen : tankTurretDamagedRed;
-            }
-            return team == 0 ? turretSpriteGreen : turretSpriteRed;
+            boolean isDamaged = currentHealth > 0 && currentHealth < maxHealth / 3;
+            return switch (team) {
+                case 1 -> isDamaged ? tankTurretDamagedRed : turretSpriteRed;
+                case 2 -> isDamaged ? tankTurretDamagedYellow : turretSpriteYellow;
+                default -> isDamaged ? tankTurretDamagedGreen : turretSpriteGreen;
+            };
         }
 
         public Turret(Coordinate offset) {

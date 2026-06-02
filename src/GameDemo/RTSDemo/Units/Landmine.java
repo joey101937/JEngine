@@ -23,8 +23,10 @@ public class Landmine extends RTSUnit {
     public static final Damage staticDamage = new Damage(0, 30);
     public static final Sprite landmineVisible = new Sprite(RTSAssetManager.landmine);
     public static final Sprite landmineVisibleRed = new Sprite(RTSAssetManager.landmineRed);
+    public static final Sprite landmineVisibleYellow = new Sprite(RTSAssetManager.landmineYellow);
     public static final Sprite landmineHidden = new Sprite(RTSAssetManager.landmine);
     public static final Sprite landmineHiddenRed = new Sprite(RTSAssetManager.landmineRed);
+    public static final Sprite landmineHiddenYellow = new Sprite(RTSAssetManager.landmineYellow);
     public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.landmine, .4);
     public static final Sequence deathFadeout = Sequence.createFadeout(RTSAssetManager.landmineBlast, 60);
     public static final double VISUAL_SCALE = .2;
@@ -34,10 +36,13 @@ public class Landmine extends RTSUnit {
     static {
         landmineHidden.applyAlphaEdgeBlurSelf(1);
         landmineHiddenRed.applyAlphaEdgeBlurSelf(1);
+        landmineHiddenYellow.applyAlphaEdgeBlurSelf(1);
         landmineVisible.applyAlphaEdgeBlurSelf(1);
         landmineVisibleRed.applyAlphaEdgeBlurSelf(1);
+        landmineVisibleYellow.applyAlphaEdgeBlurSelf(1);
         landmineHidden.setOpacity(.6);
         landmineHiddenRed.setOpacity(.6);
+        landmineHiddenYellow.setOpacity(.6);
         shadow.scaleTo(VISUAL_SCALE);
     }
 
@@ -80,17 +85,17 @@ public class Landmine extends RTSUnit {
     
     public Sprite getVisibleSprite() {
         return switch(team) {
-            case 0 -> landmineVisible;
             case 1 -> landmineVisibleRed;
-            default -> null;
+            case 2 -> landmineVisibleYellow;
+            default -> landmineVisible;
         };
     }
-    
+
     public Sprite getHiddenSprite() {
         return switch(team) {
-            case 0 -> landmineHidden;
             case 1 -> landmineHiddenRed;
-            default -> null;
+            case 2 -> landmineHiddenYellow;
+            default -> landmineHidden;
         };
     }
 

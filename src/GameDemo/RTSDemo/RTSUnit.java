@@ -96,7 +96,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
             case 1 ->
                 Color.RED;
             case 2 ->
-                Color.BLUE;
+                Color.YELLOW;
             default ->
                 Color.BLACK;
         };
