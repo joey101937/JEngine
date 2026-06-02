@@ -11,9 +11,11 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.FlyButton;
 import GameDemo.RTSDemo.Buttons.LandButton;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import GameDemo.RTSDemo.ReinforcementPoint;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.SpawnLocation;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -21,7 +23,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 
-public class TransportHelicopter extends RTSUnit {
+public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
 
     public boolean sightBlockerImmune = true;
 
@@ -473,6 +475,25 @@ public class TransportHelicopter extends RTSUnit {
     public BufferedImage getSelectionImage() {
         return RTSAssetManager.hellicopterSelectionImage;
     }
+
+    // -- ReinforcementPoint --
+
+    @Override
+    public int getOwningTeam() { return team; }
+
+    @Override
+    public double getCaptureRadius() { return 200; }
+
+    @Override
+    public SpawnLocation getSpawnLocation() {
+        return new SpawnLocation(getPixelLocation(), getRotation());
+    }
+
+    @Override
+    public boolean isActive() { return isLanded && !isRubble; }
+
+    @Override
+    public boolean isCapturable() { return false; }
 
     @Override
     public ArrayList<String> getInfoLines() {
