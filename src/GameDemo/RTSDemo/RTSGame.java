@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public class RTSGame {
 
-    public static final Set<Integer> activeTeams = Set.of(0, 1, 2);
+    public static final Set<Integer> activeTeams = Set.of(0, 1, 2, 3);
 
     public static Game game = null;
     public static Minimap minimap = null;
@@ -126,7 +126,7 @@ public class RTSGame {
         game.addObject(new KeyBuilding(3000, 2500, 1));
         
         spawnLines();
-        spawnTeam2Showcase();
+        spawnTeamShowcase();
 //        spawnTestHeli();
        
         game.setOnGameStabilized(x3 -> {
@@ -136,7 +136,8 @@ public class RTSGame {
         });
     }
     
-    private static void spawnTeam2Showcase() {
+    private static void spawnTeamShowcase() {
+        // team 2 (yellow)
         game.addObject(new TankUnit(500, 3500, 2));
         game.addObject(new LightTank(700, 3500, 2));
         game.addObject(new Truck(900, 3500, 2));
@@ -146,6 +147,16 @@ public class RTSGame {
         game.addObject(new Landmine(1700, 3500, 2));
         game.addObject(new Rifleman(1900, 3500, 2));
         game.addObject(new Bazookaman(2100, 3500, 2));
+        // team 3 (silver)
+        game.addObject(new TankUnit(500, 4200, 3));
+        game.addObject(new LightTank(700, 4200, 3));
+        game.addObject(new Truck(900, 4200, 3));
+        game.addObject(new TransportHelicopter(1100, 4200, 3));
+        game.addObject(new Hellicopter(1300, 4200, 3));
+        game.addObject(new Apache(1500, 4200, 3));
+        game.addObject(new Landmine(1700, 4200, 3));
+        game.addObject(new Rifleman(1900, 4200, 3));
+        game.addObject(new Bazookaman(2100, 4200, 3));
     }
 
     private static void spawnTestHeli() {

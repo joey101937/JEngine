@@ -156,6 +156,7 @@ public abstract class RTSAssetManager {
         return switch (team) {
             case 1 -> greenToRed(src);
             case 2 -> greenToYellow(src);
+            case 3 -> greenToTan(src);
             default -> src;
         };
     }
@@ -164,6 +165,7 @@ public abstract class RTSAssetManager {
         return switch (team) {
             case 1 -> greenToRed(src);
             case 2 -> greenToYellow(src);
+            case 3 -> greenToTan(src);
             default -> src;
         };
     }
@@ -172,6 +174,7 @@ public abstract class RTSAssetManager {
         return switch (team) {
             case 1 -> darkToRed(src);
             case 2 -> darkToYellow(src);
+            case 3 -> darkToTan(src);
             default -> src;
         };
     }
@@ -180,6 +183,7 @@ public abstract class RTSAssetManager {
         return switch (team) {
             case 1 -> darkToRed(src);
             case 2 -> darkToYellow(src);
+            case 3 -> darkToTan(src);
             default -> src;
         };
     }
@@ -635,6 +639,65 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] darkToYellow(BufferedImage[] input) {
         BufferedImage[] out = new BufferedImage[input.length];
         for (int i = 0; i < out.length; i++) out[i] = darkToYellow(input[i]);
+        return out;
+    }
+
+    public static BufferedImage greenToTan(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5) {
+                    int newRed   = Math.min(255, (int)(prevColor.getGreen() * 1.25));
+                    int newGreen = Math.min(255, (int)(prevColor.getGreen() * 1.10));
+                    int newBlue  = Math.min(255, (int)(prevColor.getGreen() * 0.72));
+                    bi.setRGB(x, y, new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB());
+                } else {
+                    int newRed   = Math.min(255, (int)( prevColor.getRed() * 1.05 ));
+                    int newGreen = Math.min(255, (int)(prevColor.getGreen() * 1.05 ));
+                    int newBlue  = Math.min(255, (int)(10 + prevColor.getBlue() * 1.25 ));
+                    bi.setRGB(x, y, new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB());
+                } 
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage[] greenToTan(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = greenToTan(input[i]);
+        return out;
+    }
+
+    public static BufferedImage darkToTan(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5) {
+                    int gray = Math.min(255, (int)(prevColor.getGreen() * 0.75));
+                    bi.setRGB(x, y, new Color(gray, gray, gray, prevColor.getAlpha()).getRGB());
+                } else if (prevColor.getBlue() + prevColor.getRed() + prevColor.getGreen() < 300
+                        && prevColor.getRed() < 30 + prevColor.getGreen() + prevColor.getBlue()
+                        && prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue() > 30) {
+                    int brightness = prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue();
+                    int newRed   = Math.min(255, brightness / 3 + 45);
+                    int newGreen = Math.min(255, brightness / 3 + 30);
+                    int newBlue  = Math.min(255, brightness / 3 + 8);
+                    bi.setRGB(x, y, new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB());
+                } else {
+                    bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage[] darkToTan(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = darkToTan(input[i]);
         return out;
     }
 
