@@ -9,13 +9,18 @@ import Framework.PathingLayer;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.FlyButton;
+import GameDemo.RTSDemo.Buttons.HeliLoadButton;
+import GameDemo.RTSDemo.Buttons.HeliUnloadButton;
 import GameDemo.RTSDemo.Buttons.LandButton;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.ReinforcementPoint;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.SpawnLocation;
+import GameDemo.RTSDemo.Transport;
+import java.util.List;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -23,7 +28,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 
-public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
+public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, Transport {
 
     public boolean sightBlockerImmune = true;
 
@@ -40,6 +45,9 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
     public static volatile Sprite shadowSprite = null;
     public static volatile Sprite bladesSprite = null;
     public static volatile Sprite bladesSpriteRed = null;
+    public static volatile Sprite roofSprite = null;
+    public static volatile Sprite roofSpriteRed = null;
+    public static volatile Sprite roofShadowSprite = null;
 
     static {
         initGraphics();
@@ -58,16 +66,25 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
         bladesSpriteRed = new Sprite(RTSAssetManager.hellicopterBladesRed);
         bladesSprite.scaleTo(VISUAL_SCALE);
         bladesSpriteRed.scaleTo(VISUAL_SCALE);
+        roofSprite = new Sprite(RTSAssetManager.transportHeliRoof);
+        roofSpriteRed = new Sprite(RTSAssetManager.transportHeliRoofRed);
+        roofShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.transportHeliRoof, 0.55);
+        roofSprite.scaleTo(VISUAL_SCALE);
+        roofSpriteRed.scaleTo(VISUAL_SCALE);
+        roofShadowSprite.scaleTo(VISUAL_SCALE);
+        roofSprite.applyAlphaEdgeBlurSelf(1);
+        roofSpriteRed.applyAlphaEdgeBlurSelf(1);
+        roofShadowSprite.applyAlphaEdgeBlurSelf(1);
         deadSprite = new Sprite(RTSAssetManager.chopperDead);
         rubbleSprite = new Sprite(RTSAssetManager.chopperRubble);
         deathShadowFadeout = Sequence.createFadeout(RTSAssetManager.chopperDeathShadow, 40);
         deathShadowFadeout.setSignature("chopperDeathShadow");
-        deadSprite.applyAlphaEdgeBlurSelf(2);
-        rubbleSprite.applyAlphaEdgeBlurSelf(2);
-        baseSprite.applyAlphaEdgeBlurSelf(2);
-        baseSpriteRed.applyAlphaEdgeBlurSelf(2);
-        bladesSprite.applyAlphaEdgeBlurSelf(2);
-        bladesSpriteRed.applyAlphaEdgeBlurSelf(2);
+        deadSprite.applyAlphaEdgeBlurSelf(1);
+        rubbleSprite.applyAlphaEdgeBlurSelf(1);
+        baseSprite.applyAlphaEdgeBlurSelf(1);
+        baseSpriteRed.applyAlphaEdgeBlurSelf(1);
+        bladesSprite.applyAlphaEdgeBlurSelf(1);
+        bladesSpriteRed.applyAlphaEdgeBlurSelf(1);
     }
 
     public TransportHeliTurret turret;
@@ -87,6 +104,17 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
     private long landingStartTick = 0;
     private long takeoffStartTick = 0;
 
+    // transport
+    public static final int MAX_CARGO_CAPACITY = 8;
+    private static final int TICKS_BETWEEN_UNLOADS = 12;
+    private ArrayList<RTSUnit> loadedUnits = new ArrayList<>();
+    private int currentLoad = 0;
+    private ArrayList<RTSUnit> unloadQueue = new ArrayList<>();
+    private int unloadTotalCount = 0;
+    private long unloadStartTick = -1;
+
+    public boolean isUnloading() { return !unloadQueue.isEmpty(); }
+
     public TransportHelicopter(int x, int y, int team) {
         super(x, y, team);
         this.setScale(VISUAL_SCALE);
@@ -102,8 +130,10 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
         this.bodyRectHeightFraction = 0.28;
         this.pathingModifiers.put(PathingLayer.Type.water, 1.0);
         this.setRenderBrightness(1.25);
-        addButton(new LandButton(this));
-        addButton(new FlyButton(this));
+        addButton(new LandButton(this));    // index 0
+        addButton(new FlyButton(this));     // index 1
+        addButton(new HeliLoadButton(this));   // index 2
+        addButton(new HeliUnloadButton(this)); // index 3
     }
 
     // -- terrain and zone checks --
@@ -143,7 +173,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
     }
 
     public void startTakeoff() {
-        if (!isLanded || isLanding || isTakingOff || isRubble) return;
+        if (!isLanded || isLanding || isTakingOff || isRubble || isUnloading()) return;
         isTakingOff = true;
         isLanded = false;
         takeoffStartTick = getHostGame().getGameTickNumber();
@@ -154,6 +184,16 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
         switch (index) {
             case 0 -> startLanding();
             case 1 -> startTakeoff();
+            case 2 -> {
+                if (targetUnitId != null) {
+                    RTSUnit targetUnit = (RTSUnit) getHostGame().getObjectById(targetUnitId);
+                    if (targetUnit != null && !targetUnit.isRubble && targetUnit.isAlive() && canLoad(targetUnit)) {
+                        targetUnit.setBoardingTransportId(this.ID);
+                        targetUnit.clearPreferredTarget();
+                    }
+                }
+            }
+            case 3 -> unloadAll();
         }
     }
 
@@ -318,6 +358,14 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
             }
         }
 
+        // staggered unload
+        if (!unloadQueue.isEmpty()) {
+            int spawnedSoFar = unloadTotalCount - unloadQueue.size();
+            if (getHostGame().getGameTickNumber() >= unloadStartTick + (long) spawnedSoFar * TICKS_BETWEEN_UNLOADS) {
+                spawnNextUnloading();
+            }
+        }
+
         // always call super.tick() for living units — this ticks buttons and proximity scans;
         // isImmobilized prevents movement when landed or transitioning
         if (!isRubble) {
@@ -370,7 +418,32 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
         if (isRubble) {
             return;
         }
-        // if dying while landed/transitioning, give it a small elevation so the fall plays
+        // eject cargo with crash damage if grounded; in-flight death takes cargo with it
+        if (isLanded) {
+            ArrayList<RTSUnit> toEject = new ArrayList<>(loadedUnits);
+            toEject.addAll(unloadQueue);
+            loadedUnits.clear();
+            currentLoad = 0;
+            unloadQueue.clear();
+            int spawnRadius = getSideLength() / 2 + 60;
+            for (int i = 0; i < toEject.size(); i++) {
+                RTSUnit unit = toEject.get(i);
+                double angle = Math.PI * 2.0 * i / Math.max(1, toEject.size());
+                int x = getPixelLocation().x + (int)(Math.cos(angle) * spawnRadius);
+                int y = getPixelLocation().y + (int)(Math.sin(angle) * spawnRadius);
+                unit.setLocation(x, y);
+                unit.setDesiredLocation(new Coordinate(x, y));
+                unit.setCommandGroup("0");
+                unit.clearBoardingTransport();
+                getHostGame().addObject(unit);
+                unit.takeDamage(new Damage(Main.generateDeterministicRandomInt(30, 60, i)));
+            }
+        } else {
+            loadedUnits.clear();
+            currentLoad = 0;
+            unloadQueue.clear();
+        }
+        // restore air-fall state if we were on the ground
         if (isLanded || isLanding || isTakingOff) {
             elevation = 10;
             isLanded = false;
@@ -416,6 +489,26 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
         public void render(Graphics2D g) {
             if (!((RTSUnit) getHost()).shouldRender()) return;
             super.render(g);
+
+            // roof + its cast shadow (disappears with death)
+            if (!isRubble) {
+                Coordinate renderLoc = getRenderLocation();
+                // shadow: small offset rotated with the hull to simulate roof elevation
+                Coordinate shadowOff = new Coordinate(6, 8);
+                VolatileImage shadowImg = roofShadowSprite.getCurrentVolatileImage();
+                AffineTransform old = g.getTransform();
+                g.rotate(Math.toRadians(getRotation()), renderLoc.x + shadowOff.x, renderLoc.y + shadowOff.y);
+                g.drawImage(shadowImg,
+                        renderLoc.x + shadowOff.x - shadowImg.getWidth() / 2,
+                        renderLoc.y + shadowOff.y - shadowImg.getHeight() / 2, null);
+                g.setTransform(old);
+                // roof itself
+                VolatileImage roofImg = (team == 0 ? roofSprite : roofSpriteRed).getCurrentVolatileImage();
+                old = g.getTransform();
+                g.rotate(Math.toRadians(getRotation()), renderLoc.x, renderLoc.y);
+                g.drawImage(roofImg, renderLoc.x - roofImg.getWidth() / 2, renderLoc.y - roofImg.getHeight() / 2, null);
+                g.setTransform(old);
+            }
 
             // blades always render when not rubble (stopped when elevation = 0, spinning when airborne)
             if (!isRubble) {
@@ -476,6 +569,58 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
         return RTSAssetManager.hellicopterSelectionImage;
     }
 
+    // -- Transport --
+
+    @Override
+    public boolean canLoad(RTSUnit unit) {
+        if (!isLanded || isRubble || !isAlive()) return false;
+        if (!unloadQueue.isEmpty()) return false;
+        if (unit.cargoSize < 0) return false;
+        if (unit.team != this.team) return false;
+        return currentLoad + unit.cargoSize <= MAX_CARGO_CAPACITY;
+    }
+
+    @Override
+    public void load(RTSUnit unit) {
+        if (!canLoad(unit)) return;
+        loadedUnits.add(unit);
+        currentLoad += unit.cargoSize;
+        unit.destroy();
+    }
+
+    @Override
+    public void unloadAll() {
+        if (!isLanded || isRubble) return;
+        if (loadedUnits.isEmpty() || !unloadQueue.isEmpty()) return;
+        unloadQueue = new ArrayList<>(loadedUnits);
+        unloadTotalCount = unloadQueue.size();
+        unloadStartTick = getHostGame().getGameTickNumber();
+        loadedUnits.clear();
+        currentLoad = 0;
+    }
+
+    private void spawnNextUnloading() {
+        int idx = unloadTotalCount - unloadQueue.size();
+        RTSUnit unit = unloadQueue.remove(0);
+        int spawnRadius = getSideLength() / 2 + 90;
+        double backAngle = Math.PI / 2.0 + Math.toRadians(getRotation());
+        double t = unloadTotalCount == 1 ? 0.0 : (idx / (double)(unloadTotalCount - 1) - 0.5);
+        double angle = backAngle + t * Math.toRadians(90);
+        int x = getPixelLocation().x + (int) Math.round(Math.cos(angle) * spawnRadius);
+        int y = getPixelLocation().y + (int) Math.round(Math.sin(angle) * spawnRadius);
+        unit.setLocation(x, y);
+        unit.setDesiredLocation(new Coordinate(x, y));
+        unit.setCommandGroup("0");
+        unit.clearBoardingTransport();
+        getHostGame().addObject(unit);
+    }
+
+    @Override
+    public List<RTSUnit> getLoadedUnits() { return loadedUnits; }
+
+    @Override
+    public int getMaxCapacity() { return MAX_CARGO_CAPACITY; }
+
     // -- ReinforcementPoint --
 
     @Override
@@ -500,6 +645,12 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint {
         var out = new ArrayList<String>();
         String state = isLanded ? "Landed" : (isLanding ? "Landing..." : (isTakingOff ? "Taking off..." : "Flying"));
         out.add("Speed: " + baseSpeed + "    State: " + state);
+        out.add("Cargo: " + currentLoad + " / " + MAX_CARGO_CAPACITY );
         return out;
+    }
+    
+    @Override
+    public int getSideLength() {
+        return super.getSideLength() + 30;
     }
 }

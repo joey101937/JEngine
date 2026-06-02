@@ -27,6 +27,6 @@ public class FlyButton extends CommandButton {
     public void tick() {
         super.tick();
         TransportHelicopter heli = (TransportHelicopter) owner;
-        isDisabled = !heli.isLanded || heli.isLanding || heli.isTakingOff || heli.isRubble;
+        isDisabled = !heli.isLanded || heli.isLanding || heli.isTakingOff || heli.isRubble || heli.isUnloading();
     }
 }

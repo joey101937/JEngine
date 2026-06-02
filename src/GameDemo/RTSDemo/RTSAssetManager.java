@@ -102,6 +102,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage truckHull, truckHullRed, truckHullDamaged, truckHullDamagedRed, truckRubble, truckRubbleRed, truckDeathShadow;
     public static BufferedImage truckWheel;
     public static BufferedImage transportHeli, transportHeliRed;
+    public static BufferedImage transportHeliRoof, transportHeliRoofRed;
 
     public synchronized static void initialize() {
         if (initialized) {
@@ -308,6 +309,8 @@ public abstract class RTSAssetManager {
         return CompletableFuture.runAsync(() -> {
             transportHeli = load("DemoAssets/TankGame/transportHeli/body.png");
             transportHeliRed = greenToRed(transportHeli);
+            transportHeliRoof = load("DemoAssets/TankGame/transportHeli/transportHeliRoof.png");
+            transportHeliRoofRed = greenToRed(transportHeliRoof);
         }, executor);
     }
 

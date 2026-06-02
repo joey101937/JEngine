@@ -104,6 +104,7 @@ public class LightTank extends RTSUnit {
         turret = new LightTankTurret(new Coordinate(0, 0), this);
         this.addSubObject(turret);
         this.isSolid = true;
+        this.cargoSize = 6;
         this.setHitbox(new Hitbox(this, getWidth() / 2));
         this.range = 500;
         this.baseSpeed = LIGHT_TANK_SPEED;
@@ -169,6 +170,11 @@ public class LightTank extends RTSUnit {
         } else {
             rotate(hullRotationSpeed);
         }
+    }
+    
+    @Override
+    public int getBoardingRange(RTSUnit transport) {
+        return super.getBoardingRange(transport) + 30;
     }
 
     @Override

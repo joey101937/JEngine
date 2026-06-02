@@ -355,6 +355,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         this.baseSpeed = speed;
         initializeButtons();
         this.rotationSpeed = RTSGame.tickAdjust(1.4);
+        this.cargoSize = 8;
         this.setRenderBrightness(.9);
         this.sightRadius = 300;
         hullMGDamage = staticHullMGDamage.copy(this);

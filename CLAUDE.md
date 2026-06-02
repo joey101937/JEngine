@@ -94,6 +94,7 @@ The RTS demo includes a comprehensive pathfinding system:
 All RTS units must have deterministic game logic
 Make sure they are added to the RTSAssetManager preloadUnits function
 Check Assets folder to verify presence of visual assets if using new ones
+applyAlphaEdgeBlurSelf should be used with a value of 1 for any parts of the units themselves and 2-4 for shadows
 
 ## Scaling Gameobject2s
 Sprite and Sequence objects are stateful. only scale them once.
