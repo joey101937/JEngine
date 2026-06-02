@@ -137,6 +137,7 @@ public class Truck extends RTSUnit implements Transport {
         if (!unloadQueue.isEmpty()) return false;
         if (unit.cargoSize < 0) return false;
         if (unit.team != this.team) return false;
+        if (!unit.isInfantry) return false;
         int currentLoad = loadedUnits.stream().mapToInt(u -> u.cargoSize).sum();
         return currentLoad + unit.cargoSize <= MAX_CARGO_CAPACITY;
     }
