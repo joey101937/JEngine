@@ -152,6 +152,7 @@ public abstract class RTSAssetManager {
             case 1 -> greenToRed(src);
             case 2 -> greenToCharcoal(src);
             case 3 -> greenToTan(src);
+            case 4 -> greenToArctic(src);
             default -> src;
         };
     }
@@ -161,6 +162,7 @@ public abstract class RTSAssetManager {
             case 1 -> greenToRed(src);
             case 2 -> greenToCharcoal(src);
             case 3 -> greenToTan(src);
+            case 4 -> greenToArctic(src);
             default -> src;
         };
     }
@@ -170,6 +172,7 @@ public abstract class RTSAssetManager {
             case 1 -> darkToRed(src);
             case 2 -> darkToCharcoal(src);
             case 3 -> darkToTan(src);
+            case 4 -> darkToArctic(src);
             default -> src;
         };
     }
@@ -179,6 +182,7 @@ public abstract class RTSAssetManager {
             case 1 -> darkToRed(src);
             case 2 -> darkToCharcoal(src);
             case 3 -> darkToTan(src);
+            case 4 -> darkToArctic(src);
             default -> src;
         };
     }
@@ -743,6 +747,64 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] darkToTan(BufferedImage[] input) {
         BufferedImage[] out = new BufferedImage[input.length];
         for (int i = 0; i < out.length; i++) out[i] = darkToTan(input[i]);
+        return out;
+    }
+
+    public static BufferedImage greenToArctic(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5
+                        && prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue() < 500) {
+                    int bright = Math.min(255, (int)(prevColor.getGreen() * 2.35));
+                    int newRed   = bright;
+                    int newGreen = bright;
+                    int newBlue  = Math.min(255, (int)(bright * 1.1));
+                    bi.setRGB(x, y, new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB());
+                } else {
+                    bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage[] greenToArctic(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = greenToArctic(input[i]);
+        return out;
+    }
+
+    // todo refine this function
+    public static BufferedImage darkToArctic(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                int brightness = prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue();
+                int maxC = Math.max(prevColor.getRed(), Math.max(prevColor.getGreen(), prevColor.getBlue()));
+                int minC = Math.min(prevColor.getRed(), Math.min(prevColor.getGreen(), prevColor.getBlue()));
+                int saturation = maxC - minC;
+                int avg = brightness / 3;
+                boolean greenTinted = prevColor.getGreen() - 8 > prevColor.getRed() && prevColor.getGreen() > prevColor.getBlue();
+                if (saturation < 20 && brightness > 100 && (prevColor.getBlue() - 2 > prevColor.getGreen() * .8 && prevColor.getBlue() + 2 < prevColor.getGreen() * 1.2)) {
+                    int base = brightness / 3;
+                    int bright = Math.min(220, base * 3 + 90);
+                    bi.setRGB(x, y, new Color(bright, bright, Math.min(255, (int)(bright * 1.04)), prevColor.getAlpha()).getRGB());
+                } else {
+                    bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage[] darkToArctic(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = darkToArctic(input[i]);
         return out;
     }
 
