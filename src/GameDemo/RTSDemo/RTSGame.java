@@ -199,7 +199,7 @@ public class RTSGame {
     
     private static void spawnLines() {
         int spacer = 160;
-        int lineLength = 40; // units = this x 10
+        int lineLength = 35;
         
          for (int i = 0; i < lineLength; i++) {
             Apache heli = new Apache(100 + (i * spacer), 100, 0);
