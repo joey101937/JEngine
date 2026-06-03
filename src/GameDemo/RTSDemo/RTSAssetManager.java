@@ -149,6 +149,7 @@ public abstract class RTSAssetManager {
 
     public static BufferedImage applyTeamTransform(BufferedImage src, int team) {
         return switch (team) {
+            case -1 -> greenToSilver(src);
             case 1 -> greenToRed(src);
             case 2 -> greenToCharcoal(src);
             case 3 -> greenToTan(src);
@@ -159,6 +160,7 @@ public abstract class RTSAssetManager {
 
     public static BufferedImage[] applyTeamTransform(BufferedImage[] src, int team) {
         return switch (team) {
+            case -1 -> greenToSilver(src);
             case 1 -> greenToRed(src);
             case 2 -> greenToCharcoal(src);
             case 3 -> greenToTan(src);
@@ -169,6 +171,7 @@ public abstract class RTSAssetManager {
 
     public static BufferedImage applyInfantryTeamTransform(BufferedImage src, int team) {
         return switch (team) {
+            case -1 -> darkToSilver(src);
             case 1 -> darkToRed(src);
             case 2 -> darkToCharcoal(src);
             case 3 -> darkToTan(src);
@@ -179,6 +182,7 @@ public abstract class RTSAssetManager {
 
     public static BufferedImage[] applyInfantryTeamTransform(BufferedImage[] src, int team) {
         return switch (team) {
+            case -1 -> darkToSilver(src);
             case 1 -> darkToRed(src);
             case 2 -> darkToCharcoal(src);
             case 3 -> darkToTan(src);
@@ -805,6 +809,60 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] darkToArctic(BufferedImage[] input) {
         BufferedImage[] out = new BufferedImage[input.length];
         for (int i = 0; i < out.length; i++) out[i] = darkToArctic(input[i]);
+        return out;
+    }
+
+    public static BufferedImage greenToSilver(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5
+                        && prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue() < 500) {
+                    int base = Math.min(210, (int)(prevColor.getGreen() * 1.35));
+                    bi.setRGB(x, y, new Color(base, base, Math.min(255, (int)(base * 1.06)), prevColor.getAlpha()).getRGB());
+                } else {
+                    bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage[] greenToSilver(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = greenToSilver(input[i]);
+        return out;
+    }
+
+    public static BufferedImage darkToSilver(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5
+                        && prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue() < 500) {
+                    int base = Math.min(190, (int)(prevColor.getGreen() * 1.2));
+                    bi.setRGB(x, y, new Color(base, base, Math.min(255, (int)(base * 1.06)), prevColor.getAlpha()).getRGB());
+                } else if (prevColor.getBlue() + prevColor.getRed() + prevColor.getGreen() < 300
+                        && prevColor.getRed() < 30 + prevColor.getGreen() + prevColor.getBlue()
+                        && prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue() > 30) {
+                    int avg = (prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue()) / 3;
+                    int newVal = Math.min(200, avg + 55);
+                    bi.setRGB(x, y, new Color(newVal, newVal, Math.min(255, (int)(newVal * 1.06)), prevColor.getAlpha()).getRGB());
+                } else {
+                    bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
+                }
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage[] darkToSilver(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = darkToSilver(input[i]);
         return out;
     }
 

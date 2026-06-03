@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public class RTSGame {
 
-    public static final Set<Integer> activeTeams = Set.of(0, 1, 2, 3, 4);
+    public static final Set<Integer> activeTeams = Set.of(-1, 0, 1, 2, 3, 4);
 
     public static Game game = null;
     public static Minimap minimap = null;
@@ -167,6 +167,16 @@ public class RTSGame {
         game.addObject(new Landmine(1700, 4900, 4));
         game.addObject(new Rifleman(1900, 4900, 4));
         game.addObject(new Bazookaman(2100, 4900, 4));
+        // team -1 (silver)
+        game.addObject(new TankUnit(500, 5600, -1));
+        game.addObject(new LightTank(700, 5600, -1));
+        game.addObject(new Truck(900, 5600, -1));
+        game.addObject(new TransportHelicopter(1100, 5600, -1));
+        game.addObject(new Hellicopter(1300, 5600, -1));
+        game.addObject(new Apache(1500, 5600, -1));
+        game.addObject(new Landmine(1700, 5600, -1));
+        game.addObject(new Rifleman(1900, 5600, -1));
+        game.addObject(new Bazookaman(2100, 5600, -1));
     }
 
     private static void spawnTestHeli() {

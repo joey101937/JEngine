@@ -91,6 +91,8 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
 
     public static Color getColorFromTeam(int team) {
         return switch (team) {
+            case -1 ->
+                new Color(180, 180, 192); // silver
             case 0 ->
                 Color.GREEN;
             case 1 ->
