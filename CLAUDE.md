@@ -95,6 +95,7 @@ All RTS units must have deterministic game logic
 Make sure they are added to the RTSAssetManager preloadUnits function
 Check Assets folder to verify presence of visual assets if using new ones
 applyAlphaEdgeBlurSelf should be used with a value of 1 for any parts of the units themselves and 2-4 for shadows
+generateDeterministicRandomInt(min,max) and generateDeterministicRandomDouble(min,max) methods to generate deterministicly random values for mp support- If you need to generate more than one at a time, they accept a thrid param for lookahead
 
 ## Scaling Gameobject2s
 Sprite and Sequence objects are stateful. only scale them once.
