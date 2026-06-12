@@ -18,6 +18,7 @@ import GameDemo.RTSDemo.FogOfWar.VisionProvider;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
+import GameDemo.RTSDemo.SceneryObjects.SceneryObject;
 import GameDemo.RTSDemo.Pathfinding.Tile;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Landmine;
@@ -173,7 +174,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     @Override
     public ArrayList<GameObject2> getObjectsForCollisionConsideration () {
         var existing = super.getObjectsForCollisionConsideration();
-        existing.addAll(KeyBuilding.getKeybuildings(getHostGame()));
+        existing.addAll(SceneryObject.getAll(getHostGame()));
         return existing;
     }
     

@@ -72,6 +72,16 @@ public abstract class RTSAssetManager {
 
     public static BufferedImage building;
 
+    public static BufferedImage hangarBase;
+    public static BufferedImage hangarFloor;
+    public static BufferedImage metalShack;
+    public static BufferedImage buildingGreen1;
+    public static BufferedImage buildingGreen1Extras;
+    public static BufferedImage orangeWoodHouse;
+    public static BufferedImage orangeWoodHouseExtras;
+    public static BufferedImage greenShippingContainer;
+    public static BufferedImage propaneTank;
+
     public static BufferedImage[] explosionSequence;
     public static BufferedImage[] explosionSequenceSmall;
     public static BufferedImage[] impactCone;
@@ -306,6 +316,7 @@ public abstract class RTSAssetManager {
                 loadTransportHeliAssets(),
                 loadSelectionImages(),
                 loadUtilityAssets(),
+                loadHangarAssets(),
                 loadMapAssets1(),
                 loadMapAssets2(),
                 loadButtonAssets()
@@ -341,7 +352,7 @@ public abstract class RTSAssetManager {
 
     private static CompletableFuture<Void> loadMapAssets1() {
         return CompletableFuture.runAsync(() -> {
-            grassBG = load("DemoAssets/TankGame/terrainPlayground.png");
+            grassBG = load("DemoAssets/TankGame/terrainPlaygroundHighground130.png");
         }, executor);
     }
 
@@ -471,6 +482,20 @@ public abstract class RTSAssetManager {
             building = load("DemoAssets/TankGame/building.png");
             immobilizationIcon = load("DemoAssets/TankGame/immobilizationIcon.png");
             shieldIcon = load("DemoAssets/TankGame/shieldIcon.png");
+        }, executor);
+    }
+
+    private static CompletableFuture<Void> loadHangarAssets() {
+        return CompletableFuture.runAsync(() -> {
+            hangarBase = load("DemoAssets/TankGame/buildings/hangarBase.png");
+            hangarFloor = load("DemoAssets/TankGame/buildings/hangarFloor.png");
+            metalShack = load("DemoAssets/TankGame/buildings/metalShack.png");
+            buildingGreen1 = load("DemoAssets/TankGame/buildings/buildingGreen1.png");
+            buildingGreen1Extras = load("DemoAssets/TankGame/buildings/buildingGreen1Extras.png");
+            orangeWoodHouse = load("DemoAssets/TankGame/buildings/orangeWoodHouse.png");
+            orangeWoodHouseExtras = load("DemoAssets/TankGame/buildings/orangeWoodHouseExtras.png");
+            greenShippingContainer = load("DemoAssets/TankGame/buildings/greenShippingContainer.png");
+            propaneTank = load("DemoAssets/TankGame/buildings/propaneTank.png");
         }, executor);
     }
 

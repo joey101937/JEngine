@@ -18,6 +18,11 @@ import GameDemo.RTSDemo.FogOfWar.FogOfWarGrid;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementHandler;
+import GameDemo.RTSDemo.SceneryObjects.BuildingGreen1;
+import GameDemo.RTSDemo.SceneryObjects.GreenShippingContainer;
+import GameDemo.RTSDemo.SceneryObjects.Hangar;
+import GameDemo.RTSDemo.SceneryObjects.OrangeWoodHouse;
+import GameDemo.RTSDemo.SceneryObjects.PropaneTank;
 import GameDemo.RTSDemo.Units.Apache;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.Bazookaman;
@@ -124,6 +129,13 @@ public class RTSGame {
 
         game.addObject(new KeyBuilding(10000, 400, 0, 0, 400, 180));
         game.addObject(new KeyBuilding(3000, 2500, 1));
+        
+        game.addObject(new Hangar(10000, 2000, 100));
+        game.addObject(new BuildingGreen1(10700, 2000, 0));
+        
+        game.addObject(new OrangeWoodHouse(10000, 2700, 100));
+        game.addObject(new PropaneTank(10700, 2700, 0));
+
         
         spawnLines();
         spawnTeamShowcase();

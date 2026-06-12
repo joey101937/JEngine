@@ -6,6 +6,7 @@ import GameDemo.RTSDemo.FogOfWar.SightBlocker;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
+import GameDemo.RTSDemo.SceneryObjects.SceneryObject;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
  *
  * @author guydu
  */
-public class KeyBuilding extends GameObject2 implements SightBlocker, ReinforcementPoint, MinimapRenderable {
+public class KeyBuilding extends GameObject2 implements SightBlocker, ReinforcementPoint, MinimapRenderable, SceneryObject {
     private static final long serialVersionUID = 1L;
     public static final Sprite mainSprite = new Sprite(RTSAssetManager.building);
     public static final Sprite shadowSprite = Sprite.generateShadowSprite(mainSprite.getImage(), .5);
@@ -39,6 +40,7 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
     
     static {
         shadowSprite.scaleTo(VISUAL_SCALE);
+        mainSprite.applyAlphaEdgeBlurSelf(1);
     }
     
     public int owningTeam = -1;
@@ -54,8 +56,9 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, -400), 90 );
         this.setZLayer(5);
         allKeyBuildings.add(this);
+        SceneryObject.register(this);
     }
-    
+
     public KeyBuilding(int x, int y, int team) {
         super(x, y);
         this.setScale(VISUAL_SCALE);
@@ -65,8 +68,9 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, 0), 90 );
         this.setZLayer(5);
         allKeyBuildings.add(this);
+        SceneryObject.register(this);
     }
-    
+
     public KeyBuilding(int x, int y, int team, int spawnX, int spawnY, double rotation) {
         super(x, y);
         this.setScale(VISUAL_SCALE);
@@ -76,6 +80,7 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(spawnX, spawnY), rotation );
         this.setZLayer(5);
         allKeyBuildings.add(this);
+        SceneryObject.register(this);
     }
 
     @Override

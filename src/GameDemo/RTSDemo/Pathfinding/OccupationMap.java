@@ -4,8 +4,8 @@ import Framework.Coordinate;
 import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.GameObject2;
-import GameDemo.RTSDemo.KeyBuilding;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.SceneryObjects.SceneryObject;
 import GameDemo.RTSDemo.Units.Landmine;
 import java.awt.Rectangle;
 import java.util.Collection;
@@ -78,18 +78,26 @@ public class OccupationMap implements java.io.Serializable {
                 }));
                 
             }
-            // todo add padding to this calculation
-            if(plane == 0 && go instanceof KeyBuilding building && building.getHitbox() != null) {
-                int keyBuildingPadding = padding + 50;
-                Rectangle paddedRect = new Rectangle(
-                    building.getPixelLocation().x - building.getWidth()/2 - keyBuildingPadding,
-                    building.getPixelLocation().y - building.getHeight()/2 - keyBuildingPadding,
-                    building.getWidth() + (keyBuildingPadding * 2),
-                    building.getHeight() + (keyBuildingPadding * 2)
-                );
-                
-                List<Tile> affectedTiles = tileMap.getTilesIntersectingRectangle(paddedRect);
-                affectedTiles.forEach(tile -> occupiedMap.put(tile, true));
+            if(plane == 0 && go instanceof SceneryObject scenery && go.isSolid && go.getWidth() > 0) {
+                int objectPadding = padding + scenery.getPathingPadding();
+                float cx = go.getPixelLocation().x;
+                float cy = go.getPixelLocation().y;
+                float hw = go.getWidth()  / 2f + objectPadding;
+                float hh = go.getHeight() / 2f + objectPadding;
+                double rot = Math.toRadians(go.getRotation());
+                float cosA = (float) Math.abs(Math.cos(rot));
+                float sinA = (float) Math.abs(Math.sin(rot));
+                // AABB of the rotated padded rect — used to pull candidate tiles
+                int aabbHW = (int)(hw * cosA + hh * sinA) + 1;
+                int aabbHH = (int)(hw * sinA + hh * cosA) + 1;
+                Rectangle aabb = new Rectangle((int)(cx - aabbHW), (int)(cy - aabbHH), aabbHW * 2, aabbHH * 2);
+                float cosR = (float) Math.cos(rot);
+                float sinR = (float) Math.sin(rot);
+                for (Tile tile : tileMap.getTilesIntersectingRectangle(aabb)) {
+                    if (tileIntersectsOBB(tile, cx, cy, hw, hh, cosR, sinR, cosA, sinA)) {
+                        occupiedMap.put(tile, true);
+                    }
+                }
             }
         }
         
@@ -141,6 +149,32 @@ public class OccupationMap implements java.io.Serializable {
     public void setPlane(int plane) {
         this.plane = plane;
     }
-    
-    
+
+    // SAT test: does an axis-aligned tile intersect the oriented bounding box?
+    // cosR/sinR are the OBB's local X-axis components; cosA/sinA are their absolute values.
+    private boolean tileIntersectsOBB(Tile tile, float cx, float cy,
+                                       float hw, float hh,
+                                       float cosR, float sinR,
+                                       float cosA, float sinA) {
+        Coordinate tileCenter = tile.getCenterPoint();
+        float tx = tileCenter.x;
+        float ty = tileCenter.y;
+        float tHalf = tile.tileSize / 2f;
+
+        // World X axis
+        if (Math.abs(cx - tx) > hw * cosA + hh * sinA + tHalf) return false;
+        // World Y axis
+        if (Math.abs(cy - ty) > hw * sinA + hh * cosA + tHalf) return false;
+
+        float dx = tx - cx;
+        float dy = ty - cy;
+        float tileProjHalf = tHalf * (cosA + sinA);
+
+        // OBB local X axis
+        if (Math.abs(dx * cosR + dy * sinR) > hw + tileProjHalf) return false;
+        // OBB local Y axis
+        if (Math.abs(-dx * sinR + dy * cosR) > hh + tileProjHalf) return false;
+
+        return true;
+    }
 }

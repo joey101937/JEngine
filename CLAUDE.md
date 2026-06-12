@@ -96,6 +96,7 @@ Make sure they are added to the RTSAssetManager preloadUnits function
 Check Assets folder to verify presence of visual assets if using new ones
 applyAlphaEdgeBlurSelf should be used with a value of 1 for any parts of the units themselves and 2-4 for shadows
 generateDeterministicRandomInt(min,max) and generateDeterministicRandomDouble(min,max) methods to generate deterministicly random values for mp support- If you need to generate more than one at a time, they accept a thrid param for lookahead
+make sure that any shadows you make are scaled based on the visual scale of hte object its attached to. 
 
 ## Scaling Gameobject2s
 Sprite and Sequence objects are stateful. only scale them once.
