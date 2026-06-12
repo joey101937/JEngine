@@ -322,19 +322,20 @@ public abstract class RTSAssetManager {
                 loadButtonAssets()
             );
 
-            future.thenRun(() -> {
+            CompletableFuture<Void> allDone = future.thenRun(() -> {
                 precomputeTeamAssets(RTSGame.activeTeams);
                 preloadUnits();
                 initialized = true;
                 System.out.println("All assets loaded successfully.");
-            }).exceptionally(ex -> {
+            });
+            allDone.exceptionally(ex -> {
                 System.out.println("Error loading RTS assets. Please verify Assets folder.");
                 ex.printStackTrace();
                 System.exit(1);
                 return null;
             });
 
-            future.join();
+            allDone.join();
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error loading RTS assets. Please verify Assets folder.");

@@ -2,9 +2,13 @@ package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
 import Framework.Game;
+import Framework.GameObject2;
 import Framework.IndependentEffect;
 import Framework.Window;
 import Framework.SerializationManager;
+import GameDemo.RTSDemo.MapEditor.MapData;
+import GameDemo.RTSDemo.MapEditor.MapLoader;
+import GameDemo.RTSDemo.MapEditor.MapSerializer;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import java.awt.Color;
 import java.awt.Font;
@@ -12,8 +16,10 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JFileChooser;
 
 public class GameMenuEffect extends IndependentEffect {
 
@@ -45,6 +51,7 @@ public class GameMenuEffect extends IndependentEffect {
         "Toggle Fullscreen",
         "Quick Save",
         "Quick Load",
+        "Load Map",
         "Quit"
     ));
 
@@ -212,7 +219,25 @@ public class GameMenuEffect extends IndependentEffect {
             case 1 -> Window.setFullscreenWindowed(!Window.frame.isUndecorated());
             case 2 -> SerializationManager.quickSave(game);
             case 3 -> SerializationManager.quickLoad(game);
-            case 4 -> System.exit(0);
+            case 4 -> loadMap();
+            case 5 -> System.exit(0);
+        }
+    }
+
+    private void loadMap() {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Load Map");
+        if (fc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) return;
+        File f = fc.getSelectedFile();
+        try {
+            MapData data = MapSerializer.load(f);
+            for (GameObject2 go : new ArrayList<>(game.handler.getAllObjects())) {
+                game.handler.removeObject(go);
+            }
+            MapLoader.loadIntoGame(data, game);
+            close();
+        } catch (Exception ex) {
+            System.err.println("Load map failed: " + ex.getMessage());
         }
     }
 }

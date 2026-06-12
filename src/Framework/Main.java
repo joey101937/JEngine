@@ -9,6 +9,7 @@ import Framework.CoreLoop.Handler;
 import GameDemo.FogDemo.FogDemo;
 import GameDemo.RTSDemo.Multiplayer.Client;
 import GameDemo.RTSDemo.Multiplayer.Server;
+import GameDemo.RTSDemo.MapEditor.MapEditorMain;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.SideScollerDemo_PathingLayer.SideScrollDemo;
 import GameDemo.TownDemo.TownDemo;
@@ -67,28 +68,30 @@ public class Main {
      * this is the new main method that only shows the nicer looking demos... not that any of them look particularly good
      */
     private static void showCuratedDemos(String[] args) {
-        String[] options = { "RTS Singleplayer", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Demo - Fog", "Demo - Push System", "RTS Multiplayer (host)", "RTS Multiplayer (client)"};
+        String[] options = { "RTS Singleplayer", "RTS Map Editor", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Demo - Fog", "Demo - Push System", "RTS Multiplayer (host)", "RTS Multiplayer (client)"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
             case -1: System.exit(0);
             case 0: RTSGame.main(args);
             break;
-            case 1: SideScrollDemo.main(args);
+            case 1: MapEditorMain.main(args);
             break;
-            case 2: TownDemo.main(args);
+            case 2: SideScrollDemo.main(args);
             break;
-            case 3: MinotaurGame.main(args);
+            case 3: TownDemo.main(args);
             break;
-            case 4: GaligaGame.main(args);
+            case 4: MinotaurGame.main(args);
             break;
-            case 5: FogDemo.main(args);
+            case 5: GaligaGame.main(args);
             break;
-            case 6: PushDemoGame.main(args);
+            case 6: FogDemo.main(args);
             break;
-            case 7: Server.main(args);
+            case 7: PushDemoGame.main(args);
             break;
-            case 8: Client.main(args);
+            case 8: Server.main(args);
+            break;
+            case 9: Client.main(args);
             break;
             default: {
                 System.out.println("unknown selection");
