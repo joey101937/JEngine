@@ -54,6 +54,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     public boolean isInvisible = false;
     private float renderOpacity = 1f;
     private double renderBrightness = 1.0;
+    private double renderSaturation = 1.0;
     private double renderScale = 1.0;
     private double scale = 1;
     protected double scaleAsOfLastTick = 1;
@@ -565,11 +566,17 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             VolatileImage toRender = getGraphic().getCurrentVolatileImage();
             int drawX = pixelLocation.x - toRender.getWidth() / 2;
             int drawY = pixelLocation.y - toRender.getHeight() / 2;
-            if (renderBrightness != 1.0) {
+            if (renderBrightness != 1.0 || renderSaturation != 1.0) {
                 BufferedImage snapshot = toRender.getSnapshot();
-                float b = (float) Math.max(0.0, renderBrightness);
-                RescaleOp rescale = new RescaleOp(new float[]{b, b, b, 1f}, new float[]{0, 0, 0, 0}, null);
-                graphics.drawImage(rescale.filter(snapshot, null), drawX, drawY, null);
+                if (renderBrightness != 1.0) {
+                    float b = (float) Math.max(0.0, renderBrightness);
+                    RescaleOp rescale = new RescaleOp(new float[]{b, b, b, 1f}, new float[]{0, 0, 0, 0}, null);
+                    snapshot = rescale.filter(snapshot, null);
+                }
+                if (renderSaturation != 1.0) {
+                    snapshot = applyRenderSaturation(snapshot, (float) renderSaturation);
+                }
+                graphics.drawImage(snapshot, drawX, drawY, null);
             } else {
                 graphics.drawImage(toRender, drawX, drawY, null);
             }
@@ -1373,6 +1380,38 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public void setRenderBrightness(double renderBrightness) {
         this.renderBrightness = Math.max(0.0, renderBrightness);
+    }
+
+    public double getRenderSaturation() {
+        return renderSaturation;
+    }
+
+    /**
+     * Adjusts color saturation of the rendered graphic. 1.0 = normal, 0.0 = grayscale, >1.0 = more saturated.
+     * No overhead when at the default value of 1.0.
+     */
+    public void setRenderSaturation(double renderSaturation) {
+        this.renderSaturation = renderSaturation;
+    }
+
+    private static BufferedImage applyRenderSaturation(BufferedImage src, float sat) {
+        int w = src.getWidth(), h = src.getHeight();
+        BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        int[] pixels = src.getRGB(0, 0, w, h, null, 0, w);
+        for (int i = 0; i < pixels.length; i++) {
+            int p = pixels[i];
+            int a = (p >>> 24);
+            float r = (p >> 16) & 0xFF;
+            float g = (p >> 8) & 0xFF;
+            float b = p & 0xFF;
+            float lum = 0.299f * r + 0.587f * g + 0.114f * b;
+            pixels[i] = (a << 24)
+                | (Math.min(255, Math.max(0, (int)(lum + sat * (r - lum)))) << 16)
+                | (Math.min(255, Math.max(0, (int)(lum + sat * (g - lum)))) << 8)
+                |  Math.min(255, Math.max(0, (int)(lum + sat * (b - lum))));
+        }
+        dst.setRGB(0, 0, w, h, pixels, 0, w);
+        return dst;
     }
 
     public double getRenderScale() {

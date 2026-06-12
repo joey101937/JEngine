@@ -39,6 +39,7 @@ public class Hangar extends GameObject2 implements SceneryObject, SightBlocker {
         this.isSolid = true;
         this.setZLayer(-1);
         SceneryObject.register(this);
+        this.setRenderSaturation(1.5);
     }
 
     public Hangar(int x, int y, int rotation) {

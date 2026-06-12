@@ -339,6 +339,8 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         this.setRenderBrightness(.9);
         this.sightRadius = 300;
         hullMGDamage = staticHullMGDamage.copy(this);
+        setRenderSaturation(.9);
+        this.turret.setRenderSaturation(.9);
     }
 
     private void initializeButtons() {
