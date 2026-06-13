@@ -105,23 +105,27 @@ public class RTSGame {
         g.addIndependentEffect(gameMenuEffect);
     }
 
-    public static void main(String[] args) {
-        System.setProperty("sun.java2d.uiScale", "1");
-        RTSAssetManager.initialize();
-        game = new Game(RTSAssetManager.grassBG);
-        game.setLoadScreenRender(g -> {
-            g.setColor(new Color(100, 100, 100));
-            Coordinate camLocation = game.getCamera().getWorldLocation().toCoordinate();
-            Coordinate camCenter = game.getCamera().getCenterPoint();
-            var fov = game.getCamera().getFieldOfView();
-            g.fillRect(camLocation.x, camLocation.y, fov.width, fov.height);
+    public static void applyLoadingScreen(Game g) {
+        g.setLoadScreenRender(gr -> {
+            gr.setColor(new Color(100, 100, 100));
+            Coordinate camLocation = g.getCamera().getWorldLocation().toCoordinate();
+            Coordinate camCenter = g.getCamera().getCenterPoint();
+            var fov = g.getCamera().getFieldOfView();
+            gr.fillRect(camLocation.x, camLocation.y, fov.width, fov.height);
             Coordinate imageRenderLocation = new Coordinate(
                     camCenter.x - RTSAssetManager.JEngineIconLoading.getWidth() / 2,
                     camCenter.y - RTSAssetManager.JEngineIconLoading.getHeight() / 2
             );
-            g.drawImage(RTSAssetManager.JEngineIconLoading, imageRenderLocation.x, imageRenderLocation.y, null);
+            gr.drawImage(RTSAssetManager.JEngineIconLoading, imageRenderLocation.x, imageRenderLocation.y, null);
         });
-        game.setLoadingScreenActive(true);
+        g.setLoadingScreenActive(true);
+    }
+
+    public static void main(String[] args) {
+        System.setProperty("sun.java2d.uiScale", "1");
+        RTSAssetManager.initialize();
+        game = new Game(RTSAssetManager.grassBG);
+        applyLoadingScreen(game);
 
         Window.initializeFullScreen(game);
 

@@ -2,10 +2,10 @@ package GameDemo.RTSDemo;
 
 import Framework.Coordinate;
 import Framework.Game;
-import Framework.GameObject2;
 import Framework.IndependentEffect;
 import Framework.Window;
 import Framework.SerializationManager;
+import Framework.GraphicalAssets.Graphic;
 import GameDemo.RTSDemo.MapEditor.MapData;
 import GameDemo.RTSDemo.MapEditor.MapLoader;
 import GameDemo.RTSDemo.MapEditor.MapSerializer;
@@ -16,6 +16,7 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -231,13 +232,33 @@ public class GameMenuEffect extends IndependentEffect {
         File f = fc.getSelectedFile();
         try {
             MapData data = MapSerializer.load(f);
-            for (GameObject2 go : new ArrayList<>(game.handler.getAllObjects())) {
-                game.handler.removeObject(go);
+
+            BufferedImage bg = Graphic.load("DemoAssets/TankGame/" + data.background);
+            if (bg == null) bg = RTSAssetManager.grassBG;
+
+            Game newGame = new Game(bg);
+
+            // Remove old minimap from the window overlay before the new one is added
+            if (RTSGame.minimap != null) {
+                Window.removeUIElement(RTSGame.minimap);
+                RTSGame.minimap = null;
             }
-            MapLoader.loadIntoGame(data, game);
-            close();
+
+            RTSGame.applyLoadingScreen(newGame);
+            RTSGame.setup(newGame);
+            MapLoader.loadIntoGame(data, newGame);
+
+            newGame.setOnGameStabilized(x -> {
+                RTSGame.setupUI(newGame);
+                newGame.setLoadingScreenActive(false);
+            });
+
+            RTSGame.game = newGame;
+            Window.setCurrentGame(newGame);
+
         } catch (Exception ex) {
             System.err.println("Load map failed: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }
