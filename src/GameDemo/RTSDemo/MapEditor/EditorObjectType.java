@@ -8,7 +8,16 @@ import GameDemo.RTSDemo.SceneryObjects.Hangar;
 import GameDemo.RTSDemo.SceneryObjects.MetalShack;
 import GameDemo.RTSDemo.SceneryObjects.OrangeWoodHouse;
 import GameDemo.RTSDemo.SceneryObjects.PropaneTank;
+import GameDemo.RTSDemo.SceneryObjects.BarbedWire;
+import GameDemo.RTSDemo.SceneryObjects.BarbedWireLong;
 import GameDemo.RTSDemo.SceneryObjects.Bush1;
+import GameDemo.RTSDemo.SceneryObjects.Log1;
+import GameDemo.RTSDemo.SceneryObjects.Log2;
+import GameDemo.RTSDemo.SceneryObjects.Stump1;
+import GameDemo.RTSDemo.SceneryObjects.Stump2;
+import GameDemo.RTSDemo.SceneryObjects.Stump3;
+import GameDemo.RTSDemo.SceneryObjects.Rock1;
+import GameDemo.RTSDemo.SceneryObjects.Rock2;
 import GameDemo.RTSDemo.SceneryObjects.Bush2;
 import GameDemo.RTSDemo.SceneryObjects.Bush3;
 import GameDemo.RTSDemo.SceneryObjects.Tree1;
@@ -61,6 +70,15 @@ public enum EditorObjectType {
     TREE1               ("Tree1",                 "Tree 1",            Category.SCENERY, Tree1.VISUAL_SCALE,                 -1),
     TREE2               ("Tree2",                 "Tree 2",            Category.SCENERY, Tree2.VISUAL_SCALE,                 -1),
     TREE3               ("Tree3",                 "Tree 3",            Category.SCENERY, Tree3.VISUAL_SCALE,                 -1),
+    ROCK1               ("Rock1",                 "Rock 1",            Category.SCENERY, Rock1.VISUAL_SCALE,                 -1),
+    ROCK2               ("Rock2",                 "Rock 2",            Category.SCENERY, Rock2.VISUAL_SCALE,                 -1),
+    LOG1                ("Log1",                  "Log 1",             Category.SCENERY, Log1.VISUAL_SCALE,                  -1),
+    LOG2                ("Log2",                  "Log 2",             Category.SCENERY, Log2.VISUAL_SCALE,                  -1),
+    BARBED_WIRE         ("BarbedWire",            "Barbed Wire",       Category.SCENERY, BarbedWire.VISUAL_SCALE,            -1),
+    BARBED_WIRE_LONG    ("BarbedWireLong",        "Barbed Wire Long",  Category.SCENERY, BarbedWireLong.VISUAL_SCALE,        -1),
+    STUMP1              ("Stump1",                "Stump 1",           Category.SCENERY, Stump1.VISUAL_SCALE,                -1),
+    STUMP2              ("Stump2",                "Stump 2",           Category.SCENERY, Stump2.VISUAL_SCALE,                -1),
+    STUMP3              ("Stump3",                "Stump 3",           Category.SCENERY, Stump3.VISUAL_SCALE,                -1),
     BUSH1               ("Bush1",                 "Bush 1",            Category.SCENERY, Bush1.VISUAL_SCALE,                 -1),
     BUSH2               ("Bush2",                 "Bush 2",            Category.SCENERY, Bush2.VISUAL_SCALE,                 -1),
     BUSH3               ("Bush3",                 "Bush 3",            Category.SCENERY, Bush3.VISUAL_SCALE,                 -1);
@@ -110,6 +128,15 @@ public enum EditorObjectType {
             case PROPANE_TANK:        return RTSAssetManager.propaneTank;
             case GREEN_CONTAINER:     return RTSAssetManager.greenShippingContainer;
             case METAL_SHACK:         return RTSAssetManager.metalShack;
+            case ROCK1:               return RTSAssetManager.rock1;
+            case ROCK2:               return RTSAssetManager.rock2;
+            case LOG1:                return RTSAssetManager.log1;
+            case LOG2:                return RTSAssetManager.log2;
+            case BARBED_WIRE:         return RTSAssetManager.barbedWire;
+            case BARBED_WIRE_LONG:    return RTSAssetManager.barbedWireLong;
+            case STUMP1:              return RTSAssetManager.stump1;
+            case STUMP2:              return RTSAssetManager.stump2;
+            case STUMP3:              return RTSAssetManager.stump3;
             case BUSH1:               return RTSAssetManager.bush1;
             case BUSH2:               return RTSAssetManager.bush2;
             case BUSH3:               return RTSAssetManager.bush3;
