@@ -3,13 +3,15 @@ package GameDemo.RTSDemo.SceneryObjects;
 import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
+import GameDemo.RTSDemo.FogOfWar.SightBlocker;
 import GameDemo.RTSDemo.RTSAssetManager;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 
-public class StoneWall1 extends GameObject2 implements SceneryObject {
+public class StoneWall1 extends GameObject2 implements SceneryObject, SightBlocker {
     private static final long serialVersionUID = 1L;
 
     public static final Sprite bodySprite   = new Sprite(RTSAssetManager.stoneWall1);
@@ -65,5 +67,18 @@ public class StoneWall1 extends GameObject2 implements SceneryObject {
     @Override
     public int getPathingPadding() {
         return 0;
+    }
+
+    private transient Rectangle cachedBlockerBounds;
+
+    @Override
+    public Rectangle getBlockerBounds() {
+        if (cachedBlockerBounds == null) {
+            Coordinate center = getPixelLocation();
+            int w = getWidth();
+            int h = getHeight();
+            cachedBlockerBounds = new Rectangle(center.x - w / 2, center.y - h / 2, w, h);
+        }
+        return cachedBlockerBounds;
     }
 }

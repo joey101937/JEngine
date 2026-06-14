@@ -91,12 +91,17 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
         super.setHostGame(g);
     }
 
+    private transient Rectangle cachedBlockerBounds;
+
     @Override
     public Rectangle getBlockerBounds() {
-        Coordinate center = getPixelLocation();
-        int w = getWidth();
-        int h = getHeight();
-        return new Rectangle(center.x - w / 2, center.y - h / 2, w, h);
+        if (cachedBlockerBounds == null) {
+            Coordinate center = getPixelLocation();
+            int w = getWidth();
+            int h = getHeight();
+            cachedBlockerBounds = new Rectangle(center.x - w / 2, center.y - h / 2, w, h);
+        }
+        return cachedBlockerBounds;
     }
 
     @Override
