@@ -19,6 +19,7 @@ public class MapEditorPalette extends JPanel {
     private JComboBox<String> teamCombo;
     private JSpinner  hpSpinner;
     private JSpinner  rotSpinner;
+    private JSpinner  zLayerSpinner;
     private JButton   deleteBtn;
     private boolean   updatingProps = false;
 
@@ -203,6 +204,9 @@ public class MapEditorPalette extends JPanel {
         rotSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 359.9, 15.0));
         rotSpinner.addChangeListener(e -> applyRotation());
 
+        zLayerSpinner = new JSpinner(new SpinnerNumberModel(1, -1000, 1000, 1));
+        zLayerSpinner.addChangeListener(e -> applyZLayer());
+
         deleteBtn = actionButton("DELETE", DEL_BG, DEL_BDR);
         deleteBtn.addActionListener(e -> canvas.deleteSelectedObject());
 
@@ -211,6 +215,7 @@ public class MapEditorPalette extends JPanel {
         addRow(props, c, row++, "Team:",     teamCombo);
         addRow(props, c, row++, "HP %:",     hpSpinner);
         addRow(props, c, row++, "Rotation:", rotSpinner);
+        addRow(props, c, row++, "Z-Layer:",  zLayerSpinner);
 
         c.gridx = 0; c.gridy = row; c.gridwidth = 2;
         c.insets = new Insets(6, 2, 2, 2);
@@ -248,6 +253,9 @@ public class MapEditorPalette extends JPanel {
         hpSpinner.setValue(Math.max(1, Math.min(100, sel.hpPercent)));
         hpSpinner.setEnabled(type != null && type.hasHp());
         rotSpinner.setValue(sel.rotation);
+        int displayZLayer = (sel.zLayer != Integer.MIN_VALUE) ? sel.zLayer
+                          : (type != null ? type.defaultZLayer : 1);
+        zLayerSpinner.setValue(displayZLayer);
         setPropsEnabled(true);
         updatingProps = false;
     }
@@ -275,10 +283,18 @@ public class MapEditorPalette extends JPanel {
         canvas.repaint();
     }
 
+    private void applyZLayer() {
+        if (updatingProps) return;
+        PlacedObject sel = canvas.getSelectedObject();
+        if (sel == null) return;
+        sel.zLayer = (Integer) zLayerSpinner.getValue();
+    }
+
     private void setPropsEnabled(boolean en) {
         teamCombo.setEnabled(en);
         hpSpinner.setEnabled(en);
         rotSpinner.setEnabled(en);
+        zLayerSpinner.setEnabled(en);
         deleteBtn.setEnabled(en);
     }
 

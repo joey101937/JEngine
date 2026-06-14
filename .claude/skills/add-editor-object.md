@@ -9,7 +9,7 @@
 - `MapLoader.loadIntoGame()` — iterates `MapData.objects`, calls `createObject(p)` per entry (switch on `p.type`), then calls `obj.setLocation` and `obj.setRotation` after construction. Rotation is always applied post-construction; the two-arg `(x, y, rotation)` constructors on scenery classes are not used by the loader.
 
 ### Editor palette flow
-- `EditorObjectType` enum — one entry per placeable type. Holds `className` (must match the simple class name), `displayName`, `Category` (UNIT / BUILDING / SCENERY), and `visualScale`. Also provides `getRawImage(team)` (returns the raw `BufferedImage` from `RTSAssetManager`) and `getThumbnail(maxSize)` for the palette button icons.
+- `EditorObjectType` enum — one entry per placeable type. Holds `className` (must match the simple class name), `displayName`, `Category` (UNIT / BUILDING / SCENERY), `visualScale`, and `defaultZLayer`. Also provides `getRawImage(team)` (returns the raw `BufferedImage` from `RTSAssetManager`) and `getThumbnail(maxSize)` for the palette button icons.
 - `MapEditorPalette.buildPaletteScroll()` — **hardcodes** which `EditorObjectType` values appear in each palette section via `addCategory(...)` calls. Adding an enum entry alone is not enough; it must also be listed here.
 
 ---
@@ -28,7 +28,8 @@ Work through these files in order:
 
 ### 3. `EditorObjectType.java`
 - Add an import for the new class.
-- Add an enum constant: `MY_TYPE ("MyClass", "Display Name", Category.SCENERY, MyClass.VISUAL_SCALE)`
+- Add an enum constant: `MY_TYPE ("MyClass", "Display Name", Category.SCENERY, MyClass.VISUAL_SCALE, -1)`
+  - `defaultZLayer` is the z-layer the object has right after construction. Common values: `-1` for scenery/buildings, `1` for ground units, `11` for air units. Check the class constructor for `setZLayer(...)` calls to confirm.
 - Add a `case MY_TYPE: return RTSAssetManager.myImage;` inside `getRawImage()`.
 
 ### 4. `MapEditorPalette.java`
@@ -49,6 +50,6 @@ Work through these files in order:
 | File | Role | Forget it and… |
 |---|---|---|
 | `RTSAssetManager` | loads raw images | NullPointerException at startup |
-| `EditorObjectType` | enum entry + thumbnail image | type exists in code but not selectable |
+| `EditorObjectType` | enum entry + thumbnail image + defaultZLayer | type exists in code but not selectable; wrong default z-layer in properties panel |
 | `MapEditorPalette` | shows button in palette | button never appears |
 | `MapLoader` | instantiates from JSON | objects silently dropped on map load |

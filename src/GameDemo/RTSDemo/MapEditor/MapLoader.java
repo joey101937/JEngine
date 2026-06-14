@@ -35,6 +35,7 @@ public class MapLoader {
             if (obj == null) continue;
             obj.setLocation(p.x, p.y);
             obj.setRotation(p.rotation);
+            if (p.zLayer != Integer.MIN_VALUE) obj.setZLayer(p.zLayer);
             game.addObject(obj);
         }
     }

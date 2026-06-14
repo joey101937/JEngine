@@ -37,33 +37,33 @@ import java.util.Map;
  */
 public enum EditorObjectType {
 
-    // Units
-    TANK           ("TankUnit",            "Tank",             Category.UNIT,     TankUnit.VISUAL_SCALE),
-    LIGHT_TANK     ("LightTank",           "Light Tank",       Category.UNIT,     LightTank.VISUAL_SCALE),
-    TRUCK          ("Truck",               "Truck",            Category.UNIT,     Truck.VISUAL_SCALE),
-    HELICOPTER     ("Hellicopter",         "Helicopter",       Category.UNIT,     Hellicopter.VISUAL_SCALE),
-    APACHE         ("Apache",              "Apache",           Category.UNIT,     Apache.VISUAL_SCALE),
-    TRANSPORT_HELI ("TransportHelicopter", "Transport Heli",   Category.UNIT,     TransportHelicopter.VISUAL_SCALE),
-    RIFLEMAN       ("Rifleman",            "Rifleman",         Category.UNIT,     Rifleman.VISUAL_SCALE),
-    BAZOOKAMAN     ("Bazookaman",          "Bazookaman",       Category.UNIT,     Bazookaman.VISUAL_SCALE),
-    LANDMINE       ("Landmine",            "Landmine",         Category.UNIT,     Landmine.VISUAL_SCALE),
+    // Units                                                                                             zLayer
+    TANK           ("TankUnit",            "Tank",             Category.UNIT,     TankUnit.VISUAL_SCALE,            1),
+    LIGHT_TANK     ("LightTank",           "Light Tank",       Category.UNIT,     LightTank.VISUAL_SCALE,           1),
+    TRUCK          ("Truck",               "Truck",            Category.UNIT,     Truck.VISUAL_SCALE,               1),
+    HELICOPTER     ("Hellicopter",         "Helicopter",       Category.UNIT,     Hellicopter.VISUAL_SCALE,        11),
+    APACHE         ("Apache",              "Apache",           Category.UNIT,     Apache.VISUAL_SCALE,             11),
+    TRANSPORT_HELI ("TransportHelicopter", "Transport Heli",   Category.UNIT,     TransportHelicopter.VISUAL_SCALE,11),
+    RIFLEMAN       ("Rifleman",            "Rifleman",         Category.UNIT,     Rifleman.VISUAL_SCALE,            1),
+    BAZOOKAMAN     ("Bazookaman",          "Bazookaman",       Category.UNIT,     Bazookaman.VISUAL_SCALE,          1),
+    LANDMINE       ("Landmine",            "Landmine",         Category.UNIT,     Landmine.VISUAL_SCALE,           -1),
 
     // Buildings
-    KEY_BUILDING   ("KeyBuilding",         "Key Building",     Category.BUILDING, KeyBuilding.VISUAL_SCALE),
+    KEY_BUILDING   ("KeyBuilding",         "Key Building",     Category.BUILDING, KeyBuilding.VISUAL_SCALE,         5),
 
     // Scenery
-    HANGAR              ("Hangar",                "Hangar",            Category.SCENERY, Hangar.VISUAL_SCALE),
-    BUILDING_GREEN1     ("BuildingGreen1",        "Green Building",    Category.SCENERY, BuildingGreen1.VISUAL_SCALE),
-    ORANGE_WOOD_HOUSE   ("OrangeWoodHouse",       "Orange House",      Category.SCENERY, OrangeWoodHouse.VISUAL_SCALE),
-    PROPANE_TANK        ("PropaneTank",           "Propane Tank",      Category.SCENERY, PropaneTank.VISUAL_SCALE),
-    GREEN_CONTAINER     ("GreenShippingContainer","Shipping Container",Category.SCENERY, GreenShippingContainer.VISUAL_SCALE),
-    METAL_SHACK         ("MetalShack",            "Metal Shack",       Category.SCENERY, MetalShack.VISUAL_SCALE),
-    TREE1               ("Tree1",                 "Tree 1",            Category.SCENERY, Tree1.VISUAL_SCALE),
-    TREE2               ("Tree2",                 "Tree 2",            Category.SCENERY, Tree2.VISUAL_SCALE),
-    TREE3               ("Tree3",                 "Tree 3",            Category.SCENERY, Tree3.VISUAL_SCALE),
-    BUSH1               ("Bush1",                 "Bush 1",            Category.SCENERY, Bush1.VISUAL_SCALE),
-    BUSH2               ("Bush2",                 "Bush 2",            Category.SCENERY, Bush2.VISUAL_SCALE),
-    BUSH3               ("Bush3",                 "Bush 3",            Category.SCENERY, Bush3.VISUAL_SCALE);
+    HANGAR              ("Hangar",                "Hangar",            Category.SCENERY, Hangar.VISUAL_SCALE,                -1),
+    BUILDING_GREEN1     ("BuildingGreen1",        "Green Building",    Category.SCENERY, BuildingGreen1.VISUAL_SCALE,        -1),
+    ORANGE_WOOD_HOUSE   ("OrangeWoodHouse",       "Orange House",      Category.SCENERY, OrangeWoodHouse.VISUAL_SCALE,       -1),
+    PROPANE_TANK        ("PropaneTank",           "Propane Tank",      Category.SCENERY, PropaneTank.VISUAL_SCALE,           -1),
+    GREEN_CONTAINER     ("GreenShippingContainer","Shipping Container",Category.SCENERY, GreenShippingContainer.VISUAL_SCALE,-1),
+    METAL_SHACK         ("MetalShack",            "Metal Shack",       Category.SCENERY, MetalShack.VISUAL_SCALE,            -1),
+    TREE1               ("Tree1",                 "Tree 1",            Category.SCENERY, Tree1.VISUAL_SCALE,                 -1),
+    TREE2               ("Tree2",                 "Tree 2",            Category.SCENERY, Tree2.VISUAL_SCALE,                 -1),
+    TREE3               ("Tree3",                 "Tree 3",            Category.SCENERY, Tree3.VISUAL_SCALE,                 -1),
+    BUSH1               ("Bush1",                 "Bush 1",            Category.SCENERY, Bush1.VISUAL_SCALE,                 -1),
+    BUSH2               ("Bush2",                 "Bush 2",            Category.SCENERY, Bush2.VISUAL_SCALE,                 -1),
+    BUSH3               ("Bush3",                 "Bush 3",            Category.SCENERY, Bush3.VISUAL_SCALE,                 -1);
 
     public enum Category { UNIT, BUILDING, SCENERY }
 
@@ -71,12 +71,14 @@ public enum EditorObjectType {
     public final String displayName;
     public final Category category;
     public final double visualScale;
+    public final int defaultZLayer;
 
-    EditorObjectType(String className, String displayName, Category category, double visualScale) {
+    EditorObjectType(String className, String displayName, Category category, double visualScale, int defaultZLayer) {
         this.className = className;
         this.displayName = displayName;
         this.category = category;
         this.visualScale = visualScale;
+        this.defaultZLayer = defaultZLayer;
     }
 
     public boolean hasTeam()    { return category == Category.UNIT || category == Category.BUILDING; }

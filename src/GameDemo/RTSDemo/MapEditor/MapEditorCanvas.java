@@ -8,6 +8,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -205,6 +208,7 @@ public class MapEditorCanvas extends JPanel {
         PlacedObject obj = new PlacedObject(paletteSelection.className, (int) toWorldX(screenX), (int) toWorldY(screenY));
         if (!paletteSelection.hasTeam()) obj.team = 0;
         if (!paletteSelection.hasHp())  obj.hpPercent = 0;
+        obj.zLayer = paletteSelection.defaultZLayer;
         mapData.objects.add(obj);
         selectedObject = obj;
         paletteSelection = null;
@@ -215,8 +219,9 @@ public class MapEditorCanvas extends JPanel {
     // ── Hit testing ───────────────────────────────────────────────────────────
 
     private PlacedObject hitTest(int sx, int sy) {
-        for (int i = mapData.objects.size() - 1; i >= 0; i--) {
-            PlacedObject obj = mapData.objects.get(i);
+        List<PlacedObject> byZ = new ArrayList<>(mapData.objects);
+        byZ.sort(Comparator.comparingInt(MapEditorCanvas::effectiveZLayer).reversed());
+        for (PlacedObject obj : byZ) {
             EditorObjectType t = EditorObjectType.fromClassName(obj.type);
             if (t == null) continue;
             BufferedImage img = t.getScaledImage(t.hasTeam() ? obj.team : 0);
@@ -251,8 +256,10 @@ public class MapEditorCanvas extends JPanel {
             g2.fillRect(0, 0, getWidth(), getHeight());
         }
 
-        // Placed objects
-        for (PlacedObject obj : mapData.objects) {
+        // Placed objects — sorted by z-layer so lower layers render beneath higher ones
+        List<PlacedObject> sorted = new ArrayList<>(mapData.objects);
+        sorted.sort(Comparator.comparingInt(MapEditorCanvas::effectiveZLayer));
+        for (PlacedObject obj : sorted) {
             drawObject(g2, obj, obj == selectedObject);
         }
 
@@ -415,6 +422,12 @@ public class MapEditorCanvas extends JPanel {
                    : paletteSelection != null ? "[placing " + paletteSelection.displayName + "]"
                    : "none";
         statusUpdater.accept(String.format("World: (%.0f, %.0f)  |  Zoom: %.2fx  |  Selected: %s", wx, wy, zoom, sel));
+    }
+
+    private static int effectiveZLayer(PlacedObject obj) {
+        if (obj.zLayer != Integer.MIN_VALUE) return obj.zLayer;
+        EditorObjectType t = EditorObjectType.fromClassName(obj.type);
+        return t != null ? t.defaultZLayer : 1;
     }
 
     private static Color teamColor(int team) {

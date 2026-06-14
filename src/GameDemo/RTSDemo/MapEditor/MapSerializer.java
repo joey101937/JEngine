@@ -20,6 +20,8 @@ public class MapSerializer {
             sb.append("\"rotation\": ").append(obj.rotation).append(", ");
             sb.append("\"team\": ").append(obj.team).append(", ");
             sb.append("\"hpPercent\": ").append(obj.hpPercent);
+            if (obj.zLayer != Integer.MIN_VALUE)
+                sb.append(", \"zLayer\": ").append(obj.zLayer);
             sb.append("}");
             if (i < data.objects.size() - 1) sb.append(",");
             sb.append("\n");
@@ -64,6 +66,7 @@ public class MapSerializer {
             double hp = extractNumber(chunk, "hpPercent");
             if (hp == 0) hp = extractNumber(chunk, "hp");
             obj.hpPercent = (int) Math.max(1, Math.min(100, hp == 0 ? 100 : hp));
+            if (hasKey(chunk, "zLayer")) obj.zLayer = (int) extractNumber(chunk, "zLayer");
             data.objects.add(obj);
         }
         return data;
@@ -82,6 +85,10 @@ public class MapSerializer {
             q2++;
         }
         return json.substring(q1 + 1, q2).replace("\\\"", "\"").replace("\\\\", "\\");
+    }
+
+    private static boolean hasKey(String json, String key) {
+        return json.indexOf("\"" + key + "\"") >= 0;
     }
 
     private static double extractNumber(String json, String key) {
