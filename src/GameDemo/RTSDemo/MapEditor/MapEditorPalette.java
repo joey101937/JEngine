@@ -136,7 +136,8 @@ public class MapEditorPalette extends JPanel {
         addCategory(palette, "Scenery",
             EditorObjectType.HANGAR, EditorObjectType.BUILDING_GREEN1, EditorObjectType.ORANGE_WOOD_HOUSE,
             EditorObjectType.PROPANE_TANK, EditorObjectType.GREEN_CONTAINER, EditorObjectType.METAL_SHACK,
-            EditorObjectType.TREE1, EditorObjectType.TREE2, EditorObjectType.TREE3);
+            EditorObjectType.TREE1, EditorObjectType.TREE2, EditorObjectType.TREE3,
+            EditorObjectType.BUSH1, EditorObjectType.BUSH2, EditorObjectType.BUSH3);
 
         JScrollPane scroll = new JScrollPane(palette);
         scroll.setBorder(BorderFactory.createLineBorder(BORDER_CLR));

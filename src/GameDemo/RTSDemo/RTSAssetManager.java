@@ -81,6 +81,9 @@ public abstract class RTSAssetManager {
     public static BufferedImage orangeWoodHouseExtras;
     public static BufferedImage greenShippingContainer;
     public static BufferedImage propaneTank;
+    public static BufferedImage bush1;
+    public static BufferedImage bush2;
+    public static BufferedImage bush3;
     public static BufferedImage tree1;
     public static BufferedImage tree1Shadow;
     public static BufferedImage tree2;
@@ -503,6 +506,9 @@ public abstract class RTSAssetManager {
             orangeWoodHouseExtras = load("DemoAssets/TankGame/buildings/orangeWoodHouseExtras.png");
             greenShippingContainer = load("DemoAssets/TankGame/buildings/greenShippingContainer.png");
             propaneTank = load("DemoAssets/TankGame/buildings/propaneTank.png");
+            bush1 = load("DemoAssets/TankGame/buildings/bush1.png");
+            bush2 = load("DemoAssets/TankGame/buildings/bush2.png");
+            bush3 = load("DemoAssets/TankGame/buildings/bush3.png");
             tree1 = load("DemoAssets/TankGame/buildings/tree1.png");
             tree1Shadow = load("DemoAssets/TankGame/buildings/tree1Shadow.png");
             tree2 = load("DemoAssets/TankGame/buildings/tree2.png");

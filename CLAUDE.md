@@ -97,6 +97,8 @@ Check Assets folder to verify presence of visual assets if using new ones
 applyAlphaEdgeBlurSelf should be used with a value of 1 for any parts of the units themselves and 2-4 for shadows
 generateDeterministicRandomInt(min,max) and generateDeterministicRandomDouble(min,max) methods to generate deterministicly random values for mp support- If you need to generate more than one at a time, they accept a thrid param for lookahead
 make sure that any shadows you make are scaled based on the visual scale of hte object its attached to. 
+For shadows, prefer existing shadow channels: use `Sprite.generateShadowSprite(rawImage, opacity)` to generate a shadow sprite, and `drawShadow(g, sprite, xOffset, yOffset)` (available on RTSUnit subclasses) to render it. Scenery objects extending GameObject2 directly should inline the same draw pattern (see Bush1).
+new units and scenery should be added to the RTS map editor, there is a claude skill for that in this project
 
 ## Scaling Gameobject2s
 Sprite and Sequence objects are stateful. only scale them once.

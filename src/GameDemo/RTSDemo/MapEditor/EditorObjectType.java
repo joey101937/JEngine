@@ -8,6 +8,9 @@ import GameDemo.RTSDemo.SceneryObjects.Hangar;
 import GameDemo.RTSDemo.SceneryObjects.MetalShack;
 import GameDemo.RTSDemo.SceneryObjects.OrangeWoodHouse;
 import GameDemo.RTSDemo.SceneryObjects.PropaneTank;
+import GameDemo.RTSDemo.SceneryObjects.Bush1;
+import GameDemo.RTSDemo.SceneryObjects.Bush2;
+import GameDemo.RTSDemo.SceneryObjects.Bush3;
 import GameDemo.RTSDemo.SceneryObjects.Tree1;
 import GameDemo.RTSDemo.SceneryObjects.Tree2;
 import GameDemo.RTSDemo.SceneryObjects.Tree3;
@@ -57,7 +60,10 @@ public enum EditorObjectType {
     METAL_SHACK         ("MetalShack",            "Metal Shack",       Category.SCENERY, MetalShack.VISUAL_SCALE),
     TREE1               ("Tree1",                 "Tree 1",            Category.SCENERY, Tree1.VISUAL_SCALE),
     TREE2               ("Tree2",                 "Tree 2",            Category.SCENERY, Tree2.VISUAL_SCALE),
-    TREE3               ("Tree3",                 "Tree 3",            Category.SCENERY, Tree3.VISUAL_SCALE);
+    TREE3               ("Tree3",                 "Tree 3",            Category.SCENERY, Tree3.VISUAL_SCALE),
+    BUSH1               ("Bush1",                 "Bush 1",            Category.SCENERY, Bush1.VISUAL_SCALE),
+    BUSH2               ("Bush2",                 "Bush 2",            Category.SCENERY, Bush2.VISUAL_SCALE),
+    BUSH3               ("Bush3",                 "Bush 3",            Category.SCENERY, Bush3.VISUAL_SCALE);
 
     public enum Category { UNIT, BUILDING, SCENERY }
 
@@ -102,6 +108,9 @@ public enum EditorObjectType {
             case PROPANE_TANK:        return RTSAssetManager.propaneTank;
             case GREEN_CONTAINER:     return RTSAssetManager.greenShippingContainer;
             case METAL_SHACK:         return RTSAssetManager.metalShack;
+            case BUSH1:               return RTSAssetManager.bush1;
+            case BUSH2:               return RTSAssetManager.bush2;
+            case BUSH3:               return RTSAssetManager.bush3;
             case TREE1:               return RTSAssetManager.tree1;
             case TREE2:               return RTSAssetManager.tree2;
             case TREE3:               return RTSAssetManager.tree3;
