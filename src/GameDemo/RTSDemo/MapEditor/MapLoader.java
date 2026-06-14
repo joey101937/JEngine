@@ -10,6 +10,9 @@ import GameDemo.RTSDemo.SceneryObjects.Hangar;
 import GameDemo.RTSDemo.SceneryObjects.MetalShack;
 import GameDemo.RTSDemo.SceneryObjects.OrangeWoodHouse;
 import GameDemo.RTSDemo.SceneryObjects.PropaneTank;
+import GameDemo.RTSDemo.SceneryObjects.Tree1;
+import GameDemo.RTSDemo.SceneryObjects.Tree2;
+import GameDemo.RTSDemo.SceneryObjects.Tree3;
 import GameDemo.RTSDemo.Units.Apache;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
@@ -87,6 +90,9 @@ public class MapLoader {
             case "PropaneTank":           return new PropaneTank(p.x, p.y);
             case "GreenShippingContainer":return new GreenShippingContainer(p.x, p.y);
             case "MetalShack":            return new MetalShack(p.x, p.y);
+            case "Tree1":                 return new Tree1(p.x, p.y);
+            case "Tree2":                 return new Tree2(p.x, p.y);
+            case "Tree3":                 return new Tree3(p.x, p.y);
             default:
                 System.err.println("MapLoader: unknown type '" + p.type + "', skipping");
                 return null;

@@ -8,6 +8,9 @@ import GameDemo.RTSDemo.SceneryObjects.Hangar;
 import GameDemo.RTSDemo.SceneryObjects.MetalShack;
 import GameDemo.RTSDemo.SceneryObjects.OrangeWoodHouse;
 import GameDemo.RTSDemo.SceneryObjects.PropaneTank;
+import GameDemo.RTSDemo.SceneryObjects.Tree1;
+import GameDemo.RTSDemo.SceneryObjects.Tree2;
+import GameDemo.RTSDemo.SceneryObjects.Tree3;
 import GameDemo.RTSDemo.Units.Apache;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
@@ -51,7 +54,10 @@ public enum EditorObjectType {
     ORANGE_WOOD_HOUSE   ("OrangeWoodHouse",       "Orange House",      Category.SCENERY, OrangeWoodHouse.VISUAL_SCALE),
     PROPANE_TANK        ("PropaneTank",           "Propane Tank",      Category.SCENERY, PropaneTank.VISUAL_SCALE),
     GREEN_CONTAINER     ("GreenShippingContainer","Shipping Container",Category.SCENERY, GreenShippingContainer.VISUAL_SCALE),
-    METAL_SHACK         ("MetalShack",            "Metal Shack",       Category.SCENERY, MetalShack.VISUAL_SCALE);
+    METAL_SHACK         ("MetalShack",            "Metal Shack",       Category.SCENERY, MetalShack.VISUAL_SCALE),
+    TREE1               ("Tree1",                 "Tree 1",            Category.SCENERY, Tree1.VISUAL_SCALE),
+    TREE2               ("Tree2",                 "Tree 2",            Category.SCENERY, Tree2.VISUAL_SCALE),
+    TREE3               ("Tree3",                 "Tree 3",            Category.SCENERY, Tree3.VISUAL_SCALE);
 
     public enum Category { UNIT, BUILDING, SCENERY }
 
@@ -96,6 +102,9 @@ public enum EditorObjectType {
             case PROPANE_TANK:        return RTSAssetManager.propaneTank;
             case GREEN_CONTAINER:     return RTSAssetManager.greenShippingContainer;
             case METAL_SHACK:         return RTSAssetManager.metalShack;
+            case TREE1:               return RTSAssetManager.tree1;
+            case TREE2:               return RTSAssetManager.tree2;
+            case TREE3:               return RTSAssetManager.tree3;
             default: return null;
         }
     }
