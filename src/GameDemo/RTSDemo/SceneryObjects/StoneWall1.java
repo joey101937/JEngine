@@ -5,15 +5,16 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import GameDemo.RTSDemo.RTSAssetManager;
 import java.awt.Graphics2D;
+
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 
-public class BarbedWireLong extends GameObject2 implements SceneryObject {
+public class StoneWall1 extends GameObject2 implements SceneryObject {
     private static final long serialVersionUID = 1L;
 
-    public static final Sprite bodySprite   = new Sprite(RTSAssetManager.barbedWireLong);
-    public static final Sprite shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.barbedWireLong, .7);
-    public static final double VISUAL_SCALE = .6;
+    public static final Sprite bodySprite   = new Sprite(RTSAssetManager.stoneWall1);
+    public static final Sprite shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.stoneWall1, .7);
+    public static final double VISUAL_SCALE = .65;
 
     static {
         bodySprite.applyAlphaEdgeBlurSelf(1);
@@ -21,7 +22,7 @@ public class BarbedWireLong extends GameObject2 implements SceneryObject {
         shadowSprite.applyAlphaEdgeBlurSelf(2);
     }
 
-    public BarbedWireLong(int x, int y) {
+    public StoneWall1(int x, int y) {
         super(x, y);
         this.setScale(VISUAL_SCALE);
         this.setGraphic(bodySprite);
@@ -29,7 +30,7 @@ public class BarbedWireLong extends GameObject2 implements SceneryObject {
         this.setZLayer(-1);
     }
 
-    public BarbedWireLong(int x, int y, int rotation) {
+    public StoneWall1(int x, int y, int rotation) {
         super(x, y);
         this.setScale(VISUAL_SCALE);
         this.setGraphic(bodySprite);
@@ -54,8 +55,8 @@ public class BarbedWireLong extends GameObject2 implements SceneryObject {
         Coordinate renderLoc = getRenderLocation();
         VolatileImage shadowImg = shadowSprite.getCurrentVolatileImage();
         AffineTransform old = g.getTransform();
-        g.rotate(Math.toRadians(getRotation()), renderLoc.x + 4, renderLoc.y + 8);
-        g.drawImage(shadowImg, renderLoc.x + 4 - shadowImg.getWidth() / 2, renderLoc.y + 8 - shadowImg.getHeight() / 2, null);
+        g.rotate(Math.toRadians(getRotation()), renderLoc.x + 2, renderLoc.y + 4);
+        g.drawImage(shadowImg, renderLoc.x + 2 - shadowImg.getWidth() / 2, renderLoc.y + 4 - shadowImg.getHeight() / 2, null);
         g.setTransform(old);
 
         super.render(g);

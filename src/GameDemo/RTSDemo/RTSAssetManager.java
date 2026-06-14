@@ -81,8 +81,11 @@ public abstract class RTSAssetManager {
     public static BufferedImage orangeWoodHouseExtras;
     public static BufferedImage greenShippingContainer;
     public static BufferedImage propaneTank;
+    public static BufferedImage barrel1;
+    public static BufferedImage barrel2;
     public static BufferedImage log1;
     public static BufferedImage log2;
+    public static BufferedImage stoneWall1;
     public static BufferedImage barbedWire;
     public static BufferedImage barbedWireLong;
     public static BufferedImage stump1;
@@ -515,8 +518,11 @@ public abstract class RTSAssetManager {
             orangeWoodHouseExtras = load("DemoAssets/TankGame/buildings/orangeWoodHouseExtras.png");
             greenShippingContainer = load("DemoAssets/TankGame/buildings/greenShippingContainer.png");
             propaneTank = load("DemoAssets/TankGame/buildings/propaneTank.png");
+            barrel1 = load("DemoAssets/TankGame/buildings/barrel1.png");
+            barrel2 = load("DemoAssets/TankGame/buildings/barrel2.png");
             log1 = load("DemoAssets/TankGame/buildings/log1.png");
             log2 = load("DemoAssets/TankGame/buildings/log2.png");
+            stoneWall1     = load("DemoAssets/TankGame/buildings/stoneWall1.png");
             barbedWire     = load("DemoAssets/TankGame/buildings/barbedWire.png");
             barbedWireLong = load("DemoAssets/TankGame/buildings/barbedWireLong.png");
             stump1 = load("DemoAssets/TankGame/buildings/stump1.png");

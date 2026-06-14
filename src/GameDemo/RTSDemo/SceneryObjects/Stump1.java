@@ -5,6 +5,7 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import GameDemo.RTSDemo.RTSAssetManager;
 import java.awt.Graphics2D;
+
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 
@@ -55,7 +56,7 @@ public class Stump1 extends GameObject2 implements SceneryObject {
         VolatileImage shadowImg = shadowSprite.getCurrentVolatileImage();
         AffineTransform old = g.getTransform();
         g.rotate(Math.toRadians(getRotation()), renderLoc.x + 2, renderLoc.y + 4);
-        g.drawImage(shadowImg, renderLoc.x - 2 - shadowImg.getWidth() / 2, renderLoc.y + 4 - shadowImg.getHeight() / 2, null);
+        g.drawImage(shadowImg, renderLoc.x + 2 - shadowImg.getWidth() / 2, renderLoc.y + 4 - shadowImg.getHeight() / 2, null);
         g.setTransform(old);
 
         super.render(g);

@@ -5,6 +5,7 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import GameDemo.RTSDemo.RTSAssetManager;
 import java.awt.Graphics2D;
+
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 
@@ -13,7 +14,7 @@ public class BarbedWire extends GameObject2 implements SceneryObject {
 
     public static final Sprite bodySprite   = new Sprite(RTSAssetManager.barbedWire);
     public static final Sprite shadowSprite = Sprite.generateShadowSprite(RTSAssetManager.barbedWire, .7);
-    public static final double VISUAL_SCALE = .65;
+    public static final double VISUAL_SCALE = .6;
 
     static {
         bodySprite.applyAlphaEdgeBlurSelf(1);
@@ -55,7 +56,7 @@ public class BarbedWire extends GameObject2 implements SceneryObject {
         VolatileImage shadowImg = shadowSprite.getCurrentVolatileImage();
         AffineTransform old = g.getTransform();
         g.rotate(Math.toRadians(getRotation()), renderLoc.x + 4, renderLoc.y + 8);
-        g.drawImage(shadowImg, renderLoc.x - 4 - shadowImg.getWidth() / 2, renderLoc.y + 8 - shadowImg.getHeight() / 2, null);
+        g.drawImage(shadowImg, renderLoc.x + 4 - shadowImg.getWidth() / 2, renderLoc.y + 8 - shadowImg.getHeight() / 2, null);
         g.setTransform(old);
 
         super.render(g);

@@ -138,6 +138,8 @@ public class MapEditorPalette extends JPanel {
             EditorObjectType.HANGAR, EditorObjectType.BUILDING_GREEN1, EditorObjectType.ORANGE_WOOD_HOUSE,
             EditorObjectType.PROPANE_TANK, EditorObjectType.GREEN_CONTAINER, EditorObjectType.METAL_SHACK,
             EditorObjectType.TREE1, EditorObjectType.TREE2, EditorObjectType.TREE3,
+            EditorObjectType.STONE_WALL1,
+            EditorObjectType.BARREL1, EditorObjectType.BARREL2,
             EditorObjectType.ROCK1, EditorObjectType.ROCK2,
             EditorObjectType.LOG1, EditorObjectType.LOG2,
             EditorObjectType.BARBED_WIRE, EditorObjectType.BARBED_WIRE_LONG,
