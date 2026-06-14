@@ -29,7 +29,6 @@ public class GreenShippingContainer extends GameObject2 implements SceneryObject
         this.setGraphic(bodySprite);
         this.isSolid = true;
         this.setZLayer(-1);
-        SceneryObject.register(this);
     }
 
     public GreenShippingContainer(int x, int y, int rotation) {
@@ -39,7 +38,12 @@ public class GreenShippingContainer extends GameObject2 implements SceneryObject
         this.isSolid = true;
         this.setZLayer(-1);
         this.setRotation(rotation);
-        SceneryObject.register(this);
+    }
+
+    @Override
+    public void onGameEnter() {
+        super.onGameEnter();
+        SceneryObject.register(this, getHostGame());
     }
 
     @Override

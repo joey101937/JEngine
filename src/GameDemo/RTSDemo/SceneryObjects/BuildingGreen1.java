@@ -32,7 +32,6 @@ public class BuildingGreen1 extends GameObject2 implements SceneryObject, SightB
         this.setGraphic(bodySprite);
         this.isSolid = true;
         this.setZLayer(-1);
-        SceneryObject.register(this);
     }
 
     public BuildingGreen1(int x, int y, int rotation) {
@@ -42,7 +41,12 @@ public class BuildingGreen1 extends GameObject2 implements SceneryObject, SightB
         this.isSolid = true;
         this.setZLayer(-1);
         this.setRotation(rotation);
-        SceneryObject.register(this);
+    }
+
+    @Override
+    public void onGameEnter() {
+        super.onGameEnter();
+        SceneryObject.register(this, getHostGame());
     }
 
     @Override

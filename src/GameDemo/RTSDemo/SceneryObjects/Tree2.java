@@ -32,7 +32,6 @@ public class Tree2 extends GameObject2 implements SceneryObject, SightBlocker {
         this.isSolid = true;
         this.setZLayer(-1);
         this.hitbox = new Hitbox(this, Math.max(getWidth(), getHeight()) / 2);
-        SceneryObject.register(this);
     }
 
     public Tree2(int x, int y, int rotation) {
@@ -43,7 +42,12 @@ public class Tree2 extends GameObject2 implements SceneryObject, SightBlocker {
         this.setZLayer(-1);
         this.setRotation(rotation);
         this.hitbox = new Hitbox(this, Math.max(getWidth(), getHeight()) / 2);
-        SceneryObject.register(this);
+    }
+
+    @Override
+    public void onGameEnter() {
+        super.onGameEnter();
+        SceneryObject.register(this, getHostGame());
     }
 
     @Override

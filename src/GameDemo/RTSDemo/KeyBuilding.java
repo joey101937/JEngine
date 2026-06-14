@@ -56,7 +56,6 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, -400), 90 );
         this.setZLayer(5);
         allKeyBuildings.add(this);
-        SceneryObject.register(this);
     }
 
     public KeyBuilding(int x, int y, int team) {
@@ -68,7 +67,6 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(400, 0), 90 );
         this.setZLayer(5);
         allKeyBuildings.add(this);
-        SceneryObject.register(this);
     }
 
     public KeyBuilding(int x, int y, int team, int spawnX, int spawnY, double rotation) {
@@ -80,7 +78,12 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
         this.spawnLocation = new SpawnLocation(new Coordinate(x, y).add(spawnX, spawnY), rotation );
         this.setZLayer(5);
         allKeyBuildings.add(this);
-        SceneryObject.register(this);
+    }
+
+    @Override
+    public void onGameEnter() {
+        super.onGameEnter();
+        SceneryObject.register(this, getHostGame());
     }
 
     @Override

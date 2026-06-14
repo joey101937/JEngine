@@ -174,7 +174,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     @Override
     public ArrayList<GameObject2> getObjectsForCollisionConsideration () {
         var existing = super.getObjectsForCollisionConsideration();
-        existing.addAll(SceneryObject.getAll(getHostGame()));
+        existing.addAll(SceneryObject.getAll(getHostGame(), getPixelLocation()));
         return existing;
     }
     

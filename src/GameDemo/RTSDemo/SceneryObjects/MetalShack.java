@@ -33,7 +33,6 @@ public class MetalShack extends GameObject2 implements SceneryObject, SightBlock
         this.setGraphic(bodySprite);
         this.isSolid = true;
         this.setZLayer(-1);
-        SceneryObject.register(this);
     }
 
     public MetalShack(int x, int y, int rotation) {
@@ -43,7 +42,12 @@ public class MetalShack extends GameObject2 implements SceneryObject, SightBlock
         this.isSolid = true;
         this.setZLayer(-1);
         this.setRotation(rotation);
-        SceneryObject.register(this);
+    }
+
+    @Override
+    public void onGameEnter() {
+        super.onGameEnter();
+        SceneryObject.register(this, getHostGame());
     }
 
     @Override
