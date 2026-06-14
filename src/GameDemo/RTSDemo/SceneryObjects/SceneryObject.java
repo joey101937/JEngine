@@ -24,7 +24,7 @@ public interface SceneryObject {
     static void register(SceneryObject s, Game g) {
         if (!(s instanceof GameObject2 go)) return;
         int r = Main.collisionCheckRadius;
-        if (r > 0 && Math.max(go.getWidth(), go.getHeight()) <= r) return;
+        if (r > 0 && Math.max(go.getWidth(), go.getHeight()) /2 <= r) return;
         Registry.quadTrees
             .computeIfAbsent(g, game -> new QuadTree(0, new Rectangle(-2000, -2000, 24000, 24000)))
             .insert(go);
