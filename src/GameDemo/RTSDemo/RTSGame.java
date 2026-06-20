@@ -55,8 +55,17 @@ public class RTSGame {
     public static FogOfWarGrid fogOfWarGrid;
 
     public static void setup(Game g) {
+        // Reload the raw pathing image if a previous game already released it (see below).
+        if (RTSAssetManager.rtsPathing == null) {
+            RTSAssetManager.rtsPathing = Framework.GraphicalAssets.Graphic.load("DemoAssets/TankGame/terrainPlaygroundPathing.png");
+        }
         PathingLayer pathing = new PathingLayer(RTSAssetManager.rtsPathing, "DemoAssets/TankGame/terrainPlaygroundPathing.png");
         pathing.assignColor(new Color(0,255,255), TerrainTileMap.paddingType);
+        // Compress the pathing data into the run-length map and free the full-size
+        // image. Then drop the shared asset reference so the raw image can be GC'd;
+        // it is reloaded above on the next setup() if needed.
+        pathing.generateMap();
+        RTSAssetManager.rtsPathing = null;
         g.setPathingLayer(pathing);
         Main.ignoreSubobjectCollision = false; // better performance
         Main.ignoreCollisionsForStillObjects = true; // better performance
