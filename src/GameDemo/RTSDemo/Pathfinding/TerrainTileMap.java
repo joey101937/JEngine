@@ -2,6 +2,7 @@ package GameDemo.RTSDemo.Pathfinding;
 
 import Framework.Coordinate;
 import Framework.Main;
+import Framework.MemoryOptimizedPathingLayer;
 import Framework.PathingLayer;
 import GameDemo.RTSDemo.RTSAssetManager;
 import java.awt.Color;
@@ -167,7 +168,7 @@ public class TerrainTileMap implements Serializable {
     }
 
     public static void generateAll() {
-        PathingLayer pl = new PathingLayer(RTSAssetManager.rtsPathing, "DemoAssets/TankGame/terrainPlaygroundPathing.png");
+        MemoryOptimizedPathingLayer pl = new MemoryOptimizedPathingLayer(RTSAssetManager.rtsPathing, "DemoAssets/TankGame/terrainPlaygroundPathing.png");
         pl.generateMap();
 
         CompletableFuture<Void> normalFuture = CompletableFuture.runAsync(() -> {

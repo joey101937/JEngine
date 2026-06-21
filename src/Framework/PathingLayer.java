@@ -8,19 +8,20 @@ package Framework;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
-import java.lang.ref.SoftReference;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 
 /**
- * represented by an image, uses colors to determine pathing area
+ * represented by an image, uses colors to determine pathing area.
+ *
+ * This base implementation generates a dense {@code Type[width][height]} map for
+ * O(1) lookups in exchange for a large memory footprint. For maps where memory
+ * matters more than per-lookup speed, use {@link MemoryOptimizedPathingLayer}.
  * @author Joseph
  */
 public class PathingLayer implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private volatile boolean internalizingSource = false;
+    protected volatile boolean internalizingSource = false;
 
     /**
      * File path to the source image. Used for serialization/deserialization.
@@ -121,41 +122,18 @@ public class PathingLayer implements Serializable {
     }
 
 
-    private transient BufferedImage source = null;
-    private HashMap<Integer,Type> legend = new HashMap<>();
-    private boolean mapGenerated = false;
-    private boolean sourceInternalized = false;
+    protected transient BufferedImage source = null;
+    protected HashMap<Integer,Type> legend = new HashMap<>();
+    private transient Type[][] map;
+    protected boolean mapGenerated = false;
+    protected boolean sourceInternalized = false;
 
-    // ----- Run-length-encoded type map -----------------------------------
-    // Instead of a dense Type[width][height] array (one reference per pixel),
-    // each row is stored as a list of horizontal runs of identical type.
-    // Pathing images are mostly large swaths of a single color, so this
-    // collapses millions of pixels into a handful of runs per row while
-    // preserving exact lookups. getTypeAt becomes an O(log runsInRow) binary
-    // search instead of an O(1) array index - a deliberate memory/speed trade.
-    private int mapWidth = -1;
-    private int mapHeight = -1;
-    /** distinct Type instances referenced by the map (kept as exact instances so == comparisons stay valid) */
-    private transient Type[] palette;
-    /** runStarts[y][k] = starting x of the k-th run in row y (sorted ascending, first entry always 0) */
-    private transient int[][] runStarts;
-    /** runTypes[y][k] = index into palette for the k-th run in row y */
-    private transient byte[][] runTypes;
-    /** lazily rebuilt full image for getSource(); softly referenced so it is reclaimed under memory pressure */
-    private transient SoftReference<BufferedImage> reconstructedSource;
-        
     /**
      * converts pixels in source to cooresponding colors to make it easier to see
      * in debug view.
      */
     public void internalizeSource(){
         if(sourceInternalized || internalizingSource) return;
-        // When the map has been compressed the raw image is freed; getSource()
-        // reconstructs it directly in debug-colors, so there is nothing to do.
-        if(source == null){
-            sourceInternalized = true;
-            return;
-        }
         internalizingSource = true;
         for(int i = 0; i < source.getWidth(); i++){
             for(int j = 0; j < source.getHeight(); j++){
@@ -190,27 +168,12 @@ public class PathingLayer implements Serializable {
     }
 
     public Type getTypeAt(int x, int y) {
-        if (mapGenerated) {
-            // out of world -> impassable (matches the old array-bounds behavior)
-            if (x < 0 || y < 0 || x >= mapWidth || y >= mapHeight) {
-                return Type.impass;
-            }
-            int[] starts = runStarts[y];
-            // find the right-most run whose start is <= x (binary search floor)
-            int lo = 0, hi = starts.length - 1, run = 0;
-            while (lo <= hi) {
-                int mid = (lo + hi) >>> 1;
-                if (starts[mid] <= x) {
-                    run = mid;
-                    lo = mid + 1;
-                } else {
-                    hi = mid - 1;
-                }
-            }
-            return palette[runTypes[y][run] & 0xFF];
-        }
         try {
-            return getType(source.getRGB(x, y));
+            if (mapGenerated) {
+                return map[x][y];
+            } else {
+                return getType(source.getRGB(x, y));
+            }
         } catch (ArrayIndexOutOfBoundsException e) {
             // System.out.println("trying to get pathing layer outside of world " + x + "," + y);
             return Type.impass;
@@ -223,50 +186,7 @@ public class PathingLayer implements Serializable {
      * @return source image or internalized source image
      */
     public BufferedImage getSource() {
-        if (source != null) {
-            return source;
-        }
-        // Raw image was freed after compression. Rebuild it on demand from the
-        // run-length map (in debug colors) and cache softly so repeated debug
-        // renders reuse it while letting the GC reclaim it under pressure.
-        if (!mapGenerated) {
-            return null;
-        }
-        BufferedImage cached = (reconstructedSource != null) ? reconstructedSource.get() : null;
-        if (cached != null) {
-            return cached;
-        }
-        synchronized (this) {
-            cached = (reconstructedSource != null) ? reconstructedSource.get() : null;
-            if (cached != null) {
-                return cached;
-            }
-            BufferedImage rebuilt = reconstructSourceFromMap();
-            reconstructedSource = new SoftReference<>(rebuilt);
-            return rebuilt;
-        }
-    }
-
-    /**
-     * Rebuilds a full-size image from the run-length map, painting each run with
-     * its type's debug color. Used only by getSource() once the raw source has
-     * been freed to reclaim memory.
-     */
-    private BufferedImage reconstructSourceFromMap() {
-        BufferedImage img = new BufferedImage(mapWidth, mapHeight, BufferedImage.TYPE_INT_RGB);
-        int[] rowBuffer = new int[mapWidth];
-        for (int y = 0; y < mapHeight; y++) {
-            int[] starts = runStarts[y];
-            byte[] types = runTypes[y];
-            for (int k = 0; k < starts.length; k++) {
-                int x0 = starts[k];
-                int x1 = (k + 1 < starts.length) ? starts[k + 1] : mapWidth;
-                int rgb = palette[types[k] & 0xFF].color.getRGB();
-                Arrays.fill(rowBuffer, x0, x1, rgb);
-            }
-            img.setRGB(0, y, mapWidth, 1, rowBuffer, 0, mapWidth);
-        }
-        return img;
+        return source;
     }
 
     public void setSource(BufferedImage source) {
@@ -278,74 +198,18 @@ public class PathingLayer implements Serializable {
 
     
     /**
-     * Compresses the source image into a run-length-encoded type map for fast,
-     * memory-light lookups, then frees the full-size source image. Each row is
-     * stored as its horizontal runs of identical terrain type, so large uniform
-     * areas cost almost nothing while exact per-pixel lookups are preserved
-     * (getTypeAt becomes a small binary search per row).
-     *
-     * Takes a single full pass over the image. ONCE DONE LEGEND AND SOURCE WILL
-     * BE UNCHANGABLE (getSource() still works - it rebuilds the image on demand).
+     * generates a 2d array map for quick reference using the current legend
+     * but takes a long time. This speeds up future getTypeAt method calls
+     * but requires alot of memory. ONCE DONE LEGEND AND SOURCE WILL BE UNCHANGABLE
      */
     public void generateMap(){
-        final int w = source.getWidth();
-        final int h = source.getHeight();
-
-        // Identity map so each distinct Type instance keeps its own palette slot.
-        // This guarantees getTypeAt returns the exact instances callers compare
-        // against with == (e.g. Type.water, Type.impass).
-        IdentityHashMap<Type,Byte> paletteIndex = new IdentityHashMap<>();
-        java.util.ArrayList<Type> paletteList = new java.util.ArrayList<>();
-
-        int[][] starts = new int[h][];
-        byte[][] types = new byte[h][];
-
-        // scratch buffers reused per row (worst case: every pixel is its own run)
-        int[] scratchStart = new int[w];
-        byte[] scratchType = new byte[w];
-
-        for (int y = 0; y < h; y++) {
-            int runs = 0;
-            byte prevIdx = -1;
-            for (int x = 0; x < w; x++) {
-                Type t = getType(source.getRGB(x, y));
-                Byte boxed = paletteIndex.get(t);
-                byte idx;
-                if (boxed == null) {
-                    if (paletteList.size() > 255) {
-                        throw new RuntimeException("PathingLayer supports at most 256 distinct terrain types");
-                    }
-                    idx = (byte) paletteList.size();
-                    paletteList.add(t);
-                    paletteIndex.put(t, idx);
-                } else {
-                    idx = boxed;
-                }
-                if (x == 0 || idx != prevIdx) {
-                    scratchStart[runs] = x;
-                    scratchType[runs] = idx;
-                    runs++;
-                    prevIdx = idx;
-                }
+        map = new Type[source.getWidth()][source.getHeight()];
+        for(int i = 0; i < source.getWidth(); i++){
+            for(int j = 0; j < source.getHeight(); j++){
+                map[i][j] = getType(source.getRGB(i, j));
             }
-            starts[y] = Arrays.copyOf(scratchStart, runs);
-            types[y] = Arrays.copyOf(scratchType, runs);
         }
-
-        this.mapWidth = w;
-        this.mapHeight = h;
-        this.palette = paletteList.toArray(new Type[0]);
-        this.runStarts = starts;
-        this.runTypes = types;
-        this.mapGenerated = true;
-
-        // The dense image is no longer needed for lookups. Free it to reclaim
-        // memory; getSource() rebuilds it lazily if a caller (e.g. debug view)
-        // still needs it. sourceInternalized stays true because the rebuilt
-        // image is already painted in debug colors.
-        this.source = null;
-        this.reconstructedSource = null;
-        this.sourceInternalized = true;
+        mapGenerated = true;
     }
 
     /**
@@ -355,7 +219,7 @@ public class PathingLayer implements Serializable {
      * @param c rgb code
      * @return pathing type
      */
-    private Type getType(int c) {
+    protected Type getType(int c) {
         // exact RGB match against the legend; unknown colors default to impass
         return legend.getOrDefault(c, Type.impass);
     }

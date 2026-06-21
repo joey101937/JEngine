@@ -9,7 +9,7 @@ import Framework.Coordinate;
 import Framework.CoreLoop.Handler;
 import Framework.Game;
 import Framework.Main;
-import Framework.PathingLayer;
+import Framework.MemoryOptimizedPathingLayer;
 import Framework.UI_Elements.Examples.Minimap;
 import Framework.Window;
 import GameDemo.RTSDemo.Commands.CommandHandler;
@@ -19,7 +19,6 @@ import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Pathfinding.TerrainTileMap;
 import GameDemo.RTSDemo.Reinforcements.ReinforcementHandler;
 import GameDemo.RTSDemo.SceneryObjects.BuildingGreen1;
-import GameDemo.RTSDemo.SceneryObjects.GreenShippingContainer;
 import GameDemo.RTSDemo.SceneryObjects.Hangar;
 import GameDemo.RTSDemo.SceneryObjects.OrangeWoodHouse;
 import GameDemo.RTSDemo.SceneryObjects.PropaneTank;
@@ -59,7 +58,7 @@ public class RTSGame {
         if (RTSAssetManager.rtsPathing == null) {
             RTSAssetManager.rtsPathing = Framework.GraphicalAssets.Graphic.load("DemoAssets/TankGame/terrainPlaygroundPathing.png");
         }
-        PathingLayer pathing = new PathingLayer(RTSAssetManager.rtsPathing, "DemoAssets/TankGame/terrainPlaygroundPathing.png");
+        MemoryOptimizedPathingLayer pathing = new MemoryOptimizedPathingLayer(RTSAssetManager.rtsPathing, "DemoAssets/TankGame/terrainPlaygroundPathing.png");
         pathing.assignColor(new Color(0,255,255), TerrainTileMap.paddingType);
         // Compress the pathing data into the run-length map and free the full-size
         // image. Then drop the shared asset reference so the raw image can be GC'd;
@@ -166,7 +165,7 @@ public class RTSGame {
         game.addObject(new TankUnit(500, 3500, 2));
         game.addObject(new LightTank(700, 3500, 2));
         game.addObject(new Truck(900, 3500, 2));
-        game.addObject(new TransportHelicopter(1100, 3500, 2));
+        // game.addObject(new TransportHelicopter(1100, 3500, 2));
         game.addObject(new Hellicopter(1300, 3500, 2));
         game.addObject(new Apache(1500, 3500, 2));
         game.addObject(new Landmine(1700, 3500, 2));
@@ -176,7 +175,7 @@ public class RTSGame {
         game.addObject(new TankUnit(500, 4200, 3));
         game.addObject(new LightTank(700, 4200, 3));
         game.addObject(new Truck(900, 4200, 3));
-        game.addObject(new TransportHelicopter(1100, 4200, 3));
+        // game.addObject(new TransportHelicopter(1100, 4200, 3));
         game.addObject(new Hellicopter(1300, 4200, 3));
         game.addObject(new Apache(1500, 4200, 3));
         game.addObject(new Landmine(1700, 4200, 3));
@@ -186,7 +185,7 @@ public class RTSGame {
         game.addObject(new TankUnit(500, 4900, 4));
         game.addObject(new LightTank(700, 4900, 4));
         game.addObject(new Truck(900, 4900, 4));
-        game.addObject(new TransportHelicopter(1100, 4900, 4));
+        // game.addObject(new TransportHelicopter(1100, 4900, 4));
         game.addObject(new Hellicopter(1300, 4900, 4));
         game.addObject(new Apache(1500, 4900, 4));
         game.addObject(new Landmine(1700, 4900, 4));
@@ -196,7 +195,7 @@ public class RTSGame {
         game.addObject(new TankUnit(500, 5600, -1));
         game.addObject(new LightTank(700, 5600, -1));
         game.addObject(new Truck(900, 5600, -1));
-        game.addObject(new TransportHelicopter(1100, 5600, -1));
+        // game.addObject(new TransportHelicopter(1100, 5600, -1));
         game.addObject(new Hellicopter(1300, 5600, -1));
         game.addObject(new Apache(1500, 5600, -1));
         game.addObject(new Landmine(1700, 5600, -1));
@@ -242,9 +241,9 @@ public class RTSGame {
             game.addObject(heli);
         }
         for (int i = 0; i < lineLength; i++) {
-            TransportHelicopter transport = new TransportHelicopter(100 + (i * spacer), 200, 0);
-            transport.setRotation(180);
-            game.addObject(transport);
+//            TransportHelicopter transport = new TransportHelicopter(100 + (i * spacer), 200, 0);
+//            transport.setRotation(180);
+//            game.addObject(transport);
         }
         for (int i = 0; i < lineLength; i++) {
             Truck truck = new Truck(100 + (i * spacer), 300, 0);
@@ -288,7 +287,7 @@ public class RTSGame {
             game.addObject(new Apache(100 + (i * spacer), 2300, 1));
         }
         for (int i = 0; i < lineLength; i++) {
-            game.addObject(new TransportHelicopter(100 + (i * spacer), 2450, 1));
+            // game.addObject(new TransportHelicopter(100 + (i * spacer), 2450, 1));
         }
     }
     
