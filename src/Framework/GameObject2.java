@@ -17,7 +17,6 @@ import java.util.HashMap;
 import Framework.GraphicalAssets.Graphic;
 import java.awt.AlphaComposite;
 import java.awt.image.BufferedImage;
-import java.awt.image.RescaleOp;
 import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -569,12 +568,10 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             if (renderBrightness != 1.0 || renderSaturation != 1.0) {
                 BufferedImage snapshot = toRender.getSnapshot();
                 if (renderBrightness != 1.0) {
-                    float b = (float) Math.max(0.0, renderBrightness);
-                    RescaleOp rescale = new RescaleOp(new float[]{b, b, b, 1f}, new float[]{0, 0, 0, 0}, null);
-                    snapshot = rescale.filter(snapshot, null);
+                    snapshot = Graphic.applyBrightness(snapshot, renderBrightness);
                 }
                 if (renderSaturation != 1.0) {
-                    snapshot = applyRenderSaturation(snapshot, (float) renderSaturation);
+                    snapshot = Graphic.applySaturation(snapshot, renderSaturation);
                 }
                 graphics.drawImage(snapshot, drawX, drawY, null);
             } else {
@@ -1376,6 +1373,12 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     /**
      * Scales RGB channels of the rendered graphic by this factor. 1.0 = normal, 0.0 = black, >1.0 = brighter.
      * No overhead when at the default value of 1.0.
+     * <p>
+     * WARNING: while active (!= 1.0) this re-filters the graphic <b>every frame</b> (a VRAM readback plus a
+     * full-image software filter), which is expensive when many objects use it at once. It is intended only
+     * for transient transitions (e.g. a hit flash or fade) where the value changes over time. For a permanent
+     * static tint, bake it into the graphic once with {@link Framework.GraphicalAssets.Graphic#setBrightness(double)}
+     * instead, and leave this at 1.0. The two compose if you need a transition on top of a baked tint.
      * @param renderBrightness multiplier for RGB channels; clamped to >= 0
      */
     public void setRenderBrightness(double renderBrightness) {
@@ -1389,29 +1392,15 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     /**
      * Adjusts color saturation of the rendered graphic. 1.0 = normal, 0.0 = grayscale, >1.0 = more saturated.
      * No overhead when at the default value of 1.0.
+     * <p>
+     * WARNING: while active (!= 1.0) this re-filters the graphic <b>every frame</b> (a VRAM readback plus a
+     * full-image software filter), which is expensive when many objects use it at once. It is intended only
+     * for transient transitions where the value changes over time. For a permanent static tint, bake it into
+     * the graphic once with {@link Framework.GraphicalAssets.Graphic#setSaturation(double)} instead, and leave
+     * this at 1.0. The two compose if you need a transition on top of a baked tint.
      */
     public void setRenderSaturation(double renderSaturation) {
         this.renderSaturation = renderSaturation;
-    }
-
-    private static BufferedImage applyRenderSaturation(BufferedImage src, float sat) {
-        int w = src.getWidth(), h = src.getHeight();
-        BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        int[] pixels = src.getRGB(0, 0, w, h, null, 0, w);
-        for (int i = 0; i < pixels.length; i++) {
-            int p = pixels[i];
-            int a = (p >>> 24);
-            float r = (p >> 16) & 0xFF;
-            float g = (p >> 8) & 0xFF;
-            float b = p & 0xFF;
-            float lum = 0.299f * r + 0.587f * g + 0.114f * b;
-            pixels[i] = (a << 24)
-                | (Math.min(255, Math.max(0, (int)(lum + sat * (r - lum)))) << 16)
-                | (Math.min(255, Math.max(0, (int)(lum + sat * (g - lum)))) << 8)
-                |  Math.min(255, Math.max(0, (int)(lum + sat * (b - lum))));
-        }
-        dst.setRGB(0, 0, w, h, pixels, 0, w);
-        return dst;
     }
 
     public double getRenderScale() {

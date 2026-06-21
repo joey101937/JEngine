@@ -157,6 +157,17 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             fireAnimDamagedMap.put(team, fireDamaged);
         }
 
+        // Bake the tank's permanent tint into its sprites once.
+        // Hull graphics get brightness .9 + saturation .9; turret graphics get saturation .9.
+        for (Sprite s : chasisSpriteMap.values())        { s.setBrightness(0.9); s.setSaturation(0.9); }
+        for (Sprite s : hullDamagedSpriteMap.values())   { s.setBrightness(0.9); s.setSaturation(0.9); }
+        for (Sprite s : turretSpriteMap.values())        { s.setSaturation(0.9); }
+        for (Sprite s : turretDamagedSpriteMap.values()) { s.setSaturation(0.9); }
+        rubbleHullSprite.setBrightness(0.9);   rubbleHullSprite.setSaturation(0.9);
+        rubbleTurretSprite.setSaturation(0.9);
+        tankDeathAnimation.setBrightness(0.9); tankDeathAnimation.setSaturation(0.9);
+        deathFadeout.setBrightness(0.9);       deathFadeout.setSaturation(0.9);
+
         List.of(
                 deathShadow,
                 shadow
@@ -336,11 +347,9 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         initializeButtons();
         this.rotationSpeed = RTSGame.tickAdjust(1.4);
         this.cargoSize = 8;
-        this.setRenderBrightness(.9);
         this.sightRadius = 300;
         hullMGDamage = staticHullMGDamage.copy(this);
-        setRenderSaturation(.9);
-        this.turret.setRenderSaturation(.9);
+        // tint (brightness/saturation .9) is baked into the sprites in initGraphics()
     }
 
     private void initializeButtons() {

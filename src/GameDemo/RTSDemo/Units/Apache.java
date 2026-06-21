@@ -71,9 +71,9 @@ public class Apache extends RTSUnit {
         shadowSprite.applyAlphaEdgeBlurSelf(4);
         dockedMissileSprite = new Sprite(RTSAssetManager.apacheDockedMissile);
         dockedMissileSprite.scaleTo(VISUAL_SCALE);
-        deadSprite = new Sprite(RTSAssetManager.chopperDead);
-        rubbleSprite = new Sprite(RTSAssetManager.chopperRubble);
-        deathShadowFadeout = Sequence.createFadeout(RTSAssetManager.chopperDeathShadow, 40);
+        deadSprite = new Sprite(RTSAssetManager.apacheDead);
+        rubbleSprite = new Sprite(RTSAssetManager.apacheRubble);
+        deathShadowFadeout = Sequence.createFadeout(RTSAssetManager.apacheDeathShadow, 40);
         deathShadowFadeout.setSignature("apacheDeathShadow");
         deadSprite.applyAlphaEdgeBlurSelf(2);
         rubbleSprite.applyAlphaEdgeBlurSelf(2);
@@ -137,7 +137,6 @@ public class Apache extends RTSUnit {
         this.bodyRectHeightFraction = 0.28;
         this.canAttackAir = true;
         this.pathingModifiers.put(PathingLayer.Type.water, 1.0);
-        this.setRenderBrightness(1.25);
         this.addButton(new LaunchMissileButton(this));
     }
 

@@ -20,6 +20,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
+import java.awt.image.RescaleOp;
 import java.awt.image.VolatileImage;
 import java.io.File;
 import java.io.IOException;
@@ -125,6 +126,24 @@ public interface Graphic {
     
     /* blurs the transparent bits and edges of image */
     public void applyAlphaEdgeBlurSelf (int strength);
+
+    /**
+     * Permanently bakes a brightness adjustment into the asset's pixels, the same way
+     * {@link #scale(double)} permanently resizes it. Do this once at load time for static tints
+     * instead of {@code GameObject2.setRenderBrightness}, which re-filters every frame.
+     * 1.0 = unchanged, 0.0 = black, &gt;1.0 = brighter. Compounds if called repeatedly.
+     * @param brightness RGB multiplier; clamped to &gt;= 0
+     */
+    public void setBrightness(double brightness);
+
+    /**
+     * Permanently bakes a saturation adjustment into the asset's pixels, the same way
+     * {@link #scale(double)} permanently resizes it. Do this once at load time for static tints
+     * instead of {@code GameObject2.setRenderSaturation}, which re-filters every frame.
+     * 1.0 = unchanged, 0.0 = grayscale, &gt;1.0 = more saturated. Compounds if called repeatedly.
+     * @param saturation saturation multiplier
+     */
+    public void setSaturation(double saturation);
     
     /**
      * returns a scaled copy of the image
@@ -181,6 +200,47 @@ public interface Graphic {
                 = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         after = scaleOp.filter(before, after);
         return after;
+    }
+
+    /**
+     * returns a copy of the image with its RGB channels scaled by the given brightness factor.
+     * alpha is preserved.
+     * @param src source image
+     * @param brightness RGB multiplier; clamped to >= 0
+     * @return brightness-adjusted copy
+     */
+    public static BufferedImage applyBrightness(BufferedImage src, double brightness) {
+        float b = (float) Math.max(0.0, brightness);
+        RescaleOp rescale = new RescaleOp(new float[]{b, b, b, 1f}, new float[]{0, 0, 0, 0}, null);
+        return rescale.filter(src, null);
+    }
+
+    /**
+     * returns a copy of the image with its color saturation adjusted by the given factor.
+     * 1.0 = unchanged, 0.0 = grayscale, >1.0 = more saturated. alpha is preserved.
+     * @param src source image
+     * @param saturation saturation multiplier
+     * @return saturation-adjusted copy
+     */
+    public static BufferedImage applySaturation(BufferedImage src, double saturation) {
+        float sat = (float) saturation;
+        int w = src.getWidth(), h = src.getHeight();
+        BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        int[] pixels = src.getRGB(0, 0, w, h, null, 0, w);
+        for (int i = 0; i < pixels.length; i++) {
+            int p = pixels[i];
+            int a = (p >>> 24);
+            float r = (p >> 16) & 0xFF;
+            float g = (p >> 8) & 0xFF;
+            float b = p & 0xFF;
+            float lum = 0.299f * r + 0.587f * g + 0.114f * b;
+            pixels[i] = (a << 24)
+                | (Math.min(255, Math.max(0, (int)(lum + sat * (r - lum)))) << 16)
+                | (Math.min(255, Math.max(0, (int)(lum + sat * (g - lum)))) << 8)
+                |  Math.min(255, Math.max(0, (int)(lum + sat * (b - lum))));
+        }
+        dst.setRGB(0, 0, w, h, pixels, 0, w);
+        return dst;
     }
 
     public static VolatileImage getVolatileFromBuffered(BufferedImage bi) {

@@ -40,7 +40,7 @@ public class Main {
     private static boolean overviewMode = false;
     public static boolean debugMode = false;
     public static int tickThreadCount = 1;
-    public static int renderThreadCount = -1; // positive number = that number fixed. <=0 means use cachedThreadPool
+    public static int renderThreadCount = -1; // <=0 = cachedThreadPool (parallel render, default). 1 = render inline on the render thread, no task dispatch (handy for profiling). >1 = fixed pool of that size.
     public static boolean splitBackgroundRender = true;
     public static boolean ignoreSubobjectCollision = false;
     public static boolean ignoreCollisionsForStillObjects = false;

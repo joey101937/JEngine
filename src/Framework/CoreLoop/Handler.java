@@ -118,11 +118,19 @@ public class Handler implements Serializable{
 
         // all objects in a z layer can render together
         for (Integer zLayer : zLayers) {
-            Collection<Future<?>> renderTasks = new LinkedList<>();
-            for (Renderable go : renderMap.get(zLayer)) {
-                renderTasks.add((Main.renderThreadCount > 0 ? renderService : renderServiceCached).submit(new RenderTask(go, g)));
+            if (Main.renderThreadCount == 1) {
+                // A single AWT surface serializes draws internally, so dispatching a
+                // task per object just adds executor + Future overhead. Render inline.
+                for (Renderable go : renderMap.get(zLayer)) {
+                    new RenderTask(go, g).run();
+                }
+            } else {
+                Collection<Future<?>> renderTasks = new LinkedList<>();
+                for (Renderable go : renderMap.get(zLayer)) {
+                    renderTasks.add((Main.renderThreadCount > 1 ? renderService : renderServiceCached).submit(new RenderTask(go, g)));
+                }
+                waitForAllJobs(renderTasks);
             }
-            waitForAllJobs(renderTasks);
         }
     }
 

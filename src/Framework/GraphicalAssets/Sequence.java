@@ -508,7 +508,23 @@ public class Sequence implements Graphic{
     @Override
     public void applyAlphaEdgeBlurSelf (int strength) {
         for(Sprite s : frames) {
-            s.applyAlphaEdgeBlurSelf(strength);            
+            s.applyAlphaEdgeBlurSelf(strength);
+        }
+    }
+
+    @Override
+    public void setBrightness(double brightness) {
+        if (sharingReferences) resetReferences();
+        for (Sprite s : frames) {
+            s.setBrightness(brightness);
+        }
+    }
+
+    @Override
+    public void setSaturation(double saturation) {
+        if (sharingReferences) resetReferences();
+        for (Sprite s : frames) {
+            s.setSaturation(saturation);
         }
     }
 

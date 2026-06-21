@@ -46,8 +46,6 @@ ATTENTION: AI cannot build or compile. The developer will build and test and giv
 - Audio management
 - Tick/render coordination
 
-**Threading**: Configurable via `Main.tickThreadCount` and `Main.renderThreadCount`. Supports deterministic gameplay via modular vs unified tick types.
-
 ## Development Patterns
 
 ### Asset Management
@@ -98,9 +96,9 @@ applyAlphaEdgeBlurSelf should be used with a value of 1 for any parts of the uni
 generateDeterministicRandomInt(min,max) and generateDeterministicRandomDouble(min,max) methods to generate deterministicly random values for mp support- If you need to generate more than one at a time, they accept a thrid param for lookahead
 make sure that any shadows you make are scaled based on the visual scale of hte object its attached to. 
 For shadows, prefer existing shadow channels: use `Sprite.generateShadowSprite(rawImage, opacity)` to generate a shadow sprite, and `drawShadow(g, sprite, xOffset, yOffset)` (available on RTSUnit subclasses) to render it. Scenery objects extending GameObject2 directly should inline the same draw pattern (see Bush1).
-new units and scenery should be added to the RTS map editor, there is a claude skill for that in this project
+New units and scenery should be added to the RTS map editor, there is a claude skill for that in this project. read that skill whenever doing work regarding editor
 
 ## Scaling Gameobject2s
-Sprite and Sequence objects are stateful. only scale them once.
+Sprite and Sequence objects are stateful! only scale/modify them once then reuse. RTSUnits all have their visual assets be static on the class- then all instances of that unit refer back to the same shared visuals.
 Use the gameobject scale function when making one-time scales that impact game logic
 use setRenderScale when doing gradual scales and/or when the scaling should not impact game logic

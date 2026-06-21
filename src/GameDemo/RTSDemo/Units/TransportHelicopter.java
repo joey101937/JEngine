@@ -64,9 +64,9 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
         roofShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.transportHeliRoof, 0.55);
         roofShadowSprite.scaleTo(VISUAL_SCALE);
         roofShadowSprite.applyAlphaEdgeBlurSelf(1);
-        deadSprite = new Sprite(RTSAssetManager.chopperDead);
-        rubbleSprite = new Sprite(RTSAssetManager.chopperRubble);
-        deathShadowFadeout = Sequence.createFadeout(RTSAssetManager.chopperDeathShadow, 40);
+        deadSprite = new Sprite(RTSAssetManager.transportHeliDead);
+        rubbleSprite = new Sprite(RTSAssetManager.transportHeliRubble);
+        deathShadowFadeout = Sequence.createFadeout(RTSAssetManager.transportHeliDeathShadow, 40);
         deathShadowFadeout.setSignature("chopperDeathShadow");
         deadSprite.applyAlphaEdgeBlurSelf(1);
         rubbleSprite.applyAlphaEdgeBlurSelf(1);
@@ -76,14 +76,14 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
             body.applyAlphaEdgeBlurSelf(1);
             bodySpriteMap.put(team, body);
 
-            Sprite blades = new Sprite(RTSAssetManager.getHellicopterBlades(team));
+            Sprite blades = new Sprite(RTSAssetManager.getTransportHeliBlades(team));
             blades.scaleTo(VISUAL_SCALE);
             blades.applyAlphaEdgeBlurSelf(1);
             bladesSpriteMap.put(team, blades);
 
             Sprite roof = new Sprite(RTSAssetManager.getTransportHeliRoof(team));
             roof.scaleTo(VISUAL_SCALE);
-            roof.applyAlphaEdgeBlurSelf(1);
+//            roof.applyAlphaEdgeBlurSelf(1);
             roofSpriteMap.put(team, roof);
         }
     }
@@ -134,7 +134,6 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
         this.bodyRectWidthFraction  = 0.28;
         this.bodyRectHeightFraction = 0.28;
         this.pathingModifiers.put(PathingLayer.Type.water, 1.0);
-        this.setRenderBrightness(1.25);
         addButton(new LandButton(this));    // index 0
         addButton(new FlyButton(this));     // index 1
         addButton(new HeliLoadButton(this));   // index 2

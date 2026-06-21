@@ -239,6 +239,16 @@ public class Sprite implements Graphic {
      public void applyAlphaEdgeBlurSelf (int strength) {
         setImage(Graphic.applyAlphaEdgeBlur(this.image, strength));
     }
+
+    @Override
+    public void setBrightness(double brightness) {
+        setImage(Graphic.applyBrightness(this.image, brightness));
+    }
+
+    @Override
+    public void setSaturation(double saturation) {
+        setImage(Graphic.applySaturation(this.image, saturation));
+    }
     
 
     @Override

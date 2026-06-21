@@ -30,6 +30,8 @@ public class Hangar extends GameObject2 implements SceneryObject, SightBlocker {
         floorSprite.applyAlphaEdgeBlurSelf(1);
         bodyShadowSprite.applyAlphaEdgeBlurSelf(2);
         ridgeShadowSprite = generateRidgeShadow(bodySprite.getImage());
+        // Bake the saturation tint into the body sprite once.
+        bodySprite.setSaturation(1.5);
     }
 
     public Hangar(int x, int y) {
@@ -38,7 +40,6 @@ public class Hangar extends GameObject2 implements SceneryObject, SightBlocker {
         this.setGraphic(bodySprite);
         this.isSolid = true;
         this.setZLayer(-1);
-        this.setRenderSaturation(1.5);
     }
 
     public Hangar(int x, int y, int rotation) {

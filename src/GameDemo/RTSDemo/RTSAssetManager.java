@@ -38,7 +38,13 @@ public abstract class RTSAssetManager {
     public static BufferedImage hellicopterBlades;
     public static BufferedImage hellicopterDestroyed;
     public static BufferedImage[] hellicopterAttack;
-    public static BufferedImage chopperDead, chopperRubble, chopperDeathShadow;
+    // Per-unit chopper death art. These currently load from the same files, but each unit owns its
+    // own field/load so the art can be repointed to unique images per unit when assets are available.
+    public static BufferedImage apacheDead, apacheRubble, apacheDeathShadow;
+    public static BufferedImage hellicopterDead, hellicopterRubble, hellicopterDeathShadow;
+    public static BufferedImage transportHeliDead, transportHeliRubble, transportHeliDeathShadow;
+    // TransportHelicopter's own blades (own load, currently the same file as the helicopter's).
+    public static BufferedImage transportHeliBlades;
 
     public static BufferedImage apache;
     public static BufferedImage apacheBlades;
@@ -159,6 +165,7 @@ public abstract class RTSAssetManager {
 
     private static final Map<Integer, BufferedImage>   transportHeliBodyMap     = new HashMap<>();
     private static final Map<Integer, BufferedImage>   transportHeliRoofMap     = new HashMap<>();
+    private static final Map<Integer, BufferedImage>   transportHeliBladesMap   = new HashMap<>();
 
     private static final Map<Integer, BufferedImage>   truckHullMap             = new HashMap<>();
     private static final Map<Integer, BufferedImage>   truckHullDamagedMap      = new HashMap<>();
@@ -253,6 +260,7 @@ public abstract class RTSAssetManager {
 
             transportHeliBodyMap.put(team, applyTeamTransform(transportHeli, team));
             transportHeliRoofMap.put(team, applyTeamTransform(transportHeliRoof, team));
+            transportHeliBladesMap.put(team, applyTeamTransform(transportHeliBlades, team));
 
             truckHullMap.put(team,        applyTeamTransform(truckHull, team));
             truckHullDamagedMap.put(team, applyTeamTransform(truckHullDamaged, team));
@@ -301,6 +309,7 @@ public abstract class RTSAssetManager {
 
     public static BufferedImage getTransportHeliBody(int team) { return transportHeliBodyMap.get(team); }
     public static BufferedImage getTransportHeliRoof(int team) { return transportHeliRoofMap.get(team); }
+    public static BufferedImage getTransportHeliBlades(int team) { return transportHeliBladesMap.get(team); }
 
     public static BufferedImage getTruckHull(int team)        { return truckHullMap.get(team); }
     public static BufferedImage getTruckHullDamaged(int team) { return truckHullDamagedMap.get(team); }
@@ -414,9 +423,9 @@ public abstract class RTSAssetManager {
             missileShadow = load("DemoAssets/TankGame/missileShadow.png");
             yellowMissile = load("DemoAssets/TankGame/yellowMissile.png");
             yellowMissileShadow = load("DemoAssets/TankGame/yellowMissileShadow.png");
-            chopperDead = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDead.png");
-            chopperRubble = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperRubble.png");
-            chopperDeathShadow = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDeathShadow.png");
+            hellicopterDead = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDead.png");
+            hellicopterRubble = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperRubble.png");
+            hellicopterDeathShadow = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDeathShadow.png");
         }, executor);
     }
 
@@ -429,6 +438,10 @@ public abstract class RTSAssetManager {
             apacheEmptyPods = load("DemoAssets/TankGame/apache/apacheEmptyPods.png");
             apacheMissileProjectile = load("DemoAssets/TankGame/apache/apacheMissile.png");
             apacheDockedMissile = load("DemoAssets/TankGame/apache/dockedMissile.png");
+            // own death art (same files for now; repoint to apache-specific art when available)
+            apacheDead = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDead.png");
+            apacheRubble = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperRubble.png");
+            apacheDeathShadow = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDeathShadow.png");
         }, executor);
     }
 
@@ -485,6 +498,11 @@ public abstract class RTSAssetManager {
         return CompletableFuture.runAsync(() -> {
             transportHeli = load("DemoAssets/TankGame/transportHeli/body.png");
             transportHeliRoof = load("DemoAssets/TankGame/transportHeli/transportHeliRoof.png");
+            // own blades + death art (same files for now; repoint to transport-specific art when available)
+            transportHeliBlades = load("DemoAssets/TankGame/copter/newChopperFrames/blades.png");
+            transportHeliDead = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDead.png");
+            transportHeliRubble = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperRubble.png");
+            transportHeliDeathShadow = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDeathShadow.png");
         }, executor);
     }
 
