@@ -11,7 +11,9 @@ import Framework.IndependentEffect;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import static GameDemo.RTSDemo.SelectionBoxEffect.uncontrollableColor;
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
@@ -55,16 +57,18 @@ public class SelectionBoxEffectAir extends IndependentEffect {
         for (GameObject2 go : gos) {
             if (go instanceof RTSUnit unit) {
                 if(unit.plane < 2) continue;
-                g.setColor(SelectionBoxEffect.selectionColor);
-                if (ExternalCommunicator.isMultiplayer && ExternalCommunicator.localTeam != unit.team) {
-                    g.setColor(uncontrollableColor);
-                }
                 if (unit.isSelected() && !unit.isRubble) {
+                    Color ringColor = SelectionBoxEffect.selectionColor;
+                    if (ExternalCommunicator.isMultiplayer && ExternalCommunicator.localTeam != unit.team) {
+                        ringColor = uncontrollableColor;
+                    }
                     Coordinate coord = unit.getRenderLocation();
                     int sideLength = Math.max(unit.getWidth(), unit.getHeight());
-                    g.drawOval(coord.x - sideLength / 2, coord.y - sideLength / 2, sideLength, sideLength);
+                    BufferedImage ring = SelectionBoxEffect.getRingSprite(sideLength, ringColor);
+                    g.drawImage(ring, coord.x - ring.getWidth() / 2, coord.y - ring.getHeight() / 2, null);
                     var desiredLoc = unit.getDesiredLocation();
                     if (desiredLoc != null && Coordinate.distanceBetween(coord, desiredLoc) > sideLength / 2) {
+                        g.setColor(ringColor);
                         Coordinate lineStart = Coordinate.nearestPointOnCircle(coord, desiredLoc, sideLength / 2);
                         g.drawLine(lineStart.x, lineStart.y, desiredLoc.x, desiredLoc.y);
                     }
