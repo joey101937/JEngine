@@ -43,6 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class RTSUnit extends GameObject2 implements VisionProvider {
 
     public static final int RUBBLE_PROXIMITY = 90;
+    private static final Stroke healthBarStroke = new BasicStroke(5);
 
     private boolean selected = false;
     private Coordinate desiredLocation;
@@ -113,7 +114,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         Color originalColor = g.getColor();
         Stroke originalStroke = g.getStroke();
         g.setColor(getColorFromTeam(this.team));
-        g.setStroke(new BasicStroke(5));
+        g.setStroke(healthBarStroke);
         g.drawLine(getPixelLocation().x - getWidth() / 2, getPixelLocation().y + getHeight() / 2 + 20, getPixelLocation().x - getWidth() / 2 + (int) (getWidth() * ((double) currentHealth / maxHealth)), getPixelLocation().y + getHeight() / 2 + 20);
         g.setStroke(originalStroke);
         g.setColor(originalColor);
@@ -153,13 +154,15 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         if (selected) {
             g.setColor(Color.green);
             drawHealthBar(g);
+            Coordinate nextWaypoint = getNextWaypoint();
+            Coordinate lastWaypoint = waypoints.isEmpty() ? null : waypoints.getLast();
             for(Coordinate coord : waypoints) {
                 g.fillRect(coord.x-5, coord.y-5, 10, 10);
-                if(coord == waypoints.getLast()) {
+                if(coord == lastWaypoint) {
                     g.setColor(Color.red);
                     g.fillRect(coord.x-5, coord.y-5, 10, 10);
                 }
-                if(coord.equals(this.getNextWaypoint())) {
+                if(coord.equals(nextWaypoint)) {
                     g.setColor(Color.yellow);
                     g.fillRect(coord.x-5, coord.y-5, 10, 10);
                 }
