@@ -707,20 +707,6 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         g.setTransform(old);
     }
 
-    public void drawRubbleProximityIndicators(Graphics2D g) {
-        if (this.isRubble) {
-            return;
-        }
-        int circleRadius = 5;
-        int sideLength = Math.max(getWidth(), getHeight());
-        getHostGame().getObjectsNearPoint(getPixelLocation(), RUBBLE_PROXIMITY + sideLength / 2).forEach(go -> {
-            if (go instanceof RTSUnit unit && unit.isRubble && unit.isSolid) {
-                Coordinate coord = Coordinate.nearestPointOnCircle(getPixelLocation(), unit.getPixelLocation(), sideLength / 2);
-                g.fillOval(coord.x - circleRadius, coord.y - circleRadius, circleRadius * 2, circleRadius * 2);
-            }
-        });
-    }
-
     public void populateNearbyEnemies() {
         RTSUnit nearestInfantry = null, nearestVehicle = null, nearestAircraft = null, nearestUnit = null;
         double infantryDistance = 999999999, vehicleDistance = 999999999, aircraftDistance = 999999999, closestDistance = 999999999;

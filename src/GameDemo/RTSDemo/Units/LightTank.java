@@ -140,9 +140,6 @@ public class LightTank extends RTSUnit {
         if (isSolid) {
             drawShadow(g, hullShadow, 5, 9);
         }
-        if (isSelected()) {
-            drawRubbleProximityIndicators(g);
-        }
         super.render(g);
     }
 

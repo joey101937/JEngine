@@ -200,9 +200,6 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         if (isSolid) {
             drawShadow(g, shadow, 5, 9);
         }
-        if(isSelected()) {
-            drawRubbleProximityIndicators(g);
-        }
         super.render(g);
         if (!isRubble) {
             renderHullMGFlash(g);

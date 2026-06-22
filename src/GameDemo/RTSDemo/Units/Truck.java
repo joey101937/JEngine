@@ -329,9 +329,6 @@ public class Truck extends RTSUnit implements Transport {
         if (isSolid) {
             drawShadow(g, hullShadow, 5, 9);
         }
-        if (isSelected()) {
-            drawRubbleProximityIndicators(g);
-        }
         if (!isRubble) {
             drawWheels(g);
         }
