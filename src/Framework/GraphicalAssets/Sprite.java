@@ -150,6 +150,9 @@ public class Sprite implements Graphic {
      */
     @Override
     public void destroy() {
+        if (volatileImage != null) {
+            volatileImage.flush(); // release native/VRAM memory now rather than waiting for finalization
+        }
         image = null;
         volatileImage = null;
     }

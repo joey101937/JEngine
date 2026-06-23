@@ -36,6 +36,15 @@ public interface SceneryObject {
         return qt.retrieve(center, QUERY_RADIUS);
     }
 
+    /**
+     * Drops a retired game's scenery index. The stored QuadTree holds scenery whose
+     * hostGame points back to the game key, so the WeakHashMap can never evict the
+     * entry on its own - it must be removed explicitly when retiring the game.
+     */
+    static void clearForGame(Game g) {
+        Registry.quadTrees.remove(g);
+    }
+
     default int getPathingPadding() {
         return 50;
     }

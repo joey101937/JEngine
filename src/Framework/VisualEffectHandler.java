@@ -91,6 +91,16 @@ public class VisualEffectHandler implements Renderable{
         System.out.println("reset sticker");
         stickers = new CopyOnWriteArrayList<>();
     }
+
+    /**
+     * Shuts down the sticker render pool and drops all stickers. Called when the
+     * host game is disposed so this handler's threads stop pinning it in memory.
+     */
+    public void shutdown(){
+        stickerService.shutdownNow();
+        stickers = new CopyOnWriteArrayList<>();
+        lines.clear();
+    }
     
     private static class StickerTask implements Runnable{
         public Sticker s;

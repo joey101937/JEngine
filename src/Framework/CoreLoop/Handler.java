@@ -315,6 +315,19 @@ public class Handler implements Serializable{
     }
 
     /**
+     * Shuts down all executor thread pools owned by this handler. Their threads
+     * are non-daemon, so until this is called they keep this handler - and the
+     * entire object graph it references - alive in memory. Call when the host
+     * game is being disposed.
+     */
+    public void shutdown() {
+        tickService.shutdownNow();
+        renderService.shutdownNow();
+        renderServiceCached.shutdownNow();
+        syncService.shutdownNow();
+    }
+
+    /**
      * Reinitializes transient fields after deserialization
      * This must be called after loading a Handler from disk
      */

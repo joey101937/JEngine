@@ -253,8 +253,25 @@ public class GameMenuEffect extends IndependentEffect {
                 newGame.setLoadingScreenActive(false);
             });
 
+            Game oldGame = RTSGame.game;
             RTSGame.game = newGame;
             Window.setCurrentGame(newGame);
+
+            if (oldGame != null && oldGame != newGame) {
+                // Detach the retired canvas so panel -> canvas -> listeners no longer
+                // pins the old game; without this the old game graph cannot be collected.
+                Window.panel.remove(oldGame.getCanvas());
+                // Drop static registries that hold the retired game's units/buildings;
+                // their hostGame back-references would otherwise pin the whole old game.
+                KeyBuilding.removeForGame(oldGame);
+                SelectionBoxEffect.selectedUnits.clear();
+                ControlGroupHelper.clearAll();
+                // Drop the scenery quadtree for this game. It is keyed weakly by game,
+                // but its value holds scenery whose hostGame points back to the key,
+                // so the entry never self-evicts and pins the whole retired game.
+                GameDemo.RTSDemo.SceneryObjects.SceneryObject.clearForGame(oldGame);
+                oldGame.dispose();
+            }
 
         } catch (Exception ex) {
             System.err.println("Load map failed: " + ex.getMessage());

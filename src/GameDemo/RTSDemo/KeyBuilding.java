@@ -37,6 +37,14 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
         }
         return out;
     }
+
+    /**
+     * Drops the registry's references to a retired game's buildings. Each entry's
+     * hostGame would otherwise pin the whole old game graph in memory.
+     */
+    public static void removeForGame (Game g) {
+        allKeyBuildings.removeIf(kb -> kb.getHostGame() == g);
+    }
     
     static {
         shadowSprite.scaleTo(VISUAL_SCALE);

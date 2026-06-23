@@ -850,6 +850,23 @@ public class Game implements Runnable {
         }
     }
 
+    /**
+     * Releases this game's runtime resources. Stops the core loop, shuts down
+     * the handler's thread pools, and clears the background and pathing
+     * references so they can be garbage collected. Call when retiring a game
+     * (e.g. loading a different map) once it is no longer the active game.
+     */
+    public void dispose() {
+        stop();
+        handler.shutdown();
+        visHandler.shutdown();
+        if (backgroundImage != null) {
+            backgroundImage.destroy();
+            backgroundImage = null;
+        }
+        pathingLayer = null;
+    }
+
     public boolean isPaused() {
         return paused;
     }

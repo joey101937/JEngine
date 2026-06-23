@@ -51,4 +51,12 @@ public class ControlGroupHelper {
         if(groupNumber < 0 || groupNumber > 9) return;
         groups.get(groupNumber).clear();
     }
+
+    /**
+     * Empties every control group. Held units keep their hostGame alive, so this
+     * is called when retiring a game (e.g. loading a new map).
+     */
+    public static void clearAll() {
+        groups.values().forEach(ArrayList::clear);
+    }
 }

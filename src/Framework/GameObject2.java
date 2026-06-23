@@ -1239,6 +1239,13 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
 
     public void setHostGame(Game g){
         hostGame = g;
+        // Subobjects aren't tracked by the handler, so re-home them with their parent.
+        // Each subobject is itself a GameObject2, so this recurses down the whole tree.
+        // Otherwise a subobject keeps the game it cached when first attached, which can
+        // point at a retired game and pin it (and the whole retired game graph) in memory.
+        for (SubObject sub : getImmediateSubObjects()) {
+            sub.setHostGame(g);
+        }
     }
 
     public String getName() {
