@@ -14,8 +14,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -24,7 +26,18 @@ import java.util.concurrent.Future;
 public class OccupationMap implements java.io.Serializable {
     private static final long serialVersionUID = 1L;
 
-    public static transient ExecutorService occupationService = Executors.newFixedThreadPool(200);
+    public static transient ExecutorService occupationService = reapingPool(200);
+
+    /**
+     * Bounded pool that spins up to {@code max} threads under load but lets all of
+     * them (core included) die after 30s idle, so these threads clean themselves up
+     * once no game is actively updating occupation instead of lingering forever.
+     */
+    private static ExecutorService reapingPool(int max) {
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(max, max, 30L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        pool.allowCoreThreadTimeOut(true);
+        return pool;
+    }
 
     private int padding;
     private String commandGroup;
@@ -44,7 +57,7 @@ public class OccupationMap implements java.io.Serializable {
     public void updateOccupationMap(Game game) {
         // Reinitialize ExecutorService if needed (after deserialization)
         if (occupationService == null) {
-            occupationService = Executors.newFixedThreadPool(200);
+            occupationService = reapingPool(200);
         }
 
         occupiedMap.clear();

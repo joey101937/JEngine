@@ -22,8 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -34,7 +36,19 @@ public class NavigationManager extends IndependentEffect {
 
     public static boolean displayPathingDebugInfo = true;
     public static int updateInterval = RTSGame.desiredTPS / 10;
-    public static transient ExecutorService unitPathingService = Executors.newFixedThreadPool(200);
+    public static transient ExecutorService unitPathingService = reapingPool(200);
+
+    /**
+     * Bounded pool that spins up to {@code max} threads under load but lets all of
+     * them (core included) die after 30s idle, so pathfinding threads clean
+     * themselves up once no game is actively pathing instead of lingering for the
+     * life of the process. Recreated lazily by execute() when the next task lands.
+     */
+    private static ExecutorService reapingPool(int max) {
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(max, max, 30L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        pool.allowCoreThreadTimeOut(true);
+        return pool;
+    }
     public static int maxCalculationDistance = 1400;
     public static String SEPERATOR_GROUP = "seperator";
 
@@ -63,7 +77,7 @@ public class NavigationManager extends IndependentEffect {
         tileMapGiantTerrain = new TileMap(g.getWorldWidth(), g.getWorldHeight(), Tile.tileSizeGiantTerrain);
 
         if (unitPathingService == null) {
-            unitPathingService = Executors.newFixedThreadPool(200);
+            unitPathingService = reapingPool(200);
         }
 
         // Update static reference so other code uses the new deserialized instance
