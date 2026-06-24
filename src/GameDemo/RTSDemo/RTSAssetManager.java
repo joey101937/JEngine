@@ -185,6 +185,9 @@ public abstract class RTSAssetManager {
 
     // ── Team color transform ──────────────────────────────────────────────────
 
+    // Ceiling for arctic team pixels so units stay off-white instead of blowing out to pure white.
+    private static final int MAX_ARCTIC_BRIGHTNESS = 220;
+
     public static BufferedImage applyTeamTransform(BufferedImage src, int team) {
         return switch (team) {
             case -1 -> greenToSilver(src);
@@ -205,6 +208,12 @@ public abstract class RTSAssetManager {
             case 4 -> greenToArctic(src);
             default -> src;
         };
+    }
+
+    // Transport helicopter wears a slightly dimmer burgundy for team 1 than other
+    // vehicles; all other teams use the standard transform.
+    public static BufferedImage applyTransportHeliTeamTransform(BufferedImage src, int team) {
+        return team == 1 ? greenToRed(src, 205, 1.2) : applyTeamTransform(src, team);
     }
 
     public static BufferedImage applyInfantryTeamTransform(BufferedImage src, int team) {
@@ -258,9 +267,9 @@ public abstract class RTSAssetManager {
             apacheBladesMap.put(team,     applyTeamTransform(apacheBlades, team));
             apacheAttackMap.put(team,     applyTeamTransform(apacheAttack, team));
 
-            transportHeliBodyMap.put(team, applyTeamTransform(transportHeli, team));
-            transportHeliRoofMap.put(team, applyTeamTransform(transportHeliRoof, team));
-            transportHeliBladesMap.put(team, applyTeamTransform(transportHeliBlades, team));
+            transportHeliBodyMap.put(team, applyTransportHeliTeamTransform(transportHeli, team));
+            transportHeliRoofMap.put(team, applyTransportHeliTeamTransform(transportHeliRoof, team));
+            transportHeliBladesMap.put(team, applyTransportHeliTeamTransform(transportHeliBlades, team));
 
             truckHullMap.put(team,        applyTeamTransform(truckHull, team));
             truckHullDamagedMap.put(team, applyTeamTransform(truckHullDamaged, team));
@@ -601,15 +610,21 @@ public abstract class RTSAssetManager {
     }
 
     public static BufferedImage greenToRed(BufferedImage input) {
+        return greenToRed(input, 225, 1.28);
+    }
+
+    // Burgundy: darker, capped red with a slight wine undertone in blue, rather
+    // than a saturated 255,0,0. redCap/redScale tune how bright the burgundy lands.
+    public static BufferedImage greenToRed(BufferedImage input, int redCap, double redScale) {
         BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < bi.getHeight(); y++) {
             for (int x = 0; x < bi.getWidth(); x++) {
                 int rgba = input.getRGB(x, y);
                 Color prevColor = new Color(rgba, true);
                 if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5) {
-                    int newRed = Math.min(255, (int) (prevColor.getGreen() * 1.5));
-                    int newGreen = (int) (prevColor.getRed() * .75);
-                    int newBlue = (int) (prevColor.getBlue() * .75);
+                    int newRed = Math.min(redCap, (int) (prevColor.getGreen() * redScale));
+                    int newGreen = (int) (prevColor.getRed() * .4);
+                    int newBlue = (int) (newRed * 0.35);
                     bi.setRGB(x, y, new Color(newRed, newGreen, newBlue).getRGB());
                 } else {
                     bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
@@ -677,9 +692,10 @@ public abstract class RTSAssetManager {
                 Color prevColor = new Color(rgba, true);
                 if (prevColor.getBlue() + prevColor.getRed() + prevColor.getGreen() < 300
                         && prevColor.getRed() < 30 + prevColor.getGreen() + prevColor.getBlue()) {
-                    int newRed = prevColor.getRed() > 0 ? Math.min(255, (int)(prevColor.getRed() + 50 * 1.5)) : 0;
-                    int newGreen = prevColor.getRed();
-                    int newBlue = prevColor.getGreen();
+                    // Burgundy: darker, capped red with a slight wine undertone in blue.
+                    int newRed = prevColor.getRed() > 0 ? Math.min(150, prevColor.getRed() + 40) : 0;
+                    int newGreen = (int) (prevColor.getRed() * .4);
+                    int newBlue = (int) (newRed * 0.3);
                     bi.setRGB(x, y, new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB());
                 } else {
                     bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
@@ -848,7 +864,7 @@ public abstract class RTSAssetManager {
                 Color prevColor = new Color(rgba, true);
                 if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5
                         && prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue() < 500) {
-                    int bright = Math.min(255, (int)(prevColor.getGreen() * 2.35));
+                    int bright = Math.min(MAX_ARCTIC_BRIGHTNESS, (int)(prevColor.getGreen() * 2.35));
                     int newRed   = bright;
                     int newGreen = bright;
                     int newBlue  = Math.min(255, (int)(bright * 1.1));
@@ -882,7 +898,7 @@ public abstract class RTSAssetManager {
                 boolean greenTinted = prevColor.getGreen() - 8 > prevColor.getRed() && prevColor.getGreen() > prevColor.getBlue();
                 if (saturation < 20 && brightness > 100 && (prevColor.getBlue() - 2 > prevColor.getGreen() * .8 && prevColor.getBlue() + 2 < prevColor.getGreen() * 1.2)) {
                     int base = brightness / 3;
-                    int bright = Math.min(220, base * 3 + 90);
+                    int bright = Math.min(MAX_ARCTIC_BRIGHTNESS, base * 3 + 90);
                     bi.setRGB(x, y, new Color(bright, bright, Math.min(255, (int)(bright * 1.04)), prevColor.getAlpha()).getRGB());
                 } else {
                     bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
