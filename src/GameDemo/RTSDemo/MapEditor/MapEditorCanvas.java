@@ -434,10 +434,11 @@ public class MapEditorCanvas extends JPanel {
         return switch (team) {
             case -1 -> Color.LIGHT_GRAY;
             case 0  -> new Color(0, 200, 0);
-            case 1  -> Color.RED;
+            case 1  -> new Color(170, 32, 55);
             case 2  -> Color.DARK_GRAY;
             case 3  -> new Color(200, 160, 80);
             case 4  -> new Color(180, 220, 255);
+            case 5  -> new Color(115, 136, 175);
             default -> Color.WHITE;
         };
     }

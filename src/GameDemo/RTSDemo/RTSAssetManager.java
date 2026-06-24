@@ -195,6 +195,7 @@ public abstract class RTSAssetManager {
             case 2 -> greenToCharcoal(src);
             case 3 -> greenToTan(src);
             case 4 -> greenToArctic(src);
+            case 5 -> greenToNavy(src);
             default -> src;
         };
     }
@@ -206,6 +207,7 @@ public abstract class RTSAssetManager {
             case 2 -> greenToCharcoal(src);
             case 3 -> greenToTan(src);
             case 4 -> greenToArctic(src);
+            case 5 -> greenToNavy(src);
             default -> src;
         };
     }
@@ -223,6 +225,7 @@ public abstract class RTSAssetManager {
             case 2 -> darkToCharcoal(src);
             case 3 -> darkToTan(src);
             case 4 -> darkToArctic(src);
+            case 5 -> darkToNavy(src);
             default -> src;
         };
     }
@@ -234,6 +237,7 @@ public abstract class RTSAssetManager {
             case 2 -> darkToCharcoal(src);
             case 3 -> darkToTan(src);
             case 4 -> darkToArctic(src);
+            case 5 -> darkToNavy(src);
             default -> src;
         };
     }
@@ -853,6 +857,81 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] darkToTan(BufferedImage[] input) {
         BufferedImage[] out = new BufferedImage[input.length];
         for (int i = 0; i < out.length; i++) out[i] = darkToTan(input[i]);
+        return out;
+    }
+
+    public static BufferedImage greenToNavy(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                bi.setRGB(x, y, navyTintGreenPixel(new Color(input.getRGB(x, y), true)));
+            }
+        }
+        return bi;
+    }
+
+    // Vehicle-style navy tint for a single pixel: green team-paint becomes a light,
+    // muted slate (blue-leaning but with red/green pulled close so it reads
+    // desaturated, plus a lift to keep it bright); everything else passes through.
+    private static int navyTintGreenPixel(Color prevColor) {
+        if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5) {
+            int newBlue  = Math.min(175, (int) (prevColor.getGreen() * 1.0) + 22);
+            int newGreen = (int) (newBlue * 0.78);
+            int newRed   = (int) (newBlue * 0.66);
+            return new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB();
+        }
+        return new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB();
+    }
+
+    // Turns green team-paint into neutral grayscale (same green detection as the
+    // navy tint); non-team pixels pass through unchanged.
+    private static int grayscaleGreenPixel(Color prevColor) {
+        if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5) {
+            int gray = Math.min(255, (int) (prevColor.getGreen() * 0.85));
+            return new Color(gray, gray, gray, prevColor.getAlpha()).getRGB();
+        }
+        return new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB();
+    }
+
+    public static BufferedImage[] greenToNavy(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = greenToNavy(input[i]);
+        return out;
+    }
+
+    public static BufferedImage darkToNavy(BufferedImage input) {
+        BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < bi.getHeight(); y++) {
+            for (int x = 0; x < bi.getWidth(); x++) {
+                int rgba = input.getRGB(x, y);
+                Color prevColor = new Color(rgba, true);
+                int brightness = prevColor.getRed() + prevColor.getGreen() + prevColor.getBlue();
+                int maxC = Math.max(prevColor.getRed(), Math.max(prevColor.getGreen(), prevColor.getBlue()));
+                int minC = Math.min(prevColor.getRed(), Math.min(prevColor.getGreen(), prevColor.getBlue()));
+                int saturation = maxC - minC;
+                // Same selection as darkToArctic: the low-saturation, mid-bright,
+                // blue≈green team-marker pixels (excludes skin, metal, dark detail).
+                if (saturation < 20 && brightness > 100
+                        && prevColor.getBlue() - 2 > prevColor.getGreen() * .8
+                        && prevColor.getBlue() + 2 < prevColor.getGreen() * 1.2) {
+                    // Navy blue: slate driven by pixel luminance.
+                    int base = brightness / 3;
+                    int newBlue  = Math.min(160, base + 52);
+                    int newGreen = (int) (newBlue * 0.68);
+                    int newRed   = (int) (newBlue * 0.52);
+                    bi.setRGB(x, y, new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB());
+                } else {
+                    // Excluded (non-marker) green team-paint becomes grayscale.
+                    bi.setRGB(x, y, grayscaleGreenPixel(prevColor));
+                }
+            }
+        }
+        return bi;
+    }
+
+    public static BufferedImage[] darkToNavy(BufferedImage[] input) {
+        BufferedImage[] out = new BufferedImage[input.length];
+        for (int i = 0; i < out.length; i++) out[i] = darkToNavy(input[i]);
         return out;
     }
 

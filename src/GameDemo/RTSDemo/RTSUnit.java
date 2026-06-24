@@ -118,6 +118,8 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
                 new Color(210, 180, 140); // tan
             case 4 ->
                 Color.WHITE;
+            case 5 ->
+                new Color(115, 136, 175); // navy blue (muted slate)
             default ->
                 Color.WHITE;
         };

@@ -23,8 +23,8 @@ public class MapEditorPalette extends JPanel {
     private JButton   deleteBtn;
     private boolean   updatingProps = false;
 
-    private static final String[] TEAM_LABELS  = { "Silver (−1)", "Green (0)", "Red (1)", "Charcoal (2)", "Tan (3)", "Arctic (4)" };
-    private static final int[]    TEAM_VALUES  = { -1, 0, 1, 2, 3, 4 };
+    private static final String[] TEAM_LABELS  = { "Silver (−1)", "Green (0)", "Burgundy (1)", "Charcoal (2)", "Tan (3)", "Arctic (4)", "Navy (5)" };
+    private static final int[]    TEAM_VALUES  = { -1, 0, 1, 2, 3, 4, 5 };
 
     private static final String[] BACKGROUNDS = {
         "terrainPlaygroundHighground130.png",

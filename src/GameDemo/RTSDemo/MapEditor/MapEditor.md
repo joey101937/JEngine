@@ -21,7 +21,7 @@ Plain data holder:
 - `type` — class name string (`"TankUnit"`, `"Hangar"`, etc.)
 - `x`, `y` — world coordinates (integers, same coordinate space as the running game)
 - `rotation` — degrees, 0–359.9
-- `team` — `-1` (silver/neutral) through `4`; ignored for pure scenery
+- `team` — `-1` (silver/neutral) through `5` (navy); ignored for pure scenery
 - `hpPercent` — `1–100`; ignored for scenery and buildings
 
 ### `MapData`
