@@ -614,7 +614,7 @@ public abstract class RTSAssetManager {
     }
 
     public static BufferedImage greenToRed(BufferedImage input) {
-        return greenToRed(input, 225, 1.28);
+        return greenToRed(input, 240, 1.34);
     }
 
     // Burgundy: darker, capped red with a slight wine undertone in blue, rather
@@ -627,8 +627,8 @@ public abstract class RTSAssetManager {
                 Color prevColor = new Color(rgba, true);
                 if (prevColor.getGreen() - 10 > (prevColor.getRed() + prevColor.getBlue()) * .5) {
                     int newRed = Math.min(redCap, (int) (prevColor.getGreen() * redScale));
-                    int newGreen = (int) (prevColor.getRed() * .4);
-                    int newBlue = (int) (newRed * 0.35);
+                    int newGreen = (int) (prevColor.getRed() * .42);
+                    int newBlue = (int) (newRed * 0.36);
                     bi.setRGB(x, y, new Color(newRed, newGreen, newBlue).getRGB());
                 } else {
                     bi.setRGB(x, y, new Color(prevColor.getRed(), prevColor.getGreen(), prevColor.getBlue(), prevColor.getAlpha()).getRGB());
@@ -697,7 +697,7 @@ public abstract class RTSAssetManager {
                 if (prevColor.getBlue() + prevColor.getRed() + prevColor.getGreen() < 300
                         && prevColor.getRed() < 30 + prevColor.getGreen() + prevColor.getBlue()) {
                     // Burgundy: darker, capped red with a slight wine undertone in blue.
-                    int newRed = prevColor.getRed() > 0 ? Math.min(150, prevColor.getRed() + 40) : 0;
+                    int newRed = prevColor.getRed() > 0 ? Math.min(165, prevColor.getRed() + 50) : 0;
                     int newGreen = (int) (prevColor.getRed() * .4);
                     int newBlue = (int) (newRed * 0.3);
                     bi.setRGB(x, y, new Color(newRed, newGreen, newBlue, prevColor.getAlpha()).getRGB());
