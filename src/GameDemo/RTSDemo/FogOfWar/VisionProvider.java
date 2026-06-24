@@ -22,8 +22,8 @@ public interface VisionProvider extends Serializable {
     boolean isVisionEnabled();
 
     /**
-     * The team index whose fog grid this provider reveals (0-based).
-     * Must be in range [0, {@link FogOfWarGrid#MAX_TEAMS}).
+     * The team whose fog grid this provider reveals. May be negative
+     * (e.g. -1 neutral); must satisfy {@link FogOfWarGrid#isValidTeam(int)}.
      */
     int getVisionTeam();
 

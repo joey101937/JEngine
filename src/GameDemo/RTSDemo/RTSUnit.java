@@ -794,7 +794,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
 
     @Override
     public boolean isVisionEnabled() {
-        return !isRubble && team >= 0 && team < FogOfWarGrid.MAX_TEAMS;
+        return !isRubble && FogOfWarGrid.isValidTeam(team);
     }
 
     @Override

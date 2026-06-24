@@ -12,7 +12,7 @@ import java.awt.image.DataBufferInt;
 public class FogOfWarEffect extends IndependentEffect {
     private static final long serialVersionUID = 1L;
 
-    public static boolean enabled = true;
+    public static boolean enabled = false;
     private transient Game game;
 
     public static final int FOG_ALPHA = 140;

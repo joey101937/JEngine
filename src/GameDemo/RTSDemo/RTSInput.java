@@ -248,6 +248,7 @@ public class RTSInput extends InputHandler {
                     if (!u.isAlive() || u.isRubble) continue;
                     if (clickedUnit.team == u.team) continue; // not an enemy relative to this unit
                     if (!u.supportsPreferredTarget()) continue;
+                    if (!clickedUnit.isVisible(u.team)) continue; // can only target what this unit can see
                     RTSGame.commandHandler.addCommand(new SetPreferredTargetCommand(
                             hostGame.getGameTickNumber() + getInputDelay(),
                             u.ID,

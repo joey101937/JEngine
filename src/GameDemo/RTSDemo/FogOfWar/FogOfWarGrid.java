@@ -2,6 +2,7 @@ package GameDemo.RTSDemo.FogOfWar;
 
 import Framework.Game;
 import Framework.GameObject2;
+import GameDemo.RTSDemo.RTSGame;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +14,26 @@ import java.util.concurrent.Executors;
 public class FogOfWarGrid {
 
     public static final int TILE_SIZE = 26;
-    public static final int MAX_TEAMS = 3;
+
+    // Team range derived from RTSGame.activeTeams, the single source of truth
+    // for which teams can exist (team-colored assets are built from the same set).
+    // Teams can be negative (e.g. -1 neutral), so the array is offset:
+    // index = team + TEAM_OFFSET. A map may use a subset of these teams; edit
+    // activeTeams to add more and the grid resizes to match.
+    private static final int MIN_TEAM = RTSGame.activeTeams.stream()
+            .mapToInt(Integer::intValue).min().orElse(0);
+    private static final int MAX_TEAM = RTSGame.activeTeams.stream()
+            .mapToInt(Integer::intValue).max().orElse(0);
+    public static final int TEAM_OFFSET = -MIN_TEAM;
+    public static final int TEAM_COUNT = MAX_TEAM - MIN_TEAM + 1;
+
+    public static boolean isValidTeam(int team) {
+        return team >= MIN_TEAM && team <= MAX_TEAM;
+    }
+
+    private static int teamIndex(int team) {
+        return team + TEAM_OFFSET;
+    }
 
     private static final ExecutorService POOL = Executors.newFixedThreadPool(
         Math.max(1, Runtime.getRuntime().availableProcessors() - 1),
@@ -21,12 +41,12 @@ public class FogOfWarGrid {
 
     private final int gridW;
     private final int gridH;
-    private final boolean[][][] visible; // [team][ty][tx]
+    private final boolean[][][] visible; // [teamIndex][ty][tx]
 
     public FogOfWarGrid(int worldWidth, int worldHeight) {
         this.gridW = (worldWidth + TILE_SIZE - 1) / TILE_SIZE;
         this.gridH = (worldHeight + TILE_SIZE - 1) / TILE_SIZE;
-        this.visible = new boolean[MAX_TEAMS][gridH][gridW];
+        this.visible = new boolean[TEAM_COUNT][gridH][gridW];
     }
 
     public int getGridW() { return gridW; }
@@ -39,8 +59,8 @@ public class FogOfWarGrid {
     public boolean isTileVisible(int team, int worldX, int worldY) {
         int tx = worldX / TILE_SIZE;
         int ty = worldY / TILE_SIZE;
-        if (team < 0 || team >= MAX_TEAMS || tx < 0 || ty < 0 || tx >= gridW || ty >= gridH) return false;
-        return visible[team][ty][tx];
+        if (!isValidTeam(team) || tx < 0 || ty < 0 || tx >= gridW || ty >= gridH) return false;
+        return visible[teamIndex(team)][ty][tx];
     }
 
     /**
@@ -49,31 +69,31 @@ public class FogOfWarGrid {
      */
     @SuppressWarnings("unchecked")
     public void update(Game game) {
-        List<VisionProvider>[] providersByTeam = new List[MAX_TEAMS];
-        for (int t = 0; t < MAX_TEAMS; t++) providersByTeam[t] = new ArrayList<>();
+        List<VisionProvider>[] providersByTeam = new List[TEAM_COUNT];
+        for (int t = 0; t < TEAM_COUNT; t++) providersByTeam[t] = new ArrayList<>();
         List<SightBlocker> blockers = new ArrayList<>();
 
         for (GameObject2 go : game.getAllObjects()) {
             if (go instanceof VisionProvider vp && vp.isVisionEnabled()) {
-                providersByTeam[vp.getVisionTeam()].add(vp);
+                providersByTeam[teamIndex(vp.getVisionTeam())].add(vp);
             }
             if (go instanceof SightBlocker sb) {
                 blockers.add(sb);
             }
         }
 
-        for (int t = 0; t < MAX_TEAMS; t++) {
+        for (int t = 0; t < TEAM_COUNT; t++) {
             for (int ty = 0; ty < gridH; ty++) {
                 Arrays.fill(visible[t][ty], false);
             }
         }
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (int t = 0; t < MAX_TEAMS; t++) {
-            final int team = t;
+        for (int t = 0; t < TEAM_COUNT; t++) {
+            final int teamIdx = t;
             for (VisionProvider provider : providersByTeam[t]) {
                 futures.add(CompletableFuture.runAsync(
-                    () -> markProviderVisible(team, provider, blockers), POOL));
+                    () -> markProviderVisible(teamIdx, provider, blockers), POOL));
             }
         }
         futures.forEach(CompletableFuture::join);
@@ -85,7 +105,7 @@ public class FogOfWarGrid {
             int txMax = Math.min(gridW - 1, (bounds.x + bounds.width) / TILE_SIZE);
             int tyMin = Math.max(0, bounds.y / TILE_SIZE);
             int tyMax = Math.min(gridH - 1, (bounds.y + bounds.height) / TILE_SIZE);
-            for (int t = 0; t < MAX_TEAMS; t++) {
+            for (int t = 0; t < TEAM_COUNT; t++) {
                 boolean anyVisible = false;
                 outer:
                 for (int ty = tyMin; ty <= tyMax; ty++) {
@@ -102,7 +122,7 @@ public class FogOfWarGrid {
         }
     }
 
-    private void markProviderVisible(int team, VisionProvider provider, List<SightBlocker> blockers) {
+    private void markProviderVisible(int teamIdx, VisionProvider provider, List<SightBlocker> blockers) {
         int ux = provider.getVisionLocation().x;
         int uy = provider.getVisionLocation().y;
         int baseR = provider.getVisionRange();
@@ -134,7 +154,7 @@ public class FogOfWarGrid {
 
         for (int ty = tyMin; ty <= tyMax; ty++) {
             for (int tx = txMin; tx <= txMax; tx++) {
-                if (visible[team][ty][tx]) continue;
+                if (visible[teamIdx][ty][tx]) continue;
 
                 int tcx = tx * TILE_SIZE + TILE_SIZE / 2;
                 int tcy = ty * TILE_SIZE + TILE_SIZE / 2;
@@ -156,7 +176,7 @@ public class FogOfWarGrid {
                 if (distSq > effectiveRSq) continue;
 
                 if (ignoresBlockers || !hasBlockerOnPath(ux, uy, tcx, tcy, blockers)) {
-                    visible[team][ty][tx] = true;
+                    visible[teamIdx][ty][tx] = true;
                 }
             }
         }
