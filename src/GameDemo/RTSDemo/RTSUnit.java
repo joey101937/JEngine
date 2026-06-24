@@ -46,6 +46,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class RTSUnit extends GameObject2 implements VisionProvider {
 
     public static final int RUBBLE_PROXIMITY = 90;
+    /** Floor on push scaling so equal-mass friendlies still get a gentle declumping nudge. */
+    private static final double MIN_PUSH_FACTOR = 0.3;
     private static final Stroke healthBarStroke = new BasicStroke(5);
 
     private boolean selected = false;
@@ -899,7 +901,12 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         double dy = otherLoc.y - myLoc.y;
         if (dx == 0 && dy == 0) dx = 1;
 
-        Push push = new Push(dx, dy, RTSGame.tickAdjust(4.0), 3.0, 20,
+        // Scale the shove by how much lighter the target is relative to us: a rifleman gets
+        // flung, a truck barely budges, and equal-mass friendlies get a gentle declumping nudge.
+        double lightness = 1.0 - (double) unit.getPushPriority() / getPushPriority();
+        double factor = Math.max(MIN_PUSH_FACTOR, Math.min(1.0, lightness));
+
+        Push push = new Push(dx, dy, RTSGame.tickAdjust(4.0) * factor, 3.0 * factor, 20,
                 p -> { p.speed *= 0.82; p.strength *= 0.82; });
         unit.addPush(push);
         lastPushPerTarget.put(unit.ID, push);
