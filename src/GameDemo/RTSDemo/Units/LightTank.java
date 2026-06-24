@@ -108,6 +108,7 @@ public class LightTank extends RTSUnit {
         this.setHitbox(new Hitbox(this, getWidth() / 2));
         this.range = 500;
         this.baseSpeed = LIGHT_TANK_SPEED;
+        this.mass = 800;
         this.rotationSpeed = RTSGame.tickAdjust(2.5);
         initializeButtons();
     }

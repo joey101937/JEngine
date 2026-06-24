@@ -11,6 +11,7 @@ import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
 import Framework.PathingLayer;
+import Framework.Push;
 import Framework.RenderHook;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarEffect;
 import GameDemo.RTSDemo.FogOfWar.FogOfWarGrid;
@@ -33,7 +34,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -49,6 +52,12 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     private Coordinate desiredLocation;
     private Coordinate comingFromLocation;
     public int team;
+    /**
+     * Relative push weight / priority. A strictly heavier unit shoves a lighter one out of its
+     * way (regardless of team); equal-mass friendly units declump with a deterministic ID tie-break.
+     * Rough scale: infantry ~100, light vehicles ~700-800, medium tank ~2000.
+     */
+    public int mass = 200;
     public RTSUnit currentTarget;
     public int range = 500;
     public boolean canAttackAir = false;
@@ -90,6 +99,8 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
 
     private ArrayList<CommandButton> buttons = new ArrayList<>();
     public List<Coordinate> waypoints = new ArrayList<>();
+    // Throttles repeat pushes against the same target until the prior push expires
+    private final Map<String, Push> lastPushPerTarget = new HashMap<>();
 
     public static Color getColorFromTeam(int team) {
         return switch (team) {
@@ -833,9 +844,65 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
                         if(this.commandGroup.equals(oldCommandGroup)){
                                 this.inSeperatorGroup = false;
                         }
-                    });   
+                    });
             }
         }
+
+        // When this unit is the one moving into another, shove lighter blockers aside
+        if (myTick && !isRubble) {
+            tryPush(other);
+        }
+    }
+
+    /**
+     * Priority used when resolving who pushes whom. Defaults to {@link #mass};
+     * override for units that should out-muscle their weight class.
+     */
+    public int getPushPriority() {
+        return mass;
+    }
+
+    /**
+     * Whether this unit out-prioritises {@code other} enough to push it. A strictly
+     * heavier unit pushes regardless of team; equal-mass units only declump friendlies,
+     * with a deterministic ID tie-break so exactly one side ever yields.
+     */
+    private boolean canPush(RTSUnit other) {
+        int mine = getPushPriority();
+        int theirs = other.getPushPriority();
+        if (mine > theirs) return true;
+        if (mine == theirs && team == other.team) {
+            return ID.compareTo(other.ID) < 0;
+        }
+        return false;
+    }
+
+    /**
+     * Attempt to shove a blocking unit out of the way using the Push system, easing
+     * pileups when units drive into each other. Immobilized units (mined, landed
+     * transports, dug-in tanks) hold their ground and cannot be pushed.
+     */
+    private void tryPush(GameObject2 other) {
+        if (!(other instanceof RTSUnit unit) || unit == this || unit.isRubble) return;
+        if (unit.plane != this.plane) return;                  // only same movement layer
+        if (!unit.isSolid || !unit.preventOverlap) return;     // only physically blocking units
+        // anchored units hold their ground: immobilized (mined / dug-in) or otherwise unable to self-move (landed aircraft)
+        if (unit.isImmobilized || unit.getBaseSpeed() == 0) return;
+        if (!canPush(unit)) return;
+
+        Push existing = lastPushPerTarget.get(unit.ID);
+        if (existing != null && !existing.isExpired()) return;
+
+        DCoordinate myLoc = getLocationAsOfLastTick();
+        DCoordinate otherLoc = unit.getLocationAsOfLastTick();
+        double dx = otherLoc.x - myLoc.x;
+        double dy = otherLoc.y - myLoc.y;
+        if (dx == 0 && dy == 0) dx = 1;
+
+        Push push = new Push(dx, dy, RTSGame.tickAdjust(4.0), 3.0, 20,
+                p -> { p.speed *= 0.82; p.strength *= 0.82; });
+        unit.addPush(push);
+        lastPushPerTarget.put(unit.ID, push);
     }
     
     public void takeDamage(Damage damage) {

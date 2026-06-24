@@ -9,7 +9,6 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GameObject2.MovementType;
-import Framework.Push;
 import java.util.HashMap;
 import java.util.Map;
 import Framework.GraphicalAssets.Sequence;
@@ -59,7 +58,6 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     public DigInButton digInButton;
     public DigOutButton digOutButton;
 
-    private final Map<String, Push> lastInfantryPushPerTarget = new HashMap<>();
     private double hullRotationSpeed = 0.0;
 
     // Hull machine gun
@@ -341,6 +339,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         this.maxHealth = 210;//tanks can take 4 shots
         this.currentHealth = maxHealth;
         this.baseSpeed = speed;
+        this.mass = 2000;
         initializeButtons();
         this.rotationSpeed = RTSGame.tickAdjust(1.4);
         this.cargoSize = 8;
@@ -677,31 +676,6 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             super.render(g);
         }
         
-    }
-
-    @Override
-    public void onCollide(GameObject2 other, boolean myTick) {
-        super.onCollide(other, myTick);
-        if (!myTick || isRubble) return;
-        tryPushInfantry(other);
-    }
-
-    private void tryPushInfantry(GameObject2 other) {
-        if (!(other instanceof RTSUnit unit && unit.isInfantry)) return;
-
-        Push existing = lastInfantryPushPerTarget.get(other.ID);
-        if (existing != null && !existing.isExpired()) return;
-
-        DCoordinate myLoc = getLocationAsOfLastTick();
-        DCoordinate otherLoc = other.getLocationAsOfLastTick();
-        double dx = otherLoc.x - myLoc.x;
-        double dy = otherLoc.y - myLoc.y;
-        if (dx == 0 && dy == 0) dx = 1;
-
-        Push push = new Push(dx, dy, RTSGame.tickAdjust(4.0), 3.0, 20,
-                p -> { p.speed *= 0.82; p.strength *= 0.82; });
-        other.addPush(push);
-        lastInfantryPushPerTarget.put(other.ID, push);
     }
 
     @Override
