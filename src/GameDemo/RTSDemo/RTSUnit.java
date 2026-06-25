@@ -48,6 +48,12 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     public static final int RUBBLE_PROXIMITY = 90;
     /** Floor on push scaling so equal-mass friendlies still get a gentle declumping nudge. */
     private static final double MIN_PUSH_FACTOR = 0.3;
+    /** Ceiling on push scaling so a huge mass gap flings the lighter unit hard but stays bounded. */
+    private static final double MAX_PUSH_FACTOR = 2.5;
+    /** Mass ratio (pusher/pushed) at or above which the heavier unit plows through without being slowed. */
+    private static final double BULLDOZE_RATIO = 4.0;
+    /** Shove speed ceiling as a multiple of the pusher's own speed, so units scatter a bit ahead of it without rocketing off. */
+    private static final double PUSH_SPEED_CAP_MULT = 1.5;
     private static final Stroke healthBarStroke = new BasicStroke(5);
 
     private boolean selected = false;
@@ -103,6 +109,8 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     public List<Coordinate> waypoints = new ArrayList<>();
     // Throttles repeat pushes against the same target until the prior push expires
     private final Map<String, Push> lastPushPerTarget = new HashMap<>();
+    // Throttles repeat self-evictions away from a given heavier unit we're overlapping
+    private final Map<String, Push> lastEvictPerSource = new HashMap<>();
 
     public static Color getColorFromTeam(int team) {
         return switch (team) {
@@ -856,6 +864,11 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         if (myTick && !isRubble) {
             tryPush(other);
         }
+        // If a heavier unit is sitting on top of us (it can plow through us), eject ourselves so
+        // we don't get trapped inside it — runs on either unit's tick, including while it's stopped.
+        if (!isRubble) {
+            tryEvict(other);
+        }
     }
 
     /**
@@ -882,6 +895,19 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     }
 
     /**
+     * A much heavier unit keeps rolling through the lighter ones it is shoving instead of being
+     * stopped by them, so a tank driving into infantry plows through rather than bogging down.
+     * Only applies once the mass gap is large ({@link #BULLDOZE_RATIO}); comparable units still
+     * block each other normally. The lighter unit is still pushed aside via {@link #tryPush}.
+     */
+    @Override
+    protected boolean movesFreelyThrough(GameObject2 other) {
+        if (!(other instanceof RTSUnit unit) || unit.plane != this.plane) return false;
+        if (unit.isImmobilized || unit.getBaseSpeed() == 0) return false; // can't bulldoze anchored units
+        return canPush(unit) && getPushPriority() >= unit.getPushPriority() * BULLDOZE_RATIO;
+    }
+
+    /**
      * Attempt to shove a blocking unit out of the way using the Push system, easing
      * pileups when units drive into each other. Immobilized units (mined, landed
      * transports, dug-in tanks) hold their ground and cannot be pushed.
@@ -903,17 +929,54 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         double dy = otherLoc.y - myLoc.y;
         if (dx == 0 && dy == 0) dx = 1;
 
-        // Scale the shove by how much lighter the target is relative to us: a rifleman gets
-        // flung, a truck barely budges, and equal-mass friendlies get a gentle declumping nudge.
-        double lightness = 1.0 - (double) unit.getPushPriority() / getPushPriority();
-        double factor = Math.max(MIN_PUSH_FACTOR, Math.min(1.0, lightness));
+        // Scale the shove by the mass ratio so a wide gap flings the lighter unit clear while
+        // equal-mass friendlies only get a gentle declumping nudge at the floor. A tank over
+        // infantry (ratio ~20) hits the ceiling and scatters them hard; a tank nudging a truck
+        // (ratio ~2.9) lands in between.
+        double ratio = (double) getPushPriority() / unit.getPushPriority();
+        double factor = Math.max(MIN_PUSH_FACTOR, Math.min(MAX_PUSH_FACTOR, 0.3 + (ratio - 1.0) * 0.15));
 
-        Push push = new Push(dx, dy, RTSGame.tickAdjust(4.0) * factor, 3.0 * factor, 20,
-                p -> { p.speed *= 0.82; p.strength *= 0.82; });
+        // Cap the shove a bit above our own movement speed: a unit scatters a touch ahead of the
+        // pusher rather than rocketing off it. Mass gap still drives the strength.
+        double pushSpeed = Math.min(RTSGame.tickAdjust(4.0) * factor, getBaseSpeed() * PUSH_SPEED_CAP_MULT);
+
+        // Hold a constant speed (no taper) over a short window; continuous contact refreshes it once
+        // it expires, so the pushed unit stays ahead instead of decaying below our speed and getting
+        // run over again. The push fades out naturally once we stop touching it.
+        Push push = new Push(dx, dy, pushSpeed, 3.0 * factor, 10);
         unit.addPush(push);
         lastPushPerTarget.put(unit.ID, push);
     }
-    
+
+    /**
+     * Push ourselves out from under a heavier unit that is overlapping us. Only fires when the
+     * other unit is heavy enough to plow through us ({@link #movesFreelyThrough}) and our hitboxes
+     * actually intersect, so an infantryman that a tank stopped on top of squirms free instead of
+     * staying trapped inside it. Anchored (immobilized) units stay put.
+     */
+    private void tryEvict(GameObject2 other) {
+        if (!(other instanceof RTSUnit unit) || unit == this) return;
+        if (unit.plane != this.plane) return;
+        if (!isSolid || !preventOverlap || isImmobilized) return;
+        if (!unit.movesFreelyThrough(this)) return;            // only eject from units that bulldoze us
+        if (getHitbox() == null || unit.getHitbox() == null) return;
+        if (!getHitbox().intersects(unit.getHitbox())) return; // only when actually stuck inside
+
+        Push existing = lastEvictPerSource.get(unit.ID);
+        if (existing != null && !existing.isExpired()) return;
+
+        DCoordinate myLoc = getLocationAsOfLastTick();
+        DCoordinate otherLoc = unit.getLocationAsOfLastTick();
+        double dx = myLoc.x - otherLoc.x;                      // away from the heavier unit's center
+        double dy = myLoc.y - otherLoc.y;
+        if (dx == 0 && dy == 0) dx = 1;
+
+        double pushSpeed = Math.min(RTSGame.tickAdjust(4.0), getBaseSpeed() * PUSH_SPEED_CAP_MULT);
+        Push push = new Push(dx, dy, pushSpeed, 3.0, 10);   // constant speed; contact refreshes it
+        addPush(push);
+        lastEvictPerSource.put(unit.ID, push);
+    }
+
     public void takeDamage(Damage damage) {
         currentHealth -= (damage.baseAmount + damage.apAmount);
         if(currentHealth<=0){

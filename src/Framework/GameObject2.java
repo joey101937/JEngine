@@ -740,6 +740,16 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         pushes.removeIf(Push::isExpired);
     }
     
+    /**
+     * Whether this object should keep its movement when it would otherwise be blocked by
+     * {@code other}. The collision is still registered (so {@code onCollide} responses run),
+     * but movement is not stopped. Defaults to false; override to let an object plow through
+     * specific blockers it is overpowering.
+     */
+    protected boolean movesFreelyThrough(GameObject2 other) {
+        return false;
+    }
+
     private boolean canCollideWith(GameObject2 other) {
         return isSolid && other.isSolid
                 && other != this
@@ -810,6 +820,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
                 if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)) {
                     getHostGame().handler.registerCollision(this, other);
                     if (!current.preventOverlap || !other.preventOverlap) {
+                        continue;
+                    }
+                    // objects may opt to keep moving through specific blockers (collision is
+                    // still registered above, so onCollide-driven responses still fire)
+                    if (current.movesFreelyThrough(other)) {
                         continue;
                     }
                     // already overlapping

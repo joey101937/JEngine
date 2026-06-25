@@ -52,6 +52,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] apacheAttack;
     public static BufferedImage apacheEmptyPods;
     public static BufferedImage apacheMissileProjectile;
+    public static BufferedImage apacheBurnMark;
     public static BufferedImage apacheDockedMissile;
     public static BufferedImage missile, yellowMissile;
     public static BufferedImage missileShadow, yellowMissileShadow;
@@ -450,6 +451,7 @@ public abstract class RTSAssetManager {
             apacheBlades = load("DemoAssets/TankGame/apache/newChopperFrames/blades.png");
             apacheEmptyPods = load("DemoAssets/TankGame/apache/apacheEmptyPods.png");
             apacheMissileProjectile = load("DemoAssets/TankGame/apache/apacheMissile.png");
+            apacheBurnMark = load("DemoAssets/TankGame/apache/apacheBurnMark.png");
             apacheDockedMissile = load("DemoAssets/TankGame/apache/dockedMissile.png");
             // own death art (same files for now; repoint to apache-specific art when available)
             apacheDead = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDead.png");
