@@ -434,7 +434,7 @@ public abstract class RTSAssetManager {
             hellicopterAttack = loadSequence("DemoAssets/TankGame/copter/newFire");
             hellicopterBlades = load("DemoAssets/TankGame/copter/newChopperFrames/blades.png");
             missile = load("DemoAssets/TankGame/copter/newMissile.png");
-            missileShadow = load("DemoAssets/TankGame/missileShadow.png");
+            missileShadow = load("DemoAssets/TankGame/copter/newMissileShadow.png");
             yellowMissile = load("DemoAssets/TankGame/yellowMissile.png");
             yellowMissileShadow = load("DemoAssets/TankGame/yellowMissileShadow.png");
             hellicopterDead = load("DemoAssets/TankGame/copter/newChopperFrames/newChopperDead.png");
