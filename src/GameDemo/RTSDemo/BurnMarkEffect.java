@@ -14,6 +14,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
 /**
@@ -26,6 +27,10 @@ import java.util.Random;
  * {@code Path2D} geometry seeded from the spawn position, so the shape is
  * deterministic and stable across frames. Alpha fades linearly from 1 to 0 over
  * the specified duration, after which the effect removes itself from the game.
+ * <p>
+ * Alternatively, pass a pre-rendered scorch image to the image constructor and
+ * the effect draws that single decal (scaled, randomly rotated, alpha-fading)
+ * instead of the procedural geometry.
  * <p>
  * For burn marks that should follow a vehicle and render on its hull, use
  * {@link HullBurnDecal} instead.
@@ -40,15 +45,38 @@ public class BurnMarkEffect extends IndependentEffect {
     private final int zLayer;
     private int ticksElapsed = 0;
 
-    private final transient Path2D.Float mainShape;
-    private final transient Path2D.Float outerScorch;
-    private final int[] scatterX, scatterY, scatterRX, scatterRY;
-    private final int[] streakEX, streakEY;
-    private final float[] streakWidths;
-    private final transient RadialGradientPaint gradient;
+    private transient Path2D.Float mainShape;
+    private transient Path2D.Float outerScorch;
+    private int[] scatterX, scatterY, scatterRX, scatterRY;
+    private int[] streakEX, streakEY;
+    private float[] streakWidths;
+    private transient RadialGradientPaint gradient;
+
+    // Image-decal mode (used instead of the procedural geometry when non-null)
+    private final transient BufferedImage decalImage;
+    private final double decalScale;
+    private final double decalRotation;
 
     public BurnMarkEffect(Game game, Coordinate worldPos, int radius, int durationTicks) {
         this(game, worldPos, radius, durationTicks, -10);
+    }
+
+    /**
+     * Image-decal burn mark: draws {@code decalImage} centered on {@code worldPos},
+     * scaled so its rendered width is {@code 2 * radius}, randomly rotated and
+     * alpha-fading over {@code durationTicks}.
+     */
+    public BurnMarkEffect(Game game, Coordinate worldPos, BufferedImage decalImage, int radius, int durationTicks, int zLayer) {
+        this.game        = game;
+        this.worldPos    = new Coordinate(worldPos);
+        this.durationTicks = durationTicks;
+        this.zLayer      = zLayer;
+        this.decalImage  = decalImage;
+        Random rand = new Random(worldPos.x * 7919L + worldPos.y * 6271L);
+        this.decalRotation = rand.nextDouble() * Math.PI * 2;
+        this.decalScale = (decalImage != null && decalImage.getWidth() > 0)
+            ? (radius * 2.0) / decalImage.getWidth()
+            : 1.0;
     }
 
     public BurnMarkEffect(Game game, Coordinate worldPos, int radius, int durationTicks, int zLayer) {
@@ -56,6 +84,9 @@ public class BurnMarkEffect extends IndependentEffect {
         this.worldPos    = new Coordinate(worldPos);
         this.durationTicks = durationTicks;
         this.zLayer      = zLayer;
+        this.decalImage  = null;
+        this.decalScale  = 1.0;
+        this.decalRotation = 0.0;
 
         Random rand = new Random(worldPos.x * 7919L + worldPos.y * 6271L);
         double baseRotation = rand.nextDouble() * Math.PI * 2;
@@ -136,6 +167,22 @@ public class BurnMarkEffect extends IndependentEffect {
     public void render(Graphics2D g) {
         if (ticksElapsed >= durationTicks) return;
         float alpha = 1.0f - (float) ticksElapsed / durationTicks;
+
+        if (decalImage != null) {
+            AffineTransform saved        = g.getTransform();
+            Composite       savedComposite = g.getComposite();
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+            AffineTransform at = new AffineTransform(saved);
+            at.translate(worldPos.x, worldPos.y);
+            at.rotate(decalRotation);
+            at.scale(decalScale, decalScale);
+            at.translate(-decalImage.getWidth() / 2.0, -decalImage.getHeight() / 2.0);
+            g.setTransform(at);
+            g.drawImage(decalImage, 0, 0, null);
+            g.setTransform(saved);
+            g.setComposite(savedComposite);
+            return;
+        }
 
         Composite     oldComposite = g.getComposite();
         Color         oldColor     = g.getColor();
