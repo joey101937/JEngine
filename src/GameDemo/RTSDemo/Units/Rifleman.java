@@ -27,7 +27,7 @@ import java.util.ArrayList;
  */
 public class Rifleman extends RTSUnit {
 
-    public static final double VISUAL_SCALE = .18;
+    public static final double VISUAL_SCALE = .19;
     public static final Sprite baseSprite = new Sprite(RTSAssetManager.infantryLegs);
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.infantryShadow);
     public static final Sequence runningSequence = new Sequence(RTSAssetManager.infantryLegsRun);
@@ -353,6 +353,6 @@ public class Rifleman extends RTSUnit {
     
     @Override
     public int getDodgeChance() {
-        return 35;
+        return 30;
     }
 }
