@@ -8,9 +8,14 @@ public interface ReinforcementPoint {
     int getOwningTeam();
     double getCaptureRadius();
     SpawnLocation getSpawnLocation();
-    
+
     default boolean isActive () { return true; };
     default boolean isCapturable() { return true; }
+
+    /** Capture progress of the contesting team, 0..1. */
+    default double getCaptureProgress() { return 0; }
+    /** The team currently making capture progress, or -1 when uncontested. */
+    default int getCapturingTeam() { return -1; }
 
     static ReinforcementPoint getClosest(Coordinate target, int team) {
         ReinforcementPoint closest = null;

@@ -21,7 +21,7 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
     private static final long serialVersionUID = 1L;
     public static final Sprite mainSprite = new Sprite(RTSAssetManager.building);
     public static final Sprite shadowSprite = Sprite.generateShadowSprite(mainSprite.getImage(), .5);
-    private static final double CAPTURE_RATE = 0.01;
+    private static final double CAPTURE_RATE = 0.005;
     private static final double CAPTURE_THRESHOLD = 1.0;
     public static final double VISUAL_SCALE = .7;
     
@@ -54,6 +54,8 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
     public int owningTeam = -1;
     public int captureRadius = 1000;
     public double captureProgress = 0;
+    // The team currently making capture progress (-1 when uncontested).
+    public int capturingTeam = -1;
     public SpawnLocation spawnLocation;
     
     public KeyBuilding(int x, int y) {
@@ -125,50 +127,55 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
     }
     
     private void updateCaptureStatus() {
-        ArrayList<RTSUnit> nearbyUnits = getNearbyUnits();
-        int[] teamCounts = countTeams(nearbyUnits);
-        
-        int dominantTeam = getDominantTeam(teamCounts);
-        
+        int dominantTeam = getDominantNearbyTeam();
+
         if (dominantTeam != -1 && dominantTeam != owningTeam) {
-            captureProgress += CAPTURE_RATE;
-            if (captureProgress >= CAPTURE_THRESHOLD) {
-                owningTeam = dominantTeam;
-                captureProgress = 0;
+            if (capturingTeam == -1 || captureProgress == 0) {
+                capturingTeam = dominantTeam;
+            }
+            if (dominantTeam == capturingTeam) {
+                captureProgress += CAPTURE_RATE;
+                if (captureProgress >= CAPTURE_THRESHOLD) {
+                    owningTeam = capturingTeam;
+                    captureProgress = 0;
+                    capturingTeam = -1;
+                }
+            } else {
+                // A different team contests an in-progress capture; erode it first.
+                captureProgress = Math.max(0, captureProgress - CAPTURE_RATE);
+                if (captureProgress == 0) {
+                    capturingTeam = -1;
+                }
             }
         } else {
             captureProgress = Math.max(0, captureProgress - CAPTURE_RATE);
+            if (captureProgress == 0) {
+                capturingTeam = -1;
+            }
         }
     }
-    
-    private ArrayList<RTSUnit> getNearbyUnits() {
-        ArrayList<RTSUnit> nearbyUnits = new ArrayList<>();
+
+    /**
+     * Returns the single team with the most units in capture range, or -1 if none
+     * or if there is a tie for the most. Works for any integer team id.
+     */
+    private int getDominantNearbyTeam() {
+        // TreeMap keeps iteration in ascending team-id order for deterministic ties.
+        java.util.TreeMap<Integer, Integer> teamCounts = new java.util.TreeMap<>();
         for (GameObject2 obj : getHostGame().getAllObjects()) {
-            if (obj instanceof RTSUnit && distanceFrom(obj) <= captureRadius) {
-                nearbyUnits.add((RTSUnit) obj);
+            if (obj instanceof RTSUnit unit && !unit.isRubble
+                    && unit.team >= 0 && distanceFrom(obj) <= captureRadius) {
+                teamCounts.merge(unit.team, 1, Integer::sum);
             }
         }
-        return nearbyUnits;
-    }
-    
-    private int[] countTeams(ArrayList<RTSUnit> units) {
-        int[] teamCounts = new int[3]; // Assuming 3 teams
-        for (RTSUnit unit : units) {
-            if (unit.team >= 0 && unit.team < 3) {
-                teamCounts[unit.team]++;
-            }
-        }
-        return teamCounts;
-    }
-    
-    private int getDominantTeam(int[] teamCounts) {
+
         int maxCount = 0;
         int dominantTeam = -1;
-        for (int i = 0; i < teamCounts.length; i++) {
-            if (teamCounts[i] > maxCount) {
-                maxCount = teamCounts[i];
-                dominantTeam = i;
-            } else if (teamCounts[i] == maxCount) {
+        for (java.util.Map.Entry<Integer, Integer> entry : teamCounts.entrySet()) {
+            if (entry.getValue() > maxCount) {
+                maxCount = entry.getValue();
+                dominantTeam = entry.getKey();
+            } else if (entry.getValue() == maxCount) {
                 dominantTeam = -1; // Tie, no dominant team
             }
         }
@@ -207,6 +214,16 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
     @Override
     public SpawnLocation getSpawnLocation() {
         return spawnLocation;
+    }
+
+    @Override
+    public double getCaptureProgress() {
+        return captureProgress;
+    }
+
+    @Override
+    public int getCapturingTeam() {
+        return capturingTeam;
     }
 
     @Override

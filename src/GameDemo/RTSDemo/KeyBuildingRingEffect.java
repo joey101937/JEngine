@@ -51,6 +51,17 @@ public class KeyBuildingRingEffect extends IndependentEffect {
         g.setColor(ringColor);
         g.setStroke(new BasicStroke(12));
         g.drawOval(pixelLocation.x - radius, pixelLocation.y - radius, radius * 2, radius * 2);
+
+        // Capture progress fills the contesting team's color outward from the center.
+        double progress = point.getCaptureProgress();
+        int capturingTeam = point.getCapturingTeam();
+        if (progress > 0 && capturingTeam != -1) {
+            int fillRadius = (int) (radius * Math.min(1.0, progress));
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.1f));
+            g.setColor(RTSUnit.getColorFromTeam(capturingTeam));
+            g.fillOval(pixelLocation.x - fillRadius, pixelLocation.y - fillRadius, fillRadius * 2, fillRadius * 2);
+        }
+
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
 }
