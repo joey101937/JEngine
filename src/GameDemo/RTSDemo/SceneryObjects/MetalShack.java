@@ -4,14 +4,16 @@ import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import GameDemo.RTSDemo.FogOfWar.SightBlocker;
+import GameDemo.RTSDemo.MinimapRenderable;
 import GameDemo.RTSDemo.RTSAssetManager;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 
-public class MetalShack extends GameObject2 implements SceneryObject, SightBlocker {
+public class MetalShack extends GameObject2 implements SceneryObject, SightBlocker, MinimapRenderable {
     private static final long serialVersionUID = 1L;
 
     public static final Sprite bodySprite = new Sprite(RTSAssetManager.metalShack);
@@ -127,5 +129,10 @@ public class MetalShack extends GameObject2 implements SceneryObject, SightBlock
     @Override
     public int getPathingPadding() {
         return 25;
+    }
+
+    @Override
+    public Color getMinimapColor() {
+        return Color.WHITE;
     }
 }

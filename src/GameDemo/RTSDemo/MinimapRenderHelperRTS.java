@@ -32,10 +32,15 @@ public class MinimapRenderHelperRTS extends SimpleRenderHelper {
             int borderDiameter = longerSide + 64;
             Color fillColor = mr.getMinimapColor();
             if (mr.getMinimapShape() == MinimapRenderable.Shape.RECTANGLE) {
+                java.awt.geom.AffineTransform old = g.getTransform();
+                g.rotate(Math.toRadians(go.getRotation()), go.getPixelLocation().x, go.getPixelLocation().y);
+                int rectW = go.getWidth();
+                int rectH = go.getHeight();
                 g.setColor(Color.BLACK);
-                g.fillRect(go.getPixelLocation().x - borderDiameter/2, go.getPixelLocation().y - borderDiameter/2, borderDiameter, borderDiameter);
+                g.fillRect(go.getPixelLocation().x - (rectW + 64)/2, go.getPixelLocation().y - (rectH + 64)/2, rectW + 64, rectH + 64);
                 g.setColor(fillColor);
-                g.fillRect(go.getPixelLocation().x - longerSide/2, go.getPixelLocation().y - longerSide/2, longerSide, longerSide);
+                g.fillRect(go.getPixelLocation().x - rectW/2, go.getPixelLocation().y - rectH/2, rectW, rectH);
+                g.setTransform(old);
             } else {
                 g.setColor(Color.BLACK);
                 g.fillOval(go.getPixelLocation().x - borderDiameter/2, go.getPixelLocation().y - borderDiameter/2, borderDiameter, borderDiameter);

@@ -4,13 +4,15 @@ import Framework.Coordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
 import GameDemo.RTSDemo.FogOfWar.SightBlocker;
+import GameDemo.RTSDemo.MinimapRenderable;
 import GameDemo.RTSDemo.RTSAssetManager;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 
-public class OrangeWoodHouse extends GameObject2 implements SceneryObject, SightBlocker {
+public class OrangeWoodHouse extends GameObject2 implements SceneryObject, SightBlocker, MinimapRenderable {
     private static final long serialVersionUID = 1L;
 
     public static final Sprite bodySprite = new Sprite(RTSAssetManager.orangeWoodHouse);
@@ -87,5 +89,10 @@ public class OrangeWoodHouse extends GameObject2 implements SceneryObject, Sight
         g.rotate(Math.toRadians(getRotation()), renderLoc.x, renderLoc.y);
         g.drawImage(extrasImg, renderLoc.x - extrasImg.getWidth() / 2, renderLoc.y - extrasImg.getHeight() / 2, null);
         g.setTransform(old);
+    }
+
+    @Override
+    public Color getMinimapColor() {
+        return Color.WHITE;
     }
 }

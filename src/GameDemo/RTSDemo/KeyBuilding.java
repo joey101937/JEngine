@@ -211,6 +211,6 @@ public class KeyBuilding extends GameObject2 implements SightBlocker, Reinforcem
 
     @Override
     public java.awt.Color getMinimapColor() {
-        return owningTeam >= 0 ? RTSUnit.getColorFromTeam(owningTeam) : java.awt.Color.GRAY;
+        return owningTeam >= 0 ? RTSUnit.getColorFromTeam(owningTeam) : java.awt.Color.WHITE;
     }
 }
