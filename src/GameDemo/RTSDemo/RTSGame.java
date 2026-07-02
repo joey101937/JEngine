@@ -40,7 +40,7 @@ import java.util.Set;
  */
 public class RTSGame {
 
-    public static final Set<Integer> activeTeams = Set.of(-1, 0, 1, 2, 3, 4, 5);
+    public static Set<Integer> activeTeams = Set.of(-1, 0, 1, 2, 3, 4, 5);
 
     public static Game game = null;
     public static Minimap minimap = null;
@@ -242,18 +242,19 @@ public class RTSGame {
     }
     
     private static void spawnLines() {
-        int spacer = 160;
+        int spacer = 180;
         int lineLength = 35;
         
          for (int i = 0; i < lineLength; i++) {
-            Apache heli = new Apache(100 + (i * spacer), 100, 0);
-            heli.setRotation(180);
-            game.addObject(heli);
-        }
-        for (int i = 0; i < lineLength; i++) {
-            TransportHelicopter transport = new TransportHelicopter(100 + (i * spacer), 200, 0);
-            transport.setRotation(180);
-            game.addObject(transport);
+            if(i % 4 == 0) {
+                TransportHelicopter transport = new TransportHelicopter(100 + (i * spacer), 100, 0);
+                transport.setRotation(180);
+                game.addObject(transport);
+            } else if (i % 2 == 0) {
+                Apache heli = new Apache(100 + (i * spacer), 100, 0);
+                heli.setRotation(180);
+                game.addObject(heli);
+            }
         }
         for (int i = 0; i < lineLength; i++) {
             Truck truck = new Truck(100 + (i * spacer), 300, 0);
@@ -293,11 +294,12 @@ public class RTSGame {
         for (int i = 0; i < lineLength; i++) {
             game.addObject(new LightTank(100 + (i * spacer), 2150, 1));
         }
-        for (int i = 0; i < lineLength; i++) {
-            game.addObject(new Apache(100 + (i * spacer), 2300, 1));
-        }
-        for (int i = 0; i < lineLength; i++) {
-            game.addObject(new TransportHelicopter(100 + (i * spacer), 2450, 1));
+         for (int i = 0; i < lineLength; i++) {
+            if(i % 4 == 0) {
+                game.addObject(new TransportHelicopter(100 + (i * spacer), 2450, 1));
+            } else if (i % 2 == 0) {
+               game.addObject(new Apache(100 + (i * spacer), 2300, 1));
+            }
         }
     }
     
