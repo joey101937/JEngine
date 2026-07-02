@@ -22,6 +22,12 @@ public class MapSerializer {
             sb.append("\"hpPercent\": ").append(obj.hpPercent);
             if (obj.zLayer != Integer.MIN_VALUE)
                 sb.append(", \"zLayer\": ").append(obj.zLayer);
+            EditorObjectType type = EditorObjectType.fromClassName(obj.type);
+            if (type != null && type.hasSpawnPoint()) {
+                sb.append(", \"spawnOffsetX\": ").append(obj.spawnOffsetX);
+                sb.append(", \"spawnOffsetY\": ").append(obj.spawnOffsetY);
+                sb.append(", \"spawnRotation\": ").append(obj.spawnRotation);
+            }
             sb.append("}");
             if (i < data.objects.size() - 1) sb.append(",");
             sb.append("\n");
@@ -67,6 +73,10 @@ public class MapSerializer {
             if (hp == 0) hp = extractNumber(chunk, "hp");
             obj.hpPercent = (int) Math.max(1, Math.min(100, hp == 0 ? 100 : hp));
             if (hasKey(chunk, "zLayer")) obj.zLayer = (int) extractNumber(chunk, "zLayer");
+            // Spawn point fields default to the Key Building baseline when absent (older maps).
+            if (hasKey(chunk, "spawnOffsetX"))  obj.spawnOffsetX  = (int) extractNumber(chunk, "spawnOffsetX");
+            if (hasKey(chunk, "spawnOffsetY"))  obj.spawnOffsetY  = (int) extractNumber(chunk, "spawnOffsetY");
+            if (hasKey(chunk, "spawnRotation")) obj.spawnRotation = extractNumber(chunk, "spawnRotation");
             data.objects.add(obj);
         }
         return data;

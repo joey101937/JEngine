@@ -20,6 +20,9 @@ public class MapEditorPalette extends JPanel {
     private JSpinner  hpSpinner;
     private JSpinner  rotSpinner;
     private JSpinner  zLayerSpinner;
+    private JSpinner  spawnXSpinner;
+    private JSpinner  spawnYSpinner;
+    private JSpinner  spawnRotSpinner;
     private JButton   deleteBtn;
     private boolean   updatingProps = false;
 
@@ -213,6 +216,13 @@ public class MapEditorPalette extends JPanel {
         zLayerSpinner = new JSpinner(new SpinnerNumberModel(1, -1000, 1000, 1));
         zLayerSpinner.addChangeListener(e -> applyZLayer());
 
+        spawnXSpinner = new JSpinner(new SpinnerNumberModel(0, -10000, 10000, 25));
+        spawnXSpinner.addChangeListener(e -> applySpawn());
+        spawnYSpinner = new JSpinner(new SpinnerNumberModel(0, -10000, 10000, 25));
+        spawnYSpinner.addChangeListener(e -> applySpawn());
+        spawnRotSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 359.9, 15.0));
+        spawnRotSpinner.addChangeListener(e -> applySpawn());
+
         deleteBtn = actionButton("DELETE", DEL_BG, DEL_BDR);
         deleteBtn.addActionListener(e -> canvas.deleteSelectedObject());
 
@@ -222,6 +232,9 @@ public class MapEditorPalette extends JPanel {
         addRow(props, c, row++, "HP %:",     hpSpinner);
         addRow(props, c, row++, "Rotation:", rotSpinner);
         addRow(props, c, row++, "Z-Layer:",  zLayerSpinner);
+        addRow(props, c, row++, "Spawn X:",  spawnXSpinner);
+        addRow(props, c, row++, "Spawn Y:",  spawnYSpinner);
+        addRow(props, c, row++, "Spawn Rot:",spawnRotSpinner);
 
         c.gridx = 0; c.gridy = row; c.gridwidth = 2;
         c.insets = new Insets(6, 2, 2, 2);
@@ -254,6 +267,7 @@ public class MapEditorPalette extends JPanel {
         propTypeLabel.setText(type != null ? type.displayName : sel.type);
 
         updatingProps = true;
+        setPropsEnabled(true);
         teamCombo.setSelectedIndex(teamIndex(sel.team));
         teamCombo.setEnabled(type != null && type.hasTeam());
         hpSpinner.setValue(Math.max(1, Math.min(100, sel.hpPercent)));
@@ -262,7 +276,13 @@ public class MapEditorPalette extends JPanel {
         int displayZLayer = (sel.zLayer != Integer.MIN_VALUE) ? sel.zLayer
                           : (type != null ? type.defaultZLayer : 1);
         zLayerSpinner.setValue(displayZLayer);
-        setPropsEnabled(true);
+        boolean spawn = type != null && type.hasSpawnPoint();
+        spawnXSpinner.setValue(sel.spawnOffsetX);
+        spawnYSpinner.setValue(sel.spawnOffsetY);
+        spawnRotSpinner.setValue(sel.spawnRotation);
+        spawnXSpinner.setEnabled(spawn);
+        spawnYSpinner.setEnabled(spawn);
+        spawnRotSpinner.setEnabled(spawn);
         updatingProps = false;
     }
 
@@ -296,11 +316,24 @@ public class MapEditorPalette extends JPanel {
         sel.zLayer = (Integer) zLayerSpinner.getValue();
     }
 
+    private void applySpawn() {
+        if (updatingProps) return;
+        PlacedObject sel = canvas.getSelectedObject();
+        if (sel == null) return;
+        sel.spawnOffsetX  = (Integer) spawnXSpinner.getValue();
+        sel.spawnOffsetY  = (Integer) spawnYSpinner.getValue();
+        sel.spawnRotation = (Double)  spawnRotSpinner.getValue();
+        canvas.repaint();
+    }
+
     private void setPropsEnabled(boolean en) {
         teamCombo.setEnabled(en);
         hpSpinner.setEnabled(en);
         rotSpinner.setEnabled(en);
         zLayerSpinner.setEnabled(en);
+        spawnXSpinner.setEnabled(en);
+        spawnYSpinner.setEnabled(en);
+        spawnRotSpinner.setEnabled(en);
         deleteBtn.setEnabled(en);
     }
 

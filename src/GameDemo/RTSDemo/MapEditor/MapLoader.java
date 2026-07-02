@@ -99,7 +99,7 @@ public class MapLoader {
                 applyHp(u, p.hpPercent);
                 return u;
             }
-            case "KeyBuilding":           return new KeyBuilding(p.x, p.y, p.team);
+            case "KeyBuilding":           return new KeyBuilding(p.x, p.y, p.team, p.spawnOffsetX, p.spawnOffsetY, p.spawnRotation);
             case "Hangar":                return new Hangar(p.x, p.y);
             case "BuildingGreen1":        return new BuildingGreen1(p.x, p.y);
             case "OrangeWoodHouse":       return new OrangeWoodHouse(p.x, p.y);

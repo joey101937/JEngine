@@ -3,7 +3,7 @@
 ## How the Map Editor Works
 
 ### Save / Load flow
-- `PlacedObject` — plain data bag: `type` (simple class name string), `x`, `y`, `rotation`, `team`, `hpPercent`
+- `PlacedObject` — plain data bag: `type` (simple class name string), `x`, `y`, `rotation`, `team`, `hpPercent`, plus `spawnOffsetX/Y`/`spawnRotation` for reinforcement spawn-point types (Key Buildings). Spawn fields are only written/read for types where `EditorObjectType.hasSpawnPoint()` (currently `Category.BUILDING`); they default to the KeyBuilding baseline so older maps load unchanged. The editor shows a draggable green spawn marker + arrow, and Spawn X/Y/Rot spinners in the Properties panel; `MapLoader` feeds them into the 6-arg `KeyBuilding` constructor.
 - `MapData` — holds a `List<PlacedObject>` plus the background filename
 - `MapSerializer` — serializes/deserializes `MapData` to/from JSON. The `type` field written to JSON is the **simple class name** (e.g. `"Tree3"`)
 - `MapLoader.loadIntoGame()` — iterates `MapData.objects`, calls `createObject(p)` per entry (switch on `p.type`), then calls `obj.setLocation` and `obj.setRotation` after construction. Rotation is always applied post-construction; the two-arg `(x, y, rotation)` constructors on scenery classes are not used by the loader.

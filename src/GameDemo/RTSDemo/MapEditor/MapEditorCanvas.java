@@ -34,6 +34,8 @@ public class MapEditorCanvas extends JPanel {
     private PlacedObject dragTarget = null;
     private int dragStartWorldX, dragStartWorldY;
     private boolean isDragging = false;
+    // True while dragging the selected building's reinforcement spawn marker (not the building itself).
+    private boolean draggingSpawn = false;
 
     // Mouse position on screen
     private int mouseX, mouseY;
@@ -98,6 +100,7 @@ public class MapEditorCanvas extends JPanel {
                 pressScreenY = e.getY();
                 isDragging = false;
                 dragTarget = null;
+                draggingSpawn = false;
 
                 if (SwingUtilities.isRightMouseButton(e)) {
                     paletteSelection = null;
@@ -108,6 +111,12 @@ public class MapEditorCanvas extends JPanel {
                 }
 
                 if (paletteSelection == null) {
+                    // Grabbing the selected building's spawn marker repositions the spawn, not the building.
+                    if (selectedObject != null && hasSpawnPoint(selectedObject)
+                            && nearSpawnMarker(selectedObject, e.getX(), e.getY())) {
+                        draggingSpawn = true;
+                        return;
+                    }
                     PlacedObject hit = hitTest(e.getX(), e.getY());
                     selectedObject = hit;
                     dragTarget = hit;
@@ -129,6 +138,7 @@ public class MapEditorCanvas extends JPanel {
                 }
                 isDragging = false;
                 dragTarget = null;
+                draggingSpawn = false;
                 repaint();
             }
 
@@ -142,7 +152,11 @@ public class MapEditorCanvas extends JPanel {
                 int dy = e.getY() - pressScreenY;
                 if (Math.abs(dx) > 4 || Math.abs(dy) > 4) isDragging = true;
 
-                if (dragTarget != null && paletteSelection == null && isDragging) {
+                if (draggingSpawn && selectedObject != null) {
+                    selectedObject.spawnOffsetX = (int)(toWorldX(e.getX()) - selectedObject.x);
+                    selectedObject.spawnOffsetY = (int)(toWorldY(e.getY()) - selectedObject.y);
+                    notifySelection();
+                } else if (dragTarget != null && paletteSelection == null && isDragging) {
                     dragTarget.x = dragStartWorldX + (int)(dx / zoom);
                     dragTarget.y = dragStartWorldY + (int)(dy / zoom);
                     updateStatus();
@@ -168,7 +182,13 @@ public class MapEditorCanvas extends JPanel {
         addMouseWheelListener(e -> {
             if (selectedObject != null && paletteSelection == null) {
                 double step = e.isShiftDown() ? 1 : 15;
-                selectedObject.rotation = (selectedObject.rotation + e.getWheelRotation() * step % 360 + 360) % 360;
+                double delta = e.getWheelRotation() * step;
+                // Scrolling over the spawn marker rotates the spawn direction instead of the building.
+                if (hasSpawnPoint(selectedObject) && nearSpawnMarker(selectedObject, e.getX(), e.getY())) {
+                    selectedObject.spawnRotation = (selectedObject.spawnRotation + delta % 360 + 360) % 360;
+                } else {
+                    selectedObject.rotation = (selectedObject.rotation + delta % 360 + 360) % 360;
+                }
                 notifySelection();
             } else {
                 double factor = e.getWheelRotation() < 0 ? 1.15 : 1.0 / 1.15;
@@ -235,6 +255,66 @@ public class MapEditorCanvas extends JPanel {
         return null;
     }
 
+    // ── Spawn markers ─────────────────────────────────────────────────────────
+
+    private static boolean hasSpawnPoint(PlacedObject obj) {
+        EditorObjectType t = EditorObjectType.fromClassName(obj.type);
+        return t != null && t.hasSpawnPoint();
+    }
+
+    /** True if screen point (sx,sy) is over the object's spawn marker disc. */
+    private boolean nearSpawnMarker(PlacedObject obj, int sx, int sy) {
+        int mx = toScreenX(obj.x + obj.spawnOffsetX);
+        int my = toScreenY(obj.y + obj.spawnOffsetY);
+        int r = 14;
+        return Math.abs(sx - mx) <= r && Math.abs(sy - my) <= r;
+    }
+
+    /**
+     * Draws the reinforcement spawn point: a dashed leash from the building to a
+     * disc at the spawn location, plus an arrow showing the spawn facing.
+     */
+    private void drawSpawnMarker(Graphics2D g2, PlacedObject obj, boolean bright) {
+        int bx = toScreenX(obj.x);
+        int by = toScreenY(obj.y);
+        int mx = toScreenX(obj.x + obj.spawnOffsetX);
+        int my = toScreenY(obj.y + obj.spawnOffsetY);
+
+        Color line = bright ? new Color(80, 220, 120)      : new Color(80, 220, 120, 90);
+        Color fill = bright ? new Color(80, 220, 120, 150) : new Color(80, 220, 120, 60);
+
+        Stroke oldStr = g2.getStroke();
+
+        // Leash from building to spawn
+        g2.setColor(line);
+        g2.setStroke(new BasicStroke(bright ? 2f : 1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+                0, new float[]{6, 6}, 0));
+        g2.drawLine(bx, by, mx, my);
+
+        // Spawn disc
+        g2.setStroke(new BasicStroke(bright ? 2f : 1f));
+        int r = 8;
+        g2.setColor(fill);
+        g2.fillOval(mx - r, my - r, r * 2, r * 2);
+        g2.setColor(line);
+        g2.drawOval(mx - r, my - r, r * 2, r * 2);
+
+        // Facing arrow (rotation 0 = up/north, clockwise positive — matches sprite rotation)
+        double theta = Math.toRadians(obj.spawnRotation);
+        double dx = Math.sin(theta), dy = -Math.cos(theta);
+        int len = 24;
+        int ax = mx + (int)(dx * len), ay = my + (int)(dy * len);
+        g2.drawLine(mx, my, ax, ay);
+        double baseAng = Math.atan2(dy, dx);
+        double barb = 9;
+        for (int s = -1; s <= 1; s += 2) {
+            double bang = baseAng + Math.PI + s * Math.toRadians(28);
+            g2.drawLine(ax, ay, ax + (int)(Math.cos(bang) * barb), ay + (int)(Math.sin(bang) * barb));
+        }
+
+        g2.setStroke(oldStr);
+    }
+
     // ── Rendering ─────────────────────────────────────────────────────────────
 
     @Override
@@ -263,6 +343,11 @@ public class MapEditorCanvas extends JPanel {
             drawObject(g2, obj, obj == selectedObject);
         }
 
+        // Reinforcement spawn markers — dim for all spawn-point objects, bright for the selected one
+        for (PlacedObject obj : sorted) {
+            if (hasSpawnPoint(obj)) drawSpawnMarker(g2, obj, obj == selectedObject);
+        }
+
         // Ghost
         if (paletteSelection != null && mouseOnCanvas) {
             drawGhost(g2);
@@ -275,6 +360,8 @@ public class MapEditorCanvas extends JPanel {
         g2.setFont(new Font("Monospaced", Font.PLAIN, 11));
         String hint = paletteSelection != null
                 ? "CLICK to place " + paletteSelection.displayName + "  |  ESC / Right-click to cancel"
+                : selectedObject != null && hasSpawnPoint(selectedObject)
+                    ? "DRAG green marker = move spawn  |  SCROLL over marker = spawn facing  |  DRAG/SCROLL body = move/rotate building"
                 : selectedObject != null
                     ? "DRAG to move  |  SCROLL to rotate (Shift=1 deg)  |  DEL to delete  |  ESC to deselect"
                     : "Click object to select  |  Scroll to zoom  |  Drag background to pan  |  F to fit view";

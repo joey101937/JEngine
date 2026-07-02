@@ -107,6 +107,7 @@ public enum EditorObjectType {
 
     public boolean hasTeam()    { return category == Category.UNIT || category == Category.BUILDING; }
     public boolean hasHp()      { return category == Category.UNIT; }
+    public boolean hasSpawnPoint() { return category == Category.BUILDING; }
 
     public static EditorObjectType fromClassName(String name) {
         for (EditorObjectType t : values()) {
