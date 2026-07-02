@@ -74,7 +74,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
         for (int team : RTSGame.activeTeams) {
             Sprite body = new Sprite(RTSAssetManager.getTransportHeliBody(team));
             body.applyAlphaEdgeBlurSelf(1);
-            body.setBrightness(.9);
+//            body.setBrightness(.9);
             bodySpriteMap.put(team, body);
 
             Sprite blades = new Sprite(RTSAssetManager.getTransportHeliBlades(team));
@@ -84,7 +84,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
 
             Sprite roof = new Sprite(RTSAssetManager.getTransportHeliRoof(team));
             roof.scaleTo(VISUAL_SCALE);
-            roof.setBrightness(.9);
+//            roof.setBrightness(.9);
 //            roof.applyAlphaEdgeBlurSelf(1);
             roofSpriteMap.put(team, roof);
         }
