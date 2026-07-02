@@ -5,7 +5,6 @@ import GameDemo.RTSDemo.ReinforcementPoint;
 import GameDemo.RTSDemo.SpawnLocation;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
-import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.Units.LightTank;
 
 public class ReinforcementTypeLightTanks extends ReinforcementType {
@@ -27,11 +26,10 @@ public class ReinforcementTypeLightTanks extends ReinforcementType {
     }
 
     @Override
-    public void onTrigger(Coordinate targetLocation, int team) {
+    public void onTrigger(Coordinate targetLocation, int team, String commandGroup) {
         ReinforcementPoint rp = ReinforcementPoint.getClosest(targetLocation, team);
         SpawnLocation spawn = rp.getSpawnLocation();
         Coordinate base = spawn.topLeft;
-        String commandGroup = RTSInput.generateRandomCommandGroup();
         int initialOffset = -360;
         for (int i = 0; i < 5; i++) {
             Coordinate spawnOffset = new Coordinate(initialOffset + (i * 120), 50);

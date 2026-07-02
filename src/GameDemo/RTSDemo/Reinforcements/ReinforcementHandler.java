@@ -9,8 +9,10 @@ import Framework.Main;
 import Framework.Hitbox;
 import Framework.Window;
 import GameDemo.RTSDemo.ReinforcementPoint;
+import GameDemo.RTSDemo.Commands.CallReinforcementCommand;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
 import java.awt.Font;
@@ -344,8 +346,21 @@ public class ReinforcementHandler extends IndependentEffect {
     
     public void callReinforcement(ReinforcementType type, Coordinate targetLocation) {
         if(!isAvailable()) return;
+        int reinforcementIndex = reinforcementTypes.indexOf(type);
+        if(reinforcementIndex < 0) return;
+        // The spawn itself runs through a command so both simulations recreate it
+        // deterministically on the same tick. The command group is generated here
+        // (once) and travels over the wire so unit grouping matches on both sides.
+        String commandGroup = RTSInput.generateRandomCommandGroup();
+        long spawnTick = Window.currentGame.getGameTickNumber() + RTSInput.getInputDelay();
+        RTSGame.commandHandler.addCommand(new CallReinforcementCommand(
+                spawnTick,
+                ExternalCommunicator.localTeam,
+                reinforcementIndex,
+                targetLocation,
+                commandGroup
+        ), true);
         successSound.playCopy(.7);
-        type.onTrigger(targetLocation, ExternalCommunicator.localTeam);
         reserveCount--;
         lastUsedTick = Window.currentGame.getGameTickNumber();
         isMenuOpen = false;

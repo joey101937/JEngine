@@ -406,6 +406,17 @@ public class ExternalCommunicator implements Runnable {
             updateTickTimingOffset(cmd.getExecuteTick());
         }
 
+        if(s.startsWith("rf:")) {
+            if(isResyncing) {
+                System.out.println("Dropping reinforcement command during resync");
+                return;
+            }
+            System.out.println("message " + s);
+            GameDemo.RTSDemo.Commands.CallReinforcementCommand cmd = GameDemo.RTSDemo.Commands.CallReinforcementCommand.generateFromMpString(s);
+            RTSGame.commandHandler.addCommand(cmd, false);
+            updateTickTimingOffset(cmd.getExecuteTick());
+        }
+
         if(s.startsWith("readyPhase1")) {
             isReadyForMultiplayerOtherMachine = true;
             if(isReadyForMultiplayerThisMachine) setAndCommunicateMultiplayerStartTime();

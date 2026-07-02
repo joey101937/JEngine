@@ -17,7 +17,12 @@ public abstract class ReinforcementType implements java.io.Serializable {
     public HashMap<Class, Integer> contents = new HashMap<>();
     public transient BufferedImage icon;
     public transient BufferedImage hoverIcon;
-    public abstract void onTrigger(Coordinate targetLocation, int team);
+    /**
+     * Spawns this reinforcement's units for the given team near the target.
+     * @param commandGroup shared group id so both simulations group the spawned
+     *                     units identically (generated once by the caller)
+     */
+    public abstract void onTrigger(Coordinate targetLocation, int team, String commandGroup);
 
     /**
      * Restore transient fields after deserialization.

@@ -5,7 +5,6 @@ import GameDemo.RTSDemo.ReinforcementPoint;
 import GameDemo.RTSDemo.SpawnLocation;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
-import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Rifleman;
@@ -35,11 +34,10 @@ public class ReinforcementTypeInfantry extends ReinforcementType {
     }
 
     @Override
-    public void onTrigger(Coordinate targetLocation, int team) {
+    public void onTrigger(Coordinate targetLocation, int team, String commandGroup) {
         ReinforcementPoint rp = ReinforcementPoint.getClosest(targetLocation, team);
         SpawnLocation spawn = rp.getSpawnLocation();
         Coordinate base = spawn.topLeft;
-        String commandGroup = RTSInput.generateRandomCommandGroup();
         int initialOffset = -360;
         for (int i = 0; i < 4; i++) {
             Coordinate spawnOffset = new Coordinate(initialOffset + (i * 200), 50);
