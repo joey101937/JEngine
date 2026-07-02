@@ -2,8 +2,13 @@ package GameDemo.RTSDemo.MapEditor;
 
 import Framework.Game;
 import Framework.GameObject2;
+import Framework.GraphicalAssets.Graphic;
 import GameDemo.RTSDemo.KeyBuilding;
+import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSUnit;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 import GameDemo.RTSDemo.SceneryObjects.BuildingGreen1;
 import GameDemo.RTSDemo.SceneryObjects.GreenShippingContainer;
 import GameDemo.RTSDemo.SceneryObjects.Hangar;
@@ -39,6 +44,22 @@ import GameDemo.RTSDemo.Units.TransportHelicopter;
 import GameDemo.RTSDemo.Units.Truck;
 
 public class MapLoader {
+
+    /** Caches loaded background images by filename so each large terrain image is only read from disk once. */
+    private static final Map<String, BufferedImage> backgroundCache = new HashMap<>();
+
+    /**
+     * Loads a TankGame background image by filename, returning a cached instance when available.
+     * The shared preloaded terrain image ({@link RTSAssetManager#grassBG}) is reused rather than
+     * loading a duplicate ~330MB copy. Returns {@code null} if {@code filename} is null.
+     */
+    public static BufferedImage loadBackground(String filename) {
+        if (filename == null) return null;
+        if (filename.equals(RTSAssetManager.grassBGFile) && RTSAssetManager.grassBG != null) {
+            backgroundCache.putIfAbsent(filename, RTSAssetManager.grassBG);
+        }
+        return backgroundCache.computeIfAbsent(filename, f -> Graphic.load("DemoAssets/TankGame/" + f));
+    }
 
     /** Instantiates all objects from {@code data} and adds them to {@code game}. */
     public static void loadIntoGame(MapData data, Game game) {

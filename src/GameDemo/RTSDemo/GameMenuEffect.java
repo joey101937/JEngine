@@ -5,7 +5,6 @@ import Framework.Game;
 import Framework.IndependentEffect;
 import Framework.Window;
 import Framework.SerializationManager;
-import Framework.GraphicalAssets.Graphic;
 import GameDemo.RTSDemo.MapEditor.MapData;
 import GameDemo.RTSDemo.MapEditor.MapLoader;
 import GameDemo.RTSDemo.MapEditor.MapSerializer;
@@ -233,7 +232,7 @@ public class GameMenuEffect extends IndependentEffect {
         try {
             MapData data = MapSerializer.load(f);
 
-            BufferedImage bg = Graphic.load("DemoAssets/TankGame/" + data.background);
+            BufferedImage bg = MapLoader.loadBackground(data.background);
             if (bg == null) bg = RTSAssetManager.grassBG;
 
             Game newGame = new Game(bg);
