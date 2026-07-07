@@ -70,40 +70,64 @@
     nbproject/build-impl.xml file. 
 
     -->
-<!--    
-      <taskdef name="launch4j" 
-             classname="net.sf.launch4j.ant.Launch4jTask" 
-             classpath="C:\Program Files (x86)\Launch4j\launch4j.jar"/>
-      
-      
-    <target name="compile">
-        <mkdir dir="build/classes"/>
-        <javac srcdir="src" destdir="build/classes" includeantruntime="false">
-            <classpath>
-                <pathelement location="lib/javafx-sdk/lib"/>
-            </classpath>
-        </javac>
-    </target>
+    <!-- ============================================================= -->
+    <!-- Standalone bundle: one-button, fully self-contained Windows   -->
+    <!-- app (exe + bundled Java runtime + Assets) that runs on         -->
+    <!-- machines without Java installed. Built with jpackage.          -->
+    <!--                                                                -->
+    <!-- Run it from NetBeans: right-click build.xml (Files window) ->  -->
+    <!--   Run Target -> Other Targets -> bundle                        -->
+    <!-- Or from a terminal: ant bundle                                 -->
+    <!-- ============================================================= -->
+    <target name="bundle" depends="jar"
+            description="Build a standalone Windows app (exe + bundled runtime + Assets) that runs without Java installed.">
 
-     
-    <target name="jar" depends="compile">
-        <mkdir dir="build"/>
-        <jar destfile="build/yourGame.jar" basedir="build/classes">
-            <manifest>
-                <attribute name="Main-Class" value="Framework.Main"/>
-            </manifest>
-        </jar>
-    </target>
+        <!-- JDK that provides jpackage. Defaults to the JDK running this build.
+             Override if needed:  ant -Djpackage.home="C:\Program Files\Java\jdk-25" bundle -->
+        <property name="jpackage.home" value="${java.home}"/>
+        <property name="bundle.name"    value="JEngine"/>
+        <property name="bundle.staging" value="${build.dir}/bundle"/>
+        <property name="bundle.input"   value="${build.dir}/bundle-input"/>
+        <property name="bundle.appdir"  value="${bundle.staging}/${bundle.name}"/>
 
-   
-    <target name="launch4j" depends="jar">
-        <launch4j configFile="launch4j-config.xml"/>
-    </target>
+        <!-- Fresh staging so jpackage doesn't collide with a previous image -->
+        <delete dir="${bundle.staging}"/>
+        <delete dir="${bundle.input}"/>
+        <mkdir  dir="${bundle.input}"/>
+        <copy file="${dist.jar}" tofile="${bundle.input}/${bundle.name}.jar"/>
 
-     
-    <target name="dist" depends="launch4j">
-        <mkdir dir="dist"/>
-        <copy file="build/yourGame.exe" todir="dist"/>
+        <!-- Build the self-contained app image (native launcher + trimmed runtime) -->
+        <echo>Running jpackage (this bundles a Java runtime; takes a minute)...</echo>
+        <exec executable="${jpackage.home}/bin/jpackage.exe" failonerror="true">
+            <arg value="--type"/>        <arg value="app-image"/>
+            <arg value="--name"/>        <arg value="${bundle.name}"/>
+            <arg value="--input"/>       <arg value="${bundle.input}"/>
+            <arg value="--main-jar"/>    <arg value="${bundle.name}.jar"/>
+            <arg value="--main-class"/>  <arg value="${main.class}"/>
+            <arg value="--dest"/>        <arg value="${bundle.staging}"/>
+            <arg value="--icon"/>        <arg value="src/Resources/JEngineIcon.ico"/>
+            <!-- Modules the game actually uses (detected via jdeps) + jdk.unsupported for safety -->
+            <arg value="--add-modules"/> <arg value="java.base,java.desktop,jdk.unsupported"/>
+            <arg value="--java-options"/> <arg value="-Dsun.java2d.d3d=true"/>
+            <arg value="--java-options"/> <arg value="-Dsun.java2d.uiScale=1"/>
+            <arg value="--java-options"/> <arg value="-Xmx4096m"/>
+        </exec>
+
+        <!-- The game loads assets relative to its working directory (user.dir),
+             which is the exe's own folder when launched. Put Assets right there. -->
+        <echo>Copying Assets next to the launcher...</echo>
+        <copy todir="${bundle.appdir}/Assets">
+            <fileset dir="Assets"/>
+        </copy>
+
+        <!-- Shareable zip: unzip anywhere and double-click the exe -->
+        <echo>Zipping distribution...</echo>
+        <zip destfile="${dist.dir}/${bundle.name}-standalone.zip" basedir="${bundle.staging}"/>
+
+        <echo>=====================================================</echo>
+        <echo>Standalone build complete.</echo>
+        <echo>  Run it here:   ${bundle.appdir}\${bundle.name}.exe</echo>
+        <echo>  Share this:    ${dist.dir}\${bundle.name}-standalone.zip</echo>
+        <echo>=====================================================</echo>
     </target>
-        -->
 </project>
