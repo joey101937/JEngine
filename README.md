@@ -721,23 +721,62 @@ Linking a sound to a game will make that sound be part of that game rather than 
 ### SoundEffectListener
 You may want to detect and react to happenings on a sound effect. Implementing this interface then calling the .setListener method on the desired sound effect will allow you react to events in a sound effect. For example, override the onPause() method with a function that prints "the sound was paused!" to the console and every time the sound is paused, your listener will print that to the console. 
 
-# Running Your .Jar Outside IDE
-You will likely want to use launch4J in order to generate a .exe file from your .jar. You will also want to bundle the jre along with your game
-Example steps of making a portable game:
-1. build the project to generate the jar
-2. uncomment the launch4J lines in build.xml
-3. run build.xml ->  run target -> launch4j 
-4. get the generated .exe from dist directory
-5. put your game assets, the jdk22 folder, the jar and the exe in a directory
-6. run the .exe and it should work using the local jdk
-7. put those things in a .zip folder and send to another pc
+# Building a Standalone Program
 
-It is recommended you increase the ram allocation using -Xmx1024m or -Xmx2084m (1gb or 2gb) so that it has enough memory. more if needed.
-You may want to disable direct3D using **-Dsun.java2d.d3d=false**. Direct 3d allows the game to utilize the GPU when rendering (as opposed to CPU-rendering) however this may create unexpected behavior. If you run into strange bugs, try disabling d3d.
+JEngine works both as a program in its own right (the demos) and as a foundation you build your own game on. Either way, you will eventually want to hand someone a build that *just runs* — no "install Java first" step. This section covers how to produce that self-contained application.
 
-Check out the launch4j config to see default used by your generated exe
+The tooling uses **jpackage**, which ships with every modern JDK (17+). It bundles a trimmed Java runtime directly into your app, so the machine you send it to needs **no Java installed**.
 
-**java -Dsun.java2d.d3d=true -Xmx1024m -jar JEngine.jar**  
-(note JEngine.jar is name of project jar)
+## Quick test run (machine that already has Java)
+If you just want to run the built jar on your own machine, you don't need to bundle anything:
+
+**`java -Dsun.java2d.d3d=true -Xmx2048m -jar JEngine.jar`**
+(where `JEngine.jar` is the jar in `dist/`)
+
+Keep the `Assets/` folder next to the jar — the engine looks for assets relative to where the app is launched from.
+
+## Bundling this repo as a standalone app
+
+**Requirement:** a JDK 17+ installed (this repo targets Java 24 bytecode and is developed against JDK 25). jpackage builds *for the OS it runs on*, so build the Windows app on Windows and the Mac app on a Mac.
+
+### Windows
+- **From NetBeans (the "one button"):** in the Files window, right-click `build.xml` → **Run Target → Other Targets → bundle**. This recompiles, jars, and bundles in one step.
+- **From a terminal:** `ant bundle`, or run `bundle.ps1` directly (`powershell -ExecutionPolicy Bypass -File bundle.ps1`). The `.ps1` uses the current `dist/JEngine.jar`, so build the project first if you changed code.
+
+Output:
+- `build/bundle/JEngine/` — the app folder; run `JEngine.exe`
+- `dist/JEngine-standalone.zip` — unzip anywhere and double-click the exe
+
+### macOS
+Run `./bundle.sh` on a Mac (`chmod +x bundle.sh` first). It auto-generates the required `.icns` icon from the PNG, then builds. Output:
+- `build/bundle-mac/JEngine.app` — double-clickable app
+- `dist/JEngine-mac.zip` — shareable zip
+
+The `.app` is **unsigned**, so on another Mac Gatekeeper will warn on first launch. Right-click → Open (or `xattr -dr com.apple.quarantine JEngine.app`) gets past it. Proper signing/notarization requires an Apple Developer account.
+
+### How assets are handled
+The bundle scripts copy the whole `Assets/` folder into the built app (next to the exe on Windows; inside `JEngine.app/Contents/app/` on macOS). `Main.getDir()` detects when the program is running as a bundle (via the `jpackage.app-path` system property) and resolves assets from the app's own location, so assets are found regardless of the working directory the OS hands the app. During normal IDE runs this falls back to the working directory, unchanged.
+
+## When using JEngine as a dependency in your own game
+
+If your game is a **fork of / based on this repo**, the flow above already works — just change two things:
+- The main class: `main.class` in `nbproject/project.properties` (and the `--main-class` value in `bundle.ps1` / `bundle.sh`).
+- The app name: `bundle.name` in the `bundle` target (and `NAME` in the scripts). Point `--icon` at your own icon.
+
+Then run the same `bundle` target / scripts.
+
+If your game is a **separate project that pulls in `JEngine.jar` as a library**, you run jpackage against *your* jar and put JEngine on the classpath. The pattern is the same as the scripts in this repo; adapt these flags:
+- Put **your** app jar *and* `JEngine.jar` (plus any other libraries) together in the `--input` directory — everything in that directory goes on the runtime classpath.
+- Set `--main-jar` to your jar and `--main-class` to your entry point.
+- Keep `--add-modules java.base,java.desktop,jdk.unsupported` (the modules the engine needs).
+- Copy your `Assets/` folder into the built app the same way the scripts do (next to the launcher on Windows / into `Contents/app/` on macOS).
+
+Because JEngine's asset lookup keys off `jpackage.app-path`, your assets resolve automatically inside the bundle as long as you keep loading them through `Main.getAssets()` / the `Main.assets` prefix.
+
+## Runtime options
+Both bundle scripts pass sensible JVM options; adjust them in the `--java-options` lines:
+- **Memory:** bump `-Xmx` (e.g. `-Xmx2048m` or `-Xmx4096m`) if a large game runs short on heap.
+- **Direct3D:** `-Dsun.java2d.d3d=true` lets rendering use the GPU. If you hit strange visual glitches, switch it to `-Dsun.java2d.d3d=false` to force CPU rendering.
+- **UI scaling:** `-Dsun.java2d.uiScale=1` keeps rendering 1:1 on high-DPI displays.
 
 [**Old javadoc here**](https://webpages.uncc.edu/jdemeis/javadoc/index.html)  

@@ -34,7 +34,12 @@ import javax.swing.JOptionPane;
 public class Main {
 
     /* FIELDS */
-    public static String assets = "Assets" + File.separator;
+    /**
+     * Absolute path to the Assets directory, with a trailing separator.
+     * Resolves from the packaged app-bundle location when running as a jpackage
+     * bundle, and from the working directory during normal/development runs.
+     */
+    public static String assets = getDir() + "Assets" + File.separator;
     public static int ticksPerSecond = 90; //how fast the game logic runs. lower to help performance but at noticable reduction to gamespeed
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
     private static boolean overviewMode = false;
@@ -153,8 +158,23 @@ public class Main {
      * @return the directory
      */
     public static String getDir() {
-        String output = System.getProperty("user.dir") + File.separator;
-        return output;
+        // When launched from a jpackage bundle, resolve relative to the app so
+        // assets are found regardless of the OS-chosen working directory.
+        String appPath = System.getProperty("jpackage.app-path");
+        if (appPath != null && !appPath.isEmpty()) {
+            File launcher = new File(appPath);
+            File base;
+            if (appPath.replace('\\', '/').contains(".app/Contents/MacOS/")) {
+                // macOS .app bundle: launcher lives at <name>.app/Contents/MacOS/<name>,
+                // and Assets are bundled beside the jar at <name>.app/Contents/app/
+                base = new File(launcher.getParentFile().getParentFile(), "app");
+            } else {
+                // Windows app-image: launcher sits in the app root, beside Assets
+                base = launcher.getParentFile();
+            }
+            return base.getAbsolutePath() + File.separator;
+        }
+        return System.getProperty("user.dir") + File.separator;
     }
 
     /**
@@ -163,8 +183,7 @@ public class Main {
      * @return string directory game/assets/
      */
     public static String getAssets() {
-        String output = getDir() + assets;
-        return output;
+        return assets;
     }
 
     /**
