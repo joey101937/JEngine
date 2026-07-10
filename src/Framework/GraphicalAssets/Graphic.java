@@ -321,8 +321,10 @@ public interface Graphic {
             children.sort(null);
         }
         for(File child : children){
-            System.out.println("loading " + child.getPath().substring(6)); //to remove the redundant /Assets
-           a.add(load(child.getPath().substring(6)));
+            // child paths start with Main.assets; strip it so load() can re-prepend it
+            String relativePath = child.getPath().substring(Main.assets.length());
+            System.out.println("loading " + relativePath);
+            a.add(load(relativePath));
         }
         BufferedImage[] output = new BufferedImage[a.size()];
         for(BufferedImage b : a){
