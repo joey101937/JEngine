@@ -14,6 +14,7 @@ import GameDemo.RTSDemo.RTSGame;
 import GameDemo.SideScollerDemo_PathingLayer.SideScrollDemo;
 import GameDemo.TownDemo.TownDemo;
 import GameDemo.Galiga.GaligaGame;
+import GameDemo.SpaceInvadersDemo.SpaceInvadersGame;
 import GameDemo.Minotaur.MinotaurGame;
 import GameDemo.PushDemo.PushDemoGame;
 import java.awt.Graphics2D;
@@ -73,7 +74,7 @@ public class Main {
      * this is the new main method that only shows the nicer looking demos... not that any of them look particularly good
      */
     private static void showCuratedDemos(String[] args) {
-        String[] options = { "RTS Singleplayer", "RTS Map Editor", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Demo - Fog", "Demo - Push System", "RTS Multiplayer (host)", "RTS Multiplayer (client)"};
+        String[] options = { "RTS Singleplayer", "RTS Map Editor", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Game - Space Invaders", "Demo - Fog", "Demo - Push System", "RTS Multiplayer (host)", "RTS Multiplayer (client)"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
@@ -90,13 +91,15 @@ public class Main {
             break;
             case 5: GaligaGame.main(args);
             break;
-            case 6: FogDemo.main(args);
+            case 6: SpaceInvadersGame.main(args);
             break;
-            case 7: PushDemoGame.main(args);
+            case 7: FogDemo.main(args);
             break;
-            case 8: Server.main(args);
+            case 8: PushDemoGame.main(args);
             break;
-            case 9: Client.main(args);
+            case 9: Server.main(args);
+            break;
+            case 10: Client.main(args);
             break;
             default: {
                 System.out.println("unknown selection");
@@ -303,7 +306,7 @@ public class Main {
             return generateRandomDouble(max, min);
         } else {
             double diff = max - min;
-            int output = (int) (Main.getRandomSource().nextDouble() * diff);
+            double output = (Main.getRandomSource().nextDouble() * diff);
             return (min + output);
         }
     }
@@ -375,7 +378,7 @@ public class Main {
         } else {
             //here is the body of our method
             double diff = max - min;
-            int output = (int) (Math.random() * diff); //generates a random number between 0 and the difference between the numbers
+            double output = (Math.random() * diff); //generates a random number between 0 and the difference between the numbers
             return (min + output);                //returns that random number plus the min
         }
     }
