@@ -289,6 +289,9 @@ public class Apache extends RTSUnit {
         missilesInFlight++;
         getHostGame().addObject(new ApacheMissile(this, spawnPos, targetPos, missileIndex));
 
+        // Play the muzzle/launch flame animation so flames flash from the missile pods
+        turret.setGraphic(getAttackSequence().copyMaintainSource());
+
         if (isOnScreen()) {
             RTSSoundManager.get().play(RTSSoundManager.HELICOPTER_ATTACK,
                     Main.generateRandomDoubleLocally(0.7, 0.9),

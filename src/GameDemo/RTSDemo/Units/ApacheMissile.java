@@ -39,22 +39,17 @@ public class ApacheMissile extends Projectile {
     public static final int AOE_RADIUS = 80;
     public static final int DAMAGE_AMOUNT = 40;
     private static final int INITIAL_SHADOW_OFFSET = 149;
-    private static final double INITIAL_SPEED = RTSGame.tickAdjust(7.0);
-    private static final double MIN_SPEED = RTSGame.tickAdjust(6.5);
+    private static final double LAUNCH_SPEED = RTSGame.tickAdjust(9.0);
+    private static final double TERMINAL_SPEED = RTSGame.tickAdjust(4.0);
 
     public static volatile Sprite missileSprite = null;
     public static volatile Sprite shadowSprite = null;
-
-    private static final int TRAIL_LENGTH = 10;
-    private static final Color TRAIL_COLOR = new Color(210, 210, 210);
 
     private final Apache shooter;
     private final Coordinate targetCoord;
     private final double initialDistance;
     private final double scaleLoss;
     private boolean hasExploded = false;
-    private final Coordinate[] trail = new Coordinate[TRAIL_LENGTH];
-    private int trailHead = 0;
 
     public static void initGraphics() {
         if (missileSprite != null) return;
@@ -75,12 +70,12 @@ public class ApacheMissile extends Projectile {
         this.setZLayer(10);
         this.plane = 2;
         this.isSolid = false;
-        this.setBaseSpeed(INITIAL_SPEED);
+        this.setBaseSpeed(LAUNCH_SPEED);
         this.initialDistance = spawnPos.distanceFrom(targetCoord);
         this.maxRange = initialDistance + 80;
 
         
-        this.scaleLoss = .15;
+        this.scaleLoss = .12;
 
         this.launch(new DCoordinate(targetCoord.x, targetCoord.y));
     }
@@ -96,7 +91,9 @@ public class ApacheMissile extends Projectile {
         if (!hasExploded) {
             double dist = Coordinate.distanceBetween(getPixelLocation(), targetCoord);
             double progress = (initialDistance > 0) ? Math.max(0.0, Math.min(1.0, 1.0 - dist / initialDistance)) : 1.0;
-            setBaseSpeed(INITIAL_SPEED - (INITIAL_SPEED - MIN_SPEED) * progress);
+            // Decelerate hard as it nears the target so it flies almost overhead, then tanks down onto it
+            double speedFall = progress * progress;
+            setBaseSpeed(LAUNCH_SPEED + (TERMINAL_SPEED - LAUNCH_SPEED) * speedFall);
             setRenderScale(1.0 - scaleLoss * progress);
             setRenderBrightness(1.0 - scaleLoss * progress);
 
@@ -180,28 +177,6 @@ public class ApacheMissile extends Projectile {
             g.setTransform(saved);
         }
 
-        // Record position for smoke trail
-        trail[trailHead] = new Coordinate(pixLoc.x, pixLoc.y);
-        trailHead = (trailHead + 1) % TRAIL_LENGTH;
-
-        // Draw smoke trail behind missile, condensing toward missile as it descends
-        Coordinate missileRenderPos = trail[(trailHead - 1 + TRAIL_LENGTH) % TRAIL_LENGTH];
-        Composite oldComposite = g.getComposite();
-        for (int i = 0; i < TRAIL_LENGTH; i++) {
-            int idx = (trailHead - 1 - i + TRAIL_LENGTH) % TRAIL_LENGTH;
-            Coordinate tp = trail[idx];
-            if (tp == null || missileRenderPos == null) break;
-            double spread = Math.max(0.05, 1.0 - progress * 0.95);
-            int cx = missileRenderPos.x + (int) ((tp.x - missileRenderPos.x) * spread);
-            int cy = missileRenderPos.y + (int) ((tp.y - missileRenderPos.y) * spread);
-            float alpha = (1.0f - (float) i / TRAIL_LENGTH) * 0.45f;
-            int radius = Math.max(1, (int) (4 * scale * (1.0 - (double) i / TRAIL_LENGTH * 0.6)));
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-            g.setColor(TRAIL_COLOR);
-            g.fillOval(cx - radius, cy - radius, radius * 2, radius * 2);
-        }
-        g.setComposite(oldComposite);
-
         drawProceduralMissile(g, pixLoc, getRotation(), Apache.VISUAL_SCALE * scale, progress);
     }
 
@@ -214,6 +189,17 @@ public class ApacheMissile extends Projectile {
         return smoothstep((x - lo) / (hi - lo));
     }
 
+    /** Teardrop flame shape rooted at the tail (nose-up local space), pointing +Y behind the missile. */
+    private static Path2D.Double flameShape(double tail, double len, double w) {
+        Path2D.Double p = new Path2D.Double();
+        p.moveTo(-w, tail - 1);
+        p.quadTo(-w, tail + len * 0.55, 0, tail + len);
+        p.quadTo(w, tail + len * 0.55, w, tail - 1);
+        p.quadTo(0, tail + 2, -w, tail - 1);
+        p.closePath();
+        return p;
+    }
+
     /**
      * Draws the missile in Java2D rather than as a flat sprite so it can visually "nose over"
      * as it descends. Local space has the missile nose pointing up (-Y); the caller's rotation
@@ -223,7 +209,7 @@ public class ApacheMissile extends Projectile {
      */
     private void drawProceduralMissile(Graphics2D g, Coordinate pos, double rotationDeg, double totalScale, double progress) {
         double dive = smoothstep(progress);
-        double fore = 1.0 - 0.80 * dive; // length projection: 1.0 flat -> ~0.2 nose-down
+        double fore = 1.0 - 0.70 * dive; // length projection: 1.0 flat -> ~0.30 nose-down
 
         final double halfW = 5.2;
         final double noseTip = -34;
@@ -254,16 +240,18 @@ public class ApacheMissile extends Projectile {
 
         final Color finColor = new Color(0x22, 0x24, 0x28);
 
-        // --- Motor exhaust flame behind the tail (fades as the missile points away) ---
+        // --- Motor exhaust flame trailing off the tail (flickers; foreshortens with the body) ---
         g.setTransform(atFore);
-        float flameAlpha = (float) (0.75 * (1.0 - 0.5 * dive));
-        RadialGradientPaint flame = new RadialGradientPaint(
-                new Point2D.Double(0, tail + 4), 8f,
-                new float[]{0f, 0.45f, 1f},
-                new Color[]{new Color(255, 235, 170, 235), new Color(255, 140, 45, 150), new Color(255, 90, 20, 0)});
-        g.setPaint(flame);
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, flameAlpha));
-        g.fill(new Ellipse2D.Double(-4.5, tail, 9, 15));
+        double flicker = 0.85 + 0.15 * Math.sin(getHostGame().getGameTickNumber() * 0.9);
+        double burn = 1.0 - 0.7 * dive; // motor eases off as the missile decelerates and noses down
+        double flameLen = 16 * burn * flicker;
+        double flameW = halfW * (0.85 - 0.15 * dive);
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (0.85 * burn)));
+        g.setPaint(new Color(255, 140, 40));
+        g.fill(flameShape(tail, flameLen, flameW));
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (0.9 * burn)));
+        g.setPaint(new Color(255, 236, 170));
+        g.fill(flameShape(tail, flameLen * 0.6, flameW * 0.5));
 
         // --- Side-profile fins: swept blades on the flanks near the tail ---
         if (sideFinAlpha > 0.02) {
