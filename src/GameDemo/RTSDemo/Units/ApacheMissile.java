@@ -17,7 +17,15 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.LinearGradientPaint;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 
@@ -194,6 +202,148 @@ public class ApacheMissile extends Projectile {
         }
         g.setComposite(oldComposite);
 
-        super.render(g);
+        drawProceduralMissile(g, pixLoc, getRotation(), Apache.VISUAL_SCALE * scale, progress);
+    }
+
+    private static double smoothstep(double t) {
+        t = Math.max(0.0, Math.min(1.0, t));
+        return t * t * (3 - 2 * t);
+    }
+
+    private static double smoothRange(double x, double lo, double hi) {
+        return smoothstep((x - lo) / (hi - lo));
+    }
+
+    /**
+     * Draws the missile in Java2D rather than as a flat sprite so it can visually "nose over"
+     * as it descends. Local space has the missile nose pointing up (-Y); the caller's rotation
+     * aims it along its travel direction. As {@code progress} climbs the missile foreshortens
+     * along its own length (pivoting about the tail), so from the top-down camera we increasingly
+     * look down its tail: the side blades give way to an X of fins around a revealed exhaust nozzle.
+     */
+    private void drawProceduralMissile(Graphics2D g, Coordinate pos, double rotationDeg, double totalScale, double progress) {
+        double dive = smoothstep(progress);
+        double fore = 1.0 - 0.80 * dive; // length projection: 1.0 flat -> ~0.2 nose-down
+
+        final double halfW = 5.2;
+        final double noseTip = -34;
+        final double noseBase = -17;
+        final double bodyTop = -17;
+        final double tail = 32;
+
+        double sideFinAlpha = 1.0 - smoothRange(progress, 0.15, 0.55);
+        double xFinAlpha = smoothRange(progress, 0.30, 0.85);
+
+        AffineTransform savedTx = g.getTransform();
+        Paint savedPaint = g.getPaint();
+        Composite savedComposite = g.getComposite();
+        Object savedAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // base: local units, nose up, no foreshortening (used for the tail face which stays end-on)
+        AffineTransform base = new AffineTransform(savedTx);
+        base.translate(pos.x, pos.y);
+        base.rotate(Math.toRadians(rotationDeg));
+        base.scale(totalScale, totalScale);
+
+        // foreshortened frame, squashed along the length about the invariant tail point
+        AffineTransform atFore = new AffineTransform(base);
+        atFore.translate(0, tail);
+        atFore.scale(1.0, fore);
+        atFore.translate(0, -tail);
+
+        final Color finColor = new Color(0x22, 0x24, 0x28);
+
+        // --- Motor exhaust flame behind the tail (fades as the missile points away) ---
+        g.setTransform(atFore);
+        float flameAlpha = (float) (0.75 * (1.0 - 0.5 * dive));
+        RadialGradientPaint flame = new RadialGradientPaint(
+                new Point2D.Double(0, tail + 4), 8f,
+                new float[]{0f, 0.45f, 1f},
+                new Color[]{new Color(255, 235, 170, 235), new Color(255, 140, 45, 150), new Color(255, 90, 20, 0)});
+        g.setPaint(flame);
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, flameAlpha));
+        g.fill(new Ellipse2D.Double(-4.5, tail, 9, 15));
+
+        // --- Side-profile fins: swept blades on the flanks near the tail ---
+        if (sideFinAlpha > 0.02) {
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) sideFinAlpha));
+            g.setPaint(finColor);
+            for (int side = -1; side <= 1; side += 2) {
+                Path2D.Double fin = new Path2D.Double();
+                fin.moveTo(side * halfW, tail - 16);
+                fin.lineTo(side * (halfW + 6.5), tail + 4);
+                fin.lineTo(side * (halfW - 0.5), tail + 1);
+                fin.closePath();
+                g.fill(fin);
+            }
+        }
+
+        // --- End-on fins: an X of blades around the tail, drawn un-squashed so the face stays round ---
+        g.setTransform(base);
+        if (xFinAlpha > 0.02) {
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) xFinAlpha));
+            g.setPaint(finColor);
+            double r = 7 + 5 * xFinAlpha;
+            for (int k = 0; k < 4; k++) {
+                double a = Math.toRadians(45 + k * 90);
+                double pa = a + Math.PI / 2;
+                double bx = Math.cos(pa) * 2.6;
+                double by = Math.sin(pa) * 2.6;
+                Path2D.Double blade = new Path2D.Double();
+                blade.moveTo(bx, tail + by);
+                blade.lineTo(Math.cos(a) * r, tail + Math.sin(a) * r);
+                blade.lineTo(-bx, tail - by);
+                blade.closePath();
+                g.fill(blade);
+            }
+        }
+
+        // --- Body (cylindrical tube shading), foreshortened ---
+        g.setTransform(atFore);
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        g.setPaint(new LinearGradientPaint(
+                new Point2D.Double(-halfW, 0), new Point2D.Double(halfW, 0),
+                new float[]{0f, 0.42f, 1f},
+                new Color[]{new Color(0x8f, 0x98, 0x9f), new Color(0x3e, 0x43, 0x49), new Color(0x1b, 0x1d, 0x21)}));
+        g.fill(new RoundRectangle2D.Double(-halfW, bodyTop, 2 * halfW, tail - bodyTop, halfW * 1.2, halfW * 1.2));
+
+        // --- Nose cone (lighter ogive) ---
+        g.setPaint(new LinearGradientPaint(
+                new Point2D.Double(-halfW, 0), new Point2D.Double(halfW, 0),
+                new float[]{0f, 0.45f, 1f},
+                new Color[]{new Color(0xc6, 0xd0, 0xd8), new Color(0x94, 0x9f, 0xa8), new Color(0x5e, 0x66, 0x6e)}));
+        Path2D.Double nose = new Path2D.Double();
+        nose.moveTo(-halfW, noseBase);
+        nose.quadTo(-halfW, noseTip + 4, 0, noseTip);
+        nose.quadTo(halfW, noseTip + 4, halfW, noseBase);
+        nose.closePath();
+        g.fill(nose);
+
+        // seeker tip
+        g.setPaint(new Color(0xdc, 0xc6, 0x7e));
+        g.fill(new Ellipse2D.Double(-1.7, noseTip + 1, 3.4, 3.4));
+
+        // --- Exhaust nozzle + glow: comes into view as we look down the tail (end-on frame) ---
+        g.setTransform(base);
+        if (xFinAlpha > 0.02) {
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) xFinAlpha));
+            g.setPaint(new Color(0x0d, 0x0e, 0x11));
+            double nr = halfW * 0.95;
+            g.fill(new Ellipse2D.Double(-nr, tail - nr, 2 * nr, 2 * nr));
+            g.setPaint(new RadialGradientPaint(
+                    new Point2D.Double(0, tail), (float) nr,
+                    new float[]{0f, 1f},
+                    new Color[]{new Color(255, 200, 120, 220), new Color(255, 120, 40, 0)}));
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (xFinAlpha * 0.9)));
+            g.fill(new Ellipse2D.Double(-nr * 0.7, tail - nr * 0.7, 2 * nr * 0.7, 2 * nr * 0.7));
+        }
+
+        g.setTransform(savedTx);
+        g.setPaint(savedPaint);
+        g.setComposite(savedComposite);
+        if (savedAA != null) {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, savedAA);
+        }
     }
 }
