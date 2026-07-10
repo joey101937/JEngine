@@ -3,12 +3,11 @@ package GameDemo.RTSDemo.Units;
 import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
-import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
-import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
 import GameDemo.RTSDemo.BurnMarkEffect;
+import GameDemo.RTSDemo.ExplosionEffect;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
@@ -119,7 +118,8 @@ public class ApacheMissile extends Projectile {
 
     @Override
     public void onDestroy() {
-        new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
+        getHostGame().addIndependentEffect(new ExplosionEffect(getHostGame(), getPixelLocation(),
+                (int) (AOE_RADIUS * 0.4), (int) (RTSGame.desiredTPS * 0.45), 500));
         getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), getPixelLocation(),
                 RTSAssetManager.apacheBurnMark, AOE_RADIUS, RTSGame.desiredTPS * 5, -10));
         hasExploded = true;
