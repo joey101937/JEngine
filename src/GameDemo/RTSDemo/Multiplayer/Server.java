@@ -39,6 +39,7 @@ public class Server {
         RTSAssetManager.initialize();
         TextChatEffect.localChatAlias = "Server";
         MapData mapData = loadMpMapData();
+        GameDemo.RTSDemo.Replay.ReplayManager.setCurrentMap(mapData, "mpmap");
         RTSGame.game = new Game(loadMapBackground(mapData));
         RTSGame.minimap = new Minimap(game, new Coordinate(0, 0));
         Game g = RTSGame.game;

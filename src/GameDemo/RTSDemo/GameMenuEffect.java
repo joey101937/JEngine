@@ -3,12 +3,14 @@ package GameDemo.RTSDemo;
 import Framework.Coordinate;
 import Framework.Game;
 import Framework.IndependentEffect;
+import Framework.Main;
 import Framework.Window;
 import Framework.SerializationManager;
 import GameDemo.RTSDemo.MapEditor.MapData;
 import GameDemo.RTSDemo.MapEditor.MapLoader;
 import GameDemo.RTSDemo.MapEditor.MapSerializer;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import GameDemo.RTSDemo.Replay.ReplayManager;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -52,6 +54,8 @@ public class GameMenuEffect extends IndependentEffect {
         "Quick Save",
         "Quick Load",
         "Load Map",
+        "Save Replay",
+        "Load Replay",
         "Quit"
     ));
 
@@ -220,7 +224,86 @@ public class GameMenuEffect extends IndependentEffect {
             case 2 -> SerializationManager.quickSave(game);
             case 3 -> SerializationManager.quickLoad(game);
             case 4 -> loadMap();
-            case 5 -> System.exit(0);
+            case 5 -> saveReplay();
+            case 6 -> loadReplay();
+            case 7 -> System.exit(0);
+        }
+    }
+
+    private void saveReplay() {
+        close();
+        File saved = ReplayManager.saveReplay();
+        if (saved != null) {
+            javax.swing.JOptionPane.showMessageDialog(null, "Replay saved to:\n" + saved.getAbsolutePath(),
+                    "Replay Saved", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void loadReplay() {
+        close();
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Load Replay");
+        File replayDir = new File("replays");
+        if (replayDir.exists()) fc.setCurrentDirectory(replayDir);
+        if (fc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) return;
+        File f = fc.getSelectedFile();
+        try {
+            ReplayManager.ParsedReplay replay = ReplayManager.parseReplayFile(f);
+
+            // Local deterministic playback: not multiplayer, replay control mode on.
+            ExternalCommunicator.isMultiplayer = false;
+            RTSGame.desiredTPS = replay.tps;
+            Main.ticksPerSecond = replay.tps;
+            Main.setRandomSeed(replay.seed);
+            ReplayManager.isReplayMode = true;
+
+            BufferedImage bg = MapLoader.loadBackground(replay.mapData.background);
+            if (bg == null) bg = RTSAssetManager.grassBG;
+
+            Game newGame = new Game(bg);
+
+            // Remove old minimap from the window overlay before the new one is added
+            if (RTSGame.minimap != null) {
+                Window.removeUIElement(RTSGame.minimap);
+                RTSGame.minimap = null;
+            }
+
+            RTSGame.applyLoadingScreen(newGame);
+            RTSGame.setup(newGame);
+            // Regenerate unit IDs from _1 so they match the IDs referenced by the recorded commands.
+            RTSUnitIdHelper.reset();
+            MapLoader.loadIntoGame(replay.mapData, newGame);
+            ReplayManager.setCurrentMap(replay.mapData, replay.mapName);
+
+            // Inject the recorded command stream. Game tick is still ~0, so every recorded
+            // execute tick is in the future and accepted; commands fire on their recorded ticks
+            // as the deterministic sim advances. shouldCommunicate=false bypasses the replay gate.
+            for (String mp : replay.commandStrings) {
+                var cmd = ReplayManager.parseCommand(mp);
+                if (cmd != null) RTSGame.commandHandler.addCommand(cmd, false);
+            }
+
+            newGame.setOnGameStabilized(x -> {
+                RTSGame.setupUI(newGame);
+                newGame.setLoadingScreenActive(false);
+            });
+
+            Game oldGame = RTSGame.game;
+            RTSGame.game = newGame;
+            Window.setCurrentGame(newGame);
+
+            if (oldGame != null && oldGame != newGame) {
+                Window.panel.remove(oldGame.getCanvas());
+                KeyBuilding.removeForGame(oldGame);
+                SelectionBoxEffect.selectedUnits.clear();
+                ControlGroupHelper.clearAll();
+                GameDemo.RTSDemo.SceneryObjects.SceneryObject.clearForGame(oldGame);
+                oldGame.dispose();
+            }
+
+        } catch (Exception ex) {
+            System.err.println("Load replay failed: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -231,6 +314,9 @@ public class GameMenuEffect extends IndependentEffect {
         File f = fc.getSelectedFile();
         try {
             MapData data = MapSerializer.load(f);
+
+            // Loading a fresh map exits replay playback and restores normal player control.
+            ReplayManager.isReplayMode = false;
 
             BufferedImage bg = MapLoader.loadBackground(data.background);
             if (bg == null) bg = RTSAssetManager.grassBG;
@@ -245,7 +331,11 @@ public class GameMenuEffect extends IndependentEffect {
 
             RTSGame.applyLoadingScreen(newGame);
             RTSGame.setup(newGame);
+            // Reset the deterministic unit-ID counter so this game's units get IDs from _1,
+            // making the game reproducible if a replay of it is recorded and later played back.
+            RTSUnitIdHelper.reset();
             MapLoader.loadIntoGame(data, newGame);
+            ReplayManager.setCurrentMap(data, f.getName());
 
             newGame.setOnGameStabilized(x -> {
                 RTSGame.setupUI(newGame);

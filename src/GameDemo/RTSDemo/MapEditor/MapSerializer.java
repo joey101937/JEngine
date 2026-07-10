@@ -7,6 +7,13 @@ import java.util.List;
 public class MapSerializer {
 
     public static void save(MapData data, File file) throws IOException {
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(toJson(data));
+        }
+    }
+
+    /** Serializes map data to the JSON string form written by {@link #save}. */
+    public static String toJson(MapData data) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
         sb.append("  \"background\": \"").append(escape(data.background)).append("\",\n");
@@ -33,9 +40,7 @@ public class MapSerializer {
             sb.append("\n");
         }
         sb.append("  ]\n}");
-        try (FileWriter fw = new FileWriter(file)) {
-            fw.write(sb.toString());
-        }
+        return sb.toString();
     }
 
     public static MapData load(File file) throws IOException {
@@ -45,6 +50,11 @@ public class MapSerializer {
             while ((line = br.readLine()) != null) sb.append(line).append("\n");
         }
         return parse(sb.toString());
+    }
+
+    /** Parses map data from the JSON string form produced by {@link #toJson}. */
+    public static MapData fromJson(String json) {
+        return parse(json);
     }
 
     private static MapData parse(String json) {

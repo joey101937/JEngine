@@ -68,6 +68,9 @@ public class CommandHandler extends IndependentEffect{
     }
     
     public synchronized void addCommand(Command toAdd, boolean shouldCommunicate) {
+        if(GameDemo.RTSDemo.Replay.ReplayManager.isReplayMode && shouldCommunicate) { // block player-issued commands during replay playback
+            return;
+        }
         if(shouldCommunicate && !ExternalCommunicator.isMPReadyForCommands()) { // if its a local command and we are not ready, reject
             System.out.println("command ignored due to isMPReadyForCommands() being false");
             return;
@@ -83,6 +86,16 @@ public class CommandHandler extends IndependentEffect{
         }
     }
     
+    /** Returns every command currently logged, flattened and sorted by execute tick. Used to build replays. */
+    public synchronized ArrayList<Command> getAllCommands() {
+        ArrayList<Command> all = new ArrayList<>();
+        for(ArrayList<Command> tickList : commandMap.values()) {
+            all.addAll(tickList);
+        }
+        all.sort(null); // natural ordering (Comparable): executeTick then subject ID
+        return all;
+    }
+
     public ArrayList<Command> getUnresolvedCommandsUpTillTick(long tick) {
         long now = game.getGameTickNumber();
         ArrayList<Command> out = new ArrayList<>();
