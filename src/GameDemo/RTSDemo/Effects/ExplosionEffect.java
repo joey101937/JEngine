@@ -1,4 +1,4 @@
-package GameDemo.RTSDemo;
+package GameDemo.RTSDemo.Effects;
 
 import Framework.Coordinate;
 import Framework.Game;

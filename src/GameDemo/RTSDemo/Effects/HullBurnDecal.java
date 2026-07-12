@@ -1,8 +1,9 @@
-package GameDemo.RTSDemo;
+package GameDemo.RTSDemo.Effects;
 
 import Framework.Coordinate;
-import Framework.Game;
-import Framework.IndependentEffect;
+import Framework.GameObject2;
+import Framework.RenderHook;
+import GameDemo.RTSDemo.RTSGame;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -14,81 +15,52 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.Random;
 
 /**
- * A world-space scorch mark rendered on the ground where a projectile exploded.
- * Implemented as an {@link Framework.IndependentEffect} so it has no associated
- * game object and is managed directly by the {@link Framework.Game}.
+ * A {@link RenderHook} that renders a scorched burn mark directly on a vehicle's hull.
  * <p>
- * The mark is drawn in four layered passes (outer scorch halo, radial-gradient
- * fill, perimeter debris scatter, radial streak lines) using pre-computed
- * {@code Path2D} geometry seeded from the spawn position, so the shape is
- * deterministic and stable across frames. Alpha fades linearly from 1 to 0 over
- * the specified duration, after which the effect removes itself from the game.
+ * Unlike {@link BurnMarkEffect} (which is a world-space {@code IndependentEffect}),
+ * this decal is attached to the target unit and rendered between the hull sprite and
+ * its turret SubObject, so it is always correctly layered without a z-layer number.
+ * The mark follows the vehicle's position and rotation by storing the impact offset
+ * in vehicle-local polar coordinates and recomputing the world position each frame
+ * using {@code host.getRotationRealTime()}, giving lerp-smooth tracking.
  * <p>
- * Alternatively, pass a pre-rendered scorch image to the image constructor and
- * the effect draws that single decal (scaled, randomly rotated, alpha-fading)
- * instead of the procedural geometry.
- * <p>
- * For burn marks that should follow a vehicle and render on its hull, use
- * {@link HullBurnDecal} instead.
+ * Fades out over the specified duration using wall-clock time so the fade is smooth
+ * regardless of game tick rate. Geometry is pre-computed once in the constructor and
+ * seeded from the world position so the shape is stable across frames.
  * </p>
  */
-public class BurnMarkEffect extends IndependentEffect {
-    private static final long serialVersionUID = 1L;
+public class HullBurnDecal extends RenderHook {
 
-    private final transient Game game;
-    private final Coordinate worldPos;
-    private final int durationTicks;
-    private final int zLayer;
-    private int ticksElapsed = 0;
+    private final double localOffsetDist;
+    private final double localOffsetAngle;    // angle in radians, vehicle-body space
+    private final double initialVehicleRotation; // degrees, at spawn time
 
-    private transient Path2D.Float mainShape;
-    private transient Path2D.Float outerScorch;
-    private int[] scatterX, scatterY, scatterRX, scatterRY;
-    private int[] streakEX, streakEY;
-    private float[] streakWidths;
-    private transient RadialGradientPaint gradient;
+    private final long startTimeMs;
+    private final long durationMs;
 
-    // Image-decal mode (used instead of the procedural geometry when non-null)
-    private final transient BufferedImage decalImage;
-    private final double decalScale;
-    private final double decalRotation;
+    // Pre-computed geometry relative to (0,0)
+    private final Path2D.Float mainShape;
+    private final Path2D.Float outerScorch;
+    private final int[] scatterX, scatterY, scatterRX, scatterRY;
+    private final int[] streakEX, streakEY;
+    private final float[] streakWidths;
+    private final RadialGradientPaint gradient;
 
-    public BurnMarkEffect(Game game, Coordinate worldPos, int radius, int durationTicks) {
-        this(game, worldPos, radius, durationTicks, -10);
-    }
+    public HullBurnDecal(Coordinate worldBurnPos, GameObject2 host, int radius, int durationTicks) {
+        this.durationMs = (long)(durationTicks * 1000.0 / RTSGame.desiredTPS);
+        this.startTimeMs = System.currentTimeMillis();
 
-    /**
-     * Image-decal burn mark: draws {@code decalImage} centered on {@code worldPos},
-     * scaled so its rendered width is {@code 2 * radius}, randomly rotated and
-     * alpha-fading over {@code durationTicks}.
-     */
-    public BurnMarkEffect(Game game, Coordinate worldPos, BufferedImage decalImage, int radius, int durationTicks, int zLayer) {
-        this.game        = game;
-        this.worldPos    = new Coordinate(worldPos);
-        this.durationTicks = durationTicks;
-        this.zLayer      = zLayer;
-        this.decalImage  = decalImage;
-        Random rand = new Random(worldPos.x * 7919L + worldPos.y * 6271L);
-        this.decalRotation = rand.nextDouble() * Math.PI * 2;
-        this.decalScale = (decalImage != null && decalImage.getWidth() > 0)
-            ? (radius * 2.0) / decalImage.getWidth()
-            : 1.0;
-    }
+        Coordinate hostCenter = host.getPixelLocation();
+        double dx = worldBurnPos.x - hostCenter.x;
+        double dy = worldBurnPos.y - hostCenter.y;
+        localOffsetDist = Math.sqrt(dx * dx + dy * dy);
+        initialVehicleRotation = host.getRotation();
+        localOffsetAngle = Math.atan2(dy, dx) - Math.toRadians(initialVehicleRotation);
 
-    public BurnMarkEffect(Game game, Coordinate worldPos, int radius, int durationTicks, int zLayer) {
-        this.game        = game;
-        this.worldPos    = new Coordinate(worldPos);
-        this.durationTicks = durationTicks;
-        this.zLayer      = zLayer;
-        this.decalImage  = null;
-        this.decalScale  = 1.0;
-        this.decalRotation = 0.0;
-
-        Random rand = new Random(worldPos.x * 7919L + worldPos.y * 6271L);
+        Random rand = new Random(worldBurnPos.x * 7919L + worldBurnPos.y * 6271L);
         double baseRotation = rand.nextDouble() * Math.PI * 2;
 
         int numSpikes = 13;
@@ -152,37 +124,22 @@ public class BurnMarkEffect extends IndependentEffect {
         gradient = new RadialGradientPaint(new Point2D.Float(0, 0), radius, fractions, colors);
     }
 
-    @Override public int     getZLayer()       { return zLayer; }
-    @Override public boolean shouldSerialize() { return false; }
-
     @Override
-    public void tick() {
-        ticksElapsed++;
-        if (ticksElapsed >= durationTicks) {
-            game.removeIndependentEffect(this);
-        }
+    public boolean isExpired() {
+        return System.currentTimeMillis() >= startTimeMs + durationMs;
     }
 
     @Override
-    public void render(Graphics2D g) {
-        if (ticksElapsed >= durationTicks) return;
-        float alpha = 1.0f - (float) ticksElapsed / durationTicks;
+    public void render(Graphics2D g, GameObject2 host) {
+        long elapsed = System.currentTimeMillis() - startTimeMs;
+        float alpha = 1.0f - (float) elapsed / durationMs;
+        if (alpha <= 0) return;
 
-        if (decalImage != null) {
-            AffineTransform saved        = g.getTransform();
-            Composite       savedComposite = g.getComposite();
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-            AffineTransform at = new AffineTransform(saved);
-            at.translate(worldPos.x, worldPos.y);
-            at.rotate(decalRotation);
-            at.scale(decalScale, decalScale);
-            at.translate(-decalImage.getWidth() / 2.0, -decalImage.getHeight() / 2.0);
-            g.setTransform(at);
-            g.drawImage(decalImage, 0, 0, null);
-            g.setTransform(saved);
-            g.setComposite(savedComposite);
-            return;
-        }
+        double currentRot = host.getRotationRealTime();
+        double worldAngle = localOffsetAngle + Math.toRadians(currentRot);
+        Coordinate renderCenter = host.getRenderLocation();
+        int cx = renderCenter.x + (int)(Math.cos(worldAngle) * localOffsetDist);
+        int cy = renderCenter.y + (int)(Math.sin(worldAngle) * localOffsetDist);
 
         Composite     oldComposite = g.getComposite();
         Color         oldColor     = g.getColor();
@@ -190,7 +147,8 @@ public class BurnMarkEffect extends IndependentEffect {
         Stroke        oldStroke    = g.getStroke();
         AffineTransform oldTransform = g.getTransform();
 
-        g.translate(worldPos.x, worldPos.y);
+        g.translate(cx, cy);
+        g.rotate(Math.toRadians(currentRot - initialVehicleRotation));
 
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha * 0.38f));
         g.setColor(new Color(26, 17, 9));
