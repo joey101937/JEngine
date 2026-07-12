@@ -49,6 +49,9 @@ public class TankTreadEffect extends IndependentEffect {
 
     private final List<Mark> marks = new ArrayList<>();
     private long lastEmitTick = -1_000_000L;
+    // Optional gate: when set, new cleats stop stamping while the source is hidden
+    // (e.g. off-screen or in fog of war); already-stamped marks still render. Null means always stamping.
+    private transient BooleanSupplier visibleWhen = null;
 
     /** One stamped tread cleat, world-anchored at birth, with a little per-mark churn. */
     private static final class Mark {
@@ -87,13 +90,30 @@ public class TankTreadEffect extends IndependentEffect {
     @Override public int     getZLayer()       { return zLayer; }
     @Override public boolean shouldSerialize() { return false; }
 
+    /**
+     * Sets an optional emission gate; while it returns false and the source is still alive, no new
+     * cleats are stamped (e.g. pass {@code unit::shouldRender} so a unit in fog lays no new tracks).
+     * Marks already stamped keep rendering and fade out normally.
+     * @return this, for chaining at the call site
+     */
+    public TankTreadEffect setVisibleWhen(BooleanSupplier visibleWhen) {
+        this.visibleWhen = visibleWhen;
+        return this;
+    }
+
+    /** True unless the source is alive and its emission gate currently says hidden. */
+    private boolean sourceVisible() {
+        if (visibleWhen == null || source == null || !source.isAlive()) return true;
+        return visibleWhen.getAsBoolean();
+    }
+
     @Override
     public void tick() {
         long now = game.getGameTickNumber();
         marks.removeIf(m -> now - m.birthTick >= lifeTicks);
 
         boolean sourceGone = source == null || !source.isAlive();
-        if (!sourceGone && emitWhen.getAsBoolean() && now - lastEmitTick >= emitIntervalTicks) {
+        if (!sourceGone && sourceVisible() && emitWhen.getAsBoolean() && now - lastEmitTick >= emitIntervalTicks) {
             emitMarks(now);
             lastEmitTick = now;
         }
@@ -120,6 +140,8 @@ public class TankTreadEffect extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
+        // Note: no visibility gate here — already-stamped marks keep rendering and fade out even once
+        // the source slips into fog; the gate only stops new stamps (see tick).
         if (marks.isEmpty()) return;
         long now = game.getGameTickNumber();
         Composite       oldComposite = g.getComposite();

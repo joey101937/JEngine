@@ -255,11 +255,13 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             double rearOffset = getHeight() * 0.45; // out past the rear of the hull so it isn't hidden under the body
             getHostGame().addIndependentEffect(new ExhaustTrailEffect(
                     getHostGame(), this, () -> !isRubble && movedLastTick(),
-                    rearOffset, -12, 10, Math.max(1, RTSGame.desiredTPS / 10), getZLayer() + 1));
+                    rearOffset, -12, 10, Math.max(1, RTSGame.desiredTPS / 10), getZLayer() + 1)
+                    .setVisibleWhen(this::shouldRender));
             getHostGame().addIndependentEffect(new TankTreadEffect(
                     getHostGame(), this, () -> !isRubble && movedLastTick(),
                     getWidth() * 0.32, getWidth() * 0.14, getHeight() * 0.09,
-                    Math.max(1, RTSGame.desiredTPS / 30), (int) (RTSGame.desiredTPS * 1.8), 0.24, -12));
+                    Math.max(1, RTSGame.desiredTPS / 30), (int) (RTSGame.desiredTPS * 1.8), 0.24, -12)
+                    .setVisibleWhen(this::shouldRender));
             exhaustSpawned = true;
         }
 

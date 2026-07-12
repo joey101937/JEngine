@@ -202,11 +202,13 @@ public class LightTank extends RTSUnit {
             double rearOffset = getHeight() * 0.4;
             getHostGame().addIndependentEffect(new ExhaustTrailEffect(
                     getHostGame(), this, () -> !isRubble && movedLastTick(),
-                    rearOffset, 10, 7, Math.max(1, RTSGame.desiredTPS / 10), getZLayer() + 1, 0.5));
+                    rearOffset, 10, 7, Math.max(1, RTSGame.desiredTPS / 10), getZLayer() + 1, 0.5)
+                    .setVisibleWhen(this::shouldRender));
             getHostGame().addIndependentEffect(new TankTreadEffect(
                     getHostGame(), this, () -> !isRubble && movedLastTick(),
                     getWidth() * 0.30, getWidth() * 0.12, getHeight() * 0.09,
-                    Math.max(1, RTSGame.desiredTPS / 30), (int) (RTSGame.desiredTPS * 1.5), 0.15, -12));
+                    Math.max(1, RTSGame.desiredTPS / 30), (int) (RTSGame.desiredTPS * 1.5), 0.15, -12)
+                    .setVisibleWhen(this::shouldRender));
             exhaustSpawned = true;
         }
 

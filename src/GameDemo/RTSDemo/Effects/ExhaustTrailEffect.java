@@ -42,6 +42,9 @@ public class ExhaustTrailEffect extends IndependentEffect {
     private final List<SmokePuff> puffs = new ArrayList<>();
     // Small negative sentinel so the first eligible tick always emits without overflowing (now - this).
     private long lastEmitTick = -1_000_000L;
+    // Optional gate: when set, the trail stops emitting new puffs while the source is hidden
+    // (e.g. off-screen or in fog of war); already-emitted puffs still render. Null means always emitting.
+    private transient BooleanSupplier visibleWhen = null;
 
     /**
      * @param game              the game to attach to
@@ -80,13 +83,30 @@ public class ExhaustTrailEffect extends IndependentEffect {
     @Override public int     getZLayer()       { return zLayer; }
     @Override public boolean shouldSerialize() { return false; }
 
+    /**
+     * Sets an optional emission gate; while it returns false and the source is still alive, the trail
+     * stops emitting new puffs (e.g. pass {@code unit::shouldRender} so a unit in fog lays no new trail).
+     * Puffs already emitted keep rendering and fade out normally.
+     * @return this, for chaining at the call site
+     */
+    public ExhaustTrailEffect setVisibleWhen(BooleanSupplier visibleWhen) {
+        this.visibleWhen = visibleWhen;
+        return this;
+    }
+
+    /** True unless the source is alive and its emission gate currently says hidden. */
+    private boolean sourceVisible() {
+        if (visibleWhen == null || source == null || !source.isAlive()) return true;
+        return visibleWhen.getAsBoolean();
+    }
+
     @Override
     public void tick() {
         long now = game.getGameTickNumber();
         puffs.removeIf(p -> p.isDead(now));
 
         boolean sourceGone = source == null || !source.isAlive();
-        if (!sourceGone && emitWhen.getAsBoolean() && now - lastEmitTick >= emitIntervalTicks) {
+        if (!sourceGone && sourceVisible() && emitWhen.getAsBoolean() && now - lastEmitTick >= emitIntervalTicks) {
             emitPuff(now);
             lastEmitTick = now;
         }
@@ -125,6 +145,8 @@ public class ExhaustTrailEffect extends IndependentEffect {
 
     @Override
     public void render(Graphics2D g) {
+        // Note: no visibility gate here — already-emitted puffs keep rendering and fade out even
+        // once the source slips into fog; the gate only stops new emission (see tick).
         long now = game.getGameTickNumber();
         Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
