@@ -94,10 +94,10 @@ public class Camera implements java.io.Serializable {
         DCoordinate renderOffset = new DCoordinate(0,0);
         if(Main.enableLerping) {
             if(this.isTrackingTarget() && this.target != null) {
-                Coordinate targetPosistion = target.getRenderLocation().invert();
+                DCoordinate targetPosistion = target.getRenderLocation().invert();
                 DCoordinate centeringOffset = new DCoordinate((double)hostGame.windowWidth/2, (double)hostGame.windowHeight/2).scale(1/hostGame.getZoom());
-                
-                return constrainCameraToWorld(targetPosistion.add(centeringOffset).toDCoordinate());
+
+                return constrainCameraToWorld(targetPosistion.add(centeringOffset));
             } else {
                 // camera lerping coming soon
                 // renderOffset.add(getMovementNextTick().scale(hostGame.getPercentThroughTick())).invert();

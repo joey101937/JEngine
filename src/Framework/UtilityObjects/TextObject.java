@@ -52,7 +52,7 @@ public class TextObject extends GameObject2{
         AffineTransform old = g.getTransform();
         g.scale(getScale(), getScale());
         if(!isOnScreen() || isInvisible || text==null || font==null)return;  //dont render if off screen or invisible or no text
-        Coordinate renderLocation = getRenderLocation();
+        Coordinate renderLocation = getRenderLocation().toCoordinate();
         //record original font and color settings to restore after rendering
         Font originalFont = g.getFont();
         Color originalColor = g.getColor();

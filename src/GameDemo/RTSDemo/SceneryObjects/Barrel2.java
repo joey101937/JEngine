@@ -52,7 +52,7 @@ public class Barrel2 extends GameObject2 implements SceneryObject {
 
     @Override
     public void render(Graphics2D g) {
-        Coordinate renderLoc = getRenderLocation();
+        Coordinate renderLoc = getRenderLocation().toCoordinate();
         VolatileImage shadowImg = shadowSprite.getCurrentVolatileImage();
         AffineTransform old = g.getTransform();
         g.rotate(Math.toRadians(getRotation()), renderLoc.x + 2, renderLoc.y + 4);

@@ -83,7 +83,7 @@ public class OrangeWoodHouse extends GameObject2 implements SceneryObject, Sight
 
         super.render(g);
 
-        Coordinate renderLoc = getRenderLocation();
+        Coordinate renderLoc = getRenderLocation().toCoordinate();
         VolatileImage extrasImg = extrasSprite.getCurrentVolatileImage();
         old = g.getTransform();
         g.rotate(Math.toRadians(getRotation()), renderLoc.x, renderLoc.y);

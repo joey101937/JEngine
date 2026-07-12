@@ -79,7 +79,7 @@ public class Hangar extends GameObject2 implements SceneryObject, SightBlocker, 
 
     @Override
     public void render(Graphics2D g) {
-        Coordinate renderLoc = getRenderLocation();
+        Coordinate renderLoc = getRenderLocation().toCoordinate();
         AffineTransform old;
 
         // 1. Floor underlay — wider than the body, no shadow, no collision impact

@@ -42,7 +42,7 @@ public class BlockObject extends GameObject2{
         Color originalColor = g.getColor();
         g.setStroke(new BasicStroke(borderThickness));
         g.setColor(color);
-        Coordinate renderLocation = getRenderLocation();
+        Coordinate renderLocation = getRenderLocation().toCoordinate();
         if (centered) {
             if (filled) {
                 g.fillRect(renderLocation.x - getWidth() / 2, renderLocation.y - getHeight() / 2, getWidth(), getHeight());

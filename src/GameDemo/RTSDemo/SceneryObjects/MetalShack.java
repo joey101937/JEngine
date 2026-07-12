@@ -91,7 +91,7 @@ public class MetalShack extends GameObject2 implements SceneryObject, SightBlock
         // World shadow (-40, 40) projected onto local-Y axis (-sinRot, cosRot)
         float localShift = (float)(-40 * -Math.sin(rot) + 40 * Math.cos(rot)) * 0.35f;
         old = g.getTransform();
-        Coordinate renderLoc = getRenderLocation();
+        Coordinate renderLoc = getRenderLocation().toCoordinate();
         g.rotate(rot, renderLoc.x, renderLoc.y);
         g.drawImage(ridgeImg,
                 (int)(renderLoc.x - ridgeImg.getWidth()  / 2),

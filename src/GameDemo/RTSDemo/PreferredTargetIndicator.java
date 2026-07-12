@@ -77,7 +77,7 @@ public class PreferredTargetIndicator extends IndependentEffect {
         float alpha = (float) (1.0 - progress);
         int half = (int) (target.getSideLength() * 0.30 + progress * EXPAND_PX);
 
-        Coordinate loc = target.getRenderLocation();
+        Coordinate loc = target.getRenderLocation().toCoordinate();
 
         Composite oldComposite = g.getComposite();
         Stroke oldStroke = g.getStroke();

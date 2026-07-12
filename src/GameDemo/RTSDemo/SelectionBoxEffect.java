@@ -203,7 +203,7 @@ public class SelectionBoxEffect extends IndependentEffect {
                     if (ExternalCommunicator.isMultiplayer && ExternalCommunicator.localTeam != unit.team) {
                         ringColor = uncontrollableColor;
                     }
-                    Coordinate coord = unit.getRenderLocation();
+                    Coordinate coord = unit.getRenderLocation().toCoordinate();
                     int sideLength = Math.max(unit.getWidth(), unit.getHeight());
                     BufferedImage ring = getRingSprite(sideLength, ringColor);
                     g.drawImage(ring, coord.x - ring.getWidth() / 2, coord.y - ring.getHeight() / 2, null);

@@ -169,7 +169,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         if(!shouldRender()) return;
         super.render(g);
         if(NavigationManager.displayPathingDebugInfo) {
-           g.drawString(commandGroup.equals("0") ? "" : commandGroup, getRenderLocation().x, getRenderLocation().y);
+           g.drawString(commandGroup.equals("0") ? "" : commandGroup, getRenderLocation().toCoordinate().x, getRenderLocation().toCoordinate().y);
         }
         if (isRubble) {
             return;
@@ -193,7 +193,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         }
         if(ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
             g.setColor(Color.ORANGE);
-            g.fillOval(getRenderLocation().x-getWidth()/2, getRenderLocation().y-getHeight()/2, getWidth()/2, getHeight()/2);
+            g.fillOval(getRenderLocation().toCoordinate().x-getWidth()/2, getRenderLocation().toCoordinate().y-getHeight()/2, getWidth()/2, getHeight()/2);
         }
     }
     
@@ -719,17 +719,15 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     };
 
     public void drawShadow(Graphics2D g, Graphic image, int xOffset, int yOffset) {
-        int shadowOffsetX = xOffset;
-        int shadowOffsetY = yOffset;
-        Coordinate pixelLocation = getRenderLocation();
-        pixelLocation.x += shadowOffsetX;
-        pixelLocation.y += shadowOffsetY;
+        DCoordinate renderLocation = getRenderLocation();
+        double centerX = renderLocation.x + xOffset;
+        double centerY = renderLocation.y + yOffset;
         AffineTransform old = g.getTransform();
         VolatileImage toRender = image.getCurrentVolatileImage();
-        int renderX = pixelLocation.x - toRender.getWidth() / 2;
-        int renderY = pixelLocation.y - toRender.getHeight() / 2;
-        g.rotate(Math.toRadians(getRotation()), pixelLocation.x, pixelLocation.y);
-        g.drawImage(toRender, renderX, renderY, null);
+        double renderX = centerX - toRender.getWidth() / 2.0;
+        double renderY = centerY - toRender.getHeight() / 2.0;
+        g.rotate(Math.toRadians(getRotation()), centerX, centerY);
+        g.drawImage(toRender, AffineTransform.getTranslateInstance(renderX, renderY), null);
         g.setTransform(old);
     }
 

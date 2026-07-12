@@ -84,7 +84,7 @@ public class BuildingGreen1 extends GameObject2 implements SceneryObject, SightB
         super.render(g);
 
         // Extras layer — rendered on top, no shadow, rotates with building
-        Coordinate renderLoc = getRenderLocation();
+        Coordinate renderLoc = getRenderLocation().toCoordinate();
         VolatileImage extrasImg = extrasSprite.getCurrentVolatileImage();
         old = g.getTransform();
         g.rotate(Math.toRadians(getRotation()), renderLoc.x, renderLoc.y);

@@ -71,7 +71,7 @@ public class Tree1 extends GameObject2 implements SceneryObject, SightBlocker {
     @Override
     public void render(Graphics2D g) {
         // Shadow asset rendered first (below tree), centered at tree position, no offset
-        Coordinate renderLoc = getRenderLocation();
+        Coordinate renderLoc = getRenderLocation().toCoordinate();
         VolatileImage shadowImg = shadowSprite.getCurrentVolatileImage();
         AffineTransform old = g.getTransform();
         g.rotate(Math.toRadians(getRotation()), renderLoc.x, renderLoc.y);

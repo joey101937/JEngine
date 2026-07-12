@@ -1,6 +1,7 @@
 package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import java.util.HashMap;
 import java.util.Map;
 import Framework.GraphicalAssets.Graphic;
@@ -233,12 +234,12 @@ public class Rifleman extends RTSUnit {
             super.render(g);
             AffineTransform old = g.getTransform();
             VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
-            Coordinate renderLocation = getRenderLocation();
-            int renderX = renderLocation.x - toRender.getWidth() / 2;
-            int renderY = renderLocation.y - toRender.getHeight() / 2;
+            DCoordinate renderLocation = getRenderLocation();
             int shadowOffset = 4;
+            double renderX = renderLocation.x - toRender.getWidth() / 2.0;
+            double renderY = renderLocation.y - toRender.getHeight() / 2.0;
             g.rotate(Math.toRadians(getRotation()), renderLocation.x, renderLocation.y + shadowOffset);
-            g.drawImage(toRender, renderX, renderY + shadowOffset, null);
+            g.drawImage(toRender, AffineTransform.getTranslateInstance(renderX, renderY + shadowOffset), null);
             g.setTransform(old);
         }
     }

@@ -468,7 +468,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         if (!anyVisible) return;
         DCoordinate muzzleOffset = new DCoordinate(hullMGMuzzleOffsetX, -(getHeight() / 2.0 + hullMGMuzzleForwardOffset));
         muzzleOffset.adjustForRotation(getRotationRealTime());
-        Coordinate renderLoc = getRenderLocation();
+        DCoordinate renderLoc = getRenderLocation();
         int mx = (int)(renderLoc.x + muzzleOffset.x);
         int my = (int)(renderLoc.y + muzzleOffset.y);
         Composite oldComposite = g.getComposite();
@@ -642,12 +642,13 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             if (getHost().isSolid) {
                 AffineTransform old = g.getTransform();
                 VolatileImage toRender = turretShadow.getCurrentVolatileImage();
-                int renderX = getRenderLocation().x - toRender.getWidth() / 2;
-                int renderY = getRenderLocation().y - toRender.getHeight() / 2;
+                DCoordinate turretRenderLoc = getRenderLocation();
                 int shadowOffsetY = 2;
                 int shadowOffsetX = 1;
-                g.rotate(Math.toRadians(getRotationRealTime()), getRenderLocation().x + shadowOffsetX, getRenderLocation().y + shadowOffsetY);
-                g.drawImage(toRender, renderX, renderY + shadowOffsetY, null);
+                double renderX = turretRenderLoc.x - toRender.getWidth() / 2.0;
+                double renderY = turretRenderLoc.y - toRender.getHeight() / 2.0;
+                g.rotate(Math.toRadians(getRotationRealTime()), turretRenderLoc.x + shadowOffsetX, turretRenderLoc.y + shadowOffsetY);
+                g.drawImage(toRender, AffineTransform.getTranslateInstance(renderX, renderY + shadowOffsetY), null);
                 g.setTransform(old);
             }
             super.render(g);

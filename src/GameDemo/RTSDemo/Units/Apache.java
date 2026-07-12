@@ -1,6 +1,7 @@
 package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
@@ -459,18 +460,20 @@ public class Apache extends RTSUnit {
 
         int shadowOffsetX = 5;
         int shadowOffsetY = Math.max(elevation, 9);
-        Coordinate renderLocation = getRenderLocation();
-        renderLocation.x += shadowOffsetX;
-        renderLocation.y += shadowOffsetY;
+        DCoordinate renderLocation = getRenderLocation();
+        double centerX = renderLocation.x + shadowOffsetX;
+        double centerY = renderLocation.y + shadowOffsetY;
         double shadowScale = isRubble ? 0.95 + 0.05 * (Math.max(0, elevation) / 149.0) : 1.0;
         AffineTransform old = g.getTransform();
         VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
-        int drawWidth = (int)(toRender.getWidth() * shadowScale);
-        int drawHeight = (int)(toRender.getHeight() * shadowScale);
-        int renderX = renderLocation.x - drawWidth / 2;
-        int renderY = renderLocation.y - drawHeight / 2;
-        g.rotate(Math.toRadians(turret.getRotation()), renderLocation.x, renderLocation.y);
-        g.drawImage(toRender, renderX, renderY, drawWidth, drawHeight, null);
+        double drawWidth = toRender.getWidth() * shadowScale;
+        double drawHeight = toRender.getHeight() * shadowScale;
+        double renderX = centerX - drawWidth / 2.0;
+        double renderY = centerY - drawHeight / 2.0;
+        g.rotate(Math.toRadians(turret.getRotation()), centerX, centerY);
+        AffineTransform shadowTransform = AffineTransform.getTranslateInstance(renderX, renderY);
+        shadowTransform.scale(shadowScale, shadowScale);
+        g.drawImage(toRender, shadowTransform, null);
         g.setTransform(old);
 
         if (isSelected() && !isRubble) {
@@ -479,7 +482,7 @@ public class Apache extends RTSUnit {
 
         if (ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
             g.setColor(Color.ORANGE);
-            g.fillOval(getRenderLocation().x - getWidth() / 2, getPixelLocation().y - getHeight() / 2, getWidth() / 2, getHeight() / 2);
+            g.fillOval(getRenderLocation().toCoordinate().x - getWidth() / 2, getPixelLocation().y - getHeight() / 2, getWidth() / 2, getHeight() / 2);
         }
     }
 
@@ -527,7 +530,7 @@ public class Apache extends RTSUnit {
             if (!((RTSUnit) getHost()).shouldRender()) return;
             if (!isRubble) {
                 // Docked missiles rendered before body so they appear underneath
-                Coordinate renderLoc = getRenderLocation();
+                DCoordinate renderLoc = getRenderLocation();
                 LaunchMissileButton missileButton = (LaunchMissileButton) Apache.this.getButtons().get(0);
                 int firstVisible;
                 if (Apache.this.missileNextFireAtTick != -1) {
@@ -547,27 +550,27 @@ public class Apache extends RTSUnit {
             if (!isRubble) {
                 // Rotor blades on top of body
                 double bladesAngle = (System.currentTimeMillis() * 2160.0 / 1000.0) % 360;
-                Coordinate renderLoc = getRenderLocation();
+                DCoordinate renderLoc = getRenderLocation();
                 VolatileImage bladesImg = getBladesSprite().getCurrentVolatileImage();
                 AffineTransform old = g.getTransform();
                 g.rotate(Math.toRadians(bladesAngle), renderLoc.x, renderLoc.y);
-                g.drawImage(bladesImg, renderLoc.x - bladesImg.getWidth() / 2, renderLoc.y - bladesImg.getHeight() / 2, null);
+                g.drawImage(bladesImg, AffineTransform.getTranslateInstance(renderLoc.x - bladesImg.getWidth() / 2.0, renderLoc.y - bladesImg.getHeight() / 2.0), null);
                 g.setTransform(old);
             }
         }
 
-        private void renderDockedMissiles(Graphics2D g, Coordinate renderLoc, int startIndex) {
+        private void renderDockedMissiles(Graphics2D g, DCoordinate renderLoc, int startIndex) {
             VolatileImage missileImg = dockedMissileSprite.getCurrentVolatileImage();
             if (missileImg == null) return;
             AffineTransform old = g.getTransform();
             g.rotate(Math.toRadians(getRotation()), renderLoc.x, renderLoc.y);
             for (int i = startIndex; i < DOCKED_MISSILE_OFFSETS.length; i++) {
                 int[] offset = DOCKED_MISSILE_OFFSETS[i];
-                int ox = (int) (offset[0] * VISUAL_SCALE);
-                int oy = (int) (offset[1] * VISUAL_SCALE);
-                g.drawImage(missileImg,
-                        renderLoc.x + ox - missileImg.getWidth() / 2,
-                        renderLoc.y + oy - missileImg.getHeight() / 2, null);
+                double ox = offset[0] * VISUAL_SCALE;
+                double oy = offset[1] * VISUAL_SCALE;
+                g.drawImage(missileImg, AffineTransform.getTranslateInstance(
+                        renderLoc.x + ox - missileImg.getWidth() / 2.0,
+                        renderLoc.y + oy - missileImg.getHeight() / 2.0), null);
             }
             g.setTransform(old);
         }

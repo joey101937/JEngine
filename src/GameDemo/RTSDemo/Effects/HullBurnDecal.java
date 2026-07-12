@@ -137,7 +137,7 @@ public class HullBurnDecal extends RenderHook {
 
         double currentRot = host.getRotationRealTime();
         double worldAngle = localOffsetAngle + Math.toRadians(currentRot);
-        Coordinate renderCenter = host.getRenderLocation();
+        Coordinate renderCenter = host.getRenderLocation().toCoordinate();
         int cx = renderCenter.x + (int)(Math.cos(worldAngle) * localOffsetDist);
         int cy = renderCenter.y + (int)(Math.sin(worldAngle) * localOffsetDist);
 

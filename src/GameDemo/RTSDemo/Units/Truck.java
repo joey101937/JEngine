@@ -341,14 +341,14 @@ public class Truck extends RTSUnit implements Transport {
     private void drawWheels(Graphics2D g) {
         if (wheelSprite == null || wheelSprite.getCurrentVolatileImage() == null) return;
         VolatileImage img = wheelSprite.getCurrentVolatileImage();
-        Coordinate truckLoc = getRenderLocation();
+        DCoordinate truckLoc = getRenderLocation();
         double renderRot = getRenderRotation();
 
         for (int[] offset : WHEEL_OFFSETS) {
             DCoordinate wheelOffset = new DCoordinate(offset[0], offset[1]);
             wheelOffset.adjustForRotation(renderRot);
-            int wx = truckLoc.x + (int) Math.round(wheelOffset.x);
-            int wy = truckLoc.y + (int) Math.round(wheelOffset.y);
+            double wx = truckLoc.x + wheelOffset.x;
+            double wy = truckLoc.y + wheelOffset.y;
 
             Graphics2D wg = (Graphics2D) g.create();
             wg.rotate(Math.toRadians(wheelRotation), wx, wy);
@@ -357,7 +357,7 @@ public class Truck extends RTSUnit implements Transport {
             at.scale(VISUAL_SCALE, VISUAL_SCALE);
             at.translate(-wx, -wy);
             wg.setTransform(at);
-            wg.drawImage(img, wx - img.getWidth() / 2, wy - img.getHeight() / 2, null);
+            wg.drawImage(img, AffineTransform.getTranslateInstance(wx - img.getWidth() / 2.0, wy - img.getHeight() / 2.0), null);
             wg.dispose();
         }
     }

@@ -179,15 +179,12 @@ public class SubObject extends GameObject2{
     }
 
     @Override
-    public Coordinate getRenderLocation() {
+    public DCoordinate getRenderLocation() {
         if (host == null) return super.getRenderLocation();
         DCoordinate dOffset = new DCoordinate(offset.x, offset.y);
         dOffset.adjustForRotation(host.getRenderRotation());
-        Coordinate hostLoc = host.getRenderLocation();
-        return new Coordinate(
-            (int) Math.round(hostLoc.x + dOffset.x),
-            (int) Math.round(hostLoc.y + dOffset.y)
-        );
+        DCoordinate hostLoc = host.getRenderLocation();
+        return new DCoordinate(hostLoc.x + dOffset.x, hostLoc.y + dOffset.y);
     }
 
     @Override

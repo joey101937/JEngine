@@ -133,7 +133,7 @@ public class TargetingModeManager extends IndependentEffect {
         if (maxCastRange > 0) {
             g.setColor(RANGE_CIRCLE_COLOR);
             for (RTSUnit unit : castingUnits) {
-                Coordinate pos = unit.getRenderLocation();
+                Coordinate pos = unit.getRenderLocation().toCoordinate();
                 int r = (int) maxCastRange;
                 g.drawOval(pos.x - r, pos.y - r, r * 2, r * 2);
             }
@@ -141,7 +141,7 @@ public class TargetingModeManager extends IndependentEffect {
         if (minCastRange > 0) {
             g.setColor(MIN_RANGE_CIRCLE_COLOR);
             for (RTSUnit unit : castingUnits) {
-                Coordinate pos = unit.getRenderLocation();
+                Coordinate pos = unit.getRenderLocation().toCoordinate();
                 int r = (int) minCastRange;
                 g.drawOval(pos.x - r, pos.y - r, r * 2, r * 2);
             }
@@ -150,7 +150,7 @@ public class TargetingModeManager extends IndependentEffect {
         g.setStroke(new BasicStroke(2));
         if (unitTargetingMode) {
             if (hoveredUnit != null && !hoveredUnit.isRubble && hoveredUnit.isAlive()) {
-                Coordinate pos = hoveredUnit.getRenderLocation();
+                Coordinate pos = hoveredUnit.getRenderLocation().toCoordinate();
                 int hw = hoveredUnit.getWidth() / 2 + 8;
                 int hh = hoveredUnit.getHeight() / 2 + 8;
                 AffineTransform old = g.getTransform();

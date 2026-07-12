@@ -487,7 +487,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * This should only be used for render logic. Game logic should use pixelLocation instead.
      * @return the lerp-adjusted coordinate.
      */
-    public Coordinate getRenderLocation() {
+    public DCoordinate getRenderLocation() {
          if(Main.enableLerping && movedLastTick) {
            float deltaTime = 1 - getHostGame().getPercentThroughTick();
 
@@ -495,21 +495,24 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
            // make next tick. "reactive" (default): interpolate between the previous tick's position and the
            // current one. Interpolation renders only real, already-computed positions, so it stays smooth even
            // when speed or heading change every tick (e.g. a turning tank), at the cost of one tick of latency.
-           Coordinate base;
+           // Kept sub-pixel (DCoordinate): the render path feeds the fraction straight into the graphics
+           // transform so Java2D anti-aliases the sprite across pixel boundaries instead of snapping to whole
+           // pixels, which is what removes the residual shimmer on diagonal movement.
+           DCoordinate base;
            DCoordinate movement;
            if(Main.lerpType != null && Main.lerpType.equals("predictive")) {
-                base = new Coordinate(locationAsOfLastTick);
+                base = locationAsOfLastTick.copy();
                 movement = getMovementNextTick();
            } else {
-                base = new Coordinate(locationAsOfLastTick.copy().subtract(lastMovement));
+                base = locationAsOfLastTick.copy().subtract(lastMovement);
                 movement = lastMovement.copy();
            }
 
-           Coordinate renderOffset = movement.scale(deltaTime).toCoordinate();
+           DCoordinate renderOffset = movement.scale(deltaTime);
 
-           return constrainToWorld(base.add(renderOffset).toDCoordinate()).toCoordinate();
+           return constrainToWorld(base.add(renderOffset));
         } else {
-             return getPixelLocation();
+             return getPixelLocation().toDCoordinate();
          }
     }
     
@@ -541,7 +544,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public void render(Graphics2D g, boolean ignoreRestrictions){
         renderNumber++;
-        Coordinate pixelLocation = getRenderLocation();
+        DCoordinate renderLocation = getRenderLocation();
+        Coordinate pixelLocation = renderLocation.toCoordinate();
         lastRenderLocation = pixelLocation;
         
         boolean triggerAnimationCycle = shouldTriggerOnAnimationCycle();
@@ -567,17 +571,20 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             }
             return;
         }
-        graphics.rotate(Math.toRadians(getRenderRotation()), pixelLocation.x, pixelLocation.y);
+        graphics.rotate(Math.toRadians(getRenderRotation()), renderLocation.x, renderLocation.y);
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, renderOpacity));
-        
+
         // Apply scaling
-        scaleGraphicObj(graphics, scale, pixelLocation.toDCoordinate());
-        if (renderScale != 1.0) scaleGraphicObj(graphics, renderScale, pixelLocation.toDCoordinate());
+        scaleGraphicObj(graphics, scale, renderLocation);
+        if (renderScale != 1.0) scaleGraphicObj(graphics, renderScale, renderLocation);
 
         if (getGraphic() != null && getGraphic().getCurrentVolatileImage() != null) {
             VolatileImage toRender = getGraphic().getCurrentVolatileImage();
-            int drawX = pixelLocation.x - toRender.getWidth() / 2;
-            int drawY = pixelLocation.y - toRender.getHeight() / 2;
+            // Draw via a sub-pixel translate so the fractional render location is preserved (Java2D
+            // anti-aliases across pixels) rather than snapped to a whole pixel with an int draw position.
+            double drawX = renderLocation.x - toRender.getWidth() / 2.0;
+            double drawY = renderLocation.y - toRender.getHeight() / 2.0;
+            AffineTransform drawTransform = AffineTransform.getTranslateInstance(drawX, drawY);
             if (renderBrightness != 1.0 || renderSaturation != 1.0) {
                 BufferedImage snapshot = toRender.getSnapshot();
                 if (renderBrightness != 1.0) {
@@ -586,16 +593,16 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
                 if (renderSaturation != 1.0) {
                     snapshot = Graphic.applySaturation(snapshot, renderSaturation);
                 }
-                graphics.drawImage(snapshot, drawX, drawY, null);
+                graphics.drawImage(snapshot, drawTransform, null);
             } else {
-                graphics.drawImage(toRender, drawX, drawY, null);
+                graphics.drawImage(toRender, drawTransform, null);
             }
             if(isAnimated() && triggerAnimationCycle) this.onAnimationCycle();
-        }        
-        
+        }
+
         // Undo scaling
-        if (renderScale != 1.0) scaleGraphicObj(graphics, 1.0 / renderScale, pixelLocation.toDCoordinate());
-        scaleGraphicObj(graphics, 1/scale, pixelLocation.toDCoordinate());
+        if (renderScale != 1.0) scaleGraphicObj(graphics, 1.0 / renderScale, renderLocation);
+        scaleGraphicObj(graphics, 1/scale, renderLocation);
         
          if (Main.debugMode) {
             renderDebugVisuals(graphics);

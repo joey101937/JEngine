@@ -2,6 +2,7 @@
 package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.GraphicalAssets.Graphic;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
@@ -383,11 +384,11 @@ public class LightTank extends RTSUnit {
             if (getHost().isSolid && !isRubble) {
                 AffineTransform old = g.getTransform();
                 VolatileImage toRender = turretShadow.getCurrentVolatileImage();
-                Coordinate pixelLocation = getRenderLocation().add(new Coordinate(2, 3));
-                int renderX = pixelLocation.x - toRender.getWidth() / 2;
-                int renderY = pixelLocation.y - toRender.getHeight() / 2;
+                DCoordinate pixelLocation = getRenderLocation().add(new Coordinate(2, 3));
+                double renderX = pixelLocation.x - toRender.getWidth() / 2.0;
+                double renderY = pixelLocation.y - toRender.getHeight() / 2.0;
                 g.rotate(Math.toRadians(getRenderRotation()), pixelLocation.x, pixelLocation.y);
-                g.drawImage(toRender, renderX, renderY, null);
+                g.drawImage(toRender, AffineTransform.getTranslateInstance(renderX, renderY), null);
                 g.setTransform(old);
             }
             super.render(g);

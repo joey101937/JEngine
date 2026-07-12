@@ -1,6 +1,7 @@
 package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
+import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
@@ -396,18 +397,20 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
 
         int shadowOffsetX = 5;
         int shadowOffsetY = isLanded ? 18 : Math.max(elevation, 9);
-        Coordinate renderLocation = getRenderLocation();
-        renderLocation.x += shadowOffsetX;
-        renderLocation.y += shadowOffsetY;
+        DCoordinate renderLocation = getRenderLocation();
+        double centerX = renderLocation.x + shadowOffsetX;
+        double centerY = renderLocation.y + shadowOffsetY;
         double shadowScale = isRubble ? 0.95 + 0.05 * (Math.max(0, elevation) / 149.0) : 1.0;
         AffineTransform old = g.getTransform();
         VolatileImage toRender = shadowSprite.getCurrentVolatileImage();
-        int drawWidth = (int)(toRender.getWidth() * shadowScale);
-        int drawHeight = (int)(toRender.getHeight() * shadowScale);
-        int renderX = renderLocation.x - drawWidth / 2;
-        int renderY = renderLocation.y - drawHeight / 2;
-        g.rotate(Math.toRadians(turret.getRotation()), renderLocation.x, renderLocation.y);
-        g.drawImage(toRender, renderX, renderY, drawWidth, drawHeight, null);
+        double drawWidth = toRender.getWidth() * shadowScale;
+        double drawHeight = toRender.getHeight() * shadowScale;
+        double renderX = centerX - drawWidth / 2.0;
+        double renderY = centerY - drawHeight / 2.0;
+        g.rotate(Math.toRadians(turret.getRotation()), centerX, centerY);
+        AffineTransform shadowTransform = AffineTransform.getTranslateInstance(renderX, renderY);
+        shadowTransform.scale(shadowScale, shadowScale);
+        g.drawImage(toRender, shadowTransform, null);
         g.setTransform(old);
 
         if (isSelected() && !isRubble) {
@@ -416,7 +419,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
 
         if (ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
             g.setColor(Color.ORANGE);
-            g.fillOval(getRenderLocation().x - getWidth() / 2, getPixelLocation().y - getHeight() / 2, getWidth() / 2, getHeight() / 2);
+            g.fillOval(getRenderLocation().toCoordinate().x - getWidth() / 2, getPixelLocation().y - getHeight() / 2, getWidth() / 2, getHeight() / 2);
         }
     }
 
@@ -499,21 +502,21 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
 
             // roof + its cast shadow (disappears with death)
             if (!isRubble) {
-                Coordinate renderLoc = getRenderLocation();
+                DCoordinate renderLoc = getRenderLocation();
                 // shadow: small offset rotated with the hull to simulate roof elevation
                 Coordinate shadowOff = new Coordinate(6, 8);
                 VolatileImage shadowImg = roofShadowSprite.getCurrentVolatileImage();
                 AffineTransform old = g.getTransform();
                 g.rotate(Math.toRadians(getRotation()), renderLoc.x + shadowOff.x, renderLoc.y + shadowOff.y);
-                g.drawImage(shadowImg,
-                        renderLoc.x + shadowOff.x - shadowImg.getWidth() / 2,
-                        renderLoc.y + shadowOff.y - shadowImg.getHeight() / 2, null);
+                g.drawImage(shadowImg, AffineTransform.getTranslateInstance(
+                        renderLoc.x + shadowOff.x - shadowImg.getWidth() / 2.0,
+                        renderLoc.y + shadowOff.y - shadowImg.getHeight() / 2.0), null);
                 g.setTransform(old);
                 // roof itself
                 VolatileImage roofImg = getRoofSprite().getCurrentVolatileImage();
                 old = g.getTransform();
                 g.rotate(Math.toRadians(getRotation()), renderLoc.x, renderLoc.y);
-                g.drawImage(roofImg, renderLoc.x - roofImg.getWidth() / 2, renderLoc.y - roofImg.getHeight() / 2, null);
+                g.drawImage(roofImg, AffineTransform.getTranslateInstance(renderLoc.x - roofImg.getWidth() / 2.0, renderLoc.y - roofImg.getHeight() / 2.0), null);
                 g.setTransform(old);
             }
 
@@ -528,11 +531,11 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
                 // only advance the clock when spinning; reset when stopped so re-spin doesn't jump
                 lastBladesRenderMs = (elevation > 0) ? now : -1;
 
-                Coordinate renderLoc = getRenderLocation();
+                DCoordinate renderLoc = getRenderLocation();
                 VolatileImage bladesImg = getBladesSprite().getCurrentVolatileImage();
                 AffineTransform old = g.getTransform();
                 g.rotate(Math.toRadians(bladesAngle), renderLoc.x, renderLoc.y);
-                g.drawImage(bladesImg, renderLoc.x - bladesImg.getWidth() / 2, renderLoc.y - bladesImg.getHeight() / 2, null);
+                g.drawImage(bladesImg, AffineTransform.getTranslateInstance(renderLoc.x - bladesImg.getWidth() / 2.0, renderLoc.y - bladesImg.getHeight() / 2.0), null);
                 g.setTransform(old);
             }
         }
