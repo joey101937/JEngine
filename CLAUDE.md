@@ -26,7 +26,7 @@ ATTENTION: AI cannot build or compile. The developer will build and test and giv
 ### Game Demos Package Structure
 - **GameDemo/**: Example implementations demonstrating engine features
   - **RTSDemo/**: Real-time strategy game with pathfinding and multiplayer
-  - **Galiga/**: Space shooter game
+  - **SpaceInvadersDemo/**: Space shooter game
   - **Minotaur/**: Side-scrolling action game
   - **TownDemo/**: Top-down exploration with scene transitions
   - **SandboxDemo/**: Basic character movement demo

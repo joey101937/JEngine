@@ -169,7 +169,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         if(!shouldRender()) return;
         super.render(g);
         if(NavigationManager.displayPathingDebugInfo) {
-           g.drawString(commandGroup.equals("0") ? "" : commandGroup, getPixelLocation().x, getPixelLocation().y);
+           g.drawString(commandGroup.equals("0") ? "" : commandGroup, getRenderLocation().x, getRenderLocation().y);
         }
         if (isRubble) {
             return;
@@ -193,7 +193,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         }
         if(ExternalCommunicator.outOfSyncUnitIds.indexOf(ID) > -1) {
             g.setColor(Color.ORANGE);
-            g.fillOval(getPixelLocation().x-getWidth()/2, getPixelLocation().y-getHeight()/2, getWidth()/2, getHeight()/2);
+            g.fillOval(getRenderLocation().x-getWidth()/2, getRenderLocation().y-getHeight()/2, getWidth()/2, getHeight()/2);
         }
     }
     
