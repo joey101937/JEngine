@@ -489,17 +489,25 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public Coordinate getRenderLocation() {
          if(Main.enableLerping && movedLastTick) {
-           Coordinate pixelLocation = new Coordinate(locationAsOfLastTick);
-           float deltaTime = 1- getHostGame().getPercentThroughTick();
+           float deltaTime = 1 - getHostGame().getPercentThroughTick();
 
-           DCoordinate movement = lastMovement.copy(); // getMovementNextTick();
+           // "predictive": extrapolate forward from the current position using the movement this object will
+           // make next tick. "reactive" (default): interpolate between the previous tick's position and the
+           // current one. Interpolation renders only real, already-computed positions, so it stays smooth even
+           // when speed or heading change every tick (e.g. a turning tank), at the cost of one tick of latency.
+           Coordinate base;
+           DCoordinate movement;
            if(Main.lerpType != null && Main.lerpType.equals("predictive")) {
+                base = new Coordinate(locationAsOfLastTick);
                 movement = getMovementNextTick();
+           } else {
+                base = new Coordinate(locationAsOfLastTick.copy().subtract(lastMovement));
+                movement = lastMovement.copy();
            }
-           
+
            Coordinate renderOffset = movement.scale(deltaTime).toCoordinate();
 
-           return constrainToWorld(pixelLocation.add(renderOffset).toDCoordinate()).toCoordinate();
+           return constrainToWorld(base.add(renderOffset).toDCoordinate()).toCoordinate();
         } else {
              return getPixelLocation();
          }
@@ -515,7 +523,12 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     public double getRenderRotation() {
         if (Main.enableLerping && rotatedLastTick) {
             float deltaTime = 1 - getHostGame().getPercentThroughTick();
-            return rotation + lastRotationDelta * deltaTime;
+            if (Main.lerpType != null && Main.lerpType.equals("predictive")) {
+                // extrapolate forward from the current rotation
+                return rotation + lastRotationDelta * deltaTime;
+            }
+            // reactive: interpolate from the previous rotation to the current one
+            return (rotation - lastRotationDelta) + lastRotationDelta * deltaTime;
         } else {
             return rotation;
         }
