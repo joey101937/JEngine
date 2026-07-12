@@ -13,6 +13,7 @@ import GameDemo.RTSDemo.Buttons.LayMineButton;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
 import GameDemo.RTSDemo.Effects.SmokePoofEffect;
+import GameDemo.RTSDemo.Effects.TankTreadEffect;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -201,6 +202,10 @@ public class LightTank extends RTSUnit {
             getHostGame().addIndependentEffect(new ExhaustTrailEffect(
                     getHostGame(), this, () -> !isRubble && movedLastTick(),
                     rearOffset, 10, 7, Math.max(1, RTSGame.desiredTPS / 10), getZLayer() + 1, 0.5));
+            getHostGame().addIndependentEffect(new TankTreadEffect(
+                    getHostGame(), this, () -> !isRubble && movedLastTick(),
+                    getWidth() * 0.30, getWidth() * 0.12, getHeight() * 0.09,
+                    Math.max(1, RTSGame.desiredTPS / 30), (int) (RTSGame.desiredTPS * 1.5), 0.15, -12));
             exhaustSpawned = true;
         }
 
