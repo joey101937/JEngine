@@ -21,6 +21,8 @@ import GameDemo.RTSDemo.Buttons.DigOutButton;
 import GameDemo.RTSDemo.Buttons.FrontalArmorButton;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Damage;
+import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
+import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -75,6 +77,9 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     private long digActionStartTick = 0;
     private long fadeoutScheduledAtTick = 0;
     private long destructionScheduledAtTick = 0;
+
+    // Cosmetic exhaust trail; transient so it re-attaches after a save/load.
+    private transient boolean exhaustSpawned = false;
 
     public static volatile Sequence hullMGImpact = null;
 
@@ -243,6 +248,15 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
     public void tick() {
         super.tick();
+
+        // Lazily attach the exhaust trail once we have a host game (not available at construction).
+        if (!exhaustSpawned && !isRubble && getHostGame() != null) {
+            double rearOffset = getHeight() * 0.45; // out past the rear of the hull so it isn't hidden under the body
+            getHostGame().addIndependentEffect(new ExhaustTrailEffect(
+                    getHostGame(), this, () -> !isRubble && movedLastTick(),
+                    rearOffset, -12, 10, Math.max(1, RTSGame.desiredTPS / 10), getZLayer() + 1));
+            exhaustSpawned = true;
+        }
 
         // Check for scheduled destruction
         if (destructionScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= destructionScheduledAtTick) {
@@ -684,6 +698,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             return;
         }
         OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "transientExplosion"), getPixelLocation());
+        getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), getPixelLocation(), 24, getZLayer() + 1));
         this.isRubble = true;
         this.team = -1;
         this.setBaseSpeed(0);

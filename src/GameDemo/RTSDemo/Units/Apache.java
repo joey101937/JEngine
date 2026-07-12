@@ -9,6 +9,7 @@ import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.LaunchMissileButton;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -359,6 +360,7 @@ public class Apache extends RTSUnit {
             if (!deathExplosionSpawned && elevation < 8) {
                 OnceThroughSticker deathBlast = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
                 deathBlast.setRenderScale(1.6);
+                getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), getPixelLocation(), 26, getZLayer() + 1));
                 RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, .56, 0);
                 deathExplosionSpawned = true;
             }

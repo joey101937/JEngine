@@ -14,6 +14,7 @@ import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import Framework.Stickers.OnceThroughSticker;
 import GameDemo.RTSDemo.BurnMarkEffect;
+import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.HullBurnDecal;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
@@ -122,6 +123,7 @@ public class TankBullet extends Projectile {
             }
             alreadyExploded = true;
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
+            getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), impactLoc, 12, getZLayer() + 1));
             destroy();
         }
     }
@@ -130,6 +132,7 @@ public class TankBullet extends Projectile {
     public void onTimeOut() {
         OnceThroughSticker s = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), this.getPixelLocation());
         getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), getPixelLocation(), 15, RTSGame.desiredTPS * 5));
+        getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), getPixelLocation(), 12, getZLayer() + 1));
     }
 
     /**

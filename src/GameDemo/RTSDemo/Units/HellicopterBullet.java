@@ -11,6 +11,7 @@ import java.util.Set;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
 import GameDemo.RTSDemo.Damage;
+import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
@@ -42,6 +43,9 @@ public class HellicopterBullet extends Projectile {
 
     public long tickToDestroy = -1;
     public boolean hasCollided = false;
+
+    // Cosmetic exhaust trail; transient so it re-attaches after a save/load.
+    private transient boolean exhaustSpawned = false;
 
     public int maxSpeed = RTSGame.tickAdjust(19);
     public double minSpeed = RTSGame.tickAdjust(6);
@@ -135,6 +139,15 @@ public class HellicopterBullet extends Projectile {
     @Override
     public void tick() {
         super.tick();
+
+        // Lazily attach a small exhaust trail once we have a host game (not available at construction).
+        if (!exhaustSpawned && getHostGame() != null) {
+            getHostGame().addIndependentEffect(new ExhaustTrailEffect(
+                    getHostGame(), this, () -> !hasCollided,
+                    getHeight() * 0.5, 0, 4, Math.max(1, RTSGame.desiredTPS / 30), getZLayer() - 1));
+            exhaustSpawned = true;
+        }
+
         double accellarationPercent = accellerationStage / accellerationTime;
         double speed = Main.clamp(maxSpeed * accellarationPercent, maxSpeed, minSpeed);
         this.setBaseSpeed(speed);

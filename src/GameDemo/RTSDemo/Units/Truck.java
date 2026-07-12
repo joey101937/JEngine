@@ -12,6 +12,7 @@ import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.Damage;
+import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Transport;
 import java.awt.Graphics2D;
@@ -205,6 +206,7 @@ public class Truck extends RTSUnit implements Transport {
         }
         Sprite rubbleSprite = getRubbleSprite();
         new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "truckDeathExplosion"), getPixelLocation());
+        getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), getPixelLocation(), 20, getZLayer() + 1));
         this.isRubble = true;
         this.team = -1;
         this.setBaseSpeed(0);

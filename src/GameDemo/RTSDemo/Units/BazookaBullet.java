@@ -11,6 +11,8 @@ import java.util.Set;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.UtilityObjects.Projectile;
 import GameDemo.RTSDemo.BurnMarkEffect;
+import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
+import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.HullBurnDecal;
 import GameDemo.RTSDemo.RTSAssetManager;
@@ -45,6 +47,9 @@ public class BazookaBullet extends Projectile {
 
     public long tickToDestroy = -1;
     public boolean hasCollided = false;
+
+    // Cosmetic exhaust trail; transient so it re-attaches after a save/load.
+    private transient boolean exhaustSpawned = false;
 
     private int ticksToReachStillTarget = 0;
 
@@ -119,6 +124,15 @@ public class BazookaBullet extends Projectile {
     @Override
     public void tick() {
         super.tick();
+
+        // Lazily attach a small exhaust trail once we have a host game (not available at construction).
+        if (!exhaustSpawned && getHostGame() != null) {
+            getHostGame().addIndependentEffect(new ExhaustTrailEffect(
+                    getHostGame(), this, () -> !hasCollided,
+                    getHeight() * 0.5, 0, 3.5, Math.max(1, RTSGame.desiredTPS / 30), getZLayer() - 1));
+            exhaustSpawned = true;
+        }
+
         if (getHostGame().getGameTickNumber() == tickToDestroy) {
             this.destroy();
         }
@@ -144,6 +158,7 @@ public class BazookaBullet extends Projectile {
             collidedUnit.takeDamage(damage);
             Coordinate impactLoc = collidedUnit.getNearestBodyPoint(getPixelLocation());
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
+            getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), impactLoc, 10, getZLayer() + 1));
             if (collidedUnit.isSoftTarget) {
                 getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), impactLoc, 9, RTSGame.desiredTPS * 5));
             } else {
@@ -157,7 +172,10 @@ public class BazookaBullet extends Projectile {
         } else {
             Coordinate missPos = getPixelLocation(true);
             OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), missPos);
-            if (this.plane<2) getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), missPos, 9, RTSGame.desiredTPS * 5));
+            if (this.plane<2) {
+                getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), missPos, 9, RTSGame.desiredTPS * 5));
+                getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), missPos, 10, getZLayer() + 1));
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.UtilityObjects.Projectile;
 import GameDemo.RTSDemo.BurnMarkEffect;
+import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
 import GameDemo.RTSDemo.ExplosionEffect;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
@@ -50,6 +51,9 @@ public class ApacheMissile extends Projectile {
     private final double scaleLoss;
     private boolean hasExploded = false;
 
+    // Cosmetic exhaust trail; transient so it re-attaches after a save/load.
+    private transient boolean exhaustSpawned = false;
+
     public static void initGraphics() {
         if (missileSprite != null) return;
         missileSprite = new Sprite(RTSAssetManager.apacheMissileProjectile);
@@ -87,6 +91,15 @@ public class ApacheMissile extends Projectile {
     @Override
     public void tick() {
         super.tick();
+
+        // Lazily attach a small exhaust trail once we have a host game (not available at construction).
+        if (!exhaustSpawned && getHostGame() != null) {
+            getHostGame().addIndependentEffect(new ExhaustTrailEffect(
+                    getHostGame(), this, () -> !hasExploded,
+                    getHeight() * 0.5, 0, 4.5, Math.max(1, RTSGame.desiredTPS / 30), getZLayer() - 1));
+            exhaustSpawned = true;
+        }
+
         if (!hasExploded) {
             double dist = Coordinate.distanceBetween(getPixelLocation(), targetCoord);
             double progress = (initialDistance > 0) ? Math.max(0.0, Math.min(1.0, 1.0 - dist / initialDistance)) : 1.0;

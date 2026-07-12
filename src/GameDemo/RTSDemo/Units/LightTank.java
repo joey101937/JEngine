@@ -11,6 +11,8 @@ import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.LayMineButton;
 import GameDemo.RTSDemo.CommandButton;
+import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
+import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -93,6 +95,9 @@ public class LightTank extends RTSUnit {
     public long barrelCooldownExpiresAtTick = 0;
     private long fadeoutScheduledAtTick = 0;
     private long destructionScheduledAtTick = 0;
+
+    // Cosmetic exhaust trail; transient so it re-attaches after a save/load.
+    private transient boolean exhaustSpawned = false;
     private double hullRotationSpeed = 0.0;
 
     public LightTank(int x, int y, int team) {
@@ -190,6 +195,15 @@ public class LightTank extends RTSUnit {
     public void tick() {
         super.tick();
 
+        // Lazily attach the exhaust trail once we have a host game (not available at construction).
+        if (!exhaustSpawned && !isRubble && getHostGame() != null) {
+            double rearOffset = getHeight() * 0.4;
+            getHostGame().addIndependentEffect(new ExhaustTrailEffect(
+                    getHostGame(), this, () -> !isRubble && movedLastTick(),
+                    rearOffset, 10, 7, Math.max(1, RTSGame.desiredTPS / 10), getZLayer() + 1, 0.5));
+            exhaustSpawned = true;
+        }
+
         // Check for scheduled destruction
         if (destructionScheduledAtTick > 0 && getHostGame().getGameTickNumber() >= destructionScheduledAtTick) {
             this.destroy();
@@ -280,6 +294,7 @@ public class LightTank extends RTSUnit {
             return;
         }
         OnceThroughSticker deathExplosion = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence, "lightTankDeathExplosion"), getPixelLocation());
+        getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), getPixelLocation(), 20, getZLayer() + 1));
         this.isRubble = true;
         this.team = -1;
         this.setBaseSpeed(0);
