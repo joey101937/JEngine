@@ -168,7 +168,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     public void render(Graphics2D g) {
         if(!shouldRender()) return;
         super.render(g);
-        if(NavigationManager.displayPathingDebugInfo) {
+        if(NavigationManager.displayPathingDebugGrid) {
            g.drawString(commandGroup.equals("0") ? "" : commandGroup, getRenderLocation().toCoordinate().x, getRenderLocation().toCoordinate().y);
         }
         if (isRubble) {

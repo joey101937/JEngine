@@ -9,7 +9,9 @@ import Framework.SerializationManager;
 import GameDemo.RTSDemo.MapEditor.MapData;
 import GameDemo.RTSDemo.MapEditor.MapLoader;
 import GameDemo.RTSDemo.MapEditor.MapSerializer;
+import GameDemo.RTSDemo.FogOfWar.FogOfWarEffect;
 import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
+import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Replay.ReplayManager;
 import java.awt.Color;
 import java.awt.Font;
@@ -19,8 +21,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JFileChooser;
 
 public class GameMenuEffect extends IndependentEffect {
@@ -48,16 +50,72 @@ public class GameMenuEffect extends IndependentEffect {
 
     private transient int hoveredButtonIndex = -1;
 
-    private static final List<String> BUTTON_LABELS = new ArrayList<>(List.of(
+    private boolean showingSettings = false;
+
+    private static final List<String> MAIN_LABELS = List.of(
         "Toggle Pause",
-        "Toggle Fullscreen",
+        "Settings",
         "Quick Save",
         "Quick Load",
         "Load Map",
         "Save Replay",
         "Load Replay",
         "Quit"
-    ));
+    );
+    // Indices that begin a two-button row; the following index shares its row as the right half.
+    private static final Set<Integer> MAIN_PAIRS = Set.of(2, 5);
+
+    private static final List<String> SETTINGS_LABELS = List.of(
+        "Toggle Fullscreen",
+        "Toggle Fog of War",
+        "Toggle Pathing Grid",
+        "Back"
+    );
+    private static final Set<Integer> SETTINGS_PAIRS = Set.of();
+
+    private List<String> activeLabels() {
+        return showingSettings ? SETTINGS_LABELS : MAIN_LABELS;
+    }
+
+    private Set<Integer> activePairs() {
+        return showingSettings ? SETTINGS_PAIRS : MAIN_PAIRS;
+    }
+
+    private boolean isPairLeft(int i) {
+        return activePairs().contains(i);
+    }
+
+    private boolean isPairRight(int i) {
+        return activePairs().contains(i - 1);
+    }
+
+    // Row that button i renders on. Paired buttons share a row, so rows < button count.
+    private int rowOf(int i) {
+        int row = -1;
+        for (int j = 0; j <= i; j++) {
+            if (!isPairRight(j)) row++;
+        }
+        return row;
+    }
+
+    private int numRows() {
+        return rowOf(activeLabels().size() - 1) + 1;
+    }
+
+    // Rect [x, y, w, h] for button i, laid out from the given panel origin.
+    private int[] buttonRect(int i, int originX, int originY) {
+        int by = originY + TITLE_HEIGHT + PADDING / 2 + rowOf(i) * (BUTTON_HEIGHT + BUTTON_SPACING);
+        int fullBx = originX + PADDING / 2;
+        int fullBw = PANEL_WIDTH - PADDING;
+        int halfW = (fullBw - BUTTON_SPACING) / 2;
+        if (isPairLeft(i)) {
+            return new int[]{fullBx, by, halfW, BUTTON_HEIGHT};
+        } else if (isPairRight(i)) {
+            int rightX = fullBx + halfW + BUTTON_SPACING;
+            return new int[]{rightX, by, fullBw - halfW - BUTTON_SPACING, BUTTON_HEIGHT};
+        }
+        return new int[]{fullBx, by, fullBw, BUTTON_HEIGHT};
+    }
 
     public GameMenuEffect(Game game) {
         this.game = game;
@@ -73,6 +131,7 @@ public class GameMenuEffect extends IndependentEffect {
 
     public void close() {
         isOpen = false;
+        showingSettings = false;
         hoveredButtonIndex = -1;
     }
 
@@ -111,8 +170,8 @@ public class GameMenuEffect extends IndependentEffect {
         int screenW = (int)(game.getWindowWidth() / game.getZoom());
         int screenH = (int)(game.getWindowHeight() / game.getZoom());
 
-        int numButtons = BUTTON_LABELS.size();
-        int panelHeight = TITLE_HEIGHT + PADDING + numButtons * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING + PADDING;
+        int numButtons = activeLabels().size();
+        int panelHeight = TITLE_HEIGHT + PADDING + numRows() * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING + PADDING;
 
         int panelX = cameraOffset.x + (screenW - PANEL_WIDTH) / 2;
         int panelY = cameraOffset.y + (screenH - panelHeight) / 2;
@@ -132,7 +191,7 @@ public class GameMenuEffect extends IndependentEffect {
         g.setFont(TITLE_FONT);
         g.setColor(TITLE_COLOR);
         FontMetrics tfm = g.getFontMetrics();
-        String title = "Menu";
+        String title = showingSettings ? "Settings" : "Menu";
         int titleX = panelX + (PANEL_WIDTH - tfm.stringWidth(title)) / 2;
         int titleY = panelY + TITLE_HEIGHT / 2 + tfm.getAscent() / 2 - 2;
         g.drawString(title, titleX, titleY);
@@ -145,9 +204,10 @@ public class GameMenuEffect extends IndependentEffect {
         g.setFont(BUTTON_FONT);
         FontMetrics bfm = g.getFontMetrics();
         for (int i = 0; i < numButtons; i++) {
-            int bx = panelX + PADDING / 2;
-            int by = panelY + TITLE_HEIGHT + PADDING / 2 + i * (BUTTON_HEIGHT + BUTTON_SPACING);
-            int bw = PANEL_WIDTH - PADDING;
+            int[] r = buttonRect(i, panelX, panelY);
+            int bx = r[0];
+            int by = r[1];
+            int bw = r[2];
 
             g.setColor(hoveredButtonIndex == i ? BUTTON_HOVER : BUTTON_NORMAL);
             g.fillRoundRect(bx, by, bw, BUTTON_HEIGHT, 8, 8);
@@ -156,7 +216,7 @@ public class GameMenuEffect extends IndependentEffect {
             g.drawRoundRect(bx, by, bw, BUTTON_HEIGHT, 8, 8);
 
             g.setColor(BUTTON_TEXT);
-            String label = BUTTON_LABELS.get(i);
+            String label = activeLabels().get(i);
             int lx = bx + (bw - bfm.stringWidth(label)) / 2;
             int ly = by + (BUTTON_HEIGHT + bfm.getAscent() - bfm.getDescent()) / 2 - 1;
             g.drawString(label, lx, ly);
@@ -182,21 +242,16 @@ public class GameMenuEffect extends IndependentEffect {
     private int[] getButtonScreenRect(int i) {
         int screenW = game.getWindowWidth();
         int screenH = game.getWindowHeight();
-        int numButtons = BUTTON_LABELS.size();
-        int panelHeight = TITLE_HEIGHT + PADDING + numButtons * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING + PADDING;
+        int panelHeight = TITLE_HEIGHT + PADDING + numRows() * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING + PADDING;
         int panelX = (screenW - PANEL_WIDTH) / 2;
         int panelY = (screenH - panelHeight) / 2;
-
-        int bx = panelX + PADDING / 2;
-        int by = panelY + TITLE_HEIGHT + PADDING / 2 + i * (BUTTON_HEIGHT + BUTTON_SPACING);
-        int bw = PANEL_WIDTH - PADDING;
-        return new int[]{bx, by, bw, BUTTON_HEIGHT};
+        return buttonRect(i, panelX, panelY);
     }
 
     public void updateHover(int screenX, int screenY) {
         if (!isOpen) return;
         hoveredButtonIndex = -1;
-        for (int i = 0; i < BUTTON_LABELS.size(); i++) {
+        for (int i = 0; i < activeLabels().size(); i++) {
             int[] r = getButtonScreenRect(i);
             if (screenX >= r[0] && screenX <= r[0] + r[2] && screenY >= r[1] && screenY <= r[1] + r[3]) {
                 hoveredButtonIndex = i;
@@ -208,7 +263,7 @@ public class GameMenuEffect extends IndependentEffect {
     // Returns the index of the button at the given screen coords, or -1
     public int getButtonIndexAt(int screenX, int screenY) {
         if (!isOpen) return -1;
-        for (int i = 0; i < BUTTON_LABELS.size(); i++) {
+        for (int i = 0; i < activeLabels().size(); i++) {
             int[] r = getButtonScreenRect(i);
             if (screenX >= r[0] && screenX <= r[0] + r[2] && screenY >= r[1] && screenY <= r[1] + r[3]) {
                 return i;
@@ -218,9 +273,18 @@ public class GameMenuEffect extends IndependentEffect {
     }
 
     public void triggerButton(int index) {
+        if (showingSettings) {
+            switch (index) {
+                case 0 -> Window.setFullscreenWindowed(!Window.frame.isUndecorated());
+                case 1 -> FogOfWarEffect.enabled = !FogOfWarEffect.enabled;
+                case 2 -> NavigationManager.displayPathingDebugGrid = !NavigationManager.displayPathingDebugGrid;
+                case 3 -> { showingSettings = false; hoveredButtonIndex = -1; }
+            }
+            return;
+        }
         switch (index) {
             case 0 -> { if (!ExternalCommunicator.isMultiplayer) game.setPaused(!game.isPaused()); }
-            case 1 -> Window.setFullscreenWindowed(!Window.frame.isUndecorated());
+            case 1 -> { showingSettings = true; hoveredButtonIndex = -1; }
             case 2 -> SerializationManager.quickSave(game);
             case 3 -> SerializationManager.quickLoad(game);
             case 4 -> loadMap();

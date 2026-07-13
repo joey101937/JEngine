@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class NavigationManager extends IndependentEffect {
     private static final long serialVersionUID = 1L;
 
-    public static boolean displayPathingDebugInfo = true;
+    public static boolean displayPathingDebugGrid = false;
     public static int updateInterval = RTSGame.desiredTPS / 10;
     public static transient ExecutorService unitPathingService = reapingPool(200);
 
@@ -127,7 +127,7 @@ public class NavigationManager extends IndependentEffect {
 
         }        
 
-        if (!displayPathingDebugInfo) {
+        if (!displayPathingDebugGrid) {
             return;
         }
         if (SelectionBoxEffect.selectedUnits.isEmpty()) {
