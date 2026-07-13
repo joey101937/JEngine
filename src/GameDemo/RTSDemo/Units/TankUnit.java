@@ -7,6 +7,7 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
+import Framework.Hitbox;
 import Framework.GameObject2.MovementType;
 import java.util.HashMap;
 import java.util.Map;
@@ -716,7 +717,33 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
                 this.setGraphic(sandbagSprite);
             }
         }
-        
+
+        /**
+         * Custom hitbox: a shallow box anchored to the front of the tank that follows
+         * the tank's rotation. Full width, but only 1/3 the depth (front-to-back) of the
+         * sprite, sitting against the front edge (front is -Y in local space).
+         */
+        @Override
+        public void updateHitbox() {
+            if (getWidthAsOfLastTick() <= 0 || renderNumber <= 0) {
+                return;
+            }
+            int width = getWidth();
+            int frontEdge = -getHeight() / 2;
+            int depth = getHeight() / 3;
+            Coordinate[] verts = new Coordinate[4];
+            verts[0] = new Coordinate(-width / 2, frontEdge);          // front-left
+            verts[1] = new Coordinate(width / 2, frontEdge);           // front-right
+            verts[2] = new Coordinate(-width / 2, frontEdge + depth);  // back-left
+            verts[3] = new Coordinate(width / 2, frontEdge + depth);   // back-right
+            if (getHitbox() == null) {
+                setHitbox(new Hitbox(this, verts));
+            } else {
+                getHitbox().setVertices(verts);
+            }
+            getHitbox().rotateTo(getRotation());
+        }
+
         @Override
         public void render(Graphics2D g) {
             if (!hull.shouldRender()) return;
