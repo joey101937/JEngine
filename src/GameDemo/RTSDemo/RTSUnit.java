@@ -67,7 +67,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
      */
     public int mass = 200;
     public RTSUnit currentTarget;
-    public int range = 500;
+    public int baseRange = 500;
     public boolean canAttackAir = false;
     public boolean isRubble = false;
     public double rotationSpeed = RTSGame.tickAdjust(5);
@@ -263,7 +263,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
 
         if (!isBoardingActive && preferredTargetId != null) {
             RTSUnit prefTarget = (RTSUnit) getHostGame().getObjectById(preferredTargetId);
-            if (distanceFrom(prefTarget) <= range) {
+            if (distanceFrom(prefTarget) <= getRange()) {
                 // In range — stop and let combat take over; return to skip the movement block
                 setCommandGroup("0");
                 this.velocity.y = 0;
@@ -364,6 +364,14 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         selected = b;
     }
 
+    /**
+     * The unit's effective attack/target-acquisition range. Defaults to {@link #baseRange};
+     * subclasses may override to vary range dynamically (e.g. based on movement state).
+     */
+    public int getRange() {
+        return baseRange;
+    }
+
     public Coordinate getDesiredLocation() {
         return desiredLocation.copy();
     }
@@ -449,6 +457,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
             System.out.println("null host game");
             return null;
         }
+        int range = getRange();
         ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
         double closestDistance = range + 1;
         GameObject2 closest = null;
@@ -734,7 +743,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     public void populateNearbyEnemies() {
         RTSUnit nearestInfantry = null, nearestVehicle = null, nearestAircraft = null, nearestUnit = null;
         double infantryDistance = 999999999, vehicleDistance = 999999999, aircraftDistance = 999999999, closestDistance = 999999999;
-        Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
+        Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), getRange());
         for (GameObject2 go : nearby) {
             if (go instanceof RTSUnit unit && unit.team != team && !unit.isRubble && !unit.isCloaked && unit.isVisible(team)) {
                 double distance = distanceFrom(unit);
@@ -1063,7 +1072,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
             preferredTargetId = null;
             return null;
         }
-        return distanceFrom(t) <= range ? t : null;
+        return distanceFrom(t) <= getRange() ? t : null;
     }
 
     public void setCommandGroup(String s) {

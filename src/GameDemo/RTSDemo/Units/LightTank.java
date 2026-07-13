@@ -113,7 +113,7 @@ public class LightTank extends RTSUnit {
         this.isSolid = true;
         this.cargoSize = 6;
         this.setHitbox(new Hitbox(this, getWidth() / 2));
-        this.range = 500;
+        this.baseRange = 500;
         this.baseSpeed = LIGHT_TANK_SPEED;
         this.mass = 800;
         this.rotationSpeed = RTSGame.tickAdjust(2.5);
@@ -417,7 +417,7 @@ public class LightTank extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + LightTankBullet.staticDamage + "    Interval: " + LIGHT_TANK_ATTACK_INTERVAL + "s    Range: " + range);
+        out.add("Dmg: " + LightTankBullet.staticDamage + "    Interval: " + LIGHT_TANK_ATTACK_INTERVAL + "s    Range: " + getRange());
         out.add("Speed: " + LIGHT_TANK_SPEED + "    Targets: Ground");
         return out;
     }

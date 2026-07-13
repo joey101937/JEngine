@@ -19,7 +19,7 @@ public class FrontalArmorButton extends CommandButton{
         this.name = "Passive: Frontal Armor";
         this.isPassive = true;
         tooltipLines.add("Frontal armor decreases damage when hit from the front");
-        tooltipLines.add("Subtracts 5 base damage from all sources in front of the tank");
+        tooltipLines.add("Subtracts 10 base damage from all sources in front of the tank");
     }
 
     @Override

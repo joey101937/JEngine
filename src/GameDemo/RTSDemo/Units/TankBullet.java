@@ -34,7 +34,7 @@ import java.util.Set;
  */
 public class TankBullet extends Projectile {
     public static final double VISUAL_SCALE = .3;
-    public static Damage staticDamage = new Damage(46);
+    public static Damage staticDamage = new Damage(60);
     public Damage damage = staticDamage.copy();
     public GameObject2 shooter; //the object that launched this projectile
     public boolean alreadyExploded = false;

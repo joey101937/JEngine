@@ -92,7 +92,7 @@ public class Rifleman extends RTSUnit {
         this.rotationSpeed = RTSGame.tickAdjust(15);
         this.maxHealth = 20;
         this.currentHealth = 20;
-        this.range = 500;
+        this.baseRange = 500;
         isInfantry = true;
         isSoftTarget = true;
         cargoSize = 1;
@@ -331,7 +331,7 @@ public class Rifleman extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + damage + " x 3      Interval: " + attackFrequency+"s    Range: "+ range);
+        out.add("Dmg: " + damage + " x 3      Interval: " + attackFrequency+"s    Range: "+ getRange());
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
         return out;
     }

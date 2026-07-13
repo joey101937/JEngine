@@ -7,7 +7,6 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
-import Framework.GameObject2;
 import Framework.GameObject2.MovementType;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +33,6 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,12 +46,17 @@ import java.util.List;
  */
 public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     
-    public static final double attackFrequency = 2.5;
-    public static double speed = RTSGame.tickAdjust(2.15);
+    public static final double attackFrequency = 2.15;
+    // Seconds the tank must hold a valid firing solution on a target before it can shoot. Measured in ticks internally; change freely.
+    public static final double windupSeconds = 0.5;
+    public static double speed = RTSGame.tickAdjust(2.0);
 
     public Turret turret;
     public final static double VISUAL_SCALE = .50;
     public long weaponCooldownExpiresAtTick = 0;
+    // Windup state: which target we are currently winding up on, and the tick the windup began. Reset on aim loss or target switch.
+    public String windupTargetId = null;
+    public long windupStartTick = 0;
     public long lastTickTakenDamage = 0;
     public boolean sandbagActive = false;
     public int sandbagUsesRemaining = 2;
@@ -357,7 +360,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         turret = new Turret(new Coordinate(0, 0));
         this.addSubObject(sandbag);
         this.addSubObject(turret);
-        this.maxHealth = 210;//tanks can take 4 shots
+        this.maxHealth = 180;
         this.currentHealth = maxHealth;
         this.baseSpeed = speed;
         this.mass = 2000;
@@ -404,7 +407,16 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         }
     }
 
+    /**
+     * A stationary tank sees/reaches 15px further than one on the move.
+     */
+    @Override
+    public int getRange() {
+        return hasVelocity() ? baseRange : baseRange + 15;
+    }
+
     private RTSUnit nearestVisibleEnemyInfantryInRange() {
+        int range = getRange();
         double closest = range + 1;
         RTSUnit found = null;
         for (var go : getHostGame().getObjectsNearPoint(getPixelLocation(), range)) {
@@ -497,8 +509,24 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     //if not, tell the turret to fire at target location
     public void fire(Coordinate target) {
         if (weaponCooldownExpiresAtTick > 0 || target.distanceFrom(getLocation()) < getHeight() * 3 / 5 || Math.abs(turret.rotationNeededToFace(target)) > 1) { //limited to one shot per 60 ticks
+            // Not able to fire this tick (on cooldown, too close, or not aimed) — abandon any windup in progress.
+            windupTargetId = null;
+            windupStartTick = 0;
             return;
         }
+        // Aimed and able to fire. Require a held firing solution on this specific target for windupSeconds before shooting.
+        String targetId = currentTarget != null ? currentTarget.ID : null;
+        if (!java.util.Objects.equals(targetId, windupTargetId)) {
+            windupTargetId = targetId;
+            windupStartTick = getHostGame().getGameTickNumber();
+            return;
+        }
+        long windupTicks = (long) (RTSGame.desiredTPS * windupSeconds);
+        if (getHostGame().getGameTickNumber() - windupStartTick < windupTicks) {
+            return; // still winding up
+        }
+        windupTargetId = null;
+        windupStartTick = 0;
         weaponCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (RTSGame.desiredTPS * attackFrequency);
         System.out.println("" + this.ID + " located at " + this.getLocationAsOfLastTick()+"/" + this.getLocation()+ "/" + this.getPixelLocation() + " firing on tick " + getHostGame().getGameTickNumber() + " at " + currentTarget.ID + " located at " + currentTarget.getLocationAsOfLastTick()+"/" + currentTarget.getLocation()+ "/" + currentTarget.getPixelLocation());
         turret.onFire(target);
@@ -727,7 +755,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + TankBullet.staticDamage + "    Interval: " + attackFrequency+"s    Range: "+ range);
+        out.add("Dmg: " + TankBullet.staticDamage + "    Interval: " + attackFrequency+"s    Range: "+ getRange());
         out.add("Speed: " + baseSpeed + "    Targets: Ground");
         return out;
     }
@@ -758,7 +786,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             return;
         }
         if (updatedDamage.impactLoaction != null && Math.abs(rotationNeededToFace(updatedDamage.impactLoaction)) < 41) {
-            updatedDamage.baseAmount -= 5;
+            updatedDamage.baseAmount -= 10;
             if (updatedDamage.baseAmount < 0) {
                 updatedDamage.baseAmount = 0;
             }

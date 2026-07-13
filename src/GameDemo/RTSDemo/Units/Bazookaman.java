@@ -83,7 +83,7 @@ public class Bazookaman extends RTSUnit {
         this.rotationSpeed = RTSGame.tickAdjust(15);
         this.maxHealth = 30;
         this.currentHealth = 30;
-        this.range = 600;
+        this.baseRange = 600;
         isInfantry = true;
         isSoftTarget = true;
         cargoSize = 1;
@@ -323,7 +323,7 @@ public class Bazookaman extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + BazookaBullet.staticDamage + "    Interval: " + attackInterval + "s    Range: " + range);
+        out.add("Dmg: " + BazookaBullet.staticDamage + "    Interval: " + attackInterval + "s    Range: " + getRange());
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
         return out;
     }

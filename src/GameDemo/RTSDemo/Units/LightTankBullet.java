@@ -22,7 +22,7 @@ import java.util.Set;
  * @author guydu
  */
 public class LightTankBullet extends Projectile {
-    public static Damage staticDamage = new Damage(20);
+    public static Damage staticDamage = new Damage(25);
     public static final Sequence explosionTiny = new Sequence(RTSAssetManager.impactCone, "lightTankImpact");
     public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet2}, "lightTankBullet");
     public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.bullet2, .3);

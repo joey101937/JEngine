@@ -295,9 +295,15 @@ public class Apache extends RTSUnit {
         turret.setGraphic(getAttackSequence().copyMaintainSource());
 
         if (isOnScreen()) {
-            RTSSoundManager.get().play(RTSSoundManager.HELICOPTER_ATTACK,
-                    Main.generateRandomDoubleLocally(0.7, 0.9),
-                    Main.generateRandomIntLocally(0, 150));
+            RTSSoundManager.get().play(
+                RTSSoundManager.HELICOPTER_ATTACK,
+                Main.generateRandomDoubleLocally(.65, .75),
+                0);
+        } else {
+            RTSSoundManager.get().play(
+                RTSSoundManager.HELICOPTER_ATTACK,
+                Main.generateRandomDoubleLocally(.55, .6),
+                0);
         }
     }
 
@@ -633,7 +639,7 @@ public class Apache extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + HellicopterBullet.staticDamage + " (x2)   Interval: " + 2 + "s    Range: " + range);
+        out.add("Dmg: " + HellicopterBullet.staticDamage + " (x2)   Interval: " + 2 + "s    Range: " + getRange());
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
         out.add("Missile: " + ApacheMissile.DAMAGE_AMOUNT + " AoE (x4)   Range: 600   Cooldown: 10s");
         return out;
