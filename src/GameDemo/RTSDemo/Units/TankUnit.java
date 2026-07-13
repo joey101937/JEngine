@@ -7,6 +7,7 @@ package GameDemo.RTSDemo.Units;
 
 import Framework.Coordinate;
 import Framework.DCoordinate;
+import Framework.GameObject2;
 import Framework.Hitbox;
 import Framework.GameObject2.MovementType;
 import java.util.HashMap;
@@ -823,6 +824,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     }
     
     public void startDeployingSandbags() {
+        if (sandbagActive || isImmobilized || !isSandbagZoneClear()) return;
         setImmobilized(true);
         isDiggingIn = true;
         digActionStartTick = getHostGame().getGameTickNumber();
@@ -839,6 +841,33 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             case 0 -> startDeployingSandbags();
             case 1 -> startPickingUpSandbags();
         }
+    }
+
+    /**
+     * True when the front sandbag footprint is not overlapping any other unit's
+     * body or another tank's sandbag footprint (deployed or not). Used to grey out
+     * the dig-in button when there is no room to deploy.
+     */
+    public boolean isSandbagZoneClear() {
+        if (getHostGame() == null) return true;
+        Hitbox sandbagHitbox = sandbag.getHitbox();
+        if (sandbagHitbox == null) return true;
+        double radius = Math.max(getWidth(), getHeight()) * 2;
+        for (GameObject2 obj : getHostGame().getObjectsNearPoint(getPixelLocation(), radius)) {
+            if (obj == this || !(obj instanceof RTSUnit)) continue;
+            RTSUnit other = (RTSUnit) obj;
+            if (other.isRubble || other.plane >= 2) continue;
+            if (other.isSolid && other.getHitbox() != null && sandbagHitbox.intersects(other.getHitbox())) {
+                return false;
+            }
+            if (other instanceof TankUnit) {
+                Hitbox otherSandbag = ((TankUnit) other).sandbag.getHitbox();
+                if (otherSandbag != null && sandbagHitbox.intersects(otherSandbag)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void deploySandbagDirect() {
