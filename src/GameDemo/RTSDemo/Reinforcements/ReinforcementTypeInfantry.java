@@ -4,12 +4,10 @@ import Framework.Coordinate;
 import GameDemo.RTSDemo.ReinforcementPoint;
 import GameDemo.RTSDemo.SpawnLocation;
 import GameDemo.RTSDemo.RTSAssetManager;
-import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Rifleman;
-import java.util.HashMap;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
@@ -37,35 +35,43 @@ public class ReinforcementTypeInfantry extends ReinforcementType {
     public void onTrigger(Coordinate targetLocation, int team, String commandGroup) {
         ReinforcementPoint rp = ReinforcementPoint.getClosest(targetLocation, team);
         SpawnLocation spawn = rp.getSpawnLocation();
-        Coordinate base = spawn.topLeft;
-        int initialOffset = -360;
-        for (int i = 0; i < 4; i++) {
-            Coordinate spawnOffset = new Coordinate(initialOffset + (i * 200), 50);
-            spawnOffset.adjustForRotation(spawn.rotation);
-            Coordinate spawnLocation = base.copy().add(spawnOffset);
-            int padding = 50;
-            Rifleman r1 = new Rifleman(spawnLocation.x, spawnLocation.y, team);
-            Rifleman r2 = new Rifleman(spawnLocation.x + padding, spawnLocation.y, team);
-            Rifleman r3 = new Rifleman(spawnLocation.x, spawnLocation.y + padding, team);
-            Rifleman r4 = new Rifleman(spawnLocation.x + padding, spawnLocation.y + padding, team);
-            Bazookaman b = new Bazookaman(spawnLocation.x + padding*2, spawnLocation.y, team);
 
-            List<RTSUnit> created = List.of(r1, r2, r3, r4, b);
-            HashMap<RTSUnit, Coordinate> innerOffsets = new HashMap<>();
-            innerOffsets.put(r1, new Coordinate(0, 0));
-            innerOffsets.put(r2, new Coordinate(padding, 0));
-            innerOffsets.put(r3, new Coordinate(0, padding));
-            innerOffsets.put(r4, new Coordinate(padding, padding));
-            innerOffsets.put(b, new Coordinate(padding*2, 0));
+        // Four squads of four riflemen + one bazookaman, added squad-by-squad.
+        int squads = 4;
+        ArrayList<RTSUnit> soldiers = new ArrayList<>();
+        for (int s = 0; s < squads; s++) {
+            for (int r = 0; r < 4; r++) {
+                soldiers.add(new Rifleman(spawn.topLeft.x, spawn.topLeft.y, team));
+            }
+            soldiers.add(new Bazookaman(spawn.topLeft.x, spawn.topLeft.y, team));
+        }
 
-            for (RTSUnit u : created) {
-                u.setLocation(ReinforcementHandler.getClosestOpenLocation(u.getLocation().toCoordinate(), u).toDCoordinate());
-                u.setRotation(spawn.rotation);
-                u.setCommandGroup(commandGroup);
-                u.setDesiredLocation(targetLocation.copy().add(spawnOffset).add(innerOffsets.get(u)));
-                RTSGame.game.addObject(u);
+        // Each squad is a compact 2x2 of riflemen with the bazookaman centered
+        // behind; the squads are strung out in a line across the spawn front.
+        int foot = footprintOf(soldiers);
+        int intra = foot + 12;               // spacing between soldiers within a squad
+        int squadPitch = intra + foot + 70;  // spacing between adjacent squad centers
+        int lineStart = -(squads * squadPitch) / 2 + squadPitch / 2;
+
+        // Squad-local offsets (squad centered on its own x=0), in the same order the
+        // soldiers were added above: four riflemen then the bazookaman.
+        Coordinate[] squadLocal = {
+            new Coordinate(-intra / 2, 0),
+            new Coordinate(intra / 2, 0),
+            new Coordinate(-intra / 2, intra),
+            new Coordinate(intra / 2, intra),
+            new Coordinate(0, 2 * intra),
+        };
+
+        ArrayList<Coordinate> offsets = new ArrayList<>();
+        for (int s = 0; s < squads; s++) {
+            int squadCenterX = lineStart + s * squadPitch;
+            for (Coordinate local : squadLocal) {
+                offsets.add(new Coordinate(squadCenterX + local.x, LOCAL_FORWARD + local.y));
             }
         }
+
+        placeAtOffsets(soldiers, offsets, spawn, targetLocation, commandGroup);
     }
 
 }

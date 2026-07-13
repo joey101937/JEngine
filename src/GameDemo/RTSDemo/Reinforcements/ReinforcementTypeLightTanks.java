@@ -4,8 +4,9 @@ import Framework.Coordinate;
 import GameDemo.RTSDemo.ReinforcementPoint;
 import GameDemo.RTSDemo.SpawnLocation;
 import GameDemo.RTSDemo.RTSAssetManager;
-import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSUnit;
 import GameDemo.RTSDemo.Units.LightTank;
+import java.util.ArrayList;
 
 public class ReinforcementTypeLightTanks extends ReinforcementType {
     private static final long serialVersionUID = 1L;
@@ -29,18 +30,10 @@ public class ReinforcementTypeLightTanks extends ReinforcementType {
     public void onTrigger(Coordinate targetLocation, int team, String commandGroup) {
         ReinforcementPoint rp = ReinforcementPoint.getClosest(targetLocation, team);
         SpawnLocation spawn = rp.getSpawnLocation();
-        Coordinate base = spawn.topLeft;
-        int initialOffset = -360;
+        ArrayList<RTSUnit> tanks = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            Coordinate spawnOffset = new Coordinate(initialOffset + (i * 120), 50);
-            spawnOffset.adjustForRotation(spawn.rotation);
-            Coordinate spawnLocation = base.copy().add(spawnOffset);
-            LightTank tank = new LightTank(spawnLocation.x, spawnLocation.y, team);
-            tank.setLocation(ReinforcementHandler.getClosestOpenLocation(spawnLocation, tank).toDCoordinate());
-            tank.setRotation(spawn.rotation);
-            tank.setCommandGroup(commandGroup);
-            tank.setDesiredLocation(targetLocation.copy().add(spawnOffset));
-            RTSGame.game.addObject(tank);
+            tanks.add(new LightTank(spawn.topLeft.x, spawn.topLeft.y, team));
         }
+        placeInRow(tanks, spawn, targetLocation, commandGroup, 35);
     }
 }
