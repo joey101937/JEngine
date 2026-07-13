@@ -66,7 +66,7 @@ public class RTSGame {
         pathing.generateMap();
         RTSAssetManager.rtsPathing = null;
         g.setPathingLayer(pathing);
-        Main.ignoreSubobjectCollision = false; // better performance
+        Main.ignoreSubobjectCollision = false;
         Main.ignoreCollisionsForStillObjects = true; // better performance
         Main.ignoreCollisionsOnRotation = true;
         Main.collisionCheckRadius = 100;
