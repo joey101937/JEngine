@@ -23,6 +23,7 @@ import GameDemo.RTSDemo.Buttons.FrontalArmorButton;
 import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
+import GameDemo.RTSDemo.Effects.MuzzleSmokeEffect;
 import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.Effects.TankTreadEffect;
 import GameDemo.RTSDemo.RTSAssetManager;
@@ -594,6 +595,11 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             bullet.shooter = this.getHost();
             System.out.println("tankbullet created at " + muzzelLocation + " target " + target.toDCoordinate() + " from " + getHost().ID);
             getHostGame().addObject(bullet);
+
+            // Cosmetic puff of gun smoke jetting from the barrel tip along the shot direction.
+            DCoordinate forward = DCoordinate.adjustForRotation(new DCoordinate(0, -1), getRotationRealTime());
+            getHostGame().addIndependentEffect(new MuzzleSmokeEffect(
+                    getHostGame(), muzzelLocation.toCoordinate(), forward.x, forward.y, 8, getZLayer() + 1));
         }
 
         /*
