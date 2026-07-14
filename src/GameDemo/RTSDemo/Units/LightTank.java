@@ -358,7 +358,7 @@ public class LightTank extends RTSUnit {
             previousHullRotation = currentHullRotation;
 
             updateDesiredRotation();
-            double maxSpeed = RTSGame.tickAdjust(3.5);
+            double maxSpeed = RTSGame.tickAdjust(2.2);
             double desiredRotation = desiredRotationAngle - getRotationRealTime();
             if (desiredRotation > 180) desiredRotation -= 360;
             else if (desiredRotation < -180) desiredRotation += 360;

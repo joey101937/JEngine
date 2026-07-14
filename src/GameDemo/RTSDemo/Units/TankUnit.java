@@ -598,8 +598,12 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
             // Cosmetic puff of gun smoke jetting from the barrel tip along the shot direction.
             DCoordinate forward = DCoordinate.adjustForRotation(new DCoordinate(0, -1), getRotationRealTime());
+            // Pull the puff back toward the tank so it reads as coming from the barrel rather than out in front of it.
+            DCoordinate smokeLocation = muzzelLocation.copy();
+            smokeLocation.x -= forward.x * 10;
+            smokeLocation.y -= forward.y * 10;
             getHostGame().addIndependentEffect(new MuzzleSmokeEffect(
-                    getHostGame(), muzzelLocation.toCoordinate(), forward.x, forward.y, 8, getZLayer() + 1));
+                    getHostGame(), smokeLocation.toCoordinate(), forward.x, forward.y, 8, getZLayer() + 1));
         }
 
         /*
@@ -643,7 +647,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             ((RTSUnit) getHost()).currentTarget = enemy;
 
             double desiredRotation;
-            double maxSpeed = RTSGame.tickAdjust(2);
+            double maxSpeed = RTSGame.tickAdjust(1.2);
             if (enemy == null) {
                 desiredRotation = getHost().getRotationRealTime() - getRotationRealTime();
                 if (desiredRotation > 180) desiredRotation -= 360;
