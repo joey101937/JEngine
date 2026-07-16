@@ -16,6 +16,7 @@ import Framework.Stickers.OnceThroughSticker;
 import GameDemo.RTSDemo.Effects.BurnMarkEffect;
 import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.Effects.HullBurnDecal;
+import GameDemo.RTSDemo.Effects.MudSplashEffect;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
@@ -113,6 +114,7 @@ public class TankBullet extends Projectile {
             Coordinate impactLoc = otherUnit.getNearestBodyPoint(getPixelLocation());
             if (otherUnit.isSoftTarget) {
                 getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), impactLoc, 15, RTSGame.desiredTPS * 5));
+                getHostGame().addIndependentEffect(new MudSplashEffect(getHostGame(), impactLoc, 18, getZLayer() + 1));
             } else {
                 Coordinate vehicleCenter = otherUnit.getPixelLocation();
                 Coordinate vehicleBurnPos = new Coordinate(
@@ -133,6 +135,7 @@ public class TankBullet extends Projectile {
         OnceThroughSticker s = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), this.getPixelLocation());
         getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), getPixelLocation(), 15, RTSGame.desiredTPS * 5));
         getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), getPixelLocation(), 12, getZLayer() + 1));
+        getHostGame().addIndependentEffect(new MudSplashEffect(getHostGame(), getPixelLocation(), 20, getZLayer() + 1));
     }
 
     /**
