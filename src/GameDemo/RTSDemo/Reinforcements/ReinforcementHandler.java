@@ -86,11 +86,11 @@ public class ReinforcementHandler extends IndependentEffect {
             g.fillRect(hx, hy, (int)(width * Math.min(percentReady, 1)), height);
         } else {
             double breathe = (Math.sin(Window.currentGame.getGameTickNumber() * 0.12) + 1) / 2;
-            g.setColor(new Color(64, 208, 96, (int)(60 + breathe * 80)));
+            g.setColor(new Color(118, 146, 62, (int)(70 + breathe * 90)));
             g.fillRect(hx, hy, width, height);
         }
         g.setClip(oldClip);
-        RTSUIStyle.drawGlassPanel(g, hx, hy, width, height, HEADER_ARC); // re-stroke border over the fill
+        RTSUIStyle.strokePanelFrame(g, hx, hy, width, height, HEADER_ARC); // re-stroke frame over the fill
 
         // Expand/collapse chevron.
         int chevX = hx + 16;
@@ -113,9 +113,9 @@ public class ReinforcementHandler extends IndependentEffect {
         int badgeW = Math.max(g.getFontMetrics().stringWidth(count) + 14, 24);
         int badgeX = hx + width - badgeW - 8;
         int badgeY = hy + (height - badgeH) / 2;
-        g.setColor(ready ? new Color(64, 208, 96) : RTSUIStyle.SLOT_BG);
+        g.setColor(ready ? RTSUIStyle.READY : RTSUIStyle.BADGE_BG);
         g.fillRoundRect(badgeX, badgeY, badgeW, badgeH, 8, 8);
-        RTSUIStyle.drawShadowedCentered(g, count, badgeX + badgeW / 2, badgeY + badgeH / 2, RTSUIStyle.TEXT);
+        RTSUIStyle.drawShadowedCentered(g, count, badgeX + badgeW / 2, badgeY + badgeH / 2, RTSUIStyle.CREAM);
     }
 
     /** Geometry of stack row {@code i} (list order, top-down); shared by draw and hit-test. */
@@ -135,9 +135,9 @@ public class ReinforcementHandler extends IndependentEffect {
             int rx = r[0], ry = r[1];
             boolean active = type == selectedReinforcementType || type == hoveredReinforcementType;
 
-            RTSUIStyle.drawSlot(g, rx, ry, width, ROW_HEIGHT, ROW_ARC, active);
+            RTSUIStyle.drawCard(g, rx, ry, width, ROW_HEIGHT, ROW_ARC, active);
             if (type == selectedReinforcementType) {
-                // Emphasize the armed choice with a filled accent wash.
+                // Emphasize the armed choice with a filled olive wash.
                 g.setColor(RTSUIStyle.ACCENT_GLOW);
                 g.fillRoundRect(rx + 1, ry + 1, width - 2, ROW_HEIGHT - 2, ROW_ARC, ROW_ARC);
             }
@@ -162,7 +162,7 @@ public class ReinforcementHandler extends IndependentEffect {
 
             // Dim rows while a call-in is on cooldown / unavailable.
             if (!available) {
-                g.setColor(new Color(12, 15, 20, 120));
+                g.setColor(new Color(28, 20, 12, 110));
                 g.fillRoundRect(rx, ry, width, ROW_HEIGHT, ROW_ARC, ROW_ARC);
             }
         }
@@ -218,7 +218,7 @@ public class ReinforcementHandler extends IndependentEffect {
         g.setFont(RTSUIStyle.BODY_FONT);
         int ly = ty + 54;
         for (String line : lines) {
-            RTSUIStyle.drawShadowedString(g, line, tx + pad, ly, RTSUIStyle.TEXT_MUTED);
+            RTSUIStyle.drawShadowedString(g, line, tx + pad, ly, RTSUIStyle.TEXT);
             ly += lineH;
         }
     }

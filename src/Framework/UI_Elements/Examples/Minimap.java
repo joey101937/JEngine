@@ -32,9 +32,11 @@ import javax.swing.JPanel;
 public final class Minimap extends UIElement {
 
     private static final int CORNER_ARC = 12;
-    private static final Color accent = new Color(94, 205, 235);
-    private static final Color borderOuter = new Color(10, 14, 20, 235);
-    private static final Color borderInner = new Color(96, 116, 138, 170);
+    // Retro-military HUD: warm ochre viewport marker, dark ink frame with a
+    // brass-brown inner rule to match the sandbag-toned panels.
+    private static final Color accent = new Color(232, 214, 160);
+    private static final Color borderOuter = new Color(30, 22, 14, 235);
+    private static final Color borderInner = new Color(120, 96, 62, 180);
 
     public final MinimapInterior interior;
     private double screenPortion = .12; //how much of the screen to take up

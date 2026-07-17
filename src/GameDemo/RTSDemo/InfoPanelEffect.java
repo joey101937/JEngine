@@ -21,7 +21,7 @@ public class InfoPanelEffect extends IndependentEffect {
     public transient CommandButton hoveredButton = null;
 
     private static final int PANEL_ARC = 16;
-    private static final Color cooldownColor = new Color(8, 12, 18, 165); // dims the icon while recharging
+    private static final Color cooldownColor = new Color(18, 12, 6, 165); // dims the icon while recharging
     private static final ColorSpace GRAYSCALE_COLORSPACE = ColorSpace.getInstance(ColorSpace.CS_GRAY);
     private static HashMap<Class<? extends CommandButton>, BufferedImage> brightenedButtonCache = new HashMap<>();
     private static HashMap<Class<? extends CommandButton>, BufferedImage> grayscaleButtonCache = new HashMap<>();
@@ -99,9 +99,6 @@ public class InfoPanelEffect extends IndependentEffect {
         }
 
         RTSUIStyle.drawGlassPanel(g, x, y, width, height, PANEL_ARC);
-        // Team-colored accent stripe down the left edge.
-        g.setColor(RTSUnit.getColorFromTeam(mainUnit.team));
-        g.fillRoundRect(x + 4, y + PANEL_ARC / 2, 4, height - PANEL_ARC, 3, 3);
 
         // Keep all content inside the rounded panel so nothing spills over the edges.
         Shape priorClip = g.getClip();
@@ -140,7 +137,7 @@ public class InfoPanelEffect extends IndependentEffect {
         if (unit == null) {
             return;
         }
-        g.setFont(RTSUIStyle.BODY_FONT);
+        g.setFont(RTSUIStyle.LABEL_FONT);
         int gradualHeight = 0;
         for (String s : unit.getInfoLines()) {
             RTSUIStyle.drawShadowedString(g, s, startX, startY + gradualHeight, RTSUIStyle.TEXT_MUTED);
@@ -167,9 +164,9 @@ public class InfoPanelEffect extends IndependentEffect {
             // Count badge in the corner.
             String count = "x" + nameCountMap.get(unitName);
             int badgeW = g.getFontMetrics().stringWidth(count) + 8;
-            g.setColor(new Color(0, 0, 0, 170));
+            g.setColor(RTSUIStyle.BADGE_BG);
             g.fillRoundRect(slotX + iconSize - badgeW, rowY + iconSize - 16, badgeW, 15, 6, 6);
-            RTSUIStyle.drawShadowedString(g, count, slotX + iconSize - badgeW + 4, rowY + iconSize - 4, RTSUIStyle.ACCENT);
+            RTSUIStyle.drawShadowedString(g, count, slotX + iconSize - badgeW + 4, rowY + iconSize - 4, RTSUIStyle.CREAM);
             gradualWidth += iconSize + 8;
         }
     }
@@ -209,9 +206,9 @@ public class InfoPanelEffect extends IndependentEffect {
                 g.setFont(RTSUIStyle.BADGE_FONT);
                 String uses = "x" + cb.numUsesRemaining;
                 int badgeW = g.getFontMetrics().stringWidth(uses) + 8;
-                g.setColor(new Color(0, 0, 0, 170));
+                g.setColor(RTSUIStyle.BADGE_BG);
                 g.fillRoundRect(bx + bw - badgeW - 2, by + 2, badgeW, 15, 6, 6);
-                RTSUIStyle.drawShadowedString(g, uses, bx + bw - badgeW + 2, by + 13, RTSUIStyle.TEXT);
+                RTSUIStyle.drawShadowedString(g, uses, bx + bw - badgeW + 2, by + 13, RTSUIStyle.CREAM);
             }
         }
     }

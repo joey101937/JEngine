@@ -14,11 +14,7 @@ import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.Pathfinding.NavigationManager;
 import GameDemo.RTSDemo.Replay.ReplayManager;
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
@@ -36,17 +32,8 @@ public class GameMenuEffect extends IndependentEffect {
     private static final int PADDING = 20;
     private static final int TITLE_HEIGHT = 40;
 
-    private static final Color OVERLAY_COLOR    = new Color(0, 0, 0, 140);
-    private static final Color PANEL_BG         = new Color(20, 22, 28, 230);
-    private static final Color BUTTON_NORMAL     = new Color(45, 50, 62, 220);
-    private static final Color BUTTON_HOVER      = new Color(70, 78, 100, 240);
-    private static final Color BUTTON_TEXT       = new Color(220, 225, 235);
-    private static final Color TITLE_COLOR       = new Color(180, 190, 210);
-    private static final Color BORDER_LIGHT      = new Color(100, 110, 140, 200);
-    private static final Color BORDER_DARK       = new Color(30, 35, 45, 200);
-
-    private static final Font TITLE_FONT  = new Font("SansSerif", Font.BOLD, 15);
-    private static final Font BUTTON_FONT = new Font("SansSerif", Font.PLAIN, 14);
+    // Warm scrim dimming the battlefield behind the menu.
+    private static final Color OVERLAY_COLOR = new Color(18, 12, 6, 150);
 
     private transient int hoveredButtonIndex = -1;
 
@@ -164,6 +151,7 @@ public class GameMenuEffect extends IndependentEffect {
 
         double scaleAmount = 1.0 / game.getZoom();
         g.scale(scaleAmount, scaleAmount);
+        RTSUIStyle.enableAA(g);
         Coordinate cameraOffset = game.getCamera().getWorldRenderLocation().toCoordinate();
         cameraOffset.scale(1.0 / scaleAmount);
 
@@ -176,65 +164,37 @@ public class GameMenuEffect extends IndependentEffect {
         int panelX = cameraOffset.x + (screenW - PANEL_WIDTH) / 2;
         int panelY = cameraOffset.y + (screenH - panelHeight) / 2;
 
-        // Full-screen dimming overlay
+        // Full-screen dimming scrim.
         g.setColor(OVERLAY_COLOR);
         g.fillRect(cameraOffset.x, cameraOffset.y, screenW, screenH);
 
-        // Panel background
-        g.setColor(PANEL_BG);
-        g.fillRoundRect(panelX, panelY, PANEL_WIDTH, panelHeight, 10, 10);
+        // Aged-canvas panel with ink frame + rivets.
+        RTSUIStyle.drawGlassPanel(g, panelX, panelY, PANEL_WIDTH, panelHeight, 14);
 
-        drawGradientBorder(g, panelX, panelY, PANEL_WIDTH, panelHeight);
+        // Title, stencil-style uppercase.
+        g.setFont(RTSUIStyle.TITLE_FONT);
+        String title = showingSettings ? "SETTINGS" : "MENU";
+        RTSUIStyle.drawShadowedCentered(g, title, panelX + PANEL_WIDTH / 2, panelY + TITLE_HEIGHT / 2, RTSUIStyle.TEXT);
 
-        // Title
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setFont(TITLE_FONT);
-        g.setColor(TITLE_COLOR);
-        FontMetrics tfm = g.getFontMetrics();
-        String title = showingSettings ? "Settings" : "Menu";
-        int titleX = panelX + (PANEL_WIDTH - tfm.stringWidth(title)) / 2;
-        int titleY = panelY + TITLE_HEIGHT / 2 + tfm.getAscent() / 2 - 2;
-        g.drawString(title, titleX, titleY);
+        // Divider under title.
+        g.setColor(RTSUIStyle.ACCENT_DIM);
+        g.fillRect(panelX + 14, panelY + TITLE_HEIGHT, PANEL_WIDTH - 28, 1);
 
-        // Divider under title
-        g.setColor(BORDER_LIGHT);
-        g.drawLine(panelX + 10, panelY + TITLE_HEIGHT, panelX + PANEL_WIDTH - 10, panelY + TITLE_HEIGHT);
-
-        // Buttons
-        g.setFont(BUTTON_FONT);
-        FontMetrics bfm = g.getFontMetrics();
+        // Buttons as light canvas cards; hovered gains the olive frame + glow.
+        g.setFont(RTSUIStyle.LABEL_FONT);
         for (int i = 0; i < numButtons; i++) {
             int[] r = buttonRect(i, panelX, panelY);
             int bx = r[0];
             int by = r[1];
             int bw = r[2];
+            boolean hovered = hoveredButtonIndex == i;
 
-            g.setColor(hoveredButtonIndex == i ? BUTTON_HOVER : BUTTON_NORMAL);
-            g.fillRoundRect(bx, by, bw, BUTTON_HEIGHT, 8, 8);
-
-            g.setColor(BORDER_LIGHT);
-            g.drawRoundRect(bx, by, bw, BUTTON_HEIGHT, 8, 8);
-
-            g.setColor(BUTTON_TEXT);
-            String label = activeLabels().get(i);
-            int lx = bx + (bw - bfm.stringWidth(label)) / 2;
-            int ly = by + (BUTTON_HEIGHT + bfm.getAscent() - bfm.getDescent()) / 2 - 1;
-            g.drawString(label, lx, ly);
+            RTSUIStyle.drawCard(g, bx, by, bw, BUTTON_HEIGHT, 8, hovered);
+            RTSUIStyle.drawShadowedCentered(g, activeLabels().get(i), bx + bw / 2, by + BUTTON_HEIGHT / 2,
+                    hovered ? RTSUIStyle.ACCENT : RTSUIStyle.TEXT);
         }
 
         g.scale(1 / scaleAmount, 1 / scaleAmount);
-    }
-
-    private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
-        int bw = 2;
-        g.setPaint(new GradientPaint(x, y, BORDER_LIGHT, x, y + bw, BORDER_DARK));
-        g.fillRect(x, y, width, bw);
-        g.setPaint(new GradientPaint(x, y + height - bw, BORDER_DARK, x, y + height, BORDER_LIGHT));
-        g.fillRect(x, y + height - bw, width, bw);
-        g.setPaint(new GradientPaint(x, y, BORDER_LIGHT, x + bw, y, BORDER_DARK));
-        g.fillRect(x, y, bw, height);
-        g.setPaint(new GradientPaint(x + width - bw, y, BORDER_DARK, x + width, y, BORDER_LIGHT));
-        g.fillRect(x + width - bw, y, bw, height);
     }
 
     // Returns screen pixel rect [x, y, w, h] for button i.
