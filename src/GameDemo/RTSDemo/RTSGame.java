@@ -103,7 +103,7 @@ public class RTSGame {
         g.addIndependentEffect(infoPanelEffect);
         g.addIndependentEffect(new TargetingModeManager());
 
-        reinforcementHandler = new ReinforcementHandler(new Coordinate(0, g.getWindowHeight() - minimap.getHeight() - 30), 10);
+        reinforcementHandler = new ReinforcementHandler(new Coordinate(10, g.getWindowHeight() - minimap.getHeight() - 44), 10);
         g.addIndependentEffect(reinforcementHandler);
 
         textChatEffect = new TextChatEffect(g);

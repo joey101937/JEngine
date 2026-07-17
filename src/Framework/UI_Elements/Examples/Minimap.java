@@ -31,9 +31,10 @@ import javax.swing.JPanel;
  */
 public final class Minimap extends UIElement {
 
-    private static final Color lightGray = new Color(150, 150, 150);
-    private static final Color borderDark = new Color(100, 100, 100);
-    private static final Color borderLight = new Color(200, 200, 200);
+    private static final int CORNER_ARC = 12;
+    private static final Color accent = new Color(94, 205, 235);
+    private static final Color borderOuter = new Color(10, 14, 20, 235);
+    private static final Color borderInner = new Color(96, 116, 138, 170);
 
     public final MinimapInterior interior;
     private double screenPortion = .12; //how much of the screen to take up
@@ -243,6 +244,16 @@ public final class Minimap extends UIElement {
             if (g2d == null) {
                 return;
             }
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int fw = (int) widthOfFrame;
+            int fh = (int) heightOfFrame;
+            // Clear the full bounds first so the rounded corners never smear
+            // (paintComponent is overridden without a super call).
+            g2d.setColor(borderOuter);
+            g2d.fillRect(0, 0, fw, fh);
+            // Round the whole minimap by clipping everything drawn inside it.
+            java.awt.Shape priorClip = g2d.getClip();
+            g2d.setClip(new java.awt.geom.RoundRectangle2D.Float(0, 0, fw, fh, CORNER_ARC, CORNER_ARC));
             g2d.drawImage(background, 0, 0, null);
             g2d.scale(xScale, yScale);
             for (GameObject2 go : hostGame.getAllObjects()) {
@@ -259,11 +270,17 @@ public final class Minimap extends UIElement {
                     }
                 }
             }
-            g2d.setColor(Color.black);
-            g2d.draw(hostGame.getCamera().getFieldOfView());
-            g2d.setStroke(new BasicStroke(5));
+            // Camera viewport indicator: dark underlay + bright accent outline.
+            java.awt.Rectangle fov = hostGame.getCamera().getFieldOfView();
+            g2d.setColor(new Color(0, 0, 0, 130));
+            g2d.setStroke(new BasicStroke((float) (3 / xScale)));
+            g2d.draw(fov);
+            g2d.setColor(accent);
+            g2d.setStroke(new BasicStroke((float) (1.6 / xScale)));
+            g2d.draw(fov);
             g2d.scale(1 / xScale, 1 / yScale); // scale back to normal
-            drawGradientBorder(g2d, 0, 0, (int) (widthOfFrame), (int) (heightOfFrame));
+            g2d.setClip(priorClip);
+            drawModernBorder(g2d, 0, 0, fw, fh);
             g2d.dispose();
         }
 
@@ -279,28 +296,16 @@ public final class Minimap extends UIElement {
             return after;
         }
 
-        private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
-            int borderWidth = 2;
-
-            // Top gradient
-            GradientPaint topGradient = new GradientPaint(x, y, borderLight, x, y + borderWidth, borderDark);
-            g.setPaint(topGradient);
-            g.fillRect(x, y, width, borderWidth);
-
-            // Bottom gradient
-            GradientPaint bottomGradient = new GradientPaint(x, y + height - borderWidth, borderDark, x, y + height, borderLight);
-            g.setPaint(bottomGradient);
-            g.fillRect(x, y + height - borderWidth, width, borderWidth);
-
-            // Left gradient
-            GradientPaint leftGradient = new GradientPaint(x, y, borderLight, x + borderWidth, y, borderDark);
-            g.setPaint(leftGradient);
-            g.fillRect(x, y, borderWidth, height);
-
-            // Right gradient
-            GradientPaint rightGradient = new GradientPaint(x + width - borderWidth, y, borderDark, x + width, y, borderLight);
-            g.setPaint(rightGradient);
-            g.fillRect(x + width - borderWidth, y, borderWidth, height);
+        private void drawModernBorder(Graphics2D g, int x, int y, int width, int height) {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            // Dark outer ring for contrast against the terrain.
+            g.setColor(borderOuter);
+            g.setStroke(new BasicStroke(3f));
+            g.drawRoundRect(x + 1, y + 1, width - 3, height - 3, CORNER_ARC, CORNER_ARC);
+            // Thin inner accent-tinted line.
+            g.setColor(borderInner);
+            g.setStroke(new BasicStroke(1.5f));
+            g.drawRoundRect(x + 1, y + 1, width - 3, height - 3, CORNER_ARC, CORNER_ARC);
         }
     }
 

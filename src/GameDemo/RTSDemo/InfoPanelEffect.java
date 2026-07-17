@@ -20,16 +20,8 @@ public class InfoPanelEffect extends IndependentEffect {
     private transient TooltipHelper tooltipHelper;
     public transient CommandButton hoveredButton = null;
 
-    private static final Font titleFont = new Font("TimesRoman", Font.BOLD, 18);
-    private static final Font healthFont = new Font("TimesRoman", Font.BOLD, 16);
-    private static final Font otherCountFont = new Font("TimesRoman", Font.BOLD, 14);
-    private static final Font infoLinesFont = new Font("TimesRoman", Font.BOLD, 12);
-
-    private static final Color healthColor = Color.BLACK;
-    private static final Color lightGray = new Color(150, 150, 150);
-    private static final Color borderDark = new Color(100, 100, 100);
-    private static final Color borderLight = new Color(200, 200, 200);
-    private static final Color cooldownColor = new Color(0, 0, 0, 128); // Semi-transparent black
+    private static final int PANEL_ARC = 16;
+    private static final Color cooldownColor = new Color(8, 12, 18, 165); // dims the icon while recharging
     private static final ColorSpace GRAYSCALE_COLORSPACE = ColorSpace.getInstance(ColorSpace.CS_GRAY);
     private static HashMap<Class<? extends CommandButton>, BufferedImage> brightenedButtonCache = new HashMap<>();
     private static HashMap<Class<? extends CommandButton>, BufferedImage> grayscaleButtonCache = new HashMap<>();
@@ -93,121 +85,133 @@ public class InfoPanelEffect extends IndependentEffect {
         Graphics2D g2 = (Graphics2D) g.create();
         double scaleAmount = 1/hostGame.getZoom();
         g.scale(scaleAmount, scaleAmount);
-        g.setColor(lightGray);
+        RTSUIStyle.enableAA(g);
         Coordinate cameraOffset = hostGame.getCamera().getWorldRenderLocation().toCoordinate();
-        
+
         cameraOffset.scale(1/scaleAmount);
         x = baseX + cameraOffset.x;
         y = baseY + cameraOffset.y;
-        
-        g.fillRect(x, y, width, height);
 
-        drawGradientBorder(g, x, y, width, height);
-
-        if (!selectedUnits.isEmpty()) {
-            BufferedImage selectionImage = mainUnit.getSelectionImage();
-            g.drawImage(selectionImage, x + 5, y + 15, 100, 100, null);
-            int imageWidth = selectionImage != null ? 100 : 0;
-            g.setFont(titleFont);
-            g.setColor(Color.BLACK);
-            g.drawString(mainUnit.getName(), x + imageWidth + 15, y + 40);
-            g.setColor(healthColor);
-            g.setFont(healthFont);
-            g.drawString("" + mainUnit.currentHealth + " / " + mainUnit.maxHealth, x + imageWidth + 15, y + 65);
-            drawOtherSelected(g, unitCountMap);
-            drawInfoLines(g, mainUnit);
-            drawCommandButtons(g, mainUnit);
+        if (selectedUnits.isEmpty()) {
+            g.scale(1/scaleAmount, 1/scaleAmount);
+            tooltipHelper.render(g2);
+            return;
         }
+
+        RTSUIStyle.drawGlassPanel(g, x, y, width, height, PANEL_ARC);
+        // Team-colored accent stripe down the left edge.
+        g.setColor(RTSUnit.getColorFromTeam(mainUnit.team));
+        g.fillRoundRect(x + 4, y + PANEL_ARC / 2, 4, height - PANEL_ARC, 3, 3);
+
+        // Keep all content inside the rounded panel so nothing spills over the edges.
+        Shape priorClip = g.getClip();
+        g.setClip(new java.awt.geom.RoundRectangle2D.Float(x, y, width, height, PANEL_ARC, PANEL_ARC));
+
+        int portrait = height - 92;
+        int portraitX = x + 18;
+        int portraitY = y + 16;
+        RTSUIStyle.drawSlot(g, portraitX, portraitY, portrait, portrait, 10, false);
+        RTSUIStyle.drawRoundedImage(g, mainUnit.getSelectionImage(), portraitX + 2, portraitY + 2,
+                portrait - 4, portrait - 4, 8);
+
+        int textX = portraitX + portrait + 16;
+        g.setFont(RTSUIStyle.TITLE_FONT);
+        RTSUIStyle.drawShadowedString(g, mainUnit.getName(), textX, y + 34, RTSUIStyle.TEXT);
+
+        // Health as a graphical bar with an inline count.
+        double healthRatio = mainUnit.maxHealth > 0 ? (double) mainUnit.currentHealth / mainUnit.maxHealth : 0;
+        int barW = 190;
+        int barY = y + 44;
+        RTSUIStyle.drawStatBar(g, textX, barY, barW, 11, healthRatio, RTSUIStyle.healthColor(healthRatio));
+        g.setFont(RTSUIStyle.LABEL_FONT);
+        RTSUIStyle.drawShadowedString(g, mainUnit.currentHealth + " / " + mainUnit.maxHealth,
+                textX + barW + 12, barY + 10, RTSUIStyle.TEXT);
+
+        drawInfoLines(g, mainUnit, textX, y + 78);
+        drawOtherSelected(g, unitCountMap);
+        drawCommandButtons(g, mainUnit);
+
+        g.setClip(priorClip);
         g.scale(1/scaleAmount, 1/scaleAmount);
         tooltipHelper.render(g2);
     }
 
-    private void drawGradientBorder(Graphics2D g, int x, int y, int width, int height) {
-        int borderWidth = 2;
-        
-        // Top gradient
-        GradientPaint topGradient = new GradientPaint(x, y, borderLight, x, y + borderWidth, borderDark);
-        g.setPaint(topGradient);
-        g.fillRect(x, y, width, borderWidth);
-
-        // Bottom gradient
-        GradientPaint bottomGradient = new GradientPaint(x, y + height - borderWidth, borderDark, x, y + height, borderLight);
-        g.setPaint(bottomGradient);
-        g.fillRect(x, y + height - borderWidth, width, borderWidth);
-
-        // Left gradient
-        GradientPaint leftGradient = new GradientPaint(x, y, borderLight, x + borderWidth, y, borderDark);
-        g.setPaint(leftGradient);
-        g.fillRect(x, y, borderWidth, height);
-
-        // Right gradient
-        GradientPaint rightGradient = new GradientPaint(x + width - borderWidth, y, borderDark, x + width, y, borderLight);
-        g.setPaint(rightGradient);
-        g.fillRect(x + width - borderWidth, y, borderWidth, height);
-    }
-
-    private void drawInfoLines(Graphics2D g, RTSUnit unit) {
+    private void drawInfoLines(Graphics2D g, RTSUnit unit, int startX, int startY) {
         if (unit == null) {
             return;
         }
-        g.setFont(infoLinesFont);
+        g.setFont(RTSUIStyle.BODY_FONT);
         int gradualHeight = 0;
-        BufferedImage img = unit.getSelectionImage();
-        int imgWidth = img != null ? img.getWidth() : 0;
         for (String s : unit.getInfoLines()) {
-            g.drawString(s, x + imgWidth + 15, y + 90 + gradualHeight);
-            gradualHeight += 20;
+            RTSUIStyle.drawShadowedString(g, s, startX, startY + gradualHeight, RTSUIStyle.TEXT_MUTED);
+            gradualHeight += 19;
         }
     }
 
     private void drawOtherSelected(Graphics2D g, HashMap<String, Integer> nameCountMap) {
+        if (nameCountMap.size() <= 1) {
+            return; // nothing extra to summarize for a single unit type
+        }
+        int iconSize = 54;
         int gradualWidth = 0;
-        g.setFont(otherCountFont);
+        int rowY = y + height - iconSize - 12;
+        g.setFont(RTSUIStyle.BADGE_FONT);
         for (String unitName : nameCountMap.keySet()) {
             RTSUnit rep = unitRepresentativeMap.get(unitName);
-            BufferedImage image = rep != null ? rep.getSelectionImage() : null;
-            int imageWidth = 60;
-            int imageHeight = 60;
-            g.drawImage(image, x + gradualWidth, y + height - imageHeight, imageWidth, imageHeight, null);
-            gradualWidth += imageWidth + 10;
-            g.drawString("x" + nameCountMap.get(unitName), x + gradualWidth - imageWidth / 2, y + height - 10);
+            int slotX = x + 18 + gradualWidth;
+            RTSUIStyle.drawSlot(g, slotX, rowY, iconSize, iconSize, 8, false);
+            if (rep != null) {
+                RTSUIStyle.drawRoundedImage(g, rep.getSelectionImage(), slotX + 2, rowY + 2,
+                        iconSize - 4, iconSize - 4, 6);
+            }
+            // Count badge in the corner.
+            String count = "x" + nameCountMap.get(unitName);
+            int badgeW = g.getFontMetrics().stringWidth(count) + 8;
+            g.setColor(new Color(0, 0, 0, 170));
+            g.fillRoundRect(slotX + iconSize - badgeW, rowY + iconSize - 16, badgeW, 15, 6, 6);
+            RTSUIStyle.drawShadowedString(g, count, slotX + iconSize - badgeW + 4, rowY + iconSize - 4, RTSUIStyle.ACCENT);
+            gradualWidth += iconSize + 8;
         }
     }
 
+    /** Slot geometry for command button {@code i}; shared by draw and hit-test. */
+    private int[] getButtonRect(int i) {
+        int slot = (height - 28) / 2; // two rows fill the panel height
+        int gap = 6;
+        int rightEdge = x + width - 14;
+        int col = i / 2;
+        int row = i % 2;
+        int bx = rightEdge - (col + 1) * slot - col * gap;
+        int by = y + 14 + row * (slot + gap);
+        return new int[]{bx, by, slot, slot};
+    }
+
     private void drawCommandButtons(Graphics2D g, RTSUnit unit) {
-        int currentX = x + width - 10;
-        int currentY = y + 10;
-        int buttonRenderWidth = (height - 20) / 2;
-        int buttonRenderHeight = (height - 20) / 2;
         for (int i = 0; i < unit.getButtons().size(); i++) {
             CommandButton cb = unit.getButtons().get(i);
+            int[] r = getButtonRect(i);
+            int bx = r[0], by = r[1], bw = r[2], bh = r[3];
+
             BufferedImage toDraw = cb.iconImage;
-            
             if (cb == hoveredButton) {
-                if (cb.hoveredImage != null) {
-                    toDraw = cb.hoveredImage;
-                } else {
-                    toDraw = getBrightenedImage(cb);
-                }
+                toDraw = cb.hoveredImage != null ? cb.hoveredImage : getBrightenedImage(cb);
             }
-            
             if (cb.isDisabled) {
-                if (cb.disabledImage != null) {
-                    toDraw = cb.disabledImage;
-                } else {
-                    toDraw = getGrayscaleImage(cb);
-                }
+                toDraw = cb.disabledImage != null ? cb.disabledImage : getGrayscaleImage(cb);
             }
-            g.drawImage(toDraw, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight, null);
+
+            RTSUIStyle.drawSlot(g, bx, by, bw, bh, 8, cb == hoveredButton && !cb.isDisabled);
+            RTSUIStyle.drawRoundedImage(g, toDraw, bx + 2, by + 2, bw - 4, bh - 4, 6);
+
+            renderCooldownCircle(g, cb, bx, by, bw, bh);
+
             if (!cb.isPassive && cb.numUsesRemaining >= 0) {
-                g.setColor(Color.WHITE);
-                g.drawString("x" + cb.numUsesRemaining, currentX - buttonRenderWidth + 10, currentY + 25);
-            }
-            renderCooldownCircle(g, cb, currentX - buttonRenderWidth, currentY, buttonRenderWidth, buttonRenderHeight);
-            currentY += buttonRenderHeight + 4; // Add 4px vertical padding
-            if ((i + 1) % 2 == 0) {
-                currentX -= (buttonRenderWidth + 4); // Add 4px horizontal padding
-                currentY = y + 10;
+                g.setFont(RTSUIStyle.BADGE_FONT);
+                String uses = "x" + cb.numUsesRemaining;
+                int badgeW = g.getFontMetrics().stringWidth(uses) + 8;
+                g.setColor(new Color(0, 0, 0, 170));
+                g.fillRoundRect(bx + bw - badgeW - 2, by + 2, badgeW, 15, 6, 6);
+                RTSUIStyle.drawShadowedString(g, uses, bx + bw - badgeW + 2, by + 13, RTSUIStyle.TEXT);
             }
         }
     }
@@ -218,23 +222,12 @@ public class InfoPanelEffect extends IndependentEffect {
         double scaleAmount = hostGame.getZoom();
         mouseX*=scaleAmount;
         mouseY*=scaleAmount;
-        int buttonRenderWidth = (height - 20) / 2;
-        int buttonRenderHeight = (height - 20) / 2;
-        int currentX = x + width - 10;
-        int currentY = y + 10;
 
         for (int i = 0; i < mainUnit.getButtons().size(); i++) {
-            CommandButton cb = mainUnit.getButtons().get(i);
-
-            if (mouseX >= currentX - buttonRenderWidth && mouseX < currentX &&
-                mouseY >= currentY && mouseY < currentY + buttonRenderHeight) {
-                return cb;
-            }
-
-            currentY += buttonRenderHeight + 4; // Add 4px vertical padding
-            if ((i + 1) % 2 == 0) {
-                currentX -= (buttonRenderWidth + 4); // Add 4px horizontal padding
-                currentY = y + 10;
+            int[] r = getButtonRect(i);
+            if (mouseX >= r[0] && mouseX < r[0] + r[2] &&
+                mouseY >= r[1] && mouseY < r[1] + r[3]) {
+                return mainUnit.getButtons().get(i);
             }
         }
 
@@ -282,20 +275,25 @@ public class InfoPanelEffect extends IndependentEffect {
 
     private void renderCooldownCircle(Graphics2D g, CommandButton button, int x, int y, int width, int height) {
         if (button.cooldownPercent <= 0) return;
-        
-        // Save the original color
+
         Color originalColor = g.getColor();
-        
-        // Set the color for the cooldown overlay
-        g.setColor(cooldownColor);
-        
-        // Calculate the angle based on cooldown percentage (0-100)
+        Shape originalClip = g.getClip();
+
+        // Keep the sweep inside the rounded icon frame.
+        g.setClip(new java.awt.geom.RoundRectangle2D.Float(x + 2, y + 2, width - 4, height - 4, 6, 6));
+
         double angle = (360.0 * button.cooldownPercent) / 100.0;
-        
-        // Draw the arc centered on the button
-        g.fillArc(x, y, width, height, 90, -(int)angle);
-        
-        // Restore the original color
+        g.setColor(cooldownColor);
+        g.fillArc(x, y, width, height, 90, -(int) angle);
+
+        // Bright leading edge of the sweep reads as an active timer.
+        g.setColor(RTSUIStyle.ACCENT_DIM);
+        g.setStroke(new java.awt.BasicStroke(2f));
+        double leadRad = Math.toRadians(90 - angle);
+        int cx = x + width / 2, cy = y + height / 2;
+        g.drawLine(cx, cy, cx + (int) (Math.cos(leadRad) * width / 2), cy - (int) (Math.sin(leadRad) * height / 2));
+
+        g.setClip(originalClip);
         g.setColor(originalColor);
     }
 

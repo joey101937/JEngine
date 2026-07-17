@@ -28,7 +28,7 @@ import java.awt.image.VolatileImage;
  */
 public class BazookaBullet extends Projectile {
     
-    public static Damage staticDamage = new Damage(23); // used for 
+    public static Damage staticDamage = new Damage(30); // used for 
 
     public Damage damage = staticDamage.copy();
 

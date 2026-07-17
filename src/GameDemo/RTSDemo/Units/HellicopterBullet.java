@@ -26,7 +26,7 @@ import java.awt.image.VolatileImage;
 public class HellicopterBullet extends Projectile {
     public static final double VISUAL_SCALE = .36;
     
-    public static Damage staticDamage = new Damage(0, 10);
+    public static Damage staticDamage = new Damage(0, 12);
 
     public static final Sprite missileSprite = new Sprite(RTSAssetManager.missile);
     public static final Sprite shadowSprite = new Sprite(RTSAssetManager.missileShadow);
