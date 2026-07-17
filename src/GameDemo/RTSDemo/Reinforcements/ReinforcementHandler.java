@@ -172,7 +172,9 @@ public class ReinforcementHandler extends IndependentEffect {
             int idx = reinforcementTypes.indexOf(hoveredReinforcementType);
             if (idx >= 0) {
                 int[] r = rowRect(idx, hx, hy);
-                renderTypeTooltip(g, hoveredReinforcementType, r[0] + width + 8, r[1]);
+                // hy (header top) sits just above the minimap; keep the tooltip
+                // above it so the bottom rows' tooltips clear the minimap.
+                renderTypeTooltip(g, hoveredReinforcementType, r[0] + width + 8, r[1], hy);
             }
         }
     }
@@ -186,7 +188,7 @@ public class ReinforcementHandler extends IndependentEffect {
         return total > 0 ? total + " units" : "";
     }
 
-    private void renderTypeTooltip(Graphics2D g, ReinforcementType type, int tx, int ty) {
+    private void renderTypeTooltip(Graphics2D g, ReinforcementType type, int tx, int rowTop, int bottomLimit) {
         ArrayList<String> rawLines = new ArrayList<>(type.infoLines);
         if (!type.contents.isEmpty()) {
             rawLines.add("");
@@ -207,7 +209,12 @@ public class ReinforcementHandler extends IndependentEffect {
         }
 
         int th = 44 + lines.size() * lineH + 8;
-        ty = Math.max(ty, 4); // keep the top on-screen
+        // Top-anchored (grows down from the row top) by default. For the bottom
+        // rows that would push past the limit (the minimap/header below), anchor
+        // the tooltip's bottom to the row's bottom instead and grow upward.
+        int ty = (rowTop + th <= bottomLimit)
+                ? Math.max(rowTop, 4)
+                : Math.max(rowTop + ROW_HEIGHT - th, 4);
 
         RTSUIStyle.drawGlassPanel(g, tx, ty, tw, th, 12);
         g.setFont(RTSUIStyle.TITLE_FONT);

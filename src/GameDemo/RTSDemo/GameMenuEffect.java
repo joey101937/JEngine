@@ -36,6 +36,7 @@ public class GameMenuEffect extends IndependentEffect {
     private static final Color OVERLAY_COLOR = new Color(18, 12, 6, 150);
 
     private transient int hoveredButtonIndex = -1;
+    private transient int hoverPollCounter = 0;
 
     private boolean showingSettings = false;
 
@@ -149,6 +150,14 @@ public class GameMenuEffect extends IndependentEffect {
     public void render(Graphics2D g) {
         if (!isOpen) return;
 
+        // The AWT canvas may not deliver mouseMoved until it is clicked/focused,
+        // so the first hover after opening via F10 would otherwise be missed.
+        // Poll the live pointer (every other frame is plenty for a menu) so the
+        // highlight tracks without needing a delivered mouseMoved event.
+        if ((hoverPollCounter++ & 1) == 0) {
+            updateHoverFromPointer();
+        }
+
         double scaleAmount = 1.0 / game.getZoom();
         g.scale(scaleAmount, scaleAmount);
         RTSUIStyle.enableAA(g);
@@ -206,6 +215,23 @@ public class GameMenuEffect extends IndependentEffect {
         int panelX = (screenW - PANEL_WIDTH) / 2;
         int panelY = (screenH - panelHeight) / 2;
         return buttonRect(i, panelX, panelY);
+    }
+
+    /**
+     * Recomputes the hovered button from the OS pointer location, in the same
+     * canvas-relative, resolution-scaled space as the mouse-event path. Lets the
+     * highlight stay correct without waiting on a delivered mouseMoved event.
+     */
+    private void updateHoverFromPointer() {
+        try {
+            java.awt.Point p = java.awt.MouseInfo.getPointerInfo().getLocation();
+            java.awt.Point origin = game.getCanvas().getLocationOnScreen();
+            int sx = (int) ((p.x - origin.x) / Game.resolutionScaleX);
+            int sy = (int) ((p.y - origin.y) / Game.resolutionScaleY);
+            updateHover(sx, sy);
+        } catch (Exception ignored) {
+            // Pointer or canvas not currently available; keep the last hover state.
+        }
     }
 
     public void updateHover(int screenX, int screenY) {
