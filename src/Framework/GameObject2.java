@@ -685,7 +685,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      */
     public void updateHitbox() {
         //if no hitbox, create the default box hitbox
-        if (getHitbox() == null && getWidthAsOfLastTick()>0 && renderNumber>0) {
+        if (getHitbox() == null && getWidth()>0) {
             int width = getWidth();
             int height = getHeight();
             Coordinate[] verts = new Coordinate[4];

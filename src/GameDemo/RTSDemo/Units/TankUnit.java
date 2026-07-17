@@ -724,7 +724,6 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
                 this.setGraphic(sandbagDamagedSprite);
             }
             if(this.hull.sandbagUsesRemaining > 0 && !this.getGraphic().getSignature().equals("sandbagsForTank")) {
-                System.out.println("setting back" + this.hull.sandbagUsesRemaining);
                 this.setGraphic(sandbagSprite);
             }
         }
@@ -736,7 +735,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
          */
         @Override
         public void updateHitbox() {
-            if (getWidthAsOfLastTick() <= 0 || renderNumber <= 0) {
+            if (getWidth() <= 0) {
                 return;
             }
             int width = getWidth();
@@ -829,7 +828,6 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
                 updatedDamage.baseAmount = 0;
             }
         }
-        System.out.println(this + " taking damage on tick " + getHostGame().getGameTickNumber());
         super.takeDamage(updatedDamage);
     }
     
