@@ -527,7 +527,7 @@ Keeping Main.tickThreadCount = 1 is a good way to be safe about determinism. You
 ### Working with determinism
 If you have a game like an RTS where you need determinism and also to support a large number of concurrent GameObject2s, you will want to use Unified tick type but also need to keep in mind that tick methods are not executed in order. You should use **getLocationAsOfLastTick()** only to determine locations because getting location directly may not reflect what other objects see. For example unit 1 thinks unit 2 is at point 100,100 however some other unit's tick method moved unit2 to 105,105 beteen unit1 and 2 ticking. so now if unit1 uses the following code: unit2.location it may differ from what is returned when unit2 uses this code: this.location. to get around this, use **getLocationAsOfLastTick()** so that all parties see the same results.
 
-This same dillemma may come up for any business logic fields as well, which is why gameObejct2s have a map that you can store synced fields other than just location. **setSycnedProperty(key,value)** and **getSycnedProperty(key)** are used to store any value synced across ticks.
+This same dillemma may come up for any business logic fields as well, which is why gameObejct2s have a map that you can store synced fields other than just location. **setSyncedProperty(key,value)** and **getSyncedProperty(key)** are used to store any value synced across ticks.
 
 Randomness is also an issue. This is why we have Main.setRandomSeed function that allows you to manually set a random seed for use in the main functions for generating random numbers. This can be synced across runs to ensure that random values are the same on both.
 

@@ -306,7 +306,7 @@ public class Game implements Runnable {
         return output;
     }
 
-    public ArrayList<GameObject2> getPreceiseObjectsIntersectingPoint(Coordinate c) {
+    public ArrayList<GameObject2> getPreciseObjectsIntersectingPoint(Coordinate c) {
         ArrayList<GameObject2> out = new ArrayList<>();
         for (GameObject2 go : getAllObjects()) {
             if (go.getHitbox() != null && go.getHitbox().containsPoint(c)) {

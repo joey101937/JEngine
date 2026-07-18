@@ -137,14 +137,14 @@ public class Handler implements Serializable{
     public synchronized void tick() {
         globalTickNumber++;
         long currentMillisecond = System.currentTimeMillis();
-        LinkedList<TickDelayedEffect> tickDelatyedEffectsRun = new LinkedList<>();
+        LinkedList<TickDelayedEffect> tickDelayedEffectsRun = new LinkedList<>();
         LinkedList<TimeTriggeredEffect> timeTriggeredEffectsRun = new LinkedList<>();
         // create a copy to iterate on
         LinkedList<TickDelayedEffect> currentDelayedEffects = new LinkedList(tickDelayedEffects);
         for (TickDelayedEffect tde : currentDelayedEffects) {
             if (tde.targetTick <= globalTickNumber) {
                 tde.consumer.accept(hostGame);
-                tickDelatyedEffectsRun.add(tde);
+                tickDelayedEffectsRun.add(tde);
             }
         }
         
@@ -156,8 +156,8 @@ public class Handler implements Serializable{
             }
         }
         
-        updateTickDelayedEffects(tickDelatyedEffectsRun, true);
-        updateTimeTriggredEffects(timeTriggeredEffectsRun, true);
+        updateTickDelayedEffects(tickDelayedEffectsRun, true);
+        updateTimeTriggeredEffects(timeTriggeredEffectsRun, true);
         if (Main.tickType == Handler.TickType.unified) {
             tickUnified();
         } else if (Main.tickType == Handler.TickType.modular) {
@@ -253,7 +253,7 @@ public class Handler implements Serializable{
 
     private synchronized void conductAdditionsAndRemovals() {
         conductRemovals();
-        condunctAdditions();
+        conductAdditions();
     }
 
     private synchronized void conductRemovals() {
@@ -264,7 +264,7 @@ public class Handler implements Serializable{
         toRemove.clear();
     }
 
-    private synchronized void condunctAdditions() {
+    private synchronized void conductAdditions() {
         for (GameObject2 go : toAdd) {
             activeObjects.add(go);
         }
@@ -289,7 +289,7 @@ public class Handler implements Serializable{
         }
     }
     
-    private synchronized void updateTimeTriggredEffects(Collection<TimeTriggeredEffect> ttes, boolean forRemoval) {
+    private synchronized void updateTimeTriggeredEffects(Collection<TimeTriggeredEffect> ttes, boolean forRemoval) {
         if (!forRemoval) {
             this.timeTriggeredEffects.addAll(ttes);
         } else {
@@ -306,7 +306,7 @@ public class Handler implements Serializable{
     public synchronized void addTimeTriggeredEffect(TimeTriggeredEffect tte) {
         var list = new LinkedList<TimeTriggeredEffect>();
         list.add(tte);
-        updateTimeTriggredEffects(list, false);
+        updateTimeTriggeredEffects(list, false);
         System.out.println("adding time triggere event at " + tte.targetMillisecond);
     }
     

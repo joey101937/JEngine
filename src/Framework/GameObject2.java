@@ -311,9 +311,10 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param degree sets direction to this exact degree
      */
     public void setRotation(double degree){
+        double delta = degree - rotation;
         rotation = degree;
         for(SubObject sub : this.getAllSubObjects()) {
-            sub.onHostRotate(degree - rotation);
+            sub.onHostRotate(delta);
         }
     }
     
@@ -411,7 +412,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     public double angleFrom(Coordinate point){
         double result = DCoordinate.angleFrom(getPixelLocation(), point);
         if(result>180)result-=360;
-        if(result < -181) result +=360;
+        if(result < -180) result +=360;
         return result;
     }
     
@@ -1155,7 +1156,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             me.setHost(null);
             
         }
-        this.detatchAllStickers();
+        this.detachAllStickers();
     }
 
     /**
@@ -1216,14 +1217,14 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         return attachedStickers;
     }
     
-    public void detatchSticker(Sticker s){
+    public void detachSticker(Sticker s){
         if(attachedStickers.contains(s)){
             attachedStickers.remove(s);
             s.attachTo(null);
         }
     }
     //detaches all stickers which have been attached to this object
-    public void detatchAllStickers() {
+    public void detachAllStickers() {
         for (Sticker s : attachedStickers) {
             s.attachTo(null);
         }
@@ -1331,11 +1332,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @param key name of property
      * @param value value to store
      */
-    public void setSycnedProperty(String key, Object value) {
+    public void setSyncedProperty(String key, Object value) {
         futureSyncedState.put(key, value);
     }
     
-    public Object getSycnedProperty(String key) {
+    public Object getSyncedProperty(String key) {
         return syncedState.get(key);
     }
 
