@@ -623,7 +623,6 @@ Adding your own terrain type involves two steps
 * **Main.debugMode = false;** // set to true to view debug visuals
 * **Main.ticksPerSecond = 90;**
 * **Main.trippleBuffer = true;**
-* **Main.overviewMode = false;**
 * **Main.tickThreadCount = 1;**
 * **Main.stickerZLayer = 1000;**
 * **Main.renderThreadCount = -1;** // -1 means use cachedThreadPool. Otherwise its fixed number

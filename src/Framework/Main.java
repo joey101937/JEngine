@@ -43,7 +43,6 @@ public class Main {
     public static String assets = getDir() + "Assets" + File.separator;
     public static int ticksPerSecond = 90; //how fast the game logic runs. lower to help performance but at noticable reduction to gamespeed
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
-    private static boolean overviewMode = false;
     public static boolean debugMode = false;
     public static int tickThreadCount = 1;
     public static int renderThreadCount = -1; // <=0 = cachedThreadPool (parallel render, default). 1 = render inline on the render thread, no task dispatch (handy for profiling). >1 = fixed pool of that size.
@@ -128,19 +127,6 @@ public class Main {
         return random;
     }
     
-    public static void setOverviewMode(boolean b) {
-        if (b) {
-            //enable
-            Main.overviewMode = true;
-        } else {
-            Main.overviewMode = false;
-        }
-    }
-
-    public static boolean overviewMode() {
-        return overviewMode;
-    }
-
     /*
      * ** UTILITY METHODS                ***
      */

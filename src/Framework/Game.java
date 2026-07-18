@@ -57,7 +57,6 @@ public class Game implements Runnable {
 
     private static ExecutorService backgroundRenderService = Handler.newMinSizeCachedThreadPool(4);
 
-    public static final double OVERVIEW_MODE_ZOOM = .25;
     public static double resolutionScaleX = 1, resolutionScaleY = 1;
     /*  FIELDS   */
     private long lastTickTime = System.nanoTime();
@@ -572,9 +571,6 @@ public class Game implements Runnable {
         g2d.scale(zoom, zoom);
         g2d.setColor(Color.GREEN);
         g2d.setBackground(Color.white);
-        if (Main.overviewMode()) {
-            g2d.scale(OVERVIEW_MODE_ZOOM, OVERVIEW_MODE_ZOOM);
-        }
         percentThroughTick = calcPercentThroughTick();
         camera.render(g2d);
         this.renderBackGround(g2d);

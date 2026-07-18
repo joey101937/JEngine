@@ -38,8 +38,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
 
         titleLabel = new javax.swing.JLabel();
         tickPerSecondLabel = new javax.swing.JLabel();
-        OverviewLabel = new javax.swing.JLabel();
-        overviewCheckbox = new javax.swing.JCheckBox();
         okButton = new javax.swing.JButton();
         lowSpecButton = new javax.swing.JButton();
         standardButton = new javax.swing.JButton();
@@ -63,18 +61,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
         tickPerSecondLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tickPerSecondLabel.setText("Tick Rate");
         tickPerSecondLabel.setToolTipText("Ticks Per Second - Must be set prior to game running");
-
-        OverviewLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        OverviewLabel.setText("Overview Mode");
-        OverviewLabel.setToolTipText("Ticks Per Second");
-
-        overviewCheckbox.setSelected(Main.overviewMode());
-        overviewCheckbox.setText("Enabled");
-        overviewCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                overviewCheckboxActionPerformed(evt);
-            }
-        });
 
         okButton.setText("OK");
         okButton.addActionListener(new java.awt.event.ActionListener() {
@@ -152,14 +138,12 @@ public final class OptionsMenu extends javax.swing.JFrame {
                                 .addComponent(tripleCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(OverviewLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(disableCamLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(debugLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(31, 31, 31)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(debugCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(disableCamCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(overviewCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(disableCamCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(61, 113, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -209,10 +193,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(23, 23, 23)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(OverviewLabel)
-                    .addComponent(overviewCheckbox))
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(disableCamLabel)
                     .addComponent(disableCamCheck))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -242,10 +222,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
        this.tripleCheck.setSelected(true);
     }//GEN-LAST:event_standardButtonActionPerformed
 
-    private void overviewCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overviewCheckboxActionPerformed
-
-    }//GEN-LAST:event_overviewCheckboxActionPerformed
-
     private void disableCamCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disableCamCheckActionPerformed
 
     }//GEN-LAST:event_disableCamCheckActionPerformed
@@ -269,7 +245,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
     @Override
     public void dispose(){
         super.dispose();
-        Main.setOverviewMode(this.overviewCheckbox.isSelected());
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
         Window.mainWindow.currentGame.getCamera().disableMovement=this.disableCamCheck.isSelected();
@@ -277,7 +252,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel OverviewLabel;
     private javax.swing.JCheckBox debugCheck;
     private javax.swing.JLabel debugLabel;
     private javax.swing.JCheckBox disableCamCheck;
@@ -286,7 +260,6 @@ public final class OptionsMenu extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton lowSpecButton;
     private javax.swing.JButton okButton;
-    private javax.swing.JCheckBox overviewCheckbox;
     private javax.swing.JButton standardButton;
     private javax.swing.JLabel tickPerSecondLabel;
     private javax.swing.JLabel titleLabel;

@@ -551,8 +551,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         
         boolean triggerAnimationCycle = shouldTriggerOnAnimationCycle();
         
-        if (!isOnScreen() && !Main.overviewMode() && !ignoreRestrictions) {
-            //offscreen without overview mode? dont bother rendering anything.
+        if (!isOnScreen() && !ignoreRestrictions) {
+            //offscreen? dont bother rendering anything.
             if (triggerAnimationCycle) {
                 this.onAnimationCycle();
             }

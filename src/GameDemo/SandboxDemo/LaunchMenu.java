@@ -40,8 +40,6 @@ public class LaunchMenu extends javax.swing.JFrame {
         titleLabel = new javax.swing.JLabel();
         tickPerSecondLabel = new javax.swing.JLabel();
         TickRateSpinner = new javax.swing.JSpinner();
-        OverviewLabel = new javax.swing.JLabel();
-        overviewCheckbox = new javax.swing.JCheckBox();
         okButton = new javax.swing.JButton();
         lowSpecButton = new javax.swing.JButton();
         standardButton = new javax.swing.JButton();
@@ -71,17 +69,6 @@ public class LaunchMenu extends javax.swing.JFrame {
         TickRateSpinner.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         TickRateSpinner.setName(""); // NOI18N
         TickRateSpinner.setValue(Main.ticksPerSecond);
-
-        OverviewLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        OverviewLabel.setText("Overview Mode");
-        OverviewLabel.setToolTipText("Ticks Per Second");
-
-        overviewCheckbox.setText("Enabled");
-        overviewCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                overviewCheckboxActionPerformed(evt);
-            }
-        });
 
         okButton.setText("START");
         okButton.addActionListener(new java.awt.event.ActionListener() {
@@ -171,7 +158,6 @@ public class LaunchMenu extends javax.swing.JFrame {
                                 .addComponent(okButton))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(OverviewLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(disableCamLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(debugLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(birdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -179,7 +165,6 @@ public class LaunchMenu extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(debugCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(disableCamCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(overviewCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(birdSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(0, 0, Short.MAX_VALUE)))
                         .addGap(61, 61, 61))
@@ -220,10 +205,6 @@ public class LaunchMenu extends javax.swing.JFrame {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(23, 23, 23)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(OverviewLabel)
-                    .addComponent(overviewCheckbox))
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(disableCamLabel)
                     .addComponent(disableCamCheck))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -258,10 +239,6 @@ public class LaunchMenu extends javax.swing.JFrame {
        this.tripleCheck.setSelected(true);
     }//GEN-LAST:event_standardButtonActionPerformed
 
-    private void overviewCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overviewCheckboxActionPerformed
-     
-    }//GEN-LAST:event_overviewCheckboxActionPerformed
-
     private void disableCamCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disableCamCheckActionPerformed
         
     }//GEN-LAST:event_disableCamCheckActionPerformed
@@ -286,7 +263,6 @@ public class LaunchMenu extends javax.swing.JFrame {
         super.dispose();
         //set engine options based on user settings/////
         Main.ticksPerSecond =(int)this.TickRateSpinner.getValue();
-        Main.setOverviewMode(this.overviewCheckbox.isSelected());      
         Main.debugMode = this.debugCheck.isSelected();
         Main.tripleBuffer = this.tripleCheck.isSelected();
         birdCount = (int) birdSpinner.getValue();
@@ -299,8 +275,8 @@ public class LaunchMenu extends javax.swing.JFrame {
         setup(alt);
         g.setInputHandler(new DemoInputHandler());
         alt.setInputHandler(new DemoInputHandler());
-        g.getCamera().disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
-        alt.getCamera().disableMovement = this.disableCamCheck.isSelected() || overviewCheckbox.isSelected();
+        g.getCamera().disableMovement = this.disableCamCheck.isSelected();
+        alt.getCamera().disableMovement = this.disableCamCheck.isSelected();
         Window.initialize(g);
         g.start();
         g.setName("main");
@@ -356,7 +332,6 @@ public class LaunchMenu extends javax.swing.JFrame {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel OverviewLabel;
     private javax.swing.JSpinner TickRateSpinner;
     private javax.swing.JLabel birdLabel;
     private javax.swing.JSpinner birdSpinner;
@@ -367,7 +342,6 @@ public class LaunchMenu extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton lowSpecButton;
     private javax.swing.JButton okButton;
-    private javax.swing.JCheckBox overviewCheckbox;
     private javax.swing.JButton standardButton;
     private javax.swing.JLabel tickPerSecondLabel;
     private javax.swing.JLabel titleLabel;

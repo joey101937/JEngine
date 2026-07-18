@@ -110,22 +110,12 @@ public abstract class InputHandler implements KeyListener, MouseListener, MouseM
      * @return pixel location of mouse in world
      */
     public Coordinate locationOfMouseEvent(MouseEvent e) {
-        DCoordinate loc;
-        if(Main.overviewMode()){
-             loc = new DCoordinate(e.getX()/Game.OVERVIEW_MODE_ZOOM/Game.resolutionScaleX/hostGame.getZoom() + -hostGame.getCamera().location.x, e.getY()/Game.OVERVIEW_MODE_ZOOM/Game.resolutionScaleY/hostGame.getZoom() - hostGame.getCamera().location.y);
-        }else{
-             loc = new DCoordinate(e.getX()/Game.resolutionScaleX/hostGame.getZoom() + -hostGame.getCamera().location.x, e.getY()/Game.resolutionScaleY/hostGame.getZoom() - hostGame.getCamera().location.y);
-        }
+        DCoordinate loc = new DCoordinate(e.getX()/Game.resolutionScaleX/hostGame.getZoom() + -hostGame.getCamera().location.x, e.getY()/Game.resolutionScaleY/hostGame.getZoom() - hostGame.getCamera().location.y);
         return loc.toCoordinate();
     }
     
     public static Coordinate locationOfMouseEvent(MouseEvent e, Game g) {
-        DCoordinate loc;
-        if(Main.overviewMode()){
-             loc = new DCoordinate(e.getX()/Game.OVERVIEW_MODE_ZOOM/Game.resolutionScaleX/g.getZoom() + -g.getCamera().location.x, e.getY()/Game.OVERVIEW_MODE_ZOOM/Game.resolutionScaleY/g.getZoom() - g.getCamera().location.y);
-        }else{
-             loc = new DCoordinate(e.getX()/Game.resolutionScaleX/g.getZoom() + -g.getCamera().location.x, e.getY()/Game.resolutionScaleY/g.getZoom() - g.getCamera().location.y);
-        }
+        DCoordinate loc = new DCoordinate(e.getX()/Game.resolutionScaleX/g.getZoom() + -g.getCamera().location.x, e.getY()/Game.resolutionScaleY/g.getZoom() - g.getCamera().location.y);
         return loc.toCoordinate();
     }
     
