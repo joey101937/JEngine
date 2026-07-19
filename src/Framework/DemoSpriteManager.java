@@ -32,9 +32,7 @@ public abstract class DemoSpriteManager {
     public static BufferedImage[] birdySequence;
     public static BufferedImage[] sampleChar_idle, sampleChar_walkUp, sampleChar_walkDown, sampleChar_walkLeft, sampleChar_walkRight;
     public static BufferedImage localizedLight;
-    public static BufferedImage fog;
-    public static BufferedImage car;
-    public static BufferedImage dirtBG, dirtBGNight;
+    public static BufferedImage dirtBG;
 
 
     //SPACE ASSETS
@@ -93,11 +91,8 @@ public abstract class DemoSpriteManager {
             sampleChar_walkRight = loadSequence("DemoAssets/SampleCharacter/WalkRight");
             pathingLayer = load("DemoAssets/terrainBG-PATHING.png");
             localizedLight = load("DemoAssets/localizedLight2.png");
-            fog = load("DemoAssets/fog.png");
-            car = load("DemoAssets/topDownCarShadowDarkGrit.png");
-            
+
             dirtBG = load("DemoAssets/TankGame/dirtBG.png");
-            dirtBGNight = load("DemoAssets/TankGame/dirtBGNight.png");
 
             // RTS assets loading has been moved to RTSAssetManager
             

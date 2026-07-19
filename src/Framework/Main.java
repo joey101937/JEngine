@@ -6,7 +6,6 @@
 package Framework;
 
 import Framework.CoreLoop.Handler;
-import GameDemo.FogDemo.FogDemo;
 import GameDemo.RTSDemo.Multiplayer.Client;
 import GameDemo.RTSDemo.Multiplayer.Server;
 import GameDemo.RTSDemo.MapEditor.MapEditorMain;
@@ -73,7 +72,7 @@ public class Main {
      * this is the new main method that only shows the nicer looking demos... not that any of them look particularly good
      */
     private static void showCuratedDemos(String[] args) {
-        String[] options = { "RTS Singleplayer", "RTS Map Editor", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Game - Space Invaders", "Demo - Fog", "Demo - Push System", "RTS Multiplayer (host)", "RTS Multiplayer (client)"};
+        String[] options = { "RTS Singleplayer", "RTS Map Editor", "Demo - Side Scroller" , "Demo - Town", "Game - Minotaur", "Game - Galiga", "Game - Space Invaders", "Demo - Push System", "RTS Multiplayer (host)", "RTS Multiplayer (client)"};
         int choice = JOptionPane.showOptionDialog(null, "Choose Which Demo to Launch", "Demo Picker", 0, 0, null, options, "init");
         System.out.println(choice);
         switch(choice){
@@ -92,13 +91,11 @@ public class Main {
             break;
             case 6: SpaceInvadersGame.main(args);
             break;
-            case 7: FogDemo.main(args);
+            case 7: PushDemoGame.main(args);
             break;
-            case 8: PushDemoGame.main(args);
+            case 8: Server.main(args);
             break;
-            case 9: Server.main(args);
-            break;
-            case 10: Client.main(args);
+            case 9: Client.main(args);
             break;
             default: {
                 System.out.println("unknown selection");
