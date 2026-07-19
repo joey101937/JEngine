@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import Framework.GraphicalAssets.Graphic;
 import java.awt.BasicStroke;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -749,9 +748,9 @@ public class Game implements Runnable {
      * @return answer
      */
     public static final boolean runningOnSmallerScreen () {
-        var device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
-        return device.getWidth() < NATIVE_RESOLUTION.getWidth()
-                || device.getHeight() < NATIVE_RESOLUTION.getHeight();
+        // Compare against the logical screen size so this agrees with scaleForResolution()'s basis.
+        return Window.screenSize.x < NATIVE_RESOLUTION.getWidth()
+                || Window.screenSize.y < NATIVE_RESOLUTION.getHeight();
     }
     
     /**
@@ -763,12 +762,15 @@ public class Game implements Runnable {
      * Screens smaller than NATIVE_RESOLUTIONS will appear zoomed out
      */
     public static final void scaleForResolution() {
-        var device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
+        // Scale from the logical screen size (Window.screenSize, via Toolkit) rather than the
+        // physical getDisplayMode() size. The window, canvas, and camera FOV are all sized in
+        // logical pixels, so deriving the scale from physical pixels double-counts OS DPI scaling
+        // and over/under-zooms the world on any display not running at 100%.
         System.out.println(
                 "Scaling for screen dimensions: " + NATIVE_RESOLUTION.width + "x" + NATIVE_RESOLUTION.height
-                + " to " + device.getWidth() + "x" + device.getHeight());
-        Game.resolutionScaleX = (double) device.getWidth() / Game.NATIVE_RESOLUTION.width;
-        Game.resolutionScaleY = (double) device.getHeight() / Game.NATIVE_RESOLUTION.height;
+                + " to " + Window.screenSize.x + "x" + Window.screenSize.y);
+        Game.resolutionScaleX = (double) Window.screenSize.x / Game.NATIVE_RESOLUTION.width;
+        Game.resolutionScaleY = (double) Window.screenSize.y / Game.NATIVE_RESOLUTION.height;
         Window.updateFrameSize();
     }
 
@@ -781,12 +783,13 @@ public class Game implements Runnable {
      * Screens smaller than NATIVE_RESOLUTIONS will appear zoomed out
      */
     public static final void scaleForResolutionAspectRatio() {
-        var device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
+        // Uses the logical screen size (Window.screenSize) for the same DPI-consistency reason as
+        // scaleForResolution() above.
         System.out.println(
                 "Scaling for screen dimensions (aspectRatio): " + NATIVE_RESOLUTION.width + "x" + NATIVE_RESOLUTION.height
-                + " to " + device.getWidth() + "x" + device.getHeight());
-        double scaleX = (double) device.getWidth() / Game.NATIVE_RESOLUTION.width;
-        double scaleY = (double) device.getHeight() / Game.NATIVE_RESOLUTION.height;
+                + " to " + Window.screenSize.x + "x" + Window.screenSize.y);
+        double scaleX = (double) Window.screenSize.x / Game.NATIVE_RESOLUTION.width;
+        double scaleY = (double) Window.screenSize.y / Game.NATIVE_RESOLUTION.height;
         if (scaleX < scaleY) {
             Game.resolutionScaleX = scaleX;
             Game.resolutionScaleY = scaleX;
