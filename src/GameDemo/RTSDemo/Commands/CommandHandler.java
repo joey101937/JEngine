@@ -67,23 +67,30 @@ public class CommandHandler extends IndependentEffect{
         addQueue.clear();
     }
     
-    public synchronized void addCommand(Command toAdd, boolean shouldCommunicate) {
+    /**
+     * Queues a command for execution. Returns true if the command was accepted;
+     * false means it was rejected and will never run, so callers that charge a
+     * cost for the command (reinforcement reserves, ability cooldowns) should
+     * only apply that cost when this returns true.
+     */
+    public synchronized boolean addCommand(Command toAdd, boolean shouldCommunicate) {
         if(GameDemo.RTSDemo.Replay.ReplayManager.isReplayMode && shouldCommunicate) { // block player-issued commands during replay playback
-            return;
+            return false;
         }
         if(shouldCommunicate && !ExternalCommunicator.isMPReadyForCommands()) { // if its a local command and we are not ready, reject
             System.out.println("command ignored due to isMPReadyForCommands() being false");
-            return;
+            return false;
         }
         if(toAdd.getExecuteTick() < game.getGameTickNumber()) {
             System.out.println("Trying to add command to the past" + toAdd.toMpString());
             if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.beginResync(true);
-            return;
+            return false;
         }
         addQueue.add(toAdd);
         if(shouldCommunicate) {
             ExternalCommunicator.sendMessage(toAdd.toMpString());
         }
+        return true;
     }
     
     /** Returns every command currently logged, flattened and sorted by execute tick. Used to build replays. */

@@ -5,7 +5,6 @@ import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
-import Framework.Main;
 import Framework.Hitbox;
 import Framework.Window;
 import GameDemo.RTSDemo.ReinforcementPoint;
@@ -14,7 +13,6 @@ import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSInput;
 import GameDemo.RTSDemo.RTSUIStyle;
-import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -408,13 +406,22 @@ public class ReinforcementHandler extends IndependentEffect {
         // (once) and travels over the wire so unit grouping matches on both sides.
         String commandGroup = RTSInput.generateRandomCommandGroup();
         long spawnTick = Window.currentGame.getGameTickNumber() + RTSInput.getInputDelay();
-        RTSGame.commandHandler.addCommand(new CallReinforcementCommand(
-                spawnTick,
-                ExternalCommunicator.localTeam,
-                reinforcementIndex,
-                targetLocation,
-                commandGroup
-        ), true);
+        // The peer drops incoming reinforcement commands while resyncing, so a call
+        // made during one would spawn on this machine only. Charge the reserve just
+        // for calls that were actually accepted; otherwise the player pays for units
+        // that never arrive.
+        boolean accepted = !ExternalCommunicator.isResyncing
+                && RTSGame.commandHandler.addCommand(new CallReinforcementCommand(
+                        spawnTick,
+                        ExternalCommunicator.localTeam,
+                        reinforcementIndex,
+                        targetLocation,
+                        commandGroup
+                ), true);
+        if(!accepted) {
+            System.out.println("Reinforcement call rejected; reserve not spent");
+            return;
+        }
         successSound.playCopy(.7);
         reserveCount--;
         lastUsedTick = Window.currentGame.getGameTickNumber();
