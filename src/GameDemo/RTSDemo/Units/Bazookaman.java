@@ -103,6 +103,12 @@ public class Bazookaman extends RTSUnit {
     public void setHostGame(Framework.Game g) {
         super.setHostGame(g);
     }
+    
+    @Override
+    public void setRotation(double r, boolean includeTurret) {
+        super.setRotation(r);
+        if(includeTurret) this.turret.setRotation(r);
+    }
 
     @Override
     public void onPostDeserialization() {

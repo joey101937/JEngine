@@ -25,7 +25,6 @@ import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.TankUnit;
-import GameDemo.RTSDemo.Units.Truck;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -1117,5 +1116,9 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
             center.x + (int)(cosP * cx - sinP * cy),
             center.y + (int)(sinP * cx + cosP * cy)
         );
+    }
+    
+    public void setRotation(double degree, boolean includeTurret) {
+       super.setRotation(degree);
     }
 }

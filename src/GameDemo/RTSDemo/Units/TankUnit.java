@@ -417,6 +417,12 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     public int getRange() {
         return hasVelocity() ? baseRange : baseRange + 15;
     }
+    
+    @Override
+    public void setRotation(double r, boolean includeTurret) {
+        super.setRotation(r);
+        if(includeTurret) this.turret.setRotation(r);
+    }
 
     private RTSUnit nearestVisibleEnemyInfantryInRange() {
         int range = getRange();

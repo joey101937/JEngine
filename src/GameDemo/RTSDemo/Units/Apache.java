@@ -507,6 +507,12 @@ public class Apache extends RTSUnit {
         this.isSolid = false;
         this.setSelected(false);
     }
+    
+    @Override
+    public void setRotation(double r, boolean includeTurret) {
+        super.setRotation(r);
+        if(includeTurret) this.turret.setRotation(r);
+    }
 
     public class ApacheTurret extends SubObject {
 

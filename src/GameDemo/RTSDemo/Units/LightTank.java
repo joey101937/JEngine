@@ -314,6 +314,12 @@ public class LightTank extends RTSUnit {
         }
         fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
     }
+    
+    @Override
+    public void setRotation(double r, boolean includeTurret) {
+        super.setRotation(r);
+        if(includeTurret) this.turret.setRotation(r);
+    }
 
     public class LightTankTurret extends SubObject {
 

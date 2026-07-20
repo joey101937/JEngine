@@ -146,6 +146,12 @@ public class Hellicopter extends RTSUnit {
             rotate(hullRotationSpeed);
         }
     }
+    
+    @Override
+    public void setRotation(double r, boolean includeTurret) {
+        super.setRotation(r);
+        if(includeTurret) this.turret.setRotation(r);
+    }
 
     @Override
     public double getSpeed() {

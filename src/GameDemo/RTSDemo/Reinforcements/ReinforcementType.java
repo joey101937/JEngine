@@ -120,7 +120,7 @@ public abstract class ReinforcementType implements java.io.Serializable {
 
             RTSUnit u = units.get(i);
             u.setLocation(spawnLocation.toDCoordinate());
-            u.setRotation(spawn.rotation);
+            u.setRotation(spawn.rotation, true);
             u.setCommandGroup(commandGroup);
             u.setDesiredLocation(target.copy().add(offset));
             RTSGame.game.addObject(u);
