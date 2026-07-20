@@ -709,6 +709,9 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             this.setRenderBelow(false);
             this.setScale(SANDBAG_SCALE);
             sandbagShadow.scaleTo(SANDBAG_SCALE);
+            // hidden until the first tick confirms the hull has sandbags deployed
+            this.isInvisible = true;
+            this.isSolid = false;
         }
         
         @Override
