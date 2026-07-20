@@ -169,11 +169,16 @@ public class RTSInput extends InputHandler {
                 return;
             }
             if (TargetingModeManager.isActive()) {
+                // Targeting stays armed when every command was rejected (eg dropped
+                // during a resync) so the player keeps the ability instead of losing
+                // the click to a cast that never happened.
                 if (TargetingModeManager.isUnitTargetingMode()) {
                     RTSUnit clickedUnit = getUnitAtLocation(locationOfMouseEvent);
                     if (clickedUnit != null) {
-                        for (RTSUnit castingUnit : TargetingModeManager.getCastingUnits()) {
-                            RTSGame.commandHandler.addCommand(new TriggerAbilityCommand(
+                        List<RTSUnit> castingUnits = TargetingModeManager.getCastingUnits();
+                        boolean anyIssued = castingUnits.isEmpty();
+                        for (RTSUnit castingUnit : castingUnits) {
+                            anyIssued |= RTSGame.commandHandler.addCommand(new TriggerAbilityCommand(
                                     hostGame.getGameTickNumber() + getInputDelay(),
                                     castingUnit.ID,
                                     TargetingModeManager.getAbilityIndex(),
@@ -181,11 +186,13 @@ public class RTSInput extends InputHandler {
                                     clickedUnit.ID
                             ), true);
                         }
-                        TargetingModeManager.cancel();
+                        if (anyIssued) TargetingModeManager.cancel();
                     }
                 } else {
-                    for (RTSUnit castingUnit : TargetingModeManager.getCastingUnits()) {
-                        RTSGame.commandHandler.addCommand(new TriggerAbilityCommand(
+                    List<RTSUnit> castingUnits = TargetingModeManager.getCastingUnits();
+                    boolean anyIssued = castingUnits.isEmpty();
+                    for (RTSUnit castingUnit : castingUnits) {
+                        anyIssued |= RTSGame.commandHandler.addCommand(new TriggerAbilityCommand(
                                 hostGame.getGameTickNumber() + getInputDelay(),
                                 castingUnit.ID,
                                 TargetingModeManager.getAbilityIndex(),
@@ -193,7 +200,7 @@ public class RTSInput extends InputHandler {
                                 null
                         ), true);
                     }
-                    TargetingModeManager.cancel();
+                    if (anyIssued) TargetingModeManager.cancel();
                 }
                 return;
             }
@@ -232,12 +239,13 @@ public class RTSInput extends InputHandler {
                         if (!u.isAlive() || u.isRubble || u == clickedUnit) continue;
                         if (u.team != clickedUnit.team) continue;
                         if (!transport.canLoad(u)) continue;
-                        RTSGame.commandHandler.addCommand(new BoardTransportCommand(
+                        // Only count commands the handler accepted; a rejected one never
+                        // runs, so the click should fall through rather than report success.
+                        anyIssued |= RTSGame.commandHandler.addCommand(new BoardTransportCommand(
                                 hostGame.getGameTickNumber() + getInputDelay(),
                                 u.ID,
                                 clickedUnit.ID
                         ), true);
-                        anyIssued = true;
                     }
                     if (anyIssued) return;
                 }
@@ -249,12 +257,13 @@ public class RTSInput extends InputHandler {
                     if (clickedUnit.team == u.team) continue; // not an enemy relative to this unit
                     if (!u.supportsPreferredTarget()) continue;
                     if (!clickedUnit.isVisible(u.team)) continue; // can only target what this unit can see
-                    RTSGame.commandHandler.addCommand(new SetPreferredTargetCommand(
+                    // Gate on acceptance so a rejected command cannot raise the
+                    // indicator for a preferred target that was never actually set.
+                    anyIssued |= RTSGame.commandHandler.addCommand(new SetPreferredTargetCommand(
                             hostGame.getGameTickNumber() + getInputDelay(),
                             u.ID,
                             clickedUnit.ID
                     ), true);
-                    anyIssued = true;
                 }
                 if (anyIssued) {
                     if (!PreferredTargetIndicator.hasActiveIndicator(clickedUnit)) {
