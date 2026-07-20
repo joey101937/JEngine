@@ -245,6 +245,9 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
 
     @Override
     public void onPostDeserialization() {
+        super.onPostDeserialization();
+        restorePassengers(loadedUnits);
+        restorePassengers(unloadQueue);
         if (isRubble && elevation <= 0) {
             this.setGraphic(rubbleSprite);
             if (turret != null) {

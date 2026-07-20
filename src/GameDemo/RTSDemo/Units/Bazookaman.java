@@ -10,7 +10,6 @@ import Framework.Main;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.HeatSeekersButton;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
-import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
@@ -112,14 +111,11 @@ public class Bazookaman extends RTSUnit {
 
     @Override
     public void onPostDeserialization() {
+        super.onPostDeserialization();
         // Restore graphics after deserialization
         this.setGraphic(baseSprite);
         if (turret != null) {
             turret.setGraphic(turret.getIdleAnimation());
-        }
-        // Restore button transient fields after deserialization
-        for (CommandButton button : getButtons()) {
-            button.restoreTransientFields();
         }
     }
 

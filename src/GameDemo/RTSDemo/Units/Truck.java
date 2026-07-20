@@ -117,7 +117,10 @@ public class Truck extends RTSUnit implements Transport {
 
     @Override
     public void onPostDeserialization() {
+        super.onPostDeserialization();
         this.setGraphic(isRubble ? getRubbleSprite() : getHullSprite());
+        restorePassengers(loadedUnits);
+        restorePassengers(unloadQueue);
     }
 
     // ── Transport interface ──────────────────────────────────────────────────

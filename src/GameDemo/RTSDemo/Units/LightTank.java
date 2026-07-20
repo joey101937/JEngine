@@ -11,7 +11,6 @@ import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.LayMineButton;
-import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
 import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.Effects.TankTreadEffect;
@@ -131,14 +130,11 @@ public class LightTank extends RTSUnit {
 
     @Override
     public void onPostDeserialization() {
+        super.onPostDeserialization();
         // Restore graphics after deserialization
         this.setGraphic(isRubble ? hullSpriteDestroyed : getHullSprite());
         if (turret != null) {
             turret.setGraphic(isRubble ? turretSpriteDestroyed : turret.getTurretSprite());
-        }
-        // Restore button transient fields after deserialization
-        for (CommandButton button : getButtons()) {
-            button.restoreTransientFields();
         }
     }
 

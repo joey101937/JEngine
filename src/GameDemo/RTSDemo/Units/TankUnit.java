@@ -20,7 +20,6 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.DigInButton;
 import GameDemo.RTSDemo.Buttons.DigOutButton;
 import GameDemo.RTSDemo.Buttons.FrontalArmorButton;
-import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
 import GameDemo.RTSDemo.Effects.MuzzleSmokeEffect;
@@ -386,6 +385,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
     @Override
     public void onPostDeserialization() {
+        super.onPostDeserialization();
         // Restore graphics after deserialization
         this.setGraphic(isRubble ? rubbleHullSprite : getHullSprite());
         if (turret != null) {
@@ -393,10 +393,6 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         }
         if (sandbag != null) {
             sandbag.setGraphic(sandbagSprite);
-        }
-        // Restore button transient fields after deserialization
-        for (CommandButton button : getButtons()) {
-            button.restoreTransientFields();
         }
     }
 

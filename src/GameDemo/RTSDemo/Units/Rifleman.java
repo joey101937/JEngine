@@ -11,7 +11,6 @@ import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
-import GameDemo.RTSDemo.CommandButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
@@ -120,14 +119,11 @@ public class Rifleman extends RTSUnit {
 
     @Override
     public void onPostDeserialization() {
+        super.onPostDeserialization();
         // Restore graphics after deserialization
         this.setGraphic(baseSprite);
         if (turret != null) {
             turret.setGraphic(turret.getIdleAnimation());
-        }
-        // Restore button transient fields after deserialization
-        for (CommandButton button : getButtons()) {
-            button.restoreTransientFields();
         }
     }
 

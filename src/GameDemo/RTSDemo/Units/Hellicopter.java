@@ -168,6 +168,7 @@ public class Hellicopter extends RTSUnit {
 
     @Override
     public void onPostDeserialization() {
+        super.onPostDeserialization();
         if (isRubble && elevation <= 0) {
             this.setGraphic(rubbleSprite);
             if (turret != null) {
