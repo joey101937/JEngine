@@ -4,6 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapData {
-    public String background = "terrainPlaygroundHighground130.png";
+    public String background = "terrainPlayground_2026-07-21.png";
     public List<PlacedObject> objects = new ArrayList<>();
 }

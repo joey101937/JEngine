@@ -51,14 +51,22 @@ public class MapLoader {
     /**
      * Loads a TankGame background image by filename, returning a cached instance when available.
      * The shared preloaded terrain image ({@link RTSAssetManager#grassBG}) is reused rather than
-     * loading a duplicate ~330MB copy. Returns {@code null} if {@code filename} is null.
+     * loading a duplicate ~330MB copy, and stands in for filenames that are no longer on disk.
+     * Returns {@code null} if {@code filename} is null.
      */
     public static BufferedImage loadBackground(String filename) {
         if (filename == null) return null;
         if (filename.equals(RTSAssetManager.grassBGFile) && RTSAssetManager.grassBG != null) {
             backgroundCache.putIfAbsent(filename, RTSAssetManager.grassBG);
         }
-        return backgroundCache.computeIfAbsent(filename, f -> Graphic.load("DemoAssets/TankGame/" + f));
+        return backgroundCache.computeIfAbsent(filename, f -> {
+            try {
+                BufferedImage img = Graphic.load("DemoAssets/TankGame/" + f);
+                return img != null ? img : RTSAssetManager.grassBG;
+            } catch (RuntimeException e) {
+                return RTSAssetManager.grassBG;
+            }
+        });
     }
 
     /** Instantiates all objects from {@code data} and adds them to {@code game}. */

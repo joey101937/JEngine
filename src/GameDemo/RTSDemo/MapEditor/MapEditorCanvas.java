@@ -487,12 +487,14 @@ public class MapEditorCanvas extends JPanel {
 
     // ── Utilities ─────────────────────────────────────────────────────────────
 
+    /** Loads a terrain image by filename, reusing the preloaded terrain and falling back to it for names that no longer exist on disk. */
     private BufferedImage loadBg(String filename) {
-        if (filename.equals("terrainPlaygroundHighground130.png")) return RTSAssetManager.grassBG;
+        if (filename.equals(RTSAssetManager.grassBGFile)) return RTSAssetManager.grassBG;
         try {
-            return ImageIO.read(new File(Main.getAssets() + "DemoAssets/TankGame/" + filename));
+            BufferedImage img = ImageIO.read(new File(Main.getAssets() + "DemoAssets/TankGame/" + filename));
+            return img != null ? img : RTSAssetManager.grassBG;
         } catch (IOException e) {
-            return null;
+            return RTSAssetManager.grassBG;
         }
     }
 

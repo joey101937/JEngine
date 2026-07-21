@@ -30,9 +30,7 @@ public class MapEditorPalette extends JPanel {
     private static final int[]    TEAM_VALUES  = { -1, 0, 1, 2, 3, 4, 5 };
 
     private static final String[] BACKGROUNDS = {
-        "terrainPlaygroundHighground130.png",
-        "terrainPlaygroundHighground.png",
-        "terrainPlayground.png"
+        "terrainPlayground_2026-07-21.png"
     };
 
     // Dark theme colours shared across the palette

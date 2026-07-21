@@ -25,14 +25,14 @@ Plain data holder:
 - `hpPercent` — `1–100`; ignored for scenery and buildings
 
 ### `MapData`
-- `background` — bare filename (e.g. `"terrainPlaygroundHighground130.png"`)
+- `background` — bare filename (e.g. `"terrainPlayground_2026-07-21.png"`)
 - `List<PlacedObject> objects`
 
 ### `MapSerializer`
 Hand-rolled JSON (no third-party library). Writes/reads the format:
 ```json
 {
-  "background": "terrainPlaygroundHighground130.png",
+  "background": "terrainPlayground_2026-07-21.png",
   "objects": [
     {"type": "TankUnit", "x": 500, "y": 500, "rotation": 0.0, "team": 0, "hpPercent": 100}
   ]

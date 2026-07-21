@@ -396,7 +396,7 @@ public abstract class RTSAssetManager {
     }
 
     /** Filename of the terrain image {@link #grassBG} is loaded from; reused so callers can avoid duplicate ~330MB loads. */
-    public static final String grassBGFile = "terrainPlaygroundHighground130.png";
+    public static final String grassBGFile = "terrainPlayground_2026-07-21.png";
 
     private static CompletableFuture<Void> loadMapAssets1() {
         return CompletableFuture.runAsync(() -> {
