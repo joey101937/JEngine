@@ -294,17 +294,11 @@ public class Apache extends RTSUnit {
         // Play the muzzle/launch flame animation so flames flash from the missile pods
         turret.setGraphic(getAttackSequence().copyMaintainSource());
 
-        if (isOnScreen()) {
-            RTSSoundManager.get().play(
-                RTSSoundManager.HELICOPTER_ATTACK,
-                Main.generateRandomDoubleLocally(.65, .75),
-                0);
-        } else {
-            RTSSoundManager.get().play(
-                RTSSoundManager.HELICOPTER_ATTACK,
-                Main.generateRandomDoubleLocally(.55, .6),
-                0);
-        }
+        RTSSoundManager.get().play(
+            RTSSoundManager.HELICOPTER_ATTACK,
+            getLocation(),
+            Main.generateRandomDoubleLocally(6.3, 16.8),
+            0);
     }
 
     public void onMissileExploded() {
@@ -346,17 +340,11 @@ public class Apache extends RTSUnit {
 
                 getHostGame().addObject(new HellicopterBullet(this, center.copy().add(leftOffset), pendingBulletTarget));
                 getHostGame().addObject(new HellicopterBullet(this, center.copy().add(rightOffset), pendingBulletTarget));
-                if (isOnScreen()) {
-                    RTSSoundManager.get().play(
-                            RTSSoundManager.HELICOPTER_ATTACK,
-                            Main.generateRandomDoubleLocally(.65, .75),
-                            Main.generateRandomIntLocally(0, 200));
-                } else {
-                    RTSSoundManager.get().play(
-                            RTSSoundManager.HELICOPTER_ATTACK,
-                            Main.generateRandomDoubleLocally(.55, .6),
-                            Main.generateRandomIntLocally(0, 200));
-                }
+                RTSSoundManager.get().play(
+                        RTSSoundManager.HELICOPTER_ATTACK,
+                        getLocation(),
+                        Main.generateRandomDoubleLocally(6.3, 16.8),
+                        Main.generateRandomIntLocally(0, 200));
             }
             pendingBulletSpawnAtTick = 0;
             pendingBulletTarget = null;
@@ -368,7 +356,7 @@ public class Apache extends RTSUnit {
                 OnceThroughSticker deathBlast = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
                 deathBlast.setRenderScale(1.6);
                 getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), getPixelLocation(), 26, getZLayer() + 1));
-                RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, .56, 0);
+                RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, getLocation(), 2.6);
                 deathExplosionSpawned = true;
             }
             if (elevation <= 0) {

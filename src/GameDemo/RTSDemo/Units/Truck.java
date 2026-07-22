@@ -215,9 +215,7 @@ public class Truck extends RTSUnit implements Transport {
         this.setBaseSpeed(0);
         this.setDesiredLocation(this.getPixelLocation());
         this.setGraphic(rubbleSprite);
-        if (isOnScreen()) {
-            RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .64), 0);
-        }
+        RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, getLocation(), Main.generateRandomDoubleLocally(4.6, 5.7));
         fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
     }
 

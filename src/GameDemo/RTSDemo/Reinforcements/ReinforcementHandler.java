@@ -422,7 +422,7 @@ public class ReinforcementHandler extends IndependentEffect {
             System.out.println("Reinforcement call rejected; reserve not spent");
             return;
         }
-        successSound.playCopy(.7);
+        successSound.playCopy(10.3);
         reserveCount--;
         lastUsedTick = Window.currentGame.getGameTickNumber();
         isMenuOpen = false;

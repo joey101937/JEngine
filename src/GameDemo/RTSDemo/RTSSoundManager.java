@@ -5,7 +5,6 @@ import Framework.Audio.ConcurrentSoundManager;
 import Framework.Audio.SoundEffect;
 import Framework.Main;
 import java.io.File;
-import java.util.List;
 
 /**
  *
@@ -13,86 +12,55 @@ import java.util.List;
  */
 public class RTSSoundManager {
     private static ConcurrentSoundManager createdSoundManager;
-    
+
     public static String RIFLEMAN_ATTACK = "riflemanAttack";
     public static String BAZOOKA_ATTACK = "bazookaAttack";
-    public static String TANK_ATTACK = "tankAttack"; 
+    public static String TANK_ATTACK = "tankAttack";
     public static String HELICOPTER_ATTACK = "helicopterAttack";
     public static String LIGHT_TANK_ATTACK = "lightTankAttack";
     public static String LANDMINE_EXPLOSION = "landmineExplosion";
-    
+
     public static String TANK_DEATH = "tankDeath";
     public static String INFANTRY_DEATH = "infantryDeath";
 
+    /** how far each individual play is pitch shifted so repeats don't sound identical */
+    private static final double PITCH_VARIATION = .16;
 
-    
     private static void registerSounds(ConcurrentSoundManager csm) {
-        SoundEffect riflemanAttackBase = new SoundEffect(new File(Main.assets + "Sounds/machinegun.au"));
-        csm.registerSoundEffect(RIFLEMAN_ATTACK, List.of(
-                riflemanAttackBase,
-                riflemanAttackBase.createAlteredCopy(2.0),
-                riflemanAttackBase.createAlteredCopy(2.0),
-                riflemanAttackBase.createAlteredCopy(2.0)
-        ), 2, Main.ticksPerSecond);
-        SoundEffect bazookaAttackBase = new SoundEffect(new File(Main.assets + "Sounds/bazooka.au"));
-        csm.registerSoundEffect(BAZOOKA_ATTACK, List.of(
-                bazookaAttackBase,
-                bazookaAttackBase.createAlteredCopy(2.0),
-                bazookaAttackBase.createAlteredCopy(2.0),
-                bazookaAttackBase.createAlteredCopy(2.0)
-        ), 3, Main.ticksPerSecond);
-        SoundEffect tankAttackBase = new SoundEffect(new File(Main.assets + "Sounds/blast4.6.wav"));
-        csm.registerSoundEffect(TANK_ATTACK, List.of(
-                tankAttackBase,
-                tankAttackBase.createAlteredCopy(2.0),
-                tankAttackBase.createAlteredCopy(2.0),
-                tankAttackBase.createAlteredCopy(2.0)
-        ), 4, Main.ticksPerSecond);
-        SoundEffect helicopterAttackBase = new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au"));
-        csm.registerSoundEffect(HELICOPTER_ATTACK, List.of(
-                helicopterAttackBase,
-                helicopterAttackBase.createAlteredCopy(2.0),
-                helicopterAttackBase.createAlteredCopy(2.0),
-                helicopterAttackBase.createAlteredCopy(2.0)
-        ), 4, Main.ticksPerSecond);
-        SoundEffect lightTankAttackBase = new SoundEffect(new File(Main.assets + "Sounds/armoredCarShooting5.wav"));
-        lightTankAttackBase.alterPitch(-0.08);
-        csm.registerSoundEffect(LIGHT_TANK_ATTACK, List.of(
-                lightTankAttackBase,
-                lightTankAttackBase.createAlteredCopy(2.0),
-                lightTankAttackBase.createAlteredCopy(2.0),
-                lightTankAttackBase.createAlteredCopy(2.0)
-        ), 4, Main.ticksPerSecond);
-        SoundEffect landmineExplosionBase = new SoundEffect(new File(Main.assets + "Sounds/explosion.au"));
-        csm.registerSoundEffect(LANDMINE_EXPLOSION, List.of(
-                landmineExplosionBase,
-                landmineExplosionBase.createAlteredCopy(2.0),
-                landmineExplosionBase.createAlteredCopy(2.0),
-                landmineExplosionBase.createAlteredCopy(2.0)
-        ), 5, Main.ticksPerSecond);
-        SoundEffect tankDeathBase = new SoundEffect(new File(Main.assets + "Sounds/landmine explosion.wav"));
-        csm.registerSoundEffect(TANK_DEATH, List.of(
-                tankDeathBase,
-                tankDeathBase.createAlteredCopy(2.0),
-                tankDeathBase.createAlteredCopy(2.0),
-                tankDeathBase.createAlteredCopy(2.0)
-        ), 2, Main.ticksPerSecond);
-        SoundEffect infantryDeathBase = new SoundEffect(new File(Main.assets + "Sounds/scream4.wav"));
-        csm.registerSoundEffect(INFANTRY_DEATH, List.of(
-                infantryDeathBase,
-                infantryDeathBase.createAlteredCopy(2.0),
-                infantryDeathBase.createAlteredCopy(2.0),
-                infantryDeathBase.createAlteredCopy(2.0)
-        ), 2, Main.ticksPerSecond);
+        csm.registerSoundEffect(RIFLEMAN_ATTACK,
+                new SoundEffect(new File(Main.assets + "Sounds/machinegun.au")),
+                2, RTSGame.desiredTPS, PITCH_VARIATION);
+        csm.registerSoundEffect(BAZOOKA_ATTACK,
+                new SoundEffect(new File(Main.assets + "Sounds/bazooka.au")),
+                3, RTSGame.desiredTPS, PITCH_VARIATION);
+        csm.registerSoundEffect(TANK_ATTACK,
+                new SoundEffect(new File(Main.assets + "Sounds/blast4.6.wav")),
+                4, RTSGame.desiredTPS, PITCH_VARIATION);
+        csm.registerSoundEffect(HELICOPTER_ATTACK,
+                new SoundEffect(new File(Main.assets + "Sounds/missileLaunch.au")),
+                4, RTSGame.desiredTPS, PITCH_VARIATION);
+        SoundEffect lightTankAttack = new SoundEffect(new File(Main.assets + "Sounds/armoredCarShooting5.wav"));
+        lightTankAttack.alterPitch(-.08);
+        csm.registerSoundEffect(LIGHT_TANK_ATTACK, lightTankAttack,
+                4, RTSGame.desiredTPS, PITCH_VARIATION);
+        csm.registerSoundEffect(LANDMINE_EXPLOSION,
+                new SoundEffect(new File(Main.assets + "Sounds/explosion.au")),
+                5, RTSGame.desiredTPS, PITCH_VARIATION);
+        csm.registerSoundEffect(TANK_DEATH,
+                new SoundEffect(new File(Main.assets + "Sounds/landmine explosion.wav")),
+                2, RTSGame.desiredTPS, PITCH_VARIATION);
+        csm.registerSoundEffect(INFANTRY_DEATH,
+                new SoundEffect(new File(Main.assets + "Sounds/scream4.wav")),
+                2, RTSGame.desiredTPS, PITCH_VARIATION);
     }
-    
-    
+
+
     private static ConcurrentSoundManager create () {
         ConcurrentSoundManager csm = new ConcurrentSoundManager();
         registerSounds(csm);
         return csm;
     }
-    
+
     public static ConcurrentSoundManager get () {
         if (createdSoundManager == null) {
             createdSoundManager = create();

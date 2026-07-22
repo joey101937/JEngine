@@ -39,7 +39,7 @@ public class GaligaGame {
         mainGame.setInputHandler(new GaligaInput());
         mainGame.addIndependentEffect(UI);
         mainGame.addIndependentEffect(new GameDriver());
-        bgMusic.setVolume(.75f);
+        bgMusic.setVolume(16.8);
         bgMusic.setLooping(true);
         bgMusic.start();
     }

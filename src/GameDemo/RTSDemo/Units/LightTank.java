@@ -245,13 +245,11 @@ public class LightTank extends RTSUnit {
     }
     
     public void playAttackSound() {
-        int offset = Main.generateRandomIntLocally(0, 20);
-        double volumeOnScreen = Main.generateRandomDoubleLocally(.70, .76);
-        double volumeOffScreen = Main.generateRandomDoubleLocally(.64, .71);
         RTSSoundManager.get().play(
                 RTSSoundManager.LIGHT_TANK_ATTACK,
-                isOnScreen() ? volumeOnScreen : volumeOffScreen,
-                offset);
+                getLocation(),
+                Main.generateRandomDoubleLocally(7.7, 14.0),
+                Main.generateRandomIntLocally(0, 20));
     }
 
     public void fire(RTSUnit target) {
@@ -305,9 +303,7 @@ public class LightTank extends RTSUnit {
         this.setDesiredLocation(this.getPixelLocation());
         this.setGraphic(hullSpriteDestroyed);
         turret.setGraphic(turretSpriteDestroyed);
-        if(isOnScreen()) {
-            RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .64), 0);
-        }
+        RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, getLocation(), Main.generateRandomDoubleLocally(4.6, 5.7));
         fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
     }
     

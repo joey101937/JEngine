@@ -443,11 +443,8 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         hullMGFlashTicks[0] = fireTick;
         hullMGFlashTicks[1] = fireTick + RTSGame.tickAdjust(14);
         hullMGFlashTicks[2] = fireTick + RTSGame.tickAdjust(24);
-        if (isOnScreen()) {
-            RTSSoundManager.get().play(RTSSoundManager.RIFLEMAN_ATTACK, Main.generateRandomDoubleLocally(.55f, .63f), Main.generateRandomIntLocally(0, 20));
-        } else {
-            RTSSoundManager.get().play(RTSSoundManager.RIFLEMAN_ATTACK, Main.generateRandomDoubleLocally(.4f, .48f), Main.generateRandomIntLocally(0, 20));
-        }
+        RTSSoundManager.get().play(RTSSoundManager.RIFLEMAN_ATTACK, getLocation(),
+                Main.generateRandomDoubleLocally(2.3, 5.1), Main.generateRandomIntLocally(0, 20));
         boolean hit0 = performHullMGAttack(target, 0);
         boolean hit1 = performHullMGAttack(target, 1);
         boolean hit2 = performHullMGAttack(target, 2);
@@ -567,18 +564,11 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         public void onFire(Coordinate target) {
             setGraphic(getFireSequence().copyMaintainSource());
             try {
-                String soundEffect = RTSSoundManager.TANK_ATTACK;
-                if (isOnScreen()) {
-                    RTSSoundManager.get().play(
-                        soundEffect,
-                        Main.generateRandomDoubleLocally(.69, .74),
-                        Main.generateRandomIntLocally(0, 40));
-                } else {
-                    RTSSoundManager.get().play(
-                        soundEffect,
-                        Main.generateRandomDoubleLocally(.62, .67),
-                        Main.generateRandomIntLocally(0, 40));
-                }
+                RTSSoundManager.get().play(
+                    RTSSoundManager.TANK_ATTACK,
+                    getLocation(),
+                    Main.generateRandomDoubleLocally(7.0, 11.4),
+                    Main.generateRandomIntLocally(0, 40));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -783,9 +773,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         this.setDesiredLocation(this.getPixelLocation());
         this.setGraphic(tankDeathAnimation);
         turret.setGraphic(rubbleTurretSprite);
-        if(isOnScreen()) {
-            RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, Main.generateRandomDoubleLocally(.62, .66), 0);
-        }
+        RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, getLocation(), Main.generateRandomDoubleLocally(4.6, 6.9));
         fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
     }
     

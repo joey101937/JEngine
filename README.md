@@ -670,7 +670,14 @@ The `ConcurrentSoundManager` handles:
 - Registering sound effects with configurable concurrent play limits
 - Managing how many instances of each sound can play at once
 - Automatic cleanup of completed sound effects
-- Volume and delay control for each play
+- Volume, pitch and delay control for each play
+- Positional playback: volume falloff and stereo panning based on where in the world a sound came from
+
+### Volume Scale
+Volume is a percentage of the sound file's own natural volume:
+- `100` plays the file unaltered
+- `50` is half as loud, `0` is silent
+- `200` is twice as loud, and is as far as most audio lines can amplify
 
 ### Quick Start Guide
 First, create and register your sound effects with the ConcurrentSoundManager:
@@ -682,23 +689,30 @@ ConcurrentSoundManager soundManager = new ConcurrentSoundManager();
 soundManager.registerSoundEffect(
     "explosion",
     new SoundEffect(new File("explosion.au")),
-    5,  // max concurrent plays
-    60  // duration in ticks
+    5,   // max concurrent plays
+    60,  // duration in ticks
+    .16  // pitch shift each play by up to ±16% so repeats don't sound identical
 );
 ```
 
 Then play sounds through the manager:
 
 ```java
-// Play with 70% volume without delay
-soundManager.play("explosion", 0.7, 0);
+// Play at 70% of the file's natural volume, without delay
+soundManager.play("explosion", 70, 0);
+
+// Or play it as coming from a place in the world. Volume falls off with distance
+// from the center of the view and the sound is panned to the side it came from
+soundManager.play("explosion", myUnit.getLocation(), 70);
 ```
+
+Distance quietens a sound but never silences it — it bottoms out at `ConcurrentSoundManager.minimumVolumeFraction` of the volume you passed, so far off action stays audible. Tune `fullVolumeRadius`, `minimumVolumeFraction` and `maxPan` to taste.
 
 ### Best Practices
 - Register sound effects once at startup, not every time you need them
 - Set appropriate concurrent play limits to prevent audio overload
 - Consider duration when setting tick counts for cleanup
-- Adjust volume and delay based on game context (e.g. distance from camera)
+- Prefer the positional `play` overload over hand-tuning volume per call site
 - The offset allows you to delay the start of a sound by given number of ms
 
 ### Individual Sound Effects
@@ -706,9 +720,12 @@ The `SoundEffect` class provides direct control when needed:
 
 ```java
 SoundEffect sound = new SoundEffect(new File("mySound.au"));
-sound.setVolume(0.7f);  // 70% volume
+sound.setVolume(70);    // 70% of the file's natural volume
+sound.alterPitch(-.1);  // 10% lower, and 10% slower with it
 sound.start();
 ```
+
+Pitch is shifted by resampling, so it changes playback speed along with pitch, and is clamped to one octave either way.
 
 For best performance:
 - Load sound files once and reuse

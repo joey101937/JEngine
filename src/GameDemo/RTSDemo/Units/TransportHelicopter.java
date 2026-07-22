@@ -304,7 +304,7 @@ public class TransportHelicopter extends RTSUnit implements ReinforcementPoint, 
                 OnceThroughSticker deathBlast = new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
                 deathBlast.setRenderScale(1.6);
                 getHostGame().addIndependentEffect(new GameDemo.RTSDemo.Effects.SmokePoofEffect(getHostGame(), getPixelLocation(), 30, getZLayer() + 1));
-                GameDemo.RTSDemo.RTSSoundManager.get().play(GameDemo.RTSDemo.RTSSoundManager.TANK_DEATH, .56, 0);
+                GameDemo.RTSDemo.RTSSoundManager.get().play(GameDemo.RTSDemo.RTSSoundManager.TANK_DEATH, getLocation(), 2.6);
                 deathExplosionSpawned = true;
             }
             if (elevation <= 0) {

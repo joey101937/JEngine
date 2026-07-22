@@ -68,7 +68,7 @@ public class PlayerShip extends GameObject2{
         lastHitTick = tickNumber;
         GaligaGame.UI.onDeath();
         new OnceThroughSticker(GaligaGame.mainGame, new Sequence(DemoSpriteManager.explosionSequence), getPixelLocation());
-         GaligaGame.deathSound.playCopy(.7f);
+         GaligaGame.deathSound.playCopy(10.3);
         if (GaligaGame.UI.getLives() > 0) {
             System.out.println("life lost");
         } else {

@@ -185,17 +185,11 @@ public class Rifleman extends RTSUnit {
         }
         attackCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * attackFrequency);
 
-            if (isOnScreen()) {
-                 RTSSoundManager.get().play(
-                         RTSSoundManager.RIFLEMAN_ATTACK,
-                         Main.generateRandomDoubleLocally(.50f, .55f),
-                         Main.generateRandomIntLocally(0, 20));
-            } else {
-                RTSSoundManager.get().play(
-                         RTSSoundManager.RIFLEMAN_ATTACK,
-                         Main.generateRandomDoubleLocally(.4f, .46f),
-                         Main.generateRandomIntLocally(0, 20));
-            }
+            RTSSoundManager.get().play(
+                    RTSSoundManager.RIFLEMAN_ATTACK,
+                    getLocation(),
+                    Main.generateRandomDoubleLocally(1.4, 2.3),
+                    Main.generateRandomIntLocally(0, 20));
         turret.setGraphic(turret.getFireAnimation());
         // riflemen attack by shooting 2dmg 3 times.
         // each time recalculates dodge chance separately so that it has higher possibility of hitting at least one shot
@@ -350,7 +344,7 @@ public class Rifleman extends RTSUnit {
         destructionScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
         this.setZLayer((int)(Math.random() * -50));
         if((getHostGame().getGameTickNumber() % 4) == 0) {
-            RTSSoundManager.get().play(RTSSoundManager.INFANTRY_DEATH, .6, 0);
+            RTSSoundManager.get().play(RTSSoundManager.INFANTRY_DEATH, getLocation(), 3.8);
         }
     }
     

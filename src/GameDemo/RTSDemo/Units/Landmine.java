@@ -97,7 +97,7 @@ public class Landmine extends RTSUnit {
                 addTickDelayedEffect(RTSGame.desiredTPS / 5, c -> {
                     this.die();
                     this.setRenderScale(1.25);
-                    RTSSoundManager.get().play(RTSSoundManager.LANDMINE_EXPLOSION, isOnScreen() ? .8 : .7, 0);
+                    RTSSoundManager.get().play(RTSSoundManager.LANDMINE_EXPLOSION, getLocation(), 27.6);
                     unit.takeDamage(damage);
                     new OnceThroughSticker(getHostGame(), new Sequence(RTSAssetManager.explosionSequence), getPixelLocation());
                     unit.setImmobilized(true);

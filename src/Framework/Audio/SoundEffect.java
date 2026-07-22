@@ -32,6 +32,9 @@ public class SoundEffect implements Runnable{
     private volatile AudioFormat baseFormat;//format of audioData at its original pitch
     private volatile Clip clip;              //clip used to control most things
     private volatile FloatControl gainControl;//used to control volueme
+    private volatile FloatControl panControl;//used to position the sound in stereo, may be null
+    private volatile double volumePercent = 100.0;//current volume, 100 = source file's own volume
+    private volatile double panPosition = 0.0;//current stereo position, -1 left to 1 right
     private volatile double pitchOffset = 0.0;//current pitch shift, as a percentage of original
     private volatile boolean disabled = false;//disabling makes this sound terminate
     private volatile boolean hasStarted = false;
@@ -56,16 +59,19 @@ public class SoundEffect implements Runnable{
     /**
      * creates a new sound effect sharing the decoded audio of an existing one.
      * @param f File to create sound with
-     * @param parent sound effect to copy audio data and pitch from
+     * @param parent sound effect to copy audio data and settings from
+     * @param pitch pitch offset to open the copy at
      */
-    private SoundEffect(File f, SoundEffect parent) {
+    private SoundEffect(File f, SoundEffect parent, double pitch) {
         this.parent = parent;
         ID = ++IDGenerator;
         source = f;
         //decoded audio is never modified, so copies can share the parent's array
         audioData = parent.audioData;
         baseFormat = parent.baseFormat;
-        pitchOffset = parent.pitchOffset;
+        volumePercent = parent.volumePercent;
+        panPosition = parent.panPosition;
+        pitchOffset = clampPitch(pitch);
         try {
             clip = AudioSystem.getClip();
             openClip();
@@ -88,11 +94,11 @@ public class SoundEffect implements Runnable{
             source = f;
             AudioInputStream stream = AudioSystem.getAudioInputStream(f);
             AudioFormat sourceFormat = stream.getFormat();
-            if (sourceFormat.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
-                //decode to raw PCM so playback rate can be redeclared for pitch shifting
-                AudioFormat pcm = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                        sourceFormat.getSampleRate(), 16, sourceFormat.getChannels(),
-                        sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
+            //decode to plain stereo PCM: playback rate can then be redeclared to shift
+            //pitch, and audio lines only offer stereo positioning to stereo sources
+            AudioFormat pcm = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                    sourceFormat.getSampleRate(), 16, 2, 4, sourceFormat.getSampleRate(), false);
+            if (!sourceFormat.matches(pcm)) {
                 stream = AudioSystem.getAudioInputStream(pcm, stream);
             }
             baseFormat = stream.getFormat();
@@ -113,15 +119,26 @@ public class SoundEffect implements Runnable{
      * corresponds to the current pitch offset. Any existing volume is carried over.
      */
     private void openClip() throws LineUnavailableException {
-        float volume = gainControl != null ? getVolume() : -1f;
         if (clip.isOpen()) {
             clip.close();
         }
         clip.open(pitchedFormat(), audioData, 0, audioData.length);
         gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-        if (volume >= 0) {
-            setVolume(volume);
+        panControl = findPanControl();
+        applyVolume();
+        applyPan();
+    }
+
+    /**
+     * stereo positioning control for the freshly opened line, or null if it has none.
+     */
+    private FloatControl findPanControl() {
+        for (FloatControl.Type type : new FloatControl.Type[]{FloatControl.Type.PAN, FloatControl.Type.BALANCE}) {
+            if (clip.isControlSupported(type)) {
+                return (FloatControl) clip.getControl(type);
+            }
         }
+        return null;
     }
 
     /**
@@ -239,38 +256,73 @@ public class SoundEffect implements Runnable{
     }
     
     /**
-    * sets the volume of this sound effect to a given percentage of the clip's 
-    * base sound level. Note this is not uniform across all sound files as some
-    * are just naturally louder than others, however SoundEffect objects using
-    * the same audio source will have the same natural volume.
-    * 1.0  = loud
-    * 0.5  = quiet
-    * 0.0  = silent
+    * sets the volume of this sound effect to a given percentage of the source
+    * file's natural volume. Note this is not uniform across all sound files as
+    * some are just naturally louder than others, however SoundEffect objects
+    * using the same audio source will have the same natural volume.
+    * 200 = twice as loud as the source file
+    * 100 = the source file's own volume
+    * 50  = half as loud
+    * 0   = silent
+    * Values above 200 are accepted but most audio lines cannot amplify beyond that.
     */
-    public void setVolume(float percentVolume){
-        if(percentVolume < 0 || percentVolume > 1){
-            throw new RuntimeException("ERROR: Percent Volume must be between 0 and 1");
+    public void setVolume(double percentVolume){
+        if(percentVolume < 0){
+            throw new RuntimeException("ERROR: Percent Volume cannot be negative");
         }
-        float min = gainControl.getMinimum();
-        float max = gainControl.getMaximum();
-        float range = max-min;
-        float toSet = range*percentVolume;
-        gainControl.setValue(min+toSet);
+        volumePercent = percentVolume;
+        applyVolume();
         if(listener!=null)listener.onSetVolume(percentVolume);
     }
-    
+
     /**
-     * gets current volume percentage as float.
-     * 1 = 100%
-     * .5 = 50%
-     * 0 = 0%
+     * pushes the current volume percentage onto the gain control, converting it to
+     * the decibel scale the control actually uses and clamping to what it supports.
      */
-    public float getVolume() {
+    private void applyVolume() {
         float min = gainControl.getMinimum();
         float max = gainControl.getMaximum();
-        float range = max - min;
-        float current = gainControl.getValue();
-        return (current - min) / range;
+        float decibels = volumePercent <= 0 ? min : (float) (20.0 * Math.log10(volumePercent / 100.0));
+        gainControl.setValue(Math.max(min, Math.min(max, decibels)));
+    }
+
+    /**
+     * gets current volume as a percentage of the source file's natural volume.
+     * 100 = original volume
+     * 50 = half as loud
+     * 0 = silent
+     */
+    public double getVolume() {
+        return volumePercent;
+    }
+
+    /**
+     * positions the sound in the stereo field.
+     * -1 = fully left, 0 = centered, 1 = fully right.
+     * Has no effect on audio lines that do not offer stereo positioning.
+     */
+    public void setPan(double pan) {
+        panPosition = Math.max(-1.0, Math.min(1.0, pan));
+        applyPan();
+    }
+
+    /**
+     * @return stereo position of this sound, -1 (left) to 1 (right)
+     */
+    public double getPan() {
+        return panPosition;
+    }
+
+    /**
+     * pushes the current pan onto whichever stereo control the line offers. Audio
+     * lines only expose these controls for stereo sources, which is why sources are
+     * decoded to stereo on load.
+     */
+    private void applyPan() {
+        if (panControl == null) {
+            return;
+        }
+        panControl.setValue(Math.max(panControl.getMinimum(), Math.min(panControl.getMaximum(), (float) panPosition)));
     }
     
     /**
@@ -280,7 +332,7 @@ public class SoundEffect implements Runnable{
      * @param percentChange amount to shift pitch: 0.1 = +10%, -0.1 = -10%, 0.0 = original
      */
     public void alterPitch(double percentChange) {
-        double newOffset = Math.max(-0.5, Math.min(1.0, percentChange));
+        double newOffset = clampPitch(percentChange);
         if (newOffset == pitchOffset) {
             return;
         }
@@ -310,6 +362,14 @@ public class SoundEffect implements Runnable{
      */
     public double getPitch() {
         return pitchOffset;
+    }
+
+    /**
+     * holds a pitch offset to within one octave either way, past which resampling
+     * artifacts take over and the sound stops resembling its source.
+     */
+    private static double clampPitch(double pitch) {
+        return Math.max(-0.5, Math.min(1.0, pitch));
     }
 
     /**
@@ -493,29 +553,42 @@ public class SoundEffect implements Runnable{
     }
     
     /**
-     * @return A fresh SoundEffect of the same source
+     * @return A fresh SoundEffect of the same source, at this one's pitch
      */
     public SoundEffect createCopy(){
-        return new SoundEffect(source, this);
+        return createCopy(pitchOffset);
     }
-    
+
+    /**
+     * Creates a fresh SoundEffect of the same source at the given pitch. The copy
+     * opens directly at that pitch, so shifting this way costs nothing extra.
+     * @param pitch pitch offset relative to the original recording: 0.0 = original, 0.1 = +10%
+     * @return A fresh SoundEffect of the same source
+     */
+    public SoundEffect createCopy(double pitch){
+        return new SoundEffect(source, this, pitch);
+    }
+
     public void playCopy() {
-        playCopy(1f);
+        playCopy(100.0);
     }
-    
-    public void playCopy(float volume) {
+
+    public void playCopy(double volume) {
         playCopy(volume, 0);
     }
-    public void playCopy(double volume) {
-        playCopy((float)volume, 0);
-    }
-    
+
     public void playCopy(double volume, int msDelay) {
-        playCopy((float)volume, msDelay);
+        playCopy(volume, msDelay, pitchOffset);
     }
-    
-    public void playCopy(float volume, int msDelay) {
-        SoundEffect copy = this.createCopy();
+
+    /**
+     * plays a fresh copy of this sound at the given volume, delay and pitch.
+     * @param volume percentage of the source file's natural volume, 100 = original
+     * @param msDelay milliseconds to wait before the copy starts
+     * @param pitch pitch offset relative to the original recording: 0.0 = original, 0.1 = +10%
+     */
+    public void playCopy(double volume, int msDelay, double pitch) {
+        SoundEffect copy = this.createCopy(pitch);
         copy.setVolume(volume);
         copy.startWithDelay(msDelay);
     }
@@ -566,20 +639,17 @@ public class SoundEffect implements Runnable{
      * use this function to create a copy of the sound but is randomly slightly altered. This is to be used if you have- for example an explosion sound effect
      * that you want to reuse without every explosion sounding literally identical.
      * this function should randomly alter pitch, speed, or distortion.
-     * @param intensity 0.0 = no alteration, 1.0 = full alteration (±8% pitch, ±5% volume)
+     * @param intensity 0.0 = no alteration, 1.0 = full alteration (±8% pitch, ±5 volume points)
      * @return
      */
     public SoundEffect createAlteredCopy(double intensity) {
-        SoundEffect copy = createCopy();
         int pitchRange = (int) Math.round(8 * intensity);
-        int volRange   = (int) Math.round(intensity);
-        if (pitchRange > 0) {
-            double variation = Main.generateRandomInt(-pitchRange, pitchRange) / 100.0;
-            copy.alterPitch(copy.getPitch() + variation);
+        double pitchVariation = pitchRange > 0 ? Main.generateRandomInt(-pitchRange, pitchRange) / 100.0 : 0;
+        SoundEffect copy = createCopy(pitchOffset + pitchVariation);
+        int volRange = (int) Math.round(5 * intensity);
+        if (volRange > 0) {
+            copy.setVolume(Math.max(0, copy.getVolume() + Main.generateRandomInt(-volRange, volRange)));
         }
-        float volVariation = (volRange > 0 ? Main.generateRandomInt(-volRange, volRange) : 0) / 100f;
-        float newVol = Math.max(0f, Math.min(1f, copy.getVolume() + volVariation));
-        copy.setVolume(newVol);
         return copy;
     }
 

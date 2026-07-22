@@ -186,17 +186,11 @@ public class Bazookaman extends RTSUnit {
         }
         attackCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (RTSGame.desiredTPS * attackInterval);
 
-        if (isOnScreen()) {
-            RTSSoundManager.get().play(
-                RTSSoundManager.BAZOOKA_ATTACK,
-                Main.generateRandomDoubleLocally(.67f, .71f),
-                Main.generateRandomIntLocally(0, 10));
-        } else {
-            RTSSoundManager.get().play(
-                RTSSoundManager.BAZOOKA_ATTACK,
-                Main.generateRandomDoubleLocally(.65f, .67f),
-                Main.generateRandomIntLocally(0, 10));
-        }
+        RTSSoundManager.get().play(
+            RTSSoundManager.BAZOOKA_ATTACK,
+            getLocation(),
+            Main.generateRandomDoubleLocally(7.6, 11.3),
+            Main.generateRandomIntLocally(0, 10));
         turret.setGraphic(attackAnimMap.get(team).copyMaintainSource());
 
         // Schedule bullet spawn after 25 ticks
@@ -235,7 +229,7 @@ public class Bazookaman extends RTSUnit {
         destructionScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
         this.setZLayer((int)(Math.random() * -50));
         if((getHostGame().getGameTickNumber() % 4) == 0) {
-            RTSSoundManager.get().play(RTSSoundManager.INFANTRY_DEATH, .6, 0);
+            RTSSoundManager.get().play(RTSSoundManager.INFANTRY_DEATH, getLocation(), 3.8);
         }
     }
 

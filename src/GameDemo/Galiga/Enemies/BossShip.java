@@ -75,7 +75,7 @@ public class BossShip extends EnemyShip {
         rightBolt.launch(new DCoordinate(target.x + 50, target.y));
         getHostGame().addObject(rightBolt);
         
-        GaligaGame.pewSound.playCopy(.7f);
+        GaligaGame.pewSound.playCopy(10.3);
     }
     
     @Override
@@ -110,7 +110,7 @@ public class BossShip extends EnemyShip {
     @Override
     public void onDestroy() {
         new OnceThroughSticker(GaligaGame.mainGame, new Sequence(DemoSpriteManager.explosionSequence), getPixelLocation());
-        GaligaGame.deathSound.playCopy(.7f);
+        GaligaGame.deathSound.playCopy(10.3);
         // Boss gives more points than normal enemies
         GaligaGame.UI.increaseScore(2500);
     }

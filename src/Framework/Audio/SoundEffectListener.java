@@ -18,6 +18,6 @@ public interface SoundEffectListener {
     public void onSetLooping(boolean isLooping);
     public void onDisable();
     public void onRestart();
-    public void onSetVolume(float percentage);
+    public void onSetVolume(double percentage);
     public void onAlterPitch(double percentChange);
 }
