@@ -188,7 +188,7 @@ public class Rifleman extends RTSUnit {
             RTSSoundManager.get().play(
                     RTSSoundManager.RIFLEMAN_ATTACK,
                     getLocation(),
-                    Main.generateRandomDoubleLocally(1.4, 2.3),
+                    Main.generateRandomDoubleLocally(1.75, 2.9),
                     Main.generateRandomIntLocally(0, 20));
         turret.setGraphic(turret.getFireAnimation());
         // riflemen attack by shooting 2dmg 3 times.

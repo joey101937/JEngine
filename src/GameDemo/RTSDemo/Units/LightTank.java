@@ -248,7 +248,7 @@ public class LightTank extends RTSUnit {
         RTSSoundManager.get().play(
                 RTSSoundManager.LIGHT_TANK_ATTACK,
                 getLocation(),
-                Main.generateRandomDoubleLocally(7.7, 14.0),
+                Main.generateRandomDoubleLocally(8.9, 16.2),
                 Main.generateRandomIntLocally(0, 20));
     }
 

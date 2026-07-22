@@ -246,7 +246,7 @@ public class Hellicopter extends RTSUnit {
                 RTSSoundManager.get().play(
                     RTSSoundManager.HELICOPTER_ATTACK,
                     getLocation(),
-                    Main.generateRandomDoubleLocally(6.3, 16.8),
+                    Main.generateRandomDoubleLocally(4.7, 12.6),
                     Main.generateRandomIntLocally(0, 200));
             }
             pendingBulletSpawnAtTick = 0;

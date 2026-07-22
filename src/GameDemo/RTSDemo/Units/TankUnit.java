@@ -444,7 +444,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         hullMGFlashTicks[1] = fireTick + RTSGame.tickAdjust(14);
         hullMGFlashTicks[2] = fireTick + RTSGame.tickAdjust(24);
         RTSSoundManager.get().play(RTSSoundManager.RIFLEMAN_ATTACK, getLocation(),
-                Main.generateRandomDoubleLocally(2.3, 5.1), Main.generateRandomIntLocally(0, 20));
+                Main.generateRandomDoubleLocally(2.9, 6.4), Main.generateRandomIntLocally(0, 20));
         boolean hit0 = performHullMGAttack(target, 0);
         boolean hit1 = performHullMGAttack(target, 1);
         boolean hit2 = performHullMGAttack(target, 2);
@@ -567,7 +567,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
                 RTSSoundManager.get().play(
                     RTSSoundManager.TANK_ATTACK,
                     getLocation(),
-                    Main.generateRandomDoubleLocally(7.0, 11.4),
+                    Main.generateRandomDoubleLocally(8.1, 13.2),
                     Main.generateRandomIntLocally(0, 40));
             } catch (Exception e) {
                 e.printStackTrace();
