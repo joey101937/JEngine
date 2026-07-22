@@ -189,12 +189,12 @@ public class Bazookaman extends RTSUnit {
         if (isOnScreen()) {
             RTSSoundManager.get().play(
                 RTSSoundManager.BAZOOKA_ATTACK,
-                Main.generateRandomDoubleLocally(.71f, .75f),
+                Main.generateRandomDoubleLocally(.67f, .71f),
                 Main.generateRandomIntLocally(0, 10));
         } else {
             RTSSoundManager.get().play(
                 RTSSoundManager.BAZOOKA_ATTACK,
-                Main.generateRandomDoubleLocally(.67f, .71f),
+                Main.generateRandomDoubleLocally(.65f, .67f),
                 Main.generateRandomIntLocally(0, 10));
         }
         turret.setGraphic(attackAnimMap.get(team).copyMaintainSource());

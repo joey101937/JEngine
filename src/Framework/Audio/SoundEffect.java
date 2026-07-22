@@ -9,6 +9,7 @@ import Framework.Game;
 import Framework.Main;
 import java.io.File;
 import java.io.IOException;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -27,11 +28,11 @@ public class SoundEffect implements Runnable{
     public final int ID; //unique identifier
     private SoundEffectListener listener;   //listens to events of this sound
     private volatile File source;           //source file
-    private volatile AudioInputStream stream;//stream connected to source
+    private volatile byte[] audioData;      //decoded PCM audio of the source
+    private volatile AudioFormat baseFormat;//format of audioData at its original pitch
     private volatile Clip clip;              //clip used to control most things
     private volatile FloatControl gainControl;//used to control volueme
-    private volatile FloatControl rateControl;//used to control pitch via sample rate
-    private volatile float baseSampleRate = -1f;//base sample rate captured at init
+    private volatile double pitchOffset = 0.0;//current pitch shift, as a percentage of original
     private volatile boolean disabled = false;//disabling makes this sound terminate
     private volatile boolean hasStarted = false;
     private volatile boolean paused = false;    //paused directly
@@ -53,13 +54,24 @@ public class SoundEffect implements Runnable{
     }
     
     /**
-     * creates a new sound effect with the given file.
+     * creates a new sound effect sharing the decoded audio of an existing one.
      * @param f File to create sound with
+     * @param parent sound effect to copy audio data and pitch from
      */
     private SoundEffect(File f, SoundEffect parent) {
         this.parent = parent;
         ID = ++IDGenerator;
-        initialize(f);
+        source = f;
+        //decoded audio is never modified, so copies can share the parent's array
+        audioData = parent.audioData;
+        baseFormat = parent.baseFormat;
+        pitchOffset = parent.pitchOffset;
+        try {
+            clip = AudioSystem.getClip();
+            openClip();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -74,22 +86,57 @@ public class SoundEffect implements Runnable{
         }
         try {
             source = f;
-            stream = AudioSystem.getAudioInputStream(f);
-            clip = AudioSystem.getClip();
-            clip.open(stream);
-            gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            try {
-                rateControl = (FloatControl) clip.getControl(FloatControl.Type.SAMPLE_RATE);
-                baseSampleRate = rateControl.getValue();
-            } catch (IllegalArgumentException e) {
-                // SAMPLE_RATE not supported by this audio line — pitch control unavailable
+            AudioInputStream stream = AudioSystem.getAudioInputStream(f);
+            AudioFormat sourceFormat = stream.getFormat();
+            if (sourceFormat.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
+                //decode to raw PCM so playback rate can be redeclared for pitch shifting
+                AudioFormat pcm = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                        sourceFormat.getSampleRate(), 16, sourceFormat.getChannels(),
+                        sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
+                stream = AudioSystem.getAudioInputStream(pcm, stream);
             }
+            baseFormat = stream.getFormat();
+            audioData = stream.readAllBytes();
+            stream.close();
+            clip = AudioSystem.getClip();
+            openClip();
         } catch (UnsupportedAudioFileException e) {
             e.printStackTrace();
             throw new RuntimeException("ERROR File " + f.getName() + " is not supported. Remeber to use only supported filetypes \n .au .wav .aiff are good choices");
         } catch (IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * opens the clip on the decoded audio, declaring the sample rate that
+     * corresponds to the current pitch offset. Any existing volume is carried over.
+     */
+    private void openClip() throws LineUnavailableException {
+        float volume = gainControl != null ? getVolume() : -1f;
+        if (clip.isOpen()) {
+            clip.close();
+        }
+        clip.open(pitchedFormat(), audioData, 0, audioData.length);
+        gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+        if (volume >= 0) {
+            setVolume(volume);
+        }
+    }
+
+    /**
+     * base format with its rates scaled by the current pitch offset. Playing samples
+     * out faster raises pitch, slower lowers it; the mixer resamples to the device rate.
+     */
+    private AudioFormat pitchedFormat() {
+        float scale = (float) (1.0 + pitchOffset);
+        return new AudioFormat(baseFormat.getEncoding(),
+                baseFormat.getSampleRate() * scale,
+                baseFormat.getSampleSizeInBits(),
+                baseFormat.getChannels(),
+                baseFormat.getFrameSize(),
+                baseFormat.getFrameRate() * scale,
+                baseFormat.isBigEndian());
     }
 
     /**
@@ -229,17 +276,32 @@ public class SoundEffect implements Runnable{
     /**
      * Adjusts the pitch of this sound by a percentage relative to its original pitch.
      * Uses sample rate manipulation — higher rate raises pitch, lower rate lowers it.
+     * Note this also changes playback speed, and is clamped to within one octave.
      * @param percentChange amount to shift pitch: 0.1 = +10%, -0.1 = -10%, 0.0 = original
      */
     public void alterPitch(double percentChange) {
-        if (rateControl == null || baseSampleRate < 0) {
-            System.out.println("Pitch control not supported for: " + source.getName());
+        double newOffset = Math.max(-0.5, Math.min(1.0, percentChange));
+        if (newOffset == pitchOffset) {
             return;
         }
-        float newRate = baseSampleRate * (float)(1.0 + percentChange);
-        newRate = Math.max(rateControl.getMinimum(), Math.min(rateControl.getMaximum(), newRate));
-        rateControl.setValue(newRate);
-        if (listener != null) listener.onAlterPitch(percentChange);
+        boolean wasRunning = clip.isRunning();
+        //the same audio frame sits at a different timestamp once the rate changes
+        long adjustedPosition = (long) (clip.getMicrosecondPosition() * (1.0 + pitchOffset) / (1.0 + newOffset));
+        pitchOffset = newOffset;
+        try {
+            openClip();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+            return;
+        }
+        if (wasRunning) {
+            clip.setMicrosecondPosition(adjustedPosition);
+            if (isLooping()) {
+                clip.loop(Clip.LOOP_CONTINUOUSLY);
+            }
+            clip.start();
+        }
+        if (listener != null) listener.onAlterPitch(newOffset);
     }
 
     /**
@@ -247,8 +309,7 @@ public class SoundEffect implements Runnable{
      * 0.0 = original, 0.1 = +10%, -0.1 = -10%
      */
     public double getPitch() {
-        if (rateControl == null || baseSampleRate < 0) return 0.0;
-        return (rateControl.getValue() / baseSampleRate) - 1.0;
+        return pitchOffset;
     }
 
     /**
@@ -358,10 +419,7 @@ public class SoundEffect implements Runnable{
 
     private synchronized void resetAudioStream() {
         try {
-            System.out.println("resetting audio stream");
-            clip.close(); 
-            stream = AudioSystem.getAudioInputStream(source);
-            clip.open(stream);
+            openClip();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -438,9 +496,7 @@ public class SoundEffect implements Runnable{
      * @return A fresh SoundEffect of the same source
      */
     public SoundEffect createCopy(){
-        SoundEffect copy = new SoundEffect(source, this);
-        copy.alterPitch(this.getPitch());
-        return copy;
+        return new SoundEffect(source, this);
     }
     
     public void playCopy() {
@@ -516,7 +572,7 @@ public class SoundEffect implements Runnable{
     public SoundEffect createAlteredCopy(double intensity) {
         SoundEffect copy = createCopy();
         int pitchRange = (int) Math.round(8 * intensity);
-        int volRange   = (int) Math.round(5 * intensity);
+        int volRange   = (int) Math.round(intensity);
         if (pitchRange > 0) {
             double variation = Main.generateRandomInt(-pitchRange, pitchRange) / 100.0;
             copy.alterPitch(copy.getPitch() + variation);

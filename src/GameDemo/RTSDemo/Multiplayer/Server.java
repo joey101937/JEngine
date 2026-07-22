@@ -24,7 +24,6 @@ import GameDemo.RTSDemo.Units.Truck;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
 /**
  *
