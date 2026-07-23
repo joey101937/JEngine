@@ -5,10 +5,15 @@
  */
 package GameDemo.RTSDemo;
 
+import Framework.Game;
 import Framework.GameObject2;
 import Framework.UI_Elements.Examples.SimpleRenderHelper;
+import GameDemo.RTSDemo.FogOfWar.FogOfWarEffect;
+import GameDemo.RTSDemo.Multiplayer.ExternalCommunicator;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -19,6 +24,11 @@ public class MinimapRenderHelperRTS extends SimpleRenderHelper {
     @Override
     public void simpleRender(GameObject2 go, Graphics2D g) {
         if(go instanceof RTSUnit unit && !unit.isRubble) {
+            // Hide enemy units sitting in fogged tiles; our own units always show.
+            if (FogOfWarEffect.enabled && unit.team != ExternalCommunicator.localTeam
+                    && !unit.isVisible(ExternalCommunicator.localTeam)) {
+                return;
+            }
             Color originalColor = g.getColor();
             int longerSide = Math.max(go.getWidth(), go.getHeight());
             int borderDiameter = longerSide + 64;
@@ -49,5 +59,22 @@ public class MinimapRenderHelperRTS extends SimpleRenderHelper {
             }
         }
     }
-    
+
+    @Override
+    public void postRender(Game game, Graphics2D g) {
+        if (!FogOfWarEffect.enabled) return;
+        BufferedImage fog = FogOfWarEffect.getLatestFogImage();
+        if (fog == null) return;
+        // Same fog the main view uses, scaled up (bilinear) to world size; the
+        // graphics is already scaled to world coordinates here.
+        Object prevInterp = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(fog, 0, 0, game.getWorldWidth(), game.getWorldHeight(), null);
+        if (prevInterp != null) {
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, prevInterp);
+        } else {
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        }
+    }
+
 }

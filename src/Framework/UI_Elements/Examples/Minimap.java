@@ -272,6 +272,10 @@ public final class Minimap extends UIElement {
                     }
                 }
             }
+            // Overlay drawn on top of all objects, still in world coordinates.
+            if (useSimpleRender && simpleRenderHelper != null) {
+                simpleRenderHelper.postRender(hostGame, g2d);
+            }
             // Camera viewport indicator: dark underlay + bright accent outline.
             java.awt.Rectangle fov = hostGame.getCamera().getFieldOfView();
             g2d.setColor(new Color(0, 0, 0, 130));

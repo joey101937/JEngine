@@ -41,7 +41,11 @@ public class FogOfWarGrid {
 
     private final int gridW;
     private final int gridH;
-    private final boolean[][][] visible; // [teamIndex][ty][tx]
+    // Double-buffered: update() builds a fresh array and swaps it in atomically,
+    // so render-thread readers never observe a half-cleared grid (which caused
+    // enemy units to flicker on the minimap). volatile guarantees the swap and
+    // its contents are visible to other threads.
+    private volatile boolean[][][] visible; // [teamIndex][ty][tx]
 
     public FogOfWarGrid(int worldWidth, int worldHeight) {
         this.gridW = (worldWidth + TILE_SIZE - 1) / TILE_SIZE;
@@ -60,7 +64,7 @@ public class FogOfWarGrid {
         int tx = worldX / TILE_SIZE;
         int ty = worldY / TILE_SIZE;
         if (!isValidTeam(team) || tx < 0 || ty < 0 || tx >= gridW || ty >= gridH) return false;
-        return visible[teamIndex(team)][ty][tx];
+        return visible[teamIndex(team)][ty][tx]; // single volatile read of the current buffer
     }
 
     /**
@@ -82,18 +86,17 @@ public class FogOfWarGrid {
             }
         }
 
-        for (int t = 0; t < TEAM_COUNT; t++) {
-            for (int ty = 0; ty < gridH; ty++) {
-                Arrays.fill(visible[t][ty], false);
-            }
-        }
+        // Build into a fresh buffer (all false) rather than clearing the live one,
+        // so concurrent render-thread reads keep seeing the previous full frame
+        // until the swap below.
+        boolean[][][] next = new boolean[TEAM_COUNT][gridH][gridW];
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int t = 0; t < TEAM_COUNT; t++) {
             final int teamIdx = t;
             for (VisionProvider provider : providersByTeam[t]) {
                 futures.add(CompletableFuture.runAsync(
-                    () -> markProviderVisible(teamIdx, provider, blockers), POOL));
+                    () -> markProviderVisible(next, teamIdx, provider, blockers), POOL));
             }
         }
         futures.forEach(CompletableFuture::join);
@@ -110,19 +113,22 @@ public class FogOfWarGrid {
                 outer:
                 for (int ty = tyMin; ty <= tyMax; ty++) {
                     for (int tx = txMin; tx <= txMax; tx++) {
-                        if (visible[t][ty][tx]) { anyVisible = true; break outer; }
+                        if (next[t][ty][tx]) { anyVisible = true; break outer; }
                     }
                 }
                 if (anyVisible) {
                     for (int ty = tyMin; ty <= tyMax; ty++) {
-                        Arrays.fill(visible[t][ty], txMin, txMax + 1, true);
+                        Arrays.fill(next[t][ty], txMin, txMax + 1, true);
                     }
                 }
             }
         }
+
+        // Atomic publish: readers now see the fully-built frame.
+        this.visible = next;
     }
 
-    private void markProviderVisible(int teamIdx, VisionProvider provider, List<SightBlocker> blockers) {
+    private void markProviderVisible(boolean[][][] visible, int teamIdx, VisionProvider provider, List<SightBlocker> blockers) {
         int ux = provider.getVisionLocation().x;
         int uy = provider.getVisionLocation().y;
         int baseR = provider.getVisionRange();

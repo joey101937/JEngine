@@ -20,6 +20,15 @@ public class FogOfWarEffect extends IndependentEffect {
 
     private volatile transient BufferedImage fogImage;
 
+    // Latest fog image for the local team, shared so other HUD elements (the
+    // minimap) can render the same fog the main view uses. Low-resolution
+    // (one pixel per fog tile); scale up with bilinear interpolation.
+    private static volatile BufferedImage latestFogImage;
+
+    public static BufferedImage getLatestFogImage() {
+        return latestFogImage;
+    }
+
     public FogOfWarEffect(Game g) {
         this.game = g;
     }
@@ -40,6 +49,7 @@ public class FogOfWarEffect extends IndependentEffect {
         if (RTSGame.fogOfWarGrid != null) {
             RTSGame.fogOfWarGrid.update(game);
             fogImage = buildFogImage(RTSGame.fogOfWarGrid, ExternalCommunicator.localTeam);
+            latestFogImage = fogImage;
         }
     }
 
