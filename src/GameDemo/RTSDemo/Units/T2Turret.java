@@ -69,6 +69,7 @@ public class T2Turret extends RTSUnit {
 
     // Team-colored part sprites (each pre-scaled to VISUAL_SCALE for manual compositing)
     private static final Map<Integer, Sprite> baseSpriteMap          = new HashMap<>();
+    private static final Map<Integer, Sprite> baseDamagedSpriteMap   = new HashMap<>();
     private static final Map<Integer, Sprite> mountSpriteMap         = new HashMap<>();
     private static final Map<Integer, Sprite> mountDamagedSpriteMap  = new HashMap<>();
     private static final Map<Integer, Sprite> gunSpriteMap           = new HashMap<>();
@@ -108,6 +109,10 @@ public class T2Turret extends RTSUnit {
             Sprite emplacement = new Sprite(RTSAssetManager.getT2TurretBase(team));
             emplacement.applyAlphaEdgeBlurSelf(1);
             baseSpriteMap.put(team, emplacement);
+
+            Sprite emplacementDamaged = new Sprite(RTSAssetManager.getT2TurretBaseDamaged(team));
+            emplacementDamaged.applyAlphaEdgeBlurSelf(1);
+            baseDamagedSpriteMap.put(team, emplacementDamaged);
 
             mountSpriteMap.put(team,         partSprite(RTSAssetManager.getT2Mount(team)));
             mountDamagedSpriteMap.put(team,  partSprite(RTSAssetManager.getT2MountDamaged(team)));
@@ -165,7 +170,8 @@ public class T2Turret extends RTSUnit {
     }
 
     public Sprite getBaseSprite() {
-        return isRubble ? rubbleBaseSprite : baseSpriteMap.get(team);
+        if (isRubble) return rubbleBaseSprite;
+        return isDamaged() ? baseDamagedSpriteMap.get(team) : baseSpriteMap.get(team);
     }
 
     public boolean isDamaged() {
@@ -274,6 +280,11 @@ public class T2Turret extends RTSUnit {
         // Check weapon cooldown expiration
         if (weaponCooldownExpiresAtTick > 0 && getHostGame().getGameTickNumber() >= weaponCooldownExpiresAtTick) {
             weaponCooldownExpiresAtTick = 0;
+        }
+
+        // Swap the base to its damaged sprite below 1/3 HP (the turret parts swap in their own render).
+        if (!isRubble) {
+            this.setGraphic(getBaseSprite());
         }
     }
 

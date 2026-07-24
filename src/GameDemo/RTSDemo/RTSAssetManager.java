@@ -65,7 +65,7 @@ public abstract class RTSAssetManager {
             lightTankHullDamaged, lightTankTurretDamaged,
             lightTankHullDestroyed, lightTankTurretDestroyed, lightTankDeathShadow;
     public static BufferedImage[] lightTankFire, lightTankFireDamaged;
-    public static BufferedImage t2TurretBase, t2TurretBaseDestroyed, t2TurretGunDestroyed;
+    public static BufferedImage t2TurretBase, t2TurretBaseDamaged, t2TurretBaseDestroyed, t2TurretGunDestroyed;
     // The turret is composited from three stacked parts (render order: mount, gun, shield); the gun
     // slides back on fire via code. Damaged variants currently reuse the base art until *_damaged.png exist.
     public static BufferedImage t2Mount, t2MountDamaged, t2Gun, t2GunDamaged, t2Shield, t2ShieldDamaged;
@@ -158,7 +158,8 @@ public abstract class RTSAssetManager {
     private static final Map<Integer, BufferedImage[]> lightTankFireMap         = new HashMap<>();
     private static final Map<Integer, BufferedImage[]> lightTankFireDamagedMap  = new HashMap<>();
 
-    private static final Map<Integer, BufferedImage>   t2TurretBaseMap    = new HashMap<>();
+    private static final Map<Integer, BufferedImage>   t2TurretBaseMap        = new HashMap<>();
+    private static final Map<Integer, BufferedImage>   t2TurretBaseDamagedMap = new HashMap<>();
     private static final Map<Integer, BufferedImage>   t2MountMap         = new HashMap<>();
     private static final Map<Integer, BufferedImage>   t2MountDamagedMap  = new HashMap<>();
     private static final Map<Integer, BufferedImage>   t2GunMap           = new HashMap<>();
@@ -274,7 +275,8 @@ public abstract class RTSAssetManager {
             lightTankFireMap.put(team,          applyTeamTransform(lightTankFire, team));
             lightTankFireDamagedMap.put(team,   applyTeamTransform(lightTankFireDamaged, team));
 
-            t2TurretBaseMap.put(team,    applyTeamTransform(t2TurretBase, team));
+            t2TurretBaseMap.put(team,        applyTeamTransform(t2TurretBase, team));
+            t2TurretBaseDamagedMap.put(team, applyTeamTransform(t2TurretBaseDamaged, team));
             t2MountMap.put(team,         applyTeamTransform(t2Mount, team));
             t2MountDamagedMap.put(team,  applyTeamTransform(t2MountDamaged, team));
             t2GunMap.put(team,           applyTeamTransform(t2Gun, team));
@@ -331,7 +333,8 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] getLightTankFire(int team)          { return lightTankFireMap.get(team); }
     public static BufferedImage[] getLightTankFireDamaged(int team)   { return lightTankFireDamagedMap.get(team); }
 
-    public static BufferedImage getT2TurretBase(int team)    { return t2TurretBaseMap.get(team); }
+    public static BufferedImage getT2TurretBase(int team)        { return t2TurretBaseMap.get(team); }
+    public static BufferedImage getT2TurretBaseDamaged(int team) { return t2TurretBaseDamagedMap.get(team); }
     public static BufferedImage getT2Mount(int team)         { return t2MountMap.get(team); }
     public static BufferedImage getT2MountDamaged(int team)  { return t2MountDamagedMap.get(team); }
     public static BufferedImage getT2Gun(int team)           { return t2GunMap.get(team); }
@@ -510,16 +513,15 @@ public abstract class RTSAssetManager {
     private static CompletableFuture<Void> loadT2TurretAssets() {
         return CompletableFuture.runAsync(() -> {
             t2TurretBase = load("DemoAssets/TankGame/t2Turret/t2Base.png");
+            t2TurretBaseDamaged = load("DemoAssets/TankGame/t2Turret/t2Base_damaged.png");
             t2TurretBaseDestroyed = load("DemoAssets/TankGame/t2Turret/t2BaseDestroyed.png");
             t2TurretGunDestroyed = load("DemoAssets/TankGame/t2Turret/t2TurretDestroyed.png");
             t2Mount  = load("DemoAssets/TankGame/t2Turret/turretBase.png");
             t2Gun    = load("DemoAssets/TankGame/t2Turret/gun.png");
             t2Shield = load("DemoAssets/TankGame/t2Turret/shield.png");
-            // Damaged part art isn't authored yet; reuse the base art so the maps exist. Repoint each to
-            // its own *_damaged.png when available and it works with the recoil animation automatically.
-            t2MountDamaged  = t2Mount;
-            t2GunDamaged    = t2Gun;
-            t2ShieldDamaged = t2Shield;
+            t2MountDamaged  = load("DemoAssets/TankGame/t2Turret/turretBase_damaged.png");
+            t2GunDamaged    = load("DemoAssets/TankGame/t2Turret/gun_damaged.png");
+            t2ShieldDamaged = load("DemoAssets/TankGame/t2Turret/shield_damaged.png");
         }, executor);
     }
 
