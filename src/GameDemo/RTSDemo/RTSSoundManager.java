@@ -16,6 +16,7 @@ public class RTSSoundManager {
     public static String RIFLEMAN_ATTACK = "riflemanAttack";
     public static String BAZOOKA_ATTACK = "bazookaAttack";
     public static String TANK_ATTACK = "tankAttack";
+    public static String T2_TURRET_ATTACK = "t2TurretAttack";
     public static String HELICOPTER_ATTACK = "helicopterAttack";
     public static String LIGHT_TANK_ATTACK = "lightTankAttack";
     public static String LANDMINE_EXPLOSION = "landmineExplosion";
@@ -34,6 +35,9 @@ public class RTSSoundManager {
                 new SoundEffect(new File(Main.assets + "Sounds/bazooka.au")),
                 3, RTSGame.desiredTPS, PITCH_VARIATION);
         csm.registerSoundEffect(TANK_ATTACK,
+                new SoundEffect(new File(Main.assets + "Sounds/blast4.6.wav")),
+                4, RTSGame.desiredTPS, PITCH_VARIATION);
+        csm.registerSoundEffect(T2_TURRET_ATTACK,
                 new SoundEffect(new File(Main.assets + "Sounds/blast4.6.wav")),
                 4, RTSGame.desiredTPS, PITCH_VARIATION);
         csm.registerSoundEffect(HELICOPTER_ATTACK,

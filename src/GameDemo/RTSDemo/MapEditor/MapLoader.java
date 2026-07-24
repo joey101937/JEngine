@@ -39,6 +39,7 @@ import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
+import GameDemo.RTSDemo.Units.T2Turret;
 import GameDemo.RTSDemo.Units.TankUnit;
 import GameDemo.RTSDemo.Units.TransportHelicopter;
 import GameDemo.RTSDemo.Units.Truck;
@@ -125,6 +126,11 @@ public class MapLoader {
             }
             case "Landmine": {
                 Landmine u = new Landmine(p.x, p.y, p.team);
+                applyHp(u, p.hpPercent);
+                return u;
+            }
+            case "T2Turret": {
+                T2Turret u = new T2Turret(p.x, p.y, p.team);
                 applyHp(u, p.hpPercent);
                 return u;
             }

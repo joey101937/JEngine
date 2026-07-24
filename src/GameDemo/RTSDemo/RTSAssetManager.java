@@ -8,6 +8,7 @@ import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
+import GameDemo.RTSDemo.Units.T2Turret;
 import GameDemo.RTSDemo.Units.TankUnit;
 import GameDemo.RTSDemo.Units.TransportHelicopter;
 import GameDemo.RTSDemo.Units.Truck;
@@ -64,6 +65,9 @@ public abstract class RTSAssetManager {
             lightTankHullDamaged, lightTankTurretDamaged,
             lightTankHullDestroyed, lightTankTurretDestroyed, lightTankDeathShadow;
     public static BufferedImage[] lightTankFire, lightTankFireDamaged;
+    public static BufferedImage t2TurretBase, t2TurretBaseDestroyed,
+            t2TurretGun, t2TurretGunDamaged, t2TurretGunDestroyed;
+    public static BufferedImage[] t2TurretFire, t2TurretFireDamaged;
 
     public static BufferedImage[] infantryLegsRun;
     public static BufferedImage[] infantryRifleIdle;
@@ -75,7 +79,7 @@ public abstract class RTSAssetManager {
     public static BufferedImage infantryRifleDead;
     public static BufferedImage infantryBazookaDead;
     public static BufferedImage infantryLegs, infantryShadow;
-    public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage, apacheSelectionImage;
+    public static BufferedImage tankSelectionImage, lightTankSelectionImage, riflemanSelectionImage, bazookamanSelectionImage, hellicopterSelectionImage, apacheSelectionImage, t2TurretSelectionImage;
 
     public static BufferedImage building;
 
@@ -152,6 +156,12 @@ public abstract class RTSAssetManager {
     private static final Map<Integer, BufferedImage>   lightTankTurretDamagedMap = new HashMap<>();
     private static final Map<Integer, BufferedImage[]> lightTankFireMap         = new HashMap<>();
     private static final Map<Integer, BufferedImage[]> lightTankFireDamagedMap  = new HashMap<>();
+
+    private static final Map<Integer, BufferedImage>   t2TurretBaseMap          = new HashMap<>();
+    private static final Map<Integer, BufferedImage>   t2TurretGunMap           = new HashMap<>();
+    private static final Map<Integer, BufferedImage>   t2TurretGunDamagedMap    = new HashMap<>();
+    private static final Map<Integer, BufferedImage[]> t2TurretFireMap          = new HashMap<>();
+    private static final Map<Integer, BufferedImage[]> t2TurretFireDamagedMap   = new HashMap<>();
 
     private static final Map<Integer, BufferedImage>   hellicopterBodyMap       = new HashMap<>();
     private static final Map<Integer, BufferedImage>   hellicopterDestroyedMap  = new HashMap<>();
@@ -261,6 +271,12 @@ public abstract class RTSAssetManager {
             lightTankFireMap.put(team,          applyTeamTransform(lightTankFire, team));
             lightTankFireDamagedMap.put(team,   applyTeamTransform(lightTankFireDamaged, team));
 
+            t2TurretBaseMap.put(team,         applyTeamTransform(t2TurretBase, team));
+            t2TurretGunMap.put(team,          applyTeamTransform(t2TurretGun, team));
+            t2TurretGunDamagedMap.put(team,   applyTeamTransform(t2TurretGunDamaged, team));
+            t2TurretFireMap.put(team,         applyTeamTransform(t2TurretFire, team));
+            t2TurretFireDamagedMap.put(team,  applyTeamTransform(t2TurretFireDamaged, team));
+
             hellicopterBodyMap.put(team,      applyTeamTransform(hellicopter, team));
             hellicopterDestroyedMap.put(team, applyTeamTransform(hellicopterDestroyed, team));
             hellicopterBladesMap.put(team,    applyTeamTransform(hellicopterBlades, team));
@@ -310,6 +326,12 @@ public abstract class RTSAssetManager {
     public static BufferedImage[] getLightTankFire(int team)          { return lightTankFireMap.get(team); }
     public static BufferedImage[] getLightTankFireDamaged(int team)   { return lightTankFireDamagedMap.get(team); }
 
+    public static BufferedImage   getT2TurretBase(int team)          { return t2TurretBaseMap.get(team); }
+    public static BufferedImage   getT2TurretGun(int team)           { return t2TurretGunMap.get(team); }
+    public static BufferedImage   getT2TurretGunDamaged(int team)    { return t2TurretGunDamagedMap.get(team); }
+    public static BufferedImage[] getT2TurretFire(int team)          { return t2TurretFireMap.get(team); }
+    public static BufferedImage[] getT2TurretFireDamaged(int team)   { return t2TurretFireDamagedMap.get(team); }
+
     public static BufferedImage   getHellicopterBody(int team)      { return hellicopterBodyMap.get(team); }
     public static BufferedImage   getHellicopterDestroyed(int team) { return hellicopterDestroyedMap.get(team); }
     public static BufferedImage   getHellicopterBlades(int team)    { return hellicopterBladesMap.get(team); }
@@ -354,6 +376,7 @@ public abstract class RTSAssetManager {
                 loadHelicopterAssets(),
                 loadApacheAssets(),
                 loadLightTankAssets(),
+                loadT2TurretAssets(),
                 loadInfantryAssets(),
                 loadLandmineAssets(),
                 loadTruckAssets(),
@@ -477,6 +500,19 @@ public abstract class RTSAssetManager {
         }, executor);
     }
 
+    private static CompletableFuture<Void> loadT2TurretAssets() {
+        return CompletableFuture.runAsync(() -> {
+            t2TurretBase = load("DemoAssets/TankGame/t2Turret/t2Base.png");
+            t2TurretBaseDestroyed = load("DemoAssets/TankGame/t2Turret/t2BaseDestroyed.png");
+            t2TurretGun = load("DemoAssets/TankGame/t2Turret/t2Turret.png");
+            t2TurretGunDamaged = load("DemoAssets/TankGame/t2Turret/t2TurretDamaged.png");
+            t2TurretGunDestroyed = load("DemoAssets/TankGame/t2Turret/t2TurretDestroyed.png");
+            t2TurretFire = loadSequence("DemoAssets/TankGame/t2Turret/t2TurretFire");
+            // Damaged fire art shares the undamaged frames; own load so it can be repointed on its own later.
+            t2TurretFireDamaged = loadSequence("DemoAssets/TankGame/t2Turret/t2TurretFire");
+        }, executor);
+    }
+
     private static CompletableFuture<Void> loadInfantryAssets() {
         return CompletableFuture.runAsync(() -> {
             infantryLegs = load("DemoAssets/TankGame/Infantry/feet/idle/survivor-idle_0.png");
@@ -528,6 +564,7 @@ public abstract class RTSAssetManager {
         return CompletableFuture.runAsync(() -> {
             tankSelectionImage = load("DemoAssets/TankGame/tankSelectionImage.png");
             lightTankSelectionImage = load("DemoAssets/TankGame/newLightTank/selectionImage.png");
+            t2TurretSelectionImage = load("DemoAssets/TankGame/t2Turret/selectionImage.png");
             hellicopterSelectionImage = load("DemoAssets/TankGame/copter/hellicopterSelectionImage.png");
             apacheSelectionImage = load("DemoAssets/TankGame/apache/apacheSelectionImage.png");
             riflemanSelectionImage = load("DemoAssets/TankGame/infantry/rifleSelectionImage.png");
@@ -599,6 +636,7 @@ public abstract class RTSAssetManager {
         System.out.println("preloading units");
         new TankUnit(0, 0);
         new LightTank(0, 0, 0);
+        new T2Turret(0, 0, 0);
         new Rifleman(0, 0, 0);
         new Bazookaman(0, 0, 0);
         new Hellicopter(0, 0, 0);

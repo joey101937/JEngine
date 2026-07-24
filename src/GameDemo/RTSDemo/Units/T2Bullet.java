@@ -1,0 +1,153 @@
+package GameDemo.RTSDemo.Units;
+
+import Framework.Coordinate;
+import Framework.DCoordinate;
+import Framework.GameObject2;
+import Framework.Hitbox;
+import Framework.UtilityObjects.Projectile;
+import Framework.GraphicalAssets.Sequence;
+import Framework.GraphicalAssets.Sprite;
+import Framework.Stickers.OnceThroughSticker;
+import GameDemo.RTSDemo.Effects.BurnMarkEffect;
+import GameDemo.RTSDemo.Effects.SmokePoofEffect;
+import GameDemo.RTSDemo.Effects.HullBurnDecal;
+import GameDemo.RTSDemo.Effects.MudSplashEffect;
+import GameDemo.RTSDemo.Damage;
+import GameDemo.RTSDemo.RTSAssetManager;
+import GameDemo.RTSDemo.RTSGame;
+import GameDemo.RTSDemo.RTSUnit;
+import Framework.Main;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * Shell fired by the T2 Turret's 88mm gun.
+ *
+ * @author Joseph
+ */
+public class T2Bullet extends Projectile {
+    public static final double VISUAL_SCALE = .3;
+    public static Damage staticDamage = new Damage(65);
+    public Damage damage = staticDamage.copy();
+    public GameObject2 shooter; //the object that launched this projectile
+    public boolean alreadyExploded = false;
+
+    public static final Sequence bulletGraphic = new Sequence(new BufferedImage[]{RTSAssetManager.bullet}, "t2BulletGraphic");
+    public static final Sequence explosionSmall = new Sequence(RTSAssetManager.explosionSequenceSmall, "explosionSmallT2");
+    public static final Sprite shadow = Sprite.generateShadowSprite(RTSAssetManager.bullet, .34);
+    private DCoordinate startPosition;
+    public String preferredTargetId = null;
+    private final Set<String> ignoredUnitIds = new HashSet<>();
+
+    public T2Bullet(DCoordinate start, DCoordinate end, String preferredTargetId) {
+        super(start, end);
+        this.preferredTargetId = preferredTargetId;
+        bulletGraphic.scaleTo(VISUAL_SCALE); // scales parent to the same size as how the sequence will be used so we dont have to scale on the fly
+        shadow.scaleTo(VISUAL_SCALE);
+        setScale(VISUAL_SCALE);
+        this.setGraphic(bulletGraphic.copyMaintainSource());
+        baseSpeed = RTSGame.tickAdjust(26.0);
+        this.setHitbox(new Hitbox(this, 0)); //sets this to se a circular hitbox. updateHitbox() method manages radius for us so we set it to 0 by default
+        maxRange = 750;
+        startPosition = start;
+        damage.source = (RTSUnit)shooter;
+        damage.launchLocation = startPosition.toCoordinate();
+    }
+
+    @Override
+    public void onPostDeserialization() {
+        // Restore graphics after deserialization
+        this.setGraphic(bulletGraphic.copyMaintainSource());
+    }
+
+    @Override
+    public void onCollide(GameObject2 other, boolean fromMyTick) {
+        if (other == shooter || alreadyExploded) {
+            return; //dont collde with the gameobject that launched this projectile
+        }
+        RTSUnit otherUnit = RTSUnit.getUnitFromUnknown(other);
+        if (otherUnit != null) {
+            if (shooter instanceof RTSUnit) {
+                if (((RTSUnit) shooter).team == otherUnit.team) {
+                    return; // no friendly fire
+                }
+            }
+            if(otherUnit.isCloaked) {
+                // ignore cloaked units
+                return;
+            }
+            if (otherUnit.isRubble) {
+                if (startPosition.distanceFrom(otherUnit.getPixelLocation()) < RTSUnit.RUBBLE_PROXIMITY) {
+                    return;
+                }
+            }
+            if (ignoredUnitIds.contains(otherUnit.ID)) return;
+            boolean preferOtherUnit = preferredTargetId != null && !otherUnit.ID.equals(preferredTargetId);
+            int dodgeChance = otherUnit.getDodgeChance();
+            int ignoreChance = dodgeChance;
+            if (preferOtherUnit) ignoreChance += 50;
+            int roll = Main.generateDeterministicRandomInt(0, 99);
+            // check miss
+            if (roll < ignoreChance) {
+                ignoredUnitIds.add(otherUnit.ID);
+                if (roll < dodgeChance) {
+                    double capRange = startPosition.distanceFrom(otherUnit.getPixelLocation()) + 150;
+                    if (capRange < maxRange) maxRange = (int) capRange;
+                }
+                return;
+            }
+            damage.impactLoaction = getPixelLocation();
+            otherUnit.takeDamage(damage);
+            Coordinate impactLoc = otherUnit.getNearestBodyPoint(getPixelLocation());
+            if (otherUnit.isSoftTarget) {
+                getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), impactLoc, 15, RTSGame.desiredTPS * 5));
+                getHostGame().addIndependentEffect(new MudSplashEffect(getHostGame(), impactLoc, 18, getZLayer() + 1));
+            } else {
+                Coordinate vehicleCenter = otherUnit.getPixelLocation();
+                Coordinate vehicleBurnPos = new Coordinate(
+                    (int)(impactLoc.x * 0.8 + vehicleCenter.x * 0.2),
+                    (int)(impactLoc.y * 0.8 + vehicleCenter.y * 0.2)
+                );
+                otherUnit.addRenderHook(new HullBurnDecal(vehicleBurnPos, otherUnit, 15, RTSGame.desiredTPS * 5));
+            }
+            alreadyExploded = true;
+            OnceThroughSticker impactExplosion = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), impactLoc);
+            getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), impactLoc, 12, getZLayer() + 1));
+            destroy();
+        }
+    }
+
+    @Override
+    public void onTimeOut() {
+        OnceThroughSticker s = new OnceThroughSticker(getHostGame(), explosionSmall.copyMaintainSource(), this.getPixelLocation());
+        getHostGame().addIndependentEffect(new BurnMarkEffect(getHostGame(), getPixelLocation(), 15, RTSGame.desiredTPS * 5));
+        getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), getPixelLocation(), 12, getZLayer() + 1));
+        getHostGame().addIndependentEffect(new MudSplashEffect(getHostGame(), getPixelLocation(), 20, getZLayer() + 1));
+    }
+
+    /**
+     * bullets just destroy when they go out of bounds
+     */
+    @Override
+    public void onCollideWorldBorder(DCoordinate l) {
+        onTimeOut();
+        destroy();
+    }
+
+    @Override
+    public void render(Graphics2D g) {
+        AffineTransform old = g.getTransform();
+        VolatileImage toRender = shadow.getCurrentVolatileImage();
+        int renderX = getPixelLocation().x - toRender.getWidth() / 2;
+        int renderY = getPixelLocation().y - toRender.getHeight() / 2;
+        int shadowOffset = 30 - (int)((getHostGame().getGameTickNumber()/(maxRange/baseSpeed)) * 30);
+        g.rotate(Math.toRadians(getRotation()), getPixelLocation().x, getPixelLocation().y + shadowOffset);
+        g.drawImage(toRender, renderX, renderY + shadowOffset, null);
+        g.setTransform(old);
+        super.render(g);
+    }
+}

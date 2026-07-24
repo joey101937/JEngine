@@ -1,6 +1,5 @@
 package GameDemo.RTSDemo;
 
-import Framework.Coordinate;
 import Framework.Game;
 import Framework.IndependentEffect;
 import Framework.Main;
@@ -118,6 +117,11 @@ public class GameMenuEffect extends IndependentEffect {
     }
 
     public void close() {
+        // While paused the game loop stops rendering, so the on-screen menu is a
+        // frozen frame. Closing it here would clear isOpen while that frame lingers,
+        // leaving clicks to fall through to the game with no way to unpause. Keep the
+        // menu open until the game is unpaused via the Toggle Pause button.
+        if (game != null && game.isPaused()) return;
         isOpen = false;
         showingSettings = false;
         hoveredButtonIndex = -1;
@@ -158,24 +162,28 @@ public class GameMenuEffect extends IndependentEffect {
             updateHoverFromPointer();
         }
 
-        double scaleAmount = 1.0 / game.getZoom();
-        g.scale(scaleAmount, scaleAmount);
+        // Draw in fixed screen space, independent of camera pan and zoom. The incoming
+        // transform still has zoom + camera translate applied (Game applies them before
+        // effects render), which would make the menu drift while zooming. Resetting to
+        // just the resolution scale matches the windowWidth-based hit-test in
+        // getButtonScreenRect, so the rendered panel lines up with clicks at any zoom.
+        java.awt.geom.AffineTransform savedTransform = g.getTransform();
+        g.setTransform(new java.awt.geom.AffineTransform());
+        g.scale(Game.resolutionScaleX, Game.resolutionScaleY);
         RTSUIStyle.enableAA(g);
-        Coordinate cameraOffset = game.getCamera().getWorldRenderLocation().toCoordinate();
-        cameraOffset.scale(1.0 / scaleAmount);
 
-        int screenW = (int)(game.getWindowWidth() / game.getZoom());
-        int screenH = (int)(game.getWindowHeight() / game.getZoom());
+        int screenW = game.getWindowWidth();
+        int screenH = game.getWindowHeight();
 
         int numButtons = activeLabels().size();
         int panelHeight = TITLE_HEIGHT + PADDING + numRows() * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING + PADDING;
 
-        int panelX = cameraOffset.x + (screenW - PANEL_WIDTH) / 2;
-        int panelY = cameraOffset.y + (screenH - panelHeight) / 2;
+        int panelX = (screenW - PANEL_WIDTH) / 2;
+        int panelY = (screenH - panelHeight) / 2;
 
         // Full-screen dimming scrim.
         g.setColor(OVERLAY_COLOR);
-        g.fillRect(cameraOffset.x, cameraOffset.y, screenW, screenH);
+        g.fillRect(0, 0, screenW, screenH);
 
         // Aged-canvas panel with ink frame + rivets.
         RTSUIStyle.drawGlassPanel(g, panelX, panelY, PANEL_WIDTH, panelHeight, 14);
@@ -203,7 +211,7 @@ public class GameMenuEffect extends IndependentEffect {
                     hovered ? RTSUIStyle.ACCENT : RTSUIStyle.TEXT);
         }
 
-        g.scale(1 / scaleAmount, 1 / scaleAmount);
+        g.setTransform(savedTransform);
     }
 
     // Returns screen pixel rect [x, y, w, h] for button i.

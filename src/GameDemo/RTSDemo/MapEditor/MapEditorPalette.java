@@ -131,7 +131,8 @@ public class MapEditorPalette extends JPanel {
         addCategory(palette, "Units",
             EditorObjectType.TANK, EditorObjectType.LIGHT_TANK, EditorObjectType.TRUCK,
             EditorObjectType.HELICOPTER, EditorObjectType.APACHE, EditorObjectType.TRANSPORT_HELI,
-            EditorObjectType.RIFLEMAN, EditorObjectType.BAZOOKAMAN, EditorObjectType.LANDMINE);
+            EditorObjectType.RIFLEMAN, EditorObjectType.BAZOOKAMAN, EditorObjectType.LANDMINE,
+            EditorObjectType.T2_TURRET);
 
         addCategory(palette, "Key Buildings", EditorObjectType.KEY_BUILDING);
 

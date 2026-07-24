@@ -28,6 +28,7 @@ import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
+import GameDemo.RTSDemo.Units.T2Turret;
 import GameDemo.RTSDemo.Units.TankUnit;
 import GameDemo.RTSDemo.Units.TransportHelicopter;
 import GameDemo.RTSDemo.Units.Truck;
@@ -201,6 +202,7 @@ public class RTSGame {
         game.addObject(new Landmine(1700, 5600, 5));
         game.addObject(new Rifleman(1900, 5600, 5));
         game.addObject(new Bazookaman(2100, 5600, 5));
+        game.addObject(new T2Turret(2300, 5600, 5));
         // team -1 (silver)
         game.addObject(new TankUnit(500, 6300, -1));
         game.addObject(new LightTank(700, 6300, -1));

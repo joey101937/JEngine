@@ -32,6 +32,7 @@ import GameDemo.RTSDemo.Units.Hellicopter;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.Rifleman;
+import GameDemo.RTSDemo.Units.T2Turret;
 import GameDemo.RTSDemo.Units.TankUnit;
 import GameDemo.RTSDemo.Units.TransportHelicopter;
 import GameDemo.RTSDemo.Units.Truck;
@@ -59,6 +60,7 @@ public enum EditorObjectType {
     RIFLEMAN       ("Rifleman",            "Rifleman",         Category.UNIT,     Rifleman.VISUAL_SCALE,            1),
     BAZOOKAMAN     ("Bazookaman",          "Bazookaman",       Category.UNIT,     Bazookaman.VISUAL_SCALE,          1),
     LANDMINE       ("Landmine",            "Landmine",         Category.UNIT,     Landmine.VISUAL_SCALE,           -1),
+    T2_TURRET      ("T2Turret",            "T2 Turret",        Category.UNIT,     T2Turret.VISUAL_SCALE,            1),
 
     // Buildings
     KEY_BUILDING   ("KeyBuilding",         "Key Building",     Category.BUILDING, KeyBuilding.VISUAL_SCALE,         5),
@@ -128,6 +130,7 @@ public enum EditorObjectType {
             case RIFLEMAN:       { BufferedImage[] f = RTSAssetManager.getRifleIdle(team); return f != null ? f[0] : null; }
             case BAZOOKAMAN:     { BufferedImage[] f = RTSAssetManager.getBazookaIdle(team); return f != null ? f[0] : null; }
             case LANDMINE:       return RTSAssetManager.getLandmine(team);
+            case T2_TURRET:      return RTSAssetManager.getT2TurretBase(team);
             case KEY_BUILDING:   return RTSAssetManager.building;
             case HANGAR:         return RTSAssetManager.hangarBase;
             case BUILDING_GREEN1:     return RTSAssetManager.buildingGreen1;
