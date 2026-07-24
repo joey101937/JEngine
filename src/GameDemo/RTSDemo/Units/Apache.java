@@ -82,7 +82,7 @@ public class Apache extends RTSUnit {
 
         for (int team : RTSGame.activeTeams) {
             Sprite pods = new Sprite(RTSAssetManager.getApacheEmptyPods(team));
-            pods.applyAlphaEdgeBlurSelf(2);
+            pods.applyAlphaEdgeBlurSelf(1);
             emptyPodsSpriteMap.put(team, pods);
 
             Sprite blades = new Sprite(RTSAssetManager.getApacheBlades(team));
