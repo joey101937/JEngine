@@ -15,14 +15,20 @@ import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Stationary 88mm gun emplacement. The base is fixed in place; the gun on top
- * traverses to track targets and fires the same way a tank's main gun does.
+ * Stationary 88mm gun emplacement. The base is fixed in place; the turret on top traverses to
+ * track targets and fires the same way a tank's main gun does.
+ *
+ * The turret is composited in code from three stacked parts sharing one canvas (render order:
+ * mount, gun, shield). Only the gun slides back on fire — the mount and ballistic shield stay
+ * fixed — so the recoil is animated procedurally rather than baked into sprite frames. This lets
+ * damaged variants of any single part drop in and stay compatible with the recoil automatically.
  *
  * @author Joseph
  */
@@ -32,32 +38,43 @@ public class T2Turret extends RTSUnit {
     // Seconds the gun must hold a valid firing solution on a target before it can shoot.
     public static final double windupSeconds = 0.5;
     public static final double VISUAL_SCALE = .55;
-    /** Distance from the traverse pivot to the muzzle, as a fraction of the gun sprite's height. */
+    /** Distance from the traverse pivot to the muzzle, as a fraction of the turret sprite's height. */
     private static final double MUZZLE_OFFSET_FRACTION = .46;
 
-    public Gun gun;
+    // Recoil curve, measured from the old baked frames: the gun snaps back ~33px (at source
+    // resolution), holds briefly, then eases forward to battery. Timings are in seconds.
+    private static final double RECOIL_PEAK_SOURCE_PX = 33.0;
+    private static final double RECOIL_KICK_SECONDS = 0.06;   // fast snap to full recoil
+    private static final double RECOIL_HOLD_SECONDS = 0.14;   // held at peak
+    private static final double RECOIL_RETURN_SECONDS = 0.60; // linear return to rest
+
+    public Turret turret;
     public long weaponCooldownExpiresAtTick = 0;
     // Windup state: which target we are currently winding up on, and the tick the windup began.
     public String windupTargetId = null;
     public long windupStartTick = 0;
     private long fadeoutScheduledAtTick = 0;
     private long destructionScheduledAtTick = 0;
+    /** Game tick the current recoil began; -1 when the gun is at rest. */
+    public long recoilStartTick = -1;
 
     // Team-neutral sprites
     public static volatile Sprite baseShadow = null;
-    public static volatile Sprite gunShadow = null;
-    // Per-frame shadows of the firing animation so the shadow recoils in step with the barrel.
-    public static volatile Sequence gunFireShadow = null;
+    public static volatile Sprite turretShadow = null;   // static parts (mount + shield)
+    public static volatile Sprite gunShadow = null;      // recoils with the gun
+    public static volatile Sprite gunSizingSprite = null;
     public static volatile Sprite rubbleBaseSprite = null;
-    public static volatile Sprite rubbleGunSprite = null;
+    public static volatile Sprite rubbleTurretSprite = null;
     public static volatile Sequence deathFadeout = null;
 
-    // Team-colored sprite/sequence maps
-    private static final Map<Integer, Sprite>   baseSpriteMap       = new HashMap<>();
-    private static final Map<Integer, Sprite>   gunSpriteMap        = new HashMap<>();
-    private static final Map<Integer, Sprite>   gunDamagedSpriteMap = new HashMap<>();
-    private static final Map<Integer, Sequence> fireAnimMap         = new HashMap<>();
-    private static final Map<Integer, Sequence> fireAnimDamagedMap  = new HashMap<>();
+    // Team-colored part sprites (each pre-scaled to VISUAL_SCALE for manual compositing)
+    private static final Map<Integer, Sprite> baseSpriteMap          = new HashMap<>();
+    private static final Map<Integer, Sprite> mountSpriteMap         = new HashMap<>();
+    private static final Map<Integer, Sprite> mountDamagedSpriteMap  = new HashMap<>();
+    private static final Map<Integer, Sprite> gunSpriteMap           = new HashMap<>();
+    private static final Map<Integer, Sprite> gunDamagedSpriteMap    = new HashMap<>();
+    private static final Map<Integer, Sprite> shieldSpriteMap        = new HashMap<>();
+    private static final Map<Integer, Sprite> shieldDamagedSpriteMap = new HashMap<>();
 
     static {
         initGraphics();
@@ -67,48 +84,58 @@ public class T2Turret extends RTSUnit {
         if (!baseSpriteMap.isEmpty()) return;
 
         rubbleBaseSprite = new Sprite(RTSAssetManager.t2TurretBaseDestroyed);
-        rubbleGunSprite = new Sprite(RTSAssetManager.t2TurretGunDestroyed);
         rubbleBaseSprite.applyAlphaEdgeBlurSelf(1);
-        rubbleGunSprite.applyAlphaEdgeBlurSelf(1);
+        rubbleTurretSprite = partSprite(RTSAssetManager.t2TurretGunDestroyed);
         deathFadeout = Sequence.createFadeout(RTSAssetManager.t2TurretBaseDestroyed, 40);
         deathFadeout.setSignature("fadeout");
 
+        // Sizing-only graphic for the turret subobject (never drawn; render() composites the parts).
+        gunSizingSprite = new Sprite(RTSAssetManager.t2Gun);
+
         baseShadow = Sprite.generateShadowSprite(RTSAssetManager.t2TurretBase, .8);
-        gunShadow = Sprite.generateShadowSprite(RTSAssetManager.t2TurretGun, .8);
-        gunFireShadow = Sequence.generateShadowSequence(RTSAssetManager.getT2TurretFire(0), .8);
         baseShadow.applyAlphaEdgeBlurSelf(4);
-        gunShadow.applyAlphaEdgeBlurSelf(3);
-        gunFireShadow.applyAlphaEdgeBlurSelf(3);
         baseShadow.scaleTo(VISUAL_SCALE);
-        gunShadow.scaleTo(VISUAL_SCALE);
-        gunFireShadow.scaleTo(VISUAL_SCALE);
+
+        // Shadow is split so the gun's shadow can recoil with it: the fixed parts (mount + shield)
+        // share one static shadow; the gun gets its own that slides back on fire.
+        turretShadow = Sprite.generateShadowSprite(compositeParts(
+                RTSAssetManager.t2Mount, RTSAssetManager.t2Shield), .8);
+        turretShadow.applyAlphaEdgeBlurSelf(3);
+        gunShadow = Sprite.generateShadowSprite(RTSAssetManager.t2Gun, .8);
+        gunShadow.applyAlphaEdgeBlurSelf(3);
 
         for (int team : RTSGame.activeTeams) {
             Sprite emplacement = new Sprite(RTSAssetManager.getT2TurretBase(team));
             emplacement.applyAlphaEdgeBlurSelf(1);
             baseSpriteMap.put(team, emplacement);
 
-            Sprite barrel = new Sprite(RTSAssetManager.getT2TurretGun(team));
-            barrel.applyAlphaEdgeBlurSelf(1);
-            gunSpriteMap.put(team, barrel);
-
-            Sprite barrelDamaged = new Sprite(RTSAssetManager.getT2TurretGunDamaged(team));
-            barrelDamaged.applyAlphaEdgeBlurSelf(1);
-            barrelDamaged.setSignature("damagedGun");
-            gunDamagedSpriteMap.put(team, barrelDamaged);
-
-            Sequence fire = new Sequence(RTSAssetManager.getT2TurretFire(team), "t2TurretFire");
-            fire.setSignature("fireAnimation");
-            fire.setFrameDelay(35);
-            fire.applyAlphaEdgeBlurSelf(1);
-            fireAnimMap.put(team, fire);
-
-            Sequence fireDamaged = new Sequence(RTSAssetManager.getT2TurretFireDamaged(team));
-            fireDamaged.setSignature("fireAnimation");
-            fireDamaged.setFrameDelay(35);
-            fireDamaged.applyAlphaEdgeBlurSelf(1);
-            fireAnimDamagedMap.put(team, fireDamaged);
+            mountSpriteMap.put(team,         partSprite(RTSAssetManager.getT2Mount(team)));
+            mountDamagedSpriteMap.put(team,  partSprite(RTSAssetManager.getT2MountDamaged(team)));
+            gunSpriteMap.put(team,           partSprite(RTSAssetManager.getT2Gun(team)));
+            gunDamagedSpriteMap.put(team,    partSprite(RTSAssetManager.getT2GunDamaged(team)));
+            shieldSpriteMap.put(team,        partSprite(RTSAssetManager.getT2Shield(team)));
+            shieldDamagedSpriteMap.put(team, partSprite(RTSAssetManager.getT2ShieldDamaged(team)));
         }
+    }
+
+    /**
+     * A part sprite kept at full resolution (scale 1). The VISUAL_SCALE is folded into the draw
+     * transform at render time so each part is resampled only once, matching the engine's own
+     * scale+rotate draw and avoiding the softness of a pre-scale followed by a rotate.
+     */
+    private static Sprite partSprite(BufferedImage raw) {
+        Sprite s = new Sprite(raw);
+        s.applyAlphaEdgeBlurSelf(1);
+        return s;
+    }
+
+    /** Draws the given part images onto one canvas so a single shadow silhouette can be generated. */
+    private static BufferedImage compositeParts(BufferedImage... parts) {
+        BufferedImage out = new BufferedImage(parts[0].getWidth(), parts[0].getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = out.createGraphics();
+        for (BufferedImage part : parts) g.drawImage(part, 0, 0, null);
+        g.dispose();
+        return out;
     }
 
     public T2Turret(Coordinate c, int team) {
@@ -126,8 +153,8 @@ public class T2Turret extends RTSUnit {
         preventOverlap = true;
         setScale(VISUAL_SCALE);
         this.setGraphic(getBaseSprite());
-        gun = new Gun(new Coordinate(0, 0));
-        this.addSubObject(gun);
+        turret = new Turret(new Coordinate(0, 0));
+        this.addSubObject(turret);
         this.maxHealth = 80;
         this.currentHealth = maxHealth;
         this.baseSpeed = 0;
@@ -143,6 +170,32 @@ public class T2Turret extends RTSUnit {
 
     public boolean isDamaged() {
         return currentHealth > 0 && currentHealth < maxHealth / 3;
+    }
+
+    public Sprite mountSprite()  { return isDamaged() ? mountDamagedSpriteMap.get(team)  : mountSpriteMap.get(team); }
+    public Sprite gunSprite()    { return isDamaged() ? gunDamagedSpriteMap.get(team)    : gunSpriteMap.get(team); }
+    public Sprite shieldSprite() { return isDamaged() ? shieldDamagedSpriteMap.get(team) : shieldSpriteMap.get(team); }
+
+    /**
+     * Current recoil displacement of the gun in source-image pixels along the barrel axis (0 at rest,
+     * positive = retracted). The VISUAL_SCALE is applied by the render transform, so this is measured
+     * in the same units as {@link #RECOIL_PEAK_SOURCE_PX}. Follows the measured curve: quick snap back,
+     * brief hold, linear return. Purely cosmetic, so it is driven off the game tick.
+     */
+    public double currentRecoilSourcePixels() {
+        if (recoilStartTick < 0 || getHostGame() == null) return 0;
+        double elapsed = (getHostGame().getGameTickNumber() - recoilStartTick) / (double) RTSGame.desiredTPS;
+        double frac;
+        if (elapsed < RECOIL_KICK_SECONDS) {
+            frac = elapsed / RECOIL_KICK_SECONDS;
+        } else if (elapsed < RECOIL_KICK_SECONDS + RECOIL_HOLD_SECONDS) {
+            frac = 1.0;
+        } else if (elapsed < RECOIL_KICK_SECONDS + RECOIL_HOLD_SECONDS + RECOIL_RETURN_SECONDS) {
+            frac = 1.0 - (elapsed - RECOIL_KICK_SECONDS - RECOIL_HOLD_SECONDS) / RECOIL_RETURN_SECONDS;
+        } else {
+            return 0;
+        }
+        return frac * RECOIL_PEAK_SOURCE_PX;
     }
 
     @Override
@@ -167,7 +220,7 @@ public class T2Turret extends RTSUnit {
     @Override
     public void setRotation(double r, boolean includeGun) {
         super.setRotation(r);
-        if (includeGun) this.gun.setRotation(r);
+        if (includeGun) this.turret.setRotation(r);
     }
 
     @Override
@@ -175,8 +228,8 @@ public class T2Turret extends RTSUnit {
         super.onPostDeserialization();
         // Restore graphics after deserialization
         this.setGraphic(getBaseSprite());
-        if (gun != null) {
-            gun.setGraphic(gun.getGunSprite());
+        if (turret != null) {
+            turret.setGraphic(gunSizingSprite);
         }
     }
 
@@ -212,7 +265,7 @@ public class T2Turret extends RTSUnit {
             this.setGraphic(deathFadeout.copyMaintainSource());
             this.isSolid = false;
             this.setZLayer(-100);
-            this.gun.isInvisible = true;
+            this.turret.isInvisible = true;
             destructionScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 3);
             fadeoutScheduledAtTick = 0;
             return;
@@ -225,11 +278,11 @@ public class T2Turret extends RTSUnit {
     }
 
     /*
-    when the emplacement tries to fire, it first checks if the gun is still firing.
-    if not, tell the gun to fire at the target location
+    when the emplacement tries to fire, it first checks if it is off cooldown and aimed.
+    if so, tell the turret to fire at the target location
      */
     public void fire(Coordinate target) {
-        if (weaponCooldownExpiresAtTick > 0 || target.distanceFrom(getLocation()) < getHeight() * 3 / 5 || Math.abs(gun.rotationNeededToFace(target)) > 1) {
+        if (weaponCooldownExpiresAtTick > 0 || target.distanceFrom(getLocation()) < getHeight() * 3 / 5 || Math.abs(turret.rotationNeededToFace(target)) > 1) {
             // Not able to fire this tick (on cooldown, too close, or not aimed) — abandon any windup in progress.
             windupTargetId = null;
             windupStartTick = 0;
@@ -249,7 +302,7 @@ public class T2Turret extends RTSUnit {
         windupTargetId = null;
         windupStartTick = 0;
         weaponCooldownExpiresAtTick = getHostGame().getGameTickNumber() + (int) (RTSGame.desiredTPS * attackFrequency);
-        gun.onFire(target);
+        turret.onFire(target);
     }
 
     @Override
@@ -261,8 +314,8 @@ public class T2Turret extends RTSUnit {
         getHostGame().addIndependentEffect(new SmokePoofEffect(getHostGame(), getPixelLocation(), 24, getZLayer() + 1));
         this.isRubble = true;
         this.team = -1;
+        this.recoilStartTick = -1;
         this.setGraphic(rubbleBaseSprite);
-        gun.setGraphic(rubbleGunSprite);
         RTSSoundManager.get().play(RTSSoundManager.TANK_DEATH, getLocation(), Main.generateRandomDoubleLocally(4.6, 6.9));
         fadeoutScheduledAtTick = getHostGame().getGameTickNumber() + (RTSGame.desiredTPS * 10);
     }
@@ -280,32 +333,22 @@ public class T2Turret extends RTSUnit {
         return out;
     }
 
-    public class Gun extends SubObject {
+    public class Turret extends SubObject {
 
-        private double gunRotationSpeed = 0.0;
+        private double turretRotationSpeed = 0.0;
 
-        public Gun(Coordinate offset) {
+        public Turret(Coordinate offset) {
             super(offset);
             setScale(VISUAL_SCALE);
-            this.setGraphic(getGunSprite());
-        }
-
-        public Sequence getFireSequence() {
-            return isDamaged() ? fireAnimDamagedMap.get(team).copyMaintainSource() : fireAnimMap.get(team).copyMaintainSource();
-        }
-
-        public Sprite getGunSprite() {
-            if (isRubble) return rubbleGunSprite;
-            return isDamaged() ? gunDamagedSpriteMap.get(team) : gunSpriteMap.get(team);
+            // Sizing graphic only; render() composites the individual parts and does not draw this.
+            this.setGraphic(gunSizingSprite);
         }
 
         /*
-        fires the gun at the location.
-        first, play the firing animation on the gun, then create the shell object
-        and spawn it into the game world followed by the muzzle smoke
+        fires the gun: kick off the recoil, play the report, spawn the shell, and puff muzzle smoke.
          */
         public void onFire(Coordinate target) {
-            setGraphic(getFireSequence());
+            ((T2Turret) getHost()).recoilStartTick = getHostGame().getGameTickNumber();
             try {
                 RTSSoundManager.get().play(
                     RTSSoundManager.T2_TURRET_ATTACK,
@@ -340,29 +383,11 @@ public class T2Turret extends RTSUnit {
                     getHostGame(), smokeLocation.toCoordinate(), forward.x, forward.y, 8, getZLayer() + 1));
         }
 
-        /*
-        this runs whenever an animation cycle ends.
-        here we use it to put the gun back on its regular sprite once the
-        firing animation has played through
-         */
-        @Override
-        public void onAnimationCycle() {
-            if ("fireAnimation".equals(getGraphic().getSignature())) {
-                setGraphic(getGunSprite());
-            }
-            if (isRubble) {
-                setGraphic(rubbleGunSprite);
-            }
-        }
-
         @Override
         public void tick() {
             super.tick();
             if (isRubble) {
                 return;
-            }
-            if (currentHealth > 0 && !getGraphic().isAnimated()) {
-                this.setGraphic(getGunSprite());
             }
 
             RTSUnit preferred = ((RTSUnit) getHost()).getPreferredTargetIfInRange();
@@ -383,17 +408,17 @@ public class T2Turret extends RTSUnit {
             final double accel = RTSGame.tickAdjust(0.15);
             double targetSpeed = Math.abs(desiredRotation) < 0.01 ? 0.0 : Math.copySign(maxSpeed, desiredRotation);
 
-            if (gunRotationSpeed < targetSpeed) {
-                gunRotationSpeed = Math.min(gunRotationSpeed + accel, targetSpeed);
-            } else if (gunRotationSpeed > targetSpeed) {
-                gunRotationSpeed = Math.max(gunRotationSpeed - accel, targetSpeed);
+            if (turretRotationSpeed < targetSpeed) {
+                turretRotationSpeed = Math.min(turretRotationSpeed + accel, targetSpeed);
+            } else if (turretRotationSpeed > targetSpeed) {
+                turretRotationSpeed = Math.max(turretRotationSpeed - accel, targetSpeed);
             }
 
-            if (Math.abs(desiredRotation) <= Math.abs(gunRotationSpeed)) {
+            if (Math.abs(desiredRotation) <= Math.abs(turretRotationSpeed)) {
                 rotate(desiredRotation);
-                gunRotationSpeed = 0;
+                turretRotationSpeed = 0;
             } else {
-                rotate(gunRotationSpeed);
+                rotate(turretRotationSpeed);
             }
 
             if (enemy != null) {
@@ -401,30 +426,47 @@ public class T2Turret extends RTSUnit {
             }
         }
 
+        /*
+        Composites the turret from its parts each frame: mount, then the gun (slid back by the
+        current recoil along the barrel axis), then the shield on top. All rotate about the pivot.
+         */
         @Override
         public void render(Graphics2D g) {
-            if (!((RTSUnit) getHost()).shouldRender()) return;
-            if (getHost().isSolid) {
-                AffineTransform old = g.getTransform();
-                // While the gun is playing its fire animation, cast the matching recoiled
-                // shadow frame so the shadow retracts with the barrel; otherwise the resting shadow.
-                VolatileImage toRender;
-                if (getGraphic() instanceof Sequence seq && "fireAnimation".equals(seq.getSignature())) {
-                    int frame = Math.min(seq.getCurrentFrameIndex(), gunFireShadow.frames.length - 1);
-                    toRender = gunFireShadow.frames[frame].getCurrentVolatileImage();
-                } else {
-                    toRender = gunShadow.getCurrentVolatileImage();
-                }
-                DCoordinate gunRenderLoc = getRenderLocation();
-                int shadowOffsetY = 6;
-                int shadowOffsetX = 6;
-                double renderX = gunRenderLoc.x - toRender.getWidth() / 2.0;
-                double renderY = gunRenderLoc.y - toRender.getHeight() / 2.0;
-                g.rotate(Math.toRadians(getRotationRealTime()), gunRenderLoc.x + shadowOffsetX, gunRenderLoc.y + shadowOffsetY);
-                g.drawImage(toRender, AffineTransform.getTranslateInstance(renderX, renderY + shadowOffsetY), null);
-                g.setTransform(old);
+            T2Turret host = (T2Turret) getHost();
+            if (!host.shouldRender()) return;
+            DCoordinate loc = getRenderLocation();
+            double rotation = getRotationRealTime();
+            double recoil = host.currentRecoilSourcePixels();
+
+            if (host.isRubble) {
+                if (host.isSolid) drawLayer(g, turretShadow.getCurrentVolatileImage(), loc, rotation, 3, 3, 0);
+                drawLayer(g, rubbleTurretSprite.getCurrentVolatileImage(), loc, rotation, 0, 0, 0);
+                return;
             }
-            super.render(g);
+
+            if (host.isSolid) {
+                drawLayer(g, turretShadow.getCurrentVolatileImage(), loc, rotation, 3, 3, 0);      // mount + shield, static
+                drawLayer(g, gunShadow.getCurrentVolatileImage(),    loc, rotation, 3, 3, recoil); // gun shadow recoils
+            }
+            drawLayer(g, host.mountSprite().getCurrentVolatileImage(),  loc, rotation, 0, 0, 0);
+            drawLayer(g, host.gunSprite().getCurrentVolatileImage(),    loc, rotation, 0, 0, recoil);
+            drawLayer(g, host.shieldSprite().getCurrentVolatileImage(), loc, rotation, 0, 0, 0);
+        }
+
+        /**
+         * Draws a full-resolution part image centred on {@code loc} with VISUAL_SCALE and rotation
+         * folded into a single transform (one resample, matching the engine's own draw). {@code offX}
+         * /{@code offY} is a screen-space offset for the drop shadow; {@code recoilSrcPx} slides the
+         * part down its local +Y axis in source pixels (before scaling) for the gun's recoil.
+         */
+        private void drawLayer(Graphics2D g, VolatileImage img, DCoordinate loc, double rotation,
+                               int offX, int offY, double recoilSrcPx) {
+            AffineTransform t = new AffineTransform();
+            t.translate(loc.x + offX, loc.y + offY);
+            t.rotate(Math.toRadians(rotation));
+            t.scale(VISUAL_SCALE, VISUAL_SCALE);
+            t.translate(-img.getWidth() / 2.0, -img.getHeight() / 2.0 + recoilSrcPx);
+            g.drawImage(img, t, null);
         }
     }
 }

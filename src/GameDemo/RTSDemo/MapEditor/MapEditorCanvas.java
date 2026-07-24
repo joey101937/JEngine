@@ -437,7 +437,9 @@ public class MapEditorCanvas extends JPanel {
             }
             case T2_TURRET -> {
                 drawRaw(g2, RTSAssetManager.getT2TurretBase(team), type.visualScale);
-                drawRaw(g2, RTSAssetManager.getT2TurretGun(team),  type.visualScale);
+                drawRaw(g2, RTSAssetManager.getT2Mount(team),      type.visualScale);
+                drawRaw(g2, RTSAssetManager.getT2Gun(team),        type.visualScale);
+                drawRaw(g2, RTSAssetManager.getT2Shield(team),     type.visualScale);
             }
             case RIFLEMAN -> {
                 drawRaw(g2, RTSAssetManager.infantryLegs, type.visualScale);
