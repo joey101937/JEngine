@@ -44,7 +44,7 @@ public class FogOfWarEffect extends IndependentEffect {
     public void tick() {
         game.setBackgroundClip(null);
         if (!enabled) return;
-        if (game.getGameTickNumber() % 5 != 0) return;
+        if (game.getGameTickNumber() % 10 != 0) return;
         if (RTSGame.fogOfWarGrid != null) {
             RTSGame.fogOfWarGrid.update(game);
             fogImage = buildFogImage(RTSGame.fogOfWarGrid, ExternalCommunicator.localTeam);
