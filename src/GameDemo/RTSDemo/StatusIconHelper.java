@@ -1,10 +1,12 @@
 package GameDemo.RTSDemo;
 
+import Framework.Coordinate;
 import Framework.Game;
 import Framework.GameObject2;
 import Framework.IndependentEffect;
 import GameDemo.RTSDemo.Units.TankUnit;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -33,24 +35,23 @@ public class StatusIconHelper extends IndependentEffect{
 
     @Override
     public void render(Graphics2D g) {
-        // RTSGame.navigationManager.render(g);
-        for(GameObject2 go : game.getAllObjects()) {
+        // Drawn from the on-screen set rather than every object in the world: this runs every
+        // frame, and the quadtree lookup skips the bulk of the map before any per-unit work.
+        for(GameObject2 go : game.getObjectsOnScreen(false)) {
             if(go.isOnScreen() && go instanceof RTSUnit u && !u.isRubble) {
-                if(u.isImmobilized && !(u instanceof TankUnit tank && tank.sandbagActive)) {  
-                    g.drawImage(
-                            RTSAssetManager.immobilizationIcon,
-                            u.getRenderLocation().toCoordinate().x - (u.getWidth() / 2),
-                            u.getRenderLocation().toCoordinate().y - (u.getHeight() / 2) - 20,
-                            statusIconWidth,
-                            statusIconHeight,
-                            null
-                    );
+                boolean sandbagged = u instanceof TankUnit tank && tank.sandbagActive;
+                BufferedImage icon = null;
+                if(sandbagged) {
+                    icon = RTSAssetManager.shieldIcon;
+                } else if(u.isImmobilized) {
+                    icon = RTSAssetManager.immobilizationIcon;
                 }
-                if(u instanceof TankUnit tank && tank.sandbagActive) {
-                     g.drawImage(
-                            RTSAssetManager.shieldIcon,
-                            u.getRenderLocation().toCoordinate().x - (u.getWidth() / 2),
-                            u.getRenderLocation().toCoordinate().y - (u.getHeight() / 2) - 20,
+                if(icon != null) {
+                    Coordinate loc = u.getRenderLocation().toCoordinate();
+                    g.drawImage(
+                            icon,
+                            loc.x - (u.getWidth() / 2),
+                            loc.y - (u.getHeight() / 2) - 20,
                             statusIconWidth,
                             statusIconHeight,
                             null

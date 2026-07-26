@@ -25,10 +25,8 @@ import GameDemo.RTSDemo.Units.Bazookaman;
 import GameDemo.RTSDemo.Units.Landmine;
 import GameDemo.RTSDemo.Units.LightTank;
 import GameDemo.RTSDemo.Units.TankUnit;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
@@ -53,7 +51,10 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     private static final double BULLDOZE_RATIO = 4.0;
     /** Shove speed ceiling as a multiple of the pusher's own speed, so units scatter a bit ahead of it without rocketing off. */
     private static final double PUSH_SPEED_CAP_MULT = 1.5;
-    private static final Stroke healthBarStroke = new BasicStroke(5);
+    /** Thickness of the selected-unit health bar, in world pixels. */
+    private static final int HEALTH_BAR_THICKNESS = 5;
+    /** Gap between the bottom of the unit and the top of its health bar. */
+    private static final int HEALTH_BAR_GAP = 18;
 
     private boolean selected = false;
     private Coordinate desiredLocation;
@@ -132,13 +133,20 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         };
     }
 
+    /**
+     * A filled rect is used rather than a stroked line because the render hints
+     * (antialiasing + STROKE_PURE) make every stroked shape tessellate into an
+     * antialiased path, which is costly once many units are selected at once.
+     */
     public void drawHealthBar(Graphics2D g) {
+        int barLength = (int) (getWidth() * ((double) currentHealth / maxHealth));
+        if (barLength <= 0) {
+            return;
+        }
+        Coordinate loc = getRenderLocation().toCoordinate();
         Color originalColor = g.getColor();
-        Stroke originalStroke = g.getStroke();
         g.setColor(getColorFromTeam(this.team));
-        g.setStroke(healthBarStroke);
-        g.drawLine(getPixelLocation().x - getWidth() / 2, getPixelLocation().y + getHeight() / 2 + 20, getPixelLocation().x - getWidth() / 2 + (int) (getWidth() * ((double) currentHealth / maxHealth)), getPixelLocation().y + getHeight() / 2 + 20);
-        g.setStroke(originalStroke);
+        g.fillRect(loc.x - getWidth() / 2, loc.y + getHeight() / 2 + HEALTH_BAR_GAP, barLength, HEALTH_BAR_THICKNESS);
         g.setColor(originalColor);
     }
     

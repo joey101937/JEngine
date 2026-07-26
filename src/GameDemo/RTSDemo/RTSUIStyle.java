@@ -1,5 +1,6 @@
 package GameDemo.RTSDemo;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -8,12 +9,13 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Shared visual language for the RTS demo HUD (minimap, info panel,
@@ -69,6 +71,41 @@ public final class RTSUIStyle {
     // the flat gradient reads as aged parchment rather than paint.
     private static final BufferedImage PARCHMENT = buildParchmentTexture(96);
 
+    /**
+     * HUD chrome is fixed art at a handful of sizes, but painting it costs gradient fills,
+     * a TexturePaint fill and several antialiased rounded strokes - all software-rasterized,
+     * and all repeated every frame the panel is up. Each distinct size is painted once into
+     * an image here and blitted from then on. Layering into a transparent buffer and
+     * compositing the result is equivalent to compositing each layer straight onto the
+     * background, so this is a pure cost change and not a visual one.
+     */
+    private static final int CHROME_PAD = 4; // room for glows and stroke widths that sit outside the rect
+    private static final int MAX_CACHED_CHROME = 96;
+    private static final Map<String, BufferedImage> chromeCache = new ConcurrentHashMap<>();
+
+    private interface ChromePainter {
+        void paint(Graphics2D g, int x, int y);
+    }
+
+    private static BufferedImage bakedChrome(String key, int w, int h, ChromePainter painter) {
+        BufferedImage cached = chromeCache.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        BufferedImage img = new BufferedImage(w + CHROME_PAD * 2, h + CHROME_PAD * 2, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D ig = img.createGraphics();
+        enableAA(ig);
+        painter.paint(ig, CHROME_PAD, CHROME_PAD);
+        ig.dispose();
+        // Tooltips size themselves to their text, so the key space is open-ended. Drop the
+        // whole cache rather than let it grow without limit; in practice it never fills.
+        if (chromeCache.size() >= MAX_CACHED_CHROME) {
+            chromeCache.clear();
+        }
+        chromeCache.put(key, img);
+        return img;
+    }
+
     /** Turns on antialiasing so rounded panels and text read cleanly. */
     public static void enableAA(Graphics2D g) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -78,9 +115,12 @@ public final class RTSUIStyle {
 
     /** Aged-canvas panel: khaki gradient, parchment mottle, ink frame + rivets. */
     public static void drawGlassPanel(Graphics2D g, int x, int y, int w, int h, int arc) {
-        Paint oldPaint = g.getPaint();
-        Stroke oldStroke = g.getStroke();
+        BufferedImage baked = bakedChrome("panel|" + w + "|" + h + "|" + arc, w, h,
+                (ig, bx, by) -> paintGlassPanel(ig, bx, by, w, h, arc));
+        g.drawImage(baked, x - CHROME_PAD, y - CHROME_PAD, null);
+    }
 
+    private static void paintGlassPanel(Graphics2D g, int x, int y, int w, int h, int arc) {
         g.setPaint(new GradientPaint(x, y, PANEL_TOP, x, y + h, PANEL_BOTTOM));
         g.fillRoundRect(x, y, w, h, arc, arc);
 
@@ -88,10 +128,7 @@ public final class RTSUIStyle {
         g.setPaint(new TexturePaint(PARCHMENT, new Rectangle(x, y, PARCHMENT.getWidth(), PARCHMENT.getHeight())));
         g.fillRoundRect(x, y, w, h, arc, arc);
 
-        strokePanelFrame(g, x, y, w, h, arc);
-
-        g.setPaint(oldPaint);
-        g.setStroke(oldStroke);
+        paintPanelFrame(g, x, y, w, h, arc);
     }
 
     /**
@@ -99,6 +136,12 @@ public final class RTSUIStyle {
      * that paint something of their own inside first (e.g. a recharge meter).
      */
     public static void strokePanelFrame(Graphics2D g, int x, int y, int w, int h, int arc) {
+        BufferedImage baked = bakedChrome("frame|" + w + "|" + h + "|" + arc, w, h,
+                (ig, bx, by) -> paintPanelFrame(ig, bx, by, w, h, arc));
+        g.drawImage(baked, x - CHROME_PAD, y - CHROME_PAD, null);
+    }
+
+    private static void paintPanelFrame(Graphics2D g, int x, int y, int w, int h, int arc) {
         Stroke oldStroke = g.getStroke();
 
         // Cream sheen along the top lip.
@@ -141,6 +184,12 @@ public final class RTSUIStyle {
      * gains an olive frame + glow when active. No rivets, to stay list-clean.
      */
     public static void drawCard(Graphics2D g, int x, int y, int w, int h, int arc, boolean active) {
+        BufferedImage baked = bakedChrome("card|" + w + "|" + h + "|" + arc + "|" + active, w, h,
+                (ig, bx, by) -> paintCard(ig, bx, by, w, h, arc, active));
+        g.drawImage(baked, x - CHROME_PAD, y - CHROME_PAD, null);
+    }
+
+    private static void paintCard(Graphics2D g, int x, int y, int w, int h, int arc, boolean active) {
         Paint oldPaint = g.getPaint();
         Stroke oldStroke = g.getStroke();
         if (active) {
@@ -160,6 +209,12 @@ public final class RTSUIStyle {
 
     /** Recessed icon well. Hovered wells gain an olive ring and soft glow. */
     public static void drawSlot(Graphics2D g, int x, int y, int w, int h, int arc, boolean hovered) {
+        BufferedImage baked = bakedChrome("slot|" + w + "|" + h + "|" + arc + "|" + hovered, w, h,
+                (ig, bx, by) -> paintSlot(ig, bx, by, w, h, arc, hovered));
+        g.drawImage(baked, x - CHROME_PAD, y - CHROME_PAD, null);
+    }
+
+    private static void paintSlot(Graphics2D g, int x, int y, int w, int h, int arc, boolean hovered) {
         Stroke oldStroke = g.getStroke();
         if (hovered) {
             g.setColor(ACCENT_GLOW);
@@ -173,15 +228,44 @@ public final class RTSUIStyle {
         g.setStroke(oldStroke);
     }
 
-    /** Draws an image clipped to a rounded rectangle. */
+    /**
+     * Draws an image clipped to a rounded rectangle. The corner mask is baked into a copy at
+     * the drawn size and reused, because setting a non-rectangular clip drops the following
+     * blit onto Java2D's software path - and these are icons and portraits that never change,
+     * redrawn at fixed sizes every frame.
+     */
     public static void drawRoundedImage(Graphics2D g, BufferedImage img, int x, int y, int w, int h, int arc) {
-        if (img == null) {
+        if (img == null || w <= 0 || h <= 0) {
             return;
         }
-        Shape oldClip = g.getClip();
-        g.setClip(new RoundRectangle2D.Float(x, y, w, h, arc, arc));
-        g.drawImage(img, x, y, w, h, null);
-        g.setClip(oldClip);
+        g.drawImage(roundedCopy(img, w, h, arc), x, y, null);
+    }
+
+    private record RoundedKey(BufferedImage source, int w, int h, int arc) { }
+
+    private static final Map<RoundedKey, BufferedImage> roundedImageCache = new ConcurrentHashMap<>();
+
+    private static BufferedImage roundedCopy(BufferedImage img, int w, int h, int arc) {
+        RoundedKey key = new RoundedKey(img, w, h, arc);
+        BufferedImage cached = roundedImageCache.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D ig = out.createGraphics();
+        enableAA(ig);
+        // Fill the rounded shape first, then draw the image through it with SRC_IN so the
+        // corners keep the antialiased falloff the clip used to give them.
+        ig.setColor(Color.WHITE);
+        ig.fill(new RoundRectangle2D.Float(0, 0, w, h, arc, arc));
+        ig.setComposite(AlphaComposite.SrcIn);
+        ig.drawImage(img, 0, 0, w, h, null);
+        ig.dispose();
+        if (roundedImageCache.size() >= MAX_CACHED_CHROME) {
+            roundedImageCache.clear();
+        }
+        roundedImageCache.put(key, out);
+        return out;
     }
 
     /** Horizontal health/status gauge with a dark well and a colored fill. */

@@ -7,7 +7,6 @@ import GameDemo.RTSDemo.RTSGame;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 
 public class FogOfWarEffect extends IndependentEffect {
     private static final long serialVersionUID = 1L;
@@ -70,12 +69,18 @@ public class FogOfWarEffect extends IndependentEffect {
         boxBlurH(src, tmp, gw, gh, BLUR_RADIUS);
         boxBlurV(tmp, src, gw, gh, BLUR_RADIUS);
 
-        BufferedImage img = new BufferedImage(gw, gh, BufferedImage.TYPE_INT_ARGB);
-        int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+        // Pixels are filled into a detached array and pushed in with setRGB rather than written
+        // straight into the raster's data buffer. Reaching into the buffer marks the image
+        // untrackable for the lifetime of the image, which permanently bars Java2D from caching
+        // it in video memory - and this image is blitted scaled and alpha-blended across the
+        // whole viewport every frame, so it needs to stay accelerated.
+        int[] pixels = new int[gw * gh];
         for (int i = 0; i < pixels.length; i++) {
             int a = Math.min(255, (int) (src[i] * FOG_ALPHA));
             pixels[i] = (a << 24); // black with varying alpha
         }
+        BufferedImage img = new BufferedImage(gw, gh, BufferedImage.TYPE_INT_ARGB);
+        img.setRGB(0, 0, gw, gh, pixels, 0, gw);
         return img;
     }
 

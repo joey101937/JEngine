@@ -49,10 +49,14 @@ public class DigInButton extends CommandButton {
     public void tick() {
         super.tick();
         TankUnit tank = (TankUnit) owner;
-        if (tickNumber % ZONE_CHECK_INTERVAL == 0) {
+        boolean unavailable = isOnCooldown() || tank.sandbagActive || tank.isImmobilized;
+        // The zone answer only matters while the button is otherwise available, and it is
+        // refreshed on an interval rather than every tick. The actual deploy re-checks the zone
+        // itself, so a stale value here can only affect how the button looks, never the outcome.
+        if (!unavailable && tickNumber % ZONE_CHECK_INTERVAL == 0) {
             cachedZoneClear = tank.isSandbagZoneClear();
         }
-        isDisabled = isOnCooldown() || tank.sandbagActive || tank.isImmobilized || !cachedZoneClear;
+        isDisabled = unavailable || !cachedZoneClear;
     }
 
 }
