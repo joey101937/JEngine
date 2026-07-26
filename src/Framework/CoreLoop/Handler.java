@@ -34,12 +34,22 @@ public class Handler implements Serializable{
                 new SynchronousQueue<Runnable>());
     }
 
+    /**
+     * Pool used when the render thread count is left on its default. It is sized to the
+     * machine so a frame with many renderables reuses a fixed set of workers and queues the
+     * rest. A pool that grows without bound instead spawns a fresh thread for every
+     * renderable once its core threads are busy, and the cost of doing so scales with how
+     * slow the machine is - exactly the machines that can least afford it.
+     */
+    public static ExecutorService newRenderThreadPool() {
+        return Executors.newFixedThreadPool(Math.max(2, Runtime.getRuntime().availableProcessors()));
+    }
+
     protected transient ExecutorService tickService = Executors.newFixedThreadPool(Main.tickThreadCount);
     protected transient ExecutorService renderService = Main.renderThreadCount > 0
             ? Executors.newFixedThreadPool(Main.renderThreadCount)
             : Executors.newFixedThreadPool(1);
-    protected transient ExecutorService renderServiceCached = this.newMinSizeCachedThreadPool(6);
-    protected transient ExecutorService syncService = Executors.newVirtualThreadPerTaskExecutor();
+    protected transient ExecutorService renderServiceCached = newRenderThreadPool();
 
     public Game hostGame;
     private LinkedList<GameObject2> toAdd = new LinkedList<>();
@@ -231,11 +241,9 @@ public class Handler implements Serializable{
         currentSnapshot = new Snapshot(snapshotList, quadTree.copy(), globalTickNumber);
         currentSnapshot.largestSideLength = longestSideLength;
 
-        ArrayList<Future<?>> tasks = new ArrayList<>();
         for (GameObject2 go : activeObjects) {
-            tasks.add(syncService.submit(new SyncTask(go)));
+            new SyncTask(go).run();
         }
-        waitForAllJobs(tasks);
     }
 
     public synchronized void addObject(GameObject2 go) {
@@ -324,7 +332,6 @@ public class Handler implements Serializable{
         tickService.shutdownNow();
         renderService.shutdownNow();
         renderServiceCached.shutdownNow();
-        syncService.shutdownNow();
     }
 
     /**
@@ -336,7 +343,6 @@ public class Handler implements Serializable{
         this.renderService = Main.renderThreadCount > 0
                 ? Executors.newFixedThreadPool(Main.renderThreadCount)
                 : Executors.newFixedThreadPool(1);
-        this.renderServiceCached = this.newMinSizeCachedThreadPool(6);
-        this.syncService = Executors.newVirtualThreadPerTaskExecutor();
+        this.renderServiceCached = newRenderThreadPool();
     }
 }

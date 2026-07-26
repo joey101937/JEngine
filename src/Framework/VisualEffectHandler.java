@@ -23,7 +23,7 @@ public class VisualEffectHandler implements Renderable{
     public CopyOnWriteArrayList<Sticker> stickers = new CopyOnWriteArrayList<>();
     public LinkedList<Coordinate[]> lines = new LinkedList<>();
     
-    public ExecutorService stickerService = Handler.newMinSizeCachedThreadPool(6);
+    public ExecutorService stickerService = Handler.newRenderThreadPool();
     /**
      * renders all visual effects to canvas
      * @param g Graphics2D object to use
