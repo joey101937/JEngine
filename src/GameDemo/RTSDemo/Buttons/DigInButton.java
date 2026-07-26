@@ -9,8 +9,11 @@ import GameDemo.RTSDemo.Units.TankUnit;
  *
  * @author guydu
  */
-public class DigInButton extends CommandButton {    
-    
+public class DigInButton extends CommandButton {
+    // the sandbag zone check is a spatial query, so it is refreshed periodically rather than every tick
+    private static final int ZONE_CHECK_INTERVAL = 5;
+    private boolean cachedZoneClear = true;
+
     public DigInButton(RTSUnit o) {
         super(o);
         this.iconImage = RTSAssetManager.digInButton;
@@ -46,7 +49,10 @@ public class DigInButton extends CommandButton {
     public void tick() {
         super.tick();
         TankUnit tank = (TankUnit) owner;
-        isDisabled = isOnCooldown() || tank.sandbagActive || tank.isImmobilized || !tank.isSandbagZoneClear();
+        if (tickNumber % ZONE_CHECK_INTERVAL == 0) {
+            cachedZoneClear = tank.isSandbagZoneClear();
+        }
+        isDisabled = isOnCooldown() || tank.sandbagActive || tank.isImmobilized || !cachedZoneClear;
     }
 
 }
