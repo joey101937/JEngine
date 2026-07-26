@@ -35,7 +35,7 @@ public class NavigationManager extends IndependentEffect {
     private static final long serialVersionUID = 1L;
 
     public static boolean displayPathingDebugGrid = false;
-    public static int updateInterval = RTSGame.desiredTPS / 10;
+    public static int updateInterval = RTSGame.desiredTPS / 6;
     public static transient ExecutorService unitPathingService = reapingPool(200);
 
     /**
