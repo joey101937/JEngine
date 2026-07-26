@@ -173,7 +173,7 @@ public class RTSInput extends InputHandler {
                 // the click to a cast that never happened.
                 if (TargetingModeManager.isUnitTargetingMode()) {
                     RTSUnit clickedUnit = getUnitAtLocation(locationOfMouseEvent);
-                    if (clickedUnit != null) {
+                    if (clickedUnit != null && clickedUnit.isVisible(ExternalCommunicator.localTeam)) {
                         List<RTSUnit> castingUnits = TargetingModeManager.getCastingUnits();
                         boolean anyIssued = castingUnits.isEmpty();
                         for (RTSUnit castingUnit : castingUnits) {
@@ -228,7 +228,10 @@ public class RTSInput extends InputHandler {
             // Right-click on a unit of the opposite team → set as preferred target per selected unit
             // Right-click on a friendly transport → board selected units that can load
             RTSUnit clickedUnit = getUnitAtLocation(locationOfMouseEvent);
-            if (clickedUnit != null && !SelectionBoxEffect.selectedUnits.isEmpty()) {
+            // a unit hidden by fog or cloaking cannot be ordered against; the click falls
+            // through to the plain move handling below
+            if (clickedUnit != null && clickedUnit.isVisible(ExternalCommunicator.localTeam)
+                    && !SelectionBoxEffect.selectedUnits.isEmpty()) {
                 // Friendly transport: issue board commands for eligible selected units
                 if (clickedUnit instanceof Transport transport && !clickedUnit.isRubble && clickedUnit.isAlive()
                         && (!ExternalCommunicator.isMultiplayer || clickedUnit.team == ExternalCommunicator.localTeam)) {
@@ -377,10 +380,17 @@ public class RTSInput extends InputHandler {
         return null;
     }
 
+    /** passes the unit through only when the local team can see it, so hover highlights
+     * do not reveal units hidden by fog or cloaking */
+    private RTSUnit visibleUnitOrNull(RTSUnit unit) {
+        if (unit == null || !unit.isVisible(ExternalCommunicator.localTeam)) return null;
+        return unit;
+    }
+
     private void handleSelectPoint(MouseEvent e) {
         ArrayList<GameObject2> grabbed = RTSGame.game.getObjectsIntersecting(new Hitbox(locationOfMouseEvent(e).toDCoordinate(), 5));
         for (GameObject2 go : grabbed) {
-            if (go instanceof RTSUnit unit) {
+            if (go instanceof RTSUnit unit && unit.isVisible(ExternalCommunicator.localTeam)) {
                 unit.setSelected(true);
                 SelectionBoxEffect.selectedUnits.add(unit);
                 if (e.isControlDown()) {
@@ -389,7 +399,8 @@ public class RTSInput extends InputHandler {
                             && x.isOnScreen()
                             && x.isAlive()
                             && x.getClass() == grabbed.getFirst().getClass()
-                            && u.team == unit.team)
+                            && u.team == unit.team
+                            && u.isVisible(ExternalCommunicator.localTeam))
                             .forEach(x -> {
                                 RTSUnit xUnit = (RTSUnit) x;
                                 xUnit.setSelected(true);
@@ -413,7 +424,7 @@ public class RTSInput extends InputHandler {
         mouseDraggedLocation = pos;
         TargetingModeManager.updateCursorPosition(pos);
         if (TargetingModeManager.isUnitTargetingMode()) {
-            TargetingModeManager.updateHoveredUnit(getUnitAtLocation(pos));
+            TargetingModeManager.updateHoveredUnit(visibleUnitOrNull(getUnitAtLocation(pos)));
         }
         // panCamera(e);
     }
@@ -430,7 +441,7 @@ public class RTSInput extends InputHandler {
         Coordinate mousePos = locationOfMouseEvent(e);
         TargetingModeManager.updateCursorPosition(mousePos);
         if (TargetingModeManager.isUnitTargetingMode()) {
-            TargetingModeManager.updateHoveredUnit(getUnitAtLocation(mousePos));
+            TargetingModeManager.updateHoveredUnit(visibleUnitOrNull(getUnitAtLocation(mousePos)));
         }
         CommandButton hoveredButton = RTSGame.infoPanelEffect.getButtonAtLocation(mousePos.x, mousePos.y);
         RTSGame.infoPanelEffect.hoveredButton = hoveredButton;

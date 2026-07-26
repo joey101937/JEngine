@@ -24,9 +24,8 @@ public class MinimapRenderHelperRTS extends SimpleRenderHelper {
     @Override
     public void simpleRender(GameObject2 go, Graphics2D g) {
         if(go instanceof RTSUnit unit && !unit.isRubble) {
-            // Hide enemy units sitting in fogged tiles; our own units always show.
-            if (FogOfWarEffect.enabled && unit.team != ExternalCommunicator.localTeam
-                    && !unit.isVisible(ExternalCommunicator.localTeam)) {
+            // Hide enemy units sitting in fogged tiles or cloaked; our own units always show.
+            if (!unit.isVisible(ExternalCommunicator.localTeam)) {
                 return;
             }
             Color originalColor = g.getColor();

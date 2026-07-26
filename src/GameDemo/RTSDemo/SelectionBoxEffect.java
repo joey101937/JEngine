@@ -145,9 +145,9 @@ public class SelectionBoxEffect extends IndependentEffect {
         }
         if (selectionZone != null) {
             for (GameObject2 go : game.getObjectsIntersectingArea(selectionZone)) {
-                if (go instanceof RTSUnit) {
-                    ((RTSUnit) go).setSelected(true);
-                    selectedUnits.add((RTSUnit) go);
+                if (go instanceof RTSUnit unit && unit.isVisible(ExternalCommunicator.localTeam)) {
+                    unit.setSelected(true);
+                    selectedUnits.add(unit);
                 }
             }
         }

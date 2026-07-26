@@ -161,14 +161,12 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     }
        
     /**
-     * if the rts unit should render based on if it is on screen and if it is visible through fog of war
-     * @return 
+     * if the rts unit should render based on if it is on screen and if it is visible
+     * to the local team (fog of war and cloaking)
+     * @return
      */
     public boolean shouldRender () {
-        if(FogOfWarEffect.enabled) {
-            return super.isOnScreen() && (team == ExternalCommunicator.localTeam || isVisible(ExternalCommunicator.localTeam));
-        }
-        return super.isOnScreen();
+        return super.isOnScreen() && isVisible(ExternalCommunicator.localTeam);
     }
     
     @Override
@@ -821,9 +819,12 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
 
     /**
      * Returns true if this unit is within at least one visible tile for the given team.
-     * O(1) lookup into the fog-of-war grid.
+     * O(1) lookup into the fog-of-war grid. A cloaked unit is only visible to its own
+     * team, no matter what the fog grid says.
      */
     public boolean isVisible(int team) {
+        if (this.team == team) return true;
+        if (isCloaked) return false;
         if (!FogOfWarEffect.enabled || ExternalCommunicator.localTeam == this.team) return true;
         FogOfWarGrid grid = RTSGame.fogOfWarGrid;
         if (grid == null) return true;
