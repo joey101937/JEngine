@@ -97,7 +97,8 @@ public class ExternalCommunicator implements Runnable {
     public static volatile double tickTimingOffset = 0; // How many ticks we're ahead/behind partner (use double for precision)
     private static volatile boolean readyToDecreaseDelay = false;
     private static volatile boolean partnerReadyToDecreaseDelay = false;
-    private static volatile long lastTickHeartbeatTime = 0;
+    /** Wall time the last heartbeat arrived, used as the peer's liveness signal. */
+    private static volatile long lastHeartbeatReceivedTime = 0;
     private static final int MIN_INPUT_DELAY = 12;
     private static final int INITIAL_INPUT_DELAY = 24;
     private static final int MAX_INPUT_DELAY = 40;
@@ -117,7 +118,17 @@ public class ExternalCommunicator implements Runnable {
     private static volatile long partnerTickAtLastHeartbeat = -1;
     private static final int MIN_TICK_LEAD = 3;   // never stall tighter than this, or we thrash
     private static final int LEAD_SAFETY_MARGIN = 2;
-    private static final int MAX_STALL_MS = 2000; // stop waiting if the peer goes quiet
+    private static final int MAX_STALL_MS = 2000; // upper bound on a single tick's stall
+    /**
+     * How long the peer may go without a heartbeat before the barrier stops waiting on them.
+     * Heartbeats are sent off the tick thread, so silence this long means the peer is stalled
+     * outright rather than merely running behind - and waiting on a stalled peer just spreads
+     * their stall to us. Running on instead costs late commands, which raiseInputDelayFor and,
+     * failing that, a resync already handle.
+     */
+    private static final int PARTNER_SILENCE_TIMEOUT_MS = 750;
+    /** Ceiling on the resync file handshake, so a peer that never answers cannot wedge us. */
+    private static final int RESYNC_HANDSHAKE_TIMEOUT_MS = 30000;
     /**
      * Lead the input delay should be sized to fund. A heartbeat every TICK_HEARTBEAT_INTERVAL_MS
      * leaves the partner's reported tick up to that many ticks stale, so a budget below it would put
@@ -305,6 +316,7 @@ public class ExternalCommunicator implements Runnable {
             listenerThread = new Thread(new ExternalCommunicator());
             listenerThread.start();
             startPingLoop();
+            startHeartbeatLoop();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -331,6 +343,31 @@ public class ExternalCommunicator implements Runnable {
         pinger.start();
     }
 
+    /**
+     * Reports our tick number on a fixed wall-clock cadence, independent of the game loop.
+     *
+     * Sending this from the tick thread made the heartbeat report the tick thread's health rather
+     * than our tick number: a machine that stalled - a lag spike, a long frame, or the tick barrier
+     * itself - also stopped reporting, so its peer kept measuring against a frozen value and stalled
+     * in turn. Two machines could then hold each other still, each waiting on a number the other had
+     * stopped sending. Off the tick thread, a stalled machine still says exactly where it is, so the
+     * peer's barrier releases the moment it should and the offset the rate controller acts on stays
+     * real.
+     */
+    private static void startHeartbeatLoop() {
+        Thread heartbeat = new Thread(() -> {
+            while (socket != null && !socket.isClosed()) {
+                Game g = RTSGame.game;
+                if (isMpStarted && !isResyncing && g != null) {
+                    sendMessage("tickHeartbeat:" + g.handler.globalTickNumber);
+                }
+                Main.wait(TICK_HEARTBEAT_INTERVAL_MS);
+            }
+        }, "mp-heartbeat");
+        heartbeat.setDaemon(true);
+        heartbeat.start();
+    }
+
     public static Consumer<Game> handleSyncTick = game -> {
         long currentTick = game.handler.globalTickNumber;
 
@@ -339,14 +376,6 @@ public class ExternalCommunicator implements Runnable {
         // and object population are unrelated to the peer's - comparing them there guarantees a
         // spurious desync report.
         if(isMultiplayer && isMpStarted && !isResyncing && currentTick > 0) {
-            long now = System.currentTimeMillis();
-
-            // Send periodic tick heartbeat to partner so they can measure offset
-            if(now - lastTickHeartbeatTime >= TICK_HEARTBEAT_INTERVAL_MS) {
-                sendMessage("tickHeartbeat:" + currentTick);
-                lastTickHeartbeatTime = now;
-            }
-
             // A gap this large will not close at any sane tick rate, and usually means a tick counter
             // moved rather than that the machines drifted apart. Rebuild from a snapshot instead.
             if(Math.abs(tickTimingOffset) > LARGE_OFFSET_RESYNC_THRESHOLD
@@ -359,7 +388,7 @@ public class ExternalCommunicator implements Runnable {
             }
 
             applyRateControl();
-            enforceTickBarrier(currentTick);
+            enforceTickBarrier(game, currentTick);
 
             // Periodic determinism check every 5 seconds
             if(currentTick > 0 && currentTick % DETERMINISM_CHECK_INTERVAL == 0 && currentTick != lastDeterminismCheckTick) {
@@ -462,24 +491,57 @@ public class ExternalCommunicator implements Runnable {
      * absorb. Compares against the peer's last reported tick without extrapolating, so the bound
      * holds even if they stall outright - their true tick is never below what they last reported.
      */
-    private static void enforceTickBarrier(long currentTick) {
+    private static void enforceTickBarrier(Game game, long currentTick) {
         if(partnerTickAtLastHeartbeat < 0) return; // no heartbeat yet, nothing to measure against
         int maxLead = getMaxTickLead();
         if(currentTick - partnerTickAtLastHeartbeat <= maxLead) return;
 
         long stallStart = System.currentTimeMillis();
         while(currentTick - partnerTickAtLastHeartbeat > maxLead) {
-            if(System.currentTimeMillis() - stallStart > MAX_STALL_MS) {
+            long now = System.currentTimeMillis();
+            if(now - stallStart > MAX_STALL_MS) {
                 System.out.println("[SYNC] Tick barrier gave up after " + MAX_STALL_MS + "ms (we're at "
                         + currentTick + ", partner last reported " + partnerTickAtLastHeartbeat + ")");
                 return;
             }
+            // A peer who is behind but alive keeps reporting, and waiting for them is the point of
+            // the barrier. A peer who has gone silent is stalled, and holding here would only stall
+            // us alongside them for no gain.
+            if(now - lastHeartbeatReceivedTime > PARTNER_SILENCE_TIMEOUT_MS) {
+                System.out.println("[SYNC] Partner silent for " + (now - lastHeartbeatReceivedTime)
+                        + "ms - running on rather than stalling with them");
+                return;
+            }
             if(isResyncing) return; // resync coordination needs this thread back
-            Main.wait(1);
+            parkReleasingGameLock(game);
         }
         long stalled = System.currentTimeMillis() - stallStart;
         if(stalled > 20) {
             System.out.println("[SYNC] Held " + stalled + "ms at tick " + currentTick + " waiting for partner");
+        }
+    }
+
+    /**
+     * Waits ~1ms without holding the game's monitor.
+     *
+     * The barrier runs inside Game.tick(), which is synchronized, so sleeping here keeps that
+     * monitor held. The socket listener thread needs it - beginResync reaches addTickDelayedEffect,
+     * which is synchronized on the game - and that listener thread is the only thing that advances
+     * partnerTickAtLastHeartbeat. Sleeping with the monitor held therefore blocks the very update
+     * the loop is waiting for, and the two threads hold each other until MAX_STALL_MS expires, every
+     * tick. Object.wait releases the monitor for the duration (including reentrant holds) and
+     * reacquires it on wake, so messages keep flowing while we are parked.
+     *
+     * The tick's work is already finished by the time the barrier runs, so the window this opens is
+     * the same one that exists between ticks.
+     */
+    private static void parkReleasingGameLock(Game game) {
+        synchronized (game) {
+            try {
+                game.wait(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -787,6 +849,7 @@ public class ExternalCommunicator implements Runnable {
         if(s.startsWith("tickHeartbeat:") && isMpStarted) {
             long partnerTickAtSend = Long.parseLong(s.substring(14));
             long ourTick = RTSGame.game.handler.globalTickNumber;
+            lastHeartbeatReceivedTime = System.currentTimeMillis();
 
             // Feed the tick barrier. Monotonic: a reordered or delayed heartbeat must not walk the
             // bound backwards and stall us against a tick the peer has already passed.
@@ -990,7 +1053,17 @@ public class ExternalCommunicator implements Runnable {
             // Start async wait for file reception
             asyncService.submit(() -> {
                 try {
+                    long waitStart = System.currentTimeMillis();
                     while(!saveFileReceived) {
+                        // Without a ceiling, a server that stalls mid-transfer leaves us here
+                        // forever with isResyncing set - which drops every incoming command, so the
+                        // match is over even though both processes are still running.
+                        if(System.currentTimeMillis() - waitStart > RESYNC_HANDSHAKE_TIMEOUT_MS) {
+                            System.err.println("Client timed out waiting for the resync save file - aborting resync");
+                            sendMessage("loadFailed:timed out waiting for the resync save file");
+                            abortResync();
+                            return null;
+                        }
                         Main.wait(50);
                     }
                     // Signal server that we received the file
@@ -1145,7 +1218,14 @@ public class ExternalCommunicator implements Runnable {
                     // Server waits for client to finish, then coordinates restart
                     asyncService.submit(() -> {
                         System.out.println("Server waiting for client load completion...");
+                        long waitStart = System.currentTimeMillis();
                         while(!clientLoadComplete) {
+                            // The game is paused for this wait, so an unbounded one is a hang.
+                            if(System.currentTimeMillis() - waitStart > RESYNC_HANDSHAKE_TIMEOUT_MS) {
+                                System.err.println("Server timed out waiting for client load completion - aborting resync");
+                                abortResync();
+                                return null;
+                            }
                             Main.wait(100);
                         }
                         System.out.println("Both sides loaded and paused, coordinating restart...");
@@ -1231,7 +1311,9 @@ public class ExternalCommunicator implements Runnable {
         tickTimingOffset = 0.0;
         readyToDecreaseDelay = false;
         partnerReadyToDecreaseDelay = false;
-        lastTickHeartbeatTime = 0;
+        // Treat the peer as live as of now; a stale value would read as silence and disarm the
+        // barrier for the first stretch after the resync, exactly when the lead bound matters most.
+        lastHeartbeatReceivedTime = System.currentTimeMillis();
         pendingPingSentAt = -1;
         worstRecentCommandLateness = 0;
 
