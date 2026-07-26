@@ -58,15 +58,34 @@ public class ExternalCommunicator implements Runnable {
 
     public static ExecutorService asyncService = Executors.newVirtualThreadPerTaskExecutor();
 
+    /**
+     * Outbound messages go through a single thread so they reach the peer in the order they were
+     * queued. A thread-per-task executor lets sends race, which reorders commands relative to each
+     * other and lets saveFileEnd overtake the final save chunk.
+     */
+    private static final ExecutorService senderService = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "mp-message-sender");
+        t.setDaemon(true);
+        return t;
+    });
+
     public static volatile boolean isReadyForMultiplayerThisMachine = false;
     public static volatile boolean isReadyForMultiplayerOtherMachine = false;
-    public static volatile long mpStartTime = -1;
+    /**
+     * Deadline for the synchronized start/restart, measured against THIS machine's clock. The peer
+     * sends a relative delay rather than an absolute timestamp, so a clock difference between the
+     * two machines cannot shift the start.
+     */
+    public static volatile long mpStartDeadline = -1;
+    /** True once the initial synchronized start has run. Gates the one-time tick counter reset. */
     public static volatile boolean isMpStarted = false;
+    /** How long after both sides are ready the match begins. */
+    private static final int START_COUNTDOWN_MS = 4000;
 
     // Resync save file tracking
     private static volatile boolean waitingForSaveFile = false;
     private static volatile boolean saveFileReceived = false;
-    private static volatile StringBuilder saveFileDataBuilder = null;
+    private static volatile String[] saveFileChunks = null;
     private static volatile int expectedSaveFileSize = 0;
     private static volatile int expectedChunks = 0;
     private static volatile int receivedChunks = 0;
@@ -79,19 +98,58 @@ public class ExternalCommunicator implements Runnable {
     private static volatile boolean readyToDecreaseDelay = false;
     private static volatile boolean partnerReadyToDecreaseDelay = false;
     private static volatile long lastTickHeartbeatTime = 0;
-    private static final int TARGET_INPUT_DELAY = 12;
+    private static final int MIN_INPUT_DELAY = 12;
     private static final int INITIAL_INPUT_DELAY = 24;
-    private static final int TICK_HEARTBEAT_INTERVAL_MS = 200; // Send tick heartbeat every 100ms
+    private static final int MAX_INPUT_DELAY = 40;
+    /**
+     * Floor that raises settle into. A resync resets the working delay, but the latency that forced
+     * the raise is still there afterwards - dropping straight back to the initial value would walk
+     * into the same late command again.
+     */
+    private static volatile int sustainedInputDelayFloor = INITIAL_INPUT_DELAY;
+    // Drives the tick barrier, so it has to be fine-grained relative to the lead we allow.
+    private static final int TICK_HEARTBEAT_INTERVAL_MS = 50;
+
+    // Tick barrier. Rate control alone only nudges the tick rate, which lets a fast machine build an
+    // arbitrary lead between corrections; once that lead exceeds the input delay, peer commands
+    // arrive after their execute tick and can no longer be run in sync. The barrier makes the lead a
+    // hard bound instead, so a late command becomes structurally impossible rather than merely rare.
+    private static volatile long partnerTickAtLastHeartbeat = -1;
+    private static final int MIN_TICK_LEAD = 3;   // never stall tighter than this, or we thrash
+    private static final int LEAD_SAFETY_MARGIN = 2;
+    private static final int MAX_STALL_MS = 2000; // stop waiting if the peer goes quiet
+    /**
+     * Lead the input delay should be sized to fund. A heartbeat every TICK_HEARTBEAT_INTERVAL_MS
+     * leaves the partner's reported tick up to that many ticks stale, so a budget below it would put
+     * the barrier in a stall on essentially every tick.
+     */
+    private static final int DESIRED_LEAD_BUDGET = 6;
 
     // Ping tracking
-    private static volatile long lastPingSentTime = 0;
     private static volatile long pendingPingSentAt = -1;
     public static volatile int currentPingMs = -1;
     private static final int PING_INTERVAL_MS = 2000;
 
-    // Speed-up control parameters (for machine that's behind)
+    // Symmetric rate control. Main.ticksPerSecond only paces the game loop - RTS logic scales off
+    // RTSGame.desiredTPS - so nudging it changes how fast a machine consumes ticks without changing
+    // what those ticks compute. Slowing the machine that is ahead is the reliable half: a machine
+    // that is behind because it cannot hold its target rate will not go faster just because it is asked to.
     private static final int NORMAL_TPS = 90;
     private static volatile int baseTicksPerSecond = NORMAL_TPS; // Save original TPS
+    private static final double RATE_CONTROL_DEADBAND = 2.0; // ticks of offset tolerated before adjusting
+    private static final double TPS_PER_TICK_OF_OFFSET = 0.5; // proportional gain
+    private static final double MAX_SPEEDUP_RATIO = 1.5;  // fastest a behind machine is asked to run
+    private static final double MAX_SLOWDOWN_RATIO = 0.6; // slowest an ahead machine is asked to run
+    /**
+     * Past this offset, rate control would take minutes to converge (and cannot converge at all if
+     * the gap came from a tick counter jump rather than from drift). Resync instead - loading the
+     * snapshot restores both tick counters directly.
+     */
+    private static final int LARGE_OFFSET_RESYNC_THRESHOLD = 300;
+
+    // Late command tracking - reported by CommandHandler when a peer command arrives after its execute tick
+    private static volatile long lastLateCommandTick = -10000;
+    private static volatile long worstRecentCommandLateness = 0;
 
     // Determinism check - compare game states every 5 seconds
     private static final int DETERMINISM_CHECK_INTERVAL = 450; // Every 5 seconds at 90 TPS
@@ -103,29 +161,103 @@ public class ExternalCommunicator implements Runnable {
     
     public static ArrayList<String> outOfSyncUnitIds = new ArrayList<>();
     
+    /**
+     * Called once this machine has finished loading the map and stabilized. Freezes the game so it
+     * cannot accumulate ticks (or diverge) while the peer is still loading, then announces readiness.
+     */
     public static void setAndCommunicateMultiplayerReady () {
         isReadyForMultiplayerThisMachine = true;
+        if(RTSGame.game != null) RTSGame.game.setPaused(true);
+        System.out.println("[SYNC] Loaded and paused, waiting for peer");
         sendMessage("readyPhase1");
+        if(isServer && isReadyForMultiplayerOtherMachine) beginSynchronizedStart();
     }
-    
-    public static void setAndCommunicateMultiplayerStartTime () {
-        mpStartTime = System.currentTimeMillis() + 4000;
-        sendMessage("mpStartTime:"+mpStartTime);
-        // Reset random seed
+
+    /**
+     * Server-only. Both sides are loaded and paused, so pick the start moment and tell the client.
+     * Only the server initiates so that crossing readyPhase1 messages cannot produce two competing
+     * start times.
+     */
+    public static void beginSynchronizedStart () {
+        // Reset random seed first so the client applies it before the countdown elapses.
         long seed = (long) (Math.random() * 999999999);
         Main.setRandomSeed(seed);
         sendMessage("randomSeed:" + seed);
+        sendMessage("mpStartIn:" + START_COUNTDOWN_MS);
+        // The client's countdown starts when the message lands, one-way latency later than ours, so
+        // hold ourselves back by the same amount rather than starting early.
+        long oneWayMs = currentPingMs > 0 ? currentPingMs / 2 : 0;
+        scheduleSynchronizedStart(START_COUNTDOWN_MS + oneWayMs);
     }
-    
+
+    /**
+     * Arms the countdown and the thread that releases the game when it elapses. Runs off the tick
+     * thread because the game is paused while waiting - nothing would drive a tick-based gate.
+     */
+    private static void scheduleSynchronizedStart (long delayMs) {
+        mpStartDeadline = System.currentTimeMillis() + delayMs;
+        System.out.println("[SYNC] Synchronized start in " + delayMs + "ms");
+        asyncService.submit(() -> {
+            while(isWaitingForMpStart()) {
+                Main.wait(5);
+            }
+            mpStartDeadline = -1;
+            Game g = RTSGame.game;
+            // Anchor rate control to the rate the simulation is written against. Reading
+            // Main.ticksPerSecond instead would risk latching a value rate control had itself moved.
+            baseTicksPerSecond = RTSGame.desiredTPS;
+            Main.ticksPerSecond = baseTicksPerSecond;
+            partnerTickAtLastHeartbeat = -1; // stale against the tick numbering we are about to use
+            if(!isMpStarted) {
+                // First start only: both sides agree this instant is tick 0.
+                g.handler.globalTickNumber = 0;
+                isMpStarted = true;
+                System.out.println("[SYNC] Match starting at tick 0");
+            } else {
+                System.out.println("[SYNC] Resuming after resync at tick " + g.handler.globalTickNumber);
+            }
+            // The tick counter just changed meaning; any state strings keyed to the old numbering
+            // would compare unrelated ticks against each other.
+            resetDeterminismCheckState();
+            lastResyncCompletedTick = g.handler.globalTickNumber;
+            isResyncing = false;
+            g.setPaused(false);
+            return null;
+        });
+    }
+
     public static boolean isWaitingForMpStart() {
-        return mpStartTime > 0 && mpStartTime > System.currentTimeMillis();
+        return mpStartDeadline > 0 && mpStartDeadline > System.currentTimeMillis();
     };
-    
+
     public static boolean isMPReadyForCommands() {
         if(!isMultiplayer) return true;
+        if(!isMpStarted || isResyncing) return false;
         if(!isReadyForMultiplayerOtherMachine || !isReadyForMultiplayerThisMachine) return false;
-        System.out.println(tickTimingOffset + " offset compared to " + (RTSInput.getInputDelay() - 5));
         return Math.abs(tickTimingOffset) < RTSInput.getInputDelay() - 5;
+    }
+
+    /**
+     * Reports a peer command that arrived after its scheduled execute tick. Lateness means our clock
+     * has run past the peer's, which the rate controller can correct; it is not on its own evidence
+     * that the simulations diverged.
+     */
+    public static void reportLateCommand(long ticksLate) {
+        lastLateCommandTick = RTSGame.game != null ? RTSGame.game.handler.globalTickNumber : 0;
+        worstRecentCommandLateness = Math.max(worstRecentCommandLateness, ticksLate);
+        raiseInputDelayFor(ticksLate);
+    }
+
+    /**
+     * Worst command lateness seen since the last resync, in ticks, or 0 if none. Late commands are
+     * the leading indicator of drift - they show up well before the state check notices anything.
+     */
+    public static long getWorstRecentCommandLateness() {
+        // Decay the reading once commands have been arriving on time again for a while.
+        if(RTSGame.game != null && RTSGame.game.handler.globalTickNumber - lastLateCommandTick > DETERMINISM_CHECK_INTERVAL) {
+            worstRecentCommandLateness = 0;
+        }
+        return worstRecentCommandLateness;
     }
 
     private static String getResyncPath() {return "saves/mp_resync_" + (isServer ? "server" : "client") + ".dat";}
@@ -134,9 +266,6 @@ public class ExternalCommunicator implements Runnable {
 
         try {
             isMultiplayer = true;
-
-            // Save the current TPS setting
-            baseTicksPerSecond = Main.ticksPerSecond;
 
             if (server) {
                 localTeam = 0;
@@ -175,25 +304,41 @@ public class ExternalCommunicator implements Runnable {
             }
             listenerThread = new Thread(new ExternalCommunicator());
             listenerThread.start();
+            startPingLoop();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static Consumer<Game> handleSyncTick = game -> {       
-        long currentTick = game.handler.globalTickNumber;
-        if(isMultiplayer && !isMpStarted && isWaitingForMpStart()) {
-            System.out.println("waiting for mp");
-            while(isWaitingForMpStart()) {
-                Main.wait(10);
+    /**
+     * Measures round-trip latency from the moment the peers connect, independently of the game loop.
+     * The synchronized-start countdown needs a latency estimate before the first tick has run, and
+     * the estimate has to stay fresh while a resync has the game paused.
+     */
+    private static void startPingLoop() {
+        Thread pinger = new Thread(() -> {
+            while (socket != null && !socket.isClosed()) {
+                if (pendingPingSentAt == -1) {
+                    pendingPingSentAt = System.currentTimeMillis();
+                    sendMessage("ping:" + pendingPingSentAt);
+                }
+                Main.wait(PING_INTERVAL_MS);
+                // A pong that never arrived should not block the next probe forever.
+                pendingPingSentAt = -1;
             }
-            System.out.println("starting mp");
-            game.handler.globalTickNumber = 0;
-            game.setPaused(false);
-        }
+        }, "mp-ping");
+        pinger.setDaemon(true);
+        pinger.start();
+    }
 
-        // Adaptive tick slowdown to maintain synchronization
-        if(isMultiplayer && !isResyncing && currentTick > 0) {
+    public static Consumer<Game> handleSyncTick = game -> {
+        long currentTick = game.handler.globalTickNumber;
+
+        // Synchronization only has meaning once both sides agree on the tick numbering. Before the
+        // synchronized start each machine is free-running through its own load, so its tick counter
+        // and object population are unrelated to the peer's - comparing them there guarantees a
+        // spurious desync report.
+        if(isMultiplayer && isMpStarted && !isResyncing && currentTick > 0) {
             long now = System.currentTimeMillis();
 
             // Send periodic tick heartbeat to partner so they can measure offset
@@ -202,89 +347,34 @@ public class ExternalCommunicator implements Runnable {
                 lastTickHeartbeatTime = now;
             }
 
-            // Send periodic ping to measure round-trip latency
-            if(now - lastPingSentTime >= PING_INTERVAL_MS && pendingPingSentAt == -1) {
-                pendingPingSentAt = now;
-                lastPingSentTime = now;
-                sendMessage("ping:" + now);
-            }
-
-            // Speed-up control when BEHIND (negative offset means partner is ahead)
-            // Instead of slowing down the ahead machine, speed up the behind machine!
-            if(tickTimingOffset < -2) {
-                // We're behind - temporarily increase our TPS to catch up
-                // Proportional boost: 0.25 TPS per tick of offset, capped at +5 TPS
-                int maxBoost = (int) Math.min(baseTicksPerSecond * 1.5, 160); // 150% boost, capped at +160 TPS
-                int tpsBoost = (int) Math.min(Math.abs(tickTimingOffset) * 0.25, maxBoost);
-                int targetTPS = baseTicksPerSecond + tpsBoost;
-
-                if(Main.ticksPerSecond != targetTPS) {
-                    // System.out.println("[SPEEDUP] Boosting TPS from " + Main.ticksPerSecond + " to " + targetTPS + " (offset: " + String.format("%.1f", tickTimingOffset) + " ticks) - Team " + localTeam);
-                    Main.ticksPerSecond = targetTPS;
-                }
-            } else if(tickTimingOffset > -1 && Main.ticksPerSecond != baseTicksPerSecond) {
-                // Close to sync or ahead - restore normal TPS
-                // System.out.println("[SPEEDUP] Restoring TPS to " + baseTicksPerSecond + " (offset: " + String.format("%.1f", tickTimingOffset) + " ticks) - Team " + localTeam);
+            // A gap this large will not close at any sane tick rate, and usually means a tick counter
+            // moved rather than that the machines drifted apart. Rebuild from a snapshot instead.
+            if(Math.abs(tickTimingOffset) > LARGE_OFFSET_RESYNC_THRESHOLD
+                    && currentTick - lastResyncCompletedTick >= DETERMINISM_GRACE_PERIOD) {
+                System.out.println("[SYNC] Offset of " + String.format("%.0f", tickTimingOffset)
+                        + " ticks is too large to correct by rate control - resyncing");
                 Main.ticksPerSecond = baseTicksPerSecond;
+                beginResync(true);
+                return;
             }
+
+            applyRateControl();
+            enforceTickBarrier(currentTick);
 
             // Periodic determinism check every 5 seconds
             if(currentTick > 0 && currentTick % DETERMINISM_CHECK_INTERVAL == 0 && currentTick != lastDeterminismCheckTick) {
+                lastDeterminismCheckTick = currentTick;
+
                 // Skip checks during grace period after resync
                 if(currentTick - lastResyncCompletedTick < DETERMINISM_GRACE_PERIOD) {
                     System.out.println("[DETERMINISM] Skipping check at tick " + currentTick + " (grace period: " + (DETERMINISM_GRACE_PERIOD - (currentTick - lastResyncCompletedTick)) + " ticks remaining)");
-                    lastDeterminismCheckTick = currentTick; // Still mark as checked to avoid re-checking
-                    return;
-                }
-
-                lastDeterminismCheckTick = currentTick;
-
-                // Generate state string from all units
-                String ourStateString = generateGameStateString();
-
-                // Store our state string for this tick (for later comparison when partner's state arrives)
-                ourStateStrings.put(currentTick, ourStateString);
-
-                // Send to partner with tick number
-                 sendMessage("stateCheck:" + currentTick + ":" + Base64.getEncoder().encodeToString(ourStateString.getBytes()));
-                // System.out.println("[DETERMINISM] Sent state check for tick " + currentTick);
-
-                // Check if we have partner's state for this exact tick
-                String partnerStateString = partnerStateStrings.get(currentTick);
-                if(partnerStateString != null) {
-                    // Compare the strings
-                    if(!ourStateString.equals(partnerStateString)) {
-                        System.out.println("\n[DETERMINISM] ===== DESYNC DETECTED AT TICK " + currentTick + " =====");
-
-                        // Analyze and report the differences
-                        analyzeAndReportStateDifferences(ourStateString, partnerStateString, currentTick);
-
-                        // Trigger resync
-                        if(!isResyncing) {
-                            System.out.println("being resync via partenr state check");
-                            beginResync(true);
-                        }
-                    } else {
-                        System.out.println("[DETERMINISM] Check PASSED for tick " + currentTick + " - games in sync");
-                    }
-                    // Clean up both state strings after comparison
-                    partnerStateStrings.remove(currentTick);
-                    ourStateStrings.remove(currentTick);
-                }
-
-                // Clean up old state strings (keep only last 3)
-                if(partnerStateStrings.size() > 3) {
-                    long oldestToKeep = currentTick - (DETERMINISM_CHECK_INTERVAL * 2);
-                    partnerStateStrings.entrySet().removeIf(entry -> entry.getKey() < oldestToKeep);
-                }
-                if(ourStateStrings.size() > 3) {
-                    long oldestToKeep = currentTick - (DETERMINISM_CHECK_INTERVAL * 2);
-                    ourStateStrings.entrySet().removeIf(entry -> entry.getKey() < oldestToKeep);
+                } else {
+                    runDeterminismCheck(currentTick);
                 }
             }
 
             // Check if we're synchronized enough to decrease input delay
-            if(currentInputDelay > TARGET_INPUT_DELAY) {
+            if(currentInputDelay > getTargetInputDelay()) {
                 // If tick offset is small (within 6 ticks) and stable
                 if(Math.abs(tickTimingOffset) <= 6.0) {
                     if(!readyToDecreaseDelay) {
@@ -295,7 +385,7 @@ public class ExternalCommunicator implements Runnable {
 
                     // If both sides ready, decrease together
                     if(partnerReadyToDecreaseDelay) {
-                        currentInputDelay = Math.max(currentInputDelay - 1, TARGET_INPUT_DELAY);
+                        currentInputDelay = Math.max(currentInputDelay - 1, getTargetInputDelay());
                         readyToDecreaseDelay = false;
                         partnerReadyToDecreaseDelay = false;
                         sendMessage("decreaseDelay:" + currentInputDelay);
@@ -311,6 +401,162 @@ public class ExternalCommunicator implements Runnable {
             }
         }
     };
+
+    /**
+     * Nudges this machine's tick rate toward the peer's. Speeds up when behind and slows down when
+     * ahead, so two machines of different capability meet in the middle instead of the weaker one
+     * being asked to make up the whole gap on its own.
+     */
+    private static void applyRateControl() {
+        double offset = tickTimingOffset;
+        int targetTPS = baseTicksPerSecond;
+
+        if(offset < -RATE_CONTROL_DEADBAND) {
+            // Behind the partner - run hotter, up to the speedup ceiling.
+            double maxBoost = baseTicksPerSecond * (MAX_SPEEDUP_RATIO - 1.0);
+            double boost = Math.min((-offset - RATE_CONTROL_DEADBAND) * TPS_PER_TICK_OF_OFFSET, maxBoost);
+            targetTPS = (int) Math.round(baseTicksPerSecond + boost);
+        } else if(offset > RATE_CONTROL_DEADBAND) {
+            // Ahead of the partner - ease off so they can close the gap.
+            double maxCut = baseTicksPerSecond * (1.0 - MAX_SLOWDOWN_RATIO);
+            double cut = Math.min((offset - RATE_CONTROL_DEADBAND) * TPS_PER_TICK_OF_OFFSET, maxCut);
+            targetTPS = (int) Math.round(baseTicksPerSecond - cut);
+        }
+
+        if(Main.ticksPerSecond != targetTPS) {
+            Main.ticksPerSecond = targetTPS;
+        }
+    }
+
+    /**
+     * How far this machine may run ahead of the peer's last reported tick.
+     *
+     * A command the peer stamps at their tick T executes at T + inputDelay. It reaches us one-way
+     * latency later, by which point we may have advanced by our lead. For it to still be in our
+     * future we need lead + latency < inputDelay, so the lead budget is whatever the input delay has
+     * left over once latency is paid for.
+     */
+    private static int getMaxTickLead() {
+        int budget = (int) (currentInputDelay - getLatencyInTicks() - LEAD_SAFETY_MARGIN);
+        return Math.max(MIN_TICK_LEAD, budget);
+    }
+
+    /** One-way latency expressed in ticks, from the smoothed round-trip measurement. */
+    private static double getLatencyInTicks() {
+        return currentPingMs > 0 ? (currentPingMs / 2.0) * RTSGame.desiredTPS / 1000.0 : 0;
+    }
+
+    /**
+     * Input delay this connection should settle at. Latency has to be paid for out of the delay
+     * before any lead budget is left over, so a delay that is fixed regardless of ping starves the
+     * barrier on slower connections - it ends up stalling every tick and still letting commands land
+     * late. Sizing the delay from the measured ping keeps the lead budget constant instead.
+     */
+    private static int getTargetInputDelay() {
+        int target = (int) Math.ceil(getLatencyInTicks()) + DESIRED_LEAD_BUDGET + LEAD_SAFETY_MARGIN;
+        return Math.min(Math.max(MIN_INPUT_DELAY, target), MAX_INPUT_DELAY);
+    }
+
+    /**
+     * Blocks the tick thread while this machine is further ahead of the peer than the input delay can
+     * absorb. Compares against the peer's last reported tick without extrapolating, so the bound
+     * holds even if they stall outright - their true tick is never below what they last reported.
+     */
+    private static void enforceTickBarrier(long currentTick) {
+        if(partnerTickAtLastHeartbeat < 0) return; // no heartbeat yet, nothing to measure against
+        int maxLead = getMaxTickLead();
+        if(currentTick - partnerTickAtLastHeartbeat <= maxLead) return;
+
+        long stallStart = System.currentTimeMillis();
+        while(currentTick - partnerTickAtLastHeartbeat > maxLead) {
+            if(System.currentTimeMillis() - stallStart > MAX_STALL_MS) {
+                System.out.println("[SYNC] Tick barrier gave up after " + MAX_STALL_MS + "ms (we're at "
+                        + currentTick + ", partner last reported " + partnerTickAtLastHeartbeat + ")");
+                return;
+            }
+            if(isResyncing) return; // resync coordination needs this thread back
+            Main.wait(1);
+        }
+        long stalled = System.currentTimeMillis() - stallStart;
+        if(stalled > 20) {
+            System.out.println("[SYNC] Held " + stalled + "ms at tick " + currentTick + " waiting for partner");
+        }
+    }
+
+    /**
+     * Raises the input delay far enough that a command this late would have arrived in time, and asks
+     * the peer to do the same. Latency that outgrows the delay is the one condition the tick barrier
+     * cannot fix on its own, since the delay is what funds the lead budget.
+     */
+    private static void raiseInputDelayFor(long ticksLate) {
+        int proposed = (int) Math.min(currentInputDelay + ticksLate + LEAD_SAFETY_MARGIN, MAX_INPUT_DELAY);
+        if(proposed <= currentInputDelay) return;
+        currentInputDelay = proposed;
+        sustainedInputDelayFloor = Math.max(sustainedInputDelayFloor, proposed);
+        readyToDecreaseDelay = false;
+        partnerReadyToDecreaseDelay = false;
+        sendMessage("raiseDelay:" + proposed);
+        System.out.println("[SYNC] Raised input delay to " + proposed + " after a command arrived " + ticksLate + " ticks late");
+    }
+
+    /**
+     * Builds this machine's state string for the given tick, ships it to the peer, and compares
+     * against the peer's string for the same tick if it has already arrived.
+     */
+    private static void runDeterminismCheck(long currentTick) {
+        // Generate state string from all units
+        String ourStateString = generateGameStateString();
+
+        // Store our state string for this tick (for later comparison when partner's state arrives)
+        ourStateStrings.put(currentTick, ourStateString);
+
+        // Send to partner with tick number
+        sendMessage("stateCheck:" + currentTick + ":" + Base64.getEncoder().encodeToString(ourStateString.getBytes()));
+
+        // Check if we have partner's state for this exact tick
+        String partnerStateString = partnerStateStrings.get(currentTick);
+        if(partnerStateString != null) {
+            // Compare the strings
+            if(!ourStateString.equals(partnerStateString)) {
+                System.out.println("\n[DETERMINISM] ===== DESYNC DETECTED AT TICK " + currentTick + " =====");
+
+                // Analyze and report the differences
+                analyzeAndReportStateDifferences(ourStateString, partnerStateString, currentTick);
+
+                // Trigger resync
+                if(!isResyncing) {
+                    System.out.println("beginning resync from our own state check");
+                    beginResync(true);
+                }
+            } else {
+                System.out.println("[DETERMINISM] Check PASSED for tick " + currentTick + " - games in sync");
+            }
+            // Clean up both state strings after comparison
+            partnerStateStrings.remove(currentTick);
+            ourStateStrings.remove(currentTick);
+        }
+
+        // Clean up old state strings (keep only last 3)
+        if(partnerStateStrings.size() > 3) {
+            long oldestToKeep = currentTick - (DETERMINISM_CHECK_INTERVAL * 2);
+            partnerStateStrings.entrySet().removeIf(entry -> entry.getKey() < oldestToKeep);
+        }
+        if(ourStateStrings.size() > 3) {
+            long oldestToKeep = currentTick - (DETERMINISM_CHECK_INTERVAL * 2);
+            ourStateStrings.entrySet().removeIf(entry -> entry.getKey() < oldestToKeep);
+        }
+    }
+
+    /**
+     * Drops every stored state string and the last-checked marker. Required whenever globalTickNumber
+     * is reassigned, since the stored strings are keyed by tick number and would otherwise be
+     * compared against an unrelated tick that happens to reuse the same number.
+     */
+    private static void resetDeterminismCheckState() {
+        lastDeterminismCheckTick = 0;
+        partnerStateStrings.clear();
+        ourStateStrings.clear();
+    }
 
     @Override
     public void run() {
@@ -419,26 +665,16 @@ public class ExternalCommunicator implements Runnable {
 
         if(s.startsWith("readyPhase1")) {
             isReadyForMultiplayerOtherMachine = true;
-            if(isReadyForMultiplayerThisMachine) setAndCommunicateMultiplayerStartTime();
+            // Only the server picks the start moment, so readyPhase1 messages crossing in flight
+            // cannot produce two competing start times.
+            if(isServer && isReadyForMultiplayerThisMachine) beginSynchronizedStart();
         }
-        
-        if(s.startsWith("mpStartTime")) {
-            mpStartTime = Long.parseLong(s.split(":")[1]);
-            if(isResyncing) {
-                // Client receives this after loading is complete and being paused
-                asyncService.submit(() -> {
-                    System.out.println("Client received restart time, waiting for synchronized restart...");
-                    while(isWaitingForMpStart()) {
-                        Main.wait(10);
-                    }
-                    System.out.println("Client unpausing multiplayer game after resync");
-                    RTSGame.game.setPaused(false);
-                    lastResyncCompletedTick = RTSGame.game.handler.globalTickNumber;
-                    System.out.println("[DETERMINISM] Resync completed at tick " + lastResyncCompletedTick + ", grace period of " + DETERMINISM_GRACE_PERIOD + " ticks active");
-                    isResyncing = false;
-                    return null;
-                });
-            }
+
+        // Relative countdown rather than an absolute timestamp: the two machines' wall clocks may
+        // disagree by seconds, which would make one side skip the wait entirely.
+        if(s.startsWith("mpStartIn:")) {
+            long delayMs = Long.parseLong(s.substring("mpStartIn:".length()));
+            scheduleSynchronizedStart(delayMs);
         }
 
         // Save file transfer messages
@@ -448,7 +684,7 @@ public class ExternalCommunicator implements Runnable {
             expectedChunks = Integer.parseInt(parts[2]);
             expectedChecksum = parts[3]; // SHA-256 checksum
             receivedChunks = 0;
-            saveFileDataBuilder = new StringBuilder();
+            saveFileChunks = new String[expectedChunks];
             System.out.println("Receiving save file: " + expectedSaveFileSize + " bytes in " + expectedChunks + " chunks");
             System.out.println("Expected checksum: " + expectedChecksum);
         }
@@ -457,8 +693,14 @@ public class ExternalCommunicator implements Runnable {
             String[] parts = s.split(":", 3);
             int chunkIndex = Integer.parseInt(parts[1]);
             String chunkData = parts[2];
-            saveFileDataBuilder.append(chunkData);
-            receivedChunks++;
+            // Store by index rather than appending in arrival order, so reassembly does not depend
+            // on the chunks reaching us in the order they were sent.
+            if(saveFileChunks != null && chunkIndex >= 0 && chunkIndex < saveFileChunks.length) {
+                if(saveFileChunks[chunkIndex] == null) receivedChunks++;
+                saveFileChunks[chunkIndex] = chunkData;
+            } else {
+                System.err.println("Received save chunk " + chunkIndex + " outside the expected range");
+            }
             if(receivedChunks % 10 == 0) {
                 System.out.println("Received chunk " + receivedChunks + "/" + expectedChunks);
             }
@@ -466,8 +708,22 @@ public class ExternalCommunicator implements Runnable {
 
         if(s.equals("saveFileEnd")) {
             try {
+                // Verify every chunk arrived before reassembling
+                StringBuilder assembled = new StringBuilder();
+                for(int i = 0; i < expectedChunks; i++) {
+                    if(saveFileChunks == null || saveFileChunks[i] == null) {
+                        String errorMsg = "Save file transfer incomplete - missing chunk " + i + " of " + expectedChunks;
+                        System.err.println(errorMsg);
+                        sendMessage("loadFailed:" + errorMsg);
+                        abortResync();
+                        saveFileChunks = null;
+                        return;
+                    }
+                    assembled.append(saveFileChunks[i]);
+                }
+
                 // Decode Base64 and write to file
-                String encodedData = saveFileDataBuilder.toString();
+                String encodedData = assembled.toString();
                 byte[] fileData = Base64.getDecoder().decode(encodedData);
 
                 // Verify checksum BEFORE writing to disk
@@ -481,8 +737,8 @@ public class ExternalCommunicator implements Runnable {
 
                     // Notify server of corruption
                     sendMessage("loadFailed:Checksum verification failed - file corrupted during transmission");
-                    isResyncing = false;
-                    saveFileDataBuilder = null;
+                    abortResync();
+                    saveFileChunks = null;
                     return;
                 }
 
@@ -504,13 +760,13 @@ public class ExternalCommunicator implements Runnable {
                 waitingForSaveFile = false;
 
                 // Clean up
-                saveFileDataBuilder = null;
+                saveFileChunks = null;
             } catch (Exception e) {
                 System.err.println("Error processing received save file: " + e.getMessage());
                 e.printStackTrace();
                 // Notify server of failure
                 sendMessage("loadFailed:" + e.getMessage());
-                isResyncing = false;
+                abortResync();
             }
         }
 
@@ -523,14 +779,20 @@ public class ExternalCommunicator implements Runnable {
             String errorMessage = s.substring(11);
             System.err.println("Client reported load failure: " + errorMessage);
             System.err.println("Aborting resync");
-            isResyncing = false;
+            abortResync();
             clientLoadComplete = true; // Set to true to break server's wait loop
         }
 
         // Tick heartbeat for continuous synchronization
-        if(s.startsWith("tickHeartbeat:")) {
+        if(s.startsWith("tickHeartbeat:") && isMpStarted) {
             long partnerTickAtSend = Long.parseLong(s.substring(14));
             long ourTick = RTSGame.game.handler.globalTickNumber;
+
+            // Feed the tick barrier. Monotonic: a reordered or delayed heartbeat must not walk the
+            // bound backwards and stall us against a tick the peer has already passed.
+            if(partnerTickAtSend > partnerTickAtLastHeartbeat) {
+                partnerTickAtLastHeartbeat = partnerTickAtSend;
+            }
 
             // Adjust for one-way transit time using our own RTT measurement.
             // Without this, a behind machine can see a falsely positive (ahead) offset when
@@ -612,6 +874,17 @@ public class ExternalCommunicator implements Runnable {
             System.out.println("Partner ready to decrease input delay");
         }
 
+        if(s.startsWith("raiseDelay:")) {
+            int newDelay = Integer.parseInt(s.substring("raiseDelay:".length()));
+            if(newDelay > currentInputDelay) {
+                currentInputDelay = newDelay;
+                sustainedInputDelayFloor = Math.max(sustainedInputDelayFloor, newDelay);
+                readyToDecreaseDelay = false;
+                partnerReadyToDecreaseDelay = false;
+                System.out.println("Partner raised input delay to " + currentInputDelay);
+            }
+        }
+
         if(s.startsWith("decreaseDelay:")) {
             int newDelay = Integer.parseInt(s.substring(14));
             currentInputDelay = newDelay;
@@ -626,7 +899,8 @@ public class ExternalCommunicator implements Runnable {
             return;
         }
         if (printStream != null) {
-            ExternalCommunicator.asyncService.submit(() -> {
+            // Single sender thread: messages leave in the order they were queued.
+            senderService.submit(() -> {
                 // Main.wait(60); // simulate lag
                 printStream.println(message);
             });
@@ -649,8 +923,14 @@ public class ExternalCommunicator implements Runnable {
     
     public static synchronized void beginResync(boolean initiator) {
         if(isResyncing) return;
-        ExternalCommunicator.ourStateStrings.clear();
-        ExternalCommunicator.partnerStateStrings.clear();
+        if(!isMpStarted) {
+            // Before the synchronized start the two games are still loading and are paused or
+            // free-running independently; there is no shared state worth reconciling, and the save
+            // handshake relies on ticks that a paused game will not produce.
+            System.out.println("Ignoring resync request - match has not started yet");
+            return;
+        }
+        resetDeterminismCheckState();
         RTSGame.commandHandler.printCommandHistory();
         isResyncing = true;
         System.out.println("beginResync " + initiator);
@@ -660,7 +940,7 @@ public class ExternalCommunicator implements Runnable {
         resetAdaptiveSync();
 
         // Clear any pending operations
-        mpStartTime = -1;
+        mpStartDeadline = -1;
         // NOTE: Don't purge commands - they are part of the save state and should be preserved!
 
         if(isServer) {
@@ -688,13 +968,15 @@ public class ExternalCommunicator implements Runnable {
                     if(!clientLoadComplete) {
                         System.err.println("Server timeout waiting for client load confirmation after " + maxWaitSeconds + " seconds!");
                         System.err.println("Aborting resync - client may have failed to load save file");
-                        isResyncing = false;
+                        abortResync();
                         return null;
                     }
 
                     System.out.println("Client confirmed save received, both machines loading now...");
+                    // Clear before loading: the client's post-load confirmation can land while
+                    // loadResyncSaveFile is still returning, and clearing afterwards would swallow it.
+                    clientLoadComplete = false;
                     loadResyncSaveFile();
-                    clientLoadComplete = false; // Reset for next resync
 
                     return null;
                 });
@@ -726,7 +1008,7 @@ public class ExternalCommunicator implements Runnable {
                     e.printStackTrace();
                     // Notify server of failure
                     sendMessage("loadFailed:" + e.getMessage());
-                    isResyncing = false;
+                    abortResync();
                 }
                 return null;
             });
@@ -799,7 +1081,6 @@ public class ExternalCommunicator implements Runnable {
                 int end = Math.min(start + chunkSize, encodedData.length());
                 String chunk = encodedData.substring(start, end);
                 sendMessage("saveFileChunk:" + i + ":" + chunk);
-                Main.wait(10); // Small delay between chunks
             }
 
             sendMessage("saveFileEnd");
@@ -845,18 +1126,20 @@ public class ExternalCommunicator implements Runnable {
             }
 
             System.out.println("Loading resync save file...");
-            SerializationManager.loadGameState(RTSGame.game, getResyncPath());
-
-            // Loading happens via tick delays (takes ~2 ticks)
-            // Schedule pause and coordination after loading finishes
-            RTSGame.game.addTickDelayedEffect(3, g -> {
-                System.out.println("Resync load complete, now pausing for coordination");
+            // The follow-up work runs through loadGameState's completion callback rather than a
+            // tick-delayed effect of our own. Loading reassigns globalTickNumber from the snapshot,
+            // so a target tick computed here can land in the future once the counter moves back -
+            // leaving this machine unpaused through the restart handshake.
+            SerializationManager.loadGameState(RTSGame.game, getResyncPath(), g -> {
+                System.out.println("Resync load complete at tick " + g.handler.globalTickNumber + ", pausing for coordination");
 
                 // NOW pause after loading is complete
-                RTSGame.game.setPaused(true);
+                g.setPaused(true);
+                resetDeterminismCheckState();
 
                 if(!isServer) {
-                    // Client signals completion
+                    // Client signals completion; the server answers with the restart countdown,
+                    // which scheduleSynchronizedStart picks up and uses to unpause.
                     sendMessage("loadComplete");
                 } else {
                     // Server waits for client to finish, then coordinates restart
@@ -866,18 +1149,8 @@ public class ExternalCommunicator implements Runnable {
                             Main.wait(100);
                         }
                         System.out.println("Both sides loaded and paused, coordinating restart...");
-                        setAndCommunicateMultiplayerStartTime();
-
-                        // Wait for the synchronized restart time
-                        while(isWaitingForMpStart()) {
-                            Main.wait(10);
-                        }
-                        System.out.println("Restarting multiplayer game after resync");
-                        RTSGame.game.setPaused(false);
-                        lastResyncCompletedTick = RTSGame.game.handler.globalTickNumber;
-                        System.out.println("[DETERMINISM] Resync completed at tick " + lastResyncCompletedTick + ", grace period of " + DETERMINISM_GRACE_PERIOD + " ticks active");
-                        isResyncing = false;
                         clientLoadComplete = false; // Reset for next resync
+                        beginSynchronizedStart();
                         return null;
                     });
                 }
@@ -929,8 +1202,10 @@ public class ExternalCommunicator implements Runnable {
 
         double oldSmoothedOffset = tickTimingOffset;
 
-        // Smooth the offset with exponential moving average
-        tickTimingOffset = tickTimingOffset * 0.5 + offset * 0.5;
+        // Commands arrive sporadically and carry the sender's queueing delay, so this is a much
+        // noisier estimator than the 200ms heartbeat. Give it a small weight so it corroborates the
+        // heartbeat rather than yanking the value the rate controller is acting on.
+        tickTimingOffset = tickTimingOffset * 0.85 + offset * 0.15;
 
         System.out.println("[CMD-UPDATE] Raw offset: " + String.format("%.1f", offset) +
                           " | Smoothed: " + String.format("%.1f", oldSmoothedOffset) + " -> " + String.format("%.1f", tickTimingOffset) +
@@ -949,26 +1224,42 @@ public class ExternalCommunicator implements Runnable {
      * Resets adaptive synchronization state (called after resync)
      */
     private static void resetAdaptiveSync() {
-        currentInputDelay = INITIAL_INPUT_DELAY;
+        currentInputDelay = Math.max(INITIAL_INPUT_DELAY, sustainedInputDelayFloor);
+        // Tick numbers change across a resync, so a retained partner tick would be measured against
+        // a different numbering and could stall the barrier against a tick already passed.
+        partnerTickAtLastHeartbeat = -1;
         tickTimingOffset = 0.0;
         readyToDecreaseDelay = false;
         partnerReadyToDecreaseDelay = false;
         lastTickHeartbeatTime = 0;
-        lastPingSentTime = 0;
         pendingPingSentAt = -1;
+        worstRecentCommandLateness = 0;
 
         // Reset determinism check state
-        lastDeterminismCheckTick = 0;
-        partnerStateStrings.clear();
-        ourStateStrings.clear();
+        resetDeterminismCheckState();
 
-        // Restore base TPS (in case it was boosted for catch-up)
+        // Restore base TPS (in case rate control had it above or below normal)
         if(Main.ticksPerSecond != baseTicksPerSecond) {
             System.out.println("[SYNC] Restoring TPS to " + baseTicksPerSecond + " (was " + Main.ticksPerSecond + ")");
             Main.ticksPerSecond = baseTicksPerSecond;
         }
 
         System.out.println("[SYNC] Reset adaptive sync - input delay: " + currentInputDelay);
+    }
+
+    /**
+     * Unwinds a resync that cannot finish. Clearing the start deadline matters as much as clearing
+     * the resyncing flag: a stale future deadline leaves the synchronized-start gate armed, and the
+     * next machine to reach it would jump its tick counter while its peer stays put.
+     */
+    private static void abortResync() {
+        isResyncing = false;
+        mpStartDeadline = -1;
+        waitingForSaveFile = false;
+        saveFileReceived = false;
+        if(RTSGame.game != null && RTSGame.game.isPaused()) {
+            RTSGame.game.setPaused(false);
+        }
     }
 
     public static void beginResyncPt2() {

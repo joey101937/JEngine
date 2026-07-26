@@ -703,6 +703,16 @@ public class Game implements Runnable {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
+            // Whenever ticks run slower than their budget - a GC pause, a heavy frame, a tick that
+            // blocks on something - the unspent time piles up here as ticks still owed. Draining that
+            // backlog takes longer than the backlog took to form, so it grows, and render() below
+            // never gets a turn. Cap it: a game that cannot hold its target rate should run slow
+            // rather than stop drawing. The cap has to stay well above desiredTPS/framerate, or a
+            // low frame rate would hold the tick rate down for no reason.
+            double maxBacklog = desiredTPS * Main.maxTickBacklogSeconds;
+            if (delta > maxBacklog) {
+                delta = maxBacklog;
+            }
             while (delta >= 1) {
                 tick();
                 ticks++;

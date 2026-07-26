@@ -41,6 +41,15 @@ public class Main {
      */
     public static String assets = getDir() + "Assets" + File.separator;
     public static int ticksPerSecond = 90; //how fast the game logic runs. lower to help performance but at noticable reduction to gamespeed
+    /**
+     * How much owed game time the loop will try to make up in one pass before it must render again,
+     * in seconds. Ticks that run over their budget leave a backlog; draining a large one blocks
+     * rendering, and if draining is itself slow the backlog grows instead of clearing. Raising this
+     * lets a game with a low frame rate still reach its target tick rate; lowering it shortens the
+     * freeze after a hitch. Time beyond the cap is discarded, so the game runs slow rather than
+     * fast-forwarding - tick contents are unaffected either way.
+     */
+    public static double maxTickBacklogSeconds = 0.25;
     public static boolean tripleBuffer = true; //use 3 on buffer strategy or just 2
     public static boolean debugMode = false;
     public static int tickThreadCount = 1;

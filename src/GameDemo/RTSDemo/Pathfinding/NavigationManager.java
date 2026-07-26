@@ -124,6 +124,10 @@ public class NavigationManager extends IndependentEffect {
         if(ExternalCommunicator.isMultiplayer){
             g.drawString("MP: " + (ExternalCommunicator.isResyncing ? "Resyncing" : (int)ExternalCommunicator.tickTimingOffset + " | " + RTSInput.getInputDelay()), camLoc.x + 10, camLoc.y + 40);
             g.drawString("Ping: " + ExternalCommunicator.currentPingMs, camLoc.x + 10, camLoc.y + 50);
+            long lateness = ExternalCommunicator.getWorstRecentCommandLateness();
+            if(lateness > 0) {
+                g.drawString("Late cmd: " + lateness + " ticks", camLoc.x + 10, camLoc.y + 60);
+            }
 
         }        
 

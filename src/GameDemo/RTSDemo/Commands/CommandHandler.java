@@ -81,9 +81,18 @@ public class CommandHandler extends IndependentEffect{
             System.out.println("command ignored due to isMPReadyForCommands() being false");
             return false;
         }
-        if(toAdd.getExecuteTick() < game.getGameTickNumber()) {
-            System.out.println("Trying to add command to the past" + toAdd.toMpString());
-            if(ExternalCommunicator.isMultiplayer) ExternalCommunicator.beginResync(true);
+        long now = game.getGameTickNumber();
+        if(toAdd.getExecuteTick() < now) {
+            // The peer already ran this command at its scheduled tick and we cannot: running it now
+            // would apply it several ticks later than they did, which diverges the simulation just as
+            // surely as dropping it. Either way the games no longer match, so resync. The tick
+            // barrier below is what keeps this from happening in the first place.
+            long ticksLate = now - toAdd.getExecuteTick();
+            System.out.println("Command arrived " + ticksLate + " ticks late, cannot be executed in sync: " + toAdd.toMpString());
+            if(ExternalCommunicator.isMultiplayer) {
+                ExternalCommunicator.reportLateCommand(ticksLate);
+                ExternalCommunicator.beginResync(true);
+            }
             return false;
         }
         addQueue.add(toAdd);

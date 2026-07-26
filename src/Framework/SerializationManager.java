@@ -97,6 +97,22 @@ public class SerializationManager {
      * @param filePath The path to the save file
      */
     public static void loadGameState(Game game, String filePath) {
+        loadGameState(game, filePath, null);
+    }
+
+    /**
+     * Loads a saved game state, invoking onComplete once the load has fully finished.
+     *
+     * Loading spans several ticks and reassigns globalTickNumber from the snapshot, so callers
+     * cannot schedule their own follow-up work with addTickDelayedEffect - a tick target computed
+     * before the load may land in the future once the counter is restored. onComplete runs on the
+     * tick thread at the end of the final load step, after the tick counter is already correct.
+     *
+     * @param game The game instance to load state into
+     * @param filePath The path to the save file
+     * @param onComplete run after the load finishes; may be null
+     */
+    public static void loadGameState(Game game, String filePath, java.util.function.Consumer<Game> onComplete) {
         try {
             // Load snapshot from disk
             GameStateSnapshot snapshot;
@@ -182,6 +198,10 @@ public class SerializationManager {
 
                         System.out.println("Game state loaded from: " + filePath);
                         System.out.println("Loaded " + snapshot.gameObjects.size() + " objects and " + snapshot.independentEffects.size() + " effects at tick " + snapshot.globalTickNumber);
+
+                        if (onComplete != null) {
+                            onComplete.accept(game);
+                        }
                     });
             });
 
