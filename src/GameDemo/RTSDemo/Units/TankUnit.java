@@ -69,7 +69,10 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     private double hullRotationSpeed = 0.0;
 
     // Reversing: for short moves to a spot behind it, the tank backs up instead of turning around.
-    public static final double REVERSE_MAX_DISTANCE = 250;
+    public static final double REVERSE_MAX_DISTANCE = 200;
+    public static final double REVERSE_MAX_ANGLE_FROM_REAR = 70;
+    // wider exit than entry threshold so a target hovering near the boundary doesn't flip the tank back and forth
+    public static final double REVERSE_EXIT_ANGLE_FROM_REAR = 85;
     public static final double REVERSE_SPEED_FACTOR = 0.6;
     private boolean isReversing = false;
 
@@ -248,7 +251,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
     /**
      * The tank backs up rather than turning around when its destination is close by
-     * and sits within 90 degrees of the rear of the hull.
+     * and sits within REVERSE_MAX_ANGLE_FROM_REAR degrees of the rear of the hull.
      */
     @Override
     protected boolean shouldReverseToward(Coordinate steeringTarget) {
@@ -257,8 +260,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             return false;
         }
         double angleFromRear = 180 - Math.abs(rotationNeededToFace(steeringTarget));
-        // wider exit than entry threshold so a target hovering near the boundary doesn't flip the tank back and forth
-        isReversing = isReversing ? angleFromRear <= 105 : angleFromRear <= 90;
+        isReversing = angleFromRear <= (isReversing ? REVERSE_EXIT_ANGLE_FROM_REAR : REVERSE_MAX_ANGLE_FROM_REAR);
         return isReversing;
     }
 
