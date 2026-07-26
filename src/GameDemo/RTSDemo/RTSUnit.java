@@ -298,16 +298,30 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
                 !isCloseEnoughToDesired()
                 && (nextWaypoint.distanceFrom(getLocation()) > getWidth() / 6 || isOnBlockedNavTile() || isTouchingOtherUnit)) {
             this.debugFlag = true;
+            boolean reversing = shouldReverseToward(nextWaypoint);
             double desiredRotation = this.rotationNeededToFace(nextWaypoint);
+            if (reversing) {
+                // aim the rear at the waypoint instead of the front
+                desiredRotation += desiredRotation > 0 ? -180 : 180;
+            }
             applyHullRotation(desiredRotation);
             if (!isTouchingOtherUnit || Math.abs(desiredRotation) < 9) {
-                this.velocity.y = -100; //remember negative means forward because reasons
+                this.velocity.y = reversing ? 100 : -100; //remember negative means forward because reasons
             }
         }
         if(getHostGame().getGameTickNumber() - this.pathCacheSignatureLastChangedTick > RTSGame.desiredTPS * 4) {
             setCommandGroup("0");
             this.setDesiredLocation(getPixelLocation());
         }
+    }
+
+    /**
+     * Whether this unit should back up toward the given steering target rather than
+     * turning around and driving at it forwards. Units that can reverse override this.
+     * @param steeringTarget the point currently being driven toward
+     */
+    protected boolean shouldReverseToward(Coordinate steeringTarget) {
+        return false;
     }
 
     protected void applyHullRotation(double desiredRotation) {

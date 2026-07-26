@@ -68,6 +68,11 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
 
     private double hullRotationSpeed = 0.0;
 
+    // Reversing: for short moves to a spot behind it, the tank backs up instead of turning around.
+    public static final double REVERSE_MAX_DISTANCE = 250;
+    public static final double REVERSE_SPEED_FACTOR = 0.6;
+    private boolean isReversing = false;
+
     // Hull machine gun
     public static final Damage staticHullMGDamage = new Damage(4);
     public static final double HULL_MG_ATTACK_FREQUENCY = 1.5;
@@ -241,6 +246,22 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         return rotationSpeed * Math.max(0.1, Math.min(1.0, angle / 30.0));
     }
 
+    /**
+     * The tank backs up rather than turning around when its destination is close by
+     * and sits within 90 degrees of the rear of the hull.
+     */
+    @Override
+    protected boolean shouldReverseToward(Coordinate steeringTarget) {
+        if (isRubble || Coordinate.distanceBetween(getPixelLocation(), getDesiredLocation()) > REVERSE_MAX_DISTANCE) {
+            isReversing = false;
+            return false;
+        }
+        double angleFromRear = 180 - Math.abs(rotationNeededToFace(steeringTarget));
+        // wider exit than entry threshold so a target hovering near the boundary doesn't flip the tank back and forth
+        isReversing = isReversing ? angleFromRear <= 105 : angleFromRear <= 90;
+        return isReversing;
+    }
+
     @Override
     public double getSpeed() {
         Coordinate nextWaypoint = getNextWaypoint();
@@ -248,8 +269,11 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             return super.getSpeed();
         }
         double angle = Math.abs(rotationNeededToFace(nextWaypoint));
+        if (isReversing) {
+            angle = 180 - angle; // measured off the rear while backing up
+        }
         double angleFactor = Math.max(0.0, Math.min(1.0, (90.0 - angle) / 60.0));
-        return super.getSpeed() * angleFactor;
+        return super.getSpeed() * angleFactor * (isReversing ? REVERSE_SPEED_FACTOR : 1.0);
     }
 
     public void tick() {
