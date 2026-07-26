@@ -258,7 +258,7 @@ public class RTSInput extends InputHandler {
                     if (!u.isAlive() || u.isRubble) continue;
                     if (clickedUnit.team == u.team) continue; // not an enemy relative to this unit
                     if (!u.supportsPreferredTarget()) continue;
-                    if (!clickedUnit.isVisible(u.team)) continue; // can only target what this unit can see
+                    if (!clickedUnit.isVisibleToTeam(u.team)) continue; // can only target what this unit can see
                     // Gate on acceptance so a rejected command cannot raise the
                     // indicator for a preferred target that was never actually set.
                     anyIssued |= RTSGame.commandHandler.addCommand(new SetPreferredTargetCommand(

@@ -497,7 +497,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
                 if (((RTSUnit) go).isCloaked == true) {
                     continue;
                 }
-                 if (((RTSUnit) go).isVisible(this.team) == false) {
+                 if (((RTSUnit) go).isVisibleToTeam(this.team) == false) {
                     continue;
                 }
                 var myLoc = getLocation();
@@ -764,7 +764,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         double infantryDistance = 999999999, vehicleDistance = 999999999, aircraftDistance = 999999999, closestDistance = 999999999;
         Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), getRange());
         for (GameObject2 go : nearby) {
-            if (go instanceof RTSUnit unit && unit.team != team && !unit.isRubble && !unit.isCloaked && unit.isVisible(team)) {
+            if (go instanceof RTSUnit unit && unit.team != team && !unit.isRubble && !unit.isCloaked && unit.isVisibleToTeam(team)) {
                 double distance = distanceFrom(unit);
                 if (unit.plane > 1) {
                     if (nearestAircraft == null || distance < aircraftDistance) {
@@ -821,14 +821,30 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
      * Returns true if this unit is within at least one visible tile for the given team.
      * O(1) lookup into the fog-of-war grid. A cloaked unit is only visible to its own
      * team, no matter what the fog grid says.
+     *
+     * Reads only simulation state, so it is identical on every machine - this is the
+     * form tick logic (targeting, threat scans) must use. The local fog toggle and the
+     * local team are view-side concerns and are handled by {@link #isVisible(int)}.
      */
-    public boolean isVisible(int team) {
+    public boolean isVisibleToTeam(int team) {
         if (this.team == team) return true;
         if (isCloaked) return false;
-        if (!FogOfWarEffect.enabled || ExternalCommunicator.localTeam == this.team) return true;
         FogOfWarGrid grid = RTSGame.fogOfWarGrid;
         if (grid == null) return true;
         return grid.isTileVisible(team, (int) getLocation().x, (int) getLocation().y);
+    }
+
+    /**
+     * Visibility as the local player should see it: fog visibility plus the local-only
+     * allowances that the fog display is turned off, and that this machine's own units
+     * always show (their rubble stops providing vision, but should still be drawn).
+     *
+     * Local-only, so this belongs in rendering, input and HUD code. Tick logic should
+     * call {@link #isVisibleToTeam(int)} instead, which stays consistent across machines.
+     */
+    public boolean isVisible(int team) {
+        if (!FogOfWarEffect.enabled || ExternalCommunicator.localTeam == this.team) return true;
+        return isVisibleToTeam(team);
     }
 
     @Override

@@ -452,7 +452,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         RTSUnit found = null;
         for (var go : getHostGame().getObjectsNearPoint(getPixelLocation(), range)) {
             if (!(go instanceof RTSUnit unit)) continue;
-            if (unit.team == team || unit.isRubble || !unit.isInfantry || !unit.isVisible(team)) continue;
+            if (unit.team == team || unit.isRubble || !unit.isInfantry || !unit.isVisibleToTeam(team)) continue;
             double dist = distanceFrom(unit);
             if (dist < closest) {
                 closest = dist;

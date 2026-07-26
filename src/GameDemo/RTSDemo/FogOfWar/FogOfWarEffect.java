@@ -43,13 +43,15 @@ public class FogOfWarEffect extends IndependentEffect {
     @Override
     public void tick() {
         game.setBackgroundClip(null);
-        if (!enabled) return;
         if (game.getGameTickNumber() % 10 != 0) return;
-        if (RTSGame.fogOfWarGrid != null) {
-            RTSGame.fogOfWarGrid.update(game);
-            fogImage = buildFogImage(RTSGame.fogOfWarGrid, ExternalCommunicator.localTeam);
-            latestFogImage = fogImage;
-        }
+        if (RTSGame.fogOfWarGrid == null) return;
+        // The grid feeds unit targeting, which has to match on every machine in a multiplayer
+        // match, so it keeps updating regardless of the toggle. `enabled` is a display setting:
+        // it reveals the map to the local player without changing what units can see.
+        RTSGame.fogOfWarGrid.update(game);
+        if (!enabled) return;
+        fogImage = buildFogImage(RTSGame.fogOfWarGrid, ExternalCommunicator.localTeam);
+        latestFogImage = fogImage;
     }
 
     private BufferedImage buildFogImage(FogOfWarGrid grid, int team) {
