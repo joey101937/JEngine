@@ -11,6 +11,8 @@ import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.LayMineButton;
+import GameDemo.RTSDemo.Buttons.ReinforcedHullButton;
+import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
 import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.Effects.TankTreadEffect;
@@ -121,6 +123,19 @@ public class LightTank extends RTSUnit {
 
     private void initializeButtons() {
         addButton(new LayMineButton(this));
+        addButton(new ReinforcedHullButton(this));
+    }
+
+    @Override
+    public void takeDamage(Damage d) {
+        Damage updatedDamage = d.copy();
+        // reinforced hull passive: every hit is reduced by 1
+        if (updatedDamage.baseAmount > 0) {
+            updatedDamage.baseAmount--;
+        } else if (updatedDamage.apAmount > 0) {
+            updatedDamage.apAmount--;
+        }
+        super.takeDamage(updatedDamage);
     }
 
     @Override

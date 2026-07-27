@@ -20,6 +20,7 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.DigInButton;
 import GameDemo.RTSDemo.Buttons.DigOutButton;
 import GameDemo.RTSDemo.Buttons.FrontalArmorButton;
+import GameDemo.RTSDemo.Buttons.ReinforcedHullButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
 import GameDemo.RTSDemo.Effects.MuzzleSmokeEffect;
@@ -406,6 +407,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         addButton(digInButton);
         addButton(digOutButton);
         addButton(new FrontalArmorButton(this));
+        addButton(new ReinforcedHullButton(this));
     }
 
 
@@ -838,14 +840,17 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             sandbagUsesRemaining--;
             updatedDamage.apAmount *= .25;
             updatedDamage.baseAmount *= .25;
-            super.takeDamage(updatedDamage);
-            return;
-        }
-        if (updatedDamage.impactLoaction != null && Math.abs(rotationNeededToFace(updatedDamage.impactLoaction)) < 41) {
+        } else if (updatedDamage.impactLoaction != null && Math.abs(rotationNeededToFace(updatedDamage.impactLoaction)) < 41) {
             updatedDamage.baseAmount -= 10;
             if (updatedDamage.baseAmount < 0) {
                 updatedDamage.baseAmount = 0;
             }
+        }
+        // reinforced hull passive: every hit is reduced by 1
+        if (updatedDamage.baseAmount > 0) {
+            updatedDamage.baseAmount--;
+        } else if (updatedDamage.apAmount > 0) {
+            updatedDamage.apAmount--;
         }
         super.takeDamage(updatedDamage);
     }
