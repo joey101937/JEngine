@@ -54,7 +54,9 @@ public class ExternalCommunicator implements Runnable {
     public static boolean isServer = false;
     public static int localTeam = 0;
     public static boolean isConnected = false;
-    public static  boolean isResyncing = false;
+    public static volatile boolean isResyncing = false;
+    /** Gate so only one resync hand-off is in flight at a time. See requestResync. */
+    private static final java.util.concurrent.atomic.AtomicBoolean resyncRequested = new java.util.concurrent.atomic.AtomicBoolean(false);
 
     public static ExecutorService asyncService = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -232,6 +234,7 @@ public class ExternalCommunicator implements Runnable {
             resetDeterminismCheckState();
             lastResyncCompletedTick = g.handler.globalTickNumber;
             isResyncing = false;
+            resyncRequested.set(false);
             g.setPaused(false);
             return null;
         });
@@ -383,7 +386,7 @@ public class ExternalCommunicator implements Runnable {
                 System.out.println("[SYNC] Offset of " + String.format("%.0f", tickTimingOffset)
                         + " ticks is too large to correct by rate control - resyncing");
                 Main.ticksPerSecond = baseTicksPerSecond;
-                beginResync(true);
+                requestResync(true);
                 return;
             }
 
@@ -588,7 +591,7 @@ public class ExternalCommunicator implements Runnable {
                 // Trigger resync
                 if(!isResyncing) {
                     System.out.println("beginning resync from our own state check");
-                    beginResync(true);
+                    requestResync(true);
                 }
             } else {
                 System.out.println("[DETERMINISM] Check PASSED for tick " + currentTick + " - games in sync");
@@ -647,7 +650,7 @@ public class ExternalCommunicator implements Runnable {
         if(s.equals("beginResync")) {
             if(isResyncing) return;
             System.out.println("starting rsync");
-            beginResync(false);
+            requestResync(false);
             return;
         }
         if(s.equals("beginResyncPt2")) {
@@ -916,7 +919,7 @@ public class ExternalCommunicator implements Runnable {
                     // Trigger resync
                     if(!isResyncing) {
                         System.out.println("beginning resync from statecheck");
-                        beginResync(true);
+                        requestResync(true);
                     }
                 } else {
                     System.out.println("[DETERMINISM] Check PASSED for tick " + tick + " - games in sync");
@@ -984,7 +987,38 @@ public class ExternalCommunicator implements Runnable {
     }
     
     
-    public static synchronized void beginResync(boolean initiator) {
+    /**
+     * The only supported way to start a resync.
+     *
+     * beginResync is synchronized and reaches Game.addTickDelayedEffect, which is synchronized on
+     * the game. Every caller reaches it while already holding a lock the tick thread needs:
+     * CommandHandler.addCommand holds the command handler's monitor, and handleSyncTick runs inside
+     * the synchronized Game.tick(). That is a lock-order inversion in both directions - the tick
+     * thread holds the game monitor and blocks entering CommandHandler.tick(), while the listener
+     * thread holds the command handler and blocks on the game monitor - and it deadlocks the tick
+     * thread outright, with the socket and AWT threads still alive so the process looks merely
+     * frozen rather than hung.
+     *
+     * Running the resync on its own thread means it holds none of the caller's locks, so no ordering
+     * between them exists to invert.
+     */
+    public static void requestResync(boolean initiator) {
+        // One in-flight request at a time; without this the tick thread can queue a fresh request
+        // every tick during the hand-off, since isResyncing is not set until beginResync runs.
+        if(!resyncRequested.compareAndSet(false, true)) return;
+        asyncService.submit(() -> {
+            try {
+                beginResync(initiator);
+            } finally {
+                // beginResync declines when a resync is already running or the match has not
+                // started. In the decline case nothing will later clear the gate, so clear it here.
+                if(!isResyncing) resyncRequested.set(false);
+            }
+            return null;
+        });
+    }
+
+    private static synchronized void beginResync(boolean initiator) {
         if(isResyncing) return;
         if(!isMpStarted) {
             // Before the synchronized start the two games are still loading and are paused or
@@ -1336,6 +1370,7 @@ public class ExternalCommunicator implements Runnable {
      */
     private static void abortResync() {
         isResyncing = false;
+        resyncRequested.set(false);
         mpStartDeadline = -1;
         waitingForSaveFile = false;
         saveFileReceived = false;

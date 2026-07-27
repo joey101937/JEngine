@@ -91,7 +91,7 @@ public class CommandHandler extends IndependentEffect{
             System.out.println("Command arrived " + ticksLate + " ticks late, cannot be executed in sync: " + toAdd.toMpString());
             if(ExternalCommunicator.isMultiplayer) {
                 ExternalCommunicator.reportLateCommand(ticksLate);
-                ExternalCommunicator.beginResync(true);
+                ExternalCommunicator.requestResync(true);
             }
             return false;
         }
