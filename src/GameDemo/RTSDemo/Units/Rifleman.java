@@ -350,6 +350,6 @@ public class Rifleman extends RTSUnit {
     
     @Override
     public int getDodgeChance() {
-        return 30;
+        return 25;
     }
 }
