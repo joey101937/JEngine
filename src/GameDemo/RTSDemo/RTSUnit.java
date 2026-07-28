@@ -10,6 +10,7 @@ import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
 import Framework.Hitbox;
+import Framework.Main;
 import Framework.PathingLayer;
 import Framework.Push;
 import Framework.RenderHook;
@@ -1129,6 +1130,57 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
      */
     public int getDodgeChance() {
         return isRubble ? 25 : 8;
+    }
+
+    /**
+     * Accuracy high enough to cancel out any amount of dodge chance.
+     */
+    public static final int PERFECT_ACCURACY = 200;
+
+    /**
+     * How well this unit's attacks are aimed at a given target, before that
+     * target's dodge chance is taken into account. 100 means the only way to
+     * miss is for the target to dodge; every point above 100 cancels out one
+     * point of the target's dodge chance. Override this to give a unit better
+     * aim, or aim that varies by what it is shooting at.
+     * @param target the unit being attacked
+     * @return 0 or greater
+     */
+    public int getAccuracy(RTSUnit target) {
+        return 100;
+    }
+
+    /**
+     * 0-100 percent chance an attack from this unit lands on the given target,
+     * combining this unit's accuracy with the target's dodge chance.
+     * @param target the unit being attacked
+     * @return 0-100
+     */
+    public int getHitChance(RTSUnit target) {
+        return Math.max(0, Math.min(100, getAccuracy(target) - target.getDodgeChance()));
+    }
+
+    /**
+     * Hit chance for an attack from an attacker that may be a subobject such as
+     * a turret. Attacks with no unit behind them use plain 100 accuracy.
+     * @param attacker the object that launched the attack, may be null
+     * @param target the unit being attacked
+     * @return 0-100
+     */
+    public static int getHitChanceFrom(GameObject2 attacker, RTSUnit target) {
+        RTSUnit attackingUnit = getUnitFromUnknown(attacker);
+        return attackingUnit != null ? attackingUnit.getHitChance(target) : 100 - target.getDodgeChance();
+    }
+
+    /**
+     * Deterministic roll of whether one attack from this unit lands on the target.
+     * @param target the unit being attacked
+     * @param lookahead offset into the deterministic random sequence, so several
+     * rolls made on the same tick get independent results
+     * @return true if the attack hits
+     */
+    public boolean rollAttackHits(RTSUnit target, int lookahead) {
+        return Main.generateDeterministicRandomInt(0, 99, lookahead) < getHitChance(target);
     }
 
     public double bodyRectWidthFraction  = 0.55;

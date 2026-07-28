@@ -45,7 +45,6 @@ public class Rifleman extends RTSUnit {
     public long attackCooldownExpiresAtTick = 0;
     public Damage damage = staticDamage.copy(this);
     private long destructionScheduledAtTick = 0;
-    public int accuracyBonus = 10;
 
     static {
         runningSequence.setFrameDelay(35);
@@ -203,7 +202,7 @@ public class Rifleman extends RTSUnit {
     }
     
     private boolean performAttack(RTSUnit target, int callNum){
-        if(Main.generateDeterministicRandomInt(0, 100, callNum) + accuracyBonus > target.getDodgeChance()) {
+        if(rollAttackHits(target, callNum)) {
             damage.launchLocation = getPixelLocation();
             damage.impactLoaction = getPixelLocation();
             target.takeDamage(damage);
@@ -351,5 +350,10 @@ public class Rifleman extends RTSUnit {
     @Override
     public int getDodgeChance() {
         return 25;
+    }
+
+    @Override
+    public int getAccuracy(RTSUnit target) {
+        return 110; // trained marksmen shrug off some of the target's evasion
     }
 }

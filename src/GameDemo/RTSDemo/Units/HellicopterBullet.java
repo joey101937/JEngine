@@ -115,13 +115,13 @@ public class HellicopterBullet extends Projectile {
             }
             if (ignoredUnitIds.contains(unit.ID)) return;
             boolean preferOtherUnit = preferredTargetId != null && !unit.ID.equals(preferredTargetId);
-            int dodgeChance = unit.getDodgeChance();
-            int ignoreChance = dodgeChance;
+            int missChance = 100 - shooter.getHitChance(unit);
+            int ignoreChance = missChance;
             if (preferOtherUnit) ignoreChance += 50;
             int roll = Main.generateDeterministicRandomInt(0, 99);
             if (roll < ignoreChance) {
                 ignoredUnitIds.add(unit.ID);
-                if (roll < dodgeChance) {
+                if (roll < missChance) {
                     double capRange = startPosition.distanceFrom(unit.getPixelLocation()) + 100;
                     if (capRange < maxRange) maxRange = (int) capRange;
                 }

@@ -4,7 +4,6 @@ import Framework.Coordinate;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Sprite;
-import Framework.Main;
 import Framework.UtilityObjects.Projectile;
 import GameDemo.RTSDemo.Effects.BurnMarkEffect;
 import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
@@ -155,8 +154,7 @@ public class ApacheMissile extends Projectile {
         targets.sort((a, b) -> a.ID.compareTo(b.ID));
         int lookahead = 0;
         for (RTSUnit unit : targets) {
-            int roll = Main.generateDeterministicRandomInt(0, 99, lookahead++);
-            if (roll >= unit.getDodgeChance()) {
+            if (shooter.rollAttackHits(unit, lookahead++)) {
                 Damage dmg = new Damage(DAMAGE_AMOUNT);
                 dmg.source = shooter;
                 dmg.launchLocation = shooter.getPixelLocation();

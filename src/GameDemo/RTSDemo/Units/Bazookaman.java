@@ -329,4 +329,9 @@ public class Bazookaman extends RTSUnit {
         return 25;
     }
 
+    @Override
+    public int getAccuracy(RTSUnit target) {
+        return target.isInfantry ? 100 : PERFECT_ACCURACY; // vehicles are too slow to evade a rocket
+    }
+
 }

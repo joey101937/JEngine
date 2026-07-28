@@ -87,14 +87,14 @@ public class T2Bullet extends Projectile {
             }
             if (ignoredUnitIds.contains(otherUnit.ID)) return;
             boolean preferOtherUnit = preferredTargetId != null && !otherUnit.ID.equals(preferredTargetId);
-            int dodgeChance = otherUnit.getDodgeChance();
-            int ignoreChance = dodgeChance;
+            int missChance = 100 - RTSUnit.getHitChanceFrom(shooter, otherUnit);
+            int ignoreChance = missChance;
             if (preferOtherUnit) ignoreChance += 50;
             int roll = Main.generateDeterministicRandomInt(0, 99);
             // check miss
             if (roll < ignoreChance) {
                 ignoredUnitIds.add(otherUnit.ID);
-                if (roll < dodgeChance) {
+                if (roll < missChance) {
                     double capRange = startPosition.distanceFrom(otherUnit.getPixelLocation()) + 150;
                     if (capRange < maxRange) maxRange = (int) capRange;
                 }

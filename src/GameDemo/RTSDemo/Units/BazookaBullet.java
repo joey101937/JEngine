@@ -105,7 +105,7 @@ public class BazookaBullet extends Projectile {
             if (ignoredUnitIds.contains(otherUnit.ID)) return;
             
             boolean preferOtherUnit = preferredTargetId != null && !otherUnit.ID.equals(preferredTargetId);
-            int ignoreChance = otherUnit.isInfantry ? otherUnit.getDodgeChance() : 0; // bazooka cannot be dodged by vehicles
+            int ignoreChance = 100 - shooter.getHitChance(otherUnit);
             if(preferOtherUnit) ignoreChance += 50;
             if (Main.generateDeterministicRandomInt(0, 99) < ignoreChance) {
                 ignoredUnitIds.add(otherUnit.ID);
