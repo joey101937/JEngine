@@ -80,6 +80,8 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
     // Hull machine gun
     public static final Damage staticHullMGDamage = new Damage(4);
     public static final double HULL_MG_ATTACK_FREQUENCY = 1.5;
+    /** Half-angle, in degrees, off the hull's facing within which the MG can fire. */
+    public static final double HULL_MG_FIRING_ARC = 20;
     public Damage hullMGDamage;
     public long hullMGCooldownExpiresAtTick = 0;
     public int hullMGMuzzleOffsetX = 15;
@@ -337,7 +339,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
             isDiggingOut = false;
         }
 
-        if (!isRubble && !isImmobilized && velocity.y == 0 && rotationSpeed > 0) {
+        if (!isRubble && velocity.y == 0 && rotationSpeed > 0) {
             tickHullMachineGun();
         }
     }
@@ -428,8 +430,11 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         RTSUnit infantryTarget = nearestVisibleEnemyInfantryInRange();
         if (infantryTarget == null) return;
         double angleToTarget = rotationNeededToFace(infantryTarget.getPixelLocation());
-        applyHullRotation(angleToTarget);
-        if (Math.abs(angleToTarget) <= 14) {
+        // An immobilized (dug-in) tank keeps its hull planted but still fires within its arc
+        if (!isImmobilized) {
+            applyHullRotation(angleToTarget);
+        }
+        if (Math.abs(angleToTarget) <= HULL_MG_FIRING_ARC) {
             fireHullMG(infantryTarget);
         }
     }
