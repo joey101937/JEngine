@@ -65,6 +65,8 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
      * Relative push weight / priority. A strictly heavier unit shoves a lighter one out of its
      * way (regardless of team); equal-mass friendly units declump with a deterministic ID tie-break.
      * Rough scale: infantry ~100, light vehicles ~700-800, medium tank ~2000.
+     * Also drives pathing: units this one can bulldoze ({@link #BULLDOZE_RATIO}) are left out of its
+     * occupation map, so it routes straight through them.
      */
     public int mass = 200;
     public RTSUnit currentTarget;
@@ -790,6 +792,8 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         builder.append(commandGroup); // 4
         builder.append(',');
         builder.append(RTSGame.navigationManager.getNavTileSize(this)); // 5
+        builder.append(',');
+        builder.append(getPushPriority()); // 6 — units light enough to be bulldozed don't block us
         return builder.toString();
     };
 
@@ -998,8 +1002,19 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     @Override
     protected boolean movesFreelyThrough(GameObject2 other) {
         if (!(other instanceof RTSUnit unit) || unit.plane != this.plane) return false;
-        if (unit.isImmobilized || unit.getBaseSpeed() == 0) return false; // can't bulldoze anchored units
-        return canPush(unit) && getPushPriority() >= unit.getPushPriority() * BULLDOZE_RATIO;
+        return bulldozesThrough(getPushPriority(), unit);
+    }
+
+    /**
+     * Whether a unit of the given push priority plows through {@code other} rather than being
+     * stopped by it. Shared by collision ({@link #movesFreelyThrough}) and pathing, so a heavy
+     * unit does not route around units it would drive straight through anyway. Anchored units
+     * (immobilized, zero speed, rubble) hold their ground and are never bulldozed.
+     */
+    public static boolean bulldozesThrough(int pushPriority, RTSUnit other) {
+        if (other.isRubble || other.isImmobilized || other.getBaseSpeed() == 0) return false;
+        return pushPriority > other.getPushPriority()
+                && pushPriority >= other.getPushPriority() * BULLDOZE_RATIO;
     }
 
     /**

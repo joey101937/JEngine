@@ -25,7 +25,7 @@ public class TileMap implements Serializable{
     
     public OccupationMap generateOccupationMapFromSignature(String signature) {
         String[] parts = signature.split(",");
-        if (parts.length != 5) {
+        if (parts.length != 6) {
             System.out.println("signature: " + signature);
             throw new IllegalArgumentException("Invalid pathing signature format");
         }
@@ -34,7 +34,8 @@ public class TileMap implements Serializable{
         int plane = Integer.parseInt(parts[2]);
         String commandGroup = parts[3];
         int tileSize = Integer.parseInt(parts[4]);
-        return new OccupationMap(padding, commandGroup, team, plane, this, this.tileSize);
+        int pushPriority = Integer.parseInt(parts[5]);
+        return new OccupationMap(padding, commandGroup, team, plane, this, this.tileSize, pushPriority);
     }
     
      public TileMap(int worldWidth, int worldHeight, int tileSize) {

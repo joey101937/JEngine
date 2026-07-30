@@ -45,6 +45,8 @@ public class OccupationMap implements java.io.Serializable {
     private int plane;
     private TileMap tileMap;
     private int tileSize;
+    /** Push priority (mass) of the units this map is built for; units light enough to be bulldozed don't block. */
+    private int pushPriority;
 
     public ConcurrentHashMap<Tile, Boolean> occupiedMap = new ConcurrentHashMap<>();
     
@@ -70,7 +72,8 @@ public class OccupationMap implements java.io.Serializable {
                     && !unit.getCommandGroup().equals(NavigationManager.SEPERATOR_GROUP)) || unit.isRubble)
                     && unit.isSolid
                     && unit.plane == plane
-                    && (unit.team == team || unit.isRubble)) {
+                    && (unit.team == team || unit.isRubble)
+                    && !RTSUnit.bulldozesThrough(pushPriority, unit)) {
                 occupationTasks.add(occupationService.submit(() -> {
                     boolean isForInfantry = padding == 16;
                     for(Coordinate coord : tileMap.getTilesNearPoint(getGridLocationOf(unit.getPixelLocation()), (int)(unit.getWidthForPathing() * (isForInfantry ? .7 : .7)) + tileSize + padding)) {
@@ -118,13 +121,14 @@ public class OccupationMap implements java.io.Serializable {
     }
     
     
-    public OccupationMap(int padding, String commandGroup, int team, int plane, TileMap map, int tileSize) {
+    public OccupationMap(int padding, String commandGroup, int team, int plane, TileMap map, int tileSize, int pushPriority) {
         this.padding = padding;
         this.commandGroup = commandGroup;
         this.tileMap = map;
         this.team = team;
         this.plane = plane;
         this.tileSize = tileSize;
+        this.pushPriority = pushPriority;
     }
     
     public Boolean isTileBlocked(Tile t) {

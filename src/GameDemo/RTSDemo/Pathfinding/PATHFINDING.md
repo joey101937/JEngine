@@ -33,7 +33,7 @@ There are four tile grids, each covering the full world at a different granulari
 Every unit produces a signature string used as the occupation map key:
 
 ```
-padding,team,plane,commandGroup,navTileSize
+padding,team,plane,commandGroup,navTileSize,pushPriority
 ```
 
 - **padding** — from `RTSUnit.getPathingPadding()`. Controls how wide a berth units leave around obstacles. Infantry = 16, light tank = 60, helicopter = 100, medium tank = 65.
@@ -41,6 +41,7 @@ padding,team,plane,commandGroup,navTileSize
 - **plane** — altitude layer (0 = ground, 2+ = helicopter). Helicopters ignore ground-level occupation maps.
 - **commandGroup** — units in the same active command group don't block each other's paths. Separator group (`"seperator"`) always blocks.
 - **navTileSize** — which tile map this occupation map was built for.
+- **pushPriority** — from `RTSUnit.getPushPriority()` (defaults to `mass`). Units light enough for this unit to bulldoze are left out of the occupation map entirely, so a heavy unit paths straight through them instead of around.
 
 Because the signature includes `commandGroup`, a unit gets a new signature the moment it receives a move order. The occupation map for the new signature is built on the next refresh cycle (~0.1 s later). Path calculations in that window fall back to treating all tiles as open for that unit, which is harmless.
 
