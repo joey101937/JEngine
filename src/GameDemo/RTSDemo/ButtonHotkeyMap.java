@@ -6,6 +6,7 @@ import GameDemo.RTSDemo.Buttons.FlyButton;
 import GameDemo.RTSDemo.Buttons.LandButton;
 import GameDemo.RTSDemo.Buttons.LayMineButton;
 import GameDemo.RTSDemo.Buttons.LaunchMissileButton;
+import GameDemo.RTSDemo.Buttons.TargetPriorityToggleButton;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class ButtonHotkeyMap {
         MAP.put(LaunchMissileButton.class,'Q');
         MAP.put(LandButton.class,         'L');
         MAP.put(FlyButton.class,          'L');
+        MAP.put(TargetPriorityToggleButton.class, 'T');
     }
 
     /** Returns the uppercase hotkey character for the given button class, or 0 if none. */

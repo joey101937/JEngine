@@ -10,10 +10,12 @@ import Framework.Main;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.HeatSeekersButton;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
+import GameDemo.RTSDemo.Buttons.PrioritizeVehiclesButton;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.TargetPriority;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
@@ -80,8 +82,8 @@ public class Bazookaman extends RTSUnit {
         this.setBaseSpeed(RTSGame.tickAdjust(1.6));
         this.canAttackAir = true;
         this.rotationSpeed = RTSGame.tickAdjust(15);
-        this.maxHealth = 30;
-        this.currentHealth = 30;
+        this.maxHealth = 25;
+        this.currentHealth = 25;
         this.baseRange = 600;
         isInfantry = true;
         isSoftTarget = true;
@@ -90,12 +92,14 @@ public class Bazookaman extends RTSUnit {
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;
         this.sightRadius = 1400;
+        this.targetPriority = TargetPriority.VEHICLES;
         initializeButtons();
     }
 
     private void initializeButtons() {
         addButton(new HeatSeekersButton(this));
         addButton(new InfantryButton(this));
+        addButton(new PrioritizeVehiclesButton(this));
     }
 
     @Override

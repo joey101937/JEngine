@@ -20,6 +20,7 @@ import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.DigInButton;
 import GameDemo.RTSDemo.Buttons.DigOutButton;
 import GameDemo.RTSDemo.Buttons.FrontalArmorButton;
+import GameDemo.RTSDemo.Buttons.PrioritizeVehiclesButton;
 import GameDemo.RTSDemo.Buttons.ReinforcedHullButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
@@ -31,6 +32,7 @@ import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.FogOfWar.DirectionalVisionProvider;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.TargetPriority;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
@@ -391,10 +393,11 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         turret = new Turret(new Coordinate(0, 0));
         this.addSubObject(sandbag);
         this.addSubObject(turret);
-        this.maxHealth = 180;
+        this.maxHealth = 220;
         this.currentHealth = maxHealth;
         this.baseSpeed = speed;
         this.mass = 2000;
+        this.targetPriority = TargetPriority.VEHICLES;
         initializeButtons();
         this.rotationSpeed = RTSGame.tickAdjust(1.4);
         this.cargoSize = 8;
@@ -410,6 +413,7 @@ public class TankUnit extends RTSUnit implements DirectionalVisionProvider {
         addButton(digOutButton);
         addButton(new FrontalArmorButton(this));
         addButton(new ReinforcedHullButton(this));
+        addButton(new PrioritizeVehiclesButton(this));
     }
 
 

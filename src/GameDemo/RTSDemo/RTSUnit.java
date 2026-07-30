@@ -69,6 +69,12 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     public int mass = 200;
     public RTSUnit currentTarget;
     public int baseRange = 500;
+    /**
+     * Which kind of enemy this unit favours when several are in range and no preferred
+     * target is set. Fixed for units with a prioritisation passive, player-controlled on
+     * units carrying the target priority toggle.
+     */
+    public TargetPriority targetPriority = TargetPriority.NEUTRAL;
     public boolean canAttackAir = false;
     public boolean isRubble = false;
     public double rotationSpeed = RTSGame.tickAdjust(5);
@@ -269,7 +275,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
 
         if (!isBoardingActive && preferredTargetId != null) {
             RTSUnit prefTarget = (RTSUnit) getHostGame().getObjectById(preferredTargetId);
-            if (distanceFrom(prefTarget) <= getRange()) {
+            if (distanceFrom(prefTarget) <= getRangeAgainst(prefTarget)) {
                 // In range — stop and let combat take over; return to skip the movement block
                 setCommandGroup("0");
                 this.velocity.y = 0;
@@ -392,6 +398,35 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         return baseRange;
     }
 
+    /**
+     * This unit's effective range against one specific target. Defaults to {@link #getRange()};
+     * subclasses override it to reach further against particular kinds of target.
+     */
+    public int getRangeAgainst(RTSUnit target) {
+        return getRange();
+    }
+
+    /**
+     * The furthest this unit can reach against any target at all. Target scans are sized by
+     * this, and each candidate found is then checked against {@link #getRangeAgainst(RTSUnit)}.
+     */
+    public int getMaxRange() {
+        return getRange();
+    }
+
+    /**
+     * Ranking bucket used when several enemies are in range at once: 0 for the kind this unit
+     * favours, 1 for everything else. Lower buckets are shot first, and ties inside a bucket
+     * fall back to whichever candidate is nearest.
+     */
+    protected int getTargetPriorityTier(RTSUnit candidate) {
+        return switch (targetPriority) {
+            case INFANTRY -> candidate.isInfantry ? 0 : 1;
+            case VEHICLES -> candidate.isInfantry ? 1 : 0;
+            default -> 0;
+        };
+    }
+
     public Coordinate getDesiredLocation() {
         return desiredLocation.copy();
     }
@@ -477,38 +512,42 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
             System.out.println("null host game");
             return null;
         }
-        int range = getRange();
-        ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), range);
-        double closestDistance = range + 1;
-        GameObject2 closest = null;
-        if (!nearby.isEmpty()) {
-            for (GameObject2 go : nearby) {
-                if (!(go instanceof RTSUnit) || go == this) {
-                    continue;
-                }
-                if (!canAttackAir && go.plane == 2) {
-                    continue;
-                }
-                if (((RTSUnit) go).team == team) {
-                    continue;
-                }
-                if (((RTSUnit) go).isRubble == true) {
-                    continue;
-                }
-                if (((RTSUnit) go).isCloaked == true) {
-                    continue;
-                }
-                 if (((RTSUnit) go).isVisibleToTeam(this.team) == false) {
-                    continue;
-                }
-                var myLoc = getLocation();
-                if (myLoc.distanceFrom(go.getLocationAsOfLastTick()) < closestDistance) {
-                    closestDistance = myLoc.distanceFrom(go.getLocationAsOfLastTick());
-                    closest = go;
-                }
+        ArrayList<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), getMaxRange());
+        var myLoc = getLocation();
+        RTSUnit best = null;
+        int bestTier = Integer.MAX_VALUE;
+        double bestDistance = Double.MAX_VALUE;
+        for (GameObject2 go : nearby) {
+            if (!(go instanceof RTSUnit unit) || go == this) {
+                continue;
+            }
+            if (!canAttackAir && go.plane == 2) {
+                continue;
+            }
+            if (unit.team == team) {
+                continue;
+            }
+            if (unit.isRubble) {
+                continue;
+            }
+            if (unit.isCloaked) {
+                continue;
+            }
+            if (!unit.isVisibleToTeam(this.team)) {
+                continue;
+            }
+            double distance = myLoc.distanceFrom(go.getLocationAsOfLastTick());
+            if (distance > getRangeAgainst(unit)) {
+                continue;
+            }
+            int tier = getTargetPriorityTier(unit);
+            if (tier < bestTier || (tier == bestTier && distance < bestDistance)) {
+                bestTier = tier;
+                bestDistance = distance;
+                best = unit;
             }
         }
-        return (RTSUnit) closest;
+        return best;
     }
 
     @Override
@@ -626,6 +665,8 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         }
         builder.append(",");
         builder.append(boardingTransportId == null ? "null" : boardingTransportId); // 23
+        builder.append(",");
+        builder.append(this.targetPriority.name()); // 24
 
         return builder.toString();
     }
@@ -731,6 +772,11 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
         if (components.length > 23) {
             this.boardingTransportId = components[23].equals("null") ? null : components[23];
         }
+
+        // Parse targetPriority
+        if (components.length > 24) {
+            this.targetPriority = TargetPriority.valueOf(components[24]);
+        }
     }
     
     public String getPathingSignature () {
@@ -763,10 +809,13 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
     public void populateNearbyEnemies() {
         RTSUnit nearestInfantry = null, nearestVehicle = null, nearestAircraft = null, nearestUnit = null;
         double infantryDistance = 999999999, vehicleDistance = 999999999, aircraftDistance = 999999999, closestDistance = 999999999;
-        Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), getRange());
+        Collection<GameObject2> nearby = getHostGame().getObjectsNearPoint(getPixelLocation(), getMaxRange());
         for (GameObject2 go : nearby) {
             if (go instanceof RTSUnit unit && unit.team != team && !unit.isRubble && !unit.isCloaked && unit.isVisibleToTeam(team)) {
                 double distance = distanceFrom(unit);
+                if (distance > getRangeAgainst(unit)) {
+                    continue;
+                }
                 if (unit.plane > 1) {
                     if (nearestAircraft == null || distance < aircraftDistance) {
                         nearestAircraft = unit;
@@ -1111,7 +1160,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
             preferredTargetId = null;
             return null;
         }
-        return distanceFrom(t) <= getRange() ? t : null;
+        return distanceFrom(t) <= getRangeAgainst(t) ? t : null;
     }
 
     public void setCommandGroup(String s) {

@@ -10,12 +10,15 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.Buttons.EliteRifleButton;
 import GameDemo.RTSDemo.Buttons.InfantryButton;
+import GameDemo.RTSDemo.Buttons.PrioritizeInfantryButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.TargetPriority;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.VolatileImage;
@@ -33,6 +36,12 @@ public class Rifleman extends RTSUnit {
     public static final Sequence runningSequence = new Sequence(RTSAssetManager.infantryLegsRun);
     public static final Damage staticDamage = new Damage(2);
     public static final int attackFrequency = 1;
+    /** Elite Rifle: extra reach when the target is infantry. */
+    public static final int ELITE_RANGE_BONUS_VS_INFANTRY = 100;
+    /** Elite Rifle: distance inside which every shot hits harder, regardless of target type. */
+    public static final int ELITE_CLOSE_RANGE = 150;
+    /** Elite Rifle: damage added to each shot fired from inside {@link #ELITE_CLOSE_RANGE}. */
+    public static final int ELITE_CLOSE_DAMAGE_BONUS = 1;
     public static Sequence smallImpact = new Sequence(RTSAssetManager.smallImpact);
     public static Sprite deadShadowSprite = Sprite.generateShadowSprite(RTSAssetManager.infantryRifleDead, .8);
 
@@ -98,11 +107,24 @@ public class Rifleman extends RTSUnit {
         this.minSpeedDistance = 25;
         this.maxSpeedDistance = 50;
         this.sightRadius = 1400;
+        this.targetPriority = TargetPriority.INFANTRY;
         initializeButtons();
     }
 
     private void initializeButtons() {
         addButton(new InfantryButton(this));
+        addButton(new PrioritizeInfantryButton(this));
+        addButton(new EliteRifleButton(this));
+    }
+
+    @Override
+    public int getRangeAgainst(RTSUnit target) {
+        return target.isInfantry ? getRange() + ELITE_RANGE_BONUS_VS_INFANTRY : getRange();
+    }
+
+    @Override
+    public int getMaxRange() {
+        return getRange() + ELITE_RANGE_BONUS_VS_INFANTRY;
     }
 
     @Override
@@ -190,6 +212,9 @@ public class Rifleman extends RTSUnit {
                     Main.generateRandomDoubleLocally(1.75, 2.9),
                     Main.generateRandomIntLocally(0, 20));
         turret.setGraphic(turret.getFireAnimation());
+        // Elite Rifle: shots fired from close up land harder, whatever they are aimed at
+        damage.baseAmount = staticDamage.baseAmount
+                + (distanceFrom(target) <= ELITE_CLOSE_RANGE ? ELITE_CLOSE_DAMAGE_BONUS : 0);
         // riflemen attack by shooting 2dmg 3 times.
         // each time recalculates dodge chance separately so that it has higher possibility of hitting at least one shot
         boolean hit0 = performAttack(target, 0);
@@ -326,8 +351,10 @@ public class Rifleman extends RTSUnit {
     @Override
     public ArrayList<String> getInfoLines() {
         var out = new ArrayList<String>();
-        out.add("Dmg: " + damage + " x 3      Interval: " + attackFrequency+"s    Range: "+ getRange());
+        out.add("Dmg: " + staticDamage + " x 3      Interval: " + attackFrequency+"s    Range: "+ getRange());
         out.add("Speed: " + baseSpeed + "    Targets: Ground+Air");
+        out.add("Vs Infantry: Range " + (getRange() + ELITE_RANGE_BONUS_VS_INFANTRY)
+                + "    Under " + ELITE_CLOSE_RANGE + ": +" + ELITE_CLOSE_DAMAGE_BONUS + " Dmg");
         return out;
     }
 

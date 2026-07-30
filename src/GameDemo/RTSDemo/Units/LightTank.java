@@ -12,6 +12,7 @@ import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
 import GameDemo.RTSDemo.Buttons.LayMineButton;
 import GameDemo.RTSDemo.Buttons.ReinforcedHullButton;
+import GameDemo.RTSDemo.Buttons.TargetPriorityToggleButton;
 import GameDemo.RTSDemo.Damage;
 import GameDemo.RTSDemo.Effects.ExhaustTrailEffect;
 import GameDemo.RTSDemo.Effects.SmokePoofEffect;
@@ -124,6 +125,7 @@ public class LightTank extends RTSUnit {
     private void initializeButtons() {
         addButton(new LayMineButton(this));
         addButton(new ReinforcedHullButton(this));
+        addButton(new TargetPriorityToggleButton(this));
     }
 
     @Override
@@ -249,9 +251,8 @@ public class LightTank extends RTSUnit {
         if (isRubble) {
             return;
         }
-        populateNearbyEnemies();
         RTSUnit preferred = getPreferredTargetIfInRange();
-        currentTarget = preferred != null ? preferred : nearestEnemyGroundUnit;
+        currentTarget = preferred != null ? preferred : nearestEnemyInRange();
         if (currentTarget != null && Math.abs(turret.rotationNeededToFace(currentTarget.getPixelLocation())) < 3 && barrelCooldownExpiresAtTick == 0) {
             System.out.println("rotation needed to face "  + turret.rotationNeededToFace(currentTarget.getPixelLocation()));
             fire(currentTarget);

@@ -7,12 +7,14 @@ import Framework.GraphicalAssets.Sprite;
 import Framework.Main;
 import Framework.Stickers.OnceThroughSticker;
 import Framework.SubObject;
+import GameDemo.RTSDemo.Buttons.PrioritizeVehiclesButton;
 import GameDemo.RTSDemo.Effects.MuzzleSmokeEffect;
 import GameDemo.RTSDemo.Effects.SmokePoofEffect;
 import GameDemo.RTSDemo.RTSAssetManager;
 import GameDemo.RTSDemo.RTSGame;
 import GameDemo.RTSDemo.RTSSoundManager;
 import GameDemo.RTSDemo.RTSUnit;
+import GameDemo.RTSDemo.TargetPriority;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -167,6 +169,12 @@ public class T2Turret extends RTSUnit {
         this.baseRange = 750;
         this.sightRadius = 650;
         this.cargoSize = -1;
+        this.targetPriority = TargetPriority.VEHICLES;
+        initializeButtons();
+    }
+
+    private void initializeButtons() {
+        addButton(new PrioritizeVehiclesButton(this));
     }
 
     public Sprite getBaseSprite() {

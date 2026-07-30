@@ -133,6 +133,10 @@ public abstract class RTSAssetManager {
     public static BufferedImage flyButton;
     public static BufferedImage loadButton;
     public static BufferedImage unloadButton;
+    public static BufferedImage prioritizeInfantryButton;
+    public static BufferedImage prioritizeVehiclesButton;
+    public static BufferedImage targetPriorityToggleButton;
+    public static BufferedImage eliteRifleButton;
 
     public static BufferedImage immobilizationIcon, shieldIcon;
 
@@ -643,6 +647,10 @@ public abstract class RTSAssetManager {
             unloadButton = load("DemoAssets/TankGame/Buttons/unloadButton.png");
             landButton = load("DemoAssets/TankGame/Buttons/landButton.png");
             flyButton = load("DemoAssets/TankGame/Buttons/flyButton.png");
+            prioritizeInfantryButton = load("DemoAssets/TankGame/Buttons/prioritizeInfantry.png");
+            prioritizeVehiclesButton = load("DemoAssets/TankGame/Buttons/prioritizeVehicles.png");
+            targetPriorityToggleButton = load("DemoAssets/TankGame/Buttons/targetPriorityToggle.png");
+            eliteRifleButton = load("DemoAssets/TankGame/Buttons/eliteRifle.png");
         }, executor);
     }
 
