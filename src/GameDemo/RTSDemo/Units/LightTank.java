@@ -372,12 +372,12 @@ public class LightTank extends RTSUnit {
             previousHullRotation = currentHullRotation;
 
             updateDesiredRotation();
-            double maxSpeed = RTSGame.tickAdjust(2.2);
+            double maxSpeed = RTSGame.tickAdjust(3.2);
             double desiredRotation = desiredRotationAngle - getRotationRealTime();
             if (desiredRotation > 180) desiredRotation -= 360;
             else if (desiredRotation < -180) desiredRotation += 360;
 
-            final double accel = RTSGame.tickAdjust(0.4);
+            final double accel = RTSGame.tickAdjust(0.6);
             double targetSpeed = Math.abs(desiredRotation) < 0.01 ? 0.0 : Math.copySign(maxSpeed, desiredRotation);
 
             if (turretRotationSpeed < targetSpeed) {
