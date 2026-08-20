@@ -65,11 +65,82 @@ public class Main {
     public static Consumer<Graphics2D> renderingHintSetter = null; // optional consumer which can be used to override which java rendering hints are active
     public static boolean enableLerping = true; // lerping attempts to smooth movement across ticks by preemptively rendering movement
     public static String lerpType = "reactive"; // may be set to "reactive" or "predictive"
+    /**
+     * How far, in pixels, an interpolated sprite may be drawn from where its object actually is
+     * before the engine stops interpolating it for that tick.
+     *
+     * Lerping assumes the gap between two positions was travelled. A teleport - a screen wrap, a
+     * respawn, a warp pad - breaks that assumption: the gap was jumped, not crossed, so smoothing
+     * it draws the object sweeping the whole distance, typically straight through the middle of
+     * the world. Anything beyond this threshold is treated as a discontinuity and drawn at its
+     * true position instead.
+     *
+     * The value only needs to exceed the fastest real per-tick movement in the game; the default
+     * clears every demo here by a wide margin. Set to 0 to disable the check entirely.
+     */
+    public static double maxLerpDistance = 150;
     
 
     public static Handler.TickType tickType = Handler.TickType.modular;
     public static long seed = (long)(Math.random()*9999999999999L);
     private static Random random;
+
+    /**
+     * Where a throwable escaping an object's tick or render goes. The engine catches these so one
+     * broken object cannot take the loop down with it, but a bare stack trace per object per frame
+     * buries the first occurrence under thousands of copies of itself within a second, so the
+     * default reports each distinct failure once and then counts the repeats.
+     *
+     * Replace it to route engine failures somewhere else, or set
+     * {@link #failFastOnEngineError} to have them rethrown instead.
+     */
+    public static Consumer<Throwable> onEngineError = Main::reportEngineError;
+    /**
+     * Rethrow instead of reporting. Off by default because a running game should survive one
+     * broken object; tests want the opposite, so that a silent failure fails the test.
+     */
+    public static boolean failFastOnEngineError = false;
+
+    private static final java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.atomic.AtomicLong>
+            engineErrorCounts = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * Hands a throwable to {@link #onEngineError}, or rethrows it when
+     * {@link #failFastOnEngineError} is set. Called by the engine's tick and render tasks.
+     */
+    public static void handleEngineError(Throwable t) {
+        if (failFastOnEngineError) {
+            if (t instanceof RuntimeException re) throw re;
+            if (t instanceof Error e) throw e;
+            throw new RuntimeException(t);
+        }
+        Consumer<Throwable> handler = onEngineError;
+        if (handler != null) handler.accept(t);
+    }
+
+    /**
+     * Prints the first occurrence of each distinct failure in full, then a running count at
+     * successive powers of ten so a persistent failure stays visible without flooding the log.
+     * Distinctness is the throwable's type plus its top stack frame.
+     */
+    private static void reportEngineError(Throwable t) {
+        StackTraceElement[] trace = t.getStackTrace();
+        String key = t.getClass().getName() + "@" + (trace.length > 0 ? trace[0].toString() : "?");
+        long count = engineErrorCounts
+                .computeIfAbsent(key, k -> new java.util.concurrent.atomic.AtomicLong())
+                .incrementAndGet();
+        if (count == 1) {
+            System.err.println("[JEngine] error in game loop: " + key);
+            t.printStackTrace();
+        } else if (count % 1000 == 0) {
+            System.err.println("[JEngine] " + key + " has now occurred " + count + " times");
+        }
+    }
+
+    /** Forgets the per-failure counts, so the next occurrence of each prints in full again. */
+    public static void resetEngineErrorReporting() {
+        engineErrorCounts.clear();
+    }
     
     
     public static float getNanosecondsPerTick () {

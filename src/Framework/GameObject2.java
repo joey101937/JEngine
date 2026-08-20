@@ -511,7 +511,21 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
 
            DCoordinate renderOffset = movement.scale(deltaTime);
 
-           return constrainToWorld(base.add(renderOffset));
+           DCoordinate candidate = constrainToWorld(base.add(renderOffset));
+           // Interpolation assumes the gap between two positions was travelled. A teleport - a
+           // screen wrap, a respawn, a warp - jumped it instead, and lastMovement then holds the
+           // whole jump, so smoothing it draws the object sweeping the entire distance rather
+           // than sitting where it is. Anything that would land implausibly far from the object's
+           // real position is treated as a discontinuity and drawn unsmoothed for that one tick.
+           double maxLerp = Main.maxLerpDistance;
+           if (maxLerp > 0) {
+               double dx = candidate.x - location.x;
+               double dy = candidate.y - location.y;
+               if (dx * dx + dy * dy > maxLerp * maxLerp) {
+                   return getPixelLocation().toDCoordinate();
+               }
+           }
+           return candidate;
         } else {
              return getPixelLocation().toDCoordinate();
          }
@@ -832,9 +846,13 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             newLocation = current.location.copy();
             newLocation.add(proposedMovement);
             for (GameObject2 other : otherObjsAndOtherSubObjects) {
-                if (!xClear && !yClear) {
-                    return new DCoordinate(0, 0);
-                }
+                // This scan runs to completion even once movement is fully blocked. Bailing out
+                // early cannot change the result - xClear and yClear are only ever cleared, never
+                // restored - but it does skip every remaining candidate's registerCollision, so a
+                // fully blocked object stops reporting contacts. Collisions are registered from
+                // both participants' ticks, which hides that most of the time; when both are
+                // blocked, neither reaches the other and the pair is dropped entirely. That is
+                // precisely a pileup, where the events matter most.
                 if (!canCollideWith(other)) {
                     continue;
                 }

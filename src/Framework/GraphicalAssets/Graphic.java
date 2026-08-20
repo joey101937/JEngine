@@ -243,10 +243,20 @@ public interface Graphic {
         return dst;
     }
 
+    /**
+     * The configuration volatile images are created against. Falls back to the default screen
+     * device when there is no window yet, which is what lets a game be built and ticked without
+     * a live JFrame - an offscreen test harness would otherwise fail on the first sprite drawn.
+     */
+    private static GraphicsConfiguration graphicsConfig() {
+        if (Window.frame != null) return Window.frame.getGraphicsConfiguration();
+        return GraphicsEnvironment.getLocalGraphicsEnvironment()
+                .getDefaultScreenDevice().getDefaultConfiguration();
+    }
+
     public static VolatileImage getVolatileFromBuffered(BufferedImage bi) {
         VolatileImage output = null;
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsConfiguration gc = Window.frame != null ? Window.frame.getGraphicsConfiguration() : ge.getDefaultScreenDevice().getDefaultConfiguration();
+        GraphicsConfiguration gc = graphicsConfig();
         output = gc.createCompatibleVolatileImage(bi.getWidth(), bi.getHeight(), Transparency.TRANSLUCENT);
         output.validate(gc);
         Graphics2D g2d = output.createGraphics();
@@ -267,8 +277,7 @@ public interface Graphic {
      * @return
      */
     public static VolatileImage getValidatedVolatileImage(VolatileImage vi, BufferedImage source) {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsConfiguration gc = Window.frame.getGraphicsConfiguration();
+        GraphicsConfiguration gc = graphicsConfig();
         int status = vi.validate(gc);
         if (vi.contentsLost() || status != 0) {
             if (Main.debugMode) {

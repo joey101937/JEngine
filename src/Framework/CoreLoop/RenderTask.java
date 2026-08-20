@@ -44,8 +44,9 @@ public class RenderTask implements Runnable {
                     }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            // see TickTask: an Error escaping here reads as "nothing renders" with no output
+            Framework.Main.handleEngineError(t);
         }
     }
 

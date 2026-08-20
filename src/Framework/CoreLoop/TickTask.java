@@ -63,8 +63,11 @@ public class TickTask implements Runnable {
                     so.tick();
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            // Throwable, not Exception: an Error - a StackOverflowError from runaway recursion,
+            // an OutOfMemoryError - would otherwise escape into the executor and die inside a
+            // Future nobody reads, which is the failure that looks like nothing happening at all.
+            Framework.Main.handleEngineError(t);
         }
     }
 
