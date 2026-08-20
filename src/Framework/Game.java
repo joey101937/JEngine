@@ -493,13 +493,40 @@ public class Game implements Runnable {
     }
     
     /**
-     * applies java graphics rendering hints
+     * Guards against a {@link Main#renderingHintSetter} that calls back into
+     * {@link #applyRenderingHints}. Doing so is the natural way to write a hook that only wants
+     * to override one or two hints, so rather than letting it recurse until the stack blows, the
+     * nested call falls through to the engine defaults - which is what such a hook is asking for.
+     * Thread-local because rendering can run on several threads at once.
+     */
+    private static final ThreadLocal<Boolean> applyingCustomHints = ThreadLocal.withInitial(() -> false);
+
+    /**
+     * applies java graphics rendering hints, deferring to
+     * {@link Main#renderingHintSetter} when one is installed
      * @param g2d graphics obj
      */
     public static void applyRenderingHints(Graphics2D g2d) {
-         if (Main.renderingHintSetter != null) {
-            Main.renderingHintSetter.accept(g2d);
-        } else {
+        Consumer<Graphics2D> custom = Main.renderingHintSetter;
+        if (custom != null && !applyingCustomHints.get()) {
+            applyingCustomHints.set(true);
+            try {
+                custom.accept(g2d);
+            } finally {
+                applyingCustomHints.set(false);
+            }
+            return;
+        }
+        applyDefaultRenderingHints(g2d);
+    }
+
+    /**
+     * The engine's built-in hints, ignoring {@link Main#renderingHintSetter} entirely. Call this
+     * from a custom hint setter to start from the defaults and then override only what differs.
+     * @param g2d graphics obj
+     */
+    public static void applyDefaultRenderingHints(Graphics2D g2d) {
+        {
             if (Main.performanceMode) {
                 g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
                 g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
