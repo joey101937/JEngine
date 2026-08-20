@@ -15,7 +15,9 @@ import Framework.DemoSpriteManager;
  * @author Joseph
  */
 public class EnemyDiagonal extends EnemyShip{
+    /** Pre-scaled once at class load; see {@link EnemyShip#enemySprite}. */
     public static Sprite sprite = new Sprite(DemoSpriteManager.evilShip);
+    static { sprite.scale(0.2); }
 
     public EnemyDiagonal(Coordinate c) {
         super(c);
@@ -31,9 +33,7 @@ public class EnemyDiagonal extends EnemyShip{
     
     @Override
     protected void init() {
-        Sprite s = sprite;
-        scale(.2);
-        setGraphic(s);
+        setGraphic(sprite);
         isSolid = true;
         preventOverlap=false;
         setName("Enemy " + ID);

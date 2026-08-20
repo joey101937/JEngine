@@ -21,7 +21,15 @@ import GameDemo.Galiga.PlayerShip;
 public class EnemyShip extends GameObject2{
     
     public static double difficultyMultiplier = 1.0; //increase this to increase difficulty
+    /**
+     * Scaled once here rather than per object. Scaling the GameObject only sets a multiplier on
+     * the render transform, so the full 320px source would be resampled down to 64px on every
+     * frame of every ship - wasted work, and because bilinear minification samples a 2x2
+     * neighbourhood, which texels land in each output pixel shifts with the sprite's sub-pixel
+     * position, so the ship's own pixels crawl as it flies.
+     */
     public static Sprite enemySprite = new Sprite(DemoSpriteManager.evilShip);
+    static { enemySprite.scale(0.2); }
     
     public EnemyShip(Coordinate c) {
         super(c);
@@ -39,9 +47,7 @@ public class EnemyShip extends GameObject2{
     }
  
     protected void init() {
-        Sprite s = enemySprite;
-        scale(.2);
-        setGraphic(s);
+        setGraphic(enemySprite);
         isSolid = true;
         preventOverlap=false;
         setName("Enemy " + ID);

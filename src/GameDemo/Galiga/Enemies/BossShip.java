@@ -23,7 +23,9 @@ import GameDemo.Galiga.PlayerShip;
 public class BossShip extends EnemyShip {
     
     private int hitPoints = 5;
+    /** Twice the size of a normal enemy, and like theirs scaled once here rather than per frame. */
     private static Sprite bossSprite = new Sprite(DemoSpriteManager.evilShip);
+    static { bossSprite.scale(0.4); }
     
     public BossShip(Coordinate c) {
         super(c);
@@ -41,8 +43,7 @@ public class BossShip extends EnemyShip {
     }
     
     private void bossInit() {
-        // Boss is 2x the size of normal enemies
-        scale(2); // Normal enemies are 0.2, so 0.4 is 2x
+        setGraphic(bossSprite);
         setName("Boss " + ID);
         // Boss moves slower than normal enemies
         baseSpeed = 1.5;
