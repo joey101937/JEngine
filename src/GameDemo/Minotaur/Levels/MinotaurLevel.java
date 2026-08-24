@@ -3,6 +3,7 @@ package GameDemo.Minotaur.Levels;
 import Framework.DCoordinate;
 import Framework.Game;
 import Framework.GameObject2;
+import Framework.UtilityObjects.BlockObject;
 import GameDemo.Minotaur.MinotaurArt;
 import GameDemo.Minotaur.MinotaurAssets;
 import GameDemo.Minotaur.MinotaurGame;
@@ -21,6 +22,7 @@ import GameDemo.Minotaur.Effects.Particles;
 import GameDemo.Minotaur.Terrain.Decor;
 import GameDemo.Minotaur.Terrain.ExitPortal;
 import GameDemo.Minotaur.Terrain.Hazard;
+
 import GameDemo.Minotaur.Terrain.Platform;
 import GameDemo.Minotaur.Terrain.Sign;
 import java.awt.Rectangle;
@@ -114,6 +116,12 @@ public class MinotaurLevel extends Game {
      * ================================================================== */
 
     private void buildTerrain() {
+        // Collision first, and from the merged lists rather than the authored ones, so the
+        // invisible bookends at either end of the world are solid too. The visuals below are all
+        // non-solid: a wall is drawn as a row of tiles but must behave as one surface.
+        for (Rectangle r : solids) addTerrainBody(r, false);
+        for (Rectangle r : oneWays) addTerrainBody(r, true);
+
         for (Rectangle r : def.solids) {
             addChunkedVisual(r);
         }
@@ -138,6 +146,24 @@ public class MinotaurLevel extends Game {
                 drawn += w;
             }
         }
+    }
+
+    /**
+     * The solid body of one piece of level geometry — invisible, immovable, and the only thing an
+     * actor is actually stopped by. A {@code BlockObject} is already a solid box that maintains
+     * its own hitbox, so terrain needs no class of its own.
+     *
+     * @param oneWay true for a ledge: catches an actor falling onto it, lets one rising from
+     *               below pass straight through
+     */
+    private void addTerrainBody(Rectangle r, boolean oneWay) {
+        BlockObject body = new BlockObject(
+                new DCoordinate(r.getCenterX(), r.getCenterY()), r.width, r.height);
+        body.setName(oneWay ? "Ledge" : "Terrain");
+        body.isInvisible = true;
+        body.setZLayer(0);
+        if (oneWay) body.oneWayBlockDirection = new DCoordinate(0, 1);
+        addObject(body);
     }
 
     /**

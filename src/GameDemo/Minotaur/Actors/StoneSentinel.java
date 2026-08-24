@@ -201,8 +201,4 @@ public class StoneSentinel extends Enemy {
     @Override
     public int getHeight() { return 144; }
 
-    @Override
-    public void updateHitbox() {
-        // combat uses the body box
-    }
 }

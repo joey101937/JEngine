@@ -138,8 +138,4 @@ public class Bat extends Enemy {
     @Override
     public int getHeight() { return 66; }
 
-    @Override
-    public void updateHitbox() {
-        // combat uses the body box
-    }
 }

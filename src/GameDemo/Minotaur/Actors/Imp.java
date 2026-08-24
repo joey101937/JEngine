@@ -121,8 +121,4 @@ public class Imp extends Enemy {
     @Override
     public int getHeight() { return 78; }
 
-    @Override
-    public void updateHitbox() {
-        // combat uses the body box
-    }
 }

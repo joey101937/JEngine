@@ -134,8 +134,4 @@ public class Spitter extends Enemy {
     @Override
     public int getHeight() { return 102; }
 
-    @Override
-    public void updateHitbox() {
-        // combat uses the body box
-    }
 }

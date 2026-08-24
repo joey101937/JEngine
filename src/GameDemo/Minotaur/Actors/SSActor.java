@@ -1,7 +1,11 @@
 package GameDemo.Minotaur.Actors;
 
 import Framework.DCoordinate;
+import Framework.Collision.CollisionResult;
+import Framework.Collision.Resolvers;
+
 import Framework.Game;
+import Framework.Hitbox;
 import Framework.GameObject2;
 import GameDemo.Minotaur.MinotaurGame;
 import GameDemo.Minotaur.Levels.MinotaurLevel;
@@ -13,17 +17,20 @@ import java.util.List;
 /**
  * Base class for everything that lives, moves and can be hit.
  *
- * <h3>Why this does its own collision</h3>
- * The engine's solid-body collision cancels a move that would overlap, which is exactly right
- * for top-down units but wrong for a platformer: a character falling at 26px per tick would
- * stop up to 26px above the floor and hover there. So actors here are declared non-solid —
- * the engine never blocks them — and this class sweeps its own axis-aligned box against the
- * level's geometry, landing flush every time. Combat reach is likewise resolved with explicit
- * boxes rather than hitbox overlap, which keeps attack timing readable and frame-exact.
+ * <h3>How movement resolves</h3>
+ * An actor sets {@code vx}/{@code vy}, gravity is applied, and the intended movement is written
+ * into {@code velocity}. The engine narrows it against the level on the next preTick using
+ * {@code Resolvers.CLAMPED}, which grants as much of a blocked move as fits — so a body falling
+ * at {@code maxFallSpeed} comes to rest on the floor rather than a tick's travel above it. What
+ * the resolver decided is read back through {@code getLastCollisionResult()}, which is where
+ * {@code grounded} comes from: contact is reported, not inferred by comparing intent against
+ * outcome, a comparison that cannot tell "stopped by the floor" from "was not moving".
  *
- * Movement is written into {@code velocity} at the end of each tick and applied by the engine
- * on the next preTick, so the position an actor reasons about during its tick is always
- * current and the engine's frame interpolation still smooths the result.
+ * Level geometry is solid because each authored rectangle gets an invisible {@code BlockObject};
+ * the tiles drawn on top of it are not. Actors pass through one another via
+ * {@link #movesFreelyThrough(GameObject2)} — crowds are spread by {@code separateFromCrowd}
+ * instead. Combat reach stays explicit boxes rather than hitbox overlap, which keeps attack
+ * timing readable and frame-exact.
  *
  * @author Joseph
  */
@@ -50,6 +57,8 @@ public abstract class SSActor extends GameObject2 {
     protected boolean grounded = false;
     protected int ticksSinceGrounded = 999;
     protected boolean facingRight = true;
+    /** Fall speed at the moment of the most recent landing, before it was cancelled. */
+    protected double landingImpact = 0;
 
     /* ---------------- life ---------------- */
 
@@ -76,12 +85,34 @@ public abstract class SSActor extends GameObject2 {
     }
 
     private void setup() {
-        // the engine must not resolve these; see the class comment
-        isSolid = false;
-        preventOverlap = false;
-        collisionSliding = false;
+        isSolid = true;
+        preventOverlap = true;
+        // clamped: a body falling at maxFallSpeed must come to rest on the floor, not a tick
+        // above it - which is the whole reason this class used to sweep its own box
+        collisionResolver = Resolvers.CLAMPED;
         movementType = MovementType.RawVelocity;
         setZLayer(10);
+    }
+
+    /**
+     * Actors are stopped by the level, never by each other. Crowds are spread out deliberately by
+     * {@code Enemy.separateFromCrowd} and the player is meant to run through a pack rather than
+     * shove it, so a body is a contact to be reported, not a wall.
+     */
+    @Override
+    public boolean movesFreelyThrough(GameObject2 other) {
+        return other instanceof SSActor;
+    }
+
+    /**
+     * The collision box is the body — narrower than the sprite and anchored at the feet, so a
+     * character stands where its feet are rather than where its art is centred.
+     */
+    @Override
+    public void updateHitbox() {
+        if (getHitbox() == null) {
+            setHitbox(Hitbox.box(this, bodyWidth, bodyHeight, 0, footOffset - bodyHeight / 2));
+        }
     }
 
     /* ==================================================================
@@ -152,124 +183,65 @@ public abstract class SSActor extends GameObject2 {
         if (invulnTicks > 0) invulnTicks--;
         if (hitFlashTicks > 0 && --hitFlashTicks == 0) setRenderBrightness(1.0);
 
+        readCollisionOutcome();
         actorTick();
         physicsTick();
+        if (lvl != null) {
+            DCoordinate l = getLocation();
+            checkHazards(lvl, l.x, l.y);
+            if (l.y > lvl.deathY) onFellOutOfWorld();
+        }
     }
 
     /** Per-actor behaviour. Set {@link #vx}/{@link #vy}; movement is resolved afterwards. */
     protected abstract void actorTick();
 
-    /** Applies gravity, sweeps the body against the level, and publishes the result. */
-    protected void physicsTick() {
-        if (gravityEnabled) {
-            vy = Math.min(vy + gravity, maxFallSpeed);
-        }
-
-        DCoordinate loc = getLocation();
-        double x = loc.x, y = loc.y;
-        double newX = x + vx, newY = y + vy;
-        boolean landed = false, ceiling = false, walled = false;
-
-        MinotaurLevel lvl = level();
-        if (lvl != null && collidesWithTerrain) {
-            if (vx != 0) {
-                for (Rectangle r : lvl.solids) {
-                    if (bodyRectAt(newX, y).intersects(r)) {
-                        newX = (vx > 0) ? r.x - bodyWidth / 2.0 - 0.01
-                                        : r.x + r.width + bodyWidth / 2.0 + 0.01;
-                        walled = true;
-                    }
-                }
-            }
-            for (Rectangle r : lvl.solids) {
-                if (bodyRectAt(newX, newY).intersects(r)) {
-                    if (vy > 0) {
-                        newY = r.y - footOffset;
-                        landed = true;
-                    } else {
-                        newY = r.y + r.height + (bodyHeight - footOffset) + 0.01;
-                        ceiling = true;
-                    }
-                }
-            }
-            if (vy > 0 && !dropThrough) {
-                // one-way ledges catch only feet that were already above them
-                double prevFeet = y + footOffset;
-                for (Rectangle r : lvl.oneWays) {
-                    if (prevFeet <= r.y + 10 && bodyRectAt(newX, newY).intersects(r)) {
-                        newY = r.y - footOffset;
-                        landed = true;
-                    }
-                }
-            }
-
-            // Resting flush means the body box no longer *overlaps* the floor, so a single tick
-            // of gravity is not enough to make it overlap again once integer truncation is
-            // applied - the sweep above would report "not landed", the actor would sink a
-            // fraction, land, and repeat, buzzing a pixel up and down forever. A short probe
-            // below the feet settles it: it finds the surface being stood on and re-seats the
-            // actor exactly on it, so a standing character is genuinely motionless.
-            if (!landed && vy >= 0 && gravityEnabled) {
-                double surface = surfaceUnderFeet(lvl, newX, newY);
-                if (!Double.isNaN(surface)) {
-                    newY = surface - footOffset;
-                    landed = true;
-                }
-            }
-        }
-
-        if (walled) {
-            vx = 0;
-            onWallContact();
-        }
-        if (landed || ceiling) vy = 0;
+    /**
+     * Reads what the engine's resolver made of last tick's movement, which has already been
+     * applied by the time this runs.
+     *
+     * Contact is reported rather than inferred: comparing intended movement against granted
+     * movement cannot tell "blocked by the floor" from "was not moving", which is exactly the
+     * distinction {@code grounded} turns on.
+     */
+    private void readCollisionOutcome() {
+        CollisionResult r = getLastCollisionResult();
 
         boolean wasGrounded = grounded;
-        grounded = landed;
+        grounded = r.blockedDown();
         if (grounded) {
             ticksSinceGrounded = 0;
-            if (!wasGrounded) onLanded();
+            if (!wasGrounded) {
+                // recorded before the fall speed is cancelled, so the landing knows how hard it hit
+                landingImpact = Math.abs(vy);
+                onLanded();
+            }
+            if (vy > 0) vy = 0;
         } else if (ticksSinceGrounded < 9999) {
             ticksSinceGrounded++;
         }
 
-        velocity.x = newX - x;
-        velocity.y = newY - y;
-
-        if (lvl != null) {
-            checkHazards(lvl, newX, newY);
-            if (newY > lvl.deathY) onFellOutOfWorld();
+        if (r.blockedUp() && vy < 0) vy = 0;
+        if (r.blockedX) {
+            vx = 0;
+            onWallContact();
         }
     }
 
-    /** How far below the feet the ground probe reaches, in pixels. */
-    private static final int GROUND_PROBE_DEPTH = 4;
-
     /**
-     * Top edge of whatever this actor is standing on, or NaN if it is in the air. Only surfaces
-     * that begin within the probe band count, so an actor overlapping a tall block is not
-     * teleported to the top of it.
+     * Applies gravity and publishes the intended movement. The engine's resolver narrows it
+     * against the level on the next preTick, and {@link #readCollisionOutcome()} reads back what
+     * it decided.
      */
-    private double surfaceUnderFeet(MinotaurLevel lvl, double cx, double cy) {
-        int feet = (int) (cy + footOffset);
-        Rectangle probe = new Rectangle((int) (cx - bodyWidth / 2.0) + 3, feet,
-                Math.max(1, bodyWidth - 6), GROUND_PROBE_DEPTH);
-        double best = Double.NaN;
-        for (Rectangle r : lvl.solids) {
-            if (r.y >= feet - 1 && r.y <= feet + GROUND_PROBE_DEPTH && probe.intersects(r)
-                    && (Double.isNaN(best) || r.y < best)) {
-                best = r.y;
-            }
+    protected void physicsTick() {
+        if (gravityEnabled) {
+            vy = Math.min(vy + gravity, maxFallSpeed);
         }
-        if (!dropThrough) {
-            for (Rectangle r : lvl.oneWays) {
-                if (r.y >= feet - 1 && r.y <= feet + GROUND_PROBE_DEPTH && probe.intersects(r)
-                        && (Double.isNaN(best) || r.y < best)) {
-                    best = r.y;
-                }
-            }
-        }
-        return best;
+        ignoresOneWayBlockers = dropThrough;
+        // an actor that ignores terrain simply stops being a collider, so nothing can narrow it
+        isSolid = collidesWithTerrain;
+        velocity.x = vx;
+        velocity.y = vy;
     }
 
     private void checkHazards(MinotaurLevel lvl, double nx, double ny) {

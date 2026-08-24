@@ -22,7 +22,6 @@ public class PushBlock extends BlockObject {
         setColor(Color.RED);
         isSolid = true;
         preventOverlap = true;
-        collisionSliding = true;
         movementType = MovementType.SpeedRatio;
         baseSpeed = 5;
     }

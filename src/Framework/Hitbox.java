@@ -283,6 +283,32 @@ public class Hitbox implements java.io.Serializable {
         updateFarthestAndShortest();
     }
 
+    /**
+     * A box hitbox that need not be centred on its host's location.
+     *
+     * The default box an object builds for itself is centred on its location and sized from its
+     * sprite, which is the wrong shape whenever the collision body is not the art — a character
+     * whose box is narrower than its frame and anchored at its feet, a vehicle whose hull sits
+     * forward of its origin. Offsets are measured from the host's location, positive down and
+     * right.
+     *
+     * @param go      the object this belongs to
+     * @param width   box width in pixels
+     * @param height  box height in pixels
+     * @param offsetX horizontal shift of the box centre from the host's location
+     * @param offsetY vertical shift of the box centre from the host's location
+     */
+    public static Hitbox box(GameObject2 go, int width, int height, int offsetX, int offsetY) {
+        int halfW = width / 2, halfH = height / 2;
+        Coordinate[] verts = new Coordinate[]{
+            new Coordinate(offsetX - halfW, offsetY - halfH),
+            new Coordinate(offsetX + halfW, offsetY - halfH),
+            new Coordinate(offsetX - halfW, offsetY + halfH),
+            new Coordinate(offsetX + halfW, offsetY + halfH)
+        };
+        return new Hitbox(go, verts);
+    }
+
     private Coordinate adjustForRotation(Coordinate c) {
         int oldX = c.x;
         int oldY = c.y;

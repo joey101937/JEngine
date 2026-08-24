@@ -472,8 +472,4 @@ public class BossWarlord extends Enemy {
     @Override
     public int getHeight() { return (int) (MinotaurArt.SHEET_H * MinotaurArt.U * getScale()); }
 
-    @Override
-    public void updateHitbox() {
-        // combat uses the body box
-    }
 }

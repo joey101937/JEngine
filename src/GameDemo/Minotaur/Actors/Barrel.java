@@ -74,8 +74,4 @@ public class Barrel extends Enemy {
     @Override
     public int getHeight() { return 72; }
 
-    @Override
-    public void updateHitbox() {
-        // hits use the body box
-    }
 }

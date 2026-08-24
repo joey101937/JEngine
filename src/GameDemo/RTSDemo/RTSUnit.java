@@ -1000,7 +1000,7 @@ public class RTSUnit extends GameObject2 implements VisionProvider {
      * block each other normally. The lighter unit is still pushed aside via {@link #tryPush}.
      */
     @Override
-    protected boolean movesFreelyThrough(GameObject2 other) {
+    public boolean movesFreelyThrough(GameObject2 other) {
         if (!(other instanceof RTSUnit unit) || unit.plane != this.plane) return false;
         return bulldozesThrough(getPushPriority(), unit);
     }

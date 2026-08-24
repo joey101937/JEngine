@@ -690,7 +690,7 @@ public class PlayerMinotaur extends SSActor {
 
     @Override
     protected void onLanded() {
-        double impact = Math.abs(velocity.y);
+        double impact = landingImpact;
         if (impact > 9) {
             MinotaurSfx.land();
             DCoordinate f = feet();
@@ -726,7 +726,7 @@ public class PlayerMinotaur extends SSActor {
         // a subtle pop on landing and a stretch while rising sell the weight without new art
         if (state == State.AIR) {
             setRenderScale(1.0 + Math.max(-0.06, Math.min(0.06, -vy * 0.004)));
-        } else if (grounded && ticksSinceGrounded == 0 && Math.abs(velocity.y) > 9) {
+        } else if (grounded && ticksSinceGrounded == 0 && landingImpact > 9) {
             setRenderScale(0.9);
         } else {
             setRenderScale(getRenderScale() + (1.0 - getRenderScale()) * 0.3);
@@ -769,8 +769,4 @@ public class PlayerMinotaur extends SSActor {
     @Override
     public int getHeight() { return MinotaurArt.SHEET_H * MinotaurArt.U; }
 
-    @Override
-    public void updateHitbox() {
-        // combat uses explicit boxes; see SSActor
-    }
 }

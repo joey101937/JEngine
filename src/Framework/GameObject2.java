@@ -5,6 +5,9 @@
  */
 package Framework;
 
+import Framework.Collision.CollisionResolver;
+import Framework.Collision.CollisionResult;
+import Framework.Collision.Resolvers;
 import Framework.CoreLoop.Renderable;
 import Framework.GraphicalAssets.Sequence;
 import Framework.Stickers.Sticker;
@@ -78,13 +81,71 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     public ArrayList<Coordinate> additionalPathingChecks = new ArrayList<>();
     private boolean waitingToGenerateDefaultPathingChecks = false;
     
-     /**
-     * how the object behaves when traveling in two directions (up/down and
-     * side/side) and it collides with something in one but not both of the
-     * directions Disabled = stops moving Enabled = moves relative to portion of
-     * velocity in unblocked direction
+    /**
+     * How this object's movement is narrowed when something blocks it — see
+     * {@link CollisionResolver}. Resolvers are shared and immutable, so assign one of the
+     * {@link Resolvers} constants rather than allocating per object.
+     *
+     * This is policy, and it is separate from participation: whether an object collides at all,
+     * and whether it blocks, stay on the object as {@code isSolid}, {@code preventOverlap} and
+     * {@code movesFreelyThrough}. Never null — to pass through things, say so with those flags,
+     * which report the contact rather than losing it.
      */
-    public boolean collisionSliding = true;
+    public CollisionResolver collisionResolver = Resolvers.AXIS_CANCEL;
+
+    /**
+     * When set, this object only blocks movement heading in this direction, and only for a mover
+     * that was clear of it beforehand — everything else passes straight through.
+     *
+     * {@code (0,1)} is a ledge that catches things falling onto it but lets them rise through
+     * from below; {@code (1,0)} is a barrier that only stops rightward movement. The "clear
+     * beforehand" rule is what stops an object that is already inside the blocker from being
+     * trapped by it, so something can drop through a ledge it is standing on once it stops
+     * treating it as solid.
+     *
+     * Null means an ordinary blocker that blocks from every direction.
+     */
+    public DCoordinate oneWayBlockDirection = null;
+
+    /**
+     * When true, this object passes through every {@link #oneWayBlockDirection} blocker
+     * regardless of approach. Set it for the moment a character drops through a ledge, and clear
+     * it once clear of the ledge.
+     */
+    public boolean ignoresOneWayBlockers = false;
+
+    /** Outcome of the most recent collision resolution; see {@link #getLastCollisionResult()}. */
+    private CollisionResult lastCollisionResult = CollisionResult.clear(new DCoordinate(0, 0));
+
+    /**
+     * Whether {@code other} should stop this object given the direction it is heading. Ordinary
+     * blockers always do; a one-way blocker only when approached from the face it presents.
+     *
+     * Two conditions, and the second is the subtle one. The mover must be heading <i>into</i> that
+     * face, and its leading edge must be on the outside of it. Testing "not currently overlapping"
+     * instead looks equivalent and is not: an object resting flush on a ledge is touching it, which
+     * counts as overlapping, so it would immediately stop being blocked and sink through the thing
+     * it just landed on. Comparing edges keeps a resting object supported, because its underside
+     * being level with the surface still reads as above it.
+     *
+     * One-way faces are axis-aligned by nature, so this compares hitbox bounds rather than
+     * rotated geometry.
+     */
+    public boolean isBlockedBy(GameObject2 other, DCoordinate movement) {
+        DCoordinate oneWay = other.oneWayBlockDirection;
+        if (oneWay == null) return true;
+        if (ignoresOneWayBlockers) return false;
+        if (movement.x * oneWay.x + movement.y * oneWay.y <= 0) return false;
+        if (getHitbox() == null || other.getHitbox() == null) return true;
+
+        Rectangle me = getHitbox().getBounds();
+        Rectangle them = other.getHitbox().getBounds();
+        if (oneWay.y > 0) return me.y + me.height <= them.y;                 // landing on top of it
+        if (oneWay.y < 0) return me.y >= them.y + them.height;               // rising into its underside
+        if (oneWay.x > 0) return me.x + me.width <= them.x;                  // arriving at its left face
+        if (oneWay.x < 0) return me.x >= them.x + them.width;                // arriving at its right face
+        return true;
+    }
     /**
      * Which 'layer' a unit is on. Units only collide with others in the same plane
      */
@@ -781,11 +842,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * but movement is not stopped. Defaults to false; override to let an object plow through
      * specific blockers it is overpowering.
      */
-    protected boolean movesFreelyThrough(GameObject2 other) {
+    public boolean movesFreelyThrough(GameObject2 other) {
         return false;
     }
 
-    private boolean canCollideWith(GameObject2 other) {
+    public boolean canCollideWith(GameObject2 other) {
         return isSolid && other.isSolid
                 && other != this
                 && this.getHitbox() != null && other.getHitbox() != null
@@ -804,98 +865,53 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     }
     
     /**
-     * Returns new movement based on collisions given a proposed movement
-     * triggers on collide
-     * @param proposedMovement
-     * @return new movement, adjusted for collissions
+     * Narrows a proposed movement down to what this object may actually do, and reports every
+     * object touched along the way.
+     *
+     * The decision itself belongs to {@link #collisionResolver}; this assembles what the resolver
+     * needs — the parts of this object that take part, and the nearby objects worth testing — and
+     * routes contacts to {@code registerCollision}.
+     *
+     * @param proposedMovement movement with nothing in the way
+     * @return movement adjusted for collisions
      */
     private DCoordinate updateMovementBasedOnCollision(DCoordinate proposedMovement) {
-        Coordinate roundedProposedMovement = new Coordinate(
-                proposedMovement.x >= 0 ? (int) Math.ceil(proposedMovement.x) : (int)Math.floor(proposedMovement.x),
-                proposedMovement.y >= 0 ? (int) Math.ceil(proposedMovement.y) : (int)Math.floor(proposedMovement.y)
-        );
-        DCoordinate newLocation;
-        
         ArrayList<GameObject2> otherObjects = getObjectsForCollisionConsideration();
         otherObjects.remove(this);
-        ArrayList<GameObject2> otherObjsAndOtherSubObjects = new ArrayList<>();
-        if(!Main.ignoreSubobjectCollision) {
+        ArrayList<GameObject2> candidates;
+        if (!Main.ignoreSubobjectCollision) {
+            candidates = new ArrayList<>();
             for (GameObject2 other : otherObjects) {
-                otherObjsAndOtherSubObjects.add(other);
+                candidates.add(other);
                 for (GameObject2 sub : other.getAllSubObjects()) {
-                    otherObjsAndOtherSubObjects.add(sub);
+                    candidates.add(sub);
                 }
-                
             }
         } else {
-            otherObjsAndOtherSubObjects = otherObjects;
+            candidates = otherObjects;
         }
-        ArrayList<GameObject2> thisAndSubs = new ArrayList<>();
-        thisAndSubs.add(this);
-        if(!Main.ignoreSubobjectCollision) {
+        ArrayList<GameObject2> parts = new ArrayList<>();
+        parts.add(this);
+        if (!Main.ignoreSubobjectCollision) {
             for (GameObject2 sub : this.getAllSubObjects()) {
-                thisAndSubs.add(sub);
+                parts.add(sub);
             }
         }
-        boolean xClear = true;
-        boolean yClear = true;
-        for (GameObject2 current : thisAndSubs) {
-            if (!current.isSolid || current.getHitbox() == null) {
-                continue;
-            }
-            newLocation = current.location.copy();
-            newLocation.add(proposedMovement);
-            for (GameObject2 other : otherObjsAndOtherSubObjects) {
-                // This scan runs to completion even once movement is fully blocked. Bailing out
-                // early cannot change the result - xClear and yClear are only ever cleared, never
-                // restored - but it does skip every remaining candidate's registerCollision, so a
-                // fully blocked object stops reporting contacts. Collisions are registered from
-                // both participants' ticks, which hides that most of the time; when both are
-                // blocked, neither reaches the other and the pair is dropped entirely. That is
-                // precisely a pileup, where the events matter most.
-                if (!canCollideWith(other)) {
-                    continue;
-                }
-                if (current.getHitbox().intersectsIfMoved(other.getHitbox(), roundedProposedMovement)) {
-                    getHostGame().handler.registerCollision(this, other);
-                    if (!current.preventOverlap || !other.preventOverlap) {
-                        continue;
-                    }
-                    // objects may opt to keep moving through specific blockers (collision is
-                    // still registered above, so onCollide-driven responses still fire)
-                    if (current.movesFreelyThrough(other)) {
-                        continue;
-                    }
-                    // already overlapping
-                    if (current.getHitbox().intersects(other.getHitbox())) {
-                        if (newLocation.distanceFrom(other.getCenterForCollisionSliding()) > current.location.distanceFrom(other.getCenterForCollisionSliding())) {
-                            continue; //if we are moving away from it, allow the movement
-                        } else {
-                            xClear = false;
-                            yClear = false;
-                        }
-                    }
-                    if (current.collisionSliding) {
-                        // check x only then y only
-                        // use to determine what directions are clear
-                        if (current.getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate((int) roundedProposedMovement.x, 0))) {
-                            xClear = false;
-                        }
-                        if (current.getHitbox().intersectsIfMoved(other.getHitbox(), new Coordinate(0, (int) roundedProposedMovement.y))) {
-                            yClear = false;
-                        }
-                    } else {
-                        xClear = false;
-                        yClear = false;
-                    }
-                }
-            }
-        }
-        DCoordinate newMovement = new DCoordinate(
-                xClear ? proposedMovement.x : 0,
-                yClear ? proposedMovement.y : 0
-        );
-        return newMovement;
+
+        CollisionResolver resolver = collisionResolver != null ? collisionResolver : Resolvers.AXIS_CANCEL;
+        lastCollisionResult = resolver.resolve(this, proposedMovement, parts, candidates,
+                other -> getHostGame().handler.registerCollision(this, other));
+        return lastCollisionResult.movement;
+    }
+
+    /**
+     * What the resolver decided on the most recent move — which axes were cut short, and in which
+     * direction. A body under gravity reads {@code blockedDown()} as "standing on something".
+     *
+     * Never null; reports nothing blocked before the object has moved.
+     */
+    public CollisionResult getLastCollisionResult() {
+        return lastCollisionResult;
     }
     
      /**
@@ -910,16 +926,21 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             if (!getHostGame().pathingLayer.getTypeAt(getPixelLocation()).name.equals(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
                 this.onPathingLayerCollision(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()));
             }
-            if (!isNewLocationClearForPathing(newLocation.toCoordinate()) && collisionSliding) {
-                //pathing at new location is blocked. (speed multiplier < .01)
-                //check directions to see which are blocked so we can possibly slide
-                boolean xClear = isXClearForPathingAtNewLocation(newLocation.x - location.x);
-                boolean yClear = isYClearForPathingAtNewLocation(newLocation.y - location.y);
+            // Terrain is resolved as its own stage, and always slides. It narrows movement the
+            // same way this object's collisions do, so an object that comes to rest flush against
+            // a wall also comes to rest flush against impassable ground rather than a tick short
+            // of it - the same defect, in the other stage.
+            if (!isNewLocationClearForPathing(newLocation.toCoordinate())) {
+                double dx = newLocation.x - location.x;
+                double dy = newLocation.y - location.y;
+                boolean xClear = isXClearForPathingAtNewLocation(dx);
+                boolean yClear = isYClearForPathingAtNewLocation(dy);
+                boolean clamps = collisionResolver != null && collisionResolver.clampsPartialMovement();
                 if (!xClear) {
-                    newLocation.x = location.x;
+                    newLocation.x = location.x + (clamps ? dx * largestPathableFraction(dx, true) : 0);
                 }
                 if (!yClear) {
-                    newLocation.y = location.y;
+                    newLocation.y = location.y + (clamps ? dy * largestPathableFraction(dy, false) : 0);
                 }
             }
         }
@@ -932,6 +953,30 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         return newLocation.subtract(location);
     }
     
+    /**
+     * Largest fraction of a single-axis step that stays on pathable ground, found by a fixed
+     * number of bisection steps so the answer is identical on every machine.
+     *
+     * @param delta      the full step being attempted on this axis
+     * @param horizontal true for the x axis, false for y
+     */
+    private double largestPathableFraction(double delta, boolean horizontal) {
+        double clear = 0.0;
+        double blocked = 1.0;
+        for (int i = 0; i < Framework.Collision.ClampedResolver.SEARCH_STEPS; i++) {
+            double mid = (clear + blocked) / 2.0;
+            boolean ok = horizontal
+                    ? isXClearForPathingAtNewLocation(delta * mid)
+                    : isYClearForPathingAtNewLocation(delta * mid);
+            if (ok) {
+                clear = mid;
+            } else {
+                blocked = mid;
+            }
+        }
+        return clear;
+    }
+
     /**
      * checks if overlapping impassable terrain if moved on x axis
      * @param xModifier amount to add to location

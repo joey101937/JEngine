@@ -35,7 +35,6 @@ public class PushableBlock extends BlockObject {
         colorIndex++;
         isSolid = true;
         preventOverlap = true;
-        collisionSliding = true;
         movementType = MovementType.RawVelocity;
         intrinsicStrength = 0.05;
     }
