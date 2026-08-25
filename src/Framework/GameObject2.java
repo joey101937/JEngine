@@ -671,11 +671,8 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             VolatileImage toRender = getGraphic().getCurrentVolatileImage();
             // Draw via a sub-pixel translate so the fractional render location is preserved (Java2D
             // anti-aliases across pixels) rather than snapped to a whole pixel with an int draw position.
-            // The anchor is the point in the image that sits on the object's location, in image
-            // pixels, defaulting to the middle. The surrounding transform already carries scale
-            // and renderScale, so this offset stays in image space.
-            double drawX = renderLocation.x - getGraphic().getAnchorX();
-            double drawY = renderLocation.y - getGraphic().getAnchorY();
+            double drawX = renderLocation.x - toRender.getWidth() / 2.0;
+            double drawY = renderLocation.y - toRender.getHeight() / 2.0;
             AffineTransform drawTransform = AffineTransform.getTranslateInstance(drawX, drawY);
             if (renderBrightness != 1.0 || renderSaturation != 1.0) {
                 BufferedImage snapshot = toRender.getSnapshot();
@@ -776,13 +773,9 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * if the hitbox is set to be circular, maintains circle radius to be equal to width/2
      */
     /**
-     * Vertex offsets for the default box: the object's dimensions, centred on its location.
-     *
-     * This deliberately ignores the graphic's anchor. An anchor is a rendering property, and for
-     * an animated graphic it belongs to whichever frame is on screen — chosen by wall clock, not
-     * by tick. Letting it place the collision box would make collision geometry depend on frame
-     * timing, so two machines running the same simulation could disagree. An object whose body is
-     * not centred on its location declares that with an explicit {@link Hitbox#box} instead.
+     * Vertex offsets for the default box: the object's dimensions, centred on its location. An
+     * object whose collision body is not centred there declares that with an explicit
+     * {@link Hitbox#box} instead.
      */
     private Coordinate[] defaultBoxVerts() {
         int width = getWidth();

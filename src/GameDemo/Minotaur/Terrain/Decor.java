@@ -3,8 +3,6 @@ package GameDemo.Minotaur.Terrain;
 import Framework.DCoordinate;
 import Framework.GameObject2;
 import Framework.GraphicalAssets.Graphic;
-import Framework.GraphicalAssets.Sequence;
-import Framework.GraphicalAssets.Sprite;
 
 /**
  * Scenery: pillars, braziers, bones. Draws and does nothing else, so a level can be dressed
@@ -17,19 +15,13 @@ public class Decor extends GameObject2 {
     private final int w, h;
 
     /**
-     * @param groundY world Y the graphic stands on, so decor lines up with the floor regardless
-     *                of its height
+     * @param anchorBottomY world Y the graphic stands on, so decor lines up with the floor
+     *                      regardless of its height
      */
-    public Decor(double x, double groundY, Graphic graphic, int zLayer) {
-        super(new DCoordinate(x, groundY));
+    public Decor(double x, double anchorBottomY, Graphic graphic, int zLayer) {
+        super(new DCoordinate(x, anchorBottomY - graphic.getCurrentImage().getHeight() / 2.0));
         this.w = graphic.getCurrentImage().getWidth();
         this.h = graphic.getCurrentImage().getHeight();
-        // anchored at the bottom centre, so this object's location is the point it stands on
-        if (graphic instanceof Sprite s) {
-            s.setAnchor(w / 2.0, h);
-        } else if (graphic instanceof Sequence q) {
-            q.setAnchor(w / 2.0, h);
-        }
         setGraphic(graphic);
         setName("Decor");
         isSolid = false;
