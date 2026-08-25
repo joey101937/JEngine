@@ -136,6 +136,14 @@ public class Sequence implements Graphic{
         return frames[i];
     }
 
+    /** Sets the same anchor on every frame, in current image pixels from the top left. */
+    public void setAnchor(double x, double y) {
+        if (frames == null) return;
+        for (Sprite f : frames) {
+            if (f != null) f.setAnchor(x, y);
+        }
+    }
+
     /** Anchors every frame at the bottom centre of its own opaque pixels. */
     public void setAnchorToOpaqueBottomCentre() {
         if (frames == null) return;

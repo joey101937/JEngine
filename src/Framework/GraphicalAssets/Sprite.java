@@ -23,7 +23,13 @@ public class Sprite implements Graphic {
 
     private double scale = 1;
     private double opacity = 1;
-    /** Anchor in unscaled image pixels, or NaN to keep using the middle of the image. */
+    /**
+     * Anchor in current image pixels, or NaN to keep using the middle of the image.
+     *
+     * A sprite's image is replaced in place by scaling and mirroring, so this is maintained by
+     * every operation that changes the image rather than being expressed against some original
+     * size that no longer exists.
+     */
     private double anchorX = Double.NaN, anchorY = Double.NaN;
 
     @Override
@@ -37,8 +43,8 @@ public class Sprite implements Graphic {
     }
 
     /**
-     * Sets the anchor, in unscaled image pixels from the top left. Scaling the sprite scales the
-     * anchor with it, so it keeps pointing at the same feature.
+     * Sets the anchor, in current image pixels from the top left. Scaling or mirroring the sprite
+     * moves the anchor with the image, so it keeps pointing at the same feature.
      */
     public void setAnchor(double x, double y) {
         anchorX = x;
@@ -82,6 +88,13 @@ public class Sprite implements Graphic {
      * @param b new underlying image
      */
     public void setImage(BufferedImage b) {
+        // an anchor describes a position within the old image; it only carries over to a
+        // replacement of the same size, and is otherwise dropped rather than left pointing
+        // somewhere arbitrary
+        if (image != null && b != null
+                && (image.getWidth() != b.getWidth() || image.getHeight() != b.getHeight())) {
+            clearAnchor();
+        }
         image = b;
         volatileImage = Graphic.getVolatileFromBuffered(b);
     }
@@ -125,6 +138,8 @@ public class Sprite implements Graphic {
         Sprite output = new Sprite(image);
         output.scale = scale;
         output.signuature = this.signuature;
+        output.anchorX = anchorX;
+        output.anchorY = anchorY;
         return output;
     }
 
@@ -154,12 +169,15 @@ public class Sprite implements Graphic {
     public void mirrorHorizontal() {
         image = Graphic.mirrorHorizontal(image);
         volatileImage = Graphic.getVolatileFromBuffered(image);
+        // the anchor is a position in the image, so it flips with the pixels
+        if (!Double.isNaN(anchorX)) anchorX = image.getWidth() - anchorX;
     }
 
     @Override
     public void mirrorVertical() {
         image = Graphic.mirrorVertical(image);
         volatileImage = Graphic.getVolatileFromBuffered(image);
+        if (!Double.isNaN(anchorY)) anchorY = image.getHeight() - anchorY;
     }
 
     /**
@@ -187,9 +205,14 @@ public class Sprite implements Graphic {
      */
     @Override
     public void scaleTo(double d) {
-        image = Graphic.scaleImage(image, d / scale);
+        double factor = d / scale;
+        image = Graphic.scaleImage(image, factor);
         volatileImage = Graphic.getVolatileFromBuffered(image);
         scale = d;
+        if (!Double.isNaN(anchorX)) {
+            anchorX *= factor;
+            anchorY *= factor;
+        }
     }
 
     /**

@@ -73,7 +73,7 @@ public interface Graphic {
     public boolean isAnimated();
 
     /**
-     * The point in the image that sits on the object's location, in unscaled image pixels from
+     * The point in the image that sits on the object's location, in current image pixels from
      * the top left. Defaults to the middle of the image.
      *
      * A {@link Sequence} answers this per frame, so frames cropped to different sizes stay

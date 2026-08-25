@@ -658,9 +658,9 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             VolatileImage toRender = getGraphic().getCurrentVolatileImage();
             // Draw via a sub-pixel translate so the fractional render location is preserved (Java2D
             // anti-aliases across pixels) rather than snapped to a whole pixel with an int draw position.
-            // The anchor is the point in the image that sits on the object's location, in unscaled
-            // image pixels, defaulting to the middle. The surrounding transform already carries
-            // scale and renderScale, so this offset stays in image space.
+            // The anchor is the point in the image that sits on the object's location, in image
+            // pixels, defaulting to the middle. The surrounding transform already carries scale
+            // and renderScale, so this offset stays in image space.
             double drawX = renderLocation.x - getGraphic().getAnchorX();
             double drawY = renderLocation.y - getGraphic().getAnchorY();
             AffineTransform drawTransform = AffineTransform.getTranslateInstance(drawX, drawY);
@@ -762,31 +762,45 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * by default, this sets up a rectangular hitbox and maintains it based on current sprite
      * if the hitbox is set to be circular, maintains circle radius to be equal to width/2
      */
+    /**
+     * Vertex offsets for the default box: the object's dimensions, positioned over the graphic as
+     * it is actually drawn.
+     *
+     * A graphic anchored somewhere other than its middle is drawn offset from the object's
+     * location, so a box centred on the location would sit away from the art it is meant to
+     * describe. The offset is computed from the image's own dimensions rather than
+     * {@link #getWidth()}, so a subclass that reports a size unrelated to its sprite is
+     * unaffected: a default anchor yields an offset of exactly zero either way.
+     */
+    private Coordinate[] defaultBoxVerts() {
+        int width = getWidth();
+        int height = getHeight();
+        int offX = 0, offY = 0;
+        Graphic gr = getGraphic();
+        if (gr != null && gr.getCurrentImage() != null) {
+            BufferedImage img = gr.getCurrentImage();
+            offX = (int) Math.round((img.getWidth() / 2.0 - gr.getAnchorX()) * getScale());
+            offY = (int) Math.round((img.getHeight() / 2.0 - gr.getAnchorY()) * getScale());
+        }
+        return new Coordinate[]{
+            new Coordinate(offX - width / 2, offY - height / 2),
+            new Coordinate(offX + width / 2, offY - height / 2),
+            new Coordinate(offX - width / 2, offY + height / 2),
+            new Coordinate(offX + width / 2, offY + height / 2)
+        };
+    }
+
     public void updateHitbox() {
         //if no hitbox, create the default box hitbox
         if (getHitbox() == null && getWidth()>0) {
-            int width = getWidth();
-            int height = getHeight();
-            Coordinate[] verts = new Coordinate[4];
-            verts[0] = new Coordinate(-width / 2, -height / 2);
-            verts[1] = new Coordinate(width / 2, -height / 2);
-            verts[2] = new Coordinate(-width / 2, height / 2);
-            verts[3] = new Coordinate(width / 2, height / 2);
-            Hitbox hb = new Hitbox(this,verts);
+            Hitbox hb = new Hitbox(this, defaultBoxVerts());
             hb.rotateTo(getRotation());
             setHitbox(hb);
             return;
         }
         //maintain the default hitbox
         if (getHitbox() != null && getHitbox().type == Hitbox.Type.box) {
-            int width = getWidth();
-            int height = getHeight();
-            Coordinate[] verts = new Coordinate[4];
-            verts[0] = new Coordinate(-width / 2, -height / 2);
-            verts[1] = new Coordinate(width / 2, -height / 2);
-            verts[2] = new Coordinate(-width / 2, height / 2);
-            verts[3] = new Coordinate(width / 2, height / 2);
-            getHitbox().setVertices(verts);
+            getHitbox().setVertices(defaultBoxVerts());
         }else if(getHitbox() != null && getHitbox().type == Hitbox.Type.circle){
             //maintain default circle hitbox
             getHitbox().radius = Math.max(getWidthAsOfLastTick(), getHeightAsOfLastTick())/2;
