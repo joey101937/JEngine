@@ -14,6 +14,7 @@ import GameDemo.Minotaur.Actors.CursedMinotaur;
 import GameDemo.Minotaur.Actors.Enemy;
 import GameDemo.Minotaur.Actors.Imp;
 import GameDemo.Minotaur.Actors.Pickup;
+import GameDemo.Minotaur.Actors.SSActor;
 import GameDemo.Minotaur.Actors.Spitter;
 import GameDemo.Minotaur.Actors.StoneSentinel;
 import GameDemo.Minotaur.Effects.MinotaurHUD;
@@ -228,6 +229,12 @@ public class MinotaurLevel extends Game {
                 case BARREL:   spawned = new Barrel(at); break;
                 case HEALTH:   spawned = new Pickup(at, Pickup.Type.HEALTH, 40, 0, 0); break;
                 default: continue;
+            }
+            // Spawn points are authored at a fixed height above the main floor, which puts a tall
+            // actor inside any raised block standing there. Seat ground-bound actors on whatever
+            // is actually beneath them; fliers keep the height they were placed at.
+            if (spawned instanceof SSActor a && !(spawned instanceof Bat)) {
+                a.seatOnSurfaceBelow(solids);
             }
             addObject(spawned);
             if (spawned instanceof Enemy e && e.countsTowardClear()) count++;

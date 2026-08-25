@@ -160,14 +160,21 @@ public class ClampedResolver implements CollisionResolver {
         }
         if (delta > 0) {
             double gap = bMin - aMax;
-            // Already past that face - we are inside it, or through it. Whatever is holding this
-            // object, it is not this face, and refusing to move would leave it stuck forever.
-            if (gap < 0) return 1.0;
-            return clamp01(gap / delta);
+            if (gap >= 0) return clamp01(gap / delta);
+        } else {
+            double gap = bMax - aMin;
+            if (gap <= 0) return clamp01(gap / delta);
         }
-        double gap = bMax - aMin;
-        if (gap > 0) return 1.0;
-        return clamp01(gap / delta);
+
+        // Overlapping on this axis already - spawned inside it, pushed in, teleported in. The
+        // object must be able to leave, so movement toward the nearer face is allowed in full,
+        // but movement toward the far one is refused: letting it travel the long way out means
+        // sinking through the whole body of whatever it is stuck in, which reads as falling
+        // through the floor.
+        double exitBackward = aMax - bMin;   // distance to clear it moving in -
+        double exitForward = bMax - aMin;    // distance to clear it moving in +
+        boolean towardNearerFace = delta > 0 ? exitForward <= exitBackward : exitBackward <= exitForward;
+        return towardNearerFace ? 1.0 : 0.0;
     }
 
     private static double clamp01(double v) {

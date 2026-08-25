@@ -167,6 +167,31 @@ public abstract class SSActor extends GameObject2 {
         return new Rectangle((int) x, (int) (cy - height / 2), (int) reach, (int) height);
     }
 
+    /**
+     * Drops this actor onto the highest surface beneath its head, so an authored spawn point does
+     * not have to know how tall the thing being spawned is.
+     *
+     * Levels place enemies at a fixed height above the main floor, which lands a tall actor
+     * inside any raised block that happens to be there. Seating them at build time keeps the
+     * level format type-agnostic and means nothing ever begins the game embedded in the world.
+     *
+     * @param surfaces candidate tops, normally the level's solid rectangles
+     */
+    public void seatOnSurfaceBelow(List<Rectangle> surfaces) {
+        Rectangle body = bodyRect();
+        double best = Double.NaN;
+        for (Rectangle r : surfaces) {
+            boolean sharesColumn = r.x < body.x + body.width && body.x < r.x + r.width;
+            // only surfaces at or below the top of the body, so it is never lifted onto a ceiling
+            if (sharesColumn && r.y + 1 >= body.y && (Double.isNaN(best) || r.y < best)) {
+                best = r.y;
+            }
+        }
+        if (!Double.isNaN(best)) {
+            setLocation(getLocation().x, best - footOffset);
+        }
+    }
+
     /* ==================================================================
      *  tick pipeline
      * ================================================================== */
