@@ -136,9 +136,10 @@ public class Hitbox implements java.io.Serializable {
     private DCoordinate findClosestPointOnCircleFromPoint(DCoordinate target) {
         DCoordinate center = getCenter();
         DCoordinate targetOffset = target.copy().subtract(center);
-        double angle = Math.atan(targetOffset.y / targetOffset.x);
-        double x = Math.cos(angle) * radius;
-        double y = Math.sin(angle) * radius;
+        // StrictMath: circle hitboxes resolve collisions, which lockstep must agree on
+        double angle = StrictMath.atan(targetOffset.y / targetOffset.x);
+        double x = StrictMath.cos(angle) * radius;
+        double y = StrictMath.sin(angle) * radius;
         
         if (targetOffset.x < 0) {
             x *= -1;
@@ -309,12 +310,34 @@ public class Hitbox implements java.io.Serializable {
         return new Hitbox(go, verts);
     }
 
+    /** Cached sine and cosine of {@link #rotation}, and the angle they were computed for. */
+    private transient double trigForRotation = Double.NaN, rotationCos = 1, rotationSin = 0;
+
+    /**
+     * Recomputes the cached sine and cosine if the rotation has moved since they were taken.
+     *
+     * Rotation changes rarely while {@link #adjustForRotation} runs for every vertex of every
+     * collision test, so the trigonometry is done once per angle rather than once per vertex.
+     * Comparing against the angle they were computed for also covers deserialization, where the
+     * cache arrives empty but the rotation does not.
+     */
+    private void ensureRotationTrig() {
+        if (trigForRotation != rotation) {
+            double radians = Math.toRadians(rotation);   // toRadians is a single exact multiply
+            // StrictMath rather than Math: only StrictMath is required to give the same answer on
+            // every machine, and rotated hitboxes feed collision, which lockstep must agree on.
+            rotationCos = StrictMath.cos(radians);
+            rotationSin = StrictMath.sin(radians);
+            trigForRotation = rotation;
+        }
+    }
+
     private Coordinate adjustForRotation(Coordinate c) {
+        ensureRotationTrig();
         int oldX = c.x;
         int oldY = c.y;
-        double rotation = Math.toRadians(getRotation());
-        int x = (int) (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
-        int y = (int) (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        int x = (int) (oldX * rotationCos - oldY * rotationSin);
+        int y = (int) (oldX * rotationSin + oldY * rotationCos);
         return new Coordinate(x,y);
     }
 

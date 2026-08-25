@@ -101,14 +101,14 @@ public class OccupationMap implements java.io.Serializable {
                 float hw = go.getWidth()  / 2f + objectPadding;
                 float hh = go.getHeight() / 2f + objectPadding;
                 double rot = Math.toRadians(go.getRotation());
-                float cosA = (float) Math.abs(Math.cos(rot));
-                float sinA = (float) Math.abs(Math.sin(rot));
+                float cosA = (float) Math.abs(StrictMath.cos(rot));
+                float sinA = (float) Math.abs(StrictMath.sin(rot));
                 // AABB of the rotated padded rect — used to pull candidate tiles
                 int aabbHW = (int)(hw * cosA + hh * sinA) + 1;
                 int aabbHH = (int)(hw * sinA + hh * cosA) + 1;
                 Rectangle aabb = new Rectangle((int)(cx - aabbHW), (int)(cy - aabbHH), aabbHW * 2, aabbHH * 2);
-                float cosR = (float) Math.cos(rot);
-                float sinR = (float) Math.sin(rot);
+                float cosR = (float) StrictMath.cos(rot);
+                float sinR = (float) StrictMath.sin(rot);
                 for (Tile tile : tileMap.getTilesIntersectingRectangle(aabb)) {
                     if (tileIntersectsOBB(tile, cx, cy, hw, hh, cosR, sinR, cosA, sinA)) {
                         occupiedMap.put(tile, true);

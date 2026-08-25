@@ -16,16 +16,26 @@ public class DCoordinate implements Serializable {
 
     public double x, y;
 
+    /*
+     * Squaring is written out rather than done with Math.pow. Multiplication and sqrt are both
+     * exactly specified by IEEE 754, so distances come out bit-identical on every machine, which
+     * lockstep multiplayer depends on; Math.pow is only required to land within one unit in the
+     * last place and is free to differ between implementations. It is also the hotter path — these
+     * run for every range check, target search and collision test.
+     */
     public static double distanceBetween(DCoordinate a, DCoordinate b) {
-        return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow(b.y - a.y, 2));
+        double dx = b.x - a.x, dy = b.y - a.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     public double distanceFrom(DCoordinate other) {
-        return Math.sqrt(Math.pow((other.x - this.x), 2) + Math.pow(other.y - this.y, 2));
+        double dx = other.x - this.x, dy = other.y - this.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     public double distanceFrom(Coordinate other) {
-        return Math.sqrt(Math.pow((other.x - this.x), 2) + Math.pow(other.y - this.y, 2));
+        double dx = other.x - this.x, dy = other.y - this.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     public DCoordinate(Coordinate c) {
@@ -139,7 +149,7 @@ public class DCoordinate implements Serializable {
         } else {
             double adjacent = end.x - start.x;
             double opposite = end.y - start.y;
-            double angle = Math.toDegrees(Math.atan2(opposite, adjacent)) + 90;
+            double angle = Math.toDegrees(StrictMath.atan2(opposite, adjacent)) + 90;
             return angle;
         }
     }
@@ -165,7 +175,7 @@ public class DCoordinate implements Serializable {
         } else {
             double adjacent = end.x - start.x;
             double opposite = end.y - start.y;
-            double angle = Math.toDegrees(Math.atan2(opposite, adjacent)) + 90;
+            double angle = Math.toDegrees(StrictMath.atan2(opposite, adjacent)) + 90;
             return angle;
         }
     }
@@ -187,8 +197,8 @@ public class DCoordinate implements Serializable {
         double oldX = x;
         double oldY = y;
         double rotation = Math.toRadians(degree);
-        x = (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
-        y = (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        x = (oldX * StrictMath.cos(rotation) - oldY * StrictMath.sin(rotation));
+        y = (oldX * StrictMath.sin(rotation) + oldY * StrictMath.cos(rotation));
         return this;
     }
 
@@ -228,8 +238,8 @@ public class DCoordinate implements Serializable {
         double oldX = c.x;
         double oldY = c.y;
         double rotation = Math.toRadians(r);
-        double x = (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
-        double y = (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        double x = (oldX * StrictMath.cos(rotation) - oldY * StrictMath.sin(rotation));
+        double y = (oldX * StrictMath.sin(rotation) + oldY * StrictMath.cos(rotation));
         return new DCoordinate(x, y);
     }
     

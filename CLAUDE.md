@@ -5,7 +5,7 @@ JEngine is a Java-based 2D game engine built on AWT
 
 ## Build System and Commands
 
-ATTENTION: AI cannot build or compile. The developer will build and test and give feedback
+ATTENTION: AI cannot build or compile without direct instruction. The developer will build and test and give feedback
 
 ## Core Architecture
 

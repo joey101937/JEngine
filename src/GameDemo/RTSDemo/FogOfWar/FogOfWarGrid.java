@@ -144,9 +144,9 @@ public class FogOfWarGrid {
         if (hasDirectional) {
             DirectionalVisionProvider dvp = (DirectionalVisionProvider) provider;
             double facingRad = Math.toRadians(dvp.getVisionFacingDegrees());
-            facingDx = Math.sin(facingRad);   // game: 0=north, CW positive → sin/−cos
-            facingDy = -Math.cos(facingRad);
-            double cosHalfAngle = Math.cos(Math.toRadians(dvp.getDirectionalVisionHalfAngle()));
+            facingDx = StrictMath.sin(facingRad);   // game: 0=north, CW positive → sin/−cos
+            facingDy = -StrictMath.cos(facingRad);
+            double cosHalfAngle = StrictMath.cos(Math.toRadians(dvp.getDirectionalVisionHalfAngle()));
             cosHalfAngleSq = cosHalfAngle * cosHalfAngle;
             int directionalR = (int) (baseR * dvp.getDirectionalRangeMultiplier());
             directionalRSq = (long) directionalR * directionalR;

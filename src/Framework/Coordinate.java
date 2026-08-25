@@ -17,16 +17,25 @@ public class Coordinate implements Serializable{
 
     public int x, y;
 
+    /*
+     * Squared by multiplication rather than Math.pow: multiplication and sqrt are exactly
+     * specified by IEEE 754 and so give the same distance on every machine, which lockstep
+     * multiplayer depends on, while Math.pow may differ by a unit in the last place between
+     * implementations. See DCoordinate for the same reasoning.
+     */
     public static double distanceBetween(Coordinate a, Coordinate b) {
-        return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow(b.y - a.y, 2));
+        double dx = b.x - a.x, dy = b.y - a.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     public double distanceFrom(Coordinate other) {
-        return Math.sqrt(Math.pow((other.x - this.x), 2) + Math.pow(other.y - this.y, 2));
+        double dx = other.x - this.x, dy = other.y - this.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     public double distanceFrom(DCoordinate other) {
-        return Math.sqrt(Math.pow((other.x - this.x), 2) + Math.pow(other.y - this.y, 2));
+        double dx = other.x - this.x, dy = other.y - this.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     public Coordinate(Coordinate c) {
@@ -154,8 +163,8 @@ public class Coordinate implements Serializable{
         int oldX = x;
         int oldY = y;
         double rotation = Math.toRadians(degree);
-        x = (int) (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
-        y = (int) (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        x = (int) (oldX * StrictMath.cos(rotation) - oldY * StrictMath.sin(rotation));
+        y = (int) (oldX * StrictMath.sin(rotation) + oldY * StrictMath.cos(rotation));
         return this;
     }
     
@@ -189,8 +198,8 @@ public class Coordinate implements Serializable{
         int oldX = c.x;
         int oldY = c.y;
         double rotation = Math.toRadians(r);
-        int x = (int) (oldX * Math.cos(rotation) - oldY * Math.sin(rotation));
-        int y = (int) (oldX * Math.sin(rotation) + oldY * Math.cos(rotation));
+        int x = (int) (oldX * StrictMath.cos(rotation) - oldY * StrictMath.sin(rotation));
+        int y = (int) (oldX * StrictMath.sin(rotation) + oldY * StrictMath.cos(rotation));
         return new Coordinate(x, y);
     }
 
