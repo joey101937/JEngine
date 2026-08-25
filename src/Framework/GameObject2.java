@@ -658,8 +658,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             VolatileImage toRender = getGraphic().getCurrentVolatileImage();
             // Draw via a sub-pixel translate so the fractional render location is preserved (Java2D
             // anti-aliases across pixels) rather than snapped to a whole pixel with an int draw position.
-            double drawX = renderLocation.x - toRender.getWidth() / 2.0;
-            double drawY = renderLocation.y - toRender.getHeight() / 2.0;
+            // The anchor is the point in the image that sits on the object's location, in unscaled
+            // image pixels, defaulting to the middle. The surrounding transform already carries
+            // scale and renderScale, so this offset stays in image space.
+            double drawX = renderLocation.x - getGraphic().getAnchorX();
+            double drawY = renderLocation.y - getGraphic().getAnchorY();
             AffineTransform drawTransform = AffineTransform.getTranslateInstance(drawX, drawY);
             if (renderBrightness != 1.0 || renderSaturation != 1.0) {
                 BufferedImage snapshot = toRender.getSnapshot();
@@ -928,8 +931,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             }
             // Terrain is resolved as its own stage, and always slides. It narrows movement the
             // same way this object's collisions do, so an object that comes to rest flush against
-            // a wall also comes to rest flush against impassable ground rather than a tick short
-            // of it - the same defect, in the other stage.
+            // a wall also comes to rest flush against impassable ground.
             if (!isNewLocationClearForPathing(newLocation.toCoordinate())) {
                 double dx = newLocation.x - location.x;
                 double dy = newLocation.y - location.y;

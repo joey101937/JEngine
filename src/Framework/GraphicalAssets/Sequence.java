@@ -108,6 +108,42 @@ public class Sequence implements Graphic{
         return output;
     }
     
+    /**
+     * The current frame's anchor, so frames cropped to different sizes stay aligned as the
+     * animation plays.
+     *
+     * Reports the frame most recently returned by {@link #getCurrentImage()} or
+     * {@link #getCurrentVolatileImage()} rather than recomputing which frame is due now, so the
+     * anchor belongs to the image that was drawn. Fetch an image before reading the anchor.
+     */
+    @Override
+    public double getAnchorX() {
+        Sprite f = currentFrameSprite();
+        return f == null ? 0 : f.getAnchorX();
+    }
+
+    /** Vertical companion to {@link #getAnchorX()}. */
+    @Override
+    public double getAnchorY() {
+        Sprite f = currentFrameSprite();
+        return f == null ? 0 : f.getAnchorY();
+    }
+
+    private Sprite currentFrameSprite() {
+        if (frames == null || frames.length == 0) return null;
+        int i = currentFrameIndex;
+        if (i < 0 || i >= frames.length) i = 0;
+        return frames[i];
+    }
+
+    /** Anchors every frame at the bottom centre of its own opaque pixels. */
+    public void setAnchorToOpaqueBottomCentre() {
+        if (frames == null) return;
+        for (Sprite f : frames) {
+            if (f != null) f.setAnchorToOpaqueBottomCentre();
+        }
+    }
+
     public int getCurrentFrameIndex(){
         try{
             if(((System.currentTimeMillis() - startTime + startTimeOffset) / frameDelay) > frames.length -1) {

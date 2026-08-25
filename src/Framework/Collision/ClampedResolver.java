@@ -15,20 +15,17 @@ import java.util.List;
  * obstacle and stops exactly there.
  *
  * <h3>Touching is not overlapping</h3>
- * The distinction the whole resolver turns on. Edge contact is contact — it should report a
- * collision — but it must not block movement, or a body resting on a floor could never walk along
- * the floor it is standing on. So a blocker only constrains an axis while the two boxes share
- * <i>space</i> on the other axis, never merely an edge. Resting flush is a stable state that
- * still permits sliding.
+ * Edge contact reports a collision but does not block movement, so a body resting on a floor can
+ * still walk along it. A blocker constrains an axis only while the two boxes share <i>space</i> on
+ * the other axis, never merely an edge. Resting flush is a stable state that permits sliding.
  *
  * <h3>Exact, in doubles</h3>
- * Contact along an axis is the gap divided by the step, computed from the hitbox's real
- * floating-point edges rather than {@link Hitbox#getBounds()}, whose integer truncation was
- * enough to leave a body one pixel inside the floor it had just landed on — which then reads as
- * penetration and freezes it. There is no search and no tolerance, so the answer is identical on
- * every machine, which lockstep multiplayer requires. Rotated and circular hitboxes have no such
- * closed form and fall back to fixed-step bisection, deterministic for the same reason but
- * resolving only to the pixel.
+ * Contact along an axis is the gap divided by the step, computed from the hitbox's floating-point
+ * edges rather than {@link Hitbox#getBounds()}, whose integer truncation can place a resting body
+ * a pixel inside the surface it landed on. There is no search and no tolerance, so the answer is
+ * identical on every machine, which lockstep multiplayer requires. Rotated and circular hitboxes
+ * have no closed form and fall back to fixed-step bisection, deterministic for the same reason
+ * but resolving only to the pixel.
  *
  * <h3>Sliding</h3>
  * With sliding on, each axis is narrowed independently, so an object keeps the movement parallel

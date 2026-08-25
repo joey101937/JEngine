@@ -87,8 +87,7 @@ public abstract class SSActor extends GameObject2 {
     private void setup() {
         isSolid = true;
         preventOverlap = true;
-        // clamped: a body falling at maxFallSpeed must come to rest on the floor, not a tick
-        // above it - which is the whole reason this class used to sweep its own box
+        // clamped: a body falling at maxFallSpeed comes to rest on the floor, not a tick above it
         collisionResolver = Resolvers.CLAMPED;
         movementType = MovementType.RawVelocity;
         setZLayer(10);

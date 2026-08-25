@@ -23,6 +23,49 @@ public class Sprite implements Graphic {
 
     private double scale = 1;
     private double opacity = 1;
+    /** Anchor in unscaled image pixels, or NaN to keep using the middle of the image. */
+    private double anchorX = Double.NaN, anchorY = Double.NaN;
+
+    @Override
+    public double getAnchorX() {
+        return Double.isNaN(anchorX) ? (image == null ? 0 : image.getWidth() / 2.0) : anchorX;
+    }
+
+    @Override
+    public double getAnchorY() {
+        return Double.isNaN(anchorY) ? (image == null ? 0 : image.getHeight() / 2.0) : anchorY;
+    }
+
+    /**
+     * Sets the anchor, in unscaled image pixels from the top left. Scaling the sprite scales the
+     * anchor with it, so it keeps pointing at the same feature.
+     */
+    public void setAnchor(double x, double y) {
+        anchorX = x;
+        anchorY = y;
+    }
+
+    /** Restores the default anchor at the middle of the image. */
+    public void clearAnchor() {
+        anchorX = Double.NaN;
+        anchorY = Double.NaN;
+    }
+
+    /** Anchors the sprite at the bottom centre of its non-transparent pixels. */
+    public void setAnchorToOpaqueBottomCentre() {
+        if (image == null) return;
+        int minX = image.getWidth(), maxX = -1, maxY = -1;
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                if ((image.getRGB(x, y) >>> 24) == 0) continue;
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y > maxY) maxY = y;
+            }
+        }
+        if (maxX < 0) return;   // fully transparent: leave the default alone
+        setAnchor((minX + maxX + 1) / 2.0, maxY + 1);
+    }
 
     /**
      * gets raw underlying image
@@ -100,6 +143,11 @@ public class Sprite implements Graphic {
         image = Graphic.scaleImage(image, d);
         volatileImage = Graphic.getVolatileFromBuffered(image);
         scale *= d;
+        // the anchor is in image pixels, so it scales with the image to stay on the same feature
+        if (!Double.isNaN(anchorX)) {
+            anchorX *= d;
+            anchorY *= d;
+        }
     }
 
     @Override

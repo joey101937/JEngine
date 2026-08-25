@@ -5,7 +5,7 @@ import Framework.GraphicalAssets.Sequence;
 import Framework.GraphicalAssets.Sprite;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 /**
@@ -146,7 +146,7 @@ public final class MinotaurAssets {
      *  sequence plumbing
      * ================================================================== */
 
-    private static final Map<Sequence, BufferedImage[]> SOURCE_FRAMES = new HashMap<>();
+    private static final Map<Sequence, BufferedImage[]> SOURCE_FRAMES = new ConcurrentHashMap<>(); // concurrent: MinotaurGame.swapTo builds the next floor on a loader thread while the outgoing one is still drawing
 
     private static Sequence seq(BufferedImage[] frames, int frameDelay, boolean looping) {
         Sequence s = new Sequence(frames);
@@ -186,8 +186,8 @@ public final class MinotaurAssets {
      *  that use the same palette
      * ================================================================== */
 
-    private static final Map<String, Sprite> TERRAIN_CACHE = new HashMap<>();
-    private static final Map<String, Sequence> TERRAIN_SEQ_CACHE = new HashMap<>();
+    private static final Map<String, Sprite> TERRAIN_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Sequence> TERRAIN_SEQ_CACHE = new ConcurrentHashMap<>();
 
     public static Sprite platform(int w, int h, MinotaurArt.Palette p, boolean capped) {
         String key = "plat|" + w + "|" + h + "|" + p.name + "|" + capped;

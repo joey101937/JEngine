@@ -73,6 +73,24 @@ public interface Graphic {
     public boolean isAnimated();
 
     /**
+     * The point in the image that sits on the object's location, in unscaled image pixels from
+     * the top left. Defaults to the middle of the image.
+     *
+     * A {@link Sequence} answers this per frame, so frames cropped to different sizes stay
+     * aligned by their anchor.
+     */
+    default double getAnchorX() {
+        BufferedImage img = getCurrentImage();
+        return img == null ? 0 : img.getWidth() / 2.0;
+    }
+
+    /** Vertical companion to {@link #getAnchorX()}; see there. */
+    default double getAnchorY() {
+        BufferedImage img = getCurrentImage();
+        return img == null ? 0 : img.getHeight() / 2.0;
+    }
+
+    /**
      * releases memory from asset and stops animaion thread
      */
     public void destroy();
