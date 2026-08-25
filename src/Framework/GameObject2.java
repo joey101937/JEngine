@@ -91,7 +91,7 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * {@code movesFreelyThrough}. Never null — to pass through things, say so with those flags,
      * which report the contact rather than losing it.
      */
-    public CollisionResolver collisionResolver = Resolvers.AXIS_CANCEL;
+    public CollisionResolver collisionResolver = Resolvers.CLAMPED;
 
     /**
      * When set, this object only blocks movement heading in this direction, and only for a mover
@@ -936,7 +936,11 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * @return new movement, adjusted for pathing
      */
     public DCoordinate updateMovementBasedOnPathing (DCoordinate proposedMovement) {
+        pathingBlockedX = false;
+        pathingBlockedY = false;
         DCoordinate newLocation = proposedMovement.add(location.copy());
+        boolean clamps = collisionResolver != null && collisionResolver.clampsPartialMovement();
+
         if (getHostGame().pathingLayer != null) {
             if (!getHostGame().pathingLayer.getTypeAt(getPixelLocation()).name.equals(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()).name)) {
                 this.onPathingLayerCollision(getHostGame().pathingLayer.getTypeAt(newLocation.toCoordinate()));
@@ -947,24 +951,57 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             if (!isNewLocationClearForPathing(newLocation.toCoordinate())) {
                 double dx = newLocation.x - location.x;
                 double dy = newLocation.y - location.y;
-                boolean xClear = isXClearForPathingAtNewLocation(dx);
-                boolean yClear = isYClearForPathingAtNewLocation(dy);
-                boolean clamps = collisionResolver != null && collisionResolver.clampsPartialMovement();
-                if (!xClear) {
+                if (!isXClearForPathingAtNewLocation(dx)) {
                     newLocation.x = location.x + (clamps ? dx * largestPathableFraction(dx, true) : 0);
+                    pathingBlockedX = true;
                 }
-                if (!yClear) {
+                if (!isYClearForPathingAtNewLocation(dy)) {
                     newLocation.y = location.y + (clamps ? dy * largestPathableFraction(dy, false) : 0);
+                    pathingBlockedY = true;
                 }
             }
         }
-        
+
+        // The axes are narrowed one at a time, so each is pathable alone while the corner they
+        // meet at need not be. Narrowing the surviving movement as a whole keeps whatever part of
+        // it is reachable, where cancelling outright would stop an object that still had somewhere
+        // to go.
         if (!isNewLocationClearForPathing(newLocation.toCoordinate())) {
-            // cancel movement if pathing layer says destination is not pathable
-            newLocation = location.copy();
+            double dx = newLocation.x - location.x;
+            double dy = newLocation.y - location.y;
+            double fraction = clamps ? largestPathableFraction(dx, dy) : 0;
+            newLocation.x = location.x + dx * fraction;
+            newLocation.y = location.y + dy * fraction;
+            if (fraction < 1) {
+                if (dx != 0) pathingBlockedX = true;
+                if (dy != 0) pathingBlockedY = true;
+            }
         }
-        
+
         return newLocation.subtract(location);
+    }
+
+    /** Whether impassable terrain cut the last move short on each axis. */
+    private boolean pathingBlockedX = false, pathingBlockedY = false;
+
+    /**
+     * Largest fraction of a two-axis step whose destination stays on pathable ground. Fixed
+     * iteration count, so the answer is identical on every machine.
+     */
+    private double largestPathableFraction(double dx, double dy) {
+        if (dx == 0 && dy == 0) return 1;
+        double clear = 0.0;
+        double blocked = 1.0;
+        for (int i = 0; i < Framework.Collision.ClampedResolver.SEARCH_STEPS; i++) {
+            double mid = (clear + blocked) / 2.0;
+            DCoordinate at = new DCoordinate(location.x + dx * mid, location.y + dy * mid);
+            if (isNewLocationClearForPathing(at.toCoordinate())) {
+                clear = mid;
+            } else {
+                blocked = mid;
+            }
+        }
+        return clear;
     }
     
     /**
@@ -1069,13 +1106,19 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         DCoordinate oldLocation = location.copy();
         DCoordinate newLocation = location.copy();
         
-        DCoordinate proposedMovement = this.getMovementNextTick();
-        proposedMovement = updateMovementBasedOnCollision(proposedMovement);
+        DCoordinate intent = this.getMovementNextTick();
+        DCoordinate proposedMovement = updateMovementBasedOnCollision(intent);
         proposedMovement = updateMovementBasedOnPathing(proposedMovement);
         newLocation.add(proposedMovement);
 
-        // pathing layer now
-        
+        // One answer for "what stopped me", covering both blockers and impassable terrain, and
+        // carrying the movement that was finally granted rather than the collision stage's
+        // intermediate figure.
+        lastCollisionResult = new CollisionResult(proposedMovement,
+                lastCollisionResult.blockedX || pathingBlockedX,
+                lastCollisionResult.blockedY || pathingBlockedY,
+                intent.x, intent.y);
+
         location = newLocation;
         
         if(!location.equals(constrainToWorld(location))) {
