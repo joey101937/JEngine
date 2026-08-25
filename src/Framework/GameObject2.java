@@ -321,6 +321,15 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
 
     /**
      * returns the width of the visual. If no visual, return 0.
+     *
+     * <b>Override this to a constant on anything whose size affects gameplay.</b> By default this
+     * measures the frame currently on screen, and an animated graphic advances its frames on the
+     * wall clock rather than on ticks. Frames cropped to different sizes therefore give a width
+     * that changes as the animation plays and differs between machines running the same
+     * simulation. Anything derived from it — the default hitbox, collision range, spacing —
+     * inherits that. Pinning it to one frame, or to a literal, keeps animation out of the
+     * simulation.
+     *
      * @return width of visual
      */
     public int getWidth() {
@@ -333,6 +342,10 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
     }
     /**
      * returns the height of the visual gameobject. If no visual, return 0
+     *
+     * Carries the same caveat as {@link #getWidth()}: measured from the frame currently on
+     * screen, so override it to a constant on anything whose size affects gameplay.
+     *
      * @return height of visual
      */
     public int getHeight() {
@@ -763,30 +776,22 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
      * if the hitbox is set to be circular, maintains circle radius to be equal to width/2
      */
     /**
-     * Vertex offsets for the default box: the object's dimensions, positioned over the graphic as
-     * it is actually drawn.
+     * Vertex offsets for the default box: the object's dimensions, centred on its location.
      *
-     * A graphic anchored somewhere other than its middle is drawn offset from the object's
-     * location, so a box centred on the location would sit away from the art it is meant to
-     * describe. The offset is computed from the image's own dimensions rather than
-     * {@link #getWidth()}, so a subclass that reports a size unrelated to its sprite is
-     * unaffected: a default anchor yields an offset of exactly zero either way.
+     * This deliberately ignores the graphic's anchor. An anchor is a rendering property, and for
+     * an animated graphic it belongs to whichever frame is on screen — chosen by wall clock, not
+     * by tick. Letting it place the collision box would make collision geometry depend on frame
+     * timing, so two machines running the same simulation could disagree. An object whose body is
+     * not centred on its location declares that with an explicit {@link Hitbox#box} instead.
      */
     private Coordinate[] defaultBoxVerts() {
         int width = getWidth();
         int height = getHeight();
-        int offX = 0, offY = 0;
-        Graphic gr = getGraphic();
-        if (gr != null && gr.getCurrentImage() != null) {
-            BufferedImage img = gr.getCurrentImage();
-            offX = (int) Math.round((img.getWidth() / 2.0 - gr.getAnchorX()) * getScale());
-            offY = (int) Math.round((img.getHeight() / 2.0 - gr.getAnchorY()) * getScale());
-        }
         return new Coordinate[]{
-            new Coordinate(offX - width / 2, offY - height / 2),
-            new Coordinate(offX + width / 2, offY - height / 2),
-            new Coordinate(offX - width / 2, offY + height / 2),
-            new Coordinate(offX + width / 2, offY + height / 2)
+            new Coordinate(-width / 2, -height / 2),
+            new Coordinate(width / 2, -height / 2),
+            new Coordinate(-width / 2, height / 2),
+            new Coordinate(width / 2, height / 2)
         };
     }
 

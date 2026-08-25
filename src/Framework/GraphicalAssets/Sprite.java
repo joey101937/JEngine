@@ -57,22 +57,6 @@ public class Sprite implements Graphic {
         anchorY = Double.NaN;
     }
 
-    /** Anchors the sprite at the bottom centre of its non-transparent pixels. */
-    public void setAnchorToOpaqueBottomCentre() {
-        if (image == null) return;
-        int minX = image.getWidth(), maxX = -1, maxY = -1;
-        for (int y = 0; y < image.getHeight(); y++) {
-            for (int x = 0; x < image.getWidth(); x++) {
-                if ((image.getRGB(x, y) >>> 24) == 0) continue;
-                if (x < minX) minX = x;
-                if (x > maxX) maxX = x;
-                if (y > maxY) maxY = y;
-            }
-        }
-        if (maxX < 0) return;   // fully transparent: leave the default alone
-        setAnchor((minX + maxX + 1) / 2.0, maxY + 1);
-    }
-
     /**
      * gets raw underlying image
      *

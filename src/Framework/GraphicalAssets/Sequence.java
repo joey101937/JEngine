@@ -144,13 +144,6 @@ public class Sequence implements Graphic{
         }
     }
 
-    /** Anchors every frame at the bottom centre of its own opaque pixels. */
-    public void setAnchorToOpaqueBottomCentre() {
-        if (frames == null) return;
-        for (Sprite f : frames) {
-            if (f != null) f.setAnchorToOpaqueBottomCentre();
-        }
-    }
 
     public int getCurrentFrameIndex(){
         try{

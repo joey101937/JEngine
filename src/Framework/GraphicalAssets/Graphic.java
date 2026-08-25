@@ -78,6 +78,12 @@ public interface Graphic {
      *
      * A {@link Sequence} answers this per frame, so frames cropped to different sizes stay
      * aligned by their anchor.
+     *
+     * <b>Rendering only.</b> Nothing in the simulation reads this. A {@link Sequence} reports the
+     * anchor of whichever frame is on screen, and frames advance on the wall clock rather than on
+     * ticks, so anything derived from it would vary between machines running the same game. An
+     * object whose collision body is not centred on its location says so with an explicit
+     * {@code Hitbox.box}, not with an anchor.
      */
     default double getAnchorX() {
         BufferedImage img = getCurrentImage();
