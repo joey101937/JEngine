@@ -788,23 +788,36 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
         };
     }
 
+    /**
+     * The dimensions {@link #updateHitbox} last built the default box for, so that the box is
+     * rebuilt only when the sprite changes size. {@code updateHitbox} runs for every object every
+     * tick, and the vertices it builds are allocated fresh each time.
+     */
+    private int defaultHitboxWidth = Integer.MIN_VALUE, defaultHitboxHeight = Integer.MIN_VALUE;
+
     public void updateHitbox() {
         //if no hitbox, create the default box hitbox
         if (getHitbox() == null && getWidth()>0) {
             Hitbox hb = new Hitbox(this, defaultBoxVerts());
             hb.rotateTo(getRotation());
             setHitbox(hb);
+            defaultHitboxWidth = getWidth();
+            defaultHitboxHeight = getHeight();
             return;
         }
         //maintain the default hitbox
         if (getHitbox() != null && getHitbox().type == Hitbox.Type.box) {
-            getHitbox().setVertices(defaultBoxVerts());
+            int width = getWidth(), height = getHeight();
+            if (width != defaultHitboxWidth || height != defaultHitboxHeight) {
+                getHitbox().setVertices(defaultBoxVerts());
+                defaultHitboxWidth = width;
+                defaultHitboxHeight = height;
+            }
         }else if(getHitbox() != null && getHitbox().type == Hitbox.Type.circle){
             //maintain default circle hitbox
             getHitbox().radius = Math.max(getWidthAsOfLastTick(), getHeightAsOfLastTick())/2;
-            getHitbox().updateFarthestAndShortest();
         }
-        
+
     }
     
     
@@ -819,9 +832,6 @@ public class GameObject2 implements Comparable<GameObject2>, Renderable, java.io
             System.out.println("queue done");
             waitingToGenerateDefaultPathingChecks = false;
             generateDefaultPathingOffsets();
-        }
-        if(this.getHitbox() != null) {
-            getHitbox().updateFarthestAndShortest();
         }
         updateLocation();
         tickNumber++;

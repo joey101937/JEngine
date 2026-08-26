@@ -1,204 +1,95 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Framework;
 
-import static Framework.Hitbox.Type.box;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 
 /**
- * Hitbox class represents either a 2D polygon or circle in the world, able to
- * detect when they intersect eachother and are therefore used for collision detection
- * Hitboxes are either standalone or attached to gameobject2s.
+ * A convex collision shape in the world: either a quadrilateral or a circle. Hitboxes are either
+ * attached to a {@link GameObject2}, in which case {@link #vertices} are offsets from the host's
+ * collision centre, or standalone, in which case they are offsets from {@link #setStaticCenter}.
  *
- * polygonal hitboxes take 4 coordinate vertices. these are offsets if connected to a gameobject or raw locations if not
- * circular hitboxes take only a radius parameter.
+ * <h3>Vertex order</h3>
+ * {@link #vertices} is always {@code {topLeft, topRight, botLeft, botRight}}. Walking that array in
+ * order does <i>not</i> trace the outline, so every geometric routine here walks it through
+ * {@link #WINDING} instead. Quads need not be rectangles - a trapezoid is fine - but they must be
+ * convex, since every test below is a convex one.
  *
- * PERFORMANCE NOTE: Circular hitboxes are significantly faster to process than polygonal
+ * <h3>Contact semantics</h3>
+ * Exact contact counts as intersecting, for every pairing of shapes: boxes sharing an edge or a
+ * single corner collide, and so do circles exactly {@code r1 + r2} apart. That is what lets
+ * {@code ClampedResolver} converge on a flush resting position.
+ *
+ * <h3>Performance</h3>
+ * Circles are the cheapest shape by a wide margin, and a pair of unrotated rectangles is compared
+ * by its edges alone. The general convex path allocates only its eight-double corner buffers, which
+ * escape analysis generally removes.
+ *
  * @author joey
  */
 public class Hitbox implements java.io.Serializable {
 
-    public void setVertices(Coordinate[] verts) {
-        this.vertices = verts;
-    }
-
     public static enum Type {
         box, circle
     };
-    public GameObject2 host;
-    public transient Game hostGame;
-    public Type type = box;
-    private double rotation = 0;
-    private  DCoordinate staticCenter = new DCoordinate(0, 0); //center point for if there is no host
-    public double radius = 0.0; //radius if circle hitbox
-    //private double rotation = 0.0;
-    /**
-     * topLeft, topRight, botLeft, botRight
-     * 
-     * If this has a host, then these are offsets relative to host.location;
-     * If it does not have a host, then these are global positions;
-     */
-    public Coordinate[] vertices = null;            //topLeft, topRight, botLeft, botRight
-    private double farthestRange = 0; //stores the distance of the farthest vertex, used for optimising performance
-    private double shortestRange = 9999999; //shortest distance from center to a flat side
-    private String vertsKey_midpoint = ""; // string made up of vert coordinates to detect changes for recalculating midpoiunt
-    private String vertsKey_shortest_farthest = ""; // string made up of vert coordinates to detect changes for recalculating shortest/longest
 
-    private Coordinate[] cachedMidpoints;
-    
-    private String generateVertsKey () {
-        if(vertices == null) return "";
-        String output = "";
-        for(Coordinate c : vertices) {
-            output += c;
-        }
-        return output;
-    }
-    
-    private Coordinate[] getMidpoints() {
-        String thisKey = generateVertsKey();
-        if(thisKey.equals(vertsKey_midpoint)) return cachedMidpoints;
-        Coordinate[] sideMidpoints = new Coordinate[4];
-        sideMidpoints[0] = new Coordinate( // top midpoint
-            (vertices[0].x + vertices[1].x) /2,
-            (vertices[0].y + vertices[1].y) /2
-        );
-        sideMidpoints[1] = new Coordinate( // right midpoint
-            (vertices[1].x + vertices[3].x) /2,
-            (vertices[1].y + vertices[3].y) /2
-        );
-        sideMidpoints[2] = new Coordinate( // bottom midpoint
-            (vertices[2].x + vertices[3].x) /2,
-            (vertices[2].y + vertices[3].y) /2
-        );
-        sideMidpoints[3] = new Coordinate( // left midpoint
-            (vertices[2].x + vertices[0].x) /2,
-            (vertices[2].y + vertices[0].y) /2
-        );
-        cachedMidpoints = sideMidpoints;
-        vertsKey_midpoint = thisKey;
-        return sideMidpoints;
-    }
-    
     /**
-     * used to set farthestRange. used for optimizing
+     * The order in which {@link #vertices} is walked to trace the outline: topLeft, topRight,
+     * botRight, botLeft. Stored flat so the geometry routines can index without branching.
      */
-    protected final void updateFarthestAndShortest(){
-        if(type == Type.circle) {
-            shortestRange = radius;
-            farthestRange = radius;
-            return;
-        }
-        String thisVertsKey = generateVertsKey();
-        if(thisVertsKey.equals(vertsKey_shortest_farthest)) return; // already up to date
-        if(vertices == null) return;
-        for(Coordinate c : vertices){
-            c = c.copy();
-            c.add(getCenter());
-            double distance = c.distanceFrom(getCenter());
-            if(distance>farthestRange){
-                farthestRange = distance;
-            }
-            if(distance<shortestRange){
-                shortestRange = distance;
-            }
-        }
-        Coordinate[] sideMidpoints = getMidpoints();
-        for(Coordinate c : sideMidpoints){
-            c = c.copy();
-            c.add(getCenter());
-            double distance = c.distanceFrom(getCenter());
-            if(distance > farthestRange){
-                farthestRange = distance;
-            }
-            if(distance < shortestRange){
-                shortestRange = distance;
-            }
-            if(distance < shortestRange){
-                shortestRange = distance;
-            }
-        }
-        vertsKey_shortest_farthest = thisVertsKey;
-    }
-    
+    private static final int[] WINDING = {0, 1, 3, 2};
+
+    public GameObject2 host;
+    public Type type = Type.box;
+    private double rotation = 0;
+    private DCoordinate staticCenter = new DCoordinate(0, 0); //center point for if there is no host
+    public double radius = 0.0; //radius if circle hitbox
+
     /**
-     * given a circle, find the closest point on that circle to a nother target point
-     * @param target target point
-     * https://www.youtube.com/watch?v=aHaFwnqH5CU
-     * @return 
+     * topLeft, topRight, botLeft, botRight.
+     *
+     * Offsets from this hitbox's centre - the host's collision centre if it has a host, the static
+     * centre otherwise.
      */
-    private DCoordinate findClosestPointOnCircleFromPoint(DCoordinate target) {
-        DCoordinate center = getCenter();
-        DCoordinate targetOffset = target.copy().subtract(center);
-        // StrictMath: circle hitboxes resolve collisions, which lockstep must agree on
-        double angle = StrictMath.atan(targetOffset.y / targetOffset.x);
-        double x = StrictMath.cos(angle) * radius;
-        double y = StrictMath.sin(angle) * radius;
-        
-        if (targetOffset.x < 0) {
-            x *= -1;
-            y *= -1;
-        }
-        return new DCoordinate(x + center.x, y + center.y);
-    }
-    
-    public double getRotation(){
-        return rotation;
-    }
-    public void rotate(double degrees){
-        rotation+=degrees;
-    }
-    public void rotateTo(double newRotation){
-        rotate(newRotation-rotation);
-    }
-    
-    
-    public DCoordinate getCenter(){
-        if(host==null)return staticCenter;
-        else return host.getCenterForCollisionSliding().copy();
-    }
-    
-    public void setStaticCenter(DCoordinate sc) {
-        this.staticCenter = sc;
-    }
-    
-    private DCoordinate[] getRenderVerts() {
-        double[] leftSide = leftSide();
-        double[] rightSide = rightSide();
-        DCoordinate[] renderVerts = new DCoordinate[4];
-        renderVerts[0] = new DCoordinate(leftSide[0],leftSide[1]);
-        renderVerts[1] = new DCoordinate(leftSide[2],leftSide[3]);
-        renderVerts[2] = new DCoordinate(rightSide[0],rightSide[1]);
-        renderVerts[3] = new DCoordinate(rightSide[2],rightSide[3]);
-        return renderVerts;
-    }
-    
-    public boolean containsPoint(Coordinate p){
-        if(type == Type.box){
-            DCoordinate[] renderVerts = getRenderVerts();
-            boolean leftCheck = false,
-                    rightCheck = false,
-                    aboveCheck = false,
-                    belowCheck = false;
-            for(DCoordinate dc : renderVerts) {
-                if(dc.x > p.x) rightCheck = true;
-                if(dc.x < p.x) leftCheck = true;
-                if(dc.y > p.y) aboveCheck = true;
-                if(dc.y < p.y) belowCheck = true;
-            }
-            return rightCheck && leftCheck && belowCheck && aboveCheck;
-              //return p.distanceFrom(getCenter())<=(this.shortestRange);
-        }else{
-            //circle
-            return p.distanceFrom(getCenter())<=(radius);
-        }
-    }
+    public Coordinate[] vertices = null;
+
+    /** Distance from the centre to the farthest vertex: the circumradius. Cheap rejection bound. */
+    private double farthestRange = 0;
+    /**
+     * Radius of the largest circle centred on the centre that fits entirely inside the shape: the
+     * inradius. Cheap acceptance bound. Zero when the centre lies outside the shape - a degenerate
+     * or non-convex quad - which safely disables that shortcut.
+     */
+    private double shortestRange = 0;
+
+    /* ------------------------------------------------------------------
+     *  range cache
+     *
+     *  The ranges are derived purely from the vertex offsets and the radius, so they are recomputed
+     *  only when one of those changes. Every collision test checks this key, so it is held as raw
+     *  numbers and compared field by field.
+     * ------------------------------------------------------------------ */
+    private transient boolean rangesValid = false;
+    private transient int k0x, k0y, k1x, k1y, k2x, k2y, k3x, k3y;
+    private transient double kRadius = Double.NaN;
+
+    /**
+     * Whether the four vertices form an upright rectangle, and its extents if they do.
+     *
+     * A pair of these can be compared by their edges alone, which is the fast path in
+     * {@link #intersectsAt}. The default box an object builds from its sprite is one, so most
+     * hitboxes qualify. Worked out alongside the ranges, off the same cache.
+     */
+    private transient boolean uprightRectangle = false;
+    private transient int minOffsetX, minOffsetY, maxOffsetX, maxOffsetY;
+
+    /** Cached sine and cosine of {@link #rotation}, and the angle they were computed for. */
+    private transient double trigForRotation = Double.NaN, rotationCos = 1, rotationSin = 0;
+
+    /* ==================================================================
+     *  construction
+     * ================================================================== */
 
     /**
      * Creates a circular hitbox at location given with radius given
@@ -212,8 +103,8 @@ public class Hitbox implements java.io.Serializable {
         this.type = Type.circle;
         updateFarthestAndShortest();
     }
-    
-        /**
+
+    /**
      * Creates a circular hitbox at location given with radius given
      *
      * @param c location hitbox is centered on
@@ -227,32 +118,35 @@ public class Hitbox implements java.io.Serializable {
     }
 
     /**
-     * creates a rectangle hitbox with given corner points topLeft, topRight,
-     * botLeft, botRight. In that order!
+     * creates a quadrilateral hitbox with given corner points topLeft, topRight, botLeft, botRight.
+     * In that order! The centre is taken as the average of the four points, and the points are
+     * stored as offsets from it.
+     *
      * @param given an array of 4 coordinates that represents the vertices of the polygon
-     * 
      */
     public Hitbox(Coordinate[] given) {
         if (given.length != 4) {
             throw new IllegalArgumentException("ERROR: Bad argument for hitbox vertices array: length should be 4, not " + given.length);
         }
         for (Coordinate cor : given) {
-            if (given == null) {
-                System.out.println("WARNING CREATING HITBOX WITH NULL VERTEX");
+            if (cor == null) {
+                throw new IllegalArgumentException("ERROR: Bad argument for hitbox vertices array: contains a null vertex");
             }
         }
-        //set center to avg point
-        int avgX = 0, avgY = 0;
+        // Centre on the average corner, floored to a whole pixel. The vertices are whole pixels, so
+        // an integer centre is what lets centre + offset recover the exact corner passed in, and
+        // flooring shifts the centre the same direction in negative coordinates as in positive.
+        int sumX = 0, sumY = 0;
         for (Coordinate c : given) {
-            avgX += c.x;
-            avgY += c.y;
+            sumX += c.x;
+            sumY += c.y;
         }
-        staticCenter = new DCoordinate(avgX/4, avgY/4);
-        Coordinate[] given2 = new Coordinate[given.length];
-        for(int i = 0 ; i < given.length; i++){
-            given2[i]=given[i].copy().subtract(staticCenter);
+        staticCenter = new DCoordinate(Math.floorDiv(sumX, 4), Math.floorDiv(sumY, 4));
+        Coordinate[] offsets = new Coordinate[4];
+        for (int i = 0; i < 4; i++) {
+            offsets[i] = given[i].copy().subtract(staticCenter);
         }
-        vertices = given2;
+        vertices = offsets;
         type = Type.box;
         updateFarthestAndShortest();
     }
@@ -267,15 +161,16 @@ public class Hitbox implements java.io.Serializable {
         host = go;
         type = Type.circle;
         this.radius = radius;
+        updateFarthestAndShortest();
     }
 
     /**
-     * Creates a rectangle hitbox attached to game object NOTE VERTICES ARE NOW
-     * OFFSETS NOT POINTS
+     * Creates a quadrilateral hitbox attached to game object NOTE VERTICES ARE NOW OFFSETS NOT
+     * POINTS
      *
      * @param go host unit
-     * @param verts offset locations of corners relative to go location. Ie:
-     * (1,1) is location of go + 1 to the right and 1 up
+     * @param verts offset locations of corners relative to go location. Ie: (1,1) is location of go
+     * + 1 to the right and 1 down
      */
     public Hitbox(GameObject2 go, Coordinate[] verts) {
         this.vertices = verts;
@@ -288,7 +183,7 @@ public class Hitbox implements java.io.Serializable {
      * A box hitbox that need not be centred on its host's location.
      *
      * The default box an object builds for itself is centred on its location and sized from its
-     * sprite, which is the wrong shape whenever the collision body is not the art — a character
+     * sprite, which is the wrong shape whenever the collision body is not the art - a character
      * whose box is narrower than its frame and anchored at its feet, a vehicle whose hull sits
      * forward of its origin. Offsets are measured from the host's location, positive down and
      * right.
@@ -310,16 +205,50 @@ public class Hitbox implements java.io.Serializable {
         return new Hitbox(go, verts);
     }
 
-    /** Cached sine and cosine of {@link #rotation}, and the angle they were computed for. */
-    private transient double trigForRotation = Double.NaN, rotationCos = 1, rotationSin = 0;
+    /* ==================================================================
+     *  centre, rotation, vertices
+     * ================================================================== */
+
+    public void setVertices(Coordinate[] verts) {
+        this.vertices = verts;
+    }
+
+    /**
+     * The point this hitbox's vertex offsets are measured from.
+     *
+     * The returned coordinate is safe for the caller to mutate: a hosted hitbox gets it from
+     * {@link GameObject2#getCenterForCollisionSliding()}, which returns a copy.
+     */
+    public DCoordinate getCenter() {
+        if (host == null) {
+            return staticCenter;
+        }
+        return host.getCenterForCollisionSliding();
+    }
+
+    public void setStaticCenter(DCoordinate sc) {
+        this.staticCenter = sc;
+    }
+
+    public double getRotation() {
+        return rotation;
+    }
+
+    public void rotate(double degrees) {
+        rotation += degrees;
+    }
+
+    public void rotateTo(double newRotation) {
+        rotate(newRotation - rotation);
+    }
 
     /**
      * Recomputes the cached sine and cosine if the rotation has moved since they were taken.
      *
-     * Rotation changes rarely while {@link #adjustForRotation} runs for every vertex of every
-     * collision test, so the trigonometry is done once per angle rather than once per vertex.
-     * Comparing against the angle they were computed for also covers deserialization, where the
-     * cache arrives empty but the rotation does not.
+     * Rotation changes rarely while the corner routine runs for every collision test, so the
+     * trigonometry is done once per angle rather than once per vertex. Comparing against the angle
+     * they were computed for also covers deserialization, where the cache arrives empty but the
+     * rotation does not.
      */
     private void ensureRotationTrig() {
         if (trigForRotation != rotation) {
@@ -332,425 +261,591 @@ public class Hitbox implements java.io.Serializable {
         }
     }
 
-    private Coordinate adjustForRotation(Coordinate c) {
-        ensureRotationTrig();
-        int oldX = c.x;
-        int oldY = c.y;
-        int x = (int) (oldX * rotationCos - oldY * rotationSin);
-        int y = (int) (oldX * rotationSin + oldY * rotationCos);
-        return new Coordinate(x,y);
+    /**
+     * Writes this hitbox's four corners, in outline order, into {@code out} as
+     * {@code x0,y0,x1,y1,x2,y2,x3,y3}.
+     *
+     * Corners come out in full precision, so a turned box keeps its size and shape at every angle.
+     *
+     * @param out              buffer of at least 8 doubles
+     * @param dx               world-space x offset applied to the whole shape
+     * @param dy               world-space y offset applied to the whole shape
+     * @param rotationDegrees  angle to evaluate at, which need not be the hitbox's current rotation
+     */
+    private void writeWorldPolygon(double[] out, double dx, double dy, double rotationDegrees) {
+        double cos, sin;
+        if (rotationDegrees == rotation) {
+            ensureRotationTrig();
+            cos = rotationCos;
+            sin = rotationSin;
+        } else {
+            double radians = Math.toRadians(rotationDegrees);
+            cos = StrictMath.cos(radians);
+            sin = StrictMath.sin(radians);
+        }
+        DCoordinate c = getCenter();
+        double cx = c.x + dx, cy = c.y + dy;
+        for (int i = 0; i < 4; i++) {
+            Coordinate v = vertices[WINDING[i]];
+            out[i << 1] = cx + v.x * cos - v.y * sin;
+            out[(i << 1) + 1] = cy + v.x * sin + v.y * cos;
+        }
+    }
+
+    /* ==================================================================
+     *  ranges
+     * ================================================================== */
+
+    /**
+     * Brings {@link #farthestRange} and {@link #shortestRange} up to date with the current vertices
+     * or radius. Cheap and idempotent - it returns immediately unless the shape actually changed -
+     * so callers may invoke it freely, and every query in this class does so before relying on the
+     * ranges.
+     */
+    protected final void updateFarthestAndShortest() {
+        if (type == Type.circle) {
+            if (rangesValid && kRadius == radius) {
+                return;
+            }
+            farthestRange = radius;
+            shortestRange = radius;
+            kRadius = radius;
+            rangesValid = true;
+            return;
+        }
+        if (vertices == null || vertices.length != 4) {
+            farthestRange = 0;
+            shortestRange = 0;
+            return;
+        }
+        if (rangesValid && matchesRangeKey()) {
+            return;
+        }
+
+        // circumradius: the farthest corner. Rotation does not change any distance from the centre,
+        // so both ranges are computed in offset space and stay valid as the shape turns.
+        double farthestSq = 0;
+        for (Coordinate v : vertices) {
+            double d = v.x * (double) v.x + v.y * (double) v.y;
+            if (d > farthestSq) {
+                farthestSq = d;
+            }
+        }
+        farthestRange = Math.sqrt(farthestSq);
+
+        // inradius: the nearest edge, but only meaningful if the centre is actually inside. A
+        // degenerate or non-convex quad gets zero, which disables the acceptance shortcut rather
+        // than letting it report contact that is not there.
+        double[] poly = new double[8];
+        for (int i = 0; i < 4; i++) {
+            Coordinate v = vertices[WINDING[i]];
+            poly[i << 1] = v.x;
+            poly[(i << 1) + 1] = v.y;
+        }
+        double shortest = 0;
+        if (pointInPolygon(0, 0, poly)) {
+            double bestSq = Double.POSITIVE_INFINITY;
+            for (int i = 0; i < 4; i++) {
+                int j = (i + 1) & 3;
+                double ax = poly[i << 1], ay = poly[(i << 1) + 1];
+                double ex = poly[j << 1] - ax, ey = poly[(j << 1) + 1] - ay;
+                double lenSq = ex * ex + ey * ey;
+                if (lenSq == 0) {
+                    continue;   // a repeated vertex is not an edge
+                }
+                // squared distance from the origin to the line the edge lies on
+                double cross = ay * ex - ax * ey;
+                double dSq = (cross * cross) / lenSq;
+                if (dSq < bestSq) {
+                    bestSq = dSq;
+                }
+            }
+            if (bestSq != Double.POSITIVE_INFINITY) {
+                shortest = Math.sqrt(bestSq);
+            }
+        }
+        shortestRange = shortest;
+
+        // vertices are topLeft, topRight, botLeft, botRight: upright means the two left corners
+        // share an x, the two right corners share an x, and likewise for the top and bottom pairs
+        Coordinate tl = vertices[0], tr = vertices[1], bl = vertices[2], br = vertices[3];
+        uprightRectangle = tl.x == bl.x && tr.x == br.x && tl.y == tr.y && bl.y == br.y
+                && tl.x <= tr.x && tl.y <= bl.y;
+        if (uprightRectangle) {
+            minOffsetX = tl.x;
+            maxOffsetX = tr.x;
+            minOffsetY = tl.y;
+            maxOffsetY = bl.y;
+        }
+
+        storeRangeKey();
+        rangesValid = true;
     }
 
     /**
-     * coordinates for leftside line, used with box type
-     * @return leftside line coordinates x1,y1,x2,y2
+     * Whether this is a rectangle standing upright at the given angle, and so eligible for the
+     * edge-comparison fast path.
+     *
+     * Takes the angle the test is being evaluated at, which is not always the angle the hitbox
+     * currently sits at: an upright box asked whether turning would put it into something is
+     * answering about a turned shape.
      */
-    private double[] leftSide() {
-        Coordinate centerLoc = new Coordinate(getCenter());      
-        double[] output = {adjustForRotation(vertices[0]).x+ centerLoc.x, adjustForRotation(vertices[0]).y+ centerLoc.y, adjustForRotation(vertices[2]).x+ centerLoc.x, adjustForRotation(vertices[2]).y+ centerLoc.y};
-        return output;
+    private boolean isUprightRectangleAt(double rotationDegrees) {
+        return type == Type.box && uprightRectangle && rotationDegrees % 360 == 0;
     }
 
-    /**
-     * coordinates for topside line used with box type
-     * @return  line coordinates x1,y1,x2,y2
-     */
-    private double[] topSide() {
-        Coordinate centerLoc = new Coordinate(getCenter());    
-        double[] output = {adjustForRotation(vertices[0]).x+ centerLoc.x,adjustForRotation(vertices[0]).y+ centerLoc.y, adjustForRotation(vertices[1]).x+ centerLoc.x, adjustForRotation(vertices[1]).y+ centerLoc.y};
-        return output;
+    private boolean matchesRangeKey() {
+        return k0x == vertices[0].x && k0y == vertices[0].y
+                && k1x == vertices[1].x && k1y == vertices[1].y
+                && k2x == vertices[2].x && k2y == vertices[2].y
+                && k3x == vertices[3].x && k3y == vertices[3].y;
     }
 
-    /**
-     * coordinates for right side line used with box type
-     * @return  line coordinates x1,y1,x2,y2
-     */
-    private double[] rightSide() {
-        Coordinate centerLoc = new Coordinate(getCenter());    
-        double[] output = {adjustForRotation(vertices[1]).x+ centerLoc.x, adjustForRotation(vertices[1]).y+ centerLoc.y, adjustForRotation(vertices[3]).x+ centerLoc.x,adjustForRotation(vertices[3]).y+ centerLoc.y};
-        return output;
+    private void storeRangeKey() {
+        k0x = vertices[0].x;
+        k0y = vertices[0].y;
+        k1x = vertices[1].x;
+        k1y = vertices[1].y;
+        k2x = vertices[2].x;
+        k2y = vertices[2].y;
+        k3x = vertices[3].x;
+        k3y = vertices[3].y;
     }
 
-    /**
-     * coordinates for bottom side line used with box type
-     * @return  line coordinates x1,y1,x2,y2
-     */
-    private double[] botSide() {
-        Coordinate centerLoc = new Coordinate(getCenter());    
-        double[] output = { adjustForRotation(vertices[2]).x+ centerLoc.x,  adjustForRotation(vertices[2]).y+ centerLoc.y,  adjustForRotation(vertices[3]).x+ centerLoc.x,  adjustForRotation(vertices[3]).y+ centerLoc.y};
-        return output;
-    }
-
-    /**
-     * weather or not the given two lines intersect
-     * @param line1 first line to eval
-     * @param line2 second line to eval
-     * @return weather or not the two lines intersect
-     */
-    private static boolean linesIntersect(double[] line1, double[] line2) {
-        return Line2D.linesIntersect(line1[0], line1[1], line1[2], line1[3], line2[0], line2[1], line2[2], line2[3]);
-    }
-    
-        
-    private static boolean isBetween(double i, double a, double b) {
-        return (i <= a && i >= b) || (i >= a && i <= b);
-    }
-    
-    /**
-     * Weather or not this hitbox intersects wit given line
-     * @param points 4 length array of doubles that represents two points in a line
-     * x1,y1,x2,y2
-     * @return if the given line intersects with any sides of this hitbox.
-     */
-    public boolean intersectsWithLine(double[] points) {
+    /** Distance from the centre to the farthest point of this shape. */
+    public double getFarthestRange() {
         updateFarthestAndShortest();
-        if (points == null) {
-            throw new RuntimeException("Bad argument: line to compare is null");
-        }
-        if (points.length != 4) {
-            throw new RuntimeException("Bad argument: param must be length 4, was " + points.length);
-        }
-        
-        DCoordinate p1 = new DCoordinate(points[0], points[1]);
-        DCoordinate p2 = new DCoordinate(points[2], points[3]);
+        return farthestRange;
+    }
 
-        if (type == Type.box) {
-            //first check if the points are too close
-            //if that is uncertain, do straight intersection test
-            if (p1.distanceFrom(getCenter()) <= this.shortestRange || p2.distanceFrom(getCenter()) <= this.shortestRange) {
+    /** Radius of the largest circle centred on the centre that fits entirely inside this shape. */
+    public double getShortestRange() {
+        updateFarthestAndShortest();
+        return shortestRange;
+    }
+
+    /* ==================================================================
+     *  convex geometry primitives
+     * ================================================================== */
+
+    /**
+     * Whether the two convex polygons overlap, by the separating axis theorem: they are apart
+     * exactly when some edge normal of one separates their projections.
+     *
+     * Comparisons are strict, so projections that meet without overlapping are not a separating
+     * axis - shapes that merely touch report as intersecting.
+     */
+    private static boolean polygonsOverlap(double[] a, double[] b) {
+        return !separatedAlongEdgesOf(a, b) && !separatedAlongEdgesOf(b, a);
+    }
+
+    private static boolean separatedAlongEdgesOf(double[] subject, double[] other) {
+        for (int i = 0; i < 4; i++) {
+            int j = (i + 1) & 3;
+            double ex = subject[j << 1] - subject[i << 1];
+            double ey = subject[(j << 1) + 1] - subject[(i << 1) + 1];
+            if (ex == 0 && ey == 0) {
+                continue;   // repeated vertex: no edge, so no axis
+            }
+            double axisX = ey, axisY = -ex;   // edge normal; its length does not affect the compare
+            double aMin = Double.POSITIVE_INFINITY, aMax = Double.NEGATIVE_INFINITY;
+            double bMin = Double.POSITIVE_INFINITY, bMax = Double.NEGATIVE_INFINITY;
+            for (int k = 0; k < 4; k++) {
+                double pa = subject[k << 1] * axisX + subject[(k << 1) + 1] * axisY;
+                if (pa < aMin) {
+                    aMin = pa;
+                }
+                if (pa > aMax) {
+                    aMax = pa;
+                }
+                double pb = other[k << 1] * axisX + other[(k << 1) + 1] * axisY;
+                if (pb < bMin) {
+                    bMin = pb;
+                }
+                if (pb > bMax) {
+                    bMax = pb;
+                }
+            }
+            if (aMax < bMin || bMax < aMin) {
                 return true;
             }
-            return linesIntersect(rightSide(), points) || linesIntersect(leftSide(), points)
-                    || linesIntersect(topSide(), points) || linesIntersect(rightSide(), points);
-        } else if (type == Type.circle) {
-            /*
-            uses this solution to determien whether or not our circle intersects given line
-            https://stackoverflow.com/a/44975251
-            resources 
-            https://www.youtube.com/watch?v=YyO7ASwNpFQ
-            https://www.youtube.com/watch?v=kTZhEM4ap-M
-            */
-            // turn line into aX + bY = c
-            double a = p1.y - p2.y;
-            double b = p2.x - p1.x;
-            double c = p2.x * p1.y - p1.x * p2.y;
-            double x = getCenter().x;
-            double y = getCenter().y;
-            double r = radius;
+        }
+        return false;
+    }
 
-            // In general a quadratic is written as: Ax^2 + Bx + C = 0
-            // (a^2 + b^2)x^2 + (2abY - 2ac + - 2b^2X)x + (b^2X^2 + b^2Y^2 - 2bcY + c^2 - b^2r^2) = 0
-            double A = a * a + b * b;
-            double B = 2 * a * b * y - 2 * a * c - 2 * b * b * x;
-            double C = b * b * x * x + b * b * y * y - 2 * b * c * y + c * c - b * b * r * r;
-
-            // Use quadratic formula x = (-b +- sqrt(a^2 - 4ac))/2a to find the 
-            // roots of the equation (if they exist).
-            double D = B * B - 4 * A * C;
-            double x1, y1, x2, y2;
-            double EPS = .0000001;
-
-            // Handle vertical line case with b = 0
-            if (Math.abs(b) < EPS) {
-                // Line equation is ax + by = c, but b = 0, so x = c/a
-                x1 = c / a;
-                // No intersection
-                if (Math.abs(x - x1) > r) {
-                    return false;
-                }
-                // Vertical line is tangent to circle
-                if (Math.abs((x1 - r) - x) < EPS || Math.abs((x1 + r) - x) < EPS) {
-                     // point of intersection is (x1,y). make sure that value is in line segment
-                    return isBetween(x1, points[0], points[2]) && isBetween(y, points[1], points[3]);
-                }
-                double dx = Math.abs(x1 - x);
-                double dy = Math.sqrt(r * r - dx * dx);
-                // Vertical line cuts through circle
-                // points are (x1, y+dy) and (x1,y-dy)
-                return isBetween(x1, points[0], points[2])
-                        && (isBetween(y+dy, points[1], points[3]) || isBetween(y-dy, points[1], points[3])); // make sure that value is in line segment
-
-            } else if (Math.abs(D) < EPS) { // Line is tangent to circle
-                x1 = -B / (2 * A);
-                y1 = (c - a * x1) / b;
-                // intersects at (x1, y1)
-                return isBetween(x1, points[0], points[2]) && isBetween(y1, points[1], points[3]); // make sure that value is in line segment
-            } else if (D < 0) { // No intersection
-                return false;
-            } else {
-                D = Math.sqrt(D);
-                x1 = (-B + D) / (2 * A);
-                y1 = (c - a * x1) / b;
-                
-                x2 = (-B - D) / (2 * A);
-                y2 = (c - a * x2) / b;
-                // intersects at (x1, y1), and (x2, y2);
-                // make sure that x value is in line segment
-                return (isBetween(x1, points[0], points[2]) && isBetween(y1, points[1], points[3]))
-                        || (isBetween(x2, points[0], points[2]) && isBetween(y2, points[1], points[3]));
+    /**
+     * Whether a circle overlaps a convex polygon: true when the centre is inside, or when any edge
+     * passes within the radius. Contact counts, matching the box rules.
+     */
+    private static boolean circleOverlapsPolygon(double cx, double cy, double r, double[] poly) {
+        if (pointInPolygon(cx, cy, poly)) {
+            return true;
+        }
+        double bestSq = Double.POSITIVE_INFINITY;
+        for (int i = 0; i < 4; i++) {
+            int j = (i + 1) & 3;
+            double dSq = distanceSqToSegment(cx, cy,
+                    poly[i << 1], poly[(i << 1) + 1], poly[j << 1], poly[(j << 1) + 1]);
+            if (dSq < bestSq) {
+                bestSq = dSq;
             }
-        } else { // neither box nor circle
+        }
+        return bestSq <= r * r;
+    }
+
+    /**
+     * Even-odd crossing test, casting along a fixed <i>direction</i>. The answer therefore depends
+     * only on the point's position relative to the polygon, not on where the pair sits on the map.
+     */
+    private static boolean pointInPolygon(double px, double py, double[] poly) {
+        boolean inside = false;
+        for (int i = 0, j = 3; i < 4; j = i++) {
+            double xi = poly[i << 1], yi = poly[(i << 1) + 1];
+            double xj = poly[j << 1], yj = poly[(j << 1) + 1];
+            if ((yi > py) != (yj > py)) {
+                // which side of the edge the point falls on, written as a cross product so a
+                // horizontal edge cannot divide by zero
+                double t = (px - xi) * (yj - yi) - (xj - xi) * (py - yi);
+                if (yj > yi ? t < 0 : t > 0) {
+                    inside = !inside;
+                }
+            }
+        }
+        return inside;
+    }
+
+    private static double distanceSqToSegment(double px, double py,
+            double ax, double ay, double bx, double by) {
+        double dx = bx - ax, dy = by - ay;
+        double lenSq = dx * dx + dy * dy;
+        double t = 0;
+        if (lenSq > 0) {
+            t = ((px - ax) * dx + (py - ay) * dy) / lenSq;
+            if (t < 0) {
+                t = 0;
+            } else if (t > 1) {
+                t = 1;
+            }
+        }
+        double ox = ax + t * dx - px, oy = ay + t * dy - py;
+        return ox * ox + oy * oy;
+    }
+
+    /* ==================================================================
+     *  queries
+     * ================================================================== */
+
+    /**
+     * Whether the given point falls inside this hitbox. Points exactly on the boundary count as
+     * inside, for boxes and circles alike.
+     */
+    public boolean containsPoint(Coordinate p) {
+        DCoordinate center = getCenter();
+        if (type == Type.circle) {
+            double dx = p.x - center.x, dy = p.y - center.y;
+            return dx * dx + dy * dy <= radius * radius;
+        }
+        if (vertices == null) {
             return false;
         }
+        double[] poly = new double[8];
+        writeWorldPolygon(poly, 0, 0, rotation);
+        if (pointInPolygon(p.x, p.y, poly)) {
+            return true;
+        }
+        for (int i = 0; i < 4; i++) {          // the boundary itself counts as contained
+            int j = (i + 1) & 3;
+            if (distanceSqToSegment(p.x, p.y,
+                    poly[i << 1], poly[(i << 1) + 1], poly[j << 1], poly[(j << 1) + 1]) == 0) {
+                return true;
+            }
+        }
+        return false;
     }
-    
-    
+
+    /**
+     * returns true if this hitbox touches the given hitbox
+     *
+     * @param other hitbox to compare to
+     * @return whether or not they overlap
+     */
+    public boolean intersects(Hitbox other) {
+        return intersectsAt(other, 0, 0, rotation);
+    }
+
+    /**
+     * if this hitbox would intersect another hitbox if it was moved based on input
+     *
+     * @param other hitbox to compare to
+     * @param velocity the amount to move this hitbox
+     * @return whether or not the hitbox would be intersecting another if moved
+     */
+    public boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
+        return intersectsAt(other, velocity.x, velocity.y, rotation);
+    }
+
+    /**
+     * if this hitbox would intersect another hitbox if it was moved by the given amount.
+     *
+     * The sub-pixel overload: movement below a whole pixel is a real distance, which is what
+     * anything looking for a contact point by subdividing a movement needs.
+     *
+     * @param other hitbox to compare to
+     * @param velocity the amount to move this hitbox
+     * @return whether or not the hitbox would be intersecting another if moved
+     */
+    public boolean intersectsIfMoved(Hitbox other, DCoordinate velocity) {
+        return intersectsAt(other, velocity.x, velocity.y, rotation);
+    }
+
+    /**
+     * if this hitbox would intersect another hitbox if it was moved by the given amount
+     *
+     * @param other hitbox to compare to
+     * @param dx horizontal movement
+     * @param dy vertical movement
+     * @return whether or not the hitbox would be intersecting another if moved
+     */
+    public boolean intersectsIfMoved(Hitbox other, double dx, double dy) {
+        return intersectsAt(other, dx, dy, rotation);
+    }
+
+    /**
+     * if this hitbox would intersect another hitbox after turning by the given amount.
+     *
+     * Evaluates the candidate angle directly and leaves the hitbox alone, so a render running
+     * alongside the check always sees the shape at the angle it actually points.
+     */
+    public boolean intersectsIfRotated(Hitbox other, double possibleRotation) {
+        return intersectsAt(other, 0, 0, rotation + possibleRotation);
+    }
+
+    /**
+     * The single intersection routine every public test funnels through.
+     *
+     * @param dx              world-space x offset applied to this hitbox only
+     * @param dy              world-space y offset applied to this hitbox only
+     * @param rotationDegrees angle to evaluate this hitbox at
+     */
+    private boolean intersectsAt(Hitbox other, double dx, double dy, double rotationDegrees) {
+        if (other == null || other == this) {
+            return false;
+        }
+        updateFarthestAndShortest();
+        other.updateFarthestAndShortest();
+
+        DCoordinate myCenter = getCenter();
+        DCoordinate otherCenter = other.getCenter();
+        double mx = myCenter.x + dx, my = myCenter.y + dy;
+        double ox = otherCenter.x, oy = otherCenter.y;
+        double sepX = ox - mx, sepY = oy - my;
+        double distSq = sepX * sepX + sepY * sepY;
+
+        // farther apart than the two circumradii: nothing to test
+        double reach = farthestRange + other.farthestRange;
+        if (distSq > reach * reach) {
+            return false;
+        }
+
+        if (type == Type.circle && other.type == Type.circle) {
+            double sum = radius + other.radius;
+            return distSq <= sum * sum;
+        }
+
+        // closer than the two inradii: the inscribed circles already overlap, so the shapes do too
+        double touch = shortestRange + other.shortestRange;
+        if (touch > 0 && distSq <= touch * touch) {
+            return true;
+        }
+
+        if (type == Type.box && other.type == Type.box) {
+            if (vertices == null || other.vertices == null) {
+                return false;
+            }
+            if (isUprightRectangleAt(rotationDegrees) && other.isUprightRectangleAt(other.rotation)) {
+                // Two upright rectangles overlap exactly when they overlap on both axes, contact
+                // included. The commonest pairing, since a default sprite-sized box is one.
+                return mx + minOffsetX <= ox + other.maxOffsetX
+                        && ox + other.minOffsetX <= mx + maxOffsetX
+                        && my + minOffsetY <= oy + other.maxOffsetY
+                        && oy + other.minOffsetY <= my + maxOffsetY;
+            }
+            double[] mine = new double[8], theirs = new double[8];
+            writeWorldPolygon(mine, dx, dy, rotationDegrees);
+            other.writeWorldPolygon(theirs, 0, 0, other.rotation);
+            return polygonsOverlap(mine, theirs);
+        }
+        if (type == Type.circle) {
+            if (other.vertices == null) {
+                return false;
+            }
+            double[] theirs = new double[8];
+            other.writeWorldPolygon(theirs, 0, 0, other.rotation);
+            return circleOverlapsPolygon(mx, my, radius, theirs);
+        }
+        if (vertices == null) {
+            return false;
+        }
+        double[] mine = new double[8];
+        writeWorldPolygon(mine, dx, dy, rotationDegrees);
+        return circleOverlapsPolygon(ox, oy, other.radius, mine);
+    }
+
+    /**
+     * Whether this hitbox intersects the given line segment.
+     *
+     * @param points 4 length array of doubles that represents two points in a line: x1,y1,x2,y2
+     * @return if the given segment touches this hitbox
+     */
+    public boolean intersectsWithLine(double[] points) {
+        if (points == null) {
+            throw new IllegalArgumentException("Bad argument: line to compare is null");
+        }
+        if (points.length != 4) {
+            throw new IllegalArgumentException("Bad argument: param must be length 4, was " + points.length);
+        }
+        updateFarthestAndShortest();
+
+        DCoordinate center = getCenter();
+        double nearestSq = distanceSqToSegment(center.x, center.y,
+                points[0], points[1], points[2], points[3]);
+
+        if (type == Type.circle) {
+            return nearestSq <= radius * radius;
+        }
+        if (vertices == null) {
+            return false;
+        }
+        // the whole shape lies inside its circumcircle, so a segment that misses that misses this
+        if (nearestSq > farthestRange * farthestRange) {
+            return false;
+        }
+        double[] poly = new double[8];
+        writeWorldPolygon(poly, 0, 0, rotation);
+        // a touching segment either crosses the outline or lies entirely within it
+        for (int i = 0; i < 4; i++) {
+            int j = (i + 1) & 3;
+            if (Line2D.linesIntersect(poly[i << 1], poly[(i << 1) + 1], poly[j << 1], poly[(j << 1) + 1],
+                    points[0], points[1], points[2], points[3])) {
+                return true;
+            }
+        }
+        return pointInPolygon(points[0], points[1], poly);
+    }
+
     /**
      * if the hitbox intersects with a line that is of given thickness
+     *
      * @param start start point
      * @param end end point
      * @param width thickness of line
      * @return true if the hitbox intersects with the fat line, false otherwise
      */
     public boolean intersectsWithFatLine(Coordinate start, Coordinate end, double width) {
-        // First, check if either end of the line is inside the hitbox
-        if (containsPoint(start) || containsPoint(end)) {
-            return true;
+        double dx = end.x - start.x, dy = end.y - start.y;
+        double length = Math.sqrt(dx * dx + dy * dy);
+        double half = width / 2;
+
+        if (length == 0) {
+            // a fat line with no length is a disc at that point
+            if (type == Type.circle) {
+                DCoordinate c = getCenter();
+                double ddx = start.x - c.x, ddy = start.y - c.y;
+                double reach = radius + half;
+                return ddx * ddx + ddy * ddy <= reach * reach;
+            }
+            if (vertices == null) {
+                return false;
+            }
+            double[] poly = new double[8];
+            writeWorldPolygon(poly, 0, 0, rotation);
+            return circleOverlapsPolygon(start.x, start.y, half, poly);
         }
 
-        // Calculate the direction vector of the line
-        DCoordinate direction = new DCoordinate(end.x - start.x, end.y - start.y);
-        double length = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
-        direction.x /= length;
-        direction.y /= length;
+        // the band swept by the line: half its width out along each perpendicular, in outline order
+        double px = -dy / length * half;
+        double py = dx / length * half;
+        double[] band = new double[]{
+            start.x + px, start.y + py,
+            end.x + px, end.y + py,
+            end.x - px, end.y - py,
+            start.x - px, start.y - py
+        };
 
-        // Calculate the perpendicular vector
-        DCoordinate perpendicular = new DCoordinate(-direction.y, direction.x);
-
-        // Calculate the four corners of the fat line
-        DCoordinate[] corners = new DCoordinate[4];
-        corners[0] = new DCoordinate(start.x + perpendicular.x * width / 2, start.y + perpendicular.y * width / 2);
-        corners[1] = new DCoordinate(start.x - perpendicular.x * width / 2, start.y - perpendicular.y * width / 2);
-        corners[2] = new DCoordinate(end.x + perpendicular.x * width / 2, end.y + perpendicular.y * width / 2);
-        corners[3] = new DCoordinate(end.x - perpendicular.x * width / 2, end.y - perpendicular.y * width / 2);
-
-        // Create a temporary hitbox for the fat line
-        Hitbox fatLineHitbox = new Hitbox(new Coordinate[]{
-            new Coordinate((int)corners[0].x, (int)corners[0].y),
-            new Coordinate((int)corners[2].x, (int)corners[2].y),
-            new Coordinate((int)corners[1].x, (int)corners[1].y),
-            new Coordinate((int)corners[3].x, (int)corners[3].y)
-        });
-
-        // Check if this hitbox intersects with the fat line hitbox
-        return this.intersects(fatLineHitbox);
-    }
-    
-    private static boolean doCircleAndBoxInterset(Hitbox circle, Hitbox rect) {
-        double distance = rect.getCenter().distanceFrom(circle.getCenter());
-        if (distance - circle.radius > rect.farthestRange) {
-            return false; // too far to possibly touch
+        if (type == Type.circle) {
+            DCoordinate c = getCenter();
+            return circleOverlapsPolygon(c.x, c.y, radius, band);
         }
-        if (distance <= circle.radius + rect.shortestRange) {
-            return true;
-        }
-        
-        // check for circle contained in large polygon
-        double[] lineComingOutOfCircle = {circle.getCenter().x, circle.getCenter().y, 0, 0}; // line from circle center to 0,0
-        int intersections = 0;
-        if(linesIntersect(lineComingOutOfCircle, rect.topSide())) intersections++;
-        if(linesIntersect(lineComingOutOfCircle, rect.botSide())) intersections++;
-        if(linesIntersect(lineComingOutOfCircle, rect.rightSide())) intersections++;
-        if(linesIntersect(lineComingOutOfCircle, rect.leftSide())) intersections++;
-        if(intersections == 1) return true; // if the circle is inside the polygon, there will be exacatly 1 intersection
-        
-        //check for border intersect
-        boolean lineIntersection =
-                  circle.intersectsWithLine(rect.leftSide())
-                || circle.intersectsWithLine(rect.rightSide())
-                || circle.intersectsWithLine(rect.topSide())
-                || circle.intersectsWithLine(rect.botSide());
-        return lineIntersection;
-    }
-    
-    private static boolean doBoxAndBoxIntersect(Hitbox a, Hitbox b) {
-        double distance = a.getCenter().distanceFrom(b.getCenter());
-        if (distance - b.farthestRange > a.farthestRange) {
-            return false; //too far to possibly intersect
-        }
-        if (distance <= a.shortestRange + b.shortestRange) {
-            return true; //must be touching
-        }
-
-        for (int i =0; i < a.vertices.length; i++) {
-            Coordinate vert = a.vertices[i];
-            Coordinate adjustedVert = a.adjustForRotation(vert.copy()).add(a.getCenter());
-            
-            double[] leftSideOfBox = b.leftSide();
-            // draw line from each vert to origin. if any of the lines intersect other hitbox exactly one time
-            // then it must be inside that other hitbox
-            double[] lineComingOut = {adjustedVert.x, adjustedVert.y, 0, 0}; // line from circle center to 0,0int intersections = 0;
-            int intersections = 0;
-            if (linesIntersect(lineComingOut, b.topSide())) {
-                intersections++;
-            }
-            if (linesIntersect(lineComingOut, b.botSide())) {
-                intersections++;
-            }
-            if (linesIntersect(lineComingOut, b.rightSide())) {
-                intersections++;
-            }
-            if (linesIntersect(lineComingOut, b.leftSide())) {
-                intersections++;
-            }
-            if (intersections == 1) {
-                return true;
-            }
-        }
-        for (Coordinate vert : b.vertices) {
-            Coordinate adjustedVert = b.adjustForRotation(vert.copy()).add(b.getCenter());
-            // draw line from each vert to origin. if any of the lines intersect other hitbox exactly one time
-            // then it must be inside that other hitbox
-            double[] lineComingOut = {adjustedVert.x, adjustedVert.y, 0, 0}; // line from circle center to 0,0int intersections = 0;
-            int intersections = 0;
-            if (linesIntersect(lineComingOut, a.topSide())) {
-                intersections++;
-            }
-            if (linesIntersect(lineComingOut, a.botSide())) {
-                intersections++;
-            }
-            if (linesIntersect(lineComingOut, a.rightSide())) {
-                intersections++;
-            }
-            if (linesIntersect(lineComingOut, a.leftSide())) {
-                intersections++;
-            }
-            if (intersections == 1) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
-    /**
-     * returns true if this hitbox touches the given hitbox
-     * @param other hitbox to compare to
-     * @return weather or not they overlap
-     */
-    public boolean intersects(Hitbox other) {
-        if(other==null || other==this){
+        if (vertices == null) {
             return false;
         }
-        double distance = getCenter().distanceFrom(other.getCenter());
-        //box on box collision
-        if(this.type==Type.box && other.type==Type.box){
-            return doBoxAndBoxIntersect(this, other);
-        }
-        if (this.type == Type.box && other.type == Type.circle) { //box on circle collision
-            return doCircleAndBoxInterset(other, this);
-        }
-         if (this.type == Type.circle && other.type == Type.box) {
-            return doCircleAndBoxInterset(this, other);
-        }
-        if(this.type==Type.circle && other.type == Type.circle){
-            if(distance < radius + other.radius){
-                return true;
-            }
-            return false;
-        }
-        System.out.println("error with intersecting, types are " + type + " " + other.type);
-        return false;
-    }
-    /**
-     * if this hitbox would intersect another hitbox if it was moved based on input
-     * @param other hitbox to compare to
-     * @param velocity contains the amount to move this hitbox
-     * @return weather or not the hitbox would be intersecting another if moved
-     */
-    public  boolean intersectsIfMoved(Hitbox other, Coordinate velocity) {
-        Hitbox simulatedHitbox;
-        if(this.type == Type.box) {
-            Coordinate[] simulatedVerts = new Coordinate[4];
-            for (int i = 0; i < 4; i++) {
-                simulatedVerts[i] = adjustForRotation(vertices[i]);
-                simulatedVerts[i].add(velocity);
-                simulatedVerts[i].add(getCenter());
-            }            
-            simulatedHitbox = new Hitbox(simulatedVerts);
-        } else {
-            DCoordinate simulatedCenter = getCenter().copy();
-            simulatedCenter.add(velocity);
-            simulatedHitbox = new Hitbox(simulatedCenter, radius);
-        }
-        boolean result = simulatedHitbox.intersects(other);
-        return result;
-    }
-    
-    
-    
-    public boolean intersectsIfRotated(Hitbox other, double possibleRotation){
-        rotate(possibleRotation);
-        updateFarthestAndShortest();
-        boolean result = intersects(other);
-        rotate(-possibleRotation);
-        updateFarthestAndShortest();
-        return result;
-    }    
-    
-
-
-    public void render(Graphics2D g){
-        Color col = g.getColor();
-        if(host!=null && !host.isSolid){
-                g.setColor(Color.blue);
-        }
-        if(this.type == Type.box){ 
-            //render all sides
-            g.drawLine((int) leftSide()[0], (int) leftSide()[1], (int) leftSide()[2], (int) leftSide()[3]);
-            g.drawLine((int) rightSide()[0], (int) rightSide()[1], (int) rightSide()[2], (int) rightSide()[3]);
-            g.drawLine((int) topSide()[0], (int) topSide()[1], (int) topSide()[2], (int) topSide()[3]);
-            g.drawLine((int) botSide()[0], (int) botSide()[1], (int) botSide()[2], (int) botSide()[3]);
-        } else if (type == Type.circle) {
-            g.drawOval((int) (getCenter().x-radius), (int) (getCenter().y-radius), (int) radius*2, (int) radius*2);
-        }
-        g.setColor(col);
+        double[] poly = new double[8];
+        writeWorldPolygon(poly, 0, 0, rotation);
+        return polygonsOverlap(poly, band);
     }
 
-    public double getFarthestRange() {
-        return farthestRange;
-    }
-    
-    public double getShortestRange() {
-        return shortestRange;
-    }
-    
     /**
      * gets smallest rectangle in the game world that can surround this hitbox
+     *
      * @return rectangle
      */
     public Rectangle getBounds() {
+        DCoordinate center = getCenter();
         if (type == Type.circle) {
-            // For circles, return a square that contains the circle
-            DCoordinate center = getCenter();
             return new Rectangle(
-                (int)(center.x - radius),
-                (int)(center.y - radius),
-                (int)(radius * 2),
-                (int)(radius * 2)
-            );
-        } else {
-            // For boxes, find min/max of all vertices
-            DCoordinate[] renderVerts = getRenderVerts();
-            int minX = Integer.MAX_VALUE;
-            int minY = Integer.MAX_VALUE;
-            int maxX = Integer.MIN_VALUE;
-            int maxY = Integer.MIN_VALUE;
-            
-            for (DCoordinate vert : renderVerts) {
-                minX = Math.min(minX, (int)vert.x);
-                minY = Math.min(minY, (int)vert.y);
-                maxX = Math.max(maxX, (int)vert.x);
-                maxY = Math.max(maxY, (int)vert.y);
-            }
-            
-            return new Rectangle(
-                minX,
-                minY,
-                maxX - minX,
-                maxY - minY
-            );
+                    (int) (center.x - radius),
+                    (int) (center.y - radius),
+                    (int) (radius * 2),
+                    (int) (radius * 2));
         }
+        if (vertices == null) {
+            return new Rectangle((int) center.x, (int) center.y, 0, 0);
+        }
+        double[] poly = new double[8];
+        writeWorldPolygon(poly, 0, 0, rotation);
+        double minX = poly[0], maxX = poly[0], minY = poly[1], maxY = poly[1];
+        for (int i = 1; i < 4; i++) {
+            double x = poly[i << 1], y = poly[(i << 1) + 1];
+            if (x < minX) {
+                minX = x;
+            }
+            if (x > maxX) {
+                maxX = x;
+            }
+            if (y < minY) {
+                minY = y;
+            }
+            if (y > maxY) {
+                maxY = y;
+            }
+        }
+        // Edges are truncated to whole pixels. One-way blockers compare them to decide whether a
+        // resting body is above a surface, so the exact rounding is part of that contact test.
+        return new Rectangle((int) minX, (int) minY, (int) maxX - (int) minX, (int) maxY - (int) minY);
     }
-    
+
+    /* ==================================================================
+     *  debug rendering
+     * ================================================================== */
+
+    public void render(Graphics2D g) {
+        Color col = g.getColor();
+        if (host != null && !host.isSolid) {
+            g.setColor(Color.blue);
+        }
+        if (type == Type.circle) {
+            DCoordinate center = getCenter();
+            g.drawOval((int) (center.x - radius), (int) (center.y - radius),
+                    (int) (radius * 2), (int) (radius * 2));
+        } else if (vertices != null) {
+            double[] poly = new double[8];
+            writeWorldPolygon(poly, 0, 0, rotation);
+            for (int i = 0; i < 4; i++) {
+                int j = (i + 1) & 3;
+                g.drawLine((int) poly[i << 1], (int) poly[(i << 1) + 1],
+                        (int) poly[j << 1], (int) poly[(j << 1) + 1]);
+            }
+        }
+        g.setColor(col);
+    }
 }

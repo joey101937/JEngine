@@ -104,8 +104,16 @@ public class HixboxTest {
     
     @Test
     public void circleOnCircle4() {
+        // exactly r1+r2 apart: contact, which counts as a collision for every shape pairing
         Hitbox c1 = new Hitbox(new DCoordinate(0,0), 10);
         Hitbox c2 = new Hitbox(new DCoordinate(20,0), 10);
+        assert (c1.intersects(c2));
+    }
+
+    @Test
+    public void circleOnCircle4b() {
+        Hitbox c1 = new Hitbox(new DCoordinate(0,0), 10);
+        Hitbox c2 = new Hitbox(new DCoordinate(21,0), 10);
         assert !(c1.intersects(c2));
     }
     

@@ -54,10 +54,6 @@ public class ClampedResolver implements CollisionResolver {
     public CollisionResult resolve(GameObject2 self, DCoordinate proposedMovement,
                                    List<GameObject2> parts, List<GameObject2> candidates,
                                    ContactSink contacts) {
-        Coordinate rounded = new Coordinate(
-                proposedMovement.x >= 0 ? (int) Math.ceil(proposedMovement.x) : (int) Math.floor(proposedMovement.x),
-                proposedMovement.y >= 0 ? (int) Math.ceil(proposedMovement.y) : (int) Math.floor(proposedMovement.y));
-
         double allowX = 1.0;
         double allowY = 1.0;
 
@@ -74,7 +70,7 @@ public class ClampedResolver implements CollisionResolver {
                 Hitbox theirs = other.getHitbox();
                 // Gated on the whole movement, as in AxisCancelResolver: something the x component
                 // alone would hit, but the diagonal misses, is not in the way of where we are going.
-                if (!mine.intersectsIfMoved(theirs, rounded)) {
+                if (!mine.intersectsIfMoved(theirs, proposedMovement.x, proposedMovement.y)) {
                     continue;
                 }
                 contacts.contact(other);
@@ -213,8 +209,8 @@ public class ClampedResolver implements CollisionResolver {
     }
 
     private boolean blockedAt(Hitbox mine, Hitbox theirs, DCoordinate movement, double fraction) {
-        return mine.intersectsIfMoved(theirs,
-                new Coordinate((int) (movement.x * fraction), (int) (movement.y * fraction)));
+        // Probes at full precision: most of the bisection's steps are fractions of a pixel apart.
+        return mine.intersectsIfMoved(theirs, movement.x * fraction, movement.y * fraction);
     }
 
     private static boolean isAxisAlignedBox(Hitbox h) {
